@@ -6,7 +6,6 @@ import json
 import re
 import sys
 import warnings
-from collections import namedtuple
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
 from hashlib import sha1
@@ -39,6 +38,7 @@ from pydantic import (
 )
 
 import pudl.logging_helpers
+from pudl.metadata import descriptions
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
@@ -63,7 +63,6 @@ from pudl.metadata.helpers import (
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
-from pudl.metadata.warnings import USAGE_WARNINGS
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
@@ -1129,24 +1128,91 @@ class PudlResourceDescriptor(PudlMeta):
         code_fixes: dict = {}
         ignored_codes: list = []
 
+    class PudlDescriptionComponents(PudlMeta):
+        """Container to hold description configuration information."""
+
+        table_type: Literal["assn", "codes", "entity", "scd", "timeseries"] | None = (
+            None
+        )
+        """Indicates the type of asset stored in this resource.
+        If None or otherwise left unset, will be filled in with a default type parsed from the resource id string."""
+        timeseries_resolution: (
+            Literal[
+                "quarterly",
+                "yearly",
+                "monthly",
+                "hourly",
+            ]
+            | None
+        ) = None
+        """If this resource has table_type timeseries, indicates the temporal resolution, otherwise None.
+        If table_type is timeseries and this value is None or otherwise left unset, will be filled in with a default resolution parsed from the resource id string."""
+        layer: Literal["raw", "_core", "core", "_out", "out", "test"] | None = None
+        """Indicates the degree of processing applied to the data in this resource.
+        If None or otherwise left unset, will be filled in with a default layer parsed from the resource id string."""
+        source: str | None = None
+        """Indicates the source we wish to display for this resource; distinct from PudlResourceDescriptor.sources because here we want the majority source (or summary source if truly mixed) and not a complete list of all sources used for this resource.
+        If None or otherwise left unset, will be filled in with a default source parsed from the resource id string."""
+        usage_warnings: list[str | dict] | None = None
+        """List of string keys (for common warnings; see pudl.metadata.warnings) and dicts (for custom warnings) stating necessary precautions for using this resource.
+
+        Usage Warnings are a way for us to quickly and skim-ably tell users about analysis hazards when using a particular table.
+        It has two goals:
+
+            (1) help users quickly reach a point of success in their use of our data, and
+            (2) reduce the incidence of repeated questions and bug-like reports due to these inescapable hazards.
+
+        Reserve this field for severe and/or frequent problems an unfamiliar user may encounter, and list lighter or edge-case problems in ``description_details``.
+
+        The list can contain two kinds of entries:
+
+            * a string, which should match one of the keys in pudl.metadata.warnings.USAGE_WARNINGS
+            * a dict, which should contain two keys:
+                * "type" - a short code for the warning, which doesn't need to be unique and will only appear in preview & debugging tooling, not to users
+                * "description" - the one-to-two-sentence summary of a warning used only on this particular resource
+
+        The system will automatically detect and include the following warnings based on the resource id string and schema information (see pudl.metadata.descriptions.ResourceDescriptionBuilder._assemble_usage_warnings):
+
+            * multiple_inputs
+            * ferc_is_hard
+
+        Any items provided here will be listed before the automatically detected warnings.
+
+        If None or otherwise left unset, will be filled in with auto warnings only. If no auto warnings apply, hides the Usage Warnings section entirely."""
+        description_summary: str | None = None
+        """A brief (~one-line) description of the contents of this resource.
+        If None or otherwise left unset, will be left blank.
+
+        If filled, should support whichever of the following scenarios is most appropriate for this resource:
+
+            * the table_type is set or can be automatically detected: this value should complete the sentence corresponding to pudl.metadata.descriptions.table_type_fragments[table_type]
+            * the table_type is None/unset _and_ is not named according to a standard table type listed in pudl.metadata.descriptions.table_type_fragments: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
+        """
+        description_layer: str | None = None
+        """Unusual details about this resource's level of processing that don't fall into the normal definition of raw/core/_core/out/_out/etc.
+        If None or otherwise left unset, will be left blank.
+        This should only be set in truly obscure situations. If set, should be a complete sentence."""
+        description_source: str | None = None
+        """A brief refinement on the source data for this table, such as indicating the Schedule or other section number.
+        If None or otherwise left unset, will be left blank.
+        If set, should make sense when displayed directly after the title of a datasource (see pudl.metadata.descriptions.source_descriptions); parentheticals work best here."""
+        description_primary_key: str | None = None
+        """For resources with no primary key, a brief summary of what each row contains, and perhaps why a primary key doesn't make sense for this table.
+        If None or otherwise left unset, will be left blank.
+        This should only be set if the resource has no natural primary key. If set, should be a complete sentence or two."""
+        description_details: str | None = None
+        """All other information about this resource's construction and intended use, including guidelines and recommendations for best results.
+        If None or otherwise left unset, will be left blank; hides the Additional Details section entirely.
+
+        Q3 2025 Migration Mode variance: if PudlResourceDescriptor.description is a string, it gets moved here so you can see the old description content in the Additional Details section of the preview.
+
+        May also include more-detailed explanations of listed usage warnings."""
+
     # TODO (daz) 2024-02-09: with a name like "title" you might imagine all
     # resources would have one...
     title: str | None = None
-    # this is a legacy field until we get all the metadata migrated
-    description: str | None = None
-    # extended metadata
-    # these are the new sections; all are optional and are presented alongside basic info
-    description_summary: str | None = None
-    description_layer: str | None = None
-    description_datasource: str | None = None
-    description_primarykey: str | None = None
-    description_details: str | None = None
-    # these are overrides for extracted basic info
-    table_type: str | None = None
-    timeseries_resolution: str | None = None
-    layer: str | None = None
-    usage_warnings: list[Any] | None = None
-    # /extended metadata
+    # the str type is legacy support and should be removed once we get all the metadata migrated
+    description: PudlDescriptionComponents | str
     schema_: PudlSchemaDescriptor = pydantic.Field(alias="schema")
     encoder: PudlCodeMetadata | None = None
     source_ids: list[str] = pydantic.Field(alias="sources")
@@ -1282,18 +1348,6 @@ class Resource(PudlMeta):
     name: SnakeCase
     title: String | None = None
     description: String
-    table_type: Literal["assn", "codes", "entity", "scd", "timeseries"] | None = None
-    timeseries_resolution: (
-        Literal[
-            "quarterly",
-            "yearly",
-            "monthly",
-            "hourly",
-        ]
-        | None
-    ) = None
-    layer: Literal["raw", "_core", "core", "_out", "out", "test"] | None = None
-    usage_warnings: list[String] = []
     harvest: ResourceHarvest = ResourceHarvest()
     schema: Schema
     # Alias required to avoid shadowing Python built-in format()
@@ -1384,117 +1438,6 @@ class Resource(PudlMeta):
         return value
 
     @staticmethod
-    def _usage_warnings(resource_id: str, obj: dict) -> list:
-        """Generate full list of usage warnings for a resource.
-
-        Arguments:
-            resource_id: the resource name
-            obj: a PudlResourceDescriptor model dump of the resource
-
-        Returns: a list of all automatically-detected and manually-provided warnings for the requested resource.
-        """
-        usage_warnings = []
-        if "usage_warnings" in obj and obj["usage_warnings"]:
-            usage_warnings = list(obj["usage_warnings"])
-        if len(obj["sources"]) > 1:
-            usage_warnings.append("multiple_inputs")
-        if "ferc" in resource_id:
-            usage_warnings.append("ferc_is_hard")
-        return usage_warnings
-
-    @staticmethod
-    def _compile_description(resource_id: str, obj: dict, cleanup: bool = True):
-        """Render and set the static RST text of the resource description.
-
-        Edits ``obj`` in-place to set the "description" key to the text generated by
-        rendering the resource_description template.
-
-        Operates over two groups of keys on ``obj``: basic resource information keys,
-        and description section keys.
-
-        Basic resource information keys are usually automatically-generated but may
-        be overridden if the resource name is unusual. Keys which are available here
-        are:
-
-        - table_type
-        - timeseries_resolution
-        - layer
-        - usage_warnings
-
-        Only specify them if the automatic versions are wrong or can't be generated.
-
-        The description section keys are all optional, and let us make sure different
-        kinds of descriptive information are easy to find:
-
-        - description_summary
-        - description_layer
-        - description_datasource
-        - description_primarykey
-        - description_details
-
-        The old "description" key, if it exists, is moved to "description_details".
-        This provides a way for unmigrated descriptions to render acceptably. An
-        input object which specifies both "description" and "description_details" is
-        rejected.
-
-        The resource_description template combines information from both sets of keys
-        into a single static text block ready for inclusion in the Data Dictionary,
-        datapackage, or other downstream applications.
-
-        By default, once the description has rendered, all description_*
-        keys on the object are deleted so they do not cause validation problems in
-        the Resource object proper.
-
-        Arguments:
-            resource_id: the resource name
-            obj: a PudlResourceDescriptor model dump of the resource
-            cleanup: [default True] whether to remove the description_* section
-                keys. This may only be set to False if you do not plan to create a
-                Resource object from ``obj``, e.g., if you are the metadata
-                preview wizard and only calling this function to build the
-                description RST.
-        """
-        meta_from_name = MetaFromResourceName(name=resource_id, seed=obj)
-        if obj["table_type"] is None:
-            obj["table_type"] = meta_from_name.tabletype or None
-        if obj["timeseries_resolution"] is None:
-            obj["timeseries_resolution"] = meta_from_name.time or None
-        if obj["layer"] is None:
-            obj["layer"] = meta_from_name.layer
-        obj["usage_warnings"] = Resource._usage_warnings(resource_id, obj)
-        meta_from_name.meta["usage_warnings"] = [
-            uw["text"] if isinstance(uw, dict) else USAGE_WARNINGS[uw]
-            for uw in obj["usage_warnings"]
-        ]
-
-        # Render description
-        # First, move any description text from unmigrated tables into Additional Details
-        if obj["description"]:
-            assert obj["description_details"] is None, (
-                f"Both 'description' and 'description_details' are filled for table {resource_id}; you must use only one"
-            )
-            # for some reason setting this on obj doesn't work :(
-            meta_from_name.meta["description_details"] = obj["description"]
-        # okay now render the rst
-        obj["description"] = (
-            _get_jinja_environment()
-            .get_template("resource_description.rst.jinja")
-            .render(
-                resource=meta_from_name,
-                warnings=USAGE_WARNINGS,
-            )
-        ).strip()
-
-        if cleanup:
-            # drop the structured metadata keys; all their text has been sorted into
-            # the description field
-            del obj["description_summary"]
-            del obj["description_layer"]
-            del obj["description_datasource"]
-            del obj["description_primarykey"]
-            del obj["description_details"]
-
-    @staticmethod
     def dict_from_id(resource_id: str) -> dict:
         """Construct dictionary from PUDL identifier (`resource.name`)."""
         descriptor = PudlResourceDescriptor.model_validate(
@@ -1571,7 +1514,11 @@ class Resource(PudlMeta):
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
 
-        Resource._compile_description(resource_id, obj)
+        # overwrite description components with rendered text block
+        obj["description"] = descriptions.ResourceDescriptionBuilder(
+            resource_id,
+            obj,
+        ).build(_get_jinja_environment())
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -2015,209 +1962,6 @@ class Resource(PudlMeta):
 
 
 # ---- Package ---- #
-
-SourceLabels = namedtuple("SourceLabels", "label title")
-
-
-class MetaFromResourceName(PudlMeta):
-    """Class to extract standard metadata to add to Resource.description."""
-
-    name: SnakeCase
-    """Resource name (aka table name)."""
-
-    seed: dict | None = None
-    """Seed metadata; the Resource dict, if known."""
-
-    layer_map: dict = {
-        "raw": (
-            "Data has been extracted from original format, columns have been renamed for "
-            "consistency, and multiple reporting periods have been concatenated, but no "
-            "transformations or cleaning have been applied."
-        ),
-        "_core": (
-            "Data has been cleaned but not tidied/normalized. Published only "
-            "temporarily and may be removed without notice."
-        ),
-        "core": (
-            "Data has been cleaned and organized into well-modeled tables that serve as "
-            "building blocks for downstream wide tables and analyses."
-        ),
-        "_out": "Intermediate output table.",
-        "out": (
-            "Data has been expanded into a wide/denormalized format, with IDs and codes "
-            "accompanied by human-readable names and descriptions."
-        ),
-        "test": (
-            "Only used in unit and integration testing; not intended for public "
-            "consumption."
-        ),
-    }
-    layer_string: str = "|".join(layer_map.keys())
-
-    # TODO: add link to https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/{datasource_name}.html
-    # if we have a data_sources page for it.
-    datasource_map: dict = {
-        datasource_name: SourceLabels(
-            SOURCES[datasource_name]["label"], SOURCES[datasource_name]["title"]
-        )
-        for datasource_name in SOURCES
-    } | {
-        "eia": SourceLabels("EIA", "EIA -- Mix of multiple EIA Forms"),
-        "epa": SourceLabels("EPA", "EPA -- Mix of multiple EPA sources."),
-        "ferc": SourceLabels("FERC", "FERC -- Mix of multiple FERC Forms."),
-        "ferc1_xbrl": SourceLabels(
-            "FERC 1 XBRL",
-            "FERC 1 XBRL -- Post-2021 years of Annual Report of Major Electric Utilities.",
-        ),
-        "ferc1_dbf": SourceLabels(
-            "FERC 1 DBF",
-            "FERC 1 DBF -- Pre-2021 years of Annual Report of Major Electric Utilities.",
-        ),
-    }
-
-    datasource_strings: str = "|".join(datasource_map.keys())
-
-    time_detail_map: dict = {
-        "quarterly": "Quarterly",
-        "yearly": "Annual",
-        "monthly": "Monthly",
-        "hourly": "Hourly",
-    }
-    time_string: str = "|".join(time_detail_map.keys())
-
-    tabletype_map: dict = {
-        "assn": ("Association table", "providing connections between"),
-        "codes": ("Code table containing descriptions of categorical codes", "for"),
-        "entity": ("Entity table containing static information", "about"),
-        "scd": ("Slowly changing dimension (SCD) table", "describing attributes of"),
-        "timeseries": ("time series", "of"),
-    }
-    tabletype_string: str = "|".join(tabletype_map.keys())
-    table_name_pattern: str = rf"^(?P<layer>{layer_string})_(?P<datasource>{datasource_strings})__(?P<time>{time_string}|)(?:_|)(?P<tabletype>{tabletype_string}|)(?:_|)(?:_|)(?P<slug>.*)$"
-    tabletype_prompt_map: dict = {
-        "assn": "[entities].",
-        "codes": "[topic]. [typically] Manually compiled from [source data dictionaries].",
-        "entity": "[entities].",
-        "scd": "[entities] that rarely change.",
-        "timeseries": "[attributes about entities] expected to change for each reported timestamp.",
-    }
-
-    _match = None
-
-    @property
-    def match(self):
-        """Return the regex match for the table name."""
-        if self._match is None:
-            self._match = re.match(self.table_name_pattern, self.name)
-        return self._match
-
-    @property
-    def layer(self):
-        """Layer extracted from table name."""
-        return self.match.group("layer")
-
-    @property
-    def datasource(self):
-        """Datasource extracted from table name."""
-        return self.match.group("datasource")
-
-    @property
-    def datasource_labels(self):
-        """Labels (label, title) for datasource extracted from table name."""
-        return self.datasource_map[self.datasource]
-
-    @property
-    def tabletype(self):
-        """Table type extracted from table name."""
-        if tt := self.match.group("tabletype"):
-            return tt
-        if self.match.group("time"):
-            return "timeseries"
-        return ""
-
-    @property
-    def time(self):
-        """Time (detail) extracted from table name."""
-        return self.match.group("time")
-
-    @property
-    def slug(self):
-        """Slug extracted from table name.
-
-        Possible use case: extract what is being associated from an assn table.
-        """
-        return self.match.group("slug")
-
-    @property
-    def meta(self):
-        """Metadata dict for table."""
-        if self.seed:
-            return self.seed
-        return RESOURCE_METADATA.get(self.name, {})
-
-    @model_validator(mode="after")
-    def table_name_check(self: Self):
-        """Check the expected pattern of the table name."""
-        if not self.match:
-            raise ValueError(
-                f"Table name not formatted as expected. Table name found: {self.name}.\nExpected table name pattern: {self.table_name_pattern}"
-            )
-        return self
-
-    def description_layer(self) -> str:
-        """Return a layer description from the resource name."""
-        return self.layer_map[self.layer]
-
-    def description_datasource(self) -> str:
-        """Return a description of the datasource from the table name."""
-        return self.datasource_labels.title
-
-    def description_tabletype(self) -> str:
-        """Return a description of the table type from the table name."""
-        return self.tabletype_map.get(self.tabletype, "")
-
-    def description_tabletype_prompt(self) -> str:
-        """Return a description prompt for the table type."""
-        return self.tabletype_prompt_map.get(self.tabletype, "")
-
-    def description_time(self) -> str:
-        """Return a description of the time-dimension from table name."""
-        # TODO: ?maybe? we could add the date column into the description.
-        # we'd need to look into the table's columns via its metadata
-        return self.time_detail_map.get(self.time, "")
-
-    def description_primarykey(self) -> str:
-        """Return a description of the primary key from structured metadata."""
-        if "schema" not in self.meta:
-            return "This table is not listed in RESOURCE_METADATA and I can not find its schema."
-        if (
-            "primary_key" in self.meta["schema"]
-            and len(self.meta["schema"]["primary_key"]) > 0
-        ):
-            return ", ".join(self.meta["schema"]["primary_key"])
-        return "This table has no primary key."
-
-    def description_primarykey_prompt(self) -> str:
-        """Return a description prompt for the primary key."""
-        if "schema" not in self.meta:
-            return "This table is not listed in RESOURCE_METADATA and I can not find its schema."
-        if (
-            "primary_key" in self.meta["schema"]
-            and len(self.meta["schema"]["primary_key"]) > 0
-        ):
-            return ""
-        return "Each row represents [...]"
-
-    def summarize(self) -> str:
-        """Return a summary of extracted table attributes."""
-        return f"""
-{self.name}
-Layer  [{self.layer}]: {self.description_layer()}
-Source [{self.datasource}]: {self.description_datasource()}
-Time   [{self.time}]: {self.description_time()}
-Type   [{self.tabletype}]: {self.description_tabletype()}
-Slug:  {self.slug}
-PK:    {self.description_primarykey()}"""
 
 
 class Package(PudlMeta):

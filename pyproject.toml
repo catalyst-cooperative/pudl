@@ -139,6 +139,7 @@ pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
 pudl_etl = "pudl.etl.cli:pudl_etl"
 pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
 dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
+resource_description = "pudl.scripts.resource_description:show_description_components"
 
 [project.urls]
 "Homepage" = "https://catalyst.coop/pudl/"

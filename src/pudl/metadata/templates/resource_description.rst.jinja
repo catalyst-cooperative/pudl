@@ -1,28 +1,27 @@
-{% set tabletype_parts = resource.description_tabletype() %}
-{{ resource.description_time() }} {{ tabletype_parts.0 }}
-{% if resource.meta.description_summary %}{{ tabletype_parts.1 }} {{ resource.meta.description_summary }}{% endif %}
+{{ descriptions.summary.description }}
 
 Processing:
-  {{ resource.description_layer() }} {{ resource.meta.description_layer|default("", true) }}
+  {{ descriptions.layer.description }}
 
 Source:
-  {{ resource.description_datasource() }} {{ resource.meta.description_datasource|default("", true) }}
+  {{ descriptions.source.description }}
 
 Primary key:
-  {{ resource.description_primarykey() }} {{ resource.meta.description_primarykey|default("", true) }}
+  {{ descriptions.primary_key.description }}
 
-{% if resource.meta.usage_warnings|default([], true)|length > 0 %}
+{% if descriptions.usage_warnings|length > 0 %}
 Usage Warnings
 ^^^^^^^^^^^^^^
 
-{% for uw in resource.meta.usage_warnings %}
-* {{ uw }}
+{% for uw in descriptions.usage_warnings %}
+* {{ uw.description }}
 {% endfor %}
 {% endif %}
 
-{% if resource.meta.description_details %}
+{% if descriptions.details.type == "True" %}
+
 Additional Details
 ^^^^^^^^^^^^^^^^^^
 
-{{ resource.meta.description_details|safe }}
+{{ descriptions.details.description|safe }}
 {% endif %}

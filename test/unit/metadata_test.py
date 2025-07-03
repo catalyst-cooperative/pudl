@@ -8,12 +8,12 @@ from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import (
     DataSource,
     Field,
-    MetaFromResourceName,
     Package,
     PudlResourceDescriptor,
     Resource,
     SnakeCase,
 )
+from pudl.metadata.descriptions import ResourceDescriptionBuilder
 from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resources import RESOURCE_METADATA
@@ -212,10 +212,16 @@ def test_frictionless_data_package_resources_populated():
     for resource in datapackage.resources:
         assert resource.name in RESOURCE_METADATA
         expected_resource = RESOURCE_METADATA[resource.name]
+        # todo: remove str option after metadata migration
+        strings_to_find = []
+        if isinstance(expected_resource["description"], str):
+            strings_to_find.append(expected_resource["description"])
+        else:
+            for k in METADATA_OVERRIDE_KEYS:
+                if k in expected_resource["description"]:
+                    strings_to_find.append(expected_resource["description"][k])
         assert any(
-            expected_resource.get(candidate)
-            and (resource.description.find(expected_resource[candidate]) >= 0)
-            for candidate in ["description"] + METADATA_OVERRIDE_KEYS
+            resource.description.find(candidate) >= 0 for candidate in strings_to_find
         )
         assert expected_resource["schema"]["fields"] == [
             f.name for f in resource.schema.fields
@@ -232,30 +238,32 @@ description_compliant_tables = [
 
 
 @pytest.mark.parametrize(
-    "resource_name", sorted(description_compliant_tables)
+    "resource_id", sorted(description_compliant_tables)
 )  # someday: sorted(PUDL_RESOURCES.keys()))
-def test_description_compliance(resource_name):
-    properties = MetaFromResourceName(name=resource_name)
+def test_description_compliance(resource_id):
+    resource_dict = RESOURCE_METADATA[resource_id]
+    assert isinstance(resource_dict["description"], dict), (
+        f"""Table {resource_id} is listed as description-compliant in metadata_test.py, but the "description" key is not a dictionary. (In theory pydantic should have screamed about that before you got this far)"""
+    )
+    builder = ResourceDescriptionBuilder(
+        resource_id=resource_id, settings=resource_dict
+    )
     name_parse = {
-        "layer": (properties.layer or properties.meta.get("layer")),
-        "description_datasource": (
-            properties.datasource or properties.meta.get("description_datasource")
-        ),
-        "table_type": (properties.tabletype or properties.meta.get("table_type")),
-        "timeseries_resolution": (
-            (properties.tabletype or properties.meta.get("table_type")) != "timeseries"
-            or (properties.time or properties.meta.get("timeseries_resolution"))
-        ),
+        "layer": builder.layer.type,
+        "description_datasource": builder.source.type,
+        "table_type": builder.summary.type.split("[")[0] != "None",
+        "timeseries_resolution": (not builder.summary.type.startswith("timeseries"))
+        or len(builder.summary.type.split("[")[1]) > 1,
     }
-    for override, has_value in name_parse.items():
+    for key, has_value in name_parse.items():
         assert has_value, (
-            f"""Table {resource_name} could not be parsed as layer_source__tabletype_slug and no overrides were set in the table metadata. Rename {resource_name} or set the following override keys: {override}"""
+            f"""Table {resource_id} could not be parsed as layer_source__tabletype_slug and no hints were set in the table metadata. Rename {resource_id} or set the following keys in RESOURCE_METADATA["{resource_id}"]["description"]: {key}"""
         )
     # todo: layer-based checks
     # todo: asset_type-based checks
     # pk-based checks
-    has_pk = "primary_key" in properties.meta["schema"]
+    has_pk = builder.primary_key.type == "True"
     if not has_pk:
-        assert "description_primarykey" in properties.meta, (
-            """Table {resource_name} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "description_primarykey" to briefly describe what each record represents and, if needed, why no primary key is possible."""
+        assert "description_primary_key" in resource_dict["description"], (
+            f"""Table {resource_id} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "description_primary_key" to briefly describe what each record represents and, if needed, why no primary key is possible."""
         )
