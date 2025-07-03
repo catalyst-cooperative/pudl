@@ -17,8 +17,12 @@ authors:
     given-names: Ella
   - family-names: Xia
     given-names: Dazhong
+  - family-names: Hoogeveen
+    given-names: Marianne
+  - family-names: Mazaitis
+    given-names: Kathryn
 
 title: "The Public Utility Data Liberation (PUDL) Project"
-version: 2025.5.0
+version: 2025.7.0
 doi: 10.5281/zenodo.3404014
-date-released: 2025-05-20
+date-released: 2025-07-03

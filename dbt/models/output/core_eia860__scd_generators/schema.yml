@@ -39,7 +39,7 @@ sources:
           - name: can_burn_multiple_fuels
           - name: deliver_power_transgrid
           - name: distributed_generation
-          - name: syncronized_transmission_grid
+          - name: synchronized_transmission_grid
           - name: turbines_num
           - name: planned_modifications
           - name: planned_net_summer_capacity_uprate_mw

@@ -393,7 +393,7 @@ def insert_run_length(  # noqa: C901
     Raises:
         ValueError: Padding must zero or greater.
         ValueError: Run length must be greater than zero.
-        ValueError: Cound not find space for run of length {length}.
+        ValueError: Could not find space for run of length {length}.
 
     Returns:
         Copy of array `x` with values inserted.
@@ -815,7 +815,7 @@ def flag_global_outlier_neighbor(
     for shift in range(1, neighbors + 1):
         # Neighbors before
         mask[:-shift][outliers[shift:]] = True
-        # Neighors after
+        # Neighbors after
         mask[shift:][outliers[:-shift]] = True
     return ts.flag(mask, ImputationReasonCodes.GLOBAL_OUTLIER_NEIGHBOR)
 
@@ -1373,7 +1373,7 @@ def simulate_nulls(
         Boolean mask of current non-null values to set to null.
 
     Raises:
-        ValueError: Cound not find space for run of length {length}.
+        ValueError: Could not find space for run of length {length}.
 
     Examples:
         >>> x = np.column_stack([[1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]])
@@ -1706,7 +1706,7 @@ def _add_simulated_flag_col(
         == flagged["simulation_month"].dt.to_period("M")
     ]
 
-    # Apend column with simulated flags to imputed dataframe
+    # Append column with simulated flags to imputed dataframe
     imputed_df["simulated_flags"] = False
     imputed_df = imputed_df.set_index(["datetime", "id_col"])
     imputed_df.loc[
@@ -2081,7 +2081,7 @@ def impute_timeseries_asset_factory(  # noqa: C901
             # Flag simulated values
             ts = ts.flag(mask.to_numpy(dtype=bool), ImputationReasonCodes.SIMULATED)
 
-        # Get flag/timeseries matricies and filter to only years with simulated data
+        # Get flag/timeseries matrices and filter to only years with simulated data
         # Given that we only impute 1 year at a time, removing years without any simulated
         # flags will not impact results
         matrix, flags = ts.to_dataframes()

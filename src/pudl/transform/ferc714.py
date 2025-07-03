@@ -1129,8 +1129,8 @@ class YearlyPlanningAreaDemandForecast:
         This function fixes the following errors:
 
         - There's one record with an NA forecast_year value. This row
-          also has no demand forcast values. Because forcast_year is a primary key
-          we can't have any NA values. Because there are no substantive forcasts
+          also has no demand forecast values. Because forecast_year is a primary key
+          we can't have any NA values. Because there are no substantive forecasts
           in this row, we can safely remove this row.
         - respondent_id_ferc714 number 107 reported their forecast_year
           as YY instead of YYYY values.
@@ -1171,7 +1171,7 @@ class YearlyPlanningAreaDemandForecast:
 
         The XBRL data had duplicate primary keys, but it was easy to parse
         them by keeping rows with the most recent publication_time value.
-        The CSVs have no such distinguishing column, dispite having some
+        The CSVs have no such distinguishing column, despite having some
         duplicate primary keys.
 
         This function takes the average of the forecast values for rows

@@ -234,7 +234,7 @@ the relationship between DBF rows and XBRL rows in
     from the XBRL data therefore allowing us to merge the data into one continuous
     timeseries. The ``row_literal`` column is the DBF label for the ``row_number`` in
     question. This ``row_literal`` must be mapped to an ``xbrl_factoid`` from the XBRL
-    data. These ``xbrl_factoid`` entires are the value columns from the raw XBRL data.
+    data. These ``xbrl_factoid`` entries are the value columns from the raw XBRL data.
 
     Look at the ``row_literal`` values for a given table and see which XBRL columns they
     correspond to. It's helpful to
@@ -279,7 +279,7 @@ you'll need to include it in the ``rename_columns`` dictionary in
 
 * Consider whether the column could benefit from custom transformations. If it's
   something that could be applicable to other tables from other sources, consider
-  building it in :mod:`pudl.tranform.classes`. If it's specific to FERC1, build it in
+  building it in :mod:`pudl.transform.classes`. If it's specific to FERC1, build it in
   :mod:`pudl.transform.ferc1`. If it will only ever be relevant to one table in FERC1,
   build it in the table-specific class in :mod:`pudl.transform.ferc1`, create an
   override for one of the high-level transform functions, and call it there. Make sure

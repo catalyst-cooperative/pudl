@@ -75,7 +75,7 @@ The imputation algorithm aligns all of the timeseries in the input table based o
 offset from UTC. Because the primary electricity demand periodicity is diurnal, the data
 is reshaped to allow all the individual days of data to be compared with each other.
 Then it identifies which sets of timeseries serve as the best references for each other
-to impute missing values using information from those best referenece timeseries.
+to impute missing values using information from those best reference timeseries.
 
 This means we have to choose what collection of timeseries make sense to impute together
 in a single run. For example, the EIA-930 includes both BA-level data and more granular
