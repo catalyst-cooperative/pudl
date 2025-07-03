@@ -4,6 +4,7 @@ sources:
     tables:
       - name: _core_eia860__fgd_equipment
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: _core_eia860__fgd_equipment
               partition_column: report_date
