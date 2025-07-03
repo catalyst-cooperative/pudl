@@ -280,7 +280,7 @@ FIELD_DTYPES: dict[str, str] = {
 
 RESOURCES: list[dict[str, Any]] = [
     {
-        "name": "plant_entity_eia860",
+        "name": "test_eia860__entity_plants",
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "state", "balancing_authority_code_eia"],
@@ -288,7 +288,7 @@ RESOURCES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "generator_entity_eia860",
+        "name": "test_eia860__entity_generators",
         "harvest": {"harvest": True},
         "schema": {
             "fields": [
@@ -365,11 +365,11 @@ for i, d in enumerate(RESOURCES):
     RESOURCES[i] = Resource(**d)
 
 EXPECTED_DFS: dict[str, pd.DataFrame] = {
-    "plant_entity_eia860": pd.DataFrame(
+    "test_eia860__entity_plants": pd.DataFrame(
         columns=["plant_id_eia", "state", "balancing_authority_code_eia"],
         data=[(3, "AL", "SOCO"), (4, np.nan, np.nan)],
     ),
-    "generator_entity_eia860": pd.DataFrame(
+    "test_eia860__entity_generators": pd.DataFrame(
         columns=[
             "plant_id_eia",
             "generator_id",
