@@ -33,7 +33,7 @@ WITH column_null_checks AS (
                 COUNT({{ column_name }}) as non_null_count
             FROM {{ model }}
             WHERE {{ condition }}
-            HAVING COUNT({{ column_name }}) = 0
+            HAVING COUNT(*) > 0 AND COUNT({{ column_name }}) = 0
         {% endset %}
     {% else %}
         {% set check %}
