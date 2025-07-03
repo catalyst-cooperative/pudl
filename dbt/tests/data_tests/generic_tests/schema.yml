@@ -42,6 +42,21 @@ macros:
     description: Check that there are no null rows in the table
   - name: test_not_all_null
     description: Check that not all values in a column are null
+  - name: test_expect_columns_not_all_null
+    description: >
+      Check that all columns in a table are not entirely NULL. Can exclude specific
+      columns and apply conditional checks (e.g., only check for NULLs when certain
+      conditions are met).  Uses DuckDB's DESCRIBE to dynamically discover column names.
+    arguments:
+      - name: exclude_columns
+        type: list
+        description: List of column names to exclude from the null check (optional, default empty list).
+      - name: conditional_columns
+        type: dict
+        description: >
+          Dictionary mapping column names to SQL conditions. For each column, the null
+          check will only be applied to rows matching the condition (optional, default
+          empty dict).
   - name: test_expect_complete_valid_ownership
     description: >
       Check whether ``fraction_owned`` columns sum too high (for any individual
