@@ -84,6 +84,8 @@ Deprecations
   output management class, and have stopped distributing a handful of tables that were
   only around to allow the behavior of that class to be maintained. See issues
   :issue:`3215,2911` and PR :pr:`4316`.
+* Undeploy superset, given that we are going with Marimo for our usage metrics
+  dashboards, and the Eel Hole for publicly facing data access. See PR :pr:`4353`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
