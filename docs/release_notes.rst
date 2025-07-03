@@ -9,6 +9,32 @@ v2025.XX.x (2025-MM-DD)
 New Data
 ^^^^^^^^
 
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+.. _release-v2025.7.0:
+
+---------------------------------------------------------------------------------------
+v2025.7.0 (2025-07-03)
+---------------------------------------------------------------------------------------
+
+This release integrates early release annual 2024 data for the EIA Forms 860 and 923,
+as well as fresh EIA 860M monthly data. It also includes a few small bug-fixes, some of
+which result in minor changes to the database schema. It also removes the deprecated
+``PudlTabl`` output management class.
+
+We are experimenting a new **monthly** release schedule for PUDL, to keep the EIA 860M
+data as fresh as possible. This is the first of those monthly releases.
+
+New Data
+^^^^^^^^
+
 EIA AEO
 ~~~~~~~
 
