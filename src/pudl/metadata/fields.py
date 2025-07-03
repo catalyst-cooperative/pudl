@@ -5925,7 +5925,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "still charge from the grid)."
         ),
     },
-    "id_dc_coupled_tightly": {
+    "is_dc_coupled_tightly": {
         "type": "boolean",
         "description": (
             "Indicates if this energy storage device is DC tightly coupled (means the energy "

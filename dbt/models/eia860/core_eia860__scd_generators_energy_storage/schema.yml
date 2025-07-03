@@ -35,7 +35,7 @@ sources:
           - name: stored_excess_wind_and_solar_generation
           - name: is_ac_coupled
           - name: is_dc_coupled
-          - name: id_dc_coupled_tightly
+          - name: is_dc_coupled_tightly
           - name: is_independent
           - name: is_transmission_and_distribution_asset_support
           - name: is_direct_support
