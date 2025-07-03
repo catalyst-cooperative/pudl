@@ -157,7 +157,7 @@ class ResourceDescriptionBuilder:
         if isinstance(settings.get("description"), dict):
             settings = settings | settings["description"]
 
-        # this is a little gross but callling 5 methods with the same signature individually makes me sad
+        # this is a little gross but calling 5 methods with the same signature individually makes me sad
         for trait in ["summary", "layer", "source", "primary_key", "details"]:
             getattr(self, f"_create_{trait}_description")(settings, defaults)
         self._assemble_usage_warnings(settings, defaults)
