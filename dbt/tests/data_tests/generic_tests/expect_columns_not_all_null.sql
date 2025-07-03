@@ -25,8 +25,10 @@ WITH column_null_checks AS (
         {% set condition = conditional_columns[column_name] %}
         {% set check %}
             SELECT
+                '{{ model.name }}' as table_name,
                 '{{ column_name }}' as failing_column,
                 'Conditional check failed: {{ condition }}' as failure_reason,
+                '{{ condition | replace("'", "''") }}' as row_condition,
                 COUNT(*) as total_rows_matching_condition,
                 COUNT({{ column_name }}) as non_null_count
             FROM {{ model }}
@@ -36,8 +38,10 @@ WITH column_null_checks AS (
     {% else %}
         {% set check %}
             SELECT
+                '{{ model.name }}' as table_name,
                 '{{ column_name }}' as failing_column,
                 'Column is entirely NULL' as failure_reason,
+                'N/A (entire table)' as row_condition,
                 COUNT(*) as total_rows_matching_condition,
                 COUNT({{ column_name }}) as non_null_count
             FROM {{ model }}
@@ -50,7 +54,7 @@ WITH column_null_checks AS (
 {% if checks %}
     {{ checks | join('\nUNION ALL\n') }}
 {% else %}
-    SELECT NULL as failing_column WHERE FALSE
+    SELECT NULL as table_name, NULL as failing_column, NULL as failure_reason, NULL as row_condition WHERE FALSE
 {% endif %}
 )
 
