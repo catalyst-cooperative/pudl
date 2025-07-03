@@ -87,6 +87,7 @@ dependencies = [
     "sqlalchemy>=2",
     "sqlglot>=26",
     "timezonefinder>=6.5",
+    "typos>1.33,<1.34", # Spell-checker
     "universal_pathlib>=0.2",
     "urllib3>=2.4",
     "xlsxwriter>=3.2", # pandas[excel]
@@ -388,3 +389,44 @@ modules = [
     { type = "module", name = "pudl.etl" },
     { type = "module", name = "pudl.ferc_to_sqlite" },
 ]
+
+[tool.typos.default]
+# Ignore spellchecking all lines with # spellchecker:ignore
+extend-ignore-re = ["(?Rm)^.*(#|//)\\s*spellchecker:ignore$"]
+
+[tool.typos.default.extend-words]
+# Add words that should be excepted from spell-checking
+ACI = "ACI"
+AER = "AER"
+AKS = "AKS"
+BA = "BA"
+BCK = "BCK"
+consit = "consit"
+cll = "cll"
+EDE = "EDE"
+formate = "formate"
+ISO = "ISO"
+LaMoure = "LaMoure"
+Kake = "Kake"
+MAPE = "MAPE"
+MAPP = "MAPP"
+MER = "MER"
+Moure = "Moure"
+ND = "ND"
+OT = "OT"
+othr = "othr"
+PADD = "PADD"
+PN = "PN"
+PUDL = "PUDL"
+PudlTabl = "PudlTabl"
+RTO = "RTO"
+ser = "ser"
+Tabl = "Tabl"
+TOU = "TOU"
+TRE = "TRE"
+Worchester = "Worchester"
+wrk = "wrk"
+
+
+[tool.typos.files]
+extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv", "*.html", "src/pudl/metadata/codes.py", "migrations/", "notebooks/","devtools/","test/","src/pudl/transform/params/ferc1.py"]

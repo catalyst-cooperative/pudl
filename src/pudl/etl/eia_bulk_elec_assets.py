@@ -1,4 +1,4 @@
-"""EIA Bulk Electricty Aggregate assets."""
+"""EIA Bulk Electricity Aggregate assets."""
 
 from dagster import asset
 

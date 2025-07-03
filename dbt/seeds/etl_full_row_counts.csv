@@ -980,7 +980,7 @@ core_eia__codes_storage_technology_types,,8
 core_eia__codes_wet_dry_bottom,,2
 core_eia__codes_wind_quality_class,,4
 core_eia__entity_boilers,,6905
-core_eia__entity_generators,,40803
+core_eia__entity_generators,,40826
 core_eia__entity_plants,,18360
 core_eia__entity_utilities,,16598
 core_eia__yearly_fuel_receipts_costs_aggs,2008,35222
@@ -1012,7 +1012,7 @@ core_epa__assn_eia_epacamd,2020,6427
 core_epa__assn_eia_epacamd,2021,6410
 core_epa__assn_eia_epacamd,2022,6410
 core_epa__assn_eia_epacamd,2023,6371
-core_epa__assn_eia_epacamd_subplant_ids,,42738
+core_epa__assn_eia_epacamd_subplant_ids,,42761
 core_epacems__hourly_emissions,,975299208
 core_ferc1__codes_power_purchase_types,,9
 core_ferc1__yearly_balance_sheet_assets_sched110,1994,9096
@@ -1800,7 +1800,7 @@ core_pudl__codes_imputation_reasons,,11
 core_pudl__codes_subdivisions,,69
 core_pudl__entity_plants_pudl,,20320
 core_pudl__entity_utilities_pudl,,17061
-core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities,,5535
+core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities,,5545
 core_sec10k__assn_exhibit_21_subsidiaries_and_filers,,26109
 core_sec10k__assn_sec10k_filers_and_eia_utilities,,529
 core_sec10k__changelog_company_name,,17796
@@ -3116,7 +3116,7 @@ out_ferc1__yearly_purchased_power_and_exchanges_sched326,2023,7066
 out_ferc1__yearly_purchased_power_and_exchanges_sched326,2024,7065
 out_ferc1__yearly_rate_base,1994,14718
 out_ferc1__yearly_rate_base,1995,14407
-out_ferc1__yearly_rate_base,1996,14804
+out_ferc1__yearly_rate_base,1996,14810
 out_ferc1__yearly_rate_base,1997,14547
 out_ferc1__yearly_rate_base,1998,14309
 out_ferc1__yearly_rate_base,1999,14340
@@ -3143,7 +3143,7 @@ out_ferc1__yearly_rate_base,2019,13597
 out_ferc1__yearly_rate_base,2020,13703
 out_ferc1__yearly_rate_base,2021,15219
 out_ferc1__yearly_rate_base,2022,15077
-out_ferc1__yearly_rate_base,2023,15382
+out_ferc1__yearly_rate_base,2023,15385
 out_ferc1__yearly_rate_base,2024,15196
 out_ferc1__yearly_retained_earnings_sched118,1994,2183
 out_ferc1__yearly_retained_earnings_sched118,1995,2054
@@ -3553,6 +3553,7 @@ out_sec10k__parents_and_subsidiaries,2020,30415
 out_sec10k__parents_and_subsidiaries,2021,29681
 out_sec10k__parents_and_subsidiaries,2022,29297
 out_sec10k__parents_and_subsidiaries,2023,212135
+out_sec10k__parents_and_subsidiaries,,16781
 out_sec10k__quarterly_company_information,1994,3541
 out_sec10k__quarterly_company_information,1995,3597
 out_sec10k__quarterly_company_information,1996,9153

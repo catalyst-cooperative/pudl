@@ -396,8 +396,8 @@ XBRL_TABLES = [
     "retained_earnings_unappropriated_undistributed_subsidiary_earnings_118_instant",
     "statement_of_cash_flows_120_duration",
     "statement_of_cash_flows_120_instant",
-    "statement_of_cash_flows_other_payment_for_retirement_to_financing_acitivities_120_duration",
-    "statement_of_cash_flows_other_payment_for_retirement_to_financing_acitivities_120_instant",
+    "statement_of_cash_flows_other_payment_for_retirement_to_financing_acitivities_120_duration",  # spellchecker:ignore
+    "statement_of_cash_flows_other_payment_for_retirement_to_financing_acitivities_120_instant",  # spellchecker:ignore
     "statement_of_cash_flows_sequence_other_adjustments_by_outside_forces_to_financing_cash_flows_120_duration",
     "statement_of_cash_flows_sequence_other_adjustments_by_outside_forces_to_financing_cash_flows_120_instant",
     "statement_of_cash_flows_sequence_other_adjustments_to_financing_cash_flows_120_duration",
