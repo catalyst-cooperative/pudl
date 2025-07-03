@@ -303,7 +303,15 @@ def update_row_counts(
     clobber: bool = False,
     update: bool = False,
 ) -> UpdateResult:
-    """Generate updated row counts per partition and write to csv file within dbt project."""
+    """Generate updated row counts per partition and write to CSV in our dbt project.
+
+    Args:
+        table_name: Name of the PUDL table to update row counts for.
+        partition_column: Column to use for partitioning row counts.
+        target: dbt target to write the row counts to ('etl-full' or 'etl-fast').
+        clobber: If True, overwrite existing row counts.
+        update: If True, overwrite existing row counts (same as clobber).
+    """
     existing = _get_existing_row_counts(target)
     if table_name in existing["table_name"].to_numpy() and not (clobber or update):
         return UpdateResult(
