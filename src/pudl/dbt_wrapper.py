@@ -3,6 +3,7 @@
 from contextlib import chdir
 from typing import NamedTuple, cast
 
+import dagster as dg
 import duckdb
 import pandas as pd
 from dbt.artifacts.schemas.results import TestStatus
@@ -86,3 +87,26 @@ def build_with_context(
     failure_contexts = get_context_for_nodes(failed_nodes)
 
     return BuildResult(success=build_output.success, failure_contexts=failure_contexts)
+
+
+def dagster_to_dbt_selection(
+    selection: str, defs: dg.Definitions | None = None, manifest=None
+) -> str:
+    """Translate dagster asset selection to db node selection.
+
+    * turn asset selection into asset keys
+    * turn asset keys into node names
+    * turn node names into selection string
+    """
+    if defs is None:
+        import pudl.etl
+
+        defs = pudl.etl.defs
+
+    asset_keys = dg.AssetSelection.from_string(selection).resolve(
+        defs.resolve_asset_graph()
+    )
+    # make sure there *is* a manifest - run dbt parse.
+    #
+    # open the manifest and look for and *sources* that have the name. all dagster assets are treated as sources.
+    return " ".join([f"source:pudl_dbt.pudl.{k.to_user_string()}" for k in asset_keys])
