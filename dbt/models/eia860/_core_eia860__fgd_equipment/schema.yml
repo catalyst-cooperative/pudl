@@ -8,13 +8,13 @@ sources:
               exclude_columns:
                 - sorbent_type_3
                 - sorbent_type_4
+                - so2_equipment_type_4
               conditional_columns:
                 county: EXTRACT(year FROM report_date) <= 2010
                 county_id_fips: EXTRACT(year FROM report_date) <= 2010
                 fgd_operating_date: EXTRACT(year FROM report_date) <= 2012
                 fgd_operational_status_code: EXTRACT(year FROM report_date) <= 2012
                 sludge_pond: EXTRACT(year FROM report_date) >= 2016
-                so2_equipment_type_4: EXTRACT(year FROM report_date) IN (2010, 2011)
                 fgd_manufacturer: EXTRACT(year FROM report_date) <= 2012
                 fgd_manufacturer_code: EXTRACT(year FROM report_date) <= 2012
                 steam_plant_type_code: EXTRACT(year FROM report_date) >= 2014
