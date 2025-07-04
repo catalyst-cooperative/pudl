@@ -4,11 +4,11 @@
     conditional_columns={}
 ) %}
 
--- Get all column names using DuckDB's DESCRIBE
+-- DESCRIBE implementations vary; this assumes DuckDB's
 {% set get_columns_query %}
     SELECT column_name
     FROM (DESCRIBE {{ model }})
-    WHERE column_name NOT IN ({{ "'" + exclude_columns | join("', '") + "'" if exclude_columns else "''" }})
+    WHERE column_name NOT IN ('{{ exclude_columns | join("', '") }}')
 {% endset %}
 
 {% if execute %}
@@ -18,7 +18,6 @@
     {% set column_names = [] %}
 {% endif %}
 
-WITH column_null_checks AS (
 {% set checks = [] %}
 {% for column_name in column_names %}
     {% if column_name in conditional_columns %}
@@ -51,6 +50,7 @@ WITH column_null_checks AS (
     {% do checks.append(check) %}
 {% endfor %}
 
+WITH column_null_checks AS (
 {% if checks %}
     {{ checks | join('\nUNION ALL\n') }}
 {% else %}
