@@ -5752,7 +5752,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "production tax credit (PTC) and investment tax credit (ITC). For more detail, see: "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
-        "constraints": {"enum": ["Market", "R&D"]},
+        "constraints": {"enum": ["ITC", "PTC + ITC", "PTC"]},
     },
     "projection_year": {
         "type": "integer",
