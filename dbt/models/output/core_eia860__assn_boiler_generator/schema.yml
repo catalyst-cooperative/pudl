@@ -4,7 +4,11 @@ sources:
     tables:
       - name: core_eia860__assn_boiler_generator
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              conditional_columns:
+                boiler_generator_assn_type_code: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2012
+                steam_plant_type_code: EXTRACT(year FROM report_date) >= 2014
+                data_maturity: EXTRACT(year FROM report_date) >= 2009
           - check_row_counts_per_partition:
               table_name: core_eia860__assn_boiler_generator
               partition_column: report_date
