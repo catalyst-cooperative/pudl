@@ -228,7 +228,7 @@ def restrict_train_connections_on_date_range(
 
     The training data is only the record IDs, which contain the report year inside them.
     This function compiles a regex using the date range to grab only training records
-    which contain the years in the date range followed by and preceeded by ``_`` - in
+    which contain the years in the date range followed by and preceded by ``_`` - in
     the format of ``record_id_eia``and ``record_id_ferc1``. We use that extracted year
     to determine
     """

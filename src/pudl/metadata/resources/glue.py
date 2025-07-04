@@ -36,7 +36,7 @@ what changes are made from the EPA's version.""",
     },
     "core_epa__assn_eia_epacamd_subplant_ids": {
         "description": """This table is an augmented version of the core_epa__assn_eia_epacamd
-crosswalk table which initally comes from the EPA's Github repo camd-eia-crosswalk:
+crosswalk table which initially comes from the EPA's Github repo camd-eia-crosswalk:
 https://github.com/USEPA/camd-eia-crosswalk.
 It's purpose is to connect EPA units with EIA units, and generators.
 
@@ -47,7 +47,7 @@ power plants, even of different technology or fuel types.
 EPA CEMS data combines information from several parts of a power plant:
 * emissions from smokestacks
 * fuel use from combustors
-* electricty production from generators
+* electricity production from generators
 But smokestacks, combustors, and generators can be connected in complex, many-to-many
 relationships. This complexity makes attribution difficult for, as an example,
 allocating pollution to energy producers. Furthermore, heterogeneity within plant_ids

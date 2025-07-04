@@ -355,7 +355,7 @@ def try_aggfunc(
         error: Error value, whose type and format depends on `raise`.
             Below, `x` is the original input and `e` is the original error.
 
-            * `raised=True`: A string with substitions
+            * `raised=True`: A string with substitutions
               (e.g. 'Error at {x.name}: {e}')
               that replaces the arguments of the original error.
               By default, the original error is raised unchanged.
@@ -442,7 +442,7 @@ def groupby_apply(
     Returns:
         Aggregated dataframe with `by` columns set as the index and
         an error report with (if `raised=False`)
-        a :class:`pandas.Series` for each column where errors occured.
+        a :class:`pandas.Series` for each column where errors occurred.
 
     Examples:
         >>> df = pd.DataFrame({'x': [0, 0, 1, 1], 'y': pd.Series([2, 2, 2, 3], dtype='Int64')})
@@ -530,7 +530,7 @@ def groupby_aggregate(
         Aggregated dataframe with `by` columns set as the index and
         an error report with (if `raised=False`)
         a :class:`pandas.Series` of errors (or the value returned by `error`)
-        for each column where errors occured.
+        for each column where errors occurred.
 
     Examples:
         >>> df = pd.DataFrame({

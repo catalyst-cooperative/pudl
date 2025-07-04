@@ -248,7 +248,7 @@ def _core_eia860__generators(
         "duct_burners",
         "can_burn_multiple_fuels",
         "deliver_power_transgrid",
-        "syncronized_transmission_grid",
+        "synchronized_transmission_grid",
         "solid_fuel_gasification",
         "pulverized_coal_tech",
         "fluidized_bed_tech",
@@ -721,7 +721,7 @@ def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
 
     # Combine phone number columns into one
     def _make_phone_number(col1, col2, col3):
-        """Make and validate full phone number seperated by dashes."""
+        """Make and validate full phone number separated by dashes."""
         p_num = (
             col1.astype("string")
             + "-"
@@ -1222,7 +1222,7 @@ def _core_eia860__boiler_stack_flue(
     # the individual stack or flue id columns because we can't be sure whether a
     # stack_flue_id_eia value is the stack or flue id. And we don't want to
     # missrepresent complicated relationships between stacks and flues. Also there's
-    # several instances where flue_id_eia is NA (hense the last fillna(x.stack_id_eia))
+    # several instances where flue_id_eia is NA (hence the last fillna(x.stack_id_eia))
     bsf_assn = bsf_assn.assign(
         stack_flue_id_pudl=lambda x: (
             x.stack_flue_id_eia.fillna(

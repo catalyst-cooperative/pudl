@@ -1,4 +1,4 @@
-"""PyTest cases related to generating dervied outputs."""
+"""PyTest cases related to generating derived outputs."""
 
 import logging
 
