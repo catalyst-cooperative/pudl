@@ -13,6 +13,9 @@ sources:
           - name: nuclear_unit_id
           - name: energy_source_code
           - name: fuel_type_code_pudl
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_in_set:
+                  value_set: ["nuclear"]
           - name: fuel_type_code_agg
           - name: prime_mover_code
           - name: fuel_consumed_units
