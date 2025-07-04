@@ -12,7 +12,7 @@ import yaml
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
-from pudl.dbt_wrapper import build_with_context
+from pudl.dbt_wrapper import build_with_context, dagster_to_dbt_selection
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
@@ -505,6 +505,16 @@ def update_tables(
     "--select", default="*", help="DBT selector for the asset(s) you want to validate."
 )
 @click.option(
+    "--asset-selection",
+    help=(
+        "*DAGSTER* selector for the asset(s) you want to validate."
+        "This gets translated into a DBT selection. For example, you can"
+        "use '+key:out_eia__yearly_generators' to validate"
+        "out_eia_yearly_generators and its upstream assets. Supports all the syntax"
+        "dagster does."
+    ),
+)
+@click.option(
     "--exclude",
     help="DBT selector for the asset(s) you want to exclude from validation.",
 )
@@ -515,13 +525,22 @@ def update_tables(
     help="DBT target - etl-full (default) or etl-fast.",
 )
 def validate(
-    select: str = "*", exclude: str | None = None, target: str = "etl-full"
+    select: str = "*",
+    asset_selection: str | None = None,
+    exclude: str | None = None,
+    target: str = "etl-full",
 ) -> None:
     """Validate a selection of DBT nodes.
 
     Wraps the ``dbt build`` command line so we can annotate the result with the
     actual data that was returned from the test query.
     """
+    # TODO 2025-07-03: don't let --select and --asset-selection be set at the same time
+    # TODO 2025-07-03: give --asset-selection a shorter name... -a?
+
+    if asset_selection is not None:
+        select = dagster_to_dbt_selection(asset_selection)
+
     test_result = build_with_context(
         node_selection=select,
         dbt_target=target,
