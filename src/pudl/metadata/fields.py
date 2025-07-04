@@ -5752,7 +5752,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "production tax credit (PTC) and investment tax credit (ITC). For more detail, see: "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
-        "constraints": {"enum": ["Market", "R&D"]},
+        "constraints": {"enum": ["ITC", "PTC + ITC", "PTC"]},
     },
     "projection_year": {
         "type": "integer",
@@ -5925,7 +5925,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "still charge from the grid)."
         ),
     },
-    "id_dc_coupled_tightly": {
+    "is_dc_coupled_tightly": {
         "type": "boolean",
         "description": (
             "Indicates if this energy storage device is DC tightly coupled (means the energy "
