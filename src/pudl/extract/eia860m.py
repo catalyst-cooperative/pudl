@@ -73,7 +73,7 @@ def append_eia860m(
     Args:
         eia860_raw_dfs: EIA 860 raw tables. Result of
             :meth:`pudl.extract.eia860.Extractor.extract`
-        eia860m_raw_dfs: EIA 860M raw tables. Restult of :meth:`Extractor.extract`
+        eia860m_raw_dfs: EIA 860M raw tables. Result of :meth:`Extractor.extract`
 
     Return:
         Augmented version of eia860_raw_dfs. Each raw page stored in eia860m_raw_dfs
