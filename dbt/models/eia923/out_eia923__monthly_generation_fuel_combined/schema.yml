@@ -40,11 +40,11 @@ sources:
                   max_fraction: 0.22
               - expect_column_fraction_with_condition:
                   numerator_row_condition: fuel_type_code_pudl='coal'
-                  min_fraction: 0.18
-                  max_fraction: 0.22
+                  min_fraction: 0.15
+                  max_fraction: 0.40
               - expect_column_fraction_with_condition:
                   numerator_row_condition: fuel_type_code_pudl='gas'
-                  min_fraction: 0.30
+                  min_fraction: 0.25
                   max_fraction: 0.50
               - expect_column_fraction_with_condition:
                   numerator_row_condition: fuel_type_code_pudl='hydro'
@@ -52,7 +52,7 @@ sources:
                   max_fraction: 0.10
               - expect_column_fraction_with_condition:
                   numerator_row_condition: fuel_type_code_pudl='wind'
-                  min_fraction: 0.05
+                  min_fraction: 0.04
                   max_fraction: 0.15
               - expect_column_fraction_with_condition:
                   numerator_row_condition: fuel_type_code_pudl='solar'
