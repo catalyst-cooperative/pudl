@@ -46,7 +46,7 @@ def lookup_state(state: str | int) -> dict:
           String matching is case-insensitive.
 
     Returns:
-        State identifers.
+        State identifiers.
 
     Examples:
         >>> lookup_state('alabama')
@@ -213,7 +213,7 @@ def out_ferc714__hourly_estimated_state_demand(
         "sum"
     )
     df["weight"] = df["population"] / totals
-    # Normalize county weights by county occurences (by year)
+    # Normalize county weights by county occurrences (by year)
     if mean_overlaps:
         counts = df.groupby(["county_id_fips", "year"])["county_id_fips"].transform(
             "count"

@@ -22,7 +22,7 @@ RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 # hadolint ignore=DL3059
 RUN usermod -aG postgres "$MAMBA_USER"
 
-# We use an enviroment variable to set the Postgres version because it is also used in
+# We use an environment variable to set the Postgres version because it is also used in
 # the nightly build script and this makes it easier to ensure they are all the same.
 # Remember to bump the Postgres version. Postgres 17 was released in September, 2024.
 ENV PG_VERSION=16

@@ -205,7 +205,7 @@ as we come across them again in maintaining the code.
   (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
 * No duplication of information (e.g. form names).
 * lowercase, underscores separate words (i.e. ``snake_case``).
-* Add a preceeding underscore to semi-private helper functions (functions used
+* Add a preceding underscore to semi-private helper functions (functions used
   within a single module only and not exposed via the public API).
 * When the object is a table, use the full table name (e.g. ingest_fuel_ferc1).
 * When dataframe outputs are built from multiple tables, identify the type of

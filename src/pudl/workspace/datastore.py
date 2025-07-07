@@ -472,7 +472,7 @@ def validate_cache(
 ) -> None:
     """Validate elements in the datastore cache.
 
-    Delete invalid entires from cache.
+    Delete invalid entries from cache.
     """
     for single_ds in datasets:
         num_total = 0

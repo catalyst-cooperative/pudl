@@ -31,7 +31,7 @@ PUDL uses the most recently released year of DBF data (2020) as a template for t
 database schema, since it is capable of containing all the= fields and tables found in
 the other years.  The structure of the database is also informed by other documentation
 we have been able to compile over the years from the FERC website and other sources.
-Copies of these resoruces are included in the :doc:`FERC Form 1 data source
+Copies of these resources are included in the :doc:`FERC Form 1 data source
 documentation </data_sources/ferc1>`
 
 Using this inferred structure PUDL creates an SQLite database mirroring the FERC
@@ -545,7 +545,7 @@ def extract_xbrl(
 
     Returns:
         A dictionary where keys are the names of the PUDL database tables, values are
-        dictionaries of DataFrames coresponding to the instant and duration tables from
+        dictionaries of DataFrames corresponding to the instant and duration tables from
         the XBRL derived FERC 1 database.
     """
     ferc1_xbrl_raw_dfs = {}

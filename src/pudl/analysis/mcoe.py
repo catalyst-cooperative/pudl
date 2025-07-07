@@ -426,7 +426,7 @@ def fuel_cost(
     by type of fuel (coal, oil, gas), and we know which generators use which fuel based
     on their energy_source_code and reported prime_mover. Coal plants use a little bit
     of natural gas or diesel to get started, but based on our analysis of the "pure"
-    coal plants, this amounts to only a fraction of a percent of their overal fuel
+    coal plants, this amounts to only a fraction of a percent of their overall fuel
     consumption on a heat content basis, so we're ignoring it for now.
 
     For plants whose generators all rely on the same fuel source, we simply attribute
