@@ -1976,7 +1976,11 @@ def impute_timeseries_asset_factory(  # noqa: C901
         matrix: pd.DataFrame,
     ):
         """Flag/Null anomalous and missing values."""
-        matrix, flags = flag_ruggles(matrix)
+        matrix, flags = flag_ruggles(
+            matrix,
+            min_data=settings.min_data,
+            min_data_fraction=settings.min_data_fraction,
+        )
 
         return (
             Output(
