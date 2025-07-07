@@ -1230,7 +1230,13 @@ def flag_bad_years(
 ) -> FlaggedTimeseries:
     """Flag entire years, which are missing a large portion of values (BAD_YEAR).
 
-    Nulls respondent-years with too few data.
+    This method checks two separate thresholds to determine whether a year is "bad".
+    First, it finds the range from the first non-null hour to the last non-null hour
+    for each respondent-year. If that total range is less than ``min_data``, then the
+    year is dropped. Next, it checks if the ratio of values within that range which are
+    non-null is greater than ``min_data_fraction``. If not, then the year will also be
+    dropped. This ensures that if there is a section of the year that is mostly complete,
+    even if the rest of the year is NULL, then it will still be included for imputation.
 
     Args:
         ts: Timeseries matrix as described in :class:`FlaggedTimeseries`.
@@ -1253,18 +1259,18 @@ def flag_bad_years(
     bad = fraction.gt(0) & fraction.lt(min_data_fraction)
 
     # Report nulled respondent-years
-    for mask, msg in [
-        (short, "Nulled short respondent-years (below min_data)"),
-        (bad, "Nulled bad respondent-years (below min_data_fraction)"),
-    ]:
-        row, col = mask.to_numpy().nonzero()
-        report = (
-            pd.DataFrame({"id": mask.columns[col], "year": mask.index[row]})
-            .groupby("id")["year"]
-            .apply(lambda x: np.sort(x))
+    for bad_year_idx, bad_id_idx in zip(*bad.to_numpy().nonzero(), strict=False):
+        logger.info(
+            f"{100 * (1 - (fraction.to_numpy())[bad_year_idx, bad_id_idx]):.2f}% of values are NULL"
+            f" for respondent-year {bad.columns[bad_id_idx]}-{bad.index[bad_year_idx]}. Dropping."
         )
-        with pd.option_context("display.max_colwidth", None):
-            logger.info(f"{msg}:\n{report}")
+
+    # Report nulled respondent-years
+    for short_year_idx, short_id_idx in zip(*short.to_numpy().nonzero(), strict=False):
+        logger.info(
+            f"Dropping respondent-year {short.columns[short_id_idx]}-{short.index[short_year_idx]}"
+            f" as it only has data for {int(coverage.to_numpy()[short_year_idx, short_id_idx])} hours of the year."
+        )
 
     # Set all values in short or bad respondent-years to null
     mask = (short | bad).loc[df.index.year].to_numpy()
