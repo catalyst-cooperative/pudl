@@ -119,6 +119,31 @@ sources:
                       max_value: 12.5
                   weight_column: net_generation_mwh
           - name: net_generation_mwh
+            data_tests:
+              - expect_column_fraction_with_condition:
+                  numerator_row_condition: fuel_type_code_pudl='nuclear'
+                  min_fraction: 0.18
+                  max_fraction: 0.22
+              - expect_column_fraction_with_condition:
+                  numerator_row_condition: fuel_type_code_pudl='coal'
+                  min_fraction: 0.15
+                  max_fraction: 0.40
+              - expect_column_fraction_with_condition:
+                  numerator_row_condition: fuel_type_code_pudl='gas'
+                  min_fraction: 0.25
+                  max_fraction: 0.50
+              - expect_column_fraction_with_condition:
+                  numerator_row_condition: fuel_type_code_pudl='hydro'
+                  min_fraction: 0.04
+                  max_fraction: 0.10
+              - expect_column_fraction_with_condition:
+                  numerator_row_condition: fuel_type_code_pudl='wind'
+                  min_fraction: 0.04
+                  max_fraction: 0.15
+              - expect_column_fraction_with_condition:
+                  numerator_row_condition: fuel_type_code_pudl='solar'
+                  min_fraction: 0.00
+                  max_fraction: 0.10
           - name: total_fuel_cost
           - name: total_mmbtu
           - name: associated_combined_heat_power
