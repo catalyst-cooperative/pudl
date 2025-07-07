@@ -1,20 +1,20 @@
-{{ descriptions.summary.description }}
+{{ descriptions.summary.description|safe }}
 
 Processing:
-  {{ descriptions.layer.description }}
+  {{ descriptions.layer.description|safe }}
 
 Source:
-  {{ descriptions.source.description }}
+  {{ descriptions.source.description|safe }}
 
 Primary key:
-  {{ descriptions.primary_key.description }}
+  {{ descriptions.primary_key.description|safe }}
 
 {% if descriptions.usage_warnings|length > 0 %}
 Usage Warnings
 ^^^^^^^^^^^^^^
 
 {% for uw in descriptions.usage_warnings %}
-* {{ uw.description }}
+* {{ uw.description|safe }}
 {% endfor %}
 {% endif %}
 

@@ -1159,8 +1159,8 @@ class PudlResourceDescriptor(PudlMeta):
         Usage Warnings are a way for us to quickly and skim-ably tell users about analysis hazards when using a particular table.
         It has two goals:
 
-            (1) help users quickly reach a point of success in their use of our data, and
-            (2) reduce the incidence of repeated questions and bug-like reports due to these inescapable hazards.
+            1. help users quickly reach a point of success in their use of our data, and
+            2. reduce the incidence of repeated questions and bug-like reports due to these inescapable hazards.
 
         Reserve this field for severe and/or frequent problems an unfamiliar user may encounter, and list lighter or edge-case problems in ``description_details``.
 
@@ -1168,6 +1168,7 @@ class PudlResourceDescriptor(PudlMeta):
 
             * a string, which should match one of the keys in pudl.metadata.warnings.USAGE_WARNINGS
             * a dict, which should contain two keys:
+
                 * "type" - a short code for the warning, which doesn't need to be unique and will only appear in preview & debugging tooling, not to users
                 * "description" - the one-to-two-sentence summary of a warning used only on this particular resource
 

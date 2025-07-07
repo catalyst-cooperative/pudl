@@ -93,10 +93,10 @@ class DescriptionMeta(BaseModel):
 class ResourceTrait(DescriptionMeta):
     """Keeps the categorical information for one facet of a resource together with its prose description.
 
-    type - the category code; one of the keys from the dictionaries above
-    description - the text which will be included in the resource description block. This could be
-        one of the values from the dictionaries above, or a more complex string composed of multiple
-        pieces of standardized text and manually-provided annotations.
+    * type - the category code; one of the keys from the dictionaries above
+    * description - the text which will be included in the resource description block. This could be
+      one of the values from the dictionaries above, or a more complex string composed of multiple
+      pieces of standardized text and manually-provided annotations.
     """
 
     type: str
@@ -116,17 +116,17 @@ def first_non_none(*args):
 
 
 class ResourceDescriptionBuilder:
-    """Generate the static text of a resource description from its decomposed parts.
+    r"""Generate the static text of a resource description from its decomposed parts.
 
     Information for deciding what descriptive text to display in a resource description comes from several places:
 
         * The resource metadata dictionary, containing manually-specified description components in the "description" section
         * ResourceNameComponents, which automatically extracts appropriate description components from the resource id
-        * The *_descriptions and *_fragments dictionaries in this file, which set standardized text for basic resource types
+        * The \*_descriptions and \*_fragments dictionaries in this file, which set standardized text for basic resource types
         * Some limited logic in this class which detects automatic usage warnings and primary key information
 
     In order to keep manually-specified and -maintained components to a minimum, most keys in the
-    resource metadata dictionary's description section are optional. Keys which are not manually specified are filled
+    resource metadata dictionary's description section are optional. Keys which have not been not manually specified are filled
     in using ResourceNameComponents or left blank. See pudl.metadata.PudlResourceDescriptor.PudlDescriptionComponents for
     complete documentation on manually-specifiable keys.
 
@@ -163,10 +163,10 @@ class ResourceDescriptionBuilder:
         self._assemble_usage_warnings(settings, defaults)
 
     def _create_summary_description(self, settings, defaults):
-        """Compute the Summary (first line) of the resource description.
+        """Compute the summary component (first line) of the resource description.
 
-        The Summary is standardized based on table type, and if the table type is timeseries, the timeseries resolution.
-        Any illustration, if present, is included after the timeseries resolution and table type text.
+        The summary is standardized based on table type, and if the table type is timeseries, the timeseries resolution.
+        Any illustration text, if present, is included after the standard text for the timeseries resolution and table type.
         If the timeseries resolution and table type aren't set manually and can't be auto detected, fall back to
         the description_summary key and use it as a complete sentence instead of just a predicate fragment.
         """
@@ -175,7 +175,7 @@ class ResourceDescriptionBuilder:
         )
         table_type = first_non_none(settings.get("table_type"), defaults.table_type)
         summary_annotation = settings.get("description_summary")
-        # default NONE_TABLETYPE_FRAGMENTS: temporarily accept none tabletypes during migration
+        # permit a none tabletype for weirdos like core_ferc714__respondent_id
         type_fragments = table_type_fragments.get(table_type, NONE_TABLETYPE_FRAGMENTS)
 
         components = [
@@ -201,9 +201,10 @@ class ResourceDescriptionBuilder:
 
         This function applies to any component whose computation is a straightforward cascade:
 
-            1. Use the manually-specified text
-            2. If that's not available, use the auto-extracted text
-            3. Follow up with any additional manually-specified illustrative text
+            1. Use the manually-specified type
+            2. If that's not available, use the auto-extracted type
+            3. Fetch the standard text for the computed type
+            4. Follow up with any additional manually-specified illustrative text
         """
         attr_value = first_non_none(settings.get(attr), getattr(defaults, attr))
         components = [lookup.get(attr_value), settings.get(f"description_{attr}")]
@@ -259,7 +260,7 @@ class ResourceDescriptionBuilder:
         # end TODO: remove
 
         self.details = ResourceTrait(
-            type=str("description_details" in settings),
+            type=str(settings.get("description_details") is not None),
             description=first_non_none(settings.get("description_details"), ""),
         )
 
@@ -300,7 +301,7 @@ class ResourceDescriptionBuilder:
 """
 
     def build(self, jinja_environment):
-        """Render all description components into the full static description text block."""
+        """Render all description components into the full static description text block using the resource_description template."""
         return (
             jinja_environment.get_template("resource_description.rst.jinja").render(
                 descriptions=self
@@ -314,6 +315,7 @@ class ResourceNameComponents(DescriptionMeta):
     name: str
     """Resource name (aka table name)."""
 
+    # define match groups for the different parts of a resource name
     layer_options: str = "|".join(layer_descriptions.keys())
     source_options: str = "|".join(source_descriptions.keys())
     timeseries_resolution_options: str = "|".join(
@@ -321,30 +323,30 @@ class ResourceNameComponents(DescriptionMeta):
     )
     table_type_options: str = "|".join(table_type_fragments.keys())
 
-    table_name_pattern: str = rf"^(?P<layer>{layer_options})_(?P<source>{source_options})__(?P<timeseries_resolution>{timeseries_resolution_options}|)(?:_|)(?P<table_type>{table_type_options}|)(?:_|)(?:_|)(?P<slug>.*)$"
+    resource_name_pattern: str = rf"^(?P<layer>{layer_options})_(?P<source>{source_options})__(?P<timeseries_resolution>{timeseries_resolution_options}|)(?:_|)(?P<table_type>{table_type_options}|)(?:_|)(?:_|)(?P<slug>.*)$"
 
     _match = None
 
     @property
     def match(self):
-        """Return the regex match for the table name."""
+        """Return the regex match for the resource name."""
         if self._match is None:
-            self._match = re.match(self.table_name_pattern, self.name)
+            self._match = re.match(self.resource_name_pattern, self.name)
         return self._match
 
     @property
     def layer(self):
-        """Layer extracted from table name."""
+        """Layer extracted from resource name."""
         return self.match.group("layer")
 
     @property
     def source(self):
-        """Source extracted from table name."""
+        """Source extracted from resource name."""
         return self.match.group("source")
 
     @property
     def table_type(self):
-        """Table type extracted from table name."""
+        """Table type extracted from resource name."""
         if tt := self.match.group("table_type"):
             return tt
         if self.match.group("timeseries_resolution"):
@@ -353,12 +355,12 @@ class ResourceNameComponents(DescriptionMeta):
 
     @property
     def timeseries_resolution(self):
-        """Timeseries resolution extracted from table name."""
+        """Timeseries resolution extracted from resource name."""
         return self.match.group("timeseries_resolution")
 
     @property
     def slug(self):
-        """Slug extracted from table name.
+        """Slug extracted from resource name.
 
         Possible use case: extract what is being associated from an assn table.
         """
@@ -366,9 +368,9 @@ class ResourceNameComponents(DescriptionMeta):
 
     @model_validator(mode="after")
     def table_name_check(self: Self):
-        """Check the expected pattern of the table name."""
+        """Check the expected pattern of the resource name."""
         if not self.match:
             raise ValueError(
-                f"Table name not formatted as expected. Table name found: {self.name}.\nExpected table name pattern: {self.table_name_pattern}"
+                f"Resource name not formatted as expected. Resource name found: {self.name}.\nExpected resource name pattern: {self.resource_name_pattern}"
             )
         return self

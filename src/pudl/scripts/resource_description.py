@@ -22,7 +22,7 @@ def show_description_components(name: str):
 
     These components are used to build the full resource description which goes into the data dictionary, datapackage, and other downstream applications.
 
-    Useful when adding a new table, if you have the structure installed in pudl.metadata.resources but don't yet have public documentation written.
+    Useful when adding a new table, if you have the toplevel structure installed in pudl.metadata.resources but don't yet have public documentation written.
     """
     builder = ResourceDescriptionBuilder(name, RESOURCE_METADATA[name])
     click.echo("Table found:")
