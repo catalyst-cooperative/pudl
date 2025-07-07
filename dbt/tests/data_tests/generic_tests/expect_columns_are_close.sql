@@ -16,6 +16,10 @@ WHERE
     {{ row_condition }}
 AND
 {% endif %}
-    error > tolerance
+    (
+        error > tolerance
+        OR ({{ column_a }} IS NULL AND {{ column_b }} IS NOT NULL)
+        OR ({{ column_b }} IS NOT NULL AND {{ column_a }} IS NULL)
+    )
 
 {% endtest %}
