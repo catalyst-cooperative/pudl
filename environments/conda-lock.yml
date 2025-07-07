@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 47af85c56c7d237048d44cb31ee21e1bd9cfb37f7f4668a872dbb8d66d5c5411
-    osx-64: 3df8827b921cfcb80c62c9ef260b3744df02093fe7729461a7969813c76e9e88
-    osx-arm64: e175d28f40ff6edc69f9c3023f0eb505262c8b6daa3a0e723bc59678edf1dff9
+    linux-64: eae60f733195b94f7acbc526fb7dbebdbe77075a9460ff178b51c6965fd362ae
+    osx-64: 60ec61f8f878b4de0210a7545314751ec26cdfc391601c06cb9ca85dd261285c
+    osx-arm64: 081ac7b528b60f44d9edd9c06d2a6354466e71970d72334c0090d005e369771e
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -5387,42 +5387,42 @@ package:
     category: main
     optional: false
   - name: dbt-protos
-    version: 1.0.335
+    version: 1.0.337
     manager: conda
     platform: linux-64
     dependencies:
       protobuf: ">=3.17.1"
       python: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.335-pyhe01879c_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.337-pyhe01879c_0.conda
     hash:
-      md5: 57c9082bd1943fb9b1ec5dc4c73eca12
-      sha256: eb729f3d4d89e00943811fc57fe616cfee1879e0082e7adabfda44a11d9854a0
+      md5: d8a6165010dd60b8a7f1c1534dba546b
+      sha256: f91ce11b187b2c92a326c31a633b457026588a02fddb48ca7233d0623b880f24
     category: main
     optional: false
   - name: dbt-protos
-    version: 1.0.335
+    version: 1.0.337
     manager: conda
     platform: osx-64
     dependencies:
       protobuf: ">=3.17.1"
       python: ">=3.9,<4.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.335-pyhe01879c_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.337-pyhe01879c_0.conda
     hash:
-      md5: 57c9082bd1943fb9b1ec5dc4c73eca12
-      sha256: eb729f3d4d89e00943811fc57fe616cfee1879e0082e7adabfda44a11d9854a0
+      md5: d8a6165010dd60b8a7f1c1534dba546b
+      sha256: f91ce11b187b2c92a326c31a633b457026588a02fddb48ca7233d0623b880f24
     category: main
     optional: false
   - name: dbt-protos
-    version: 1.0.335
+    version: 1.0.337
     manager: conda
     platform: osx-arm64
     dependencies:
       protobuf: ">=3.17.1"
       python: ">=3.9,<4.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.335-pyhe01879c_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-protos-1.0.337-pyhe01879c_0.conda
     hash:
-      md5: 57c9082bd1943fb9b1ec5dc4c73eca12
-      sha256: eb729f3d4d89e00943811fc57fe616cfee1879e0082e7adabfda44a11d9854a0
+      md5: d8a6165010dd60b8a7f1c1534dba546b
+      sha256: f91ce11b187b2c92a326c31a633b457026588a02fddb48ca7233d0623b880f24
     category: main
     optional: false
   - name: dbt-semantic-interfaces
@@ -16454,39 +16454,39 @@ package:
     category: main
     optional: false
   - name: narwhals
-    version: 1.45.0
+    version: 1.46.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.45.0-pyhe01879c_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.46.0-pyhe01879c_0.conda
     hash:
-      md5: 482ef8fa195fd3119846e080e6233b1a
-      sha256: 8f0fe3d641a48b2da4573eba41f4acd2e5631714a56b574a3c44e6024636fe17
+      md5: 893a77ea59b57d6dce175864338f7a52
+      sha256: 96da946e356c91eacab0a51d93863a26998db7dcf72755e2da83c66a22febd4b
     category: main
     optional: false
   - name: narwhals
-    version: 1.45.0
+    version: 1.46.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.45.0-pyhe01879c_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.46.0-pyhe01879c_0.conda
     hash:
-      md5: 482ef8fa195fd3119846e080e6233b1a
-      sha256: 8f0fe3d641a48b2da4573eba41f4acd2e5631714a56b574a3c44e6024636fe17
+      md5: 893a77ea59b57d6dce175864338f7a52
+      sha256: 96da946e356c91eacab0a51d93863a26998db7dcf72755e2da83c66a22febd4b
     category: main
     optional: false
   - name: narwhals
-    version: 1.45.0
+    version: 1.46.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.45.0-pyhe01879c_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/narwhals-1.46.0-pyhe01879c_0.conda
     hash:
-      md5: 482ef8fa195fd3119846e080e6233b1a
-      sha256: 8f0fe3d641a48b2da4573eba41f4acd2e5631714a56b574a3c44e6024636fe17
+      md5: 893a77ea59b57d6dce175864338f7a52
+      sha256: 96da946e356c91eacab0a51d93863a26998db7dcf72755e2da83c66a22febd4b
     category: main
     optional: false
   - name: nbclient
@@ -25669,40 +25669,40 @@ package:
     category: main
     optional: false
   - name: typos
-    version: 1.33.1
+    version: 1.34.0
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
       libgcc: ">=13"
-    url: https://conda.anaconda.org/conda-forge/linux-64/typos-1.33.1-h8fae777_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/typos-1.34.0-h8fae777_0.conda
     hash:
-      md5: 6242d9e88d7a1384fde1462fee4d22a9
-      sha256: a1825943e01b6b98cc33e72b9e71310d20edf3a7fb2499b5d474b415707a2d05
+      md5: e31ae446eb567b9f330a894453b11086
+      sha256: b8ebacc5a6971149fb4eec067d48d1243995de8fdb92145eadd12f94bf538ab9
     category: main
     optional: false
   - name: typos
-    version: 1.33.1
+    version: 1.34.0
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/typos-1.33.1-h371c88c_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/typos-1.34.0-h371c88c_0.conda
     hash:
-      md5: 2f4fc9c9f4902dea337fdc8026db7db3
-      sha256: 20e69cc1fb84872cc44a1552b9296e77c121ce37b9da93a8c2b1cf2c5696cd53
+      md5: b5aa9a717a8da26210330b75ff31b716
+      sha256: 8e96013ebff778f2e5b017d83718ce860c1011c1631defb88e616e0b23d19a4f
     category: main
     optional: false
   - name: typos
-    version: 1.33.1
+    version: 1.34.0
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/typos-1.33.1-h0716509_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/typos-1.34.0-h0716509_0.conda
     hash:
-      md5: 4b56e0c93914cbf15a8160010017b6b3
-      sha256: eb36e63a325461c6c2750f9b4bd0777fe12fc704a6d5f0efa3d52cd853f95cf3
+      md5: 5ce04c5014a1ae8c97c8ebfaa2c252b6
+      sha256: 0309323403793e346c39e8680c40031ba8801422077459164b5285d9807149c0
     category: main
     optional: false
   - name: tzdata

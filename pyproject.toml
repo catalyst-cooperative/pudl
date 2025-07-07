@@ -87,7 +87,7 @@ dependencies = [
     "sqlalchemy>=2",
     "sqlglot>=26",
     "timezonefinder>=6.5",
-    "typos>1.33,<1.34", # Spell-checker
+    "typos>=1.34", # Spell-checker
     "universal_pathlib>=0.2",
     "urllib3>=2.4",
     "xlsxwriter>=3.2", # pandas[excel]
