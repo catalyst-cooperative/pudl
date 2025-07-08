@@ -1256,20 +1256,21 @@ def flag_bad_years(
     ).apply(lambda x: 1 + x.dt.days * 24 + x.dt.seconds / 3600, axis=1)
     fraction = has_data.groupby(df.index.year).sum() / coverage
     short = coverage.lt(min_data)
-    bad = fraction.gt(0) & fraction.lt(min_data_fraction)
+    bad = fraction.lt(min_data_fraction)
 
     # Report nulled respondent-years
     for bad_year_idx, bad_id_idx in zip(*bad.to_numpy().nonzero(), strict=False):
         logger.info(
             f"{100 * (1 - (fraction.to_numpy())[bad_year_idx, bad_id_idx]):.2f}% of values are NULL"
-            f" for respondent-year {bad.columns[bad_id_idx]}-{bad.index[bad_year_idx]}. Dropping."
+            f" for respondent-year {bad.columns[bad_id_idx]}-{bad.index[bad_year_idx]}. Flagging as BAD_YEAR."
         )
 
     # Report nulled respondent-years
     for short_year_idx, short_id_idx in zip(*short.to_numpy().nonzero(), strict=False):
         logger.info(
-            f"Dropping respondent-year {short.columns[short_id_idx]}-{short.index[short_year_idx]}"
-            f" as it only has data for {int(coverage.to_numpy()[short_year_idx, short_id_idx])} hours of the year."
+            f"Respondent-year {short.columns[short_id_idx]}-{short.index[short_year_idx]}"
+            f" only has data for {int(coverage.to_numpy()[short_year_idx, short_id_idx])}"
+            " hours of the year. Flagging as BAD_YEAR"
         )
 
     # Set all values in short or bad respondent-years to null
@@ -1585,7 +1586,7 @@ def impute_flagged_values(
             # Drop completely empty columns and impute
             blank = df.columns[gdf.isnull().all()]
             logger.info(
-                f"Dropping following respondents from {year} imputation: {blank}"
+                f"Dropping following BAD_YEAR respondents from {year} imputation: {blank}"
             )
             result = impute(
                 gdf.drop(columns=blank),
