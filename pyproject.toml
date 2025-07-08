@@ -36,7 +36,7 @@ dependencies = [
     "fsspec>=2025",
     "furo>=2024",
     "gcsfs>=2025",
-    "gdal==3.11.0", # pinned, because we need it to work with pudl-archiver
+    "gdal==3.11.1", # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.1",
     "grpcio==1.71.0", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.71.0", # Required by dagster, binary dependencies are flaky
