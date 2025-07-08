@@ -944,7 +944,6 @@ class DataSource(PudlMeta):
 
     name: SnakeCase
     title: String | None = None
-    label: String | None = None
     description: String | None = None
     field_namespace: String | None = None
     keywords: list[str] = []
@@ -1131,12 +1130,12 @@ class PudlResourceDescriptor(PudlMeta):
     class PudlDescriptionComponents(PudlMeta):
         """Container to hold description configuration information."""
 
-        table_type: Literal["assn", "codes", "entity", "scd", "timeseries"] | None = (
-            None
-        )
+        table_type_code: (
+            Literal["assn", "codes", "entity", "scd", "timeseries"] | None
+        ) = None
         """Indicates the type of asset stored in this resource.
         If None or otherwise left unset, will be filled in with a default type parsed from the resource id string."""
-        timeseries_resolution: (
+        timeseries_resolution_code: (
             Literal[
                 "quarterly",
                 "yearly",
@@ -1145,13 +1144,14 @@ class PudlResourceDescriptor(PudlMeta):
             ]
             | None
         ) = None
-        """If this resource has table_type timeseries, indicates the temporal resolution, otherwise None.
-        If table_type is timeseries and this value is None or otherwise left unset, will be filled in with a default resolution parsed from the resource id string."""
-        layer: Literal["raw", "_core", "core", "_out", "out", "test"] | None = None
+        """If this resource has table_type_code timeseries, indicates the temporal resolution, otherwise None.
+        If table_type_code is timeseries and this value is None or otherwise left unset, will be filled in with a default resolution parsed from the resource id string."""
+        layer_code: Literal["raw", "_core", "core", "out", "test"] | None = None
         """Indicates the degree of processing applied to the data in this resource.
         If None or otherwise left unset, will be filled in with a default layer parsed from the resource id string."""
-        source: str | None = None
-        """Indicates the source we wish to display for this resource; distinct from PudlResourceDescriptor.sources because here we want the majority source (or summary source if truly mixed) and not a complete list of all sources used for this resource.
+        source_code: str | None = None
+        """Indicates the source we wish to display for this resource; distinct from PudlResourceDescriptor.sources because here we want the majority source (or grouped source if truly mixed) and not a complete list of all sources used for this resource.
+        If set, should be a known data source shortcode like "eia923" or one of the grouped shortcodes from pudl.metadata.descriptions.source_descriptions.
         If None or otherwise left unset, will be filled in with a default source parsed from the resource id string."""
         usage_warnings: list[str | dict] | None = None
         """List of string keys (for common warnings; see pudl.metadata.warnings) and dicts (for custom warnings) stating necessary precautions for using this resource.
@@ -1180,39 +1180,39 @@ class PudlResourceDescriptor(PudlMeta):
         Any items provided here will be listed before the automatically detected warnings.
 
         If None or otherwise left unset, will be filled in with auto warnings only. If no auto warnings apply, hides the Usage Warnings section entirely."""
-        description_summary: str | None = None
+        additional_summary_text: str | None = None
         """A brief (~one-line) description of the contents of this resource.
         If None or otherwise left unset, will be left blank.
 
         If filled, should support whichever of the following scenarios is most appropriate for this resource:
 
-        * the table_type is set or can be automatically detected: this value should complete the sentence corresponding to pudl.metadata.descriptions.table_type_fragments[table_type]
-        * the table_type is None/unset _and_ is not named according to a standard table type listed in pudl.metadata.descriptions.table_type_fragments: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
+        * the table_type_code is set or can be automatically detected: this value should complete the sentence corresponding to pudl.metadata.descriptions.table_type_fragments[table_type_code]
+        * the table_type_code is None/unset _and_ the resource is not named according to a standard table type listed in pudl.metadata.descriptions.table_type_fragments: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
         """
-        description_layer: str | None = None
-        """Unusual details about this resource's level of processing that don't fall into the normal definition of raw/core/_core/out/_out/etc.
+        additional_layer_text: str | None = None
+        """Unusual details about this resource's level of processing that don't fall into the normal definition of raw/core/_core/out/etc.
         If None or otherwise left unset, will be left blank.
         This should only be set in truly obscure situations. If set, should be a complete sentence."""
-        description_source: str | None = None
+        additional_source_text: str | None = None
         """A brief refinement on the source data for this table, such as indicating the Schedule or other section number.
         If None or otherwise left unset, will be left blank.
         If set, should make sense when displayed directly after the title of a datasource (see pudl.metadata.descriptions.source_descriptions); parentheticals work best here."""
-        description_primary_key: str | None = None
+        additional_primary_key_text: str | None = None
         """For resources with no primary key, a brief summary of what each row contains, and perhaps why a primary key doesn't make sense for this table.
         If None or otherwise left unset, will be left blank.
         This should only be set if the resource has no natural primary key. If set, should be a complete sentence or two."""
-        description_details: str | None = None
+        additional_details_text: str | None = None
         """All other information about this resource's construction and intended use, including guidelines and recommendations for best results.
         If None or otherwise left unset, will be left blank; hides the Additional Details section entirely.
 
         Q3 2025 Migration Mode variance: if PudlResourceDescriptor.description is a string, it gets moved here so you can see the old description content in the Additional Details section of the preview.
 
-        May also include more-detailed explanations of listed usage warnings."""
+        May also include more-detailed explanations of listed usage warnings."""  # TODO: drop migration mode variance after migration is complete
 
     # TODO (daz) 2024-02-09: with a name like "title" you might imagine all
     # resources would have one...
     title: str | None = None
-    # the str type is legacy support and should be removed once we get all the metadata migrated
+    # TODO: the str type is legacy support and should be removed once we get all the metadata migrated
     description: PudlDescriptionComponents | str
     schema_: PudlSchemaDescriptor = pydantic.Field(alias="schema")
     encoder: PudlCodeMetadata | None = None

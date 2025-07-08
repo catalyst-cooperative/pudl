@@ -196,14 +196,14 @@ def test_frictionless_data_package_non_empty():
 
 
 METADATA_OVERRIDE_KEYS = [
-    "layer",
-    "table_type",
-    "timeseries_resolution",
-    "description_summary",
-    "description_layer",
-    "description_source",
-    "description_primary_key",
-    "description_details",
+    "layer_code",
+    "table_type_code",
+    "timeseries_resolution_code",
+    "additional_summary_text",
+    "additional_layer_text",
+    "additional_source_text",
+    "additional_primary_key_text",
+    "additional_details_text",
 ]
 
 
@@ -212,7 +212,7 @@ def test_frictionless_data_package_resources_populated():
     for resource in datapackage.resources:
         assert resource.name in RESOURCE_METADATA
         expected_resource = RESOURCE_METADATA[resource.name]
-        # todo: remove str option after metadata migration
+        # TODO: remove str option after metadata migration
         strings_to_find = []
         if isinstance(expected_resource["description"], str):
             strings_to_find.append(expected_resource["description"])
@@ -250,11 +250,13 @@ def test_description_compliance(resource_id):
         resource_id=resource_id, settings=resource_dict
     )
     name_parse = {
-        "layer": builder.layer.type,
-        "description_datasource": builder.source.type,
-        "table_type": builder.summary.type.split("[")[0] != "None",
-        "timeseries_resolution": (not builder.summary.type.startswith("timeseries"))
-        or len(builder.summary.type.split("[")[1]) > 1,
+        "layer_code": builder.layer.type,
+        "source_code": builder.source.type,
+        "table_type_code": builder.summary.type.split("[")[0] != "None",
+        "timeseries_resolution_code": (
+            (not builder.summary.type.startswith("timeseries"))
+            or len(builder.summary.type.split("[")[1]) > 1
+        ),
     }
     for key, has_value in name_parse.items():
         assert has_value, (
@@ -265,6 +267,6 @@ def test_description_compliance(resource_id):
     # pk-based checks
     has_pk = builder.primary_key.type == "True"
     if CHECK_DESCRIPTION_PRIMARY_KEYS and not has_pk:  # pragma: no cover
-        assert "description_primary_key" in resource_dict["description"], (
-            f"""Table {resource_id} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "description_primary_key" to briefly describe what each record represents and, if needed, why no primary key is possible."""
+        assert "additional_primary_key_text" in resource_dict["description"], (
+            f"""Table {resource_id} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "additional_primary_key_text" to briefly describe what each record represents and, if needed, why no primary key is possible."""
         )
