@@ -1245,7 +1245,7 @@ def flag_bad_years(
           non-null hour in a year.
     """
     # Identify respondent-years where data coverage is below thresholds
-    df, _ = ts.to_dataframes()
+    df, flags = ts.to_dataframes()
     has_data = ~df.isnull()
     coverage = (
         # Last timestamp with demand in year
@@ -1254,18 +1254,26 @@ def flag_bad_years(
         # First timestamp with demand in year
         has_data.groupby(df.index.year).idxmax()
     ).apply(lambda x: 1 + x.dt.days * 24 + x.dt.seconds / 3600, axis=1)
-    fraction = has_data.groupby(df.index.year).sum() / coverage
-    short = coverage.lt(min_data)
-    bad = fraction.lt(min_data_fraction)
 
-    # Report nulled respondent-years
+    fraction = has_data.groupby(df.index.year).sum() / coverage
+    has_flags = (flags.notnull() & (flags != "missing_value")).groupby(
+        flags.index.year
+    ).sum() > 0
+
+    # Get mask of respondent-years for which there are fewer than min_data non-null hours
+    short = coverage.lt(min_data)
+
+    # Get mask of respondent-years for which the ratio of non-null values is below min_data_fraction
+    bad = fraction.lt(min_data_fraction) & has_flags
+
+    # Report bad respondent-years
     for bad_year_idx, bad_id_idx in zip(*bad.to_numpy().nonzero(), strict=False):
         logger.info(
             f"{100 * (1 - (fraction.to_numpy())[bad_year_idx, bad_id_idx]):.2f}% of values are NULL"
             f" for respondent-year {bad.columns[bad_id_idx]}-{bad.index[bad_year_idx]}. Flagging as BAD_YEAR."
         )
 
-    # Report nulled respondent-years
+    # Report short respondent-years
     for short_year_idx, short_id_idx in zip(*short.to_numpy().nonzero(), strict=False):
         logger.info(
             f"Respondent-year {short.columns[short_id_idx]}-{short.index[short_year_idx]}"
@@ -1585,9 +1593,6 @@ def impute_flagged_values(
 
             # Drop completely empty columns and impute
             blank = df.columns[gdf.isnull().all()]
-            logger.info(
-                f"Dropping following BAD_YEAR respondents from {year} imputation: {blank}"
-            )
             result = impute(
                 gdf.drop(columns=blank),
                 method=method[year],
