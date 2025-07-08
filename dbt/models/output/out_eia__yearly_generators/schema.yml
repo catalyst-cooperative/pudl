@@ -4,7 +4,71 @@ sources:
     tables:
       - name: out_eia__yearly_generators
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              conditional_columns:
+                unit_id_pudl: EXTRACT(year FROM report_date) BETWEEN 2008 AND 2024
+                planned_generator_retirement_date: EXTRACT(year FROM report_date) >= 2007
+                capacity_factor: EXTRACT(year FROM report_date) <= 2024
+                fuel_cost_per_mmbtu_source: EXTRACT(year FROM report_date) BETWEEN 2008 AND 2024
+                fuel_cost_per_mmbtu: EXTRACT(year FROM report_date) BETWEEN 2008 AND 2024
+                fuel_cost_per_mwh: EXTRACT(year FROM report_date) BETWEEN 2008 AND 2024
+                unit_heat_rate_mmbtu_per_mwh: EXTRACT(year FROM report_date) BETWEEN 2008 AND 2024
+                net_generation_mwh: EXTRACT(year FROM report_date) <= 2024
+                total_fuel_cost: EXTRACT(year FROM report_date) BETWEEN 2008 AND 2024
+                total_mmbtu: EXTRACT(year FROM report_date) BETWEEN 2008 AND 2024
+                bga_source: EXTRACT(year FROM report_date) BETWEEN 2008 AND 2024
+                carbon_capture: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024
+                can_cofire_fuels: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2024
+                deliver_power_transgrid: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2012
+                distributed_generation: EXTRACT(year FROM report_date) <= 2006
+                energy_source_1_transport_1: EXTRACT(year FROM report_date) <= 2006
+                energy_source_1_transport_2: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                energy_source_1_transport_3: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                energy_source_2_transport_1: EXTRACT(year FROM report_date) <= 2006
+                energy_source_2_transport_2: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                energy_source_2_transport_3: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                energy_source_code_2: EXTRACT(year FROM report_date) <= 2024
+                energy_source_code_3: EXTRACT(year FROM report_date) <= 2024
+                energy_source_code_4: EXTRACT(year FROM report_date) <= 2024
+                energy_source_code_5: EXTRACT(year FROM report_date) <= 2024
+                energy_source_code_6: EXTRACT(year FROM report_date) <= 2024
+                energy_storage_capacity_mwh: EXTRACT(year FROM report_date) >= 2016
+                ferc_qualifying_facility: EXTRACT(year FROM report_date) <= 2003
+                minimum_load_mw: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024
+                can_burn_multiple_fuels: EXTRACT(year FROM report_date) NOT IN (2001, 2002, 2003, 2013, 2014, 2015, 2025)
+                nameplate_power_factor: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024
+                net_capacity_mwdc: EXTRACT(year FROM report_date) >= 2015
+                other_modifications_date: EXTRACT(year FROM report_date) BETWEEN 2007 AND 2024
+                other_planned_modifications: EXTRACT(year FROM report_date) BETWEEN 2007 AND 2024
+                owned_by_non_utility: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                ownership_code: EXTRACT(year FROM report_date) <= 2024
+                planned_derate_date: EXTRACT(year FROM report_date) >= 2007
+                planned_energy_source_code_1: EXTRACT(year FROM report_date) BETWEEN 2007 AND 2024
+                planned_modifications: EXTRACT(year FROM report_date) BETWEEN 2007 AND 2012
+                planned_net_summer_capacity_derate_mw: EXTRACT(year FROM report_date) >= 2007
+                planned_net_summer_capacity_uprate_mw: EXTRACT(year FROM report_date) >= 2007
+                planned_net_winter_capacity_derate_mw: EXTRACT(year FROM report_date) BETWEEN 2007 AND 2024
+                planned_net_winter_capacity_uprate_mw: EXTRACT(year FROM report_date) BETWEEN 2007 AND 2024
+                planned_new_capacity_mw: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024
+                planned_new_prime_mover_code: EXTRACT(year FROM report_date) BETWEEN 2007 AND 2024
+                planned_repower_date: EXTRACT(year FROM report_date) BETWEEN 2007 AND 2024
+                planned_uprate_date: EXTRACT(year FROM report_date) >= 2007
+                reactive_power_output_mvar: EXTRACT(year FROM report_date) IN (2004, 2005, 2006, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024)
+                startup_source_code_1: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024
+                startup_source_code_2: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024
+                startup_source_code_3: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024
+                startup_source_code_4: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024
+                summer_capacity_estimate: EXTRACT(year FROM report_date) <= 2006
+                summer_estimated_capability_mw: EXTRACT(year FROM report_date) <= 2009
+                can_switch_oil_gas: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2024
+                synchronized_transmission_grid: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2024
+                time_cold_shutdown_full_load_code: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024
+                turbines_inverters_hydrokinetics: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024
+                turbines_num: EXTRACT(year FROM report_date) NOT IN (2013, 2014, 2025)
+                uprate_derate_completed_date: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024
+                uprate_derate_during_year: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024
+                winter_capacity_estimate: EXTRACT(year FROM report_date) <= 2006
+                winter_estimated_capability_mw: EXTRACT(year FROM report_date) <= 2009
           - test_idle_capacity
           - check_row_counts_per_partition:
               table_name: out_eia__yearly_generators

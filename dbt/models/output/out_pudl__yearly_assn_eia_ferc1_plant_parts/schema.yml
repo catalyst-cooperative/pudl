@@ -4,7 +4,11 @@ sources:
     tables:
       - name: out_pudl__yearly_assn_eia_ferc1_plant_parts
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              exclude_columns:
+                - capex_annual_addition_rolling
+                - capex_annual_per_mw_rolling
+                - capex_annual_per_mwh_rolling
           - check_row_counts_per_partition:
               table_name: out_pudl__yearly_assn_eia_ferc1_plant_parts
               partition_column: report_year

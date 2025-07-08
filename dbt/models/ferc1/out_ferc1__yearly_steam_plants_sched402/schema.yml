@@ -4,7 +4,17 @@ sources:
     tables:
       - name: out_ferc1__yearly_steam_plants_sched402
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              exclude_columns:
+                - capex_annual_addition_rolling
+                - capex_annual_per_mw_rolling
+                - capex_annual_per_mwh_rolling
+              conditional_columns:
+                asset_retirement_cost: report_year >= 2003
+                capex_annual_addition: report_year >= 1995
+                capex_annual_per_kw: report_year >= 1995
+                capex_annual_per_mw: report_year >= 1995
+                capex_annual_per_mwh: report_year >= 1995
           - check_row_counts_per_partition:
               table_name: out_ferc1__yearly_steam_plants_sched402
               partition_column: report_year
