@@ -1,7 +1,6 @@
 """Load excel metadata CSV files form a python data package."""
 
 import pathlib
-import re
 from io import BytesIO
 
 import dbfread
@@ -161,17 +160,22 @@ class ExcelExtractor(GenericExtractor):
         """
         maturity = "final"
         file_name = self.source_filename(page, **partition)
-        if "early_release" in file_name.lower():
-            maturity = "provisional"
-        elif self._dataset_name == "eia860m":
+        if self._dataset_name == "eia860m":
             maturity = "monthly_update"
-        elif "EIA923_Schedules_2_3_4_5_M_" in file_name:
-            release_month = re.search(
-                r"EIA923_Schedules_2_3_4_5_M_(\d{2})",
-                file_name,
-            ).group(1)
-            if release_month != "12":
-                maturity = "incremental_ytd"
+        # The core EIA923 table we've been pulling from has EIA923_Schedules_2_3_4_5_M_
+        # in the beginning, and the environmental info file usually starts with
+        # EIA923_Schedule_8_Annual_Envir_Info (but w/ an r)... So we use EIA923_Schedule
+        # w/o the s and it seems consistent that the file names either end with
+        # "Early_Release" or "Final" or "Final_Revision". The ytd files seem to just
+        # have early release (w/ or w/o the space)
+        # We could use r"EIA923_Schedule(.*)(\d{4})(.*)(.xlsx|.xls)" as a pattern for
+        # all recent 923 files, but that seems more brittle.
+        elif ("early_release" in file_name.lower()) or (
+            "early release" in file_name.lower()
+        ):
+            maturity = "provisional"
+        elif ("EIA923_Schedule" in file_name) and ("final" not in file_name.lower()):
+            maturity = "incremental_ytd"
         df = df.assign(data_maturity=maturity)
         self.cols_added.append("data_maturity")
         return df
