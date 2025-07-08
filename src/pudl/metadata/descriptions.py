@@ -120,10 +120,10 @@ class ResourceDescriptionBuilder:
 
     Information for deciding what descriptive text to display in a resource description comes from several places:
 
-        * The resource metadata dictionary, containing manually-specified description components in the "description" section
-        * ResourceNameComponents, which automatically extracts appropriate description components from the resource id
-        * The \*_descriptions and \*_fragments dictionaries in this file, which set standardized text for basic resource types
-        * Some limited logic in this class which detects automatic usage warnings and primary key information
+    * The resource metadata dictionary, containing manually-specified description components in the "description" section
+    * ResourceNameComponents, which automatically extracts appropriate description components from the resource id
+    * The \*_descriptions and \*_fragments dictionaries in this file, which set standardized text for basic resource types
+    * Some limited logic in this class which detects automatic usage warnings and primary key information
 
     In order to keep manually-specified and -maintained components to a minimum, most keys in the
     resource metadata dictionary's description section are optional. Keys which have not been not manually specified are filled
@@ -133,12 +133,12 @@ class ResourceDescriptionBuilder:
     This class computes and stores "final" description components from all available inputs.
     There are six final description components:
 
-        * summary
-        * layer
-        * source
-        * primary_key
-        * details
-        * usage_warnings
+    * summary
+    * layer
+    * source
+    * primary_key
+    * details
+    * usage_warnings
 
     Each takes the form of a ResourceTrait (or list of ResourceTraits, in the case of usage_warnings),
     which include the description text along with any types/categories extracted along the way.
@@ -201,10 +201,10 @@ class ResourceDescriptionBuilder:
 
         This function applies to any component whose computation is a straightforward cascade:
 
-            1. Use the manually-specified type
-            2. If that's not available, use the auto-extracted type
-            3. Fetch the standard text for the computed type
-            4. Follow up with any additional manually-specified illustrative text
+        1. Use the manually-specified type
+        2. If that's not available, use the auto-extracted type
+        3. Fetch the standard text for the computed type
+        4. Follow up with any additional manually-specified illustrative text
         """
         attr_value = first_non_none(settings.get(attr), getattr(defaults, attr))
         components = [lookup.get(attr_value), settings.get(f"description_{attr}")]
@@ -269,8 +269,8 @@ class ResourceDescriptionBuilder:
 
         We automatically detect and include the following usage warnings:
 
-            * multiple_inputs - for all resources that specify more than one source_id as part of their toplevel metadata (not the description source, that's meant to be more summative)
-            * ferc_is_hard - for all resources that include the string "ferc" in the resource id
+        * multiple_inputs - for all resources that specify more than one source_id as part of their toplevel metadata (not the description source, that's meant to be more summative)
+        * ferc_is_hard - for all resources that include the string "ferc" in the resource id
         """
         usage_warnings = list(first_non_none(settings.get("usage_warnings"), []))
         if len(settings["sources"]) > 1:
@@ -369,7 +369,7 @@ class ResourceNameComponents(DescriptionMeta):
     @model_validator(mode="after")
     def table_name_check(self: Self):
         """Check the expected pattern of the resource name."""
-        if not self.match:
+        if not self.match:  # pragma: no cover
             raise ValueError(
                 f"Resource name not formatted as expected. Resource name found: {self.name}.\nExpected resource name pattern: {self.resource_name_pattern}"
             )

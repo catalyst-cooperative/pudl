@@ -201,8 +201,8 @@ METADATA_OVERRIDE_KEYS = [
     "timeseries_resolution",
     "description_summary",
     "description_layer",
-    "description_datasource",
-    "description_primarykey",
+    "description_source",
+    "description_primary_key",
     "description_details",
 ]
 
@@ -232,9 +232,7 @@ def test_frictionless_data_package_resources_populated():
         )
 
 
-description_compliant_tables = [
-    # list here once we have some
-]
+description_compliant_tables = ["core_epacems__hourly_emissions"]
 
 
 @pytest.mark.parametrize(

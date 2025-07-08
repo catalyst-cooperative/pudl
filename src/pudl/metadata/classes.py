@@ -1159,23 +1159,23 @@ class PudlResourceDescriptor(PudlMeta):
         Usage Warnings are a way for us to quickly and skim-ably tell users about analysis hazards when using a particular table.
         It has two goals:
 
-            1. help users quickly reach a point of success in their use of our data, and
-            2. reduce the incidence of repeated questions and bug-like reports due to these inescapable hazards.
+        1. help users quickly reach a point of success in their use of our data, and
+        2. reduce the incidence of repeated questions and bug-like reports due to these inescapable hazards.
 
         Reserve this field for severe and/or frequent problems an unfamiliar user may encounter, and list lighter or edge-case problems in ``description_details``.
 
         The list can contain two kinds of entries:
 
-            * a string, which should match one of the keys in pudl.metadata.warnings.USAGE_WARNINGS
-            * a dict, which should contain two keys:
+        * a string, which should match one of the keys in pudl.metadata.warnings.USAGE_WARNINGS
+        * a dict, which should contain two keys:
 
-                * "type" - a short code for the warning, which doesn't need to be unique and will only appear in preview & debugging tooling, not to users
-                * "description" - the one-to-two-sentence summary of a warning used only on this particular resource
+            * "type" - a short code for the warning, which doesn't need to be unique and will only appear in preview & debugging tooling, not to users
+            * "description" - the one-to-two-sentence summary of a warning used only on this particular resource
 
         The system will automatically detect and include the following warnings based on the resource id string and schema information (see pudl.metadata.descriptions.ResourceDescriptionBuilder._assemble_usage_warnings):
 
-            * multiple_inputs
-            * ferc_is_hard
+        * multiple_inputs
+        * ferc_is_hard
 
         Any items provided here will be listed before the automatically detected warnings.
 
@@ -1186,8 +1186,8 @@ class PudlResourceDescriptor(PudlMeta):
 
         If filled, should support whichever of the following scenarios is most appropriate for this resource:
 
-            * the table_type is set or can be automatically detected: this value should complete the sentence corresponding to pudl.metadata.descriptions.table_type_fragments[table_type]
-            * the table_type is None/unset _and_ is not named according to a standard table type listed in pudl.metadata.descriptions.table_type_fragments: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
+        * the table_type is set or can be automatically detected: this value should complete the sentence corresponding to pudl.metadata.descriptions.table_type_fragments[table_type]
+        * the table_type is None/unset _and_ is not named according to a standard table type listed in pudl.metadata.descriptions.table_type_fragments: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
         """
         description_layer: str | None = None
         """Unusual details about this resource's level of processing that don't fall into the normal definition of raw/core/_core/out/_out/etc.
