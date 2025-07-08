@@ -108,7 +108,7 @@ class TestExtractor:
         assert expected_boxes == res["boxes"].to_dict()
 
     def test_add_data_maturity(self):
-        """Test ."""
+        """Test whether we assign the correct data_maturity given the file names."""
         extractor = FakeExtractor()
         test_time = pd.DataFrame(
             data=[
