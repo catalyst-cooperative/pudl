@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 61cd07e63d40305fe3f5e56d0112793e3bb39b78c97e69b25403002d38edb066
-    osx-64: e4ee705005c3ae87ad5b7b2492c6e15d3af1776796ac9da1e5256f9a95553f36
-    osx-arm64: 79c72746129227241e0f5e0bbef262d87ae9b7d3af9a4a49109d0e0938358c6c
+    linux-64: 30509386ece04ec9c9035ad9ceef078d38bf2d45eac2720261adbc14053784e7
+    osx-64: 81e0b83197f4f76efc206a4b348a5f70c93595def5e1439e71286d1862a2c228
+    osx-arm64: b878fb6b22ffa5280fbdebe22f75295a0bff28680d58faa913079678043c8a85
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -471,7 +471,7 @@ package:
     category: main
     optional: false
   - name: alembic
-    version: 1.16.2
+    version: 1.16.3
     manager: conda
     platform: linux-64
     dependencies:
@@ -480,14 +480,14 @@ package:
       sqlalchemy: ">=1.4.0"
       tomli: ""
       typing_extensions: ">=4.12"
-    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.16.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.16.3-pyhd8ed1ab_0.conda
     hash:
-      md5: 61051bb1e2762c4b9ef892d2e0e808e2
-      sha256: 968d9e0a441fa6404079e873d6f7188e7d00a1c5152ca96a30ad750ed4c80bdb
+      md5: e180fd0e8a5757e55fde459f887096c8
+      sha256: 5677c5ed67962c500d32713631624dd5e9eb8366ef8a1858bddb9fdc5f6cbac0
     category: main
     optional: false
   - name: alembic
-    version: 1.16.2
+    version: 1.16.3
     manager: conda
     platform: osx-64
     dependencies:
@@ -496,14 +496,14 @@ package:
       sqlalchemy: ">=1.4.0"
       tomli: ""
       typing_extensions: ">=4.12"
-    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.16.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.16.3-pyhd8ed1ab_0.conda
     hash:
-      md5: 61051bb1e2762c4b9ef892d2e0e808e2
-      sha256: 968d9e0a441fa6404079e873d6f7188e7d00a1c5152ca96a30ad750ed4c80bdb
+      md5: e180fd0e8a5757e55fde459f887096c8
+      sha256: 5677c5ed67962c500d32713631624dd5e9eb8366ef8a1858bddb9fdc5f6cbac0
     category: main
     optional: false
   - name: alembic
-    version: 1.16.2
+    version: 1.16.3
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -512,10 +512,10 @@ package:
       sqlalchemy: ">=1.4.0"
       tomli: ""
       typing_extensions: ">=4.12"
-    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.16.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.16.3-pyhd8ed1ab_0.conda
     hash:
-      md5: 61051bb1e2762c4b9ef892d2e0e808e2
-      sha256: 968d9e0a441fa6404079e873d6f7188e7d00a1c5152ca96a30ad750ed4c80bdb
+      md5: e180fd0e8a5757e55fde459f887096c8
+      sha256: 5677c5ed67962c500d32713631624dd5e9eb8366ef8a1858bddb9fdc5f6cbac0
     category: main
     optional: false
   - name: altair
@@ -3096,39 +3096,39 @@ package:
     category: main
     optional: false
   - name: ca-certificates
-    version: 2025.6.15
+    version: 2025.7.9
     manager: conda
     platform: linux-64
     dependencies:
       __unix: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.6.15-hbd8a1cb_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.7.9-hbd8a1cb_0.conda
     hash:
-      md5: 72525f07d72806e3b639ad4504c30ce5
-      sha256: 7cfec9804c84844ea544d98bda1d9121672b66ff7149141b8415ca42dfcd44f6
+      md5: 54521bf3b59c86e2f55b7294b40a04dc
+      sha256: d2d7327b09d990d0f51e7aec859a5879743675e377fcf9b4ec4db2dbeb75e15d
     category: main
     optional: false
   - name: ca-certificates
-    version: 2025.6.15
+    version: 2025.7.9
     manager: conda
     platform: osx-64
     dependencies:
       __unix: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.6.15-hbd8a1cb_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.7.9-hbd8a1cb_0.conda
     hash:
-      md5: 72525f07d72806e3b639ad4504c30ce5
-      sha256: 7cfec9804c84844ea544d98bda1d9121672b66ff7149141b8415ca42dfcd44f6
+      md5: 54521bf3b59c86e2f55b7294b40a04dc
+      sha256: d2d7327b09d990d0f51e7aec859a5879743675e377fcf9b4ec4db2dbeb75e15d
     category: main
     optional: false
   - name: ca-certificates
-    version: 2025.6.15
+    version: 2025.7.9
     manager: conda
     platform: osx-arm64
     dependencies:
       __unix: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.6.15-hbd8a1cb_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.7.9-hbd8a1cb_0.conda
     hash:
-      md5: 72525f07d72806e3b639ad4504c30ce5
-      sha256: 7cfec9804c84844ea544d98bda1d9121672b66ff7149141b8415ca42dfcd44f6
+      md5: 54521bf3b59c86e2f55b7294b40a04dc
+      sha256: d2d7327b09d990d0f51e7aec859a5879743675e377fcf9b4ec4db2dbeb75e15d
     category: main
     optional: false
   - name: cachecontrol
@@ -5096,45 +5096,45 @@ package:
     category: main
     optional: false
   - name: databricks-sdk
-    version: 0.56.0
+    version: 0.58.0
     manager: conda
     platform: linux-64
     dependencies:
       google-auth: ">=2.0,<3"
       python: ">=3.9"
       requests: ">=2.28.1,<3"
-    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.56.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.58.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 966c48567dbfc595d36d84ca9c645391
-      sha256: 050b5478ae54daea822e67f202363f7a7f1247b595aa5b9da2c959356507bea5
+      md5: 97976b562450cc1e492eccbf53886254
+      sha256: 44d9c5684b69a9a9611be381daa70f1c36361242b3e52b07b5dbedde622f237b
     category: main
     optional: false
   - name: databricks-sdk
-    version: 0.56.0
+    version: 0.58.0
     manager: conda
     platform: osx-64
     dependencies:
       google-auth: ">=2.0,<3"
       python: ">=3.9"
       requests: ">=2.28.1,<3"
-    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.56.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.58.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 966c48567dbfc595d36d84ca9c645391
-      sha256: 050b5478ae54daea822e67f202363f7a7f1247b595aa5b9da2c959356507bea5
+      md5: 97976b562450cc1e492eccbf53886254
+      sha256: 44d9c5684b69a9a9611be381daa70f1c36361242b3e52b07b5dbedde622f237b
     category: main
     optional: false
   - name: databricks-sdk
-    version: 0.56.0
+    version: 0.58.0
     manager: conda
     platform: osx-arm64
     dependencies:
       google-auth: ">=2.0,<3"
       python: ">=3.9"
       requests: ">=2.28.1,<3"
-    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.56.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/databricks-sdk-0.58.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 966c48567dbfc595d36d84ca9c645391
-      sha256: 050b5478ae54daea822e67f202363f7a7f1247b595aa5b9da2c959356507bea5
+      md5: 97976b562450cc1e492eccbf53886254
+      sha256: 44d9c5684b69a9a9611be381daa70f1c36361242b3e52b07b5dbedde622f237b
     category: main
     optional: false
   - name: datasette
@@ -5294,12 +5294,13 @@ package:
     category: main
     optional: false
   - name: dbt-common
-    version: 1.24.0
+    version: 1.26.0
     manager: conda
     platform: linux-64
     dependencies:
       agate: ">=1.7.0,<1.10"
       colorama: ">=0.3.9,<0.5"
+      dbt-protos: ">=1.0.291,<2.0.0"
       deepdiff: ">=7.0,<8.0"
       isodate: ">=0.6,<0.7"
       jinja2: ">=3.1.3,<4"
@@ -5311,19 +5312,20 @@ package:
       python-dateutil: ">=2.0,<3.0"
       requests: <3.0.0
       typing_extensions: ">=4.4,<5.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.24.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.26.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 26d9db5ab8b6a75b144877792bc0e443
-      sha256: 7e2e4e41e04810b9c631df4fc052241f0a112a83053567f38afad60e6c6e528b
+      md5: 67fc589aa146b6dc226ce84c15a80dec
+      sha256: 07898577ac8682caf8318aace7992352f943d888fccf20f80363177b4bcc431d
     category: main
     optional: false
   - name: dbt-common
-    version: 1.24.0
+    version: 1.26.0
     manager: conda
     platform: osx-64
     dependencies:
       agate: ">=1.7.0,<1.10"
       colorama: ">=0.3.9,<0.5"
+      dbt-protos: ">=1.0.291,<2.0.0"
       deepdiff: ">=7.0,<8.0"
       isodate: ">=0.6,<0.7"
       jinja2: ">=3.1.3,<4"
@@ -5335,19 +5337,20 @@ package:
       python-dateutil: ">=2.0,<3.0"
       requests: <3.0.0
       typing_extensions: ">=4.4,<5.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.24.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.26.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 26d9db5ab8b6a75b144877792bc0e443
-      sha256: 7e2e4e41e04810b9c631df4fc052241f0a112a83053567f38afad60e6c6e528b
+      md5: 67fc589aa146b6dc226ce84c15a80dec
+      sha256: 07898577ac8682caf8318aace7992352f943d888fccf20f80363177b4bcc431d
     category: main
     optional: false
   - name: dbt-common
-    version: 1.24.0
+    version: 1.26.0
     manager: conda
     platform: osx-arm64
     dependencies:
       agate: ">=1.7.0,<1.10"
       colorama: ">=0.3.9,<0.5"
+      dbt-protos: ">=1.0.291,<2.0.0"
       deepdiff: ">=7.0,<8.0"
       isodate: ">=0.6,<0.7"
       jinja2: ">=3.1.3,<4"
@@ -5359,31 +5362,34 @@ package:
       python-dateutil: ">=2.0,<3.0"
       requests: <3.0.0
       typing_extensions: ">=4.4,<5.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.24.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-common-1.26.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 26d9db5ab8b6a75b144877792bc0e443
-      sha256: 7e2e4e41e04810b9c631df4fc052241f0a112a83053567f38afad60e6c6e528b
+      md5: 67fc589aa146b6dc226ce84c15a80dec
+      sha256: 07898577ac8682caf8318aace7992352f943d888fccf20f80363177b4bcc431d
     category: main
     optional: false
   - name: dbt-core
-    version: 1.9.8
+    version: 1.10.3
     manager: conda
     platform: linux-64
     dependencies:
       agate: ">=1.7.0,<1.10"
       click: ">=8.0.2,<9.0"
       daff: ">=1.3.46"
-      dbt-adapters: ">=1.10.1,<2.0"
-      dbt-common: ">=1.13.0,<2.0"
+      dbt-adapters: ">=1.15.2,<2.0"
+      dbt-common: ">=1.25.1,<2.0"
       dbt-extractor: ">=0.5.0,<=0.6"
-      dbt-semantic-interfaces: ">=0.7.4,<0.8"
+      dbt-protos: ">=1.0.315,<2.0"
+      dbt-semantic-interfaces: ">=0.8.3,<0.9"
       jinja2: ">=3.1.3,<4"
+      jsonschema: ">=4.19.1,<5.0"
       mashumaro: ">=3.9,<3.15"
       msgpack-python: ">=0.5.6"
       networkx: ">=2.3,<4.0"
       packaging: ">20.9"
       pathspec: ">=0.9,<0.13"
       protobuf: ">=5.0,<6.0"
+      pydantic: <3
       python: ">=3.9"
       pytz: ">=2015.7"
       pyyaml: ">=6.0"
@@ -5391,31 +5397,34 @@ package:
       snowplow-tracker: ">=1.0.2,<2.0"
       sqlparse: ">=0.5.0,<0.6.0"
       typing_extensions: ">=4.4"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.9.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.10.3-pyhd8ed1ab_0.conda
     hash:
-      md5: f681aec787865fd2b95c1f4e854ef28f
-      sha256: df8581e69e09d95e3ae500a89b71989f7c9b484bea20ca5b7c22dbb9ac1d1fad
+      md5: 2bf0d9e0653acf188d7347e5b17058fe
+      sha256: 29c7faaf8f4b92919cab4be369af8481bbc8486d62e59d24cc8c2562352cef73
     category: main
     optional: false
   - name: dbt-core
-    version: 1.9.8
+    version: 1.10.3
     manager: conda
     platform: osx-64
     dependencies:
       agate: ">=1.7.0,<1.10"
       click: ">=8.0.2,<9.0"
       daff: ">=1.3.46"
-      dbt-adapters: ">=1.10.1,<2.0"
-      dbt-common: ">=1.13.0,<2.0"
+      dbt-adapters: ">=1.15.2,<2.0"
+      dbt-common: ">=1.25.1,<2.0"
       dbt-extractor: ">=0.5.0,<=0.6"
-      dbt-semantic-interfaces: ">=0.7.4,<0.8"
+      dbt-protos: ">=1.0.315,<2.0"
+      dbt-semantic-interfaces: ">=0.8.3,<0.9"
       jinja2: ">=3.1.3,<4"
+      jsonschema: ">=4.19.1,<5.0"
       mashumaro: ">=3.9,<3.15"
       msgpack-python: ">=0.5.6"
       networkx: ">=2.3,<4.0"
       packaging: ">20.9"
       pathspec: ">=0.9,<0.13"
       protobuf: ">=5.0,<6.0"
+      pydantic: <3
       python: ">=3.9"
       pytz: ">=2015.7"
       pyyaml: ">=6.0"
@@ -5423,31 +5432,34 @@ package:
       snowplow-tracker: ">=1.0.2,<2.0"
       sqlparse: ">=0.5.0,<0.6.0"
       typing_extensions: ">=4.4"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.9.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.10.3-pyhd8ed1ab_0.conda
     hash:
-      md5: f681aec787865fd2b95c1f4e854ef28f
-      sha256: df8581e69e09d95e3ae500a89b71989f7c9b484bea20ca5b7c22dbb9ac1d1fad
+      md5: 2bf0d9e0653acf188d7347e5b17058fe
+      sha256: 29c7faaf8f4b92919cab4be369af8481bbc8486d62e59d24cc8c2562352cef73
     category: main
     optional: false
   - name: dbt-core
-    version: 1.9.8
+    version: 1.10.3
     manager: conda
     platform: osx-arm64
     dependencies:
       agate: ">=1.7.0,<1.10"
       click: ">=8.0.2,<9.0"
       daff: ">=1.3.46"
-      dbt-adapters: ">=1.10.1,<2.0"
-      dbt-common: ">=1.13.0,<2.0"
+      dbt-adapters: ">=1.15.2,<2.0"
+      dbt-common: ">=1.25.1,<2.0"
       dbt-extractor: ">=0.5.0,<=0.6"
-      dbt-semantic-interfaces: ">=0.7.4,<0.8"
+      dbt-protos: ">=1.0.315,<2.0"
+      dbt-semantic-interfaces: ">=0.8.3,<0.9"
       jinja2: ">=3.1.3,<4"
+      jsonschema: ">=4.19.1,<5.0"
       mashumaro: ">=3.9,<3.15"
       msgpack-python: ">=0.5.6"
       networkx: ">=2.3,<4.0"
       packaging: ">20.9"
       pathspec: ">=0.9,<0.13"
       protobuf: ">=5.0,<6.0"
+      pydantic: <3
       python: ">=3.9"
       pytz: ">=2015.7"
       pyyaml: ">=6.0"
@@ -5455,10 +5467,10 @@ package:
       snowplow-tracker: ">=1.0.2,<2.0"
       sqlparse: ">=0.5.0,<0.6.0"
       typing_extensions: ">=4.4"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.9.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.10.3-pyhd8ed1ab_0.conda
     hash:
-      md5: f681aec787865fd2b95c1f4e854ef28f
-      sha256: df8581e69e09d95e3ae500a89b71989f7c9b484bea20ca5b7c22dbb9ac1d1fad
+      md5: 2bf0d9e0653acf188d7347e5b17058fe
+      sha256: 29c7faaf8f4b92919cab4be369af8481bbc8486d62e59d24cc8c2562352cef73
     category: main
     optional: false
   - name: dbt-duckdb
@@ -5592,69 +5604,69 @@ package:
     category: main
     optional: false
   - name: dbt-semantic-interfaces
-    version: 0.7.4
+    version: 0.8.5
     manager: conda
     platform: linux-64
     dependencies:
       click: ">=7.0,<9.0"
-      importlib-metadata: <7,>=6.0
-      jinja2: ">=3.1.3,<4"
+      importlib-metadata: <9,>=6.0
+      jinja2: ">=3.1.6,<4"
       jsonschema: ">=4.0,<5"
       more-itertools: ">=8.0,<11.0"
       pydantic: ">=1.10,<3"
-      python: ">=3.8"
+      python: ">=3.9"
       python-dateutil: ">=2.0,<3"
       pyyaml: ">=6.0,<7"
       typing-extensions: ">=4.4,<5"
       typing_extensions: ">=4.4,<5"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.7.4-pyhf696b4e_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.8.5-pyh3cfb1c2_0.conda
     hash:
-      md5: 9727e54ab528851ebcd98958b9076643
-      sha256: 931c1e6bcdb1762109648629204de6d253d0d33a09e323088a362b92e60b987b
+      md5: 479583eda6222a235efebeb6b3c671f8
+      sha256: eac243182c03347c6e81459e691c18643f4d5c6ec4e52c24c068a4d20c0068db
     category: main
     optional: false
   - name: dbt-semantic-interfaces
-    version: 0.7.4
+    version: 0.8.5
     manager: conda
     platform: osx-64
     dependencies:
       click: ">=7.0,<9.0"
-      importlib-metadata: <7,>=6.0
-      jinja2: ">=3.1.3,<4"
+      importlib-metadata: <9,>=6.0
+      jinja2: ">=3.1.6,<4"
       jsonschema: ">=4.0,<5"
       more-itertools: ">=8.0,<11.0"
       pydantic: ">=1.10,<3"
-      python: ">=3.8"
+      python: ">=3.9"
       python-dateutil: ">=2.0,<3"
       pyyaml: ">=6.0,<7"
       typing-extensions: ">=4.4,<5"
       typing_extensions: ">=4.4,<5"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.7.4-pyhf696b4e_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.8.5-pyh3cfb1c2_0.conda
     hash:
-      md5: 9727e54ab528851ebcd98958b9076643
-      sha256: 931c1e6bcdb1762109648629204de6d253d0d33a09e323088a362b92e60b987b
+      md5: 479583eda6222a235efebeb6b3c671f8
+      sha256: eac243182c03347c6e81459e691c18643f4d5c6ec4e52c24c068a4d20c0068db
     category: main
     optional: false
   - name: dbt-semantic-interfaces
-    version: 0.7.4
+    version: 0.8.5
     manager: conda
     platform: osx-arm64
     dependencies:
       click: ">=7.0,<9.0"
-      importlib-metadata: <7,>=6.0
-      jinja2: ">=3.1.3,<4"
+      importlib-metadata: <9,>=6.0
+      jinja2: ">=3.1.6,<4"
       jsonschema: ">=4.0,<5"
       more-itertools: ">=8.0,<11.0"
       pydantic: ">=1.10,<3"
-      python: ">=3.8"
+      python: ">=3.9"
       python-dateutil: ">=2.0,<3"
       pyyaml: ">=6.0,<7"
       typing-extensions: ">=4.4,<5"
       typing_extensions: ">=4.4,<5"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.7.4-pyhf696b4e_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.8.5-pyh3cfb1c2_0.conda
     hash:
-      md5: 9727e54ab528851ebcd98958b9076643
-      sha256: 931c1e6bcdb1762109648629204de6d253d0d33a09e323088a362b92e60b987b
+      md5: 479583eda6222a235efebeb6b3c671f8
+      sha256: eac243182c03347c6e81459e691c18643f4d5c6ec4e52c24c068a4d20c0068db
     category: main
     optional: false
   - name: dbus
@@ -10176,42 +10188,42 @@ package:
     category: main
     optional: false
   - name: importlib-metadata
-    version: 6.10.0
+    version: 8.7.0
     manager: conda
     platform: linux-64
     dependencies:
-      python: ">=3.8"
-      zipp: ">=0.5"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-6.10.0-pyha770c72_0.conda
+      python: ""
+      zipp: ">=3.20"
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.7.0-pyhe01879c_1.conda
     hash:
-      md5: ae2ad334f34040e147cc5824b450463b
-      sha256: 4b823af311e7f5093fca41ec0142d0e1ec9b3d1ee91924dc63133611bdfcaee5
+      md5: 63ccfdc3a3ce25b027b8767eb722fca8
+      sha256: c18ab120a0613ada4391b15981d86ff777b5690ca461ea7e9e49531e8f374745
     category: main
     optional: false
   - name: importlib-metadata
-    version: 6.10.0
+    version: 8.7.0
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.8"
-      zipp: ">=0.5"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-6.10.0-pyha770c72_0.conda
+      python: ">=3.9"
+      zipp: ">=3.20"
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.7.0-pyhe01879c_1.conda
     hash:
-      md5: ae2ad334f34040e147cc5824b450463b
-      sha256: 4b823af311e7f5093fca41ec0142d0e1ec9b3d1ee91924dc63133611bdfcaee5
+      md5: 63ccfdc3a3ce25b027b8767eb722fca8
+      sha256: c18ab120a0613ada4391b15981d86ff777b5690ca461ea7e9e49531e8f374745
     category: main
     optional: false
   - name: importlib-metadata
-    version: 6.10.0
+    version: 8.7.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.8"
-      zipp: ">=0.5"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-6.10.0-pyha770c72_0.conda
+      python: ">=3.9"
+      zipp: ">=3.20"
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.7.0-pyhe01879c_1.conda
     hash:
-      md5: ae2ad334f34040e147cc5824b450463b
-      sha256: 4b823af311e7f5093fca41ec0142d0e1ec9b3d1ee91924dc63133611bdfcaee5
+      md5: 63ccfdc3a3ce25b027b8767eb722fca8
+      sha256: c18ab120a0613ada4391b15981d86ff777b5690ca461ea7e9e49531e8f374745
     category: main
     optional: false
   - name: importlib_resources
@@ -13008,27 +13020,27 @@ package:
     category: main
     optional: false
   - name: libcxx
-    version: 20.1.7
+    version: 20.1.8
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libcxx-20.1.7-hf95d169_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libcxx-20.1.8-hf95d169_0.conda
     hash:
-      md5: 8b47ade37d4e75417b4e993179c09f5d
-      sha256: f6e088a2e0e702a4908d1fc9f1a17b080bdcf63e1f8a9cb35dd158fc1d1eb2f5
+      md5: 8f8448b9b4cd3c698b822e0038d65940
+      sha256: 2f0a3df7d6b8898d6d387ff110d7fb98aba1f0e9c3a5e6527a54bb8a3441a0ec
     category: main
     optional: false
   - name: libcxx
-    version: 20.1.7
+    version: 20.1.8
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libcxx-20.1.7-ha82da77_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libcxx-20.1.8-ha82da77_0.conda
     hash:
-      md5: 881de227abdddbe596239fa9e82eb3ab
-      sha256: a3fd34773f1252a4f089e74a075ff5f0f6b878aede097e83a405f35687c36f24
+      md5: 149bb93ede144e7c86bf5f88378ae5f6
+      sha256: 3d7fd77e37794c28e99812da03de645b8e1ddefa876d9400c4d552b9eb8dd880
     category: main
     optional: false
   - name: libdeflate
@@ -14841,12 +14853,13 @@ package:
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      libgcc: ">=13"
+      icu: ">=75.1,<76.0a0"
+      libgcc: ">=14"
       libzlib: ">=1.3.1,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.50.2-h6cd9bfd_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.50.2-hee844dc_2.conda
     hash:
-      md5: b04c7eda6d7dab1e6503135e7fad4d25
-      sha256: 07649c7c19b916179926006df5c38074618d35bf36cd33ab3fe8b22182bbd258
+      md5: be96b9fdd7b579159df77ece9bb80e48
+      sha256: 62040da9b55f409cd43697eb7391381ffede90b2ea53634a94876c6c867dcd73
     category: main
     optional: false
   - name: libsqlite
@@ -14856,10 +14869,10 @@ package:
     dependencies:
       __osx: ">=10.13"
       libzlib: ">=1.3.1,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libsqlite-3.50.2-he7d56d0_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libsqlite-3.50.2-h39a8b3b_2.conda
     hash:
-      md5: 678284738efc450afcf90f70365f7318
-      sha256: bd3ab15e14d7e88851c962034d97519a135d86f79f88b3237fbfb34194c114cb
+      md5: 065c33b28348792d77ff0d5571541d5e
+      sha256: e1dd0bd9be821798d824a0ed8650a52faf3ecdc857412d0d8f7f6dfe279fd240
     category: main
     optional: false
   - name: libsqlite
@@ -14868,11 +14881,12 @@ package:
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
+      icu: ">=75.1,<76.0a0"
       libzlib: ">=1.3.1,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libsqlite-3.50.2-h6fb428d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libsqlite-3.50.2-h4237e3c_2.conda
     hash:
-      md5: b2dc1707166040e738df2d514f8a1d22
-      sha256: 6b51a9e7366d6cd26e50d1d0646331d457999ebb88af258f06a74f075e95bf68
+      md5: 16705418b145af2cc73e5753fc15128a
+      sha256: 5129831a4590e2d17155d397b0234574cb05cfacdd4ea16617dfe985a7bac30d
     category: main
     optional: false
   - name: libssh2
@@ -18175,7 +18189,7 @@ package:
     category: main
     optional: false
   - name: pandera-core
-    version: 0.23.1
+    version: 0.24.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -18186,14 +18200,14 @@ package:
       python: ">=3.9"
       typeguard: ">=3.0.2"
       typing_inspect: ">=0.6.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.23.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.24.0-pyhd8ed1ab_0.conda
     hash:
-      md5: a6d182be4909bf3f686f8f83191c1fae
-      sha256: e2d449e9fcb5dfea3bf7dd14143c7f162adbdb751575b484a8aa10aae94c6a96
+      md5: 6d9c3e4504915180d833570b626acc0f
+      sha256: 2a36db15b0b19f2036c7420353989d49e651a9173aecaa363d96383d599eb89f
     category: main
     optional: false
   - name: pandera-core
-    version: 0.23.1
+    version: 0.24.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -18204,14 +18218,14 @@ package:
       python: ">=3.9"
       typeguard: ">=3.0.2"
       typing_inspect: ">=0.6.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.23.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.24.0-pyhd8ed1ab_0.conda
     hash:
-      md5: a6d182be4909bf3f686f8f83191c1fae
-      sha256: e2d449e9fcb5dfea3bf7dd14143c7f162adbdb751575b484a8aa10aae94c6a96
+      md5: 6d9c3e4504915180d833570b626acc0f
+      sha256: 2a36db15b0b19f2036c7420353989d49e651a9173aecaa363d96383d599eb89f
     category: main
     optional: false
   - name: pandera-core
-    version: 0.23.1
+    version: 0.24.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -18222,10 +18236,10 @@ package:
       python: ">=3.9"
       typeguard: ">=3.0.2"
       typing_inspect: ">=0.6.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.23.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.24.0-pyhd8ed1ab_0.conda
     hash:
-      md5: a6d182be4909bf3f686f8f83191c1fae
-      sha256: e2d449e9fcb5dfea3bf7dd14143c7f162adbdb751575b484a8aa10aae94c6a96
+      md5: 6d9c3e4504915180d833570b626acc0f
+      sha256: 2a36db15b0b19f2036c7420353989d49e651a9173aecaa363d96383d599eb89f
     category: main
     optional: false
   - name: pandoc
@@ -24493,15 +24507,16 @@ package:
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      libgcc: ">=13"
+      icu: ">=75.1,<76.0a0"
+      libgcc: ">=14"
       libsqlite: 3.50.2
       libzlib: ">=1.3.1,<2.0a0"
       ncurses: ">=6.5,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.50.2-hb7a22d2_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.50.2-heff268d_2.conda
     hash:
-      md5: efe16ab2f63053af723e070f3f9bac4c
-      sha256: 47f8c0350a9c6060d63494edc9abbf115125b0b98f5f6cfdac4e5f471d7d74ba
+      md5: 205e5726a9cbb72be7c374138b6fed7c
+      sha256: e8107482cbbd5f2b33265c6ea578dc9615d403a727cfcb5540310b76ec2dd8d5
     category: main
     optional: false
   - name: sqlite
@@ -24514,10 +24529,10 @@ package:
       libzlib: ">=1.3.1,<2.0a0"
       ncurses: ">=6.5,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.50.2-h22fafd5_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.50.2-h64b5abc_2.conda
     hash:
-      md5: 6d31002dde1a4dd5494798b241bc7937
-      sha256: 2902ffc7653ede24566f8b13b14d1eab1133f148633546516b5430069cfc7a9e
+      md5: 5adc9abb2618936288e75712239ca198
+      sha256: f9898d6167c7acdfb9b07a76eb4693d76da42052677c4d719f554ce82651c9a2
     category: main
     optional: false
   - name: sqlite
@@ -24526,14 +24541,15 @@ package:
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
+      icu: ">=75.1,<76.0a0"
       libsqlite: 3.50.2
       libzlib: ">=1.3.1,<2.0a0"
       ncurses: ">=6.5,<7.0a0"
       readline: ">=8.2,<9.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/sqlite-3.50.2-hc23dd5f_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/sqlite-3.50.2-hb5dd463_2.conda
     hash:
-      md5: 622f20510abdf9d98700a71d91a85d46
-      sha256: ca6bbb63a2d709888969f99da3bd0abdb32a9f0e464c8cb3e628bb6d66cb5062
+      md5: 8a9bff191b1178296ce6be207386e14a
+      sha256: 6ecb2ff966419b1821651b800111564005dd3de236cc25082142cb2fb296a6f8
     category: main
     optional: false
   - name: sqlparse
