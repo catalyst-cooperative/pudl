@@ -64,23 +64,22 @@ def no_null_rows(
 
 
 def no_null_cols(
-    df: pd.DataFrame, cols: str = "all", df_name: str = ""
+    df: pd.DataFrame, cols: list[str] | str = "all", df_name: str = ""
 ) -> pd.DataFrame:
     """Check that a dataframe has no all-NaN columns.
 
-    Occasionally in the concatenation / merging of dataframes we get a label
-    wrong, and it results in a fully NaN column... which should probably never
-    actually happen. This is a quick verification.
+    Occasionally in the concatenation / merging of dataframes we get a label wrong, and
+    it results in a fully NaN column... which should probably never actually happen.
+    This function can be used to guard against such errors.
 
     Args:
-        df (pandas.DataFrame): DataFrame to check for null columns.
-        cols (iterable or "all"): The labels of columns to check for
-            all-null values. If "all" check all columns.
-        df_name (str): Name of the dataframe, to aid in debugging/logging.
+        df: DataFrame to check for null columns.
+        cols: Columns to check for all-null values. If "all" check all columns.
+        df_name: Name of the dataframe, to aid in debugging/logging.
 
     Returns:
-        pandas.DataFrame: The same DataFrame as was passed in, for use in
-            DataFrame.pipe().
+        The same DataFrame as was passed in, so the function can be used with
+        :meth:`pandas.DataFrame.pipe`.
 
     Raises:
         ValueError: If any completely NaN / Null valued columns are found.
@@ -113,7 +112,7 @@ def group_mean_continuity_check(
             columns are allowed to fluctuate from one group to the next.
         groupby_col: the column by which we will group the data.
         n_outliers_allowed: how many data points are allowed to be above the
-        threshold.
+            threshold.
     """
     pct_change = (
         df.loc[:, [groupby_col] + list(thresholds.keys())]
@@ -199,15 +198,15 @@ def historical_distribution(
     acceptable data distributions in the aggregated and processed data.
 
     Args:
-        df (pandas.DataFrame): a dataframe containing historical data, with a
-            column named either ``report_date`` or ``report_year``.
-        data_col (str): Label of the column containing the data of interest.
-        weight_col (str): Label of the column containing the weights to be
-            used in scaling the data.
+        df: a dataframe containing historical data, with a column named either
+            ``report_date`` or ``report_year``.
+        data_col: Label of the column containing the data of interest.
+        weight_col: Label of the column containing the weights to be used in scaling the
+            data.
 
     Returns:
-        list: The weighted quantiles of data, for each of the years found in
-        the historical data of df.
+        The weighted quantiles of data, for each of the years found in the historical
+        data of df.
     """
     if "report_year" not in df.columns:
         df["report_year"] = pd.to_datetime(df.report_date).dt.year
