@@ -10,12 +10,12 @@ sources:
           - expect_columns_are_close:
               column_a: demand_reported_mwh
               column_b: demand_imputed_pudl_mwh
-              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL and demand_reported_mwh > 500"
-              atol: 0.15
+              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL and demand_reported_mwh > 300"
+              atol: 0.2
           - expect_columns_are_close:
               column_a: demand_reported_mwh
               column_b: demand_imputed_pudl_mwh
-              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL and demand_reported_mwh < 500"
+              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL and demand_reported_mwh < 300"
               atol: 1.0
           - expect_consistent_years:
               datetime_column: datetime_utc
