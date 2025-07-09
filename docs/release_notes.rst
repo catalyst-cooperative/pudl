@@ -18,6 +18,9 @@ Quality of Life Improvements
 Bug Fixes
 ^^^^^^^^^
 
+* Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See :issue:`4328`
+  and :pr:`4392`
+
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
