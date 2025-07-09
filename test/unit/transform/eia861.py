@@ -14,7 +14,7 @@ actual_1 = pd.read_csv(
         """report_date,utility_id_eia,state,ba_code,value
 2019-01-01,88888,TX,ERCOT,100
 2019-01-01,88888,TX,ERCOT,300
-2019-01-01,88888,pd.NA,ERCOT,800
+2019-01-01,88888,,ERCOT,800
 """
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
@@ -23,7 +23,7 @@ expected_1 = pd.read_csv(
     StringIO(
         """report_date,utility_id_eia,state,ba_code,value
 2019-01-01,88888,TX,ERCOT,400
-2019-01-01,88888,pd.NA,ERCOT,800
+2019-01-01,88888,,ERCOT,800
 """
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
