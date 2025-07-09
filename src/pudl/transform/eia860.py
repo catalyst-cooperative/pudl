@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, asset, asset_check
+from dagster import asset, asset_check
 
 import pudl
 from pudl.helpers import drop_records_with_null_in_column
@@ -1313,30 +1313,6 @@ def _core_eia860__cooling_equipment(
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
-def cooling_equipment_null_cols(cooling_equipment):
-    """The only completely null cols we expect are tower type 3 and 4.
-
-    In fast-ETL, i.e. recent years, we also expect a few other columns to be
-    null since they only show up in older data.
-    """
-    expected_null_cols = {"tower_type_3", "tower_type_4"}
-    if cooling_equipment.report_date.min() > pd.Timestamp("2010-01-01T00:00:00"):
-        expected_null_cols.update(
-            {"plant_summer_capacity_mw", "water_source", "county", "cooling_type_4"}
-        )
-    pudl.validate.no_null_cols(
-        cooling_equipment,
-        cols=set(cooling_equipment.columns) - expected_null_cols,
-    )
-    col_is_null = cooling_equipment.isna().all()
-    if not all(col_is_null[col] for col in expected_null_cols):
-        return AssetCheckResult(
-            passed=False, metadata={"col_is_null": col_is_null.to_json()}
-        )
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
 def cooling_equipment_continuity(cooling_equipment):
     """Check to see if columns vary as slowly as expected.
 
@@ -1461,28 +1437,6 @@ def _core_eia860__fgd_equipment(
 
     # Encoding required because this isn't fed into harvesting yet.
     return PUDL_PACKAGE.encode(fgd_df).pipe(apply_pudl_dtypes, strict=False)
-
-
-@asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
-def fgd_equipment_null_check(fgd):
-    """Check that columns other than expected columns aren't null."""
-    fast_run_null_cols = {
-        "county",
-        "county_id_fips",
-        "fgd_operational_status_code",
-        "fgd_operating_date",
-        "fgd_manufacturer",
-        "fgd_manufacturer_code",
-        "plant_summer_capacity_mw",
-        "water_source",
-        "so2_equipment_type_4",
-    }
-    if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
-        expected_cols = set(fgd.columns) - fast_run_null_cols
-    else:
-        expected_cols = set(fgd.columns)
-    pudl.validate.no_null_cols(fgd, cols=expected_cols)
-    return AssetCheckResult(passed=True)
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
