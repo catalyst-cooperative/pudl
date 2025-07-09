@@ -507,15 +507,18 @@ def _core_eia860__generators_multifuel(
     multifuel_re = raw_eia860__multifuel_retired
 
     boolean_columns_to_fix = [
-        "has_air_permit_limits",
-        "can_cofire_100_oil",
-        "can_cofire_fuels",
-        "has_factors_that_limit_switching",
         "can_burn_multiple_fuels",
-        "has_other_factors_that_limit_switching",
-        "has_storage_limits",
+        "can_cofire_fuels",
         "can_switch_oil_gas",
         "can_switch_when_operating",
+        "has_factors_that_limit_switching",
+        "has_storage_limits",
+        "has_air_permit_limits",
+        "has_other_factors_that_limit_switching",
+        "can_cofire_oil_and_gas",
+        "can_cofire_100_oil",
+        "can_fuel_switch",
+        "has_regulatory_limits",
     ]
 
     # A subset of the columns have zero values, where NA is appropriate:
