@@ -1128,7 +1128,11 @@ class PudlResourceDescriptor(PudlMeta):
         ignored_codes: list = []
 
     class PudlDescriptionComponents(PudlMeta):
-        """Container to hold description configuration information."""
+        """Container to hold description configuration information.
+
+        All of these parameters have reasonable defaults for most resources if left unset.
+        You must specify :attr:`PudlResourceDescriptor.description` as a dictionary, but you do not have to put anything in it so long as the resource id follows the standard pattern.
+        """
 
         table_type_code: (
             Literal["assn", "codes", "entity", "scd", "timeseries"] | None
@@ -1144,17 +1148,17 @@ class PudlResourceDescriptor(PudlMeta):
             ]
             | None
         ) = None
-        """If this resource has table_type_code timeseries, indicates the temporal resolution, otherwise None.
-        If table_type_code is timeseries and this value is None or otherwise left unset, will be filled in with a default resolution parsed from the resource id string."""
+        """If this resource has :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` timeseries, indicates the temporal resolution, otherwise None.
+        If :attr:`PudlDescriptionComponents.table_type_code` is timeseries and this value is None or otherwise left unset, will be filled in with a default resolution parsed from the resource id string."""
         layer_code: Literal["raw", "_core", "core", "out", "test"] | None = None
         """Indicates the degree of processing applied to the data in this resource.
         If None or otherwise left unset, will be filled in with a default layer parsed from the resource id string."""
         source_code: str | None = None
-        """Indicates the source we wish to display for this resource; distinct from PudlResourceDescriptor.sources because here we want the majority source (or grouped source if truly mixed) and not a complete list of all sources used for this resource.
-        If set, should be a known data source shortcode like "eia923" or one of the grouped shortcodes from pudl.metadata.descriptions.source_descriptions.
+        """Indicates the source we wish to display for this resource; distinct from :attr:`PudlResourceDescriptor.source_ids` because here we want the majority source (or grouped source if truly mixed) and not a complete list of all sources used for this resource.
+        If set, should be a known data source shortcode like "eia923" or one of the grouped shortcodes from :data:`~pudl.metadata.descriptions.source_descriptions`.
         If None or otherwise left unset, will be filled in with a default source parsed from the resource id string."""
         usage_warnings: list[str | dict] | None = None
-        """List of string keys (for common warnings; see pudl.metadata.warnings) and dicts (for custom warnings) stating necessary precautions for using this resource.
+        """List of string keys (for common warnings; see :mod:`warnings`) and dicts (for custom warnings) stating necessary precautions for using this resource.
 
         Usage Warnings are a way for us to quickly and skim-ably tell users about analysis hazards when using a particular table.
         It has two goals:
@@ -1162,17 +1166,17 @@ class PudlResourceDescriptor(PudlMeta):
         1. help users quickly reach a point of success in their use of our data, and
         2. reduce the incidence of repeated questions and bug-like reports due to these inescapable hazards.
 
-        Reserve this field for severe and/or frequent problems an unfamiliar user may encounter, and list lighter or edge-case problems in ``description_details``.
+        Reserve this field for severe and/or frequent problems an unfamiliar user may encounter, and list lighter or edge-case problems in :attr:`PudlDescriptionComponents.additional_details_text`.
 
         The list can contain two kinds of entries:
 
-        * a string, which should match one of the keys in pudl.metadata.warnings.USAGE_WARNINGS
+        * a string, which should match one of the keys in :data:`~pudl.metadata.warnings.USAGE_WARNINGS`
         * a dict, which should contain two keys:
 
-            * "type" - a short code for the warning, which doesn't need to be unique and will only appear in preview & debugging tooling, not to users
-            * "description" - the one-to-two-sentence summary of a warning used only on this particular resource
+          * "type" - a short code for the warning, which doesn't need to be unique and will only appear in preview & debugging tooling, not to users
+          * "description" - the one-to-two-sentence summary of a warning used only on this particular resource
 
-        The system will automatically detect and include the following warnings based on the resource id string and schema information (see pudl.metadata.descriptions.ResourceDescriptionBuilder._assemble_usage_warnings):
+        The system will automatically detect and include the following warnings based on the resource id string and schema information (see :meth:`~pudl.metadata.descriptions.ResourceDescriptionBuilder._assemble_usage_warnings`):
 
         * multiple_inputs
         * ferc_is_hard
@@ -1186,8 +1190,8 @@ class PudlResourceDescriptor(PudlMeta):
 
         If filled, should support whichever of the following scenarios is most appropriate for this resource:
 
-        * the table_type_code is set or can be automatically detected: this value should complete the sentence corresponding to pudl.metadata.descriptions.table_type_fragments[table_type_code]
-        * the table_type_code is None/unset _and_ the resource is not named according to a standard table type listed in pudl.metadata.descriptions.table_type_fragments: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
+        * the :attr:`PudlDescriptionComponents.table_type_code` is set or can be automatically detected: this value should complete the sentence corresponding to :data:`~pudl.metadata.descriptions.table_type_fragments` for this resource's :attr:`PudlDescriptionComponents.table_type_code`
+        * the :attr:`PudlDescriptionComponents.table_type_code` is None/unset *and* the resource is not named according to a standard table type listed in :data:`~pudl.metadata.descriptions.table_type_fragments`: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
         """
         additional_layer_text: str | None = None
         """Unusual details about this resource's level of processing that don't fall into the normal definition of raw/core/_core/out/etc.
@@ -1196,7 +1200,7 @@ class PudlResourceDescriptor(PudlMeta):
         additional_source_text: str | None = None
         """A brief refinement on the source data for this table, such as indicating the Schedule or other section number.
         If None or otherwise left unset, will be left blank.
-        If set, should make sense when displayed directly after the title of a datasource (see pudl.metadata.descriptions.source_descriptions); parentheticals work best here."""
+        If set, should make sense when displayed directly after the title of a datasource (see :data:`~pudl.metadata.descriptions.source_descriptions`); parentheticals work best here."""
         additional_primary_key_text: str | None = None
         """For resources with no primary key, a brief summary of what each row contains, and perhaps why a primary key doesn't make sense for this table.
         If None or otherwise left unset, will be left blank.
@@ -1205,7 +1209,7 @@ class PudlResourceDescriptor(PudlMeta):
         """All other information about this resource's construction and intended use, including guidelines and recommendations for best results.
         If None or otherwise left unset, will be left blank; hides the Additional Details section entirely.
 
-        Q3 2025 Migration Mode variance: if PudlResourceDescriptor.description is a string, it gets moved here so you can see the old description content in the Additional Details section of the preview.
+        Q3 2025 Migration Mode variance: if :attr:`PudlResourceDescriptor.description` is a string, it gets moved here so you can see the old description content in the Additional Details section of the preview.
 
         May also include more-detailed explanations of listed usage warnings."""  # TODO: drop migration mode variance after migration is complete
 
