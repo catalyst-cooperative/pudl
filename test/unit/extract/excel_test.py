@@ -111,9 +111,7 @@ class TestExtractor:
         """Test whether we assign the correct data_maturity given the file names."""
         extractor = FakeExtractor()
         test_time = pd.DataFrame(
-            data=[
-                1,
-            ],
+            data=[1],
             columns=["second"],
         )
         assert all(
@@ -130,6 +128,10 @@ class TestExtractor:
         )
         assert all(
             extractor.add_data_maturity(test_time, page="time", year=2013).data_maturity
+            == "provisional"
+        )
+        assert all(
+            extractor.add_data_maturity(test_time, page="time", year=2014).data_maturity
             == "provisional"
         )
 

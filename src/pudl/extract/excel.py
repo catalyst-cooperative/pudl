@@ -170,9 +170,7 @@ class ExcelExtractor(GenericExtractor):
         # have early release (w/ or w/o the space)
         # We could use r"EIA923_Schedule(.*)(\d{4})(.*)(.xlsx|.xls)" as a pattern for
         # all recent 923 files, but that seems more brittle.
-        elif ("early_release" in file_name.lower()) or (
-            "early release" in file_name.lower()
-        ):
+        elif "early" in file_name.lower():
             maturity = "provisional"
         elif ("EIA923_Schedule" in file_name) and ("final" not in file_name.lower()):
             maturity = "incremental_ytd"
