@@ -40,10 +40,10 @@ the names and descriptions of each of its fields.
    {%- for resource in source_resources %}
    * - :ref:`{{ resource.sphinx_ref_name }}`
    {%- block browse_online scoped %}
-   {%- if resource.create_database_schema %}
-     - https://data.catalyst.coop/pudl/{{ resource.name }}
+   {%- if true %}
+     - https://viewer.catalyst.coop/search?q=name:{{ resource.name }}
    {%- else %}
-     - Table not published to Datasette.
+     - Table not available in Viewer.
    {%- endif %}{% endblock %}
    {%- endfor %}
 
@@ -63,22 +63,23 @@ existing tables.
      - Browse Online
    {%- for resource in extra_resources %}
    * - :ref:`{{ resource.sphinx_ref_name }}`
-   {%- block browse_extra_online scoped -%}
-   {%- if resource.create_database_schema %}
-     - https://data.catalyst.coop/pudl/{{ resource.name }}
+   {%- block browse_extra_online scoped %}
+   {%- if true %}
+     - https://viewer.catalyst.coop/search?q=name:{{ resource.name }}
    {%- else %}
-     - Table not published to Datasette.
-   {%- endif %}
-   {%- endblock %}
-   {%- endfor -%}
+     - Table not available in Viewer.
+   {%- endif %}{% endblock %}
+   {%- endfor %}
 {%- endif %}
 
 Background
 ^^^^^^^^^^
 {% block background %}{% endblock %}
 
+{% block download_title %}
 Download additional documentation
 ---------------------------------
+{% endblock %}
 {% block download_docs %}{% endblock %}
 
 {% block availability_title %}
