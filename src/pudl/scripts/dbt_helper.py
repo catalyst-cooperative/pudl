@@ -511,16 +511,16 @@ def update_tables(
     "--asset-select",
     "-a",
     help=(
-        "*DAGSTER* selector for the asset(s) you want to validate."
-        "This gets translated into a DBT selection. For example, you can"
-        "use '+key:\"out_eia__yearly_generators\"' to validate"
+        "*DAGSTER* selector for the asset(s) you want to validate. "
+        "This gets translated into a DBT selection. For example, you can "
+        "use '+key:\"out_eia__yearly_generators\"' to validate "
         "out_eia_yearly_generators and its upstream assets. Syntax "
-        "documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference"
+        "documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference "
     ),
 )
 @click.option(
     "--exclude",
-    help="DBT selector for the asset(s) you want to exclude from validation. Syntax"
+    help="DBT selector for the asset(s) you want to exclude from validation. Syntax "
     "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
 )
 @click.option(
@@ -529,7 +529,12 @@ def update_tables(
     type=click.Choice(["etl-full", "etl-fast"]),
     help="DBT target - etl-full (default) or etl-fast.",
 )
-@click.option("--dry-run/--wet-run", default=False)
+@click.option(
+    "--dry-run/--no-dry-run",
+    default=False,
+    help="If dry, will print out the parameters we would pass to dbt, but not "
+    "actually run the validation tests. Defaults to not-dry.",
+)
 def validate(
     select: str | None = None,
     asset_select: str | None = None,

@@ -13,6 +13,7 @@ from dbt.artifacts.schemas.run import RunExecutionResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
+import pudl.etl
 from pudl.logging_helpers import get_logger
 from pudl.workspace.setup import PUDL_ROOT_PATH, PudlPaths
 
@@ -147,7 +148,6 @@ def build_with_context(
         success=build_output.success,
         failure_contexts=compiled_sql_contexts + weighted_quantile_contexts,
     )
-    return BuildResult(success=build_output.success, failure_contexts=failure_contexts)
 
 
 def dagster_to_dbt_selection(
@@ -155,13 +155,15 @@ def dagster_to_dbt_selection(
 ) -> str:
     """Translate dagster asset selection to db node selection.
 
+    We use the dbt manifest to determine which sources are defined in dbt so
+    that we can map them to dagster assets. So, we need to generate a fresh dbt
+    manifest via ``dbt parse`` whenever we run this function.
+
     * turn asset selection into asset keys
     * turn asset keys into node names
     * turn node names into selection string
     """
     if defs is None:
-        import pudl.etl
-
         defs = pudl.etl.defs
 
     asset_keys = dg.AssetSelection.from_string(selection).resolve(
@@ -180,7 +182,7 @@ def dagster_to_dbt_selection(
 
     # all dagster assets are treated as sources so we only have to look here.
     dbt_node_selectors = [
-        f"source:{s['package_name']}.{s['source_name']}.{s['name']}"
+        f"source:{s['source_name']}.{s['name']}"
         for s in manifest["sources"].values()
         if s["name"] in asset_names
     ]
