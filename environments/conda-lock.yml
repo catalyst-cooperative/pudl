@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: d56515ba1efb3bad4d66037106560acf85bef8d0c5a6c22094214fde025c7acd
-    osx-64: da4fb8ccac1f3e2b9cb69456ec8111ab2a11644c91b0351ee6b3bac087292e54
-    osx-arm64: f3ad1b095d7a423c95db22f3e8847738c5620d499a2ea0247b5e82ef33e2d42a
+    linux-64: 61cd07e63d40305fe3f5e56d0112793e3bb39b78c97e69b25403002d38edb066
+    osx-64: e4ee705005c3ae87ad5b7b2492c6e15d3af1776796ac9da1e5256f9a95553f36
+    osx-arm64: 79c72746129227241e0f5e0bbef262d87ae9b7d3af9a4a49109d0e0938358c6c
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -5366,27 +5366,24 @@ package:
     category: main
     optional: false
   - name: dbt-core
-    version: 1.10.2
+    version: 1.9.8
     manager: conda
     platform: linux-64
     dependencies:
       agate: ">=1.7.0,<1.10"
       click: ">=8.0.2,<9.0"
       daff: ">=1.3.46"
-      dbt-adapters: ">=1.15.2,<2.0"
-      dbt-common: ">=1.22.0,<2.0"
+      dbt-adapters: ">=1.10.1,<2.0"
+      dbt-common: ">=1.13.0,<2.0"
       dbt-extractor: ">=0.5.0,<=0.6"
-      dbt-protos: ">=1.0.315,<2.0"
-      dbt-semantic-interfaces: ">=0.8.3,<0.9"
+      dbt-semantic-interfaces: ">=0.7.4,<0.8"
       jinja2: ">=3.1.3,<4"
-      jsonschema: ">=4.19.1,<5.0"
       mashumaro: ">=3.9,<3.15"
       msgpack-python: ">=0.5.6"
       networkx: ">=2.3,<4.0"
       packaging: ">20.9"
       pathspec: ">=0.9,<0.13"
       protobuf: ">=5.0,<6.0"
-      pydantic: <3
       python: ">=3.9"
       pytz: ">=2015.7"
       pyyaml: ">=6.0"
@@ -5394,34 +5391,31 @@ package:
       snowplow-tracker: ">=1.0.2,<2.0"
       sqlparse: ">=0.5.0,<0.6.0"
       typing_extensions: ">=4.4"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.10.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.9.8-pyhd8ed1ab_0.conda
     hash:
-      md5: f40b203487c1041d964f21f8f2a0edb9
-      sha256: 25b1c131969d6d338ea48a48fa10ac965d3644aedae223f2d8a32a72ca12172e
+      md5: f681aec787865fd2b95c1f4e854ef28f
+      sha256: df8581e69e09d95e3ae500a89b71989f7c9b484bea20ca5b7c22dbb9ac1d1fad
     category: main
     optional: false
   - name: dbt-core
-    version: 1.10.2
+    version: 1.9.8
     manager: conda
     platform: osx-64
     dependencies:
       agate: ">=1.7.0,<1.10"
       click: ">=8.0.2,<9.0"
       daff: ">=1.3.46"
-      dbt-adapters: ">=1.15.2,<2.0"
-      dbt-common: ">=1.22.0,<2.0"
+      dbt-adapters: ">=1.10.1,<2.0"
+      dbt-common: ">=1.13.0,<2.0"
       dbt-extractor: ">=0.5.0,<=0.6"
-      dbt-protos: ">=1.0.315,<2.0"
-      dbt-semantic-interfaces: ">=0.8.3,<0.9"
+      dbt-semantic-interfaces: ">=0.7.4,<0.8"
       jinja2: ">=3.1.3,<4"
-      jsonschema: ">=4.19.1,<5.0"
       mashumaro: ">=3.9,<3.15"
       msgpack-python: ">=0.5.6"
       networkx: ">=2.3,<4.0"
       packaging: ">20.9"
       pathspec: ">=0.9,<0.13"
       protobuf: ">=5.0,<6.0"
-      pydantic: <3
       python: ">=3.9"
       pytz: ">=2015.7"
       pyyaml: ">=6.0"
@@ -5429,34 +5423,31 @@ package:
       snowplow-tracker: ">=1.0.2,<2.0"
       sqlparse: ">=0.5.0,<0.6.0"
       typing_extensions: ">=4.4"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.10.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.9.8-pyhd8ed1ab_0.conda
     hash:
-      md5: f40b203487c1041d964f21f8f2a0edb9
-      sha256: 25b1c131969d6d338ea48a48fa10ac965d3644aedae223f2d8a32a72ca12172e
+      md5: f681aec787865fd2b95c1f4e854ef28f
+      sha256: df8581e69e09d95e3ae500a89b71989f7c9b484bea20ca5b7c22dbb9ac1d1fad
     category: main
     optional: false
   - name: dbt-core
-    version: 1.10.2
+    version: 1.9.8
     manager: conda
     platform: osx-arm64
     dependencies:
       agate: ">=1.7.0,<1.10"
       click: ">=8.0.2,<9.0"
       daff: ">=1.3.46"
-      dbt-adapters: ">=1.15.2,<2.0"
-      dbt-common: ">=1.22.0,<2.0"
+      dbt-adapters: ">=1.10.1,<2.0"
+      dbt-common: ">=1.13.0,<2.0"
       dbt-extractor: ">=0.5.0,<=0.6"
-      dbt-protos: ">=1.0.315,<2.0"
-      dbt-semantic-interfaces: ">=0.8.3,<0.9"
+      dbt-semantic-interfaces: ">=0.7.4,<0.8"
       jinja2: ">=3.1.3,<4"
-      jsonschema: ">=4.19.1,<5.0"
       mashumaro: ">=3.9,<3.15"
       msgpack-python: ">=0.5.6"
       networkx: ">=2.3,<4.0"
       packaging: ">20.9"
       pathspec: ">=0.9,<0.13"
       protobuf: ">=5.0,<6.0"
-      pydantic: <3
       python: ">=3.9"
       pytz: ">=2015.7"
       pyyaml: ">=6.0"
@@ -5464,10 +5455,10 @@ package:
       snowplow-tracker: ">=1.0.2,<2.0"
       sqlparse: ">=0.5.0,<0.6.0"
       typing_extensions: ">=4.4"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.10.2-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-core-1.9.8-pyhd8ed1ab_0.conda
     hash:
-      md5: f40b203487c1041d964f21f8f2a0edb9
-      sha256: 25b1c131969d6d338ea48a48fa10ac965d3644aedae223f2d8a32a72ca12172e
+      md5: f681aec787865fd2b95c1f4e854ef28f
+      sha256: df8581e69e09d95e3ae500a89b71989f7c9b484bea20ca5b7c22dbb9ac1d1fad
     category: main
     optional: false
   - name: dbt-duckdb
@@ -5601,69 +5592,69 @@ package:
     category: main
     optional: false
   - name: dbt-semantic-interfaces
-    version: 0.8.5
+    version: 0.7.4
     manager: conda
     platform: linux-64
     dependencies:
       click: ">=7.0,<9.0"
-      importlib-metadata: <9,>=6.0
-      jinja2: ">=3.1.6,<4"
+      importlib-metadata: <7,>=6.0
+      jinja2: ">=3.1.3,<4"
       jsonschema: ">=4.0,<5"
       more-itertools: ">=8.0,<11.0"
       pydantic: ">=1.10,<3"
-      python: ">=3.9"
+      python: ">=3.8"
       python-dateutil: ">=2.0,<3"
       pyyaml: ">=6.0,<7"
       typing-extensions: ">=4.4,<5"
       typing_extensions: ">=4.4,<5"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.8.5-pyh3cfb1c2_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.7.4-pyhf696b4e_0.conda
     hash:
-      md5: 479583eda6222a235efebeb6b3c671f8
-      sha256: eac243182c03347c6e81459e691c18643f4d5c6ec4e52c24c068a4d20c0068db
+      md5: 9727e54ab528851ebcd98958b9076643
+      sha256: 931c1e6bcdb1762109648629204de6d253d0d33a09e323088a362b92e60b987b
     category: main
     optional: false
   - name: dbt-semantic-interfaces
-    version: 0.8.5
+    version: 0.7.4
     manager: conda
     platform: osx-64
     dependencies:
       click: ">=7.0,<9.0"
-      importlib-metadata: <9,>=6.0
-      jinja2: ">=3.1.6,<4"
+      importlib-metadata: <7,>=6.0
+      jinja2: ">=3.1.3,<4"
       jsonschema: ">=4.0,<5"
       more-itertools: ">=8.0,<11.0"
       pydantic: ">=1.10,<3"
-      python: ">=3.9"
+      python: ">=3.8"
       python-dateutil: ">=2.0,<3"
       pyyaml: ">=6.0,<7"
       typing-extensions: ">=4.4,<5"
       typing_extensions: ">=4.4,<5"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.8.5-pyh3cfb1c2_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.7.4-pyhf696b4e_0.conda
     hash:
-      md5: 479583eda6222a235efebeb6b3c671f8
-      sha256: eac243182c03347c6e81459e691c18643f4d5c6ec4e52c24c068a4d20c0068db
+      md5: 9727e54ab528851ebcd98958b9076643
+      sha256: 931c1e6bcdb1762109648629204de6d253d0d33a09e323088a362b92e60b987b
     category: main
     optional: false
   - name: dbt-semantic-interfaces
-    version: 0.8.5
+    version: 0.7.4
     manager: conda
     platform: osx-arm64
     dependencies:
       click: ">=7.0,<9.0"
-      importlib-metadata: <9,>=6.0
-      jinja2: ">=3.1.6,<4"
+      importlib-metadata: <7,>=6.0
+      jinja2: ">=3.1.3,<4"
       jsonschema: ">=4.0,<5"
       more-itertools: ">=8.0,<11.0"
       pydantic: ">=1.10,<3"
-      python: ">=3.9"
+      python: ">=3.8"
       python-dateutil: ">=2.0,<3"
       pyyaml: ">=6.0,<7"
       typing-extensions: ">=4.4,<5"
       typing_extensions: ">=4.4,<5"
-    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.8.5-pyh3cfb1c2_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/dbt-semantic-interfaces-0.7.4-pyhf696b4e_0.conda
     hash:
-      md5: 479583eda6222a235efebeb6b3c671f8
-      sha256: eac243182c03347c6e81459e691c18643f4d5c6ec4e52c24c068a4d20c0068db
+      md5: 9727e54ab528851ebcd98958b9076643
+      sha256: 931c1e6bcdb1762109648629204de6d253d0d33a09e323088a362b92e60b987b
     category: main
     optional: false
   - name: dbus
@@ -10185,42 +10176,42 @@ package:
     category: main
     optional: false
   - name: importlib-metadata
-    version: 8.7.0
+    version: 6.10.0
     manager: conda
     platform: linux-64
     dependencies:
-      python: ""
-      zipp: ">=3.20"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.7.0-pyhe01879c_1.conda
+      python: ">=3.8"
+      zipp: ">=0.5"
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-6.10.0-pyha770c72_0.conda
     hash:
-      md5: 63ccfdc3a3ce25b027b8767eb722fca8
-      sha256: c18ab120a0613ada4391b15981d86ff777b5690ca461ea7e9e49531e8f374745
+      md5: ae2ad334f34040e147cc5824b450463b
+      sha256: 4b823af311e7f5093fca41ec0142d0e1ec9b3d1ee91924dc63133611bdfcaee5
     category: main
     optional: false
   - name: importlib-metadata
-    version: 8.7.0
+    version: 6.10.0
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.9"
-      zipp: ">=3.20"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.7.0-pyhe01879c_1.conda
+      python: ">=3.8"
+      zipp: ">=0.5"
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-6.10.0-pyha770c72_0.conda
     hash:
-      md5: 63ccfdc3a3ce25b027b8767eb722fca8
-      sha256: c18ab120a0613ada4391b15981d86ff777b5690ca461ea7e9e49531e8f374745
+      md5: ae2ad334f34040e147cc5824b450463b
+      sha256: 4b823af311e7f5093fca41ec0142d0e1ec9b3d1ee91924dc63133611bdfcaee5
     category: main
     optional: false
   - name: importlib-metadata
-    version: 8.7.0
+    version: 6.10.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.9"
-      zipp: ">=3.20"
-    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.7.0-pyhe01879c_1.conda
+      python: ">=3.8"
+      zipp: ">=0.5"
+    url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-6.10.0-pyha770c72_0.conda
     hash:
-      md5: 63ccfdc3a3ce25b027b8767eb722fca8
-      sha256: c18ab120a0613ada4391b15981d86ff777b5690ca461ea7e9e49531e8f374745
+      md5: ae2ad334f34040e147cc5824b450463b
+      sha256: 4b823af311e7f5093fca41ec0142d0e1ec9b3d1ee91924dc63133611bdfcaee5
     category: main
     optional: false
   - name: importlib_resources
@@ -12275,10 +12266,10 @@ package:
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.44-h1423503_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.44-h1423503_1.conda
     hash:
-      md5: e31316a586cac398b1fcdb10ace786b9
-      sha256: 2a34aa8146f97f9e2fc1f3ff34e17c1008afd4a7b0e2fea164b8e5df00b8cbb4
+      md5: 0be7c6e070c19105f966d3758448d018
+      sha256: 1a620f27d79217c1295049ba214c2f80372062fd251b569e9873d4a953d27554
     category: main
     optional: false
   - name: leather
