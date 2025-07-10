@@ -4,10 +4,12 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_epa__assn_eia_epacamd": {
-        "description": """This crosswalk table comes from the
+        "description": {
+            "additional_summary_text": "EPA units and EIA plants, boilers, and generators.",
+            "additional_details_text": """This crosswalk table comes from the
 PUDL fork of the EPA camd-eia-crosswalk Github repo:
 https://github.com/catalyst-cooperative/camd-eia-crosswalk-latest.
-It's purpose is to connect EPA units with EIA plants, boilers, and generators.
+
 The camd-eia-crosswalk README and our Data Source documentation page on
 :doc:`../data_sources/epacems` depict the complicated relationship between EIA and EPA
 data, specifically the nature of EPA vs. EIA "units" and the level of granularity that
@@ -19,6 +21,7 @@ each new year of EIA data, capturing changes in plant information over time.
 Our version of the crosswalk clarifies some of the column names and removes unmatched
 rows. The :func:`pudl.etl.glue_assets.core_epa__assn_eia_epacamd` function doc strings explain
 what changes are made from the EPA's version.""",
+        },
         "schema": {
             "fields": [
                 "report_year",

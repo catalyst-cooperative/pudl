@@ -232,7 +232,10 @@ def test_frictionless_data_package_resources_populated():
         )
 
 
-description_compliant_tables = ["core_epacems__hourly_emissions"]
+description_compliant_tables = [
+    "core_epacems__hourly_emissions",
+    "core_epa__assn_eia_epacamd",
+]
 # TODO: flip this to true after we do the second pass to set description_primary_key
 # everywhere that needs it
 CHECK_DESCRIPTION_PRIMARY_KEYS = False
