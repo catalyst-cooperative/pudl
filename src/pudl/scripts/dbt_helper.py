@@ -231,7 +231,6 @@ def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
 
 def _log_schema_diff(old_schema: DbtSchema, new_schema: DbtSchema):
     """Print colored summary of schema changes."""
-    # TODO 2025-07-10: could use colorama to make the - lines red and the + lines green.
     summary = _schema_diff_summary(old_schema, new_schema)
     colored_diff = []
     for line in summary:

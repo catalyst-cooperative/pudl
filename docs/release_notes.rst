@@ -14,6 +14,9 @@ Expanded Data Coverage
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* the output of ``dbt_helper update-tables`` now conforms to the format that
+  our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
+  :issue:`4119` and :pr:`4401`.
 
 Bug Fixes
 ^^^^^^^^^
