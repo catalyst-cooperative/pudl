@@ -568,11 +568,18 @@ columns."""
         "etl_group": "eia860",
     },
     "core_eia860__assn_yearly_boiler_emissions_control_equipment": {
-        "description": (
-            """A table that links EIA boiler IDs to emissions control IDs for NOx, SO2,
-mercury, and particulate monitoring. The relationship between the IDs is sometimes many
-to many."""
-        ),
+        "description": {
+            "additional_summary_text": (
+                "EIA boiler IDs and emissions control IDs for NOx, SO2, "
+                "mercury, and particulate monitoring."
+            ),
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": "The relationship between the IDs is sometimes many to many.",
+                },
+            ],
+        },
         "schema": {
             "fields": [
                 "report_date",
