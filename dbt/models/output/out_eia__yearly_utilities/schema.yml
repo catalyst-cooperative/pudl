@@ -5,7 +5,7 @@ sources:
       - name: out_eia__yearly_utilities
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 street_address: EXTRACT(year FROM report_date) <= 2024
                 city: EXTRACT(year FROM report_date) <= 2024
                 state: EXTRACT(year FROM report_date) <= 2024

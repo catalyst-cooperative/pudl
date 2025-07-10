@@ -5,7 +5,7 @@ sources:
       - name: out_eia923__fuel_receipts_costs
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 mercury_content_ppm: EXTRACT(year FROM report_date) NOT IN (2008, 2009, 2010, 2011, 2013)
                 natural_gas_delivery_contract_type_code: EXTRACT(year FROM report_date) >= 2014
                 moisture_content_pct: EXTRACT(year FROM report_date) >= 2014

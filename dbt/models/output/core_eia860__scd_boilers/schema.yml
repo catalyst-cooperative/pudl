@@ -5,7 +5,7 @@ sources:
       - name: core_eia860__scd_boilers
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 boiler_operating_date: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024
                 boiler_status: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024
                 boiler_retirement_date: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024

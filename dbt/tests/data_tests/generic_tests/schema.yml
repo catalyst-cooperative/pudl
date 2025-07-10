@@ -74,10 +74,10 @@ macros:
       - name: exclude_columns
         type: list
         description: List of column names to exclude from the null check (optional, default empty list).
-      - name: conditional_columns
+      - name: row_conditions
         type: dict
         description: >
-          Dictionary mapping column names to SQL conditions. For each column, the null
+          Dictionary mapping column names to SQL row conditions. For each column, the null
           check will only be applied to rows matching the condition (optional, default
           empty dict).
   - name: test_expect_complete_valid_ownership

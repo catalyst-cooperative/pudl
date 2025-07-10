@@ -9,7 +9,7 @@ sources:
                 - sorbent_type_3
                 - sorbent_type_4
                 - so2_equipment_type_4
-              conditional_columns:
+              row_conditions:
                 county: EXTRACT(year FROM report_date) <= 2010
                 county_id_fips: EXTRACT(year FROM report_date) <= 2010
                 fgd_operating_date: EXTRACT(year FROM report_date) <= 2012

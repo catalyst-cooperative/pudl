@@ -5,7 +5,7 @@ sources:
       - name: core_eia860__scd_generators_multifuel
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 county: EXTRACT(year FROM report_date) >= 2009
                 operational_status_code: EXTRACT(year FROM report_date) >= 2011
                 technology_description: EXTRACT(year FROM report_date) >= 2014

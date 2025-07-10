@@ -5,7 +5,7 @@ sources:
       - name: out_eia__yearly_plants
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 ash_impoundment: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024
                 ash_impoundment_lined: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024
                 ash_impoundment_status: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2024

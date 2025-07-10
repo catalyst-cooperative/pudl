@@ -5,7 +5,7 @@ sources:
       - name: _core_eia923__fgd_operation_maintenance
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 opex_fgd_labor_supervision: EXTRACT(year FROM report_date) >= 2009
                 opex_fgd_land_acquisition: EXTRACT(year FROM report_date) <= 2008
                 fgd_control_flag: EXTRACT(year FROM report_date) <= 2011

@@ -5,7 +5,7 @@ sources:
       - name: core_eia860__assn_boiler_stack_flue
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 stack_id_eia: EXTRACT(year FROM report_date) <= 2012
                 flue_id_eia: EXTRACT(year FROM report_date) <= 2012
                 stack_flue_id_eia: EXTRACT(year FROM report_date) >= 2013

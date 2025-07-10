@@ -1,7 +1,7 @@
 {% test expect_columns_not_all_null(
     model,
     exclude_columns=[],
-    conditional_columns={}
+    row_conditions={}
 ) %}
 
 -- DESCRIBE implementations vary; this assumes DuckDB's
@@ -20,18 +20,18 @@
 
 {% set checks = [] %}
 {% for column_name in column_names %}
-    {% if column_name in conditional_columns %}
-        {% set condition = conditional_columns[column_name] %}
+    {% if column_name in row_conditions %}
+        {% set row_condition = row_conditions[column_name] %}
         {% set check %}
             SELECT
                 '{{ model.name }}' as table_name,
                 '{{ column_name }}' as failing_column,
-                'Conditional check failed: {{ condition }}' as failure_reason,
-                '{{ condition | replace("'", "''") }}' as row_condition,
+                'Conditional check failed: {{ row_condition }}' as failure_reason,
+                '{{ row_condition | replace("'", "''") }}' as row_condition,
                 COUNT(*) as total_rows_matching_condition,
                 COUNT({{ column_name }}) as non_null_count
             FROM {{ model }}
-            WHERE {{ condition }}
+            WHERE {{ row_condition }}
             HAVING COUNT(*) > 0 AND COUNT({{ column_name }}) = 0
         {% endset %}
     {% else %}

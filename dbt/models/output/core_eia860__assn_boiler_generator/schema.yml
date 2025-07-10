@@ -5,7 +5,7 @@ sources:
       - name: core_eia860__assn_boiler_generator
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 boiler_generator_assn_type_code: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2012
                 steam_plant_type_code: EXTRACT(year FROM report_date) >= 2014
                 data_maturity: EXTRACT(year FROM report_date) >= 2009

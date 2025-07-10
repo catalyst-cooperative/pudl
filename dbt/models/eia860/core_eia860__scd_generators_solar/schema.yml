@@ -5,7 +5,7 @@ sources:
       - name: core_eia860__scd_generators_solar
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 standard_testing_conditions_capacity_mwdc: EXTRACT(year FROM report_date) <= 2014
                 net_metering_capacity_mwdc: EXTRACT(year FROM report_date) >= 2016
                 uses_net_metering_agreement: EXTRACT(year FROM report_date) >= 2016

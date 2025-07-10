@@ -9,7 +9,7 @@ sources:
                 - capex_annual_addition_rolling
                 - capex_annual_per_mw_rolling
                 - capex_annual_per_mwh_rolling
-              conditional_columns:
+              row_conditions:
                 asset_retirement_cost: report_year >= 2003
                 capex_annual_addition: report_year >= 1995
                 capex_annual_per_kw: report_year >= 1995

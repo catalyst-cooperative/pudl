@@ -5,7 +5,7 @@ sources:
       - name: _core_eia923__cooling_system_information
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 cooling_type: EXTRACT(year FROM report_date) >= 2013
                 monthly_total_cooling_hours_in_service: EXTRACT(year FROM report_date) >= 2010
                 flow_rate_method: EXTRACT(year FROM report_date) >= 2010

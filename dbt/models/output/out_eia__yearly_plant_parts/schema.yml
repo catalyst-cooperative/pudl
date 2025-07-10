@@ -5,7 +5,7 @@ sources:
       - name: out_eia__yearly_plant_parts
         data_tests:
           - expect_columns_not_all_null:
-              conditional_columns:
+              row_conditions:
                 unit_id_pudl: EXTRACT(year FROM report_date) BETWEEN 2008 AND 2024
                 ferc1_generator_agg_id: EXTRACT(year FROM report_date) BETWEEN 2005 AND 2019
                 capacity_factor: EXTRACT(year FROM report_date) <= 2024

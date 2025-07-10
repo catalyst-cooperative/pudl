@@ -9,7 +9,7 @@ sources:
                 - tower_type_3
                 - tower_type_4
                 - cooling_type_4
-              conditional_columns:
+              row_conditions:
                 county: "extract(year from report_date) <= 2010"
                 plant_summer_capacity_mw: "extract(year from report_date) <= 2010"
                 water_source: "extract(year from report_date) <= 2010"
