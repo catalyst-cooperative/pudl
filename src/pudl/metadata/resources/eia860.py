@@ -618,10 +618,9 @@ to many."""
         "etl_group": "eia860",
     },
     "core_eia860__assn_boiler_stack_flue": {
-        "description": (
-            """A table that links EIA boiler IDs to EIA stack and/or flue
-system IDs."""
-        ),
+        "description": {
+            "additional_summary_text": "EIA boiler IDs and EIA stack and/or flue system IDs.",
+        },
         "schema": {
             "fields": [
                 "report_date",
