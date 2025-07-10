@@ -257,7 +257,7 @@ def test_description_compliance(resource_id):
         "source_code": builder.source.type,
         "table_type_code": (
             (builder.summary.type.split("[")[0] != "None")
-            or len(builder.summary.descrpition) > 0
+            or len(builder.summary.description) > 0
         ),
         "timeseries_resolution_code": (
             (not builder.summary.type.startswith("timeseries"))
