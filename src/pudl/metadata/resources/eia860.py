@@ -281,11 +281,17 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "out_eia860__yearly_ownership": {
-        "description": (
-            "Generator Ownership, reported in EIA-860 Schedule 4. Includes only "
-            "jointly or third-party owned generators. Denormalized to include plant "
-            "and utility names and other associated IDs."
-        ),
+        "description": {
+            "additional_summary_text": "generator ownership.",
+            "additional_source_text": "(Schedule 4)",
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": "Includes only jointly or third-party owned generators.",
+                },
+            ],
+            "additional_details_text": "Denormalized to include plant and utility names and other associated IDs.",
+        },
         "schema": {
             "fields": [
                 "report_date",
