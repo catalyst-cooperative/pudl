@@ -5,6 +5,13 @@ sources:
       - name: out_eia__yearly_boilers
         data_tests:
           - expect_columns_not_all_null:
+              description: >
+                Excluded mercury control strategies are very infrequently used, since
+                few boilers have more than three. It's fine if they're null. The boiler
+                manufacturer and code are static attributes which were only reported in
+                a single year and are effectively foreward/back filled because they are
+                part of the boiler entity table. This means they're fully populated if
+                that year of data is included, and entirely null if it's not.
               exclude_columns:
                 - mercury_control_existing_strategy_4
                 - mercury_control_existing_strategy_5
