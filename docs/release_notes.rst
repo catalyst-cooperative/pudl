@@ -18,6 +18,24 @@ Quality of Life Improvements
 Bug Fixes
 ^^^^^^^^^
 
+* Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See :issue:`4328`
+  and :pr:`4392`
+
+New Tests and Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-930 and FERC-714 Hourly Imputed Demand
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added checks which ensure that *only* hourly electricity demand values which are
+  flagged for imputation change significantly from their reported values before and
+  after the imputation. Check that the missingness of various columns in the hourly
+  reported demand and imputed demand are within expected ranges. Explicitly flag
+  years of which are dropped due to insufficient data for meaningful imputation with
+  ``BAD_YEAR``. Affected tables include :ref:`out_eia930__hourly_operations`,
+  :ref:`out_eia930__hourly_subregion_demand`, and
+  :ref:`out_ferc714__hourly_planning_area_demand`. See PR :pr:`4334`.
+
 .. _release-v2025.7.0:
 
 ---------------------------------------------------------------------------------------

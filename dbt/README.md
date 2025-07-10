@@ -64,17 +64,22 @@ dbt_helper update-tables --help
 
 #### `validate`
 
-If you want to check if a materialized asset passes the validation tests defined in DBT, you can use `dbt_helper validate`. You can pass in the `--select` parameter to filter to a specific set of validation tests, and `--target` to set the DBT target.
+If you want to check if a materialized asset passes the validation tests defined in DBT, you can use `dbt_helper validate`.
 
-This will run the associated tests, then print out the test query output so you can see what went wrong.
+This understands how to translate dagster asset selections into DBT node selections, and does some extra legwork to make the test outputs more informative.
+
+See `dbt_helper validate --help` for usage details.
 
 Example usage:
 
 ```bash
-dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+dbt_helper validate --asset-select "key:out_eia__yearly_generators" # for just this asset
+dbt_helper validate --asset-select "+key:out_eia__yearly_generators" # for this asset as well as all upstream assets
+dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"  # skip rowcounts
+dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators" # if you want to select a DBT node in particular
 ```
 
-See [official selection syntax documentation](https://docs.getdbt.com/reference/node-selection/syntax) for details.
+See [dbt selection syntax documentation](https://docs.getdbt.com/reference/node-selection/syntax) and [Dagster selection syntax documentation](https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference) to see all the possibilities.
 
 ## Adding tests
 
