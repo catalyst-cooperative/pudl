@@ -18,7 +18,7 @@ from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
 configure_root_logger()
-logger = get_logger(__file__)
+logger = get_logger(__name__)
 
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
 
