@@ -26,7 +26,7 @@ logger = get_logger(__name__)
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
 
 
-def __prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str:
+def _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str:
     """Dump YAML to string that Prettier likes."""
 
     class PrettierCompatibleDumper(yaml.Dumper):
@@ -191,7 +191,7 @@ class DbtSchema(BaseModel):
     def to_yaml(self, schema_path: Path):
         """Write DbtSchema object to YAML file."""
         with schema_path.open("w") as schema_file:
-            yaml_output = __prettier_yaml_dumps(self.model_dump(exclude_none=True))
+            yaml_output = _prettier_yaml_dumps(self.model_dump(exclude_none=True))
             schema_file.write(yaml_output)
 
 
@@ -229,8 +229,8 @@ def _schema_diff_summary(old_schema: DbtSchema, new_schema: DbtSchema):
     stripped = (
         line.rstrip()
         for line in unified_diff(
-            __prettier_yaml_dumps(old_schema.model_dump(exclude_none=True)).split("\n"),
-            __prettier_yaml_dumps(new_schema.model_dump(exclude_none=True)).split("\n"),
+            _prettier_yaml_dumps(old_schema.model_dump(exclude_none=True)).split("\n"),
+            _prettier_yaml_dumps(new_schema.model_dump(exclude_none=True)).split("\n"),
             fromfile="old_schema",
             tofile="new_schema",
         )
