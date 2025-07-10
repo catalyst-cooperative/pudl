@@ -169,14 +169,20 @@ class DbtSchema(BaseModel):
         with schema_path.open("r") as schema_yaml:
             return cls.model_validate(yaml.safe_load(schema_yaml))
 
-    @classmethod
-    def to_yaml(cls, schema_path: Path):
+    def to_yaml(self, schema_path: Path):
         """Write DbtSchema object to YAML file."""
+
+        class PrettierCompatibleDumper(yaml.Dumper):
+            def increase_indent(self, flow=False, indentless=False):
+                return super().increase_indent(flow, False)
+
         with schema_path.open("w") as schema_file:
             yaml.dump(
-                cls.model_dump(exclude_none=True),
+                self.model_dump(exclude_none=True),
                 schema_file,
                 default_flow_style=False,
+                Dumper=PrettierCompatibleDumper,
+                indent=2,
                 sort_keys=False,
                 width=float("inf"),
             )
