@@ -5,6 +5,9 @@ sources:
       - name: _core_eia860__cooling_equipment
         data_tests:
           - expect_columns_not_all_null:
+              description: >
+                Excluded columns are 3rd and 4th tier categories that are very
+                infrequently used. It's fine for them to be null.
               exclude_columns:
                 - tower_type_3
                 - tower_type_4
