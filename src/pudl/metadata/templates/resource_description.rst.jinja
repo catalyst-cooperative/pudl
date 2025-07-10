@@ -1,0 +1,27 @@
+{{ descriptions.summary.description|safe }}
+
+Processing:
+  {{ descriptions.layer.description|safe }}
+
+Source:
+  {{ descriptions.source.description|safe }}
+
+Primary key:
+  {{ descriptions.primary_key.description|safe }}
+
+{% if descriptions.usage_warnings|length > 0 %}
+Usage Warnings
+^^^^^^^^^^^^^^
+
+{% for uw in descriptions.usage_warnings %}
+* {{ uw.description|safe }}
+{% endfor %}
+{% endif %}
+
+{% if descriptions.details.type == "True" %}
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+{{ descriptions.details.description|safe }}
+{% endif %}
