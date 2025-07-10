@@ -12,7 +12,7 @@ dependencies:
   - aiobotocore=2.23.0=pyhd8ed1ab_0
   - aiofiles=24.1.0=pyhd8ed1ab_1
   - aiohappyeyeballs=2.6.1=pyhd8ed1ab_0
-  - aiohttp=3.12.13=py312h178313f_0
+  - aiohttp=3.12.14=py312h8a5da7c_0
   - aioitertools=0.12.0=pyhd8ed1ab_1
   - aiosignal=1.4.0=pyhd8ed1ab_0
   - alabaster=1.0.0=pyhd8ed1ab_1
@@ -168,7 +168,7 @@ dependencies:
   - freexl=2.0.0=h9dce30a_2
   - fribidi=1.0.10=h36c2ea0_0
   - frictionless=5.18.1=pyhd8ed1ab_1
-  - frozenlist=1.6.0=py312hb9e946c_0
+  - frozenlist=1.7.0=py312h447239a_0
   - fsspec=2025.5.1=pyhd8ed1ab_0
   - furo=2024.8.6=pyhd8ed1ab_2
   - future=1.0.0=pyhd8ed1ab_2
@@ -341,7 +341,7 @@ dependencies:
   - libutf8proc=2.10.0=h202a827_0
   - libuuid=2.38.1=h0b41bf4_0
   - libuv=1.51.0=hb9d3cd8_0
-  - libwebp-base=1.5.0=h851e524_0
+  - libwebp-base=1.6.0=hd42ef1d_0
   - libxcb=1.17.0=h8a09558_0
   - libxcrypt=4.4.36=hd590300_1
   - libxkbcommon=1.10.0=h65c71a3_0
@@ -388,7 +388,7 @@ dependencies:
   - networkx=3.5=pyhe01879c_0
   - nlohmann_json=3.12.0=h3f2d84a_0
   - nodeenv=1.9.1=pyhd8ed1ab_1
-  - nodejs=22.17.0=h3883d8a_0
+  - nodejs=22.17.0=heeeca48_1
   - nomkl=1.0=h5ca1d4c_0
   - notebook=7.4.4=pyhd8ed1ab_0
   - notebook-shim=0.2.4=pyhd8ed1ab_1
@@ -409,7 +409,7 @@ dependencies:
   - overrides=7.7.0=pyhd8ed1ab_1
   - packaging=24.2=pyhd8ed1ab_2
   - pandas=2.3.1=py312hf79963d_0
-  - pandera-core=0.24.0=pyhd8ed1ab_0
+  - pandera-core=0.25.0=pyhd8ed1ab_0
   - pandoc=3.7.0.2=ha770c72_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - pango=1.56.4=hadf4263_0

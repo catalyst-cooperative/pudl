@@ -10,7 +10,7 @@ dependencies:
   - aiobotocore=2.23.0=pyhd8ed1ab_0
   - aiofiles=24.1.0=pyhd8ed1ab_1
   - aiohappyeyeballs=2.6.1=pyhd8ed1ab_0
-  - aiohttp=3.12.13=py312h998013c_0
+  - aiohttp=3.12.14=py312h6daa0e5_0
   - aioitertools=0.12.0=pyhd8ed1ab_1
   - aiosignal=1.4.0=pyhd8ed1ab_0
   - alabaster=1.0.0=pyhd8ed1ab_1
@@ -164,7 +164,7 @@ dependencies:
   - freexl=2.0.0=h3ab3353_2
   - fribidi=1.0.10=h27ca646_0
   - frictionless=5.18.1=pyhd8ed1ab_1
-  - frozenlist=1.6.0=py312hc535dfd_0
+  - frozenlist=1.7.0=py312h512c567_0
   - fsspec=2025.5.1=pyhd8ed1ab_0
   - furo=2024.8.6=pyhd8ed1ab_2
   - future=1.0.0=pyhd8ed1ab_2
@@ -328,7 +328,7 @@ dependencies:
   - libtiff=4.7.0=h2f21f7c_5
   - libutf8proc=2.10.0=h74a6958_0
   - libuv=1.51.0=h5505292_0
-  - libwebp-base=1.5.0=h2471fea_0
+  - libwebp-base=1.6.0=h07db88b_0
   - libxcb=1.17.0=hdb1d25a_0
   - libxml2=2.13.8=h52572c6_0
   - libxslt=1.1.39=h223e5b9_0
@@ -394,7 +394,7 @@ dependencies:
   - overrides=7.7.0=pyhd8ed1ab_1
   - packaging=24.2=pyhd8ed1ab_2
   - pandas=2.3.1=py312h98f7732_0
-  - pandera-core=0.24.0=pyhd8ed1ab_0
+  - pandera-core=0.25.0=pyhd8ed1ab_0
   - pandoc=3.7.0.2=hce30654_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - pango=1.56.4=h875632e_0

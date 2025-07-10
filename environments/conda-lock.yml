@@ -290,35 +290,35 @@ package:
     category: main
     optional: false
   - name: aiohttp
-    version: 3.12.13
+    version: 3.12.14
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
       aiohappyeyeballs: ">=2.5.0"
-      aiosignal: ">=1.1.2"
+      aiosignal: ">=1.4.0"
       attrs: ">=17.3.0"
       frozenlist: ">=1.1.1"
-      libgcc: ">=13"
+      libgcc: ">=14"
       multidict: ">=4.5,<7.0"
       propcache: ">=0.2.0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       yarl: ">=1.17.0,<2.0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/aiohttp-3.12.13-py312h178313f_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/aiohttp-3.12.14-py312h8a5da7c_0.conda
     hash:
-      md5: a91df3f6eaf0d0afd155274a1833ab3c
-      sha256: 5b73f69c26a18236bd65bb48aafa53dbbd47b1f6ba41d7e4539440a849d6ca60
+      md5: d038a7b034c0b0f668a0cb9e38030b84
+      sha256: ba954f7b9b7f579c98131c090460db183f5752bd8a248815643e04c734525669
     category: main
     optional: false
   - name: aiohttp
-    version: 3.12.13
+    version: 3.12.14
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
       aiohappyeyeballs: ">=2.5.0"
-      aiosignal: ">=1.1.2"
+      aiosignal: ">=1.4.0"
       attrs: ">=17.3.0"
       frozenlist: ">=1.1.1"
       multidict: ">=4.5,<7.0"
@@ -326,20 +326,20 @@ package:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       yarl: ">=1.17.0,<2.0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/aiohttp-3.12.13-py312h3520af0_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/aiohttp-3.12.14-py312h3d55d04_0.conda
     hash:
-      md5: c7366fda5fad4cdb31afb5b6833d59d2
-      sha256: 2164eeb0d05be3344bb19934462ae54de23d40ecb4f5d77e4962dcc2e2262d71
+      md5: 9d8136603584a833b26b66c309a6930b
+      sha256: e47353d271d8170cfe149a3da2bfd026a4d70e21e2352ce120993bf6c949d602
     category: main
     optional: false
   - name: aiohttp
-    version: 3.12.13
+    version: 3.12.14
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
       aiohappyeyeballs: ">=2.5.0"
-      aiosignal: ">=1.1.2"
+      aiosignal: ">=1.4.0"
       attrs: ">=17.3.0"
       frozenlist: ">=1.1.1"
       multidict: ">=4.5,<7.0"
@@ -347,10 +347,10 @@ package:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       yarl: ">=1.17.0,<2.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/aiohttp-3.12.13-py312h998013c_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/aiohttp-3.12.14-py312h6daa0e5_0.conda
     hash:
-      md5: 7d677c98824f74ecb42078879de4824d
-      sha256: 7a2da3507deace326adc8d7b722809beaae644c8cbd08f3d53701c7a81a2de25
+      md5: 1b44310df0e36e02f744b1c4726fe638
+      sha256: 55a47efbdae6d5bd24ed66b3bbe33b021332cac4882c72a4ebfaf653afed986c
     category: main
     optional: false
   - name: aioitertools
@@ -7480,48 +7480,49 @@ package:
     category: main
     optional: false
   - name: frozenlist
-    version: 1.6.0
+    version: 1.7.0
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      libgcc: ">=13"
-      libstdcxx: ">=13"
+      libgcc: ">=14"
+      libstdcxx: ">=14"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/frozenlist-1.6.0-py312hb9e946c_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/frozenlist-1.7.0-py312h447239a_0.conda
     hash:
-      md5: 13290e5d9cb327b1b61c1bd8089ac920
-      sha256: 685ef959d9f3ceeb2bd0dbda36b4bdcfb6e3ae7d1a7cc2c364de543cc28c597f
+      md5: 63e20cf7b7460019b423fc06abb96c60
+      sha256: f4e0e6cd241bc24afb2d6d08e5d2ba170fad2475e522bdf297b7271bba268be6
     category: main
     optional: false
   - name: frozenlist
-    version: 1.5.0
+    version: 1.7.0
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
+      libcxx: ">=19"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/frozenlist-1.5.0-py312h3520af0_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/frozenlist-1.7.0-py312h18bfd43_0.conda
     hash:
-      md5: 887a4fa613758220fff7641b9d3ead95
-      sha256: 332d78beaec0ab79f176656e71b819d75bb72a9a9c99bb1dc0387c7f0c34f016
+      md5: d1e9b9b950051516742a6719489e98c6
+      sha256: 33a8bc7384594da4ce9148a597215dc28517d11fa41e1fac14326abab1e55206
     category: main
     optional: false
   - name: frozenlist
-    version: 1.6.0
+    version: 1.7.0
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-      libcxx: ">=18"
+      libcxx: ">=19"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/frozenlist-1.6.0-py312hc535dfd_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/frozenlist-1.7.0-py312h512c567_0.conda
     hash:
-      md5: 0911bf2fb0b268c34317fa0f3660ec78
-      sha256: c5c90128b1bea9e4d13d8abc821020fb2840d3f1b1ebb7ee573faefb67af2480
+      md5: 9f016ae66f8ef7195561dbf7ce0e5944
+      sha256: 690af95d69d97b6e1ffead1edd413ca0f8b9189fb867b6bd8fd351f8ad509043
     category: main
     optional: false
   - name: fsspec
@@ -15153,40 +15154,40 @@ package:
     category: main
     optional: false
   - name: libwebp-base
-    version: 1.5.0
+    version: 1.6.0
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      libgcc: ">=13"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libwebp-base-1.5.0-h851e524_0.conda
+      libgcc: ">=14"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libwebp-base-1.6.0-hd42ef1d_0.conda
     hash:
-      md5: 63f790534398730f59e1b899c3644d4a
-      sha256: c45283fd3e90df5f0bd3dbcd31f59cdd2b001d424cf30a07223655413b158eaf
+      md5: aea31d2e5b1091feca96fcfe945c3cf9
+      sha256: 3aed21ab28eddffdaf7f804f49be7a7d701e8f0e46c856d801270b470820a37b
     category: main
     optional: false
   - name: libwebp-base
-    version: 1.5.0
+    version: 1.6.0
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libwebp-base-1.5.0-h6cf52b4_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libwebp-base-1.6.0-hb807250_0.conda
     hash:
-      md5: 5e0cefc99a231ac46ba21e27ae44689f
-      sha256: 7f110eba04150f1fe5fe297f08fb5b82463eed74d1f068bc67c96637f9c63569
+      md5: 7bb6608cf1f83578587297a158a6630b
+      sha256: 00dbfe574b5d9b9b2b519acb07545380a6bc98d1f76a02695be4995d4ec91391
     category: main
     optional: false
   - name: libwebp-base
-    version: 1.5.0
+    version: 1.6.0
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libwebp-base-1.5.0-h2471fea_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libwebp-base-1.6.0-h07db88b_0.conda
     hash:
-      md5: 569466afeb84f90d5bb88c11cc23d746
-      sha256: f8bdb876b4bc8cb5df47c28af29188de8911c3fea4b799a33743500149de3f4a
+      md5: e5e7d467f80da752be17796b87fe6385
+      sha256: a4de3f371bb7ada325e1f27a4ef7bcc81b2b6a330e46fac9c2f78ac0755ea3dd
     category: main
     optional: false
   - name: libxcb
@@ -17245,16 +17246,15 @@ package:
     dependencies:
       __glibc: ">=2.28,<3.0.a0"
       icu: ">=75.1,<76.0a0"
-      libgcc: ">=13"
-      libstdcxx: ">=13"
+      libgcc: ">=14"
+      libstdcxx: ">=14"
       libuv: ">=1.51.0,<2.0a0"
       libzlib: ">=1.3.1,<2.0a0"
       openssl: ">=3.5.1,<4.0a0"
-      zlib: ""
-    url: https://conda.anaconda.org/conda-forge/linux-64/nodejs-22.17.0-h3883d8a_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/nodejs-22.17.0-heeeca48_1.conda
     hash:
-      md5: 2bed8758a4c36abda42e6d2ba1c84fff
-      sha256: a8287da5d8798b407d5e746f535ea00ebe7f36c6efb49aaab2d29a50318f2224
+      md5: 98bcab7b3c9b3f99d09b7e3aabc1624d
+      sha256: a709c6649205ebaeebc21d4d729ca6bf762533fb5edf0cca718717583092cbe1
     category: main
     optional: false
   - name: nodejs
@@ -17264,15 +17264,14 @@ package:
     dependencies:
       __osx: ">=10.15"
       icu: ">=75.1,<76.0a0"
-      libcxx: ">=18"
+      libcxx: ">=19"
       libuv: ">=1.51.0,<2.0a0"
       libzlib: ">=1.3.1,<2.0a0"
       openssl: ">=3.5.1,<4.0a0"
-      zlib: ""
-    url: https://conda.anaconda.org/conda-forge/osx-64/nodejs-22.17.0-hfbe19ce_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/nodejs-22.17.0-hd96c7ff_1.conda
     hash:
-      md5: 5fe18468d9175a55cce40431d61fa25c
-      sha256: 3e66967f4791dcf5b890e39be8f700995ee91cdeeaa09d0a3071413b89da496a
+      md5: e7b17c0f240e87618c1ae7be2963cb96
+      sha256: af526cdaac73c15ec81324ef3611afc3b376af0aca31badc624fdf51f0689a73
     category: main
     optional: false
   - name: nodejs
@@ -18189,7 +18188,7 @@ package:
     category: main
     optional: false
   - name: pandera-core
-    version: 0.24.0
+    version: 0.25.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -18200,14 +18199,14 @@ package:
       python: ">=3.9"
       typeguard: ">=3.0.2"
       typing_inspect: ">=0.6.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.24.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.25.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 6d9c3e4504915180d833570b626acc0f
-      sha256: 2a36db15b0b19f2036c7420353989d49e651a9173aecaa363d96383d599eb89f
+      md5: d3c8deae295739b0b7cf014a2f294707
+      sha256: 715dfc7932fe2a06b5ae67963a810cf0a74293ad875bf4b72ceb227ab3b9ee16
     category: main
     optional: false
   - name: pandera-core
-    version: 0.24.0
+    version: 0.25.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -18218,14 +18217,14 @@ package:
       python: ">=3.9"
       typeguard: ">=3.0.2"
       typing_inspect: ">=0.6.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.24.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.25.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 6d9c3e4504915180d833570b626acc0f
-      sha256: 2a36db15b0b19f2036c7420353989d49e651a9173aecaa363d96383d599eb89f
+      md5: d3c8deae295739b0b7cf014a2f294707
+      sha256: 715dfc7932fe2a06b5ae67963a810cf0a74293ad875bf4b72ceb227ab3b9ee16
     category: main
     optional: false
   - name: pandera-core
-    version: 0.24.0
+    version: 0.25.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -18236,10 +18235,10 @@ package:
       python: ">=3.9"
       typeguard: ">=3.0.2"
       typing_inspect: ">=0.6.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.24.0-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pandera-core-0.25.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 6d9c3e4504915180d833570b626acc0f
-      sha256: 2a36db15b0b19f2036c7420353989d49e651a9173aecaa363d96383d599eb89f
+      md5: d3c8deae295739b0b7cf014a2f294707
+      sha256: 715dfc7932fe2a06b5ae67963a810cf0a74293ad875bf4b72ceb227ab3b9ee16
     category: main
     optional: false
   - name: pandoc
