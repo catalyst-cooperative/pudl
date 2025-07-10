@@ -594,7 +594,9 @@ to many."""
         "etl_group": "eia860",
     },
     "core_eia860__assn_boiler_cooling": {
-        "description": "A table that links EIA boiler IDs to EIA cooling system IDs.",
+        "description": {
+            "additional_summary_text": "EIA boiler IDs and EIA cooling system IDs.",
+        },
         "schema": {
             "fields": [
                 "report_date",
