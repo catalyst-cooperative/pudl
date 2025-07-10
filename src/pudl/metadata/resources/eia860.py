@@ -4,9 +4,9 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860__scd_boilers": {
-        "description": (
-            "Annually varying boiler attributes, compiled from across all EIA-860 data."
-        ),
+        "description": {
+            "additional_summary_text": "boilers which vary annually. Compiled from across all EIA-860 data.",
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
