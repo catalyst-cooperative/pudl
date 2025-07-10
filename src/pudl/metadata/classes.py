@@ -1149,7 +1149,7 @@ class PudlResourceDescriptor(PudlMeta):
             | None
         ) = None
         """If this resource has :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` timeseries, indicates the temporal resolution, otherwise None.
-        If :attr:`PudlDescriptionComponents.table_type_code` is timeseries and this value is None or otherwise left unset, will be filled in with a default resolution parsed from the resource id string."""
+        If :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` is timeseries and this value is None or otherwise left unset, will be filled in with a default resolution parsed from the resource id string."""
         layer_code: Literal["raw", "_core", "core", "out", "test"] | None = None
         """Indicates the degree of processing applied to the data in this resource.
         If None or otherwise left unset, will be filled in with a default layer parsed from the resource id string."""
@@ -1166,7 +1166,7 @@ class PudlResourceDescriptor(PudlMeta):
         1. help users quickly reach a point of success in their use of our data, and
         2. reduce the incidence of repeated questions and bug-like reports due to these inescapable hazards.
 
-        Reserve this field for severe and/or frequent problems an unfamiliar user may encounter, and list lighter or edge-case problems in :attr:`PudlDescriptionComponents.additional_details_text`.
+        Reserve this field for severe and/or frequent problems an unfamiliar user may encounter, and list lighter or edge-case problems in :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_details_text`.
 
         The list can contain two kinds of entries:
 
@@ -1190,8 +1190,8 @@ class PudlResourceDescriptor(PudlMeta):
 
         If filled, should support whichever of the following scenarios is most appropriate for this resource:
 
-        * the :attr:`PudlDescriptionComponents.table_type_code` is set or can be automatically detected: this value should complete the sentence corresponding to :data:`~pudl.metadata.descriptions.table_type_fragments` for this resource's :attr:`PudlDescriptionComponents.table_type_code`
-        * the :attr:`PudlDescriptionComponents.table_type_code` is None/unset *and* the resource is not named according to a standard table type listed in :data:`~pudl.metadata.descriptions.table_type_fragments`: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
+        * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` is set or can be automatically detected: this value should complete the sentence corresponding to :data:`~pudl.metadata.descriptions.table_type_fragments` for this resource's :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+        * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` is None/unset *and* the resource is not named according to a standard table type listed in :data:`~pudl.metadata.descriptions.table_type_fragments`: this value should be a complete sentence summarizing the contents of this resource at a similar level of detail.
         """
         additional_layer_text: str | None = None
         """Unusual details about this resource's level of processing that don't fall into the normal definition of raw/core/_core/out/etc.

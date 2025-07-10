@@ -63,20 +63,21 @@ table_type_fragments: dict[str, TableTypeFragments] = {
 """Standard descriptive text to appear in the Summary (first line) of resource descriptions.
 
 These are split into fragments to permit some resources to do without any additional descriptive text beyond the basic table type.
-Such resources should not provide :attr:`~PudlDescriptionComponents.additional_summary_text`, and the system will apply only the first fragment here.
-If a resource provides :attr:`~PudlDescriptionComponents.additional_summary_text`, the system will apply both fragments from the corresponding :data:table_type_fragments entry, so that the summary starts with standardized text but finishes with more specific information.
+Such resources should not provide :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`,
+and the system will apply only the first fragment here.
+If a resource provides :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`,
+the system will apply both fragments from the corresponding :data:`table_type_fragments` entry, so that the summary starts with standardized text but finishes with more specific information.
 
-Example:
+Examples:
+    * Rendered summary: "Association table"
 
-* Rendered summary: "Association table"
+      * resource name: [layer]_[source]__assn_[slug]
+      * :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`: not specified
 
-  * resource name: [layer]_[source]__assn_[slug]
-  * :attr:`~PudlDescriptionComponents.additional_summary_text`: not specified
+    * Rendered summary: "Association table providing connections between cats and Catalysters."
 
-* Rendered summary: "Association table providing connections between cats and Catalysters."
-
-  * resource name: [layer]_[source]__assn_[slug]
-  * :attr:`~PudlDescriptionComponents.additional_summary_text`: "cats and Catalysters."
+      * resource name: [layer]_[source]__assn_[slug]
+      * :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`: "cats and Catalysters."
 """
 NONE_TABLETYPE_FRAGMENTS = TableTypeFragments(None, None)
 
@@ -140,13 +141,13 @@ class ResourceDescriptionBuilder:
     Information for deciding what descriptive text to display in a resource description comes from several places:
 
     * The resource metadata dictionary, containing manually-specified description codes and text in the "description" section
-    * :class:ResourceNameComponents, which automatically extracts appropriate description codes from the resource id
+    * :class:`ResourceNameComponents`, which automatically extracts appropriate description codes from the resource id
     * The \*_descriptions and \*_fragments dictionaries in this file, which set standardized text for each code
     * Some limited logic in this class which detects automatic usage warnings and primary key information
 
     In order to keep manually-specified and -maintained components to a minimum, most keys in the
-    resource metadata dictionary's description section are optional. Keys which have not been not manually specified are filled
-    in using :class:ResourceNameComponents or left blank. See :class:PudlDescriptionComponents for
+    resource metadata dictionary's description section are optional. Keys which have not been manually specified are filled
+    in using :class:`ResourceNameComponents` or left blank. See :class:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents` for
     complete documentation on manually-specifiable keys.
 
     This class computes and stores "final" description components from all available inputs.
@@ -159,7 +160,7 @@ class ResourceDescriptionBuilder:
     * details
     * usage_warnings
 
-    Each takes the form of a :class:ResourceTrait (or list of :class:`ResourceTrait`s, in the case of usage_warnings),
+    Each takes the form of a :class:`ResourceTrait` (or list of :class:`ResourceTrait`, in the case of usage_warnings),
     which include the description text along with any types/categories extracted along the way.
 
     This class then serves as the input to the resource_description template, which assembles the components into a static text block
@@ -169,9 +170,9 @@ class ResourceDescriptionBuilder:
     def __init__(self, resource_id: str, settings: dict):
         """Compute and store all description components from manually-specified settings and automatic sources.
 
-        Arguments:
-        * resource_id: a snake-case string uniquely identifying the resource; aka the table name.
-        * settings: a dictionary of resource metadata, usually obtained as a :class:PudlResourceDescription model dump.
+        Args:
+            resource_id: a snake-case string uniquely identifying the resource; aka the table name.
+            settings: a dictionary of resource metadata, usually obtained as a :class:`~pudl.metadata.classes.PudlResourceDescriptor` model dump.
         """
         self.resource_id = resource_id
         defaults = ResourceNameComponents(name=resource_id)
@@ -190,9 +191,9 @@ class ResourceDescriptionBuilder:
         """Compute the summary component (first line) of the resource description.
 
         The summary is standardized based on table type, and if the table type is timeseries, the timeseries resolution.
-        Any :attr:`~PudlDescriptionComponents.additional_summary_text`, if present, is included after the standard text for the timeseries resolution and table type.
+        Any :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`, if present, is included after the standard text for the timeseries resolution and table type.
         If the timeseries resolution and table type aren't set manually and can't be auto detected, fall back to
-        the :attr:`~PudlDescriptionComponents.additional_summary_text` key and use it as a complete sentence instead of just a predicate fragment.
+        the :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text` key and use it as a complete sentence instead of just a predicate fragment.
         """
         timeseries_resolution_code = first_non_none(
             settings.get("timeseries_resolution_code"),
@@ -246,11 +247,11 @@ class ResourceDescriptionBuilder:
         3. Fetch the standard text for the computed category code
         4. Follow up with any additional manually-specified description text
 
-        Arguments:
-        * attr: name of the key (exclude the _code suffix) for the category code for this component (shared with :class:ResourceNameComponents)
-        * lookup: dictionary containing the mapping from the category code to the corresponding display text
-        * settings: a dictionary of resource metadata, lightly-processed by the constructor to make description keys easier to access
-        * defaults: a :class:ResourceNameComponents instance for this resource, containing the default category codes as extracted from the resource id
+        Args:
+            attr: name of the key (exclude the _code suffix) for the category code for this component (shared with :class:`ResourceNameComponents`)
+            lookup: dictionary containing the mapping from the category code to the corresponding display text
+            settings: a dictionary of resource metadata, lightly-processed by the constructor to make description keys easier to access
+            defaults: a :class:`ResourceNameComponents` instance for this resource, containing the default category codes as extracted from the resource id
         """
         attr_value = first_non_none(
             settings.get(f"{attr}_code"), getattr(defaults, f"{attr}_code")
@@ -283,10 +284,10 @@ class ResourceDescriptionBuilder:
         If a primary key is available in the resource schema, include a list of the primary key columns.
 
         If a primary key is not available, include standardized text and any manually-specified description
-        text from additional_primary_key_text for what each row contains and perhaps why a primary key is
-        not appropriate for the resource.
+        text from :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text`
+        for what each row contains and perhaps why a primary key is not appropriate for the resource.
 
-        If the primary key is available, *and* additional_primary_key_text is specified,
+        If the primary key is available, *and* :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text` is specified,
         the manually-specified text will be placed after the primary key listing.
         """
         has_primary_key = (
