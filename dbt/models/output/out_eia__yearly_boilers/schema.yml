@@ -9,6 +9,8 @@ sources:
                 - mercury_control_existing_strategy_4
                 - mercury_control_existing_strategy_5
                 - mercury_control_existing_strategy_6
+                - boiler_manufacturer
+                - boiler_manufacturer_code
               conditional_columns:
                 air_flow_100pct_load_cubic_feet_per_minute: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024
                 boiler_fuel_code_1: EXTRACT(year FROM report_date) BETWEEN 2009 AND 2024
