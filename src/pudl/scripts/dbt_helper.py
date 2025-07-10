@@ -3,13 +3,15 @@
 import json
 from collections import namedtuple
 from dataclasses import dataclass
+from difflib import unified_diff
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import click
 import duckdb
 import pandas as pd
 import yaml
+from colorama import Fore, Style
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
@@ -22,6 +24,23 @@ configure_root_logger()
 logger = get_logger(__name__)
 
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
+
+
+def __prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str:
+    """Dump YAML to string that Prettier likes."""
+
+    class PrettierCompatibleDumper(yaml.Dumper):
+        def increase_indent(self, flow=False, indentless=False):
+            return super().increase_indent(flow, False)
+
+    return yaml.dump(
+        yaml_contents,
+        default_flow_style=False,
+        Dumper=PrettierCompatibleDumper,
+        indent=2,
+        sort_keys=False,
+        width=float("inf"),
+    )
 
 
 class DbtColumn(BaseModel):
@@ -171,21 +190,9 @@ class DbtSchema(BaseModel):
 
     def to_yaml(self, schema_path: Path):
         """Write DbtSchema object to YAML file."""
-
-        class PrettierCompatibleDumper(yaml.Dumper):
-            def increase_indent(self, flow=False, indentless=False):
-                return super().increase_indent(flow, False)
-
         with schema_path.open("w") as schema_file:
-            yaml.dump(
-                self.model_dump(exclude_none=True),
-                schema_file,
-                default_flow_style=False,
-                Dumper=PrettierCompatibleDumper,
-                indent=2,
-                sort_keys=False,
-                width=float("inf"),
-            )
+            yaml_output = __prettier_yaml_dumps(self.model_dump(exclude_none=True))
+            schema_file.write(yaml_output)
 
 
 def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
@@ -201,38 +208,34 @@ def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
     return any(key in diff and diff[key] for key in change_keys)
 
 
-def _log_schema_diff(diff: DeepDiff, old_schema: DbtSchema, new_schema: DbtSchema):
-    """Print old and new YAML, and summary of schema changes."""
-    logger.info(
-        "\n======================\n\n📜 Old YAML:\n%s\n\n======================",
-        yaml.dump(old_schema.model_dump(exclude_none=True), sort_keys=False),
-    )
-
-    logger.info(
-        "📜 New YAML:\n%s\n\n======================",
-        yaml.dump(new_schema.model_dump(exclude_none=True), sort_keys=False),
-    )
-
-    logger.info(
-        "🔍 Schema Diff Summary:\n%s\n======================\n",
-        _schema_diff_summary(diff),
-    )
-
-
-def _schema_diff_summary(diff: DeepDiff) -> str:
-    """Return all changes in a DeepDiff between two schemas as a string."""
-    summary_elements = ["🔍 DeepDiff Summary:"]
-
-    for change_type, changes in diff.items():
-        summary_elements.append(f"\n{change_type}:")
-        if isinstance(changes, dict):
-            for path, value in changes.items():
-                summary_elements.append(f"  - {path}: {value}")
+def _log_schema_diff(old_schema: DbtSchema, new_schema: DbtSchema):
+    """Print colored summary of schema changes."""
+    # TODO 2025-07-10: could use colorama to make the - lines red and the + lines green.
+    summary = _schema_diff_summary(old_schema, new_schema)
+    colored_diff = []
+    for line in summary:
+        if line.startswith("- "):
+            colored_diff.append(Fore.RED + line + Style.RESET_ALL)
+        elif line.startswith("+ "):
+            colored_diff.append(Fore.GREEN + line + Style.RESET_ALL)
         else:
-            for item in changes:
-                summary_elements.append(f"  - {item}")
+            colored_diff.append(line)
 
-    return "\n".join(summary_elements)
+    logger.info("\n" + "\n".join(colored_diff))
+
+
+def _schema_diff_summary(old_schema: DbtSchema, new_schema: DbtSchema):
+    """Return a summary of schema changes based on YAML output."""
+    stripped = (
+        line.rstrip()
+        for line in unified_diff(
+            __prettier_yaml_dumps(old_schema.model_dump(exclude_none=True)).split("\n"),
+            __prettier_yaml_dumps(new_schema.model_dump(exclude_none=True)).split("\n"),
+            fromfile="old_schema",
+            tofile="new_schema",
+        )
+    )
+    return [line for line in stripped if line != ""]
 
 
 def get_data_source(table_name: str) -> str:
@@ -366,10 +369,10 @@ def update_table_schema(
             logger.warning(
                 "\n⚠️ WARNING: Some elements would be deleted by this update! Please update manually instead."
             )
-            _log_schema_diff(diff, old_schema, new_schema)
+            _log_schema_diff(old_schema, new_schema)
             return UpdateResult(
                 success=False,
-                message=f"DBT configuration for table {table_name} has information the would be deleted. Update manually or run with clobber.",
+                message=f"DBT configuration for table {table_name} has information that would be deleted. Update manually or run with clobber.",
             )
 
     model_path.mkdir(parents=True, exist_ok=True)
