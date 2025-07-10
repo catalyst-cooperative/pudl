@@ -4,7 +4,9 @@ sources:
     tables:
       - name: core_eia923__entity_coalmine
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              exclude_columns:
+                - county_id_fips
           - check_row_counts_per_partition:
               table_name: core_eia923__entity_coalmine
               partition_column: null

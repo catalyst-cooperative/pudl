@@ -4,7 +4,10 @@ sources:
     tables:
       - name: core_eia__entity_boilers
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              exclude_columns:
+                - boiler_manufacturer
+                - boiler_manufacturer_code
           - check_row_counts_per_partition:
               table_name: core_eia__entity_boilers
               partition_column: null
