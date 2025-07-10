@@ -6,12 +6,14 @@ from contextlib import chdir, redirect_stdout
 from pathlib import Path
 from typing import NamedTuple, cast
 
+import dagster as dg
 import duckdb
 from dbt.artifacts.schemas.results import TestStatus
 from dbt.artifacts.schemas.run import RunExecutionResult
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.graph.nodes import GenericTestNode
 
+import pudl.etl
 from pudl.logging_helpers import get_logger
 from pudl.workspace.setup import PUDL_ROOT_PATH, PudlPaths
 
@@ -146,3 +148,42 @@ def build_with_context(
         success=build_output.success,
         failure_contexts=compiled_sql_contexts + weighted_quantile_contexts,
     )
+
+
+def dagster_to_dbt_selection(
+    selection: str, defs: dg.Definitions | None = None, manifest=None
+) -> str:
+    """Translate dagster asset selection to db node selection.
+
+    We use the dbt manifest to determine which sources are defined in dbt so
+    that we can map them to dagster assets. So, we need to generate a fresh dbt
+    manifest via ``dbt parse`` whenever we run this function.
+
+    * turn asset selection into asset keys
+    * turn asset keys into node names
+    * turn node names into selection string
+    """
+    if defs is None:
+        defs = pudl.etl.defs
+
+    asset_keys = dg.AssetSelection.from_string(selection).resolve(
+        defs.resolve_asset_graph()
+    )
+    asset_names = {asset_key.to_user_string() for asset_key in asset_keys}
+
+    if manifest is None:
+        manifest_path = PUDL_ROOT_PATH / "dbt" / "target" / "manifest.json"
+        with chdir(PUDL_ROOT_PATH / "dbt"):
+            dbt = dbtRunner()
+            dbt.invoke(["parse"])
+
+        with manifest_path.open("r") as f:
+            manifest = json.load(f)
+
+    # all dagster assets are treated as sources so we only have to look here.
+    dbt_node_selectors = [
+        f"source:{s['source_name']}.{s['name']}"
+        for s in manifest["sources"].values()
+        if s["name"] in asset_names
+    ]
+    return " ".join(dbt_node_selectors)
