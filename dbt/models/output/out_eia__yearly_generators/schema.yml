@@ -231,7 +231,7 @@ sources:
           - name: can_burn_multiple_fuels
           - name: nameplate_power_factor
           - name: net_capacity_mwdc
-          - name: operating_switch
+          - name: can_switch_when_operating
           - name: operational_status_code
           - name: original_planned_generator_operating_date
           - name: other_combustion_tech

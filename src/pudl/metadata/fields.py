@@ -472,7 +472,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "can_switch_when_operating": {
         "type": "boolean",
-        "description": "Whether the generator can switch fuel while operating.",
+        "description": "Indicates whether a fuel switching generator can switch fuels while operating.",
     },
     "capacity_eoy_mw": {
         "type": "number",
@@ -3224,10 +3224,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operating_datetime_utc": {
         "type": "datetime",
         "description": "Date and time measurement began (UTC).",
-    },
-    "operating_switch": {
-        "type": "string",
-        "description": "Indicates whether the fuel switching generator can switch when operating",
     },
     "operating_time_hours": {
         "type": "number",

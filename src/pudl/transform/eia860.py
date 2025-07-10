@@ -260,6 +260,7 @@ def _core_eia860__generators(
         "other_combustion_tech",
         "can_cofire_fuels",
         "can_switch_oil_gas",
+        "can_switch_when_operating",
         "bypass_heat_recovery",
         "associated_combined_heat_power",
         "planned_modifications",
