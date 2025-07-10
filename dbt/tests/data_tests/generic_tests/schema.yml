@@ -197,7 +197,7 @@ macros:
       - name: max_discrepancy_rate
         type: float
         description: Maximum acceptable fraction of records which can be counted as a discrepancy before the test should fail.
-  - name: expect_columns_are_close
+  - name: test_expect_columns_are_close
     description: >
       Check that two float columns are close using the ``numpy.isclose`` equation for comparing columns. Generally this is used with the ``row_condition`` argument, as it's uncommon that there are two colums which are supposed to be entirely equal, but there may be a subset of rows which are supposed to be equal.
     arguments:
