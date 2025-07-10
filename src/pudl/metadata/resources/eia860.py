@@ -121,10 +121,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "core_eia860__assn_boiler_generator": {
-        "description": (
-            "Associations between boilers and generators as reported in EIA-860 "
-            "Schedule 6, Part A. Augmented with various heuristics within PUDL."
-        ),
+        "description": {
+            "additional_summary_text": "boilers and generators.",
+            "additional_source_text": "(Schedule 6, Part A)",
+            "additional_details_text": "Augmented with various heuristics within PUDL.",
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
