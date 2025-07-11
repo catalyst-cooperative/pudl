@@ -716,8 +716,6 @@ def mcoe(
             df_name="fuel_cost + capacity_factor",
             max_null_fraction=0.9,
         )
-        # This is the only remaining use of this function. Remove? Rename?
-        .pipe(pv.no_null_cols, df_name="fuel_cost + capacity_factor")
     )
     mcoe_out = mcoe_out.sort_values(
         ["plant_id_eia", "generator_id", "report_date", "unit_id_pudl"]

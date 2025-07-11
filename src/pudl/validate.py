@@ -63,37 +63,6 @@ def no_null_rows(
     return df
 
 
-def no_null_cols(
-    df: pd.DataFrame, cols: list[str] | str = "all", df_name: str = ""
-) -> pd.DataFrame:
-    """Check that a dataframe has no all-NaN columns.
-
-    Occasionally in the concatenation / merging of dataframes we get a label wrong, and
-    it results in a fully NaN column... which should probably never actually happen.
-    This function can be used to guard against such errors.
-
-    Args:
-        df: DataFrame to check for null columns.
-        cols: Columns to check for all-null values. If "all" check all columns.
-        df_name: Name of the dataframe, to aid in debugging/logging.
-
-    Returns:
-        The same DataFrame as was passed in, so the function can be used with
-        :meth:`pandas.DataFrame.pipe`.
-
-    Raises:
-        ValueError: If any completely NaN / Null valued columns are found.
-    """
-    if cols == "all":
-        cols = df.columns
-
-    null_cols = [c for c in cols if c in df.columns and df[c].isna().all()]
-    if null_cols:
-        raise ValueError(f"Null columns found in {df_name}: {null_cols}")
-
-    return df
-
-
 def group_mean_continuity_check(
     df: pd.DataFrame,
     thresholds: dict[str, float],
