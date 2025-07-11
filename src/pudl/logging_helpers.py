@@ -22,8 +22,6 @@ def configure_root_logger(logfile: str | None = None, loglevel: str = "INFO"):
     numba_logger.setLevel(logging.WARNING)
 
     logger = logging.getLogger("catalystcoop")
-    logger.propagate = False
-
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
     coloredlogs.install(fmt=log_format, level=loglevel, logger=logger)
 

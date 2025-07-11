@@ -11,7 +11,6 @@ import click
 import duckdb
 import pandas as pd
 import yaml
-from colorama import Fore, Style
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
@@ -22,6 +21,8 @@ from pudl.workspace.setup import PudlPaths
 
 configure_root_logger()
 logger = get_logger(__name__)
+logger.parent.propagate = False
+
 
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
 
@@ -232,16 +233,14 @@ def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
 def _log_schema_diff(old_schema: DbtSchema, new_schema: DbtSchema):
     """Print colored summary of schema changes."""
     summary = _schema_diff_summary(old_schema, new_schema)
-    colored_diff = []
+    click.echo("Proposed schema changes:")
     for line in summary:
         if line.startswith("- "):
-            colored_diff.append(Fore.RED + line + Style.RESET_ALL)
+            click.secho(line, fg="red")
         elif line.startswith("+ "):
-            colored_diff.append(Fore.GREEN + line + Style.RESET_ALL)
+            click.secho(line, fg="green")
         else:
-            colored_diff.append(line)
-
-    logger.info("\n" + "\n".join(colored_diff))
+            click.secho(line)
 
 
 def _schema_diff_summary(old_schema: DbtSchema, new_schema: DbtSchema):
@@ -386,13 +385,15 @@ def update_table_schema(
         )
 
         if schema_has_removals_or_modifications(diff):
-            logger.warning(
-                "\n⚠️ WARNING: Some elements would be deleted by this update! Please update manually instead."
-            )
             _log_schema_diff(old_schema, new_schema)
+            # TODO 2025-07-11: perhaps we can integrate this `git add -p` flow directly
+            # into the --clobber command?
             return UpdateResult(
                 success=False,
-                message=f"DBT configuration for table {table_name} has information that would be deleted. Update manually or run with clobber.",
+                message=f"DBT configuration for table {table_name} has "
+                "information that would be deleted. Update manually, or: "
+                "1) re-run with --clobber, 2) run `git add dbt/models -p` "
+                "and follow the instructions for recovering the deleted info",
             )
 
     model_path.mkdir(parents=True, exist_ok=True)
