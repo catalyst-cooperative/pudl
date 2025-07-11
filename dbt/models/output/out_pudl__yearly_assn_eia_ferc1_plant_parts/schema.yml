@@ -6,7 +6,7 @@ sources:
         data_tests:
           - expect_columns_not_all_null:
               description: >
-                Exactly which columns contain rolling averages will depend on what years
+                Exactly which years have rolling averages will depend on what years
                 of data have been processed, since the moving window will exclude the
                 first couple of years in the range. This means we can't define a simple
                 range of years in which we expect them to be non-null.
