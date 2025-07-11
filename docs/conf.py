@@ -162,25 +162,32 @@ def data_dictionary_metadata_to_rst(app):
     package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
 
 
+INCLUDED_SOURCES = [
+    "eia860",
+    "eia861",
+    "eia923",
+    "eia930",
+    "ferc1",
+    "ferc714",
+    "epacems",
+    "epacamd_eia",
+    "phmsagas",
+    "gridpathratoolkit",
+    "nrelatb",
+    "vcerare",
+]
+
+
 def data_sources_metadata_to_rst(app):
     """Export data source metadata to RST for inclusion in the documentation."""
     print("Exporting data source metadata to RST.")
-    included_sources = [
-        "eia860",
-        "eia861",
-        "eia923",
-        "eia930",
-        "ferc1",
-        "ferc714",
-        "epacems",
-        "phmsagas",
-        "gridpathratoolkit",
-        "nrelatb",
-        "vcerare",
-    ]
     package = PUDL_PACKAGE
-    extra_etl_groups = {"eia860": ["entity_eia"], "ferc1": ["glue"]}
-    for name in included_sources:
+    extra_etl_groups = {
+        "eia860": ["entity_eia"],
+        "ferc1": ["glue"],
+        "epacamd_eia": ["glue"],
+    }
+    for name in INCLUDED_SOURCES:
         source = DataSource.from_id(name)
         source_resources = [res for res in package.resources if res.etl_group == name]
         extra_resources = None
@@ -219,17 +226,8 @@ def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
     (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
     (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
-    (DOCS_DIR / "data_sources/eia860.rst").unlink()
-    (DOCS_DIR / "data_sources/eia861.rst").unlink()
-    (DOCS_DIR / "data_sources/eia923.rst").unlink()
-    (DOCS_DIR / "data_sources/eia930.rst").unlink()
-    (DOCS_DIR / "data_sources/ferc1.rst").unlink()
-    (DOCS_DIR / "data_sources/ferc714.rst").unlink()
-    (DOCS_DIR / "data_sources/epacems.rst").unlink()
-    (DOCS_DIR / "data_sources/phmsagas.rst").unlink()
-    (DOCS_DIR / "data_sources/gridpathratoolkit.rst").unlink()
-    (DOCS_DIR / "data_sources/nrelatb.rst").unlink()
-    (DOCS_DIR / "data_sources/vcerare.rst").unlink()
+    for name in INCLUDED_SOURCES:
+        (DOCS_DIR / f"data_sources/{name}.rst").unlink()
 
 
 def cleanup_csv_dir(app, exception):

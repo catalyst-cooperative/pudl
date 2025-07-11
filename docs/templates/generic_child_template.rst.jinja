@@ -27,6 +27,9 @@ described here.
 This block iterates through any downloadable PDFs for the data source that might provide
 extra context.  These might be a diagram of the database or a blank form for the data
 source for a certain time frame.
+{% for filename in download_paths %}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`__
+{% endfor %}
 {% endblock %}
 
 {% block availability_title %}
@@ -54,19 +57,4 @@ What does the original data look like?
 {% block notable_irregularities %}
 This block discusses any irregularities about the dataset that could be helpful for a
 user to know about.
-{% endblock %}
-
-{% for filename in download_paths %}
-    * :download:`{{ filename.split("/")[-1].replace("_", " ")[:-4].title() }} (PDF) <{{ filename }}>`
-{% endfor %}
-
-As of 2019, the EIA-860 Form is organized into the following schedules:
-
-    * **Schedule 1:** Identification
-    * **Schedule 2:** Power plant data
-    * **Schedule 3:** Generator information
-    * **Schedule 4:** Ownership of generators
-    * **Schedule 6:** Boiler information
-
-(Schedule 5 contained generator construction cost information)
 {% endblock %}
