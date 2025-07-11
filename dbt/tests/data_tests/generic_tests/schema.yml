@@ -69,7 +69,9 @@ macros:
     description: >
       Check that all columns in a table are not entirely NULL. Can exclude specific
       columns and apply conditional checks (e.g., only check for NULLs when certain
-      conditions are met).  Uses DuckDB's DESCRIBE to dynamically discover column names.
+      conditions are met). Uses DuckDB's DESCRIBE to dynamically discover column names.
+      When ignore_eia860m_nulls is enabled, automatically excludes the current year
+      from null checks to accommodate EIA-860M data limitations.
     arguments:
       - name: exclude_columns
         type: list
@@ -80,6 +82,14 @@ macros:
           Dictionary mapping column names to SQL row conditions. For each column, the null
           check will only be applied to rows matching the condition (optional, default
           empty dict).
+      - name: ignore_eia860m_nulls
+        type: boolean
+        description: >
+          When true, excludes the current year (dynamically determined from
+          core_eia860m__changelog_generators.report_date) from null checks for all
+          columns. This accommodates the limitation that EIA-860M only reports a subset
+          of values which appear in the full EIA-860, which results in many entirely
+          null columns in the most recent year.
   - name: test_expect_complete_valid_ownership
     description: >
       Check whether ``fraction_owned`` columns sum too high (for any individual

@@ -1,7 +1,8 @@
 {% test expect_columns_not_all_null(
     model,
     exclude_columns=[],
-    row_conditions={}
+    row_conditions={},
+    ignore_eia860m_nulls=false
 ) %}
 
 -- DESCRIBE implementations vary; this assumes DuckDB's
@@ -10,6 +11,20 @@
     FROM (DESCRIBE {{ model }})
     WHERE column_name NOT IN ('{{ exclude_columns | join("', '") }}')
 {% endset %}
+
+{% if ignore_eia860m_nulls %}
+    {% set get_current_year_query %}
+        SELECT EXTRACT(year FROM MAX(report_date)) as current_year
+        FROM {{ source('pudl', 'core_eia860m__changelog_generators') }}
+    {% endset %}
+
+    {% if execute %}
+        {% set current_year_result = run_query(get_current_year_query) %}
+        {% set current_year = current_year_result.columns[0].values()[0] %}
+    {% else %}
+        {% set current_year = none %}
+    {% endif %}
+{% endif %}
 
 {% if execute %}
     {% set columns_result = run_query(get_columns_query) %}
@@ -22,11 +37,20 @@
 {% for column_name in column_names %}
     {% if column_name in row_conditions %}
         {% set row_condition = row_conditions[column_name] %}
+        {% if ignore_eia860m_nulls and current_year %}
+            {% set combined_condition = "(" + row_condition + ") AND EXTRACT(year FROM report_date) != " + current_year|string %}
+            {% set failure_reason = "Conditional check failed: " + row_condition + " (excluding current year " + current_year|string + " due to EIA-860M limitations)" %}
+            {% set row_condition_display = row_condition + " AND excluding year " + current_year|string %}
+        {% else %}
+            {% set combined_condition = row_condition %}
+            {% set failure_reason = "Conditional check failed: " + row_condition %}
+            {% set row_condition_display = row_condition %}
+        {% endif %}
         {% set check %}
             SELECT
                 '{{ model.name }}' as table_name,
                 '{{ column_name }}' as failing_column,
-                'Conditional check failed: {{ row_condition }}' as failure_reason,
+                '{{ failure_reason }}' as failure_reason,
                 '{{ row_condition | replace("'", "''") }}' as row_condition,
                 COUNT(*) as total_rows_matching_condition,
                 COUNT({{ column_name }}) as non_null_count
