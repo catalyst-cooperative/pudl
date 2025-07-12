@@ -85,11 +85,13 @@ macros:
       - name: ignore_eia860m_nulls
         type: boolean
         description: >
-          When true, excludes the current year (dynamically determined from
-          core_eia860m__changelog_generators.report_date) from null checks for all
-          columns. This accommodates the limitation that EIA-860M only reports a subset
-          of values which appear in the full EIA-860, which results in many entirely
-          null columns in the most recent year.
+          When true, excludes years after the last available EIA-860 annual data
+          (dynamically determined from core_eia860__scd_ownership.report_date) from null
+          checks for all columns. This deals with the limitation that EIA-860M only
+          reports a subset of values which appear in the full EIA-860, which results in
+          many entirely null columns in EIA-860M-only years. NOTE: Setting this
+          parameter to true requires that the table being tested contains a
+          'report_date' column for year filtering.
   - name: test_expect_complete_valid_ownership
     description: >
       Check whether ``fraction_owned`` columns sum too high (for any individual

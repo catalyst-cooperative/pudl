@@ -29,61 +29,54 @@
 {% if execute %}
     {% set columns_result = run_query(get_columns_query) %}
     {% set column_names = columns_result.columns[0].values() %}
+
+    {# Validate that report_date column exists if ignore_eia860m_nulls is enabled #}
+    {% if ignore_eia860m_nulls and 'report_date' not in column_names %}
+        {{ exceptions.raise_compiler_error("ignore_eia860m_nulls=true requires a 'report_date' column in the table being tested, but 'report_date' was not found in " + model.name) }}
+    {% endif %}
 {% else %}
     {% set column_names = [] %}
 {% endif %}
 
 {% set checks = [] %}
 {% for column_name in column_names %}
+    {# Determine the WHERE condition for this column #}
     {% if column_name in row_conditions %}
-        {% set row_condition = row_conditions[column_name] %}
-        {% if ignore_eia860m_nulls and last_eia860_year %}
-            {% set combined_condition = "(" + row_condition + ") AND EXTRACT(year FROM report_date) <= " + last_eia860_year|string %}
-            {% set failure_reason = "Conditional check failed: " + row_condition + " (excluding years after " + last_eia860_year|string + " due to EIA-860M limitations)" %}
-        {% else %}
-            {% set combined_condition = row_condition %}
-            {% set failure_reason = "Conditional check failed: " + row_condition %}
-        {% endif %}
-        {% set check %}
-            SELECT
-                '{{ model.name }}' as table_name,
-                '{{ column_name }}' as failing_column,
-                '{{ failure_reason }}' as failure_reason,
-                '{{ row_condition | replace("'", "''") }}' as row_condition,
-                COUNT(*) as total_rows_matching_condition,
-                COUNT({{ column_name }}) as non_null_count
-            FROM {{ model }}
-            WHERE {{ combined_condition }}
-            HAVING COUNT(*) > 0 AND COUNT({{ column_name }}) = 0
-        {% endset %}
+        {% set base_condition = row_conditions[column_name] %}
     {% else %}
-        {% if ignore_eia860m_nulls and last_eia860_year %}
-            {% set check %}
-                SELECT
-                    '{{ model.name }}' as table_name,
-                    '{{ column_name }}' as failing_column,
-                    'Column is entirely NULL (excluding years after {{ last_eia860_year }} due to EIA-860M limitations)' as failure_reason,
-                    'EXTRACT(year FROM report_date) <= {{ last_eia860_year }}' as row_condition,
-                    COUNT(*) as total_rows_matching_condition,
-                    COUNT({{ column_name }}) as non_null_count
-                FROM {{ model }}
-                WHERE EXTRACT(year FROM report_date) <= {{ last_eia860_year }}
-                HAVING COUNT({{ column_name }}) = 0
-            {% endset %}
-        {% else %}
-            {% set check %}
-                SELECT
-                    '{{ model.name }}' as table_name,
-                    '{{ column_name }}' as failing_column,
-                    'Column is entirely NULL' as failure_reason,
-                    'N/A (entire table)' as row_condition,
-                    COUNT(*) as total_rows_matching_condition,
-                    COUNT({{ column_name }}) as non_null_count
-                FROM {{ model }}
-                HAVING COUNT({{ column_name }}) = 0
-            {% endset %}
-        {% endif %}
+        {% set base_condition = "TRUE" %}
     {% endif %}
+
+    {# Add EIA-860M year exclusion if needed #}
+    {% if ignore_eia860m_nulls and last_eia860_year %}
+        {% set where_condition = "(" + base_condition + ") AND EXTRACT(year FROM report_date) <= " + last_eia860_year|string %}
+        {% set exclusion_note = " (excluding years after " + last_eia860_year|string + " due to EIA-860M limitations)" %}
+    {% else %}
+        {% set where_condition = base_condition %}
+        {% set exclusion_note = "" %}
+    {% endif %}
+
+    {# Set failure reason and row_condition display #}
+    {% if column_name in row_conditions %}
+        {% set failure_reason = "Conditional check failed: " + row_conditions[column_name] + exclusion_note %}
+        {% set row_condition_display = row_conditions[column_name] | replace("'", "''") %}
+    {% else %}
+        {% set failure_reason = "Column is entirely NULL" + exclusion_note %}
+        {% set row_condition_display = "N/A (entire table)" if not exclusion_note else "EXTRACT(year FROM report_date) <= " + last_eia860_year|string %}
+    {% endif %}
+
+    {% set check %}
+        SELECT
+            '{{ model.name }}' as table_name,
+            '{{ column_name }}' as failing_column,
+            '{{ failure_reason }}' as failure_reason,
+            '{{ row_condition_display }}' as row_condition,
+            COUNT(*) as total_rows_matching_condition,
+            COUNT({{ column_name }}) as non_null_count
+        FROM {{ model }}
+        WHERE {{ where_condition }}
+        HAVING COUNT(*) > 0 AND COUNT({{ column_name }}) = 0
+    {% endset %}
     {% do checks.append(check) %}
 {% endfor %}
 
