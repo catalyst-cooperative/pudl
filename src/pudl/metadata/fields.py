@@ -430,9 +430,35 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?",
     },
+    "byproduct_description": {
+        "type": "string",
+        "description": "Description of combustion by-product.",
+        "constraints": {
+            "enum": [
+                "Ash from coal gasification (IGCC) units",
+                "Bottom ash from standard boiler units",
+                "Bottom (bed) ash from FBC units",
+                "FGD Gypsum",
+                "Fly ash from FBC units",
+                "Fly ash from standard boiler/PCD units",
+                "Fly ash from units with dry FGD",
+                "Other FGD byproducts",
+                "Other (specify via footnote on Schedule 9)",
+                "Steam Sales (MMBtu)",
+            ],
+        },
+    },
     "byproduct_recovery": {
         "type": "boolean",
         "description": "Is salable byproduct is recovered by the unit?",
+    },
+    "no_byproducts_to_report": {
+        "type": "string",
+        "description": (
+            "Whether combustion by-products were produced. 'Y' indicates no byproducts "
+            "to report. The 'Y' and 'N' values do not align with expected values of "
+            "reported byproducts. This column is messy and requires standardization."
+        ),
     },
     "caidi_w_major_event_days_minutes": {
         "type": "number",
@@ -1183,6 +1209,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "customer’s electrical equipment (e.g. air conditioner, water heater) on "
             "short notice."
         ),
+    },
+    "disposal_landfill_tons": {
+        "type": "integer",
+        "description": "Disposed by-products in landfill, to the nearest 0.1 thousand ton.",
+    },
+    "disposal_offsite_tons": {
+        "type": "integer",
+        "description": "Disposed by-products offsite, to the nearest 0.1 thousand ton.",
+    },
+    "disposal_ponds_tons": {
+        "type": "integer",
+        "description": "Disposed by-products in ponds, to the nearest 0.1 thousand ton.",
     },
     "distributed_generation": {
         "type": "boolean",
@@ -4613,6 +4651,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
+    "sold_tons_or_mmbtu": {
+        "type": "integer",
+        "description": "Sold by-products, in tons (to the nearest 0.1 thousand ton) or, for Steam, MMBtu.",
+    },
     "sold_to_utility_mwh": {
         "type": "number",
         "description": (
@@ -4795,6 +4837,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "stored_excess_wind_and_solar_generation": {
         "type": "boolean",
         "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
+    },
+    "stored_offsite_tons": {
+        "type": "integer",
+        "unit": "tons",
+        "description": "Stored by-products offsite, to the nearest 0.1 thousand ton.",
+    },
+    "stored_onsite_tons": {
+        "type": "integer",
+        "unit": "tons",
+        "description": "Stored by-products onsite, to the nearest 0.1 thousand ton.",
     },
     "street_address": {
         "type": "string",
@@ -5132,6 +5184,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "total_disposal_tons": {
+        "type": "integer",
+        "unit": "tons",
+        "description": "Total by-product disposal, to the nearest 0.1 thousand ton.",
+    },
     "total_disposition_mwh": {
         "type": "number",
         "description": (
@@ -5322,6 +5379,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "uprate_derate_during_year": {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
+    },
+    "used_offsite_tons": {
+        "type": "integer",
+        "unit": "tons",
+        "description": "Used offsite by-products, to the nearest 0.1 thousand ton.",
+    },
+    "used_onsite_tons": {
+        "type": "integer",
+        "unit": "tons",
+        "description": "Used onsite by-products, to the nearest 0.1 thousand ton.",
     },
     "utility_id_eia": {
         "type": "integer",
