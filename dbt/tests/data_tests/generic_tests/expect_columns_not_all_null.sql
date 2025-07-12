@@ -13,16 +13,16 @@
 {% endset %}
 
 {% if ignore_eia860m_nulls %}
-    {% set get_current_year_query %}
-        SELECT EXTRACT(year FROM MAX(report_date)) as current_year
-        FROM {{ source('pudl', 'core_eia860m__changelog_generators') }}
+    {% set get_last_eia860_year_query %}
+        SELECT EXTRACT(year FROM MAX(report_date)) as last_eia860_year
+        FROM {{ source('pudl', 'core_eia860__scd_ownership') }}
     {% endset %}
 
     {% if execute %}
-        {% set current_year_result = run_query(get_current_year_query) %}
-        {% set current_year = current_year_result.columns[0].values()[0] %}
+        {% set last_eia860_year_result = run_query(get_last_eia860_year_query) %}
+        {% set last_eia860_year = last_eia860_year_result.columns[0].values()[0] %}
     {% else %}
-        {% set current_year = none %}
+        {% set last_eia860_year = none %}
     {% endif %}
 {% endif %}
 
@@ -37,14 +37,12 @@
 {% for column_name in column_names %}
     {% if column_name in row_conditions %}
         {% set row_condition = row_conditions[column_name] %}
-        {% if ignore_eia860m_nulls and current_year %}
-            {% set combined_condition = "(" + row_condition + ") AND EXTRACT(year FROM report_date) != " + current_year|string %}
-            {% set failure_reason = "Conditional check failed: " + row_condition + " (excluding current year " + current_year|string + " due to EIA-860M limitations)" %}
-            {% set row_condition_display = row_condition + " AND excluding year " + current_year|string %}
+        {% if ignore_eia860m_nulls and last_eia860_year %}
+            {% set combined_condition = "(" + row_condition + ") AND EXTRACT(year FROM report_date) <= " + last_eia860_year|string %}
+            {% set failure_reason = "Conditional check failed: " + row_condition + " (excluding years after " + last_eia860_year|string + " due to EIA-860M limitations)" %}
         {% else %}
             {% set combined_condition = row_condition %}
             {% set failure_reason = "Conditional check failed: " + row_condition %}
-            {% set row_condition_display = row_condition %}
         {% endif %}
         {% set check %}
             SELECT
@@ -55,21 +53,36 @@
                 COUNT(*) as total_rows_matching_condition,
                 COUNT({{ column_name }}) as non_null_count
             FROM {{ model }}
-            WHERE {{ row_condition }}
+            WHERE {{ combined_condition }}
             HAVING COUNT(*) > 0 AND COUNT({{ column_name }}) = 0
         {% endset %}
     {% else %}
-        {% set check %}
-            SELECT
-                '{{ model.name }}' as table_name,
-                '{{ column_name }}' as failing_column,
-                'Column is entirely NULL' as failure_reason,
-                'N/A (entire table)' as row_condition,
-                COUNT(*) as total_rows_matching_condition,
-                COUNT({{ column_name }}) as non_null_count
-            FROM {{ model }}
-            HAVING COUNT({{ column_name }}) = 0
-        {% endset %}
+        {% if ignore_eia860m_nulls and last_eia860_year %}
+            {% set check %}
+                SELECT
+                    '{{ model.name }}' as table_name,
+                    '{{ column_name }}' as failing_column,
+                    'Column is entirely NULL (excluding years after {{ last_eia860_year }} due to EIA-860M limitations)' as failure_reason,
+                    'EXTRACT(year FROM report_date) <= {{ last_eia860_year }}' as row_condition,
+                    COUNT(*) as total_rows_matching_condition,
+                    COUNT({{ column_name }}) as non_null_count
+                FROM {{ model }}
+                WHERE EXTRACT(year FROM report_date) <= {{ last_eia860_year }}
+                HAVING COUNT({{ column_name }}) = 0
+            {% endset %}
+        {% else %}
+            {% set check %}
+                SELECT
+                    '{{ model.name }}' as table_name,
+                    '{{ column_name }}' as failing_column,
+                    'Column is entirely NULL' as failure_reason,
+                    'N/A (entire table)' as row_condition,
+                    COUNT(*) as total_rows_matching_condition,
+                    COUNT({{ column_name }}) as non_null_count
+                FROM {{ model }}
+                HAVING COUNT({{ column_name }}) = 0
+            {% endset %}
+        {% endif %}
     {% endif %}
     {% do checks.append(check) %}
 {% endfor %}
