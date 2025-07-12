@@ -472,7 +472,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "can_switch_when_operating": {
         "type": "boolean",
-        "description": "Whether the generator can switch fuel while operating.",
+        "description": "Indicates whether a fuel switching generator can switch fuels while operating.",
     },
     "capacity_eoy_mw": {
         "type": "number",
@@ -3225,10 +3225,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "datetime",
         "description": "Date and time measurement began (UTC).",
     },
-    "operating_switch": {
-        "type": "string",
-        "description": "Indicates whether the fuel switching generator can switch when operating",
-    },
     "operating_time_hours": {
         "type": "number",
         "description": "Length of time interval measured.",
@@ -5752,7 +5748,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "production tax credit (PTC) and investment tax credit (ITC). For more detail, see: "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
-        "constraints": {"enum": ["Market", "R&D"]},
+        "constraints": {"enum": ["ITC", "PTC + ITC", "PTC"]},
     },
     "projection_year": {
         "type": "integer",
@@ -5925,7 +5921,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "still charge from the grid)."
         ),
     },
-    "id_dc_coupled_tightly": {
+    "is_dc_coupled_tightly": {
         "type": "boolean",
         "description": (
             "Indicates if this energy storage device is DC tightly coupled (means the energy "

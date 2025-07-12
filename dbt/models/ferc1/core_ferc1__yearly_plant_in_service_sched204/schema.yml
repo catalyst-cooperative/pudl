@@ -4,6 +4,7 @@ sources:
     tables:
       - name: core_ferc1__yearly_plant_in_service_sched204
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_ferc1__yearly_plant_in_service_sched204
               partition_column: report_year

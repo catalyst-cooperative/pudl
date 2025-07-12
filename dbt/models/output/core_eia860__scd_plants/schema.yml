@@ -4,6 +4,36 @@ sources:
     tables:
       - name: core_eia860__scd_plants
         data_tests:
+          - expect_columns_not_all_null:
+              ignore_eia860m_nulls: true
+              row_conditions:
+                ash_impoundment: EXTRACT(year FROM report_date) >= 2013
+                ash_impoundment_lined: EXTRACT(year FROM report_date) >= 2013
+                ash_impoundment_status: EXTRACT(year FROM report_date) >= 2013
+                balancing_authority_code_eia: EXTRACT(year FROM report_date) >= 2013
+                balancing_authority_name_eia: EXTRACT(year FROM report_date) >= 2013
+                datum: EXTRACT(year FROM report_date) = 2007
+                energy_storage: EXTRACT(year FROM report_date) >= 2016
+                ferc_cogen_docket_no: EXTRACT(year FROM report_date) NOT IN (2004, 2005, 2006)
+                ferc_qualifying_facility_docket_no: EXTRACT(year FROM report_date) <= 2006
+                grid_voltage_1_kv: EXTRACT(year FROM report_date) >= 2011
+                grid_voltage_2_kv: EXTRACT(year FROM report_date) >= 2013
+                grid_voltage_3_kv: EXTRACT(year FROM report_date) >= 2013
+                iso_rto_code: EXTRACT(year FROM report_date) BETWEEN 2010 AND 2012
+                liquefied_natural_gas_storage: EXTRACT(year FROM report_date) >= 2016
+                natural_gas_local_distribution_company: EXTRACT(year FROM report_date) >= 2016
+                natural_gas_storage: EXTRACT(year FROM report_date) >= 2016
+                natural_gas_pipeline_name_1: EXTRACT(year FROM report_date) >= 2013
+                natural_gas_pipeline_name_2: EXTRACT(year FROM report_date) >= 2016
+                natural_gas_pipeline_name_3: EXTRACT(year FROM report_date) >= 2016
+                has_net_metering: EXTRACT(year FROM report_date) BETWEEN 2013 AND 2015
+                pipeline_notes: EXTRACT(year FROM report_date) >= 2016
+                regulatory_status_code: EXTRACT(year FROM report_date) >= 2006
+                reporting_frequency_code: EXTRACT(year FROM report_date) >= 2008
+                service_area: EXTRACT(year FROM report_date) <= 2006
+                transmission_distribution_owner_id: EXTRACT(year FROM report_date) >= 2007
+                transmission_distribution_owner_name: EXTRACT(year FROM report_date) >= 2007
+                transmission_distribution_owner_state: EXTRACT(year FROM report_date) >= 2007
           - check_row_counts_per_partition:
               table_name: core_eia860__scd_plants
               partition_column: report_date

@@ -4,6 +4,17 @@ sources:
     tables:
       - name: out_eia__yearly_plant_parts
         data_tests:
+          - expect_columns_not_all_null:
+              ignore_eia860m_nulls: true
+              row_conditions:
+                unit_id_pudl: EXTRACT(year FROM report_date) >= 2008
+                ferc1_generator_agg_id: EXTRACT(year FROM report_date) BETWEEN 2005 AND 2019
+                fuel_cost_per_mmbtu: EXTRACT(year FROM report_date) >= 2008
+                fuel_cost_per_mwh: EXTRACT(year FROM report_date) >= 2008
+                unit_heat_rate_mmbtu_per_mwh: EXTRACT(year FROM report_date) >= 2008
+                planned_generator_retirement_date: EXTRACT(year FROM report_date) >= 2007
+                total_fuel_cost: EXTRACT(year FROM report_date) >= 2008
+                total_mmbtu: EXTRACT(year FROM report_date) >= 2008
           - check_row_counts_per_partition:
               table_name: out_eia__yearly_plant_parts
               partition_column: report_year

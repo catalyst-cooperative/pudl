@@ -3,7 +3,7 @@
 import importlib.resources
 import itertools
 
-import pandera as pr
+import pandera.pandas as pr
 from dagster import (
     AssetCheckResult,
     AssetChecksDefinition,

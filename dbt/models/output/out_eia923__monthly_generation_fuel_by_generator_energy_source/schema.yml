@@ -4,6 +4,7 @@ sources:
     tables:
       - name: out_eia923__monthly_generation_fuel_by_generator_energy_source
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: out_eia923__monthly_generation_fuel_by_generator_energy_source
               partition_column: report_date

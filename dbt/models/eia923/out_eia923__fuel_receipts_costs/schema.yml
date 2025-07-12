@@ -4,6 +4,14 @@ sources:
     tables:
       - name: out_eia923__fuel_receipts_costs
         data_tests:
+          - expect_columns_not_all_null:
+              row_conditions:
+                mercury_content_ppm: EXTRACT(year FROM report_date) NOT IN (2008, 2009, 2010, 2011, 2013)
+                natural_gas_delivery_contract_type_code: EXTRACT(year FROM report_date) >= 2014
+                moisture_content_pct: EXTRACT(year FROM report_date) >= 2014
+                chlorine_content_ppm: EXTRACT(year FROM report_date) >= 2014
+                mine_id_msha: EXTRACT(year FROM report_date) = 2025
+                coalmine_county_id_fips: EXTRACT(year FROM report_date) <= 2010
           - check_row_counts_per_partition:
               table_name: out_eia923__fuel_receipts_costs
               partition_column: report_date

@@ -80,7 +80,7 @@ estimates."""
                 "can_burn_multiple_fuels",
                 "nameplate_power_factor",
                 "net_capacity_mwdc",
-                "operating_switch",
+                "can_switch_when_operating",
                 "operational_status_code",
                 "original_planned_generator_operating_date",
                 "other_combustion_tech",

@@ -16,7 +16,7 @@ import frictionless
 import jinja2
 import numpy as np
 import pandas as pd
-import pandera as pr
+import pandera.pandas as pr
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
