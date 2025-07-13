@@ -164,13 +164,6 @@ def compact_row_condition(
     type=str,
 )
 @click.option(
-    "--log-level",
-    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False),
-    default="INFO",
-    show_default=True,
-    help="Set the logging level for output verbosity.",
-)
-@click.option(
     "--date-column",
     type=str,
     default="report_date",
