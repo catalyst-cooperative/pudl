@@ -157,7 +157,9 @@ def compact_row_condition(
     return f"{year_expr} NOT IN ({', '.join(map(str, null_years))})"
 
 
-@click.command()
+@click.command(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 @click.argument(
     "table_name",
     nargs=1,
