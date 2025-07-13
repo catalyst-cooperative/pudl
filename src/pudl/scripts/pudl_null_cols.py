@@ -88,7 +88,6 @@ def infer_row_conditions(
         date_column=date_column,
         max_year=max_year,
     )
-    logger.debug(f"Available years: {available_years}")
 
     row_conditions = {}
     for column in column_names:
@@ -103,7 +102,6 @@ def infer_row_conditions(
                 null_years, available_years, date_column=date_column
             )
 
-    logger.debug(f"Found {len(row_conditions)} columns with entirely null years")
     return row_conditions
 
 
@@ -183,20 +181,19 @@ def compact_row_condition(
     "--max-year",
     type=int,
     default=None,
-    help="Maximum year to consider for analysis. If not provided, all years in the table will be used. "
-    "Cannot be used with --ignore-eia860m.",
+    help="Maximum year to consider for analysis. If not provided, all years in the "
+    "table will be used. Cannot be used with --ignore-eia860m.",
 )
 @click.option(
     "--ignore-eia860m",
     is_flag=True,
     default=False,
-    help="Generate conditions assuming ignore_eia860m_nulls=true will be used in the dbt test. "
-    "This dynamically sets max_year to be whatever the most recent EIA-860 data is from. "
-    "Cannot be used with --max-year.",
+    help="Generate conditions assuming ignore_eia860m_nulls=true will be used in the "
+    "dbt test. This dynamically sets max_year to be whatever the most recent EIA-860 "
+    "data is from. Cannot be used with --max-year.",
 )
 def main(
     table_name: str,
-    log_level: str,
     ignore_eia860m: bool,
     date_column: str,
     max_year: int | None,
@@ -207,10 +204,6 @@ def main(
     reviewed and potentially adjusted to ensure they are appropriate for the
     specific table and its data.
     """
-    from pudl.logging_helpers import configure_root_logger
-
-    configure_root_logger(loglevel=log_level.upper())
-
     if not table_name:
         click.echo("No table specified. Please provide a PUDL table name.")
         return
@@ -224,7 +217,6 @@ def main(
         )
 
     if ignore_eia860m:
-        # If ignore_eia860m_nulls is true, we need to adjust the max year
         max_year = max_eia860_year()
         logger.info(f"Using max EIA-860 year: {max_year}")
 
