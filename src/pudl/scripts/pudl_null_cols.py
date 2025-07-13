@@ -121,7 +121,7 @@ def compact_row_condition(
     Args:
         null_years: List of years where the column is entirely null
         available_years: List of all years present in the dataset
-        ignore_eia860m_nulls: Whether the test will use ignore_eia860m_nulls=true
+        date_column: The date column to use for year extraction.
 
     Returns:
         A compact SQL condition string that works with the dbt test's automatic year
