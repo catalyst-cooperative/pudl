@@ -230,10 +230,8 @@ def _schema_diff_summary(diff: DeepDiff) -> str:
 
 
 def get_data_source(table_name: str) -> str:
-    """Return data source for a table or 'output' if there's more than one source."""
-    resource = PUDL_PACKAGE.get_resource(table_name)
-
-    return "output" if len(resource.sources) > 1 else resource.sources[0].name
+    """Return the data source element of the table's name."""
+    return table_name.strip("_").split("_")[1]
 
 
 UpdateResult = namedtuple("UpdateResult", ["success", "message"])

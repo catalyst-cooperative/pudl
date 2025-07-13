@@ -33,15 +33,9 @@ def with_name(mock, name):
     return mock
 
 
-def test_get_data_source(mocker):
-    mock_resource = mocker.Mock()
-    mocker.patch(
-        "pudl.scripts.dbt_helper.PUDL_PACKAGE"
-    ).get_resource.return_value = mock_resource
-    mock_resource.sources = [""] * 2
-    assert get_data_source("multiple sources") == "output"
-    mock_resource.sources = [with_name(mocker.Mock(), str(mocker.sentinel.source))]
-    assert get_data_source("one source") == str(mocker.sentinel.source)
+def test_get_data_source():
+    assert get_data_source("_core_eia__some_table_name") == "eia"
+    assert get_data_source("another_dude__omfg") == "dude"
 
 
 def test__get_local_table_path(mocker):
