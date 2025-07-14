@@ -101,14 +101,12 @@ investigation."""
         "create_database_schema": False,
     },
     "core_eia930__hourly_interchange": {
-        "description": """Hourly balancing authority interchange.
-
-Interchange is the net metered tie line flow from one BA to another directly
-interconnected BA. Total net interchange is the net sum of all interchange occurring
-between a BA and its directly interconnected neighboring BAs.
-
-Negative interchange values indicate net inflows, and positive interchange values
-indicate net outflows.""",
+        "description": {
+            "additional_summary_text": "balancing authority interchange.",
+            "additional_details_text": """Interchange is the net metered tie line flow from one BA to another directly
+interconnected BA. Total net interchange is the net sum of all interchange occurring between a BA and its directly interconnected neighboring BAs.
+Negative interchange values indicate net inflows, and positive interchange values indicate net outflows.""",
+        },
         "schema": {
             "fields": [
                 "datetime_utc",
