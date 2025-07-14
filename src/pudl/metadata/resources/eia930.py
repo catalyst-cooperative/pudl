@@ -166,14 +166,13 @@ vetted yet."""
         "create_database_schema": False,
     },
     "out_eia930__hourly_aggregated_demand": {
-        "description": (
-            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
+        "description": {
+            "additional_summary_text": "aggregated balancing authority demand by EIA region, interconnect, and continental US.",
+            "additional_details_text": """(EXPERIMENTAL/WIP)
 
-This aggregates imputed demand from the ``out_eia930__hourly_operations`` table.
-It aggregates demand to the level of EIA regions, interconnects, and the contiguous
-United States. The spatial granularity of each record is indicated by
-``aggregation_level``."""
-        ),
+The spatial granularity of each record is indicated by `aggregation_level`.""",
+            "usage_warnings": ["aggregation_hazard"],
+        },
         "schema": {
             "fields": [
                 "datetime_utc",
