@@ -33,7 +33,7 @@ from pudl.scripts.pudl_null_cols import (
     ],
 )
 def test_date_column_to_year_expr(input_column, expected_output):
-    """Test the date_column_to_year_expr function with various inputs."""
+    """Test that date_column_to_year_expr uses EXTRACT when appropriate."""
     assert date_column_to_year_expr(input_column) == expected_output
 
 
