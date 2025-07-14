@@ -1,7 +1,7 @@
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from dagster import asset_check, AssetCheckResult, AssetCheckSeverity
+import numpy as np
+import pandas as pd
+from dagster import AssetCheckResult, AssetCheckSeverity, asset_check
 
 
 class ExcessiveNullRowsError(ValueError):
@@ -22,7 +22,6 @@ def no_null_rows(
     """Check for rows with excessive missing values, usually due to a merge gone wrong."""
     if cols == "all":
         cols = df.columns
-        
 
     null_rows = df[cols].isna().sum(axis="columns") / len(cols) > max_null_fraction
     if null_rows.any():
@@ -104,7 +103,7 @@ def weighted_quantile(data: pd.Series, weights: pd.Series, quantile: float) -> f
         raise ValueError("quantile must have a value between 0 and 1.")
     if len(data) != len(weights):
         raise ValueError("data and weights must have the same length")
-    
+
     df = (
         pd.DataFrame({"data": data, "weights": weights})
         .replace([np.inf, -np.inf], np.nan)
@@ -176,7 +175,9 @@ def bounds_histogram(
     )
 
     if low_bound:
-        plt.axvline(low_bound, lw=3, ls="--", color="red", label=f"lower bound for {low_q:.0%}")
+        plt.axvline(
+            low_bound, lw=3, ls="--", color="red", label=f"lower bound for {low_q:.0%}"
+        )
         plt.axvline(
             weighted_quantile(df[data_col], df[weight_col], low_q),
             lw=3,
@@ -185,7 +186,9 @@ def bounds_histogram(
         )
 
     if hi_bound:
-        plt.axvline(hi_bound, lw=3, ls="--", color="blue", label=f"upper bound for {hi_q:.0%}")
+        plt.axvline(
+            hi_bound, lw=3, ls="--", color="blue", label=f"upper bound for {hi_q:.0%}"
+        )
         plt.axvline(
             weighted_quantile(df[data_col], df[weight_col], hi_q),
             lw=3,
