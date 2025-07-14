@@ -4,41 +4,25 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia930__hourly_operations": {
-        "description": (
-            """Hourly balancing authority net generation, interchange, and demand.
+        "description": {
+            "additional_summary_text": "balancing authority net generation, interchange, and demand.",
+            "additional_details_text": """Net generation represents the metered output of electric generating units in a BA's electric system. This generation only includes generating units that are managed by a BA or whose operations are visible to a BA.
 
-Net generation represents the metered output of electric generating units in a BA's
-electric system. This generation only includes generating units that are managed by a BA
-or whose operations are visible to a BA.
-
-Generators on the distribution system—both large-scale resources and small-scale
-distributed resources, such as rooftop solar photovoltaic (PV) systems—are typically not
-included.
+Generators on the distribution system—both large-scale resources and small-scale distributed resources, such as rooftop solar photovoltaic (PV) systems—are typically not included.
 
 In some electricity publications, EIA reports generation from all utility-scale
-generating units in the United States. BAs only meter generating units that are from a
-subset of all utility-scale generating units. As a result, when hourly generation from
-the EIA-930 is aggregated to monthly or annual levels, the results will be lower than
-monthly and annual aggregations in other EIA electricity publications.
+generating units in the United States. BAs only meter generating units that are from a subset of all utility-scale generating units. As a result, when hourly generation from the EIA-930 is aggregated to monthly or annual levels, the results will be lower than monthly and annual aggregations in other EIA electricity publications.
 
 Interchange is the net metered tie line flow from one BA to another directly
-interconnected BA. This table includes the net sum of all interchange occurring between
-a BA all of its directly interconnected neighboring BAs. For a detailed breakdown of
-interchange between each pair of adjacent BAs see
-:ref:`core_eia930__hourly_interchange`.
+interconnected BA. This table includes the net sum of all interchange occurring between a BA and all of its directly interconnected neighboring BAs. For a detailed breakdown of interchange between each pair of adjacent BAs see
+core_eia930__hourly_interchange.
 
-Negative interchange values indicate net inflows, and positive interchange values
-indicate net outflows.
+Negative interchange values indicate net inflows, and positive interchange values indicate net outflows.
 
-Demand is a calculated value representing the amount of electricity load within a BA's
-electric system. A BA derives its demand value by taking the total metered net
-electricity generation within its electric system and subtracting the total metered net
-electricity interchange occurring between the BA and its neighboring BAs.
+Demand is a calculated value representing the amount of electricity load within a BA's electric system. A BA derives its demand value by taking the total metered net electricity generation within its electric system and subtracting the total metered net electricity interchange occurring between the BA and its neighboring BAs.
 
-Each BA produces a day-ahead electricity demand forecast for every hour of the next day.
-These forecasts help BAs plan for and coordinate the reliable operation of their
-electric system."""
-        ),
+Each BA produces a day-ahead electricity demand forecast for every hour of the next day. These forecasts help BAs plan for and coordinate the reliable operation of their electric system.""",
+        },
         "schema": {
             "fields": [
                 "datetime_utc",
