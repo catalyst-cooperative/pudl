@@ -211,7 +211,7 @@ def test_get_available_years(mocker, parquet_data):
 
 
 def test_get_available_years_with_max_year(mocker, parquet_data):
-    """Test get_available_years function with max_year constraint."""
+    """Test that get_available_years obeys the max_year constraint."""
     # Mock PudlPaths to return our test file
     mock_paths = mocker.MagicMock()
     mock_paths.parquet_path.return_value = str(parquet_data)
