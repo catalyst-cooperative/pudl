@@ -65,21 +65,16 @@ electric system."""
         "create_database_schema": False,
     },
     "core_eia930__hourly_net_generation_by_energy_source": {
-        "description": (
-            """EIA-930 hourly balancing authority net generation by energy source.
+        "description": {
+            "additional_summary_text": "balancing authority net generation by energy source.",
+            "additional_details_text": """BAs report generation from dual-fuel (switching from one fuel to another) and
+multiple-fuel (using multiple fuels simultaneously) generators under the actual energy source used, if known, and under the generator's primary energy source, if not known.
 
-BAs report generation from dual-fuel (switching from one fuel to another) and
-multiple-fuel (using multiple fuels simultaneously) generators under the actual energy
-source used, if known, and under the generator's primary energy source, if not known.
+To maintain generator confidentiality, generation may sometimes be reported in the Other category if too few generators are reported for a particular energy source category.
 
-To maintain generator confidentiality, generation may sometimes be reported in the Other
-category if too few generators are reported for a particular energy source category.
-
-In theory the sum of net generation across all energy sources should equal the total
-net generation reported in the balancing authority operations table. In practice, there
-are many cases in which these values diverge significantly, which require further
-investigation."""
-        ),
+In theory, the sum of net generation across all energy sources should equal the total net generation reported in the balancing authority operations table. In practice,
+there are many cases in which these values diverge significantly, which require further investigation.""",
+        },
         "schema": {
             "fields": [
                 "datetime_utc",
