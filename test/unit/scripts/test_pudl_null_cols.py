@@ -298,7 +298,7 @@ def test_main_conflicting_options(mocker):
 
 
 def test_main_yaml_output(mocker):
-    """Test that CLI outputs valid YAML."""
+    """Test that CLI converts row conditions to YAML syntax."""
     mocker.patch("pudl.scripts.pudl_null_cols.ALL_TABLES", ["test_table"])
     mock_infer_row_conditions = mocker.patch(
         "pudl.scripts.pudl_null_cols.infer_row_conditions"
