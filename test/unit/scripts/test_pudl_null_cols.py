@@ -121,7 +121,7 @@ def test_max_eia860_year(mocker):
 def test_compact_row_condition(
     null_years, available_years, date_column, expected_output
 ):
-    """Test the compact_row_condition function with various scenarios."""
+    """Test edge cases for compact_row_condition."""
     result = compact_row_condition(
         null_years=null_years,
         available_years=available_years,
