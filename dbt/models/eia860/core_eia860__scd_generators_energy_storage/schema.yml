@@ -4,6 +4,14 @@ sources:
     tables:
       - name: core_eia860__scd_generators_energy_storage
         data_tests:
+          - expect_columns_not_all_null:
+              description: >
+                Excluded columns have yet to be used in any year, but as more energy
+                storage technologies become available, we might want to stop excluding
+                them.
+              exclude_columns:
+                - storage_technology_code_3
+                - storage_technology_code_4
           - check_row_counts_per_partition:
               table_name: core_eia860__scd_generators_energy_storage
               partition_column: report_date
@@ -31,7 +39,7 @@ sources:
           - name: stored_excess_wind_and_solar_generation
           - name: is_ac_coupled
           - name: is_dc_coupled
-          - name: id_dc_coupled_tightly
+          - name: is_dc_coupled_tightly
           - name: is_independent
           - name: is_transmission_and_distribution_asset_support
           - name: is_direct_support

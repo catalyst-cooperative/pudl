@@ -4,6 +4,14 @@ sources:
     tables:
       - name: core_eia__entity_generators
         data_tests:
+          - expect_columns_not_all_null:
+              description: >
+                The can_switch_when_operating column is only reported in a single year,
+                but assumed to be static (and thus is included in the entity table).
+                However, if the one year in which it was reported isn't processed, then
+                it ends up being entirely null, so it is excluded from the null check.
+              exclude_columns:
+                - can_switch_when_operating
           - check_row_counts_per_partition:
               table_name: core_eia__entity_generators
               partition_column: null
@@ -26,5 +34,5 @@ sources:
           - name: rto_iso_location_wholesale_reporting_id
           - name: associated_combined_heat_power
           - name: original_planned_generator_operating_date
-          - name: operating_switch
+          - name: can_switch_when_operating
           - name: previously_canceled
