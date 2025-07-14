@@ -53,7 +53,7 @@ changes to the database schema:
   ``can_switch_when_operating`` column found in the multi-fuel generator tables.
 * The ``model_tax_credit_case_nrelatb`` column had its allowable enumerated values
   corrected, resulting in real non-null contents. See PR :pr:`4384`.
-* Three previously entirely null ``boolean`` columns in the mutlifuel generator table
+* Three previously entirely null ``boolean`` columns in the multifuel generator table
   now contain real values, they are: ``can_fuel_switch``, ``has_regulatory_limits``,
   and ``can_cofire_oil_and_gas``.
 
