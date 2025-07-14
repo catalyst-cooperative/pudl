@@ -4,6 +4,7 @@ sources:
     tables:
       - name: core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities
               partition_column: null
