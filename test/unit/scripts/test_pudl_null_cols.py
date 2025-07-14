@@ -165,7 +165,7 @@ def parquet_data():
     ],
 )
 def test_get_null_years(mocker, parquet_data, column, expected_null_years):
-    """Test get_null_years function with different columns."""
+    """Test that get_null_years really does exclude null years."""
     # Mock PudlPaths to return our test file
     mock_paths = mocker.MagicMock()
     mock_paths.parquet_path.return_value = str(parquet_data)
