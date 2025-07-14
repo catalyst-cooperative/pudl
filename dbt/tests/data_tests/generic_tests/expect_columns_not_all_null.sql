@@ -26,6 +26,8 @@
     {% endif %}
 {% endif %}
 
+{% set year_in_eia860_years = "EXTRACT(year FROM report_date) <= " + last_eia860_year|string %}
+
 {% if execute %}
     {% set columns_result = run_query(get_columns_query) %}
     {% set column_names = columns_result.columns[0].values() %}
@@ -49,7 +51,7 @@
 
     {# Add EIA-860M year exclusion if needed #}
     {% if ignore_eia860m_nulls and last_eia860_year %}
-        {% set where_condition = "(" + base_condition + ") AND EXTRACT(year FROM report_date) <= " + last_eia860_year|string %}
+        {% set where_condition = "(" + base_condition + ") AND (" + year_in_eia860_years + ")" %}
         {% set exclusion_note = " (excluding years after " + last_eia860_year|string + " due to EIA-860M limitations)" %}
     {% else %}
         {% set where_condition = base_condition %}
@@ -62,7 +64,7 @@
         {% set row_condition_display = row_conditions[column_name] | replace("'", "''") %}
     {% else %}
         {% set failure_reason = "Column is entirely NULL" + exclusion_note %}
-        {% set row_condition_display = "N/A (entire table)" if not exclusion_note else "EXTRACT(year FROM report_date) <= " + last_eia860_year|string %}
+        {% set row_condition_display = "N/A (entire table)" if not exclusion_note else year_in_eia860_years %}
     {% endif %}
 
     {% set check %}

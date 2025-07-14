@@ -114,7 +114,10 @@ def compact_row_condition(
 
     This function generates conditions that are compatible with the
     expect_columns_not_all_null test, which automatically excludes recent years when
-    ignore_eia860m_nulls=true.
+    ignore_eia860m_nulls=true. Any column that's entirely null across all available
+    years will result in an error -- such columns need to be debugged, or explicitly
+    excluded from the data test. They may also be a sign that you've run the script
+    against incomplete output (e.g. the Fast ETL, not the Full ETL).
 
     Args:
         null_years: List of years where the column is entirely null
@@ -131,8 +134,8 @@ def compact_row_condition(
     year_expr = date_column_to_year_expr(date_column)
 
     if not data_years:
-        logger.warning("No data found! Column should be excluded or debugged.")
-        return "FALSE -- Column has no data. Exclude it explicitly or debug."
+        logger.error("No data found! Column should be excluded or debugged.")
+        return "ERROR -- Column has no data. Debug the issue or exclude the column."
 
     # Check if data years form a contiguous range, allowing for compact row_conditions
     if len(data_years) == (data_years[-1] - data_years[0] + 1):

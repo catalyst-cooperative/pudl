@@ -65,7 +65,7 @@ def test_max_eia860_year(mocker):
             [2020, 2021, 2022],
             [2020, 2021, 2022],
             "report_date",
-            "FALSE -- Column has no data. Exclude it explicitly or debug.",
+            "ERROR -- Column has no data. Debug the issue or exclude the column.",
         ),
         # Single data year
         (
