@@ -105,14 +105,10 @@ Negative interchange values indicate net inflows, and positive interchange value
         "create_database_schema": False,
     },
     "core_eia930__hourly_subregion_demand": {
-        "description": (
-            """EIA-930 hourly balancing authority subregion demand.
-
-For select BAs, demand by subregion data provide demand at a further level of geographic
-disaggregation (for example, load zones, weather zones, operating company areas, local
-BAs, etc.) within a BA's electric system. A BA's reporting demand by subregion section
-below provides more information on subregions."""
-        ),
+        "description": {
+            "additional_summary_text": "balancing authority subregion demand.",
+            "additional_details_text": """For select BAs, balancing authority subregion demand provides a further level of geographic disaggregation (for example, load zones, weather zones, operating company areas, local BAs, etc.) within a BA's electric system.""",
+        },
         "schema": {
             "fields": [
                 "datetime_utc",
