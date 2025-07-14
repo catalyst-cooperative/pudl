@@ -197,7 +197,7 @@ def test_get_null_years_with_max_year(mocker, parquet_data):
 
 
 def test_get_available_years(mocker, parquet_data):
-    """Test get_available_years function."""
+    """Test that get_available_years really does list all years present in the date column."""
     # Mock PudlPaths to return our test file
     mock_paths = mocker.MagicMock()
     mock_paths.parquet_path.return_value = str(parquet_data)
