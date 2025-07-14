@@ -197,13 +197,8 @@ def main(
     reviewed and potentially adjusted to ensure they are appropriate for the
     specific table and its data.
     """
-    if not table_name:
-        click.echo("No table specified. Please provide a PUDL table name.")
-        return
     if table_name not in ALL_TABLES:
-        click.echo(f"Invalid table name: {table_name}.")
-        return
-
+        raise click.BadParameter(f"Invalid table name: {table_name}.")
     if ignore_eia860m and max_year is not None:
         raise click.BadParameter(
             "--ignore-eia860m and --max-year are mutually exclusive"
