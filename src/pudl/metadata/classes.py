@@ -1204,7 +1204,10 @@ class PudlResourceDescriptor(PudlMeta):
         additional_primary_key_text: str | None = None
         """For resources with no primary key, a brief summary of what each row contains, and perhaps why a primary key doesn't make sense for this table.
         If None or otherwise left unset, will be left blank.
-        This should only be set if the resource has no natural primary key. If set, should be a complete sentence or two."""
+        If set, should be a complete sentence or two.
+
+        This is generally not set when there is a primary key for the table.
+        If a primary key is available, :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text` will appear after the comma-delimited list of primary key columns."""
         additional_details_text: str | None = None
         """All other information about this resource's construction and intended use, including guidelines and recommendations for best results.
         If None or otherwise left unset, will be left blank; hides the Additional Details section entirely.
