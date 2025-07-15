@@ -62,7 +62,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "core_ferc1__yearly_cash_flows_sched120": {
-        "description": "The structured portion of the FERC1 cash flow table - Schedule 120.",
+        "description": {
+            "additional_summary_text": "utility cash flow.",
+            "additional_source_text": "Schedule 120",
+        },
         "schema": {
             "fields": [
                 "record_id",
