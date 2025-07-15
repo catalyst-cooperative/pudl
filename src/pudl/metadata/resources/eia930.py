@@ -189,16 +189,13 @@ The spatial granularity of each record is indicated by `aggregation_level`.""",
         "create_database_schema": False,
     },
     "out_eia930__hourly_subregion_demand": {
-        "description": (
-            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-03-31.
+        "description": {
+            "additional_summary_text": "balancing authority subregion demand with imputed demand.",
+            "additional_details_text": """(EXPERIMENTAL / WORK-IN-PROGRESS, 2025-03-31)
 
-This table is based on ``core_eia930__hourly_subregion_demand``, but adds imputed demand
-values where the original data was missing or anomalous.  Codes explaining why values
-have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.
-
-This table is available in the nightly builds during development, but has not been fully
-vetted yet."""
-        ),
+This table is based on ``core_eia930__hourly_subregion_demand``, but adds imputed demand where the original data was missing or anomalous. Codes explaining why values have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.""",
+            "usage_warnings": ["imputed_values"],
+        },
         "schema": {
             "fields": [
                 "datetime_utc",
