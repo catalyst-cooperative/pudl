@@ -22,6 +22,29 @@ macros:
       - name: partition_column
         type: string
         description: The name of the column to partition by
+  - name: test_expect_column_fraction_with_condition
+    description: >
+      Check whether the fraction of a column's total sum that meet a specified condition
+      falls within acceptable bounds. Calculates the sum of column values where the
+      condition is true, divided by the total sum of the column, and verifies this
+      fraction is between min_fraction and max_fraction. Useful for validating data
+      quality metrics like "what fraction of total capacity comes from renewable
+      sources."
+    arguments:
+      - name: column_name
+        type: string
+        description: The name of the column whose values will be summed and checked.
+      - name: numerator_row_condition
+        type: string
+        description: >
+          SQL condition that determines which rows to include in the sum in the
+          numerator of the calculated fraction (e.g., "fuel_type_code_pudl='solar'").
+      - name: min_fraction
+        type: float
+        description: Minimum acceptable fraction (between 0 and 1).
+      - name: max_fraction
+        type: float
+        description: Maximum acceptable fraction (between 0 and 1).
   - name: test_expect_includes_all_value_combinations_from
     description:
       Check that all values in a column or set of columns are the same
@@ -42,6 +65,33 @@ macros:
     description: Check that there are no null rows in the table
   - name: test_not_all_null
     description: Check that not all values in a column are null
+  - name: test_expect_columns_not_all_null
+    description: >
+      Check that all columns in a table are not entirely NULL. Can exclude specific
+      columns and apply conditional checks (e.g., only check for NULLs when certain
+      conditions are met). Uses DuckDB's DESCRIBE to dynamically discover column names.
+      When ignore_eia860m_nulls is enabled, automatically excludes years which are
+      only available in EIA-860M.
+    arguments:
+      - name: exclude_columns
+        type: list
+        description: List of column names to exclude from the null check (optional, default empty list).
+      - name: row_conditions
+        type: dict
+        description: >
+          Dictionary mapping column names to SQL row conditions. For each column, the null
+          check will only be applied to rows matching the condition (optional, default
+          empty dict).
+      - name: ignore_eia860m_nulls
+        type: boolean
+        description: >
+          When true, excludes years after the last available EIA-860 annual data
+          (dynamically determined from core_eia860__scd_ownership.report_date) from null
+          checks for all columns. This deals with the limitation that EIA-860M only
+          reports a subset of values which appear in the full EIA-860, which results in
+          many entirely null columns in EIA-860M-only years. NOTE: Setting this
+          parameter to true requires that the table being tested contains a
+          'report_date' column for year filtering.
   - name: test_expect_complete_valid_ownership
     description: >
       Check whether ``fraction_owned`` columns sum too high (for any individual
@@ -159,3 +209,25 @@ macros:
       - name: max_discrepancy_rate
         type: float
         description: Maximum acceptable fraction of records which can be counted as a discrepancy before the test should fail.
+  - name: test_expect_columns_are_close
+    description: >
+      Check that two float columns are close using the ``numpy.isclose`` equation for comparing columns. Generally this is used with the ``row_condition`` argument, as it's uncommon that there are two colums which are supposed to be entirely equal, but there may be a subset of rows which are supposed to be equal.
+    arguments:
+      - name: column_a
+        type: str
+        description: First column to compare.
+      - name: column_b
+        type: str
+        description: Second column to compare.
+      - name: row_condition
+        type: str
+        description: Filter to select a subset of rows to compare.
+      - name: row_condition
+        type: str
+        description: Filter to select a subset of rows to compare.
+      - name: atol
+        type: float
+        description: Absolute tolerance for comparison.
+      - name: rtol
+        type: float
+        description: Relative tolerance for comparison.

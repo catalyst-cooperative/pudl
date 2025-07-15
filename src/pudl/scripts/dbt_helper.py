@@ -1,5 +1,6 @@
 """A basic CLI to autogenerate dbt data test configurations."""
 
+import json
 from collections import namedtuple
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,13 +13,13 @@ import yaml
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
-from pudl.dbt_wrapper import build_with_context
+from pudl.dbt_wrapper import build_with_context, dagster_to_dbt_selection
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
 configure_root_logger()
-logger = get_logger(__file__)
+logger = get_logger(__name__)
 
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
 
@@ -502,11 +503,25 @@ def update_tables(
 
 @click.command()
 @click.option(
-    "--select", default="*", help="DBT selector for the asset(s) you want to validate."
+    "--select",
+    help="DBT selector for the asset(s) you want to validate. Syntax "
+    "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
+)
+@click.option(
+    "--asset-select",
+    "-a",
+    help=(
+        "*DAGSTER* selector for the asset(s) you want to validate. "
+        "This gets translated into a DBT selection. For example, you can "
+        "use '+key:\"out_eia__yearly_generators\"' to validate "
+        "out_eia_yearly_generators and its upstream assets. Syntax "
+        "documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference "
+    ),
 )
 @click.option(
     "--exclude",
-    help="DBT selector for the asset(s) you want to exclude from validation.",
+    help="DBT selector for the asset(s) you want to exclude from validation. Syntax "
+    "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
 )
 @click.option(
     "--target",
@@ -514,20 +529,76 @@ def update_tables(
     type=click.Choice(["etl-full", "etl-fast"]),
     help="DBT target - etl-full (default) or etl-fast.",
 )
+@click.option(
+    "--dry-run/--no-dry-run",
+    default=False,
+    help="If dry, will print out the parameters we would pass to dbt, but not "
+    "actually run the validation tests. Defaults to not-dry.",
+)
 def validate(
-    select: str = "*", exclude: str | None = None, target: str = "etl-full"
+    select: str | None = None,
+    asset_select: str | None = None,
+    exclude: str | None = None,
+    target: str = "etl-full",
+    dry_run: bool = False,
 ) -> None:
     """Validate a selection of DBT nodes.
 
     Wraps the ``dbt build`` command line so we can annotate the result with the
     actual data that was returned from the test query.
-    """
-    test_result = build_with_context(
-        node_selection=select,
-        dbt_target=target,
-        node_exclusion=exclude,
-    )
 
+    Understands how to translate Dagster asset selection syntax into dbt node
+    selections via the --asset-select flag.
+
+    Default behavior if you do not pass `--asset-select` or `--select` is to
+    validate everything.
+
+    Usage examples:
+
+    Run all the checks for one asset:
+
+        $ dbt_helper validate --asset-select "key:out_eia__yearly_generators"
+
+    Run the checks for one specific dbt node:
+
+        $ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+
+    Run checks for an asset and all its upstream dependencies:
+
+        $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators"
+
+    Exclude the row count tests:
+
+        $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"
+
+
+
+    """
+    if select is not None:
+        if asset_select is not None:
+            raise click.UsageError(
+                "You can't pass --select and --asset-select at the same time."
+            )
+        node_selection = select
+    else:
+        if asset_select is not None:
+            node_selection = dagster_to_dbt_selection(asset_select)
+        else:
+            node_selection = "*"
+
+    build_params = {
+        "node_selection": node_selection,
+        "dbt_target": target,
+        "node_exclusion": exclude,
+    }
+
+    if dry_run:
+        logger.info(
+            f"Dry run - would build with these params: {json.dumps(build_params)}"
+        )
+        return
+
+    test_result = build_with_context(**build_params)
     if not test_result.success:
         raise AssertionError(
             f"failure contexts:\n{test_result.format_failure_contexts()}"

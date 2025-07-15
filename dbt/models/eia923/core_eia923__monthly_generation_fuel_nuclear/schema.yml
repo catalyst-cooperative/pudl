@@ -4,6 +4,7 @@ sources:
     tables:
       - name: core_eia923__monthly_generation_fuel_nuclear
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eia923__monthly_generation_fuel_nuclear
               partition_column: report_date
@@ -13,6 +14,9 @@ sources:
           - name: nuclear_unit_id
           - name: energy_source_code
           - name: fuel_type_code_pudl
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_in_set:
+                  value_set: ["nuclear", "oil"]
           - name: fuel_type_code_agg
           - name: prime_mover_code
           - name: fuel_consumed_units
@@ -21,4 +25,9 @@ sources:
           - name: fuel_consumed_mmbtu
           - name: fuel_consumed_for_electricity_mmbtu
           - name: net_generation_mwh
+            data_tests:
+              - expect_column_fraction_with_condition:
+                  numerator_row_condition: fuel_type_code_pudl='nuclear'
+                  min_fraction: 0.9999
+                  max_fraction: 1.0
           - name: data_maturity
