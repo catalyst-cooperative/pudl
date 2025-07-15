@@ -1,10 +1,14 @@
+import json
 import logging
+import re
 from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
 
 from pudl.dbt_wrapper import build_with_context
 from pudl.io_managers import PudlMixedFormatIOManager
+from pudl.scripts.dbt_helper import dbt_helper
 
 logger = logging.getLogger(__name__)
 
@@ -90,3 +94,18 @@ def test_update_tables(
         print_result=True,
     )
     assert ret.success
+
+
+def test_validate_asset_selection():
+    runner = CliRunner()
+    result = runner.invoke(
+        dbt_helper,
+        ["validate", "--dry-run", "--asset-select", '+key:"core_eia860_*"'],
+    )
+    output = result.output
+    if "node_selection" not in result.output:
+        raise AssertionError(f"Unexpected output: {output}")
+    out_params = json.loads(re.search(r"({.+})", output).group(0))
+    obs_node_selection = out_params["node_selection"].split(" ")
+    # just need to know that the key got expanded at all - specifics of expansion tested in dbt_wrapper_test
+    assert len(obs_node_selection) > 1

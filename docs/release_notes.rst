@@ -12,11 +12,53 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+* Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
+  2024 data. See :issue:`4418` and :pr:`4433`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Bug Fixes
 ^^^^^^^^^
+
+* Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
+  :issue:`4328` and PR :pr:`4392`.
+
+New Tests and Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-930 and FERC-714 Hourly Imputed Demand
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Added checks which ensure that *only* hourly electricity demand values which are flagged
+for imputation change significantly from their reported values before and after the
+imputation. Check that the missingness of various columns in the hourly reported demand
+and imputed demand are within expected ranges. Explicitly flag years of which are
+dropped due to insufficient data for meaningful imputation with ``BAD_YEAR``. Affected
+tables include :ref:`out_eia930__hourly_operations`,
+:ref:`out_eia930__hourly_subregion_demand`, and
+:ref:`out_ferc714__hourly_planning_area_demand`. See PR :pr:`4334`.
+
+Check for entirely null columns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously we had a data validation check that ensured there were no entirely null
+columns applied to a handful of tables. Such columns were typically the result of typos
+or failures to update column names, or application of an incompatible dtype, e.g.
+casting an uncleaned column containing Y or N to ``boolean``. A similar check has been
+implemented in our dbt data validation checks and is now applied to all tables. See
+issue :issue:`4105` and PR :pr:`4382`. As a result of more broadly applying this check,
+we found and fixed a few data quality and column naming issues resulting in minor
+changes to the database schema:
+
+* ``id_dc_coupled_tightly`` was renamed to ``is_dc_coupled_tightly`` (typo).
+* ``switch_operating`` was consolidated with the existing
+  ``can_switch_when_operating`` column found in the multi-fuel generator tables.
+* The ``model_tax_credit_case_nrelatb`` column had its allowable enumerated values
+  corrected, resulting in real non-null contents. See PR :pr:`4384`.
+* Three previously entirely null ``boolean`` columns in the multifuel generator table
+  now contain real values, they are: ``can_fuel_switch``, ``has_regulatory_limits``,
+  and ``can_cofire_oil_and_gas``.
 
 .. _release-v2025.7.0:
 

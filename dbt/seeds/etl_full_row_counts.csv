@@ -1746,7 +1746,6 @@ core_ferc714__hourly_planning_area_demand,2020,834384
 core_ferc714__hourly_planning_area_demand,2021,796322
 core_ferc714__hourly_planning_area_demand,2022,784261
 core_ferc714__hourly_planning_area_demand,2023,779627
-core_ferc714__hourly_planning_area_demand,2024,47
 core_ferc714__respondent_id,,218
 core_ferc714__yearly_planning_area_demand_forecast,2006,1819
 core_ferc714__yearly_planning_area_demand_forecast,2007,1570
@@ -1796,7 +1795,7 @@ core_pudl__assn_ferc714_xbrl_pudl_respondents,,118
 core_pudl__assn_utilities_plants,,19298
 core_pudl__codes_data_maturities,,4
 core_pudl__codes_datasources,,13
-core_pudl__codes_imputation_reasons,,11
+core_pudl__codes_imputation_reasons,,12
 core_pudl__codes_subdivisions,,69
 core_pudl__entity_plants_pudl,,20320
 core_pudl__entity_utilities_pudl,,17061
@@ -3429,7 +3428,6 @@ out_ferc714__hourly_planning_area_demand,2020,834384
 out_ferc714__hourly_planning_area_demand,2021,796322
 out_ferc714__hourly_planning_area_demand,2022,784261
 out_ferc714__hourly_planning_area_demand,2023,779627
-out_ferc714__hourly_planning_area_demand,2024,47
 out_ferc714__respondents_with_fips,2006,9166
 out_ferc714__respondents_with_fips,2007,9127
 out_ferc714__respondents_with_fips,2008,9231
