@@ -3,6 +3,7 @@ from collections import namedtuple
 from dataclasses import dataclass
 from io import StringIO
 
+import pandas as pd
 import pytest
 
 from pudl.scripts.dbt_helper import (
@@ -10,13 +11,21 @@ from pudl.scripts.dbt_helper import (
     DbtSchema,
     DbtSource,
     DbtTable,
+    UpdateResult,
+    _calculate_row_counts,
+    _combine_row_counts,
+    _extract_row_count_partitions,
+    _get_existing_row_counts,
     _get_local_table_path,
     _get_model_path,
     _get_row_count_csv_path,
+    _get_row_count_test_dict,
     _infer_partition_column,
     _schema_diff_summary,
+    _write_row_counts,
     get_data_source,
     schema_has_removals_or_modifications,
+    update_row_counts,
 )
 
 TEMPLATE = {
@@ -24,6 +33,46 @@ TEMPLATE = {
     "query": "",
     "weight_col": "weight",
 }
+
+
+@pytest.fixture
+def schema_factory():
+    def _make_schema(
+        table_name,
+        columns,
+        partition_column=None,
+        add_row_count_test=True,
+        source_name="pudl",
+    ):
+        data_tests = None
+        if add_row_count_test and partition_column:
+            data_tests = [
+                {
+                    "check_row_counts_per_partition": {
+                        "table_name": table_name,
+                        "partition_column": partition_column,
+                    }
+                }
+            ]
+        return DbtSchema(
+            version=2,
+            models=None,
+            sources=[
+                DbtSource(
+                    name=source_name,
+                    data_tests=None,
+                    tables=[
+                        DbtTable(
+                            name=table_name,
+                            data_tests=data_tests,
+                            columns=[DbtColumn(name=col) for col in columns],
+                        )
+                    ],
+                )
+            ],
+        )
+
+    return _make_schema
 
 
 def with_name(mock, name):
@@ -54,17 +103,376 @@ def test__get_row_count_csv_path():
     )
 
 
+def test__get_existing_row_counts(mocker):
+    mock_df = pd.DataFrame(
+        {
+            "table_name": ["my_table"],
+            "partition": ["2023"],
+            "row_count": [100],
+        }
+    )
+
+    mock_read_csv = mocker.patch(
+        "pudl.scripts.dbt_helper.pd.read_csv", return_value=mock_df
+    )
+
+    result = _get_existing_row_counts()
+
+    pd.testing.assert_frame_equal(result, mock_df)
+    mock_read_csv.assert_called_once()
+
+
+def test__write_row_counts(mocker):
+    df = pd.DataFrame(
+        {
+            "table_name": ["my_table"],
+            "partition": ["2023"],
+            "row_count": [123],
+        }
+    )
+
+    mock_csv_path = mocker.patch(
+        "pudl.scripts.dbt_helper._get_row_count_csv_path", return_value="/fake/path.csv"
+    )
+    mock_to_csv = mocker.patch("pandas.DataFrame.to_csv")
+
+    _write_row_counts(df)
+
+    mock_csv_path.assert_called_once()
+    mock_to_csv.assert_called_once_with("/fake/path.csv", index=False)
+
+
+def test__get_row_count_test_dict():
+    result = _get_row_count_test_dict("plants", "report_year")
+    expected = {
+        "check_row_counts_per_partition": {
+            "table_name": "plants",
+            "partition_column": "report_year",
+        }
+    }
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "data_tests, expected",
+    [
+        (
+            [
+                {
+                    "check_row_counts_per_partition": {
+                        "table_name": "plants",
+                        "partition_column": "report_year",
+                    }
+                }
+            ],
+            ["report_year"],
+        ),
+        (
+            [
+                {
+                    "check_row_counts_per_partition": {
+                        "table_name": "plants",
+                        "partition_column": "report_date",
+                    }
+                },
+                {
+                    "check_row_counts_per_partition": {
+                        "table_name": "plants",
+                        "partition_column": "datetime_utc",
+                    }
+                },
+            ],
+            ["report_date", "datetime_utc"],
+        ),
+        (
+            [
+                {"check_row_counts_per_partition": None},
+                {"some_other_test": {}},
+            ],
+            [],
+        ),
+        (
+            None,
+            [],
+        ),
+    ],
+)
+def test__extract_row_count_partitions(data_tests, expected):
+    table = DbtTable(
+        name="plants",
+        columns=[DbtColumn(name="some_column")],
+        data_tests=data_tests,
+    )
+    assert _extract_row_count_partitions(table) == expected
+
+
 @pytest.mark.parametrize("key", ["report_year", "report_date", "datetime_utc", None])
-def test__infer_partition_column(mocker, key):
-    mock_resource = mocker.Mock()
-    mocker.patch(
-        "pudl.scripts.dbt_helper.PUDL_PACKAGE"
-    ).get_resource.return_value = mock_resource
-    mock_resource.schema.fields = [with_name(mocker.Mock(), key)]
-    assert _infer_partition_column("") == key
+def test__infer_partition_column(key):
+    if key is not None:
+        columns = [DbtColumn(name=key)]
+        expected = key
+    else:
+        columns = [DbtColumn(name="not_a_partition_column")]
+        expected = None
+
+    table = DbtTable(
+        name="dummy",
+        columns=columns,
+        data_tests=None,
+    )
+
+    assert _infer_partition_column(table) == expected
 
 
 GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
+
+ROW_COUNT_TEST_CASES = [
+    GivenExpect(
+        given={
+            "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
+            "table_name": "foo",
+            "partition_column": "report_year",
+            "new_counts_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
+            "clobber": True,
+            "update": False,
+            "has_test": True,
+        },
+        expect={
+            "expected_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
+            "result": UpdateResult(
+                success=True,
+                message="Successfully updated row count table with counts from foo.",
+            ),
+        },
+    ),
+    GivenExpect(
+        given={
+            "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
+            "table_name": "foo",
+            "partition_column": "report_year",
+            "new_counts_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
+            "clobber": False,
+            "update": False,
+            "has_test": True,
+        },
+        expect={
+            "expected_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
+            "result": UpdateResult(
+                success=False,
+                message="Row counts for foo already exist. Use clobber or update to overwrite.",
+            ),
+        },
+    ),
+    GivenExpect(
+        given={
+            "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
+            "table_name": "foo",
+            "partition_column": "report_year",
+            "new_counts_csv": None,  # no new counts if test is missing
+            "clobber": False,
+            "update": False,
+            "has_test": False,
+        },
+        expect={
+            "expected_csv": "table_name,partition,row_count\nfoo,2020,100\n",
+            "result": UpdateResult(
+                success=False,
+                message="Row counts exist for foo, but no row count test is defined. Use clobber/update to remove.",
+            ),
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("case", ROW_COUNT_TEST_CASES)
+def test_update_row_counts(case, schema_factory, mocker):
+    given = case.given
+    expect = case.expect
+
+    existing_df = pd.read_csv(StringIO(given["existing_csv"]))
+
+    if given["new_counts_csv"]:
+        new_df = pd.read_csv(StringIO(given["new_counts_csv"]))
+    else:
+        new_df = pd.DataFrame(columns=["table_name", "partition", "row_count"])
+
+    schema = schema_factory(
+        table_name=given["table_name"],
+        columns=["report_year", "id"],
+        partition_column=given["partition_column"],
+        add_row_count_test=given["has_test"],
+    )
+
+    mocker.patch(
+        "pudl.scripts.dbt_helper._get_existing_row_counts", return_value=existing_df
+    )
+    mocker.patch("pudl.scripts.dbt_helper._calculate_row_counts", return_value=new_df)
+    mock_write = mocker.patch("pudl.scripts.dbt_helper._write_row_counts")
+    mock_model_path = mocker.patch("pudl.scripts.dbt_helper._get_model_path")
+    mock_model_path.return_value.__truediv__.return_value = "fake/schema.yml"
+    mocker.patch("pudl.scripts.dbt_helper.DbtSchema.from_yaml", return_value=schema)
+    mocker.patch(
+        "pudl.scripts.dbt_helper._extract_row_count_partitions",
+        return_value=[given["partition_column"]] if given["has_test"] else [],
+    )
+
+    result = update_row_counts(
+        table_name=given["table_name"],
+        data_source="pudl",
+        target="etl-full",
+        clobber=given["clobber"],
+        update=given["update"],
+    )
+
+    # Assert the expected result object
+    assert result == expect["result"]
+
+    # Determine whether something should be written
+    has_test = given["has_test"]
+    table_in_existing = given["table_name"] in existing_df["table_name"].to_numpy()
+    allow_update = given["clobber"] or given["update"]
+
+    should_write = (has_test and (not table_in_existing or allow_update)) or (
+        not has_test and table_in_existing and allow_update
+    )
+
+    # If we expect a write, assert what would be written
+    if should_write:
+        expected_df = pd.read_csv(StringIO(expect["expected_csv"]))
+        mock_write.assert_called_once()
+        pd.testing.assert_frame_equal(
+            mock_write.call_args[0][0].reset_index(drop=True),
+            expected_df.reset_index(drop=True),
+            check_dtype=False,
+        )
+    else:
+        mock_write.assert_not_called()
+
+
+COMBINE_ROW_COUNT_TEST_CASES = [
+    GivenExpect(
+        given={
+            "existing_df": pd.DataFrame(
+                {
+                    "table_name": ["foo"],
+                    "partition": ["2020"],
+                    "row_count": [100],
+                }
+            ),
+            "new_df": pd.DataFrame(
+                {
+                    "table_name": ["foo", "foo"],
+                    "partition": ["2020", "2021"],
+                    "row_count": [100, 120],
+                }
+            ),
+        },
+        expect={
+            "expected_df": pd.DataFrame(
+                {
+                    "table_name": ["foo", "foo"],
+                    "partition": ["2020", "2021"],
+                    "row_count": [100, 120],
+                }
+            )
+            .sort_values(["table_name", "partition"])
+            .reset_index(drop=True),
+        },
+    ),
+    GivenExpect(
+        given={
+            "existing_df": pd.DataFrame(
+                {
+                    "table_name": ["foo"],
+                    "partition": ["2020"],
+                    "row_count": [99],
+                }
+            ),
+            "new_df": pd.DataFrame(
+                {
+                    "table_name": ["foo"],
+                    "partition": ["2020"],
+                    "row_count": [100],
+                }
+            ),
+        },
+        expect={
+            "expected_df": pd.DataFrame(
+                {
+                    "table_name": ["foo"],
+                    "partition": ["2020"],
+                    "row_count": [100],
+                }
+            ),
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("case", COMBINE_ROW_COUNT_TEST_CASES)
+def test__combine_row_counts(case):
+    # Given
+    existing_df = case.given["existing_df"]
+    new_df = case.given["new_df"]
+
+    # When
+    result_df = _combine_row_counts(existing_df, new_df).reset_index(drop=True)
+
+    # Then
+    pd.testing.assert_frame_equal(
+        result_df.sort_values(["table_name", "partition"]).reset_index(drop=True),
+        case.expect["expected_df"],
+    )
+
+
+CALCULATE_ROW_COUNTS_CASES = [
+    GivenExpect(
+        given={
+            "table_name": "foo",
+            "partition_column": "report_year",
+            "mocked_path": "fake.parquet",
+            "mocked_duckdb_df": pd.DataFrame(
+                {
+                    "partition": ["2020", "2021"],
+                    "row_count": [10, 15],
+                }
+            ),
+        },
+        expect={
+            "expected_df": pd.DataFrame(
+                {
+                    "partition": ["2020", "2021"],
+                    "row_count": [10, 15],
+                    "table_name": ["foo", "foo"],
+                }
+            ),
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("case", CALCULATE_ROW_COUNTS_CASES)
+def test__calculate_row_counts_(case, mocker):
+    # Given
+    mocker.patch(
+        "pudl.scripts.dbt_helper._get_local_table_path",
+        return_value=case.given["mocked_path"],
+    )
+    mocker.patch(
+        "pudl.scripts.dbt_helper.duckdb.sql"
+    ).return_value.df.return_value = case.given["mocked_duckdb_df"]
+
+    # When
+    result = _calculate_row_counts(
+        case.given["table_name"], case.given["partition_column"]
+    )
+
+    # Then
+    pd.testing.assert_frame_equal(
+        result.sort_values("partition").reset_index(drop=True),
+        case.expect["expected_df"].sort_values("partition").reset_index(drop=True),
+    )
+
 
 GENERATE_QUANTILE_BOUNDS = [
     GivenExpect(
@@ -182,19 +590,52 @@ class DbtSchemaMocks:
     partition_column: str
     schema: DbtSchema
     yaml: str
+    has_row_count_test: bool
+    load_method: str
 
 
-@pytest.fixture
-def dbt_schema_mocks(mocker):
+@pytest.fixture(
+    params=[
+        ("from_table_name", False),
+        ("from_yaml", False),
+        ("from_yaml", True),
+    ],
+    ids=[
+        "table_name__no_row_count_test",
+        "yaml__no_row_count_test",
+        "yaml__with_row_count_test",
+    ],
+)
+def dbt_schema_mocks(request, mocker):
     """Set up mocks to check two ways of making the same basic schema: from metadata, and from yaml."""
+    load_method, has_row_count_test = request.param
+
+    field_name = str(mocker.sentinel.field_name)
+    table_name = str(mocker.sentinel.table_name)
+    partition_column = str(mocker.sentinel.partition_column)
+
     mocked_field = mocker.Mock()
-    mocked_field.name = str(mocker.sentinel.field_name)
+    mocked_field.name = field_name
     mocked_resource = mocker.Mock()
     mocked_resource.schema.fields = [
         mocked_field,
     ]
     mocked_ppkg = mocker.patch("pudl.scripts.dbt_helper.PUDL_PACKAGE")
     mocked_ppkg.get_resource.return_value = mocked_resource
+
+    data_tests = (
+        [
+            {
+                "check_row_counts_per_partition": {
+                    "table_name": table_name,
+                    "partition_column": partition_column,
+                }
+            }
+        ]
+        if has_row_count_test
+        else None
+    )
+
     schema = DbtSchema(
         version=2,
         models=None,
@@ -204,20 +645,11 @@ def dbt_schema_mocks(mocker):
                 data_tests=None,
                 tables=[
                     DbtTable(
-                        name=str(mocker.sentinel.table_name),
-                        data_tests=[
-                            {
-                                "check_row_counts_per_partition": {
-                                    "table_name": str(mocker.sentinel.table_name),
-                                    "partition_column": str(
-                                        mocker.sentinel.partition_column
-                                    ),
-                                }
-                            }
-                        ],
+                        name=table_name,
+                        data_tests=data_tests,
                         columns=[
                             DbtColumn(
-                                name=str(mocker.sentinel.field_name),
+                                name=field_name,
                             ),
                         ],
                     ),
@@ -225,44 +657,53 @@ def dbt_schema_mocks(mocker):
             ),
         ],
     )
-    yaml = f"""
+
+    yaml_tests = (
+        f"""\
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: {table_name}
+              partition_column: {partition_column}
+        """
+        if has_row_count_test
+        else ""
+    )
+
+    yaml = f"""\
 version: 2
 sources:
   - name: pudl
     tables:
-      - name: {mocker.sentinel.table_name}
-        data_tests:
-          - check_row_counts_per_partition:
-              table_name: {mocker.sentinel.table_name}
-              partition_column: {mocker.sentinel.partition_column}
+      - name: {table_name}
+{yaml_tests.rstrip()}
         columns:
-          - name: {mocker.sentinel.field_name}
+          - name: {field_name}
 """
     return DbtSchemaMocks(
         field=mocked_field,
         resource=mocked_resource,
         pudl_package=mocked_ppkg,
-        table_name=str(mocker.sentinel.table_name),
-        partition_column=str(mocker.sentinel.partition_column),
+        table_name=table_name,
+        partition_column=partition_column,
         schema=schema,
         yaml=yaml,
+        has_row_count_test=has_row_count_test,
+        load_method=load_method,
     )
 
 
-def test_dbt_schema__from_table_name(dbt_schema_mocks):
-    actual = DbtSchema.from_table_name(
-        dbt_schema_mocks.table_name,
-        partition_column=dbt_schema_mocks.partition_column,
-    )
-    assert actual == dbt_schema_mocks.schema
-
-
-def test_dbt_schema__from_yaml(mocker, dbt_schema_mocks):
-    with StringIO(dbt_schema_mocks.yaml) as f:
+def test_dbt_schema_loading(dbt_schema_mocks, mocker):
+    if dbt_schema_mocks.load_method == "from_table_name":
+        actual = DbtSchema.from_table_name(dbt_schema_mocks.table_name)
+    else:
         mock_path = mocker.Mock()
-        mock_path.open.return_value = f
+        mock_path.open.return_value = StringIO(dbt_schema_mocks.yaml)
         actual = DbtSchema.from_yaml(mock_path)
+
     assert actual == dbt_schema_mocks.schema
+    assert actual.model_dump(exclude_none=True) == dbt_schema_mocks.schema.model_dump(
+        exclude_none=True
+    )
 
 
 QUANTILE_TESTS = [
