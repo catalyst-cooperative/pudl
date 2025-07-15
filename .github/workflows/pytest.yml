@@ -19,7 +19,7 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      run_code_checks: ${{ github.event_name =='workflow_dispatch' || steps.filter.outputs.code == 'true' }}
+      run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && github.event.merge_group) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,6 +27,7 @@ jobs:
       - uses: dorny/paths-filter@v3
         id: filter
         with:
+          # this will raise a warning, but it works:  https://github.com/dorny/paths-filter/issues/225
           predicate-quantifier: "every"
           filters: |
             code:
