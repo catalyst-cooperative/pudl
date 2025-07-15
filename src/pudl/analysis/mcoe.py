@@ -712,11 +712,10 @@ def mcoe(
         )
         # Make sure the merge worked!
         .pipe(
-            pudl.validate.no_null_rows,
+            pv.no_null_rows,
             df_name="fuel_cost + capacity_factor",
             max_null_fraction=0.9,
         )
-        .pipe(pudl.validate.no_null_cols, df_name="fuel_cost + capacity_factor")
     )
     mcoe_out = mcoe_out.sort_values(
         ["plant_id_eia", "generator_id", "report_date", "unit_id_pudl"]
@@ -760,9 +759,7 @@ def mcoe_generators(
             date_on=["year"],
             how="left" if all_gens else "right",
             freq=freq,
-        ).pipe(
-            pudl.validate.no_null_rows, df_name="mcoe_all_gens", max_null_fraction=0.9
-        )
+        ).pipe(pv.no_null_rows, df_name="mcoe_all_gens", max_null_fraction=0.9)
     else:
         mcoe_gens_out = pudl.helpers.date_merge(
             left=gens,
@@ -770,9 +767,7 @@ def mcoe_generators(
             on=["plant_id_eia", "generator_id"],
             date_on=["year"],
             how="left" if all_gens else "right",
-        ).pipe(
-            pudl.validate.no_null_rows, df_name="mcoe_all_gens", max_null_fraction=0.9
-        )
+        ).pipe(pv.no_null_rows, df_name="mcoe_all_gens", max_null_fraction=0.9)
 
     # Organize the dataframe for easier legibility
     mcoe_gens_out = (
