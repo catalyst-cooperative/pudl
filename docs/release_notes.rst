@@ -12,8 +12,14 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+* Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
+  2024 data. See :issue:`4418` and :pr:`4433`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* the output of ``dbt_helper update-tables`` now conforms to the format that
+  our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
+  :issue:`4119` and :pr:`4401`.
 
 Bug Fixes
 ^^^^^^^^^

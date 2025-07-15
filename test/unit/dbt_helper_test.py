@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from io import StringIO
 
 import pytest
-from deepdiff import DeepDiff
 
 from pudl.scripts.dbt_helper import (
     DbtColumn,
@@ -33,15 +32,9 @@ def with_name(mock, name):
     return mock
 
 
-def test_get_data_source(mocker):
-    mock_resource = mocker.Mock()
-    mocker.patch(
-        "pudl.scripts.dbt_helper.PUDL_PACKAGE"
-    ).get_resource.return_value = mock_resource
-    mock_resource.sources = [""] * 2
-    assert get_data_source("multiple sources") == "output"
-    mock_resource.sources = [with_name(mocker.Mock(), str(mocker.sentinel.source))]
-    assert get_data_source("one source") == str(mocker.sentinel.source)
+def test_get_data_source():
+    assert get_data_source("_core_eia__some_table_name") == "eia"
+    assert get_data_source("another_dude__omfg") == "dude"
 
 
 def test__get_local_table_path(mocker):
@@ -562,7 +555,7 @@ def test_schema_has_removals_or_modifications(diff, expected):
     assert schema_has_removals_or_modifications(diff) == expected
 
 
-def test_complex_schema_diff_output(capsys):
+def test_complex_schema_diff_output():
     old_schema = DbtSchema(
         version=1,
         sources=[
@@ -612,34 +605,33 @@ def test_complex_schema_diff_output(capsys):
         ],
     )
 
-    diff = DeepDiff(
-        old_schema.model_dump(exclude_none=True),
-        new_schema.model_dump(exclude_none=True),
-        ignore_order=True,
-    )
-    output = _schema_diff_summary(diff)
-
-    # Version change
-    assert "version" in output, output
-    assert "'old_value': 1" in output, output
-    assert "'new_value': 2" in output, output
-
-    # source1 table1 description update
-    assert "source1" in output, output
-    assert "table1" in output, output
-    assert "'description': 'desc'" in output, output
-    assert "'description': 'updated'" in output, output
-
-    # Added source2 and new_table
-    assert "source2" in output, output
-    assert "new_table" in output, output
-    assert "'description': 'new'" in output, output
-
-    # model1 description update
-    assert "model1" in output, output
-    assert "'description': 'old'" in output, output
-    assert "'description': 'new'" in output, output
-
-    # model2 addition
-    assert "model2" in output, output
-    assert "'description': 'added'" in output, output
+    output = _schema_diff_summary(old_schema, new_schema)
+    expected = """--- old_schema
++++ new_schema
+@@ -1,12 +1,20 @@
+-version: 1
++version: 2
+ sources:
+   - name: source1
+     tables:
+       - name: table1
+-        description: desc
++        description: updated
++        columns: []
++  - name: source2
++    tables:
++      - name: new_table
++        description: new
+         columns: []
+ models:
+   - name: model1
+-    description: old
++    description: new
++    columns: []
++  - name: model2
++    description: added
+     columns: []
+"""
+    assert [line.strip() for line in expected.strip().split("\n")] == [
+        line.strip() for line in output
+    ]

@@ -100,3 +100,23 @@ def test_pudl_service_territories(
     gdf = gpd.read_parquet(out_path)
     assert set(gdf.columns) == expected_cols
     assert not gdf.empty
+
+
+@pytest.mark.parametrize(
+    "resource_id",
+    [
+        # One migrated table
+        "core_epacems__hourly_emissions",
+        # One unmigrated table (TODO: drop after migration)
+        "_core_eia860__cooling_equipment",
+        # One nonexistent table
+        "imaginary_resource",
+    ],
+)
+@pytest.mark.script_launch_mode("inprocess")
+def test_resource_description(script_runner, resource_id: str):
+    """CLI tests specific to the resource_description script."""
+    ret = script_runner.run(
+        ["resource_description", "-n", resource_id], print_result=True
+    )
+    assert ret.success
