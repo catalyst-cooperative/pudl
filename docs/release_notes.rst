@@ -12,6 +12,9 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+* Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
+  2024 data. See :issue:`4418` and :pr:`4433`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
