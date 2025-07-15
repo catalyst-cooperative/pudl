@@ -641,7 +641,9 @@ columns.""",
         "field_namespace": "ferc1",
     },
     "core_ferc1__codes_power_purchase_types": {
-        "description": "Coding table defining different types of electricity power purchases.",
+        "description": {
+            "additional_summary_text": "electric power purchase types.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
