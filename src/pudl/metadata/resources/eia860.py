@@ -372,8 +372,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # non-january records fail.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
-                    "_core_eia923__cooling_system_information",
-                    "_core_eia923__fgd_operation_maintenance",
+                    "_core_eia923__monthly_cooling_system_information",
+                    "_core_eia923__yearly_fgd_operation_maintenance",
                     "core_eia923__monthly_boiler_fuel",
                     "out_eia923__boiler_fuel",
                     "out_eia923__monthly_boiler_fuel",

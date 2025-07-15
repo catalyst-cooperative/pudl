@@ -3,21 +3,26 @@
 from typing import Any
 
 TABLE_DESCRIPTIONS: dict[str, str] = {
-    "_core_eia923__fgd_operation_maintenance": (
-        """EIA-923 FGD Operation & Maintenance, from EIA-923 Schedule 8C.
-
-Reports annual information about flue gas desulfurization systems at generation facilities,
+    "_core_eia923__yearly_fgd_operation_maintenance": {
+        "additional_summary_text": "FGD Operation & Maintenance.",
+        "additional_source_text": "(Schedule 8C)",
+        "usage_warnings": ["irregular_years"],
+        "additional_details_text": (
+            """Reports annual information about flue gas desulfurization (FGD) systems at generation facilities,
 mainly operational expenses. From 2008-2011 this table also reported operational
 characteristics that are now reported in 923 Air Emissions Control Info.
 
 Note: This table has been cleaned, but not harvested with other EIA 923 or 860 data.
 The same variables present in this table may show up in other _core tables in other
 years. Once this table has been harvested, it will be removed from the PUDL database."""
-    ),
-    "_core_eia923__cooling_system_information": (
-        """EIA-923 Cooling System Information, from EIA-923 Schedule 8D.
-
-Reports monthly information about cooling systems at generation facilities,
+        ),
+    },
+    "_core_eia923__monthly_cooling_system_information": {
+        "additional_summary_text": "Cooling System Information.",
+        "additional_source_text": "(Schedule 8D)",
+        "usage_warnings": ["irregular_years"],
+        "additional_details_text": (
+            """Reports monthly information about cooling systems at generation facilities,
 mainly water volumes and temperatures. In 2008 and 2009, EIA only reports
 annual averages, but in later years all data is monthly.
 
@@ -25,11 +30,20 @@ Note: This table has been cleaned, but not harvested with other EIA 923 or 860
 data. The same variables present in this table may show up in other _core
 tables in other years. Once this table has been harvested, it will be removed
 from the PUDL database."""
-    ),
-    "core_eia923__monthly_boiler_fuel": (
-        """EIA-923 Monthly Boiler Fuel Consumption and Emissions, from EIA-923 Schedule 3.
-
-Reports the quantity of each type of fuel consumed by each boiler on a monthly basis, as
+        ),
+    },
+    "core_eia923__monthly_boiler_fuel": {
+        "additional_summary_text": "Boiler Fuel Consumption and Emissions.",
+        "additional_source_text": "(Schedule 3)",
+        "usage_warnings": [
+            "month_as_date",
+            {
+                "type": "custom",
+                "description": "A small number of respondents only report annual fuel consumption, and all of it is reported in December.",
+            },
+        ],
+        "additional_details_text": (
+            """Reports the quantity of each type of fuel consumed by each boiler on a monthly basis, as
 well as the sulfur and ash content of those fuels. Fuel quantity is reported in standard
 EIA fuel units (tons, barrels, Mcf). Heat content per unit of fuel is also reported,
 making this table useful for calculating the thermal efficiency (heat rate) of various
@@ -39,19 +53,27 @@ This table provides better coverage of the entire fleet of generators than the
 ``core_eia923__monthly_generation_fuel`` table, but the fuel consumption reported here is not directly
 associated with a generator. This complicates the heat rate calculation, since the
 associations between individual boilers and generators are incomplete and can be
-complex.
-
-Note that a small number of respondents only report annual fuel consumption, and all of
-it is reported in December."""
-    ),
-    "core_eia923__monthly_fuel_receipts_costs": (
-        """Data describing fuel deliveries to power plants, reported in EIA-923 Schedule 2, Part A.
-
-Each record describes an individual fuel delivery. There can be multiple deliveries of
+complex."""
+        ),
+    },
+    "core_eia923__monthly_fuel_receipts_costs": {
+        "additional_summary_text": "Fuel Deliveries to Power Plants.",
+        "additional_source_text": "(Schedule 2 - Part A)",
+        "usage_warnings": [
+            "month_as_date",
+            "redacted_values",
+            {
+                "type": "custom",
+                "description": "Time of fuel deliveries is not necessarily connected with time of fuel consumption.",
+            },
+        ],
+        "additional_primary_key_text": (
+            """Each record describes an individual fuel delivery. There can be multiple deliveries of
 the same type of fuel from the same supplier to the same plant in a single month, so the
-table has no natural primary key.
-
-There can be a significant delay between the receipt of fuel and its consumption, so
+table has no natural primary key."""
+        ),
+        "additional_details_text": (
+            """There can be a significant delay between the receipt of fuel and its consumption, so
 using this table to infer monthly attributes associated with power generation may not be
 entirely accurate. However, this is the most granular data we have describing fuel
 costs, and we use it in calculating the marginal cost of electricity for individual
@@ -68,11 +90,21 @@ Northeastern US reports essentially no fine-grained data about its natural gas p
 
 Additional data which we haven't yet integrated is available in a similar format from
 2002-2008 via the EIA-423, and going back as far as 1972 from the FERC-423."""
-    ),
-    "core_eia923__monthly_generation": (
-        """EIA-923 Monthly Generating Unit Net Generation. From EIA-923 Schedule 3.
-
-Reports the net electricity generated by each reporting generator on a monthly basis.
+        ),
+    },
+    "core_eia923__monthly_generation": {
+        "additional_summary_text": "Generating Unit Net Generation.",
+        "additional_source_text": "(Schedule 3)",
+        "usage_warnings": [
+            "month_as_date",
+            "incomplete_id_coverage",
+            {
+                "type": "custom",
+                "description": "A small number of respondents only report annual fuel consumption, and all of it is reported in December.",
+            },
+        ],
+        "additional_details_text": (
+            """Reports the net electricity generated by each reporting generator on a monthly basis.
 This is the most granular information we have about how much electricity individual
 generators are producing, but only about half of all the generation reported in the
 ``core_eia923__monthly_generation_fuel`` appears in this table due to the different reporting
@@ -85,11 +117,20 @@ incomplete boiler-generator associations.
 
 Note that a small number of respondents only report annual net generation, and all of
 it is reported in December."""
-    ),
-    "core_eia923__monthly_generation_fuel": (
-        """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
-
-Monthly electricity generation and fuel consumption reported for each combination of
+        ),
+    },
+    "core_eia923__monthly_generation_fuel": {
+        "additional_summary_text": "Generation and Fuel Consumption.",
+        "additional_source_text": "(Schedule 3)",
+        "usage_warnings": [
+            "month_as_date",
+            {
+                "type": "custom",
+                "description": "A small number of respondents only report annual fuel consumption, and all of it is reported in December.",
+            },
+        ],
+        "additional_details_text": (
+            """Monthly electricity generation and fuel consumption reported for each combination of
 fuel and prime mover within a plant. This data can't be easily linked to individual
 boilers, generators, and generation units, but it is provides the most complete coverage
 of fuel consumption and electricity generation for the entire generation fleet. We use
@@ -105,32 +146,54 @@ generation.
 
 Note that a small number of respondents only report annual fuel consumption and net
 generation, and all of it is reported in December."""
-    ),
-    "core_eia923__monthly_generation_fuel_nuclear": (
-        """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
-
-Monthly electricity generation and fuel consumption reported for each combination of
+        ),
+    },
+    "core_eia923__monthly_generation_fuel_nuclear": {
+        "additional_summary_text": "Generation and Fuel Consumption of Nuclear Generation Units.",
+        "additional_source_text": "(Schedule 3)",
+        "usage_warnings": [
+            "month_as_date",
+            {
+                "type": "custom",
+                "description": "A small number of respondents only report annual fuel consumption, and all of it is reported in December.",
+            },
+        ],
+        "additional_details_text": (
+            """Monthly electricity generation and fuel consumption reported for each combination of
 fuel and prime mover within a nuclear generation unit. This data is originally reported
 alongside similar information for fossil fuel plants, but the nuclear data is reported
 by (nuclear) generation unit rather than fuel type and prime mover, and so has a
 different primary key."""
-    ),
-    "generation_fuel_combined_eia923": (
-        """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
-
-Denormalized, combined data from the ``core_eia923__monthly_generation_fuel`` and
+        ),
+    },
+    "generation_fuel_combined_eia923": {
+        "additional_summary_text": "Generation and Fuel Consumption of all generation units.",
+        "additional_source_text": "(Schedule 3)",
+        "usage_warnings": [
+            "month_as_date",
+            {
+                "type": "custom",
+                "description": "A small number of respondents only report annual fuel consumption, and all of it is reported in December.",
+            },
+        ],
+        "additional_details_text": (
+            """Denormalized, combined data from the ``core_eia923__monthly_generation_fuel`` and
 ``core_eia923__monthly_generation_fuel_nuclear`` with nuclear generation aggregated from the nuclear
 generation unit level up to the plant prime mover level, so as to be compatible with
 fossil fuel generation data."""
-    ),
-    "core_eia923__monthly_energy_storage": (
-        """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
-
-Monthly quantities of energy consumed and discharged ("generated") by energy storage
+        ),
+    },
+    "core_eia923__monthly_energy_storage": {
+        "additional_summary_text": "Generation and Fuel Consumption of Energy Storage Units.",
+        "additional_source_text": "(Schedule 3)",
+        "usage_warnings": ["month_as_date"],
+        "additional_details_text": (
+            """Monthly quantities of energy consumed and discharged ("generated") by energy storage
 units. The total MWh discharged from the energy storage unit during the
 reporting period is the gross generation and the difference between gross generation
 and consumption is the net generation."""
-    ),
+        ),
+    },
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -268,11 +331,17 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "core_eia923__entity_coalmine": {
-        "description": (
-            """Attributes of coal mines reporting deliveries in the Fuel Receipts and Costs table, via
-EIA-923 Schedule 2, Part C.
-
-This table is produced during the transformation of fuel delivery data, in order to
+        "description": {
+            "additional_summary_text": "coal mines reporting deliveries in the Fuel Receipts and Costs.",
+            "additional_source_text": "(Schedule 2, Part C)",
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": "Mine ID's are not as well defined and consistent as other EIA ID's.",
+                }
+            ],
+            "additional_details_text": (
+                """This table is produced during the transformation of fuel delivery data, in order to
 produce a better normalized database. The same coalmines report many individual
 deliveries, and repeating their attributes many times in the fuel receipts and costs
 table is duplicative. Unfortunately the coalmine attributes do not generally use a
@@ -283,7 +352,8 @@ We have not yet taken the time to rigorously clean this data, but it could be li
 with both Mining Safety and Health Administration (MSHA) and USGS data to provide more
 insight into where coal is coming from, and what the employment and geological context
 is for those supplies."""
-        ),
+            ),
+        },
         "schema": {
             "fields": [
                 "mine_id_pudl",
@@ -480,10 +550,10 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__monthly_generation": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"]
-        + "\n\nThis table exists for naming consistency. While it is technically "
-        "aggregated by month, it ends up being identical to the "
-        "``out_eia923__generation`` table from which it is derived.",
+        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+        # + "\n\nThis table exists for naming consistency. While it is technically "
+        # "aggregated by month, it ends up being identical to the "
+        # "``out_eia923__generation`` table from which it is derived.",
         "schema": {
             "fields": [
                 "report_date",
@@ -688,8 +758,10 @@ is for those supplies."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "_core_eia923__cooling_system_information": {
-        "description": TABLE_DESCRIPTIONS["_core_eia923__cooling_system_information"],
+    "_core_eia923__monthly_cooling_system_information": {
+        "description": TABLE_DESCRIPTIONS[
+            "_core_eia923__monthly_cooling_system_information"
+        ],
         "schema": {
             "fields": [
                 "report_date",
@@ -733,8 +805,10 @@ is for those supplies."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "_core_eia923__fgd_operation_maintenance": {
-        "description": TABLE_DESCRIPTIONS["_core_eia923__fgd_operation_maintenance"],
+    "_core_eia923__yearly_fgd_operation_maintenance": {
+        "description": TABLE_DESCRIPTIONS[
+            "_core_eia923__yearly_fgd_operation_maintenance"
+        ],
         "schema": {
             "fields": [
                 "report_date",
