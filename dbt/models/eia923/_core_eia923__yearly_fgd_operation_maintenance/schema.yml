@@ -2,10 +2,10 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: _core_eia923__fgd_operation_maintenance
+      - name: _core_eia923__yearly_fgd_operation_maintenance
         data_tests:
           - check_row_counts_per_partition:
-              table_name: _core_eia923__fgd_operation_maintenance
+              table_name: _core_eia923__yearly_fgd_operation_maintenance
               partition_column: report_date
           - expect_sum_close_to_total_column:
               name: opex_cost_discrepancy_rate

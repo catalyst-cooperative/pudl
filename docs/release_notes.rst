@@ -21,6 +21,16 @@ Bug Fixes
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See :issue:`4328`
   and :pr:`4392`
 
+Documentation
+^^^^^^^^^^^^^
+* Migrated table description metadata into new format for EIA 923. See :issue:`4400`
+  and :pr:`4422`. This includes renaming two of the preliminarily published ``_core``
+  tables to better conform with our table naming conventions.
+  Table ``_core_eia923__cooling_system_information`` is now
+  :ref:`_core_eia923__monthly_cooling_system_information` and
+  ``_core_eia923__cooling_system_information`` is now
+  :ref:`_core_eia923__monthly_cooling_system_information`.
+
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
