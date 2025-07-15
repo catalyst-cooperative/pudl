@@ -11,6 +11,10 @@ New Data
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+EIA 860M
+~~~~~~~~
+* Added May 2025 EIA 860m data as part of the new monthly release cycle.
+  See :issue:`4379` and PR :pr:`xxxx`.
 
 * Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
   2024 data. See :issue:`4418` and :pr:`4433`.
@@ -20,9 +24,18 @@ Expanded Data Coverage
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<<<<<<< HEAD
 * the output of ``dbt_helper update-tables`` now conforms to the format that
   our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
   :issue:`4119` and :pr:`4401`.
+=======
+* Improved behavior of ``dbt_helper`` when interacting with row count test definitions
+  as well as updating the row counts stored in dbt seed tables: the logic for writing
+  a new table dbt schema no longer includes automatically adding a row count test. Also,
+  the logic for updating row counts now depends on whether a test has been defined in
+  the dbt schema, whether any existing row counts for that table are present in the seed
+  table, as well as user provided settings such as ``--clobber``.
+>>>>>>> 66075dcbc (update documentation and release notes)
 
 * Stopped running code checks in CI when only the documentation has changed.
   See issue :issue:`4410` and PR :pr:`4429`.
