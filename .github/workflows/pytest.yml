@@ -19,7 +19,7 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      run_code_checks: ${{ github.event_name =='workflow_dispatch' || steps.filter.outputs.code == 'true' }}
+      run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && github.event.merge_group) }}
     steps:
       - uses: actions/checkout@v4
         with:
