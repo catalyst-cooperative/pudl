@@ -13,7 +13,10 @@
     - with the name of the test that failed
    Then grab some useful attributes we'll need later.
 #}
-{% for node in graph.nodes.values() if node.resource_type == "test" and fq_table in node.depends_on.nodes and (node.name == test or node.test_metadata.name == test) %}
+{% for node in graph.nodes.values()
+    if node.resource_type == "test"
+    and fq_table in node.depends_on.nodes
+    and (node.name == test or (node.test_metadata is defined and node.test_metadata.name == test)) %}
 {% set kwargs = node.test_metadata.kwargs %}
 {% if table.startswith("validate") %}
         {# these expressions are actually stored as jinja strings in test_metadata.model
