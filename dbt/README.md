@@ -42,12 +42,15 @@ dbt_helper update-tables --schema {table_name(s)}
 
 will add a file called `dbt/models/{data_source}/{table_name}/schema.yml` for each
 listed table. This yaml file tells `dbt` about the table and its schema. If the
-table already exists and you need to update it, you'll have to add `--clobber`
+table's schema already exists and you need to update it, you'll have to add `--clobber`
 
-It will also specify the `check_row_counts_per_partition` test. This test works by
-comparing expected row counts for partitions within a table (typically distinct
-`report_date` values) stored in `etl_fast_row_counts.csv` and `etl_full_row_counts.csv`
-against the actual row counts in the materialized tables.
+The default schema is very minimal. One can add things such as descriptions or tests.
+For adding tests, the `dbt_helper.py` module contains helper functions currently not
+exposed through the CLI.
+
+The `DbtSchema` class has generic methods `add_source_tests` and `add_column_tests`. These require the user to pass the tests and relevant parameters as dictionaries and write the result to yaml
+
+One test that is often added is the `check_row_counts_per_partition` source test. This test works by comparing expected row counts for partitions within a table (typically distinct `report_date` values) stored in `etl_fast_row_counts.csv` and `etl_full_row_counts.csv` against the actual row counts in the materialized tables. For this test, there is a helper function `_get_row_count_test_dict` that helps the user format the input dictionary to the `DbtSchema.add_source_tests` method correctly.
 
 To update the expected row counts based on the number of rows found in existing
 materialized tables, you can run:
