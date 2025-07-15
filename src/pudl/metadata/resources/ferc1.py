@@ -6,7 +6,10 @@ from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_ferc1__yearly_balance_sheet_assets_sched110": {
-        "description": "Comparative Balance Sheet (Assets and Other Debits). Schedule 110.",
+        "description": {
+            "additional_summary_text": "utility assets and other debits.",
+            "additional_source_text": "Schedule 110",
+        },
         "schema": {
             "fields": [
                 "utility_id_ferc1",
@@ -31,7 +34,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "core_ferc1__yearly_balance_sheet_liabilities_sched110": {
-        "description": "Comparative balance sheet (liabilities and other credits)",
+        "description": {
+            "additional_summary_text": "utility liabilities and other credits.",
+            "additional_source_text": "Schedule 110",
+        },
         "schema": {
             "fields": [
                 "record_id",
