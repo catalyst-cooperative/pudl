@@ -10,11 +10,18 @@ the names and descriptions of each of its fields.
 .. _data-epacamd_eia:
 
 The `original EPA CAMD to EIA crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__
-was published by the US Environmental Protection Agency on GitHub and connects EPA CAMD
-emissions units (smokestacks) which appear in :doc:`epacems` with corresponding EIA
-plant components reported in EIA Forms 860 and 923 (``plant_id_eia``, ``boiler_id``,
-``generator_id``). This many-to-many connection is necessary because pollutants from
-various plant parts are collecitvely emitted and measured from one point-source.
+was published by the US Environmental Protection Agency on GitHub and links ids from the following agencies and data sets:
+
+* Environmental Protection Agency (EPA), and more specifically the Clean Air Markets Division (CAMD)
+* Energy Information Administration (EIA)
+* Facility Registry Service (FRS)
+* National Electric Energy Data System (NEEDS)
+
+It connects EPA CAMD emissions units (smokestacks) which appear in :doc:`epacems`
+with corresponding EIA plant components reported in EIA Forms 860 and 923
+(``plant_id_eia``, ``boiler_id``, ``generator_id``). This many-to-many connection is
+necessary because pollutants from various plant parts are collecitvely emitted and
+measured from one point-source.
 
 The original crosswalk was generated using only 2018 data. However, there is useful
 information in all years of data, and we augment the crosswalk that they publish on
@@ -65,14 +72,7 @@ What does the original data look like?
 The `original EPA CAMD to EIA crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__
 was published by the US Environmental Protection Agency on GitHub. Catalyst forked their repository in order to maintain the code and issue yearly updates to the crosswalk on an ongoing basis.
 
-The crosswalk produced by that code links ids from the following agencies and data sets:
-
-* Environmental Protection Agency (EPA), and more specifically the Clean Air Markets Division (CAMD)
-* Energy Information Administration (EIA)
-* Facility Registry Service (FRS)
-* National Electric Energy Data System (NEEDS)
-
-The original data is a table which lists all boilers and generators in CAMD's database with their corresponding EIA boiler and generator if they have a match.
+The crosswalk produced by that code links ids from EPA CAMD, EIA, FRS, and NEEDS in a single table. The table lists all boilers and generators in CAMD's database with their corresponding EIA boiler and generator if they have a match.
 IDs from FRS and NEEDS are included if respective matches were found.
 Identifying information for each boiler or generator is included as supporting evidence for the match and may help debug bad matches.
 
@@ -85,8 +85,8 @@ The source code, along with a detailed methodology for how the crosswalk is comp
 {% endblock %}
 
 {% block notable_irregularities %}
-CAMD and EIA disagree on what a "unit" is
------------------------------------------
+CAMD "unit" and EIA "unit" refer to different types of equipment
+----------------------------------------------------------------
 
 Because CAMD's purpose for collecting data is environmental compliance, CAMD defines a unit as the source of emissions, the combustion unit (e.g., boiler). On the other hand, EIA is primarily focused on collecting data on electrical generation, so EIA defines a unit as the source of electricity, the generator. While many power plants have a one-to-one relationship between boilers and generators, many do not. Sometimes the IDs of plant components are chosen to correspond with one another, and sometimes they are not. The often complex, many-to-many relationships between boilers and generators and the inconsistency in how identifiers are assigned by different plants makes matching difficult.
 
@@ -100,5 +100,5 @@ In rare instances, the Plant IDs do not match between CAMD and EIA's databases. 
 Manual match listing is not actively maintained
 -----------------------------------------------
 
-In the original version of the crosswalk script, discrepancies or missing data caught in the production of eGRID were tracked in a manual match file, and manual matches were performed first. While the CAMD README for the crosswalk vows to regularly update the manual match file with new eGRID releases, and to accept pull requests from users with additions to the match file, it has seen no updates since October 2022. Catalyst has made no additions to our forked copy of the file since that date.
+In the original version of the crosswalk script, discrepancies or missing data caught in the production of eGRID were tracked in a manual match file, and manual matches were performed first. The CAMD copy of the file has seen no updates since October 2022. Catalyst has made no additions to our forked copy of the file.
 {% endblock %}
