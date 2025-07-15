@@ -216,10 +216,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "core_ferc1__yearly_depreciation_by_function_sched219": {
-        "description": (
-            "Accumulated provision for depreciation of electric utility plant "
-            "(Account 108). Schedule 219 Section B: Functional plant classifications."
-        ),
+        "description": {
+            "additional_summary_text": "accumulated depreciation provisions for power plants.",
+            "additional_source_text": "Account 108, Schedule 219, Section B: Functional Plant Classifications.",
+        },
         "schema": {
             "fields": [
                 "utility_id_ferc1",
