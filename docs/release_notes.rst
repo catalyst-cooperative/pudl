@@ -14,6 +14,7 @@ Expanded Data Coverage
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Stopped running integration tests in CI for docs-only builds, saving time.
 
 Bug Fixes
 ^^^^^^^^^
