@@ -128,16 +128,13 @@ Negative interchange values indicate net inflows, and positive interchange value
         "create_database_schema": False,
     },
     "out_eia930__hourly_operations": {
-        "description": (
-            """EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.
+        "description": {
+            "additional_summary_text": "balancing authority net generation, interchange, and demand with imputed demand.",
+            "additional_details_text": """(EXPERIMENTAL / WORK-IN-PROGRESS, 2025-03-31)
 
-This adds imputed demand to the ``core_eia930__hourly_operations`` table where the
-original data was missing or anomalous.  Codes explaining why values have been imputed
-can be found in the ``core_pudl__codes_imputation_reasons`` table.
-
-This table is available in the nightly builds during development, but has not been fully
-vetted yet."""
-        ),
+This table is based on ``core_eia930__hourly_operations``, but adds imputed demand where the original data was missing or anomalous. Codes explaining why values have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.""",
+            "usage_warnings": ["imputed_values"],
+        },
         "schema": {
             "fields": [
                 "datetime_utc",
@@ -168,7 +165,7 @@ vetted yet."""
     "out_eia930__hourly_aggregated_demand": {
         "description": {
             "additional_summary_text": "aggregated balancing authority demand by EIA region, interconnect, and continental US.",
-            "additional_details_text": """(EXPERIMENTAL/WIP)
+            "additional_details_text": """(EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04)
 
 The spatial granularity of each record is indicated by `aggregation_level`.""",
             "usage_warnings": ["aggregation_hazard"],
