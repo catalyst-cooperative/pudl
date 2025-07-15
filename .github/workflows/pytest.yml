@@ -87,6 +87,8 @@ jobs:
 
   ci-unit:
     runs-on: ubuntu-latest
+    needs: change_filter
+    if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     strategy:
       fail-fast: false
     defaults:
@@ -234,37 +236,25 @@ jobs:
       - name: Log post-test Zenodo datastore contents
         run: find ${{ env.PUDL_INPUT }}
 
-  ci-integration-skip:
-    runs-on: ubuntu-latest
-    needs: change_filter
-    if: ${{ needs.change_filter.outputs.run_code_checks == 'false' }}
-    steps:
-      - name: Skip integration tests
-        run: echo "Skipping integration tests - either docs-only changes or not a workflow_dispatch or merge_group event."
-
   ci-coverage:
     runs-on: ubuntu-latest
     needs:
       - ci-docs
       - ci-unit
       - ci-integration
-      - ci-integration-skip
       - change_filter
-    if: ${{ always() }} # since the ci-integration and ci-integration skip jobs are both 'needs' but also would never both run in the same workflow, we need to force this to run always.
+    if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - name: Download coverage
-        if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
         id: download-coverage
         uses: actions/download-artifact@v4
         with:
           path: coverage
       - name: List downloaded files
-        if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
         run: |
           find coverage -type f
       - name: Install Micromamba
-        if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
         uses: mamba-org/setup-micromamba@v2
         with:
           init-shell: bash
@@ -273,12 +263,10 @@ jobs:
             python=3.12
             coverage>=7.6.1
       - name: Combine coverage data and output XML report
-        if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
         run: |
           micromamba run -n coverage coverage combine coverage/*/.coverage
           micromamba run -n coverage coverage xml --fail-under=0
       - name: Upload XML coverage report to CodeCov
-        if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
         uses: codecov/codecov-action@v5
         with:
           disable_search: true
@@ -288,11 +276,6 @@ jobs:
           plugins: noop
           verbose: true
       - name: Display coverage report and ensure it meets required minimum
-        if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
         # Required coverage is set in pyproject.toml section [tool.coverage.report]
         run: |
           micromamba run -n coverage coverage report
-      - name: Skip coverage
-        if: ${{ needs.change_filter.outputs.run_code_checks == 'false' }}
-        run: |
-          echo "Skipping coverage: either not a workflow dispatch, or not a merge group event with non-doc changes"
