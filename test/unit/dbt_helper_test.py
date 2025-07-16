@@ -34,7 +34,7 @@ def with_name(mock, name):
 
 def test_get_data_source():
     assert get_data_source("_core_eia__some_table_name") == "eia"
-    assert get_data_source("another_dude__omfg") == "dude"
+    assert get_data_source("out_ferc60__another_table") == "ferc60"
 
 
 def test__get_local_table_path(mocker):
