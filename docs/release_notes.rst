@@ -21,8 +21,8 @@ Quality of Life Improvements
   our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
   :issue:`4119` and :pr:`4401`.
 
-* Stopped running code checks in CI when no code has changed. See :issue:`4410`
-  and :pr:`4429`.
+* Stopped running code checks in CI when only the documentation has changed.
+  See issue :issue:`4410` and PR :pr:`4429`.
 
 Bug Fixes
 ^^^^^^^^^
