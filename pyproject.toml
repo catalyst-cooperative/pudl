@@ -21,7 +21,7 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=3",
     "coverage>=7.6",
-    "dagster>=1.11",
+    "dagster>=1.11.3", # 1.11.3 required for Python 3.13
     "dagster-dbt", # Automatically follows dagster version
     "dagster-postgres", # Automatically follows dagster version
     "dask>=2025",
@@ -155,7 +155,7 @@ resource_description = "pudl.scripts.resource_description:main"
 
 [project.optional-dependencies]
 dev = [
-    "dagster-webserver>=1.11",
+    "dagster-webserver>=1.11.3", # 1.11.3 required for Python 3.13
     "jupyterlab>4.4",
     "jupyter-lsp",
     "jupyterlab-lsp",
