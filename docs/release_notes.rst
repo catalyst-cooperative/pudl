@@ -11,10 +11,6 @@ New Data
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
-EIA 860M
-~~~~~~~~
-* Added May 2025 EIA 860m data as part of the new monthly release cycle.
-  See :issue:`4379` and PR :pr:`xxxx`.
 
 * Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
   2024 data. See :issue:`4418` and :pr:`4433`.
