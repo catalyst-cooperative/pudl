@@ -24,18 +24,15 @@ EIA 860M
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-<<<<<<< HEAD
 * the output of ``dbt_helper update-tables`` now conforms to the format that
   our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
   :issue:`4119` and :pr:`4401`.
-=======
 * Improved behavior of ``dbt_helper`` when interacting with row count test definitions
   as well as updating the row counts stored in dbt seed tables: the logic for writing
   a new table dbt schema no longer includes automatically adding a row count test. Also,
   the logic for updating row counts now depends on whether a test has been defined in
   the dbt schema, whether any existing row counts for that table are present in the seed
   table, as well as user provided settings such as ``--clobber``.
->>>>>>> 66075dcbc (update documentation and release notes)
 
 * Stopped running code checks in CI when only the documentation has changed.
   See issue :issue:`4410` and PR :pr:`4429`.
