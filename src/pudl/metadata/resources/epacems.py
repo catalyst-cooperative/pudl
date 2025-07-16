@@ -4,7 +4,9 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_epacems__hourly_emissions": {
-        "description": "Hourly emissions and plant operational data reported via Continuous Emissions Monitoring Systems as required by 40 CFR Part 75.",
+        "description": {
+            "additional_summary_text": "emissions and plant operational data as required by 40 CFR Part 75.",
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
