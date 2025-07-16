@@ -877,7 +877,7 @@ system IDs."""
                 "stored_excess_wind_and_solar_generation",
                 "is_ac_coupled",
                 "is_dc_coupled",
-                "id_dc_coupled_tightly",
+                "is_dc_coupled_tightly",
                 "is_independent",
                 "is_transmission_and_distribution_asset_support",
                 "is_direct_support",

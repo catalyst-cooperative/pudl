@@ -4,6 +4,7 @@ sources:
     tables:
       - name: core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type
               partition_column: report_year

@@ -3,7 +3,6 @@
 import numpy as np
 import pandas as pd
 from dagster import (
-    AssetCheckResult,
     AssetOut,
     Output,
     asset,
@@ -1296,21 +1295,6 @@ def _core_eia923__monthly_cooling_system_information(
 
 
 @asset_check(asset=_core_eia923__monthly_cooling_system_information, blocking=True)
-def cooling_system_information_null_check(csi):
-    """We do not expect any columns to be completely null.
-
-    In fast-ETL context (only recent years), the annual columns may also be
-    completely null.
-    """
-    if csi.report_date.min() >= pd.Timestamp("2010-01-01T00:00:00"):
-        expected_cols = {col for col in csi.columns if not col.startswith("annual_")}
-    else:
-        expected_cols = set(csi.columns)
-    pudl.validate.no_null_cols(csi, cols=expected_cols)
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset=_core_eia923__monthly_cooling_system_information, blocking=True)
 def cooling_system_information_continuity(csi):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
@@ -1406,28 +1390,6 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     return pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey).pipe(
         apply_pudl_dtypes, strict=False
     )
-
-
-@asset_check(asset=_core_eia923__yearly_fgd_operation_maintenance, blocking=True)
-def fgd_operation_maintenance_null_check(fgd):
-    """Check that columns other than expected columns aren't null."""
-    fast_run_null_cols = {
-        "fgd_control_flag",
-        "fgd_electricity_consumption_mwh",
-        "fgd_hours_in_service",
-        "fgd_operational_status_code",
-        "fgd_sorbent_consumption_1000_tons",
-        "opex_fgd_land_acquisition",
-        "so2_removal_efficiency_tested",
-        "so2_removal_efficiency_annual",
-        "so2_test_date",
-    }
-    if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
-        expected_cols = set(fgd.columns) - fast_run_null_cols
-    else:
-        expected_cols = set(fgd.columns)
-    pudl.validate.no_null_cols(fgd, cols=expected_cols)
-    return AssetCheckResult(passed=True)
 
 
 @asset_check(asset=_core_eia923__yearly_fgd_operation_maintenance, blocking=True)

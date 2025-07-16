@@ -1,7 +1,7 @@
 """Tests for metadata not covered elsewhere."""
 
 import pandas as pd
-import pandera as pr
+import pandera.pandas as pr
 import pytest
 
 from pudl.metadata import PUDL_PACKAGE
@@ -232,18 +232,21 @@ def test_frictionless_data_package_resources_populated():
         )
 
 
-description_compliant_tables = [
-    # TODO: forcing this to a vertical list for the migration
-    "core_epacems__hourly_emissions",
-]
 # TODO: flip this to true after we do the second pass to set description_primary_key
 # everywhere that needs it
 CHECK_DESCRIPTION_PRIMARY_KEYS = False
 
 
 @pytest.mark.parametrize(
-    "resource_id", sorted(description_compliant_tables)
-)  # someday: sorted(PUDL_RESOURCES.keys()))
+    # todo: back this off to sorted(PUDL_RESOURCES.keys()) after the migration.
+    # only check migrated tables. a table is migrated if "description" has been converted from a string to a dict.
+    "resource_id",
+    sorted(
+        r
+        for r in PUDL_RESOURCES
+        if isinstance(RESOURCE_METADATA[r]["description"], dict)
+    ),
+)
 def test_description_compliance(resource_id):
     resource_dict = RESOURCE_METADATA[resource_id]
     assert isinstance(resource_dict["description"], dict), (
