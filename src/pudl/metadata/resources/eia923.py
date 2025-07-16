@@ -67,11 +67,7 @@ complex."""
                 "description": "Time of fuel deliveries is not necessarily connected with time of fuel consumption.",
             },
         ],
-        "additional_primary_key_text": (
-            """Each record describes an individual fuel delivery. There can be multiple deliveries of
-the same type of fuel from the same supplier to the same plant in a single month, so the
-table has no natural primary key."""
-        ),
+        "additional_primary_key_text": "Each record describes an individual fuel delivery. There can be multiple deliveries of the same type of fuel from the same supplier to the same plant in a single month, so the table has no natural primary key.",
         "additional_details_text": (
             """There can be a significant delay between the receipt of fuel and its consumption, so
 using this table to infer monthly attributes associated with power generation may not be
