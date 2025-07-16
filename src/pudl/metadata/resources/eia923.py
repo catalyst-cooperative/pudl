@@ -750,7 +750,7 @@ is for those supplies."""
                 "fgd_operational_status_code",
                 "fgd_hours_in_service",
                 "fgd_electricity_consumption_mwh",
-                "fgd_sorbent_consumption_1000_tons",
+                "fgd_sorbent_consumption_tons",
                 "so2_removal_efficiency_tested",
                 "so2_removal_efficiency_annual",
                 "so2_test_date",
