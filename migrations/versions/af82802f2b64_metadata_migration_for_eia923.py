@@ -1,8 +1,8 @@
 """Metadata migration for EIA923
 
-Revision ID: 468479ea9004
-Revises: fff6efbd14db
-Create Date: 2025-07-15 11:29:56.963927
+Revision ID: af82802f2b64
+Revises: d9eb718658b0
+Create Date: 2025-07-16 09:37:10.313267
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '468479ea9004'
-down_revision = 'fff6efbd14db'
+revision = 'af82802f2b64'
+down_revision = 'd9eb718658b0'
 branch_labels = None
 depends_on = None
 
