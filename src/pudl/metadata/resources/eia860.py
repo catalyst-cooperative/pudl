@@ -818,12 +818,15 @@ columns.""",
         "etl_group": "eia860",
     },
     "core_eia860__scd_generators_solar": {
-        "description": (
-            "Annually reported information about solar generators from EIA-860 Schedule 3.3."
-            " This table includes only those values that are unique to solar generators. "
-            "The rest of the columns that are reported in the EIA-860 Solar tabs are "
-            "included in core_eia860__scd_generators and core_eia__entity_generators."
-        ),
+        "description": {
+            "additional_summary_text": "solar generators that may vary from year to year.",
+            "additional_source_text": "(Schedule 3.3)",
+            "additional_details_text": (
+                "This table includes only those values that are unique to solar generators. "
+                "The rest of the columns that are reported in the EIA-860 Solar tabs are "
+                "included in :ref:`core_eia860__scd_generators` and :ref:`core_eia__entity_generators`."
+            ),
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
