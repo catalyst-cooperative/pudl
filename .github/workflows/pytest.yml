@@ -37,6 +37,13 @@ jobs:
               - '!docs/**.html'
               - '!docs/**.rst.jinja'
               - '!README.rst'
+      - name: print components
+        run: |
+          echo event_name: ${{ github.event_name }}
+          echo workflow dispatch: ${{ github.event_name =='workflow_dispatch' }}
+          echo code: ${{ steps.filter.outputs.code }}
+          echo code is true: ${{ steps.filter.outputs.code == 'true' }}
+          echo merge_group: ${{ github.event.merge_group }}
 
   ci-docs:
     runs-on: ubuntu-latest
