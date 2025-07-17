@@ -45,8 +45,8 @@ tables include :ref:`out_eia930__hourly_operations`,
 :ref:`out_eia930__hourly_subregion_demand`, and
 :ref:`out_ferc714__hourly_planning_area_demand`. See PR :pr:`4334`.
 
-Check for entirely null columns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Check for entirely null column-years
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously we had a data validation check that ensured there were no entirely null
 columns applied to a handful of tables. Such columns were typically the result of typos
