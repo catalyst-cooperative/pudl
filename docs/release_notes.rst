@@ -66,6 +66,9 @@ changes to the database schema:
   now contain real values, they are: ``can_fuel_switch``, ``has_regulatory_limits``,
   and ``can_cofire_oil_and_gas``.
 
+Unusual patterns of null values were identified and investigated in issue :issue:`4407`
+with some additional explanations added in PR :pr:`4442`.
+
 .. _release-v2025.7.0:
 
 ---------------------------------------------------------------------------------------
