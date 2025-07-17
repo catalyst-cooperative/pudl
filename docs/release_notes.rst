@@ -34,7 +34,7 @@ Documentation
 ^^^^^^^^^^^^^
 
 * Migrated table description metadata into new format for EIA 860. See issue
-  :issue:`4399` and PR :pr:`TBD`.
+  :issue:`4399` and PR :pr:`4446`.
 
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
