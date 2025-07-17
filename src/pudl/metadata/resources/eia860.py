@@ -331,10 +331,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "core_eia860__scd_plants": {
-        "description": (
-            "Annually varying plant attributes, compiled from across all EIA-860 and "
-            "EIA-923 data."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "plants which may vary from year to year. Compiled from across all "
+                "EIA-860 and EIA-923 data."
+            ),
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
