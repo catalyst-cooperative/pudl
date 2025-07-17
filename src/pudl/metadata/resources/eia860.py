@@ -921,10 +921,10 @@ columns.""",
         "etl_group": "eia860",
     },
     "core_eia860__scd_generators_multifuel": {
-        "description": (
-            "Annually reported information from EIA-860 Schedule 3 that contains information about "
-            "fuel-switching and the use of multiple fuels by surveyed generators."
-        ),
+        "description": {
+            "additional_summary_text": "generators that may vary from year to year, pertaining to fuel-switching and the use of multiple fuels.",
+            "additional_source_text": "(Schedule 3)",
+        },
         "schema": {
             "fields": [
                 "report_date",
