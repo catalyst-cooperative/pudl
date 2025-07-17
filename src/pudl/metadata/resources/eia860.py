@@ -417,9 +417,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "core_eia860__scd_utilities": {
-        "description": (
-            "Annually varying utility attributes, compiled from all EIA data."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "utilities which may vary from year to year. Compiled from all EIA data."
+            ),
+        },
         "schema": {
             "fields": [
                 "utility_id_eia",
