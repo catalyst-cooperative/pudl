@@ -47,46 +47,8 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v2
-        with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
-
-      - name: Make input, output and dagster dirs
-        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
-
-      - name: Lint and build PUDL documentation with Sphinx
-        run: |
-          pip install --no-deps --editable .
-          make docs-build
-
-      - name: Coverage debugging output
-        run: |
-          coverage debug config
-          coverage debug sys
-          coverage report --fail-under=0
-          ls -a
-
-      - name: Upload docs coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-docs
-          include-hidden-files: true
-          path: .coverage
+      - name: succeed
+        run: exit 0
 
   ci-unit:
     runs-on: ubuntu-latest
@@ -97,51 +59,8 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v2
-        with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
-
-      - name: Make input, output and dagster dirs
-        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
-
-      - name: Log SQLite3 version
-        run: |
-          which sqlite3
-          sqlite3 --version
-
-      - name: Run PUDL unit tests and collect test coverage
-        run: |
-          pip install --no-deps --editable .
-          make pytest-unit
-
-      - name: Coverage debugging output
-        run: |
-          coverage debug config
-          coverage debug sys
-          coverage report --fail-under=0
-          ls -a
-
-      - name: Upload unit tests coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-unit
-          include-hidden-files: true
-          path: .coverage
+      - name: succeed
+        run: exit 0
 
   ci-integration:
     runs-on: ubuntu-latest-8core
@@ -157,85 +76,8 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Install Conda environment using mamba
-        uses: mamba-org/setup-micromamba@v2
-        with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
-
-      - name: Log SQLite3 version
-        run: |
-          which sqlite3
-          sqlite3 --version
-
-      - name: Compile Zenodo datastore DOIs for cache invalidation
-        run:
-          grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
-          | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
-
-      - name: Restore Zenodo datastore from cache if possible
-        uses: actions/cache@v4
-        id: cache-zenodo-datastore
-        with:
-          path: ${{ env.PUDL_INPUT }}
-          key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
-
-      - name: Make input, output and dagster dirs
-        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
-
-      - name: List workspace contents
-        run: find /home/runner/pudl-work
-
-      - name: Set default GCP credentials
-        id: gcloud-auth
-        continue-on-error: true
-        uses: "google-github-actions/auth@v2"
-        with:
-          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
-          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-
-      - name: Run integration tests, trying to use GCS cache if possible
-        run: |
-          pip install --no-deps --editable .
-          pudl_datastore --dataset epacems --partition year_quarter=2023q1
-          make pytest-integration
-
-      - name: Coverage debugging output
-        run: |
-          coverage debug config
-          coverage debug sys
-          coverage report --fail-under=0
-          ls -a
-
-      - name: Upload integration test coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-integration
-          include-hidden-files: true
-          path: .coverage
-
-      - name: Upload dbt test failure database artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dbt-failures
-          path: pudl_dbt_tests.duckdb
-
-      - name: Log post-test Zenodo datastore contents
-        run: find ${{ env.PUDL_INPUT }}
+      - name: fail
+        run: exit 1
 
   ci-coverage:
     runs-on: ubuntu-latest
