@@ -149,10 +149,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "core_eia860__scd_generators": {
-        "description": (
-            "Annually varying generator attributes compiled from across EIA-860 and "
-            "EIA-923 data."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "generators which may vary from year to year. Compiled from across "
+                "EIA-860 and EIA-923 data."
+            ),
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
