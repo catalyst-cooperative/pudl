@@ -30,6 +30,12 @@ Bug Fixes
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
   :issue:`4328` and PR :pr:`4392`.
 
+Documentation
+^^^^^^^^^^^^^
+
+* Migrated table description metadata into new format for EIA 860. See issue
+  :issue:`4399` and PR :pr:`TBD`.
+
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

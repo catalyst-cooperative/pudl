@@ -510,12 +510,17 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "core_eia860__scd_emissions_control_equipment": {
-        "description": (
-            """The cost, type, operating status, retirement date, and install year of
-emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
+        "description": {
+            "additional_summary_text": (
+                "emissions control equipment reported to EIA, including cost, type, "
+                "operating status, retirement date, and install year."
+            ),
+            "additional_details_text": (
+                """Includes control ids for sulfur dioxide
 (SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas
 monitoring."""
-        ),
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
