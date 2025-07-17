@@ -21,6 +21,13 @@ Bug Fixes
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See :issue:`4328`
   and :pr:`4392`
 
+Documentation
+^^^^^^^^^^^^^
+
+* Added data source pages for:
+
+  * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
+
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

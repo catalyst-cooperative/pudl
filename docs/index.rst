@@ -23,6 +23,7 @@ pages for each source:
 * :doc:`data_sources/eia923`
 * :doc:`data_sources/eia930`
 * :doc:`data_sources/epacems`
+* :doc:`data_sources/epacamd_eia`
 * :doc:`data_sources/ferc1`
 * :doc:`data_sources/ferc714`
 * :doc:`data_sources/phmsagas`
