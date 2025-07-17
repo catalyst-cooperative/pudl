@@ -14,6 +14,30 @@ env:
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
 
 jobs:
+  change_filter:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && github.event.merge_group) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          # this will raise a warning, but it works:  https://github.com/dorny/paths-filter/issues/225
+          predicate-quantifier: "every"
+          filters: |
+            code:
+              - '!docs/**.rst'
+              - '!docs/**.md'
+              - '!docs/**.pdf'
+              - '!docs/**.html'
+              - '!docs/**.rst.jinja'
+              - '!README.rst'
+
   ci-docs:
     runs-on: ubuntu-latest
     strategy:
@@ -121,7 +145,8 @@ jobs:
 
   ci-integration:
     runs-on: ubuntu-latest-8core
-    if: github.event_name == 'workflow_dispatch' || github.event.merge_group
+    needs: change_filter
+    if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     permissions:
       contents: read
       id-token: write
@@ -218,6 +243,8 @@ jobs:
       - ci-docs
       - ci-unit
       - ci-integration
+      - change_filter
+    if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - name: Download coverage
