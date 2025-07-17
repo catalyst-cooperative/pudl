@@ -1593,11 +1593,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. "
+            "The ID is manually assigned and has not been updated since 2020."
+        ),
     },
     "ferc1_generator_agg_id_plant_gen": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. This ID is associated with the record_id_eia_plant_gen record.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. This "
+            "ID is associated with the record_id_eia_plant_gen record. It depends on "
+            "ferc1_generator_agg_id, which has not been updated since 2020."
+        ),
     },
     "ferc_account": {
         "type": "string",
