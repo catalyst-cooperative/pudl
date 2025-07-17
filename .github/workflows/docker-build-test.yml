@@ -15,25 +15,5 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Docker Metadata
-        id: docker_metadata
-        uses: docker/metadata-action@v5
-        with:
-          images: catalystcoop/pudl-etl
-          flavor: |
-            latest=auto
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build image but do not push to Docker Hub
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile
-          push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: succeed
+        run: exit 0

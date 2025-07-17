@@ -19,7 +19,7 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && github.event.merge_group) }}
+      run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && (github.event.merge_group != null)) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,6 +44,8 @@ jobs:
           echo code: ${{ steps.filter.outputs.code }}
           echo code is true: ${{ steps.filter.outputs.code == 'true' }}
           echo merge_group: ${{ github.event.merge_group }}
+          echo merge_group not null: ${{ github.event.merge_group != null }}
+          echo run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && (github.event.merge_group != null)) }}
 
   ci-docs:
     runs-on: ubuntu-latest
