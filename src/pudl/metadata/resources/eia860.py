@@ -5,7 +5,10 @@ from typing import Any
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860__scd_boilers": {
         "description": {
-            "additional_summary_text": "boilers which vary annually. Compiled from across all EIA-860 data.",
+            "additional_summary_text": (
+                "boilers which may vary from year to year. Compiled from across all "
+                "EIA-860 data."
+            ),
         },
         "schema": {
             "fields": [
