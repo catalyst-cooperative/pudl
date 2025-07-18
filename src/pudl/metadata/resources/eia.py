@@ -155,7 +155,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_boiler_types": {
-        "description": "A coding table describing different types of boiler regulatory types in the EIA-860.",
+        "description": {
+            "additional_summary_text": "boiler regulatory types in the EIA 860.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
