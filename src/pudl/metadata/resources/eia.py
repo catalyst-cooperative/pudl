@@ -53,7 +53,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_balancing_authority_subregions": {
-        "description": "Details about the balancing authority subregions in EIA-930.",
+        "description": {
+            "additional_summary_text": "balancing authority subregions in EIA 930.",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
