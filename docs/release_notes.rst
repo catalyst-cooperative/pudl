@@ -27,6 +27,9 @@ Quality of Life Improvements
   the dbt schema, whether any existing row counts for that table are present in the seed
   table, as well as user provided settings such as ``--clobber``.
 
+* Stopped running code checks in CI when only the documentation has changed.
+  See issue :issue:`4410` and PR :pr:`4429`.
+
 Bug Fixes
 ^^^^^^^^^
 
