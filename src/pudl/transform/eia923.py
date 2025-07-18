@@ -1226,7 +1226,7 @@ def _core_eia923__fuel_receipts_costs(
 
 
 @asset(io_manager_key="pudl_io_manager")
-def _core_eia923__cooling_system_information(
+def _core_eia923__monthly_cooling_system_information(
     raw_eia923__cooling_system_information: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the eia923__cooling_system_information dataframe.
@@ -1294,7 +1294,7 @@ def _core_eia923__cooling_system_information(
     )
 
 
-@asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
+@asset_check(asset=_core_eia923__monthly_cooling_system_information, blocking=True)
 def cooling_system_information_continuity(csi):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
@@ -1318,10 +1318,10 @@ def cooling_system_information_continuity(csi):
 
 
 @asset(io_manager_key="pudl_io_manager")
-def _core_eia923__fgd_operation_maintenance(
+def _core_eia923__yearly_fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transforms the _core_eia923__fgd_operation_maintenance table.
+    """Transforms the _core_eia923__yearly_fgd_operation_maintenance table.
 
     Transformations include:
 
@@ -1335,7 +1335,7 @@ def _core_eia923__fgd_operation_maintenance(
         raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__fgd_operation_maintenance`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for harvesting.
     """
     fgd_df = raw_eia923__fgd_operation_maintenance
 
@@ -1392,7 +1392,7 @@ def _core_eia923__fgd_operation_maintenance(
     )
 
 
-@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+@asset_check(asset=_core_eia923__yearly_fgd_operation_maintenance, blocking=True)
 def fgd_continuity_check(fgd):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(

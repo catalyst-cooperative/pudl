@@ -30,6 +30,16 @@ Bug Fixes
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
   :issue:`4328` and PR :pr:`4392`.
 
+Documentation
+^^^^^^^^^^^^^
+* Migrated table description metadata into new format for EIA 923. See :issue:`4400`
+  and :pr:`4422`. This includes renaming two of the preliminarily published ``_core``
+  tables to better conform with our table naming conventions.
+  Table ``_core_eia923__cooling_system_information`` is now
+  :ref:`i_core_eia923__monthly_cooling_system_information` and
+  ``_core_eia923__fgd_operation_maintenance`` is now
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance`.
+
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -768,7 +778,7 @@ EIA-860 & EIA-923
 
 * Added cleaned EIA860 Schedule 8E FGD Equipment and EIA923 Schedule 8C FGD Operation
   and Maintenance data to the PUDL database as
-  :ref:`i_core_eia923__fgd_operation_maintenance` and
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance` and
   :ref:`i_core_eia860__fgd_equipment`. Once harvested, these tables will eventually be
   removed from the database, but they are being published until then. See :issue:`3394`
   and :issue:`3392`, and :pr:`3403`.

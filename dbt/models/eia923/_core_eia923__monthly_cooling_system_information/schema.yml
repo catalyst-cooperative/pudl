@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: _core_eia923__cooling_system_information
+      - name: _core_eia923__monthly_cooling_system_information
         data_tests:
           - expect_columns_not_all_null:
               row_conditions:
@@ -32,7 +32,7 @@ sources:
                 annual_total_chlorine_lbs: EXTRACT(year FROM report_date) <= 2009
                 monthly_total_chlorine_lbs: EXTRACT(year FROM report_date) >= 2010
           - check_row_counts_per_partition:
-              table_name: _core_eia923__cooling_system_information
+              table_name: _core_eia923__monthly_cooling_system_information
               partition_column: report_date
           - expect_sum_close_to_total_column:
               name: monthly_withdrawal_discrepancy_rate
