@@ -37,7 +37,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia861",
     },
     "core_eia861__assn_balancing_authority": {
-        "description": "Association table showing which combinations of state, balancing authority, and utilities were observed in the data each year.",
+        "description": {
+            "additional_summary_text": "state, balancing authority, and utility in a given year."
+        },
         "schema": {
             "fields": [
                 "report_date",
