@@ -66,9 +66,11 @@ documentation is a great place to start.
 
 {% block notable_irregularities %}
 
-* A quirk with ATB is that each ``core_metric_parameter`` may have a different set of
-  primary keys. Subsets of the ``core_metric_parameter`` have unique values across the
-  data given specific primary keys.
+* In the skinny parquet and CVS version of NREL ATB, the column ``core_metric_parameter``.
+  contains a string which indicates what type of data is being reported in the original
+  ``value`` column. In PUDL, the skinny ATB data is transposed and normalized into
+  multiple wider tidy tables, wherein most of the column names correspond to the strings
+  in the original ``core_metric_parameter`` column.
 * The convention for ATB data is to use an asterisk in the key columns as a wildcard
   in the parquet files. In processing the ATB data for PUDL, we remove these wildcard
   asterisks from the PUDL primary key columns by replacing these asterisks with all
