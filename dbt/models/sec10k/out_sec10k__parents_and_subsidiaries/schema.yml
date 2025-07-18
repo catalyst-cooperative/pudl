@@ -4,6 +4,7 @@ sources:
     tables:
       - name: out_sec10k__parents_and_subsidiaries
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: out_sec10k__parents_and_subsidiaries
               partition_column: report_date

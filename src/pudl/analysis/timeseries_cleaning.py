@@ -39,7 +39,7 @@ from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
-import pandera as pa
+import pandera.pandas as pa
 import scipy.stats
 from dagster import (
     AssetCheckResult,
@@ -56,7 +56,7 @@ from sklearn.metrics import mean_absolute_percentage_error
 from pudl.logging_helpers import get_logger
 from pudl.metadata.dfs import ImputationReasonCodes
 
-logger = get_logger(__file__)
+logger = get_logger(__name__)
 
 # --- Constants --- #
 

@@ -597,7 +597,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "rto_iso_location_wholesale_reporting_id",
                 "associated_combined_heat_power",
                 "original_planned_generator_operating_date",
-                "operating_switch",
+                "can_switch_when_operating",
                 "previously_canceled",
             ],
             "primary_key": ["plant_id_eia", "generator_id"],
