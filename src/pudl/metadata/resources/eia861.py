@@ -123,7 +123,9 @@ representative from EIA.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_response_water_heater": {
-        "description": "The number of grid connected water heaters enrolled in demand response programs.",
+        "description": {
+            "additional_summary_text": "grid-connected water heaters enrolled in demand response programs."
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
