@@ -4,7 +4,12 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia861__yearly_advanced_metering_infrastructure": {
-        "description": "The data contain number of meters from automated meter readings (AMR) and advanced metering infrastructure (AMI) by state, sector, and balancing authority. The energy served (in megawatthours) for AMI systems is provided. Form EIA-861 respondents also report the number of standard meters (non AMR/AMI) in their system. Historical Changes: We started collecting the number of standard meters in 2013. The monthly survey collected these data from January 2011 to January 2017.",
+        "description": {
+            "additional_summary_text": "advanced metering infrastructure (AMI) and automated meter reading (AMR) by state, sector, and balancing authority.",
+            "additional_details_text": """The energy served (in MWH) for AMI systems is provided. Form EIA-861 respondents also report the number
+of standard meters (non AMR/AMI) in their system. Historical Changes: We started collecting the number of standard meters in 2013. The monthly survey collected
+these data from January 2011 to January 2017.""",
+        },
         "schema": {
             "fields": [
                 "advanced_metering_infrastructure",
