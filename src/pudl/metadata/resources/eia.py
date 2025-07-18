@@ -289,7 +289,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_averaging_periods": {
-        "description": "A coding table describing the averaging period specified by emissions statutes and regulation for in the EIA-860.",
+        "description": {
+            "additional_summary_text": "the averaging period specified by emissions statutes and regulations for the EIA 860.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
