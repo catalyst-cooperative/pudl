@@ -147,21 +147,16 @@ representative from EIA.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_side_management_ee_dr": {
-        "description": (
-            """The impact of energy efficiency and load management programs on total
-energy sold (MWh) and peak demand (MW) by customer class. Includes incremental effects
-(from new programs and new participants) as well as total annual effects (all programs
-and participants in a given year) and potential effects (anticipated peak reduction for
-load management programs). Also includes the cost of DSM programs and the number of
-customers enrolled in price-responsive and time-responsive programs.
-
-The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "The impact of energy efficiency and load management programs on total energy sold (MWh) and peak demand (MW) by customer class.",
+            "usage_warnings": ["discontinued_data"],
+            "additional_details_text": """The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "annual_indirect_program_cost",
