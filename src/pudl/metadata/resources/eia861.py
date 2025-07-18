@@ -768,7 +768,9 @@ Utilities report on Form EIA-861S if they:
         "etl_group": "eia861",
     },
     "core_eia861__assn_utility": {
-        "description": "Association table indicating which states each utility reported data for by year.",
+        "description": {
+            "additional_summary_text": "utility and state in a given year."
+        },
         "schema": {
             "fields": [
                 "report_date",
