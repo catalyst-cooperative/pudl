@@ -190,9 +190,10 @@ representative from EIA.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_side_management_misc": {
-        "description": (
-            """Miscellaneous information from the EIA861 DSM table.
-Includes boolean fields about whether the energy savings estimates/calculations were
+        "description": {
+            "additional_summary_text": "demand-side management (DSM) program information.",
+            "usage_warnings": ["discontinued_data"],
+            "additional_details_text": """Includes boolean fields about whether the energy savings estimates/calculations were
 independently verified and whether the utility runs time and or price responsive
 programs. Also contains information on whether any of the respondent's DSM activities
 are reported under another company, and if so which one.
@@ -202,8 +203,8 @@ PUDL) contain data through 2012. The form changed in 2013 and split the contents
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "energy_savings_estimates_independently_verified",
