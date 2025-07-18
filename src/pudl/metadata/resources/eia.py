@@ -6,7 +6,9 @@ from pudl.metadata.codes import CODE_METADATA
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__codes_balancing_authorities": {
-        "description": "A coding table describing balancing authorities in EIA-860, EIA-923, and EIA-930",
+        "description": {
+            "additional_summary_text": "balancing authorities in EIA 860, EIA 923, and EIA 930.",
+        },
         "schema": {
             "fields": [
                 "code",
