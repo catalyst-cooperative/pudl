@@ -84,18 +84,15 @@ these data from January 2011 to January 2017.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_response": {
-        "description": (
-            """Energy demand response programs by state, sector, and balancing
-authority. We collect data for the number of customers enrolled, energy savings,
-potential and actual peak savings, and associated costs.
-
-The EIA861 demand-side management (DSM) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "demand response programs by state, sector, and balancing authority.",
+            "additional_details_text": """The EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "actual_peak_demand_savings_mw",
