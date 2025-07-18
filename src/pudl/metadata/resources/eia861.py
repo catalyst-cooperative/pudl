@@ -64,7 +64,9 @@ these data from January 2011 to January 2017.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_balancing_authority": {
-        "description": "Annual entity table for balancing authorities.",
+        "description": {
+            "additional_summary_text": "balancing authorities.",
+        },
         "schema": {
             "fields": [
                 "report_date",
