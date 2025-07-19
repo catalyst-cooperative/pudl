@@ -1049,7 +1049,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "data_maturity": {
         "type": "string",
-        "description": "Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        "description": (
+            "Maturity of the source data published by EIA that is reflected in this "
+            "record. EIA releases data incrementally over time, including monthly "
+            "updates, annual year-to-date updates, provisional early releases of "
+            "annual data, and final annual release data that is not expected to change "
+            "further. Records sourced from multiple upstream EIA datasets may have "
+            "no well defined data maturity. Records whose values have been inferred "
+            "within PUDL will also have no data maturity."
+        ),
     },
     "datasource": {
         "type": "string",
