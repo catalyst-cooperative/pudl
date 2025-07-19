@@ -9,7 +9,15 @@ sources:
                 Exactly which years have rolling averages will depend on what years
                 of data have been processed, since the moving window will exclude the
                 first couple of years in the range. This means we can't define a simple
-                range of years in which we expect them to be non-null.
+                range of years in which we expect them to be non-null. The
+                capex_annual_addition column is calculated by taking the difference
+                between adjacent capex_total values, so it will always be null in the
+                first year of data... at least in the case of the DBF data -- the XBRL
+                data (2021 and later) includes both the current and previous year's
+                values, so even if we only process a single recent year of data, we will
+                still end up with a non-null value. The capex_annual_per_* columns are
+                all derived from the capex_annual_addition column, so they have the same
+                pattern of null values.
               exclude_columns:
                 - capex_annual_addition_rolling
                 - capex_annual_per_mw_rolling

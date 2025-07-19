@@ -435,13 +435,14 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _coalmine_cleanup(
-    cmi_df: pd.DataFrame, _core_censuspep__yearly_geocodes
+    cmi_df: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Clean up the core_eia923__entity_coalmine table.
 
-    This function does most of the core_eia923__entity_coalmine table transformation. It is separate
-    from the coalmine() transform function because of the peculiar way that we are
-    normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
+    This function does most of the core_eia923__entity_coalmine table transformation. It
+    is separate from the coalmine() transform function because of the peculiar way that
+    we are normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
 
     All of the coalmine information is originally coming from the EIA
     fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -1113,8 +1114,7 @@ def _core_eia923__fuel_receipts_costs(
     """
     frc_df = raw_eia923__fuel_receipts_costs
 
-    # Drop fields we're not inserting into the eia923__fuel_receipts_costs
-    # table.
+    # Drop fields we're not inserting into the eia923__fuel_receipts_costs table.
     cols_to_drop = [
         "plant_name_eia",
         "plant_state",

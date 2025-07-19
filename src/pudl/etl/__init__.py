@@ -16,7 +16,6 @@ from dagster import (
     load_asset_checks_from_modules,
     load_assets_from_modules,
 )
-from dagster._core.definitions.cacheable_assets import CacheableAssetsDefinition
 
 import pudl
 from pudl.io_managers import (
@@ -168,7 +167,7 @@ def asset_check_from_schema(
 
 
 def _get_keys_from_assets(
-    asset_def: AssetsDefinition | AssetSpec | CacheableAssetsDefinition,
+    asset_def: AssetsDefinition | AssetSpec,
 ) -> list[AssetKey]:
     """Get a list of asset keys.
 
