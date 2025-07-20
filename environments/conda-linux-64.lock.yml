@@ -264,7 +264,7 @@ dependencies:
   - jupyter_events=0.12.0=pyh29332c3_0
   - jupyter_server=2.16.0=pyhe01879c_0
   - jupyter_server_terminals=0.5.3=pyhd8ed1ab_1
-  - jupyterlab=4.4.4=pyhd8ed1ab_0
+  - jupyterlab=4.4.5=pyhd8ed1ab_0
   - jupyterlab-lsp=5.2.0=pyhe01879c_0
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_2
   - jupyterlab_server=2.27.3=pyhd8ed1ab_1

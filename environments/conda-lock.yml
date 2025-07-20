@@ -11807,7 +11807,7 @@ package:
     category: main
     optional: false
   - name: jupyterlab
-    version: 4.4.4
+    version: 4.4.5
     manager: conda
     platform: linux-64
     dependencies:
@@ -11827,14 +11827,14 @@ package:
       tomli: ">=1.2.2"
       tornado: ">=6.2.0"
       traitlets: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab-4.4.4-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab-4.4.5-pyhd8ed1ab_0.conda
     hash:
-      md5: dbd991d0080c48dae5113a27ab6d0d70
-      sha256: a6efcdbe973e12bc8bd61aa26af77f733364975000c8fdaa0d6374338018e0db
+      md5: ad6bbe770780dcf9cf55d724c5a213fd
+      sha256: 2013c2dd13bc773167e1ad11ae885b550c0297d030e2107bdc303243ff05d3f2
     category: main
     optional: false
   - name: jupyterlab
-    version: 4.4.4
+    version: 4.4.5
     manager: conda
     platform: osx-64
     dependencies:
@@ -11854,14 +11854,14 @@ package:
       tomli: ">=1.2.2"
       tornado: ">=6.2.0"
       traitlets: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab-4.4.4-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab-4.4.5-pyhd8ed1ab_0.conda
     hash:
-      md5: dbd991d0080c48dae5113a27ab6d0d70
-      sha256: a6efcdbe973e12bc8bd61aa26af77f733364975000c8fdaa0d6374338018e0db
+      md5: ad6bbe770780dcf9cf55d724c5a213fd
+      sha256: 2013c2dd13bc773167e1ad11ae885b550c0297d030e2107bdc303243ff05d3f2
     category: main
     optional: false
   - name: jupyterlab
-    version: 4.4.4
+    version: 4.4.5
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -11881,10 +11881,10 @@ package:
       tomli: ">=1.2.2"
       tornado: ">=6.2.0"
       traitlets: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab-4.4.4-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/jupyterlab-4.4.5-pyhd8ed1ab_0.conda
     hash:
-      md5: dbd991d0080c48dae5113a27ab6d0d70
-      sha256: a6efcdbe973e12bc8bd61aa26af77f733364975000c8fdaa0d6374338018e0db
+      md5: ad6bbe770780dcf9cf55d724c5a213fd
+      sha256: 2013c2dd13bc773167e1ad11ae885b550c0297d030e2107bdc303243ff05d3f2
     category: main
     optional: false
   - name: jupyterlab-lsp
