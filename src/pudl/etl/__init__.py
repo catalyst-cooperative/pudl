@@ -166,9 +166,7 @@ def asset_check_from_schema(
     return pandera_schema_check
 
 
-def _get_keys_from_assets(
-    asset_def: AssetsDefinition | AssetSpec,
-) -> list[AssetKey]:
+def _get_keys_from_assets(asset_def: AssetsDefinition | AssetSpec) -> list[AssetKey]:
     """Get a list of asset keys.
 
     Most assets have one key, which can be retrieved as a list from
@@ -179,8 +177,6 @@ def _get_keys_from_assets(
 
     AssetSpecs always only have one key, and don't have ``asset.keys``. So we
     look for ``asset.key`` and wrap it in a list.
-
-    We don't handle CacheableAssetsDefinitions yet.
     """
     if isinstance(asset_def, AssetsDefinition):
         return list(asset_def.keys)
