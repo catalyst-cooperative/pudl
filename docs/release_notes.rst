@@ -37,6 +37,10 @@ Documentation
 
   * EIA: see issue :issue:`4424` and PR :pr:`4464`.
 
+* Added data source pages for:
+
+  * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
+
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
