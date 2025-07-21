@@ -639,7 +639,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__entity_generators": {
-        "description": "Static generator attributes compiled from across the EIA-860 and EIA-923 data.",
+        "description": {
+            "additional_summary_text": "generators compiled from across the EIA-860 and EIA-923.",
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
