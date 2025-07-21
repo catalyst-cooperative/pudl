@@ -657,7 +657,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_momentary_interruptions": {
-        "description": "A coding table for utility definitions of momentary service interruptions.",
+        "description": {
+            "additional_summary_text": "utility definitions of momentary service interruptions.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
