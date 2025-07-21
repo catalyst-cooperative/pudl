@@ -1135,7 +1135,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
     },
     "core_eia__codes_wind_quality_class": {
-        "description": "A coding table for wind quality classes.",
+        "description": {
+            "additional_summary_text": "wind quality classes.",
+        },
         "schema": {
             "fields": [
                 "code",
