@@ -712,7 +712,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__entity_plants": {
-        "description": "Static plant attributes, compiled from across all EIA-860 and EIA-923 data.",
+        "description": {
+            "additional_summary_text": "plants, compiled from across all EIA-860 and EIA-923 data.",
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
