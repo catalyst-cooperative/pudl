@@ -1604,7 +1604,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "ID dynamically assigned by PUDL to EIA records with multiple "
             "matches to a single FERC ID in the FERC-EIA manual matching process. "
-            "The ID is manually assigned and has not been updated since 2020."
+            "The ID is manually assigned and has not been updated since 2020, but "
+            "only affects a couple hundred records total across all years."
         ),
     },
     "ferc1_generator_agg_id_plant_gen": {
@@ -1613,7 +1614,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "ID dynamically assigned by PUDL to EIA records with multiple "
             "matches to a single FERC ID in the FERC-EIA manual matching process. This "
             "ID is associated with the record_id_eia_plant_gen record. It depends on "
-            "ferc1_generator_agg_id, which has not been updated since 2020."
+            "ferc1_generator_agg_id, which has not been updated since 2020, but only "
+            "affects a couple hundred records total across all years."
         ),
     },
     "ferc_account": {
