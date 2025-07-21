@@ -130,16 +130,18 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "field_namespace": "eia",
     },
     "out_eia__yearly_assn_plant_parts_plant_gen": {
-        "description": """In order to easily determine what generator records are associated with every
-plant part record, we made this association table. This table associates every plant part
-record (identified as ``record_id_eia``) from the ``out_eia__yearly_plant_parts`` table to the associated
-'plant_gen' records (identified as ``record_id_eia_plant_gen``) from the same table. The plant part
-records have a one to many relationship to the associated 'plant_gen' records. The 'plant_gen' records
-are also included in the plant part records, so for these records there is a one to one relationship
-and the ``record_id_eia`` and the ``record_id_eia_plant_gen`` are the same.
+        "description": {
+            "additional_summary_text": "plant parts (identified as ``record_id_eia``) and  'plant_gen' records (identified as ``record_id_eia_plant_gen``) from the :ref:`out_eia__yearly_plant_parts` table.",
+            "additional_details_text": """
+The purpose of this table is to help determine what generator records are associated
+with every plant part record. The plant part records have a one to many relationship
+to the associated 'plant_gen' records. The 'plant_gen' records are also included in
+the plant part records, so for these records there is a one to one relationship and
+the ``record_id_eia`` and the ``record_id_eia_plant_gen`` are the same.
 
-All of the columns in this table that have a suffix of '_plant_gen' are attributes of the
-``record_id_eia_plant_gen`` record.""",
+All of the columns in this table that have a suffix of '_plant_gen' are attributes of
+the ``record_id_eia_plant_gen`` record.""",
+        },
         "schema": {
             "fields": [
                 "record_id_eia",
