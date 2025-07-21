@@ -1028,7 +1028,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "core_eia__codes_cooling_tower_types": {
-        "description": "A coding table for cooling tower types.",
+        "description": {
+            "additional_summary_text": "cooling towers.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
