@@ -4,7 +4,10 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_ferc714__respondent_id": {
-        "description": "Respondent identification. FERC Form 714, Part I, Schedule 1.",
+        "description": {
+            "additional_summary_text": "Respondent identification.",
+            "additional_source_text": "(Part I, Schedule 1)",
+        },
         "schema": {
             "fields": [
                 "respondent_id_ferc714",
@@ -20,28 +23,38 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferc714",
     },
     "core_ferc714__hourly_planning_area_demand": {
-        "description": (
-            "Hourly electricity demand by planning area. FERC Form 714, Part III, "
-            "Schedule 2a. This table includes data from the pre-2021 CSV raw source "
-            "as well as the newer 2021 through present XBRL raw source.\n\nAn important "
-            "caveat to note is that there was some cleaning done to the datetime_utc "
-            "timestamps. The Form 714 includes sparse documentation for respondents "
-            "for how to interpret timestamps - the form asks respondents to provide "
-            "24 instances of hourly demand for each day. The form is labeled with hour "
-            "1-24. There is no indication if hour 1 begins at midnight.\n\nThe XBRL data "
-            "contained several formats of timestamps. Most records corresponding to hour "
-            "1 of the Form have a timestamp with hour 1 as T1. About two thirds of the records "
-            "in the hour 24 location of the form have a timestamp with an hour reported as "
-            "T24 while the remaining third report this as T00 of the next day. T24 is not a "
-            "valid format for the hour of a datetime, so we convert these T24 hours into "
-            "T00 of the next day. A smaller subset of the respondents reports the 24th hour "
-            "as the last second of the day - we also convert these records to the T00 of the "
-            "next day.\n\nThis table includes three respondent ID columns: one from the "
-            "CSV raw source, one from the XBRL raw source and another that is PUDL-derived "
-            "that links those two source ID's together. This table has filled in source IDs "
-            "for all records so you can select the full timeseries for a given respondent from "
-            "any of these three IDs."
-        ),
+        "description": {
+            "additional_summary_text": "electricity demand by planning area.",
+            "additional_source_text": "(Part III, Schedule 2a)",
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": "The datetime_utc timestamps have been cleaned due to inconsistent datetime reporting. See below for additional details.",
+                }
+            ],
+            "additional_details_text": (
+                "This table includes data from the pre-2021 CSV raw source "
+                "as well as the newer 2021 through present XBRL raw source.\n\n"
+                "This table includes three respondent ID columns: one from the "
+                "CSV raw source, one from the XBRL raw source and another that is PUDL-derived "
+                "that links those two source ID's together. This table has filled in source IDs "
+                "for all records so you can select the full timeseries for a given respondent from "
+                "any of these three IDs.\n\nAn important "
+                "caveat to note is that there was some cleaning done to the datetime_utc "
+                "timestamps. The Form 714 includes sparse documentation for respondents "
+                "for how to interpret timestamps - the form asks respondents to provide "
+                "24 instances of hourly demand for each day. The form is labeled with hour "
+                "1-24. There is no indication if hour 1 begins at midnight.\n\nThe XBRL data "
+                "contained several formats of timestamps. Most records corresponding to hour "
+                "1 of the Form have a timestamp with hour 1 as T1. About two thirds of the records "
+                "in the hour 24 location of the form have a timestamp with an hour reported as "
+                "T24 while the remaining third report this as T00 of the next day. T24 is not a "
+                "valid format for the hour of a datetime, so we convert these T24 hours into "
+                "T00 of the next day. A smaller subset of the respondents reports the 24th hour "
+                "as the last second of the day - we also convert these records to the T00 of the "
+                "next day.\n\n"
+            ),
+        },
         "schema": {
             "fields": [
                 "respondent_id_ferc714",
@@ -61,10 +74,26 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "out_ferc714__hourly_planning_area_demand": {
         "description": (
-            "This table is based on ``core_ferc714__hourly_planning_area_demand``, but adds "
-            "imputed demand values where the original data was missing or anomalous. "
-            "Codes explaining why values have been imputed can be found in the "
-            "``core_pudl__codes_imputation_reasons`` table."
+            {
+                "additional_summary_text": "electricity demand by planning area.",
+                "additional_source_text": "(Part III, Schedule 2a)",
+                "usage_warnings": [
+                    "imputed_values",
+                    {
+                        "type": "custom",
+                        "description": (
+                            "The datetime_utc timestamps have been cleaned due to "
+                            "inconsistent datetime reporting. See below for additional details."
+                        ),
+                    },
+                ],
+                "additional_details_text": (
+                    "This table is based on :ref:`core_ferc714__hourly_planning_area_demand`, but adds "
+                    "imputed demand values where the original data was missing or anomalous. "
+                    "Codes explaining why values have been imputed can be found in the "
+                    ":ref:`core_pudl__codes_imputation_reasons` table."
+                ),
+            }
         ),
         "schema": {
             "fields": [
@@ -86,9 +115,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "create_database_schema": False,
     },
     "out_ferc714__respondents_with_fips": {
-        "description": (
-            "Annual respondents with the county FIPS IDs for their service territories."
-        ),
+        "description": {
+            "additional_summary_text": "Annual respondents with the county FIPS IDs for their service territories.",
+            "additional_primary_key_text": (
+                "The state and county FIPS columns "
+                "which are part of the natural primary key can be null. "
+                "The natural primary key would be: "
+                "['respondent_id_ferc714', 'report_date', 'state_id_fips', 'county_id_fips']."
+            ),
+        },
         "schema": {
             "fields": [
                 "eia_code",
@@ -106,19 +141,17 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "state_id_fips",
                 "county_id_fips",
             ]
-            # No primary key here because the state and county FIPS columns
-            # which are part of the natural primary key can be null.
-            # The natural primary key would be:
-            # ['respondent_id_ferc714', 'report_date', 'state_id_fips', 'county_id_fips']
         },
         "sources": ["ferc714"],
         "field_namespace": "ferc714",
         "etl_group": "outputs",
     },
     "out_ferc714__summarized_demand": {
-        "description": (
-            "Compile FERC 714 annualized, categorized respondents and summarize values."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "Compile FERC 714 annualized, categorized respondents and summarize values."
+            )
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -145,18 +178,32 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "core_ferc714__yearly_planning_area_demand_forecast": {
-        "description": (
-            "10-year forecasted summer and winter peak demand and annual net energy "
-            "per planning area. FERC Form 714, Part III, Schedule 2b. This table "
-            "includes data from the pre-2021 CSV raw source as well as the newer 2021 "
-            "through present XBRL raw source. We created the respondent_id_ferc714 "
-            "field to blend disparate IDs from the CSV and XBRL data over time. See "
-            "the core_ferc714_respondent_id table for links to the original source IDs.\n\n"
-            "This table contains forecasted net demand (MWh) as well as summer and winter "
-            "peak demand (MW) for the next ten years after after the report_date. "
-            "There is a small handful of respondents (~11) that report more than 10 "
-            "years and an even smaller handful that report less than 10 (~9)."
-        ),
+        "description": {
+            "additional_summary_text": "10-year forecasted summer and winter peak demand and annual net energy "
+            "per planning area.",
+            "additional_source_text": "(Part III, Schedule 2b)",
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": (
+                        "This table "
+                        "includes data from the pre-2021 CSV raw source as well as the newer 2021 "
+                        "through present XBRL raw source. We created the respondent_id_ferc714 "
+                        "field to blend disparate IDs from the CSV and XBRL data over time. See "
+                        "the :ref:`core_ferc714_respondent_id` table for links to the original source IDs."
+                    ),
+                },
+                {
+                    "type": "custom",
+                    "description": "There is a small handful of respondents (~11) that report more than 10 "
+                    "years and an even smaller handful that report less than 10 (~9).",
+                },
+            ],
+            "additional_details_text": (
+                "This table contains forecasted net demand (MWh) as well as summer and winter "
+                "peak demand (MW) for the next ten years after after the report_year."
+            ),
+        },
         "schema": {
             "fields": [
                 "respondent_id_ferc714",
