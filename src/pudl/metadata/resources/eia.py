@@ -115,7 +115,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__entity_boilers": {
-        "description": "Static boiler attributes compiled from the EIA-860 and EIA-923 data.",
+        "description": {
+            "additional_summary_text": "boilers compiled from the EIA-860 and EIA-923.",
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
