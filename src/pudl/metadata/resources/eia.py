@@ -365,7 +365,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_regulations": {
-        "description": "A coding table describing the different levels of statutes and codes under which boilers operate in the EIA-860.",
+        "description": {
+            "additional_summary_text": "levels of statutes and codes under which boilers operate in the EIA-860.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
