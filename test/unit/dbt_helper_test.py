@@ -19,14 +19,15 @@ from pudl.scripts.dbt_helper import (
     _get_local_table_path,
     _get_model_path,
     _get_row_count_csv_path,
-    _get_row_count_test_dict,
-    _infer_partition_column,
     _schema_diff_summary,
     _write_row_counts,
     get_data_source,
+    get_row_count_test_dict,
     schema_has_removals_or_modifications,
     update_row_counts,
 )
+
+GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
 
 TEMPLATE = {
     "data_col": "data",
@@ -142,8 +143,8 @@ def test__write_row_counts(mocker):
     mock_to_csv.assert_called_once_with("/fake/path.csv", index=False)
 
 
-def test__get_row_count_test_dict():
-    result = _get_row_count_test_dict("plants", "report_year")
+def test_get_row_count_test_dict():
+    result = get_row_count_test_dict("plants", "report_year")
     expected = {
         "check_row_counts_per_partition": {
             "table_name": "plants",
@@ -172,21 +173,14 @@ def test__get_row_count_test_dict():
                 {
                     "check_row_counts_per_partition": {
                         "table_name": "plants",
-                        "partition_column": "report_date",
-                    }
-                },
-                {
-                    "check_row_counts_per_partition": {
-                        "table_name": "plants",
-                        "partition_column": "datetime_utc",
+                        "partition_column": None,
                     }
                 },
             ],
-            ["report_date", "datetime_utc"],
+            [None],
         ),
         (
             [
-                {"check_row_counts_per_partition": None},
                 {"some_other_test": {}},
             ],
             [],
@@ -205,26 +199,6 @@ def test__extract_row_count_partitions(data_tests, expected):
     )
     assert _extract_row_count_partitions(table) == expected
 
-
-@pytest.mark.parametrize("key", ["report_year", "report_date", "datetime_utc", None])
-def test__infer_partition_column(key):
-    if key is not None:
-        columns = [DbtColumn(name=key)]
-        expected = key
-    else:
-        columns = [DbtColumn(name="not_a_partition_column")]
-        expected = None
-
-    table = DbtTable(
-        name="dummy",
-        columns=columns,
-        data_tests=None,
-    )
-
-    assert _infer_partition_column(table) == expected
-
-
-GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
 
 ROW_COUNT_TEST_CASES = [
     GivenExpect(

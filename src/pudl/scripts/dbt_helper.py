@@ -323,30 +323,39 @@ def update_row_counts(
     schema = DbtSchema.from_yaml(schema_path)
 
     partition_columns = _extract_row_count_partitions(schema)
+    if len(partition_columns) > 1:
+        raise ValueError(
+            f"Only a single row counts test per table is supported, "
+            f"but found {len(partition_columns)} in {table_name}."
+        )
+
     has_test = bool(partition_columns)
     existing = _get_existing_row_counts(target)
     has_existing_row_counts = table_name in existing["table_name"].to_numpy()
     allow_overwrite = clobber or update
 
-    if not has_test:
-        if has_existing_row_counts:
-            if allow_overwrite:
-                # Remove outdated entry
-                filtered = existing[existing["table_name"] != table_name]
-                _write_row_counts(filtered, target)
-                return UpdateResult(
-                    success=True,
-                    message=f"Removed outdated row counts for {table_name} (no test defined).",
-                )
-            return UpdateResult(
-                success=False,
-                message=f"Row counts exist for {table_name}, but no row count test is defined. Use clobber/update to remove.",
-            )
+    if not has_test and not has_existing_row_counts:
         return UpdateResult(
             success=False,
             message=f"No row count test defined for {table_name}, nothing to update.",
         )
 
+    if not has_test and not allow_overwrite:
+        return UpdateResult(
+            success=False,
+            message=f"Row counts exist for {table_name}, but no row count test is defined. Use clobber/update to remove.",
+        )
+
+    # At this point, there is no test defined but there are row counts, and overwrite is allowed, so
+    # we want to remove the row counts for this table
+    if not has_test:
+        # Remove outdated entry
+        filtered = existing[existing["table_name"] != table_name]
+        _write_row_counts(filtered, target)
+        return UpdateResult(
+            success=True,
+            message=f"Removed outdated row counts for {table_name} (no test defined).",
+        )
     if has_existing_row_counts and not allow_overwrite:
         return UpdateResult(
             success=False,
@@ -437,18 +446,7 @@ def _extract_row_count_partitions(table: DbtTable) -> list[str | None]:
     return partitions
 
 
-def _infer_partition_column(table: DbtTable) -> str:
-    all_columns = [c.name for c in table.columns]
-    if (
-        (partition_column := "report_year") in all_columns
-        or (partition_column := "report_date") in all_columns
-        or (partition_column := "datetime_utc") in all_columns
-    ):
-        return partition_column
-    return None
-
-
-def _get_row_count_test_dict(table_name: str, partition_column: str):
+def get_row_count_test_dict(table_name: str, partition_column: str):
     """Return a dictionary with a dbt row count data test encoded in a dict."""
     return {
         "check_row_counts_per_partition": {
