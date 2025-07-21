@@ -480,7 +480,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_operational_status": {
-        "description": "Codes and metadata pertaining to operational status reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
+        "description": {
+            "additional_summary_text": "operational status reported to EIA.",
+            "additional_details_text": "Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
+        },
         "schema": {
             "fields": [
                 "code",
