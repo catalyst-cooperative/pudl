@@ -351,7 +351,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_particulate_units": {
-        "description": "A coding table describing different units of measurement for particulate matter in the EIA-860.",
+        "description": {
+            "additional_summary_text": "units of measurement for particulate matter in the EIA-860.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
