@@ -568,7 +568,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     #    "create_database_schema": False,
     # },
     "core_eia__codes_fuel_transportation_modes": {
-        "description": "Long descriptions of the fuel transportation modes reported in the EIA-860 and EIA-923.",
+        "description": {
+            "additional_summary_text": "fuel transportation modes reported in the EIA-860 and EIA-923.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
