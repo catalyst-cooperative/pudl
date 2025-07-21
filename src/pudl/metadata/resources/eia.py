@@ -731,7 +731,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_prime_movers": {
-        "description": "Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.",
+        "description": {
+            "additional_summary_text": "prime movers reported in the EIA-860 and EIA-923.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
