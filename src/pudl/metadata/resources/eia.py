@@ -94,7 +94,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_sorbent_types": {
-        "description": "A coding table describing different flue gas desulfurization sorbent types used in EIA-860.",
+        "description": {
+            "additional_summary_text": "flue gas desulfurization sorbent types used in EIA-860.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
