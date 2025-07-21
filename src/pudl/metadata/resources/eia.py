@@ -283,7 +283,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_mercury_compliance_strategies": {
-        "description": "A coding table describing different compliance strategies used to control mercury in the EIA-860.",
+        "description": {
+            "additional_summary_text": "compliance strategies used to control mercury in the EIA-860.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
