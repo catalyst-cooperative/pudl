@@ -52,7 +52,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "valid format for the hour of a datetime, so we convert these T24 hours into "
                 "T00 of the next day. A smaller subset of the respondents reports the 24th hour "
                 "as the last second of the day - we also convert these records to the T00 of the "
-                "next day.\n\n"
+                "next day."
             ),
         },
         "schema": {
@@ -190,7 +190,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                         "includes data from the pre-2021 CSV raw source as well as the newer 2021 "
                         "through present XBRL raw source. We created the respondent_id_ferc714 "
                         "field to blend disparate IDs from the CSV and XBRL data over time. See "
-                        "the :ref:`core_ferc714_respondent_id` table for links to the original source IDs."
+                        "the :ref:`core_ferc714__respondent_id` table for links to the original source IDs."
                     ),
                 },
                 {
