@@ -414,7 +414,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_wet_dry_bottom": {
-        "description": "A coding table describing whether boiler has a wet or dry bottom in the EIA-860.",
+        "description": {
+            "additional_summary_text": "boiler bottoms in the EIA-860.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
