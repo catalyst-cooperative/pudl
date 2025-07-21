@@ -795,7 +795,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__entity_utilities": {
-        "description": "Static attributes of utilities, compiled from all EIA data.",
+        "description": {
+            "additional_summary_text": "utilities, compiled from all EIA data.",
+        },
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primary_key": ["utility_id_eia"],
