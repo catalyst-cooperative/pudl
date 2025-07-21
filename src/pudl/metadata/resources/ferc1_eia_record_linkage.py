@@ -4,15 +4,16 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_plant_parts": {
-        "description": """Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.
-
-Practically speaking, a plant is a collection of generator(s). There are many
-attributes of generators (i.e. prime mover, primary fuel source, technology
-type). We can use these generator attributes to group generator records into
-larger aggregate records which we call "plant parts". A plant part is a record
-which corresponds to a particular collection of generators that all share an
-identical attribute and utility owner. E.g. all of the generators with unit_id=2, or all
-of the generators with coal as their primary fuel source.
+        "description": {
+            "additional_summary_text": "the aggregation of all EIA plant parts, for use in matching to FERC 1.",
+            "additional_details_text": (
+                """Practically speaking, a plant is a collection of generator(s). There
+are many attributes of generators (i.e. prime mover, primary fuel source, technology
+type). We can use these generator attributes to group generator records into larger
+aggregate records which we call "plant parts". A plant part is a record which
+corresponds to a particular collection of generators that all share an identical
+attribute and utility owner. E.g. all of the generators with unit_id=2, or all of the
+generators with coal as their primary fuel source.
 
 The EIA data about power plants (from EIA 923 and 860) is reported in tables
 with records that correspond to mostly generators and plants. Other datasets
@@ -28,7 +29,9 @@ portion records are labeled in the ``ownership_record_type`` column as ``owned``
 and the total records are labeled as ``total``.
 
 This table includes A LOT of duplicative information about EIA plants. It is primarily
-meant for use as an input into the record linkage between FERC1 plants and EIA.""",
+meant for use as an input into the record linkage between FERC1 plants and EIA."""
+            ),
+        },
         "schema": {
             "fields": [
                 "record_id_eia",
