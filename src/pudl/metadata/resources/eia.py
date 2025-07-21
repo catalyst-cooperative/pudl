@@ -865,7 +865,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "out_eia__yearly_utilities": {
-        "description": ("Denormalized table containing all EIA utility attributes."),
+        "description": {
+            "additional_summary_text": "all EIA utility attributes.",
+        },
         "schema": {
             "fields": [
                 "utility_id_eia",
