@@ -446,7 +446,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_reporting_frequencies": {
-        "description": "A coding table describing different types of reporting frequencies in plants in the EIA-923.",
+        "description": {
+            "additional_summary_text": "the reporting frequencies used by plants in the EIA-923.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
