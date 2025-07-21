@@ -968,7 +968,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "out_eia__yearly_boilers": {
-        "description": ("Denormalized table containing all EIA boiler attributes."),
+        "description": {
+            "additional_summary_text": "all EIA boiler attributes.",
+        },
         "schema": {
             "fields": [
                 "report_date",
