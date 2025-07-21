@@ -171,7 +171,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_environmental_equipment_manufacturers": {
-        "description": "A coding table describing manufacturers of boilers and environmental control equipment in the EIA-860.",
+        "description": {
+            "additional_summary_text": "manufacturers of boilers and environmental control equipment in the EIA-860.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
@@ -505,7 +507,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_energy_sources": {
-        "description": "Codes and metadata pertaining to energy sources reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
+        "description": {
+            "additional_summary_text": "energy sources reported to EIA.",
+            "additional_details_text": "Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.",
+        },
         "schema": {
             "fields": [
                 "code",
