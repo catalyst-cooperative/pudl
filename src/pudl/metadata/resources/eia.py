@@ -903,7 +903,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "out_eia__yearly_plants": {
-        "description": ("Denormalized table containing all EIA plant attributes."),
+        "description": {
+            "additional_summary_text": "all EIA plant attributes.",
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
