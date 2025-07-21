@@ -80,7 +80,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_cooling_water_sources": {
-        "description": "A coding table describing different types of cooling water sources in EIA-860.",
+        "description": {
+            "additional_summary_text": "cooling water sources in EIA-860.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
