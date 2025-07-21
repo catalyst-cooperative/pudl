@@ -1153,7 +1153,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
     },
     "core_eia__codes_storage_enclosure_types": {
-        "description": "A coding table for energy storage enclosure types.",
+        "description": {
+            "additional_summary_text": "energy storage enclosures.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
@@ -1165,7 +1167,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "static_eia",
     },
     "core_eia__codes_storage_technology_types": {
-        "description": "A coding table for energy storage technology types.",
+        "description": {
+            "additional_summary_text": "energy storage technologies.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
