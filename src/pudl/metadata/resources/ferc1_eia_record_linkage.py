@@ -88,7 +88,9 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "field_namespace": "eia",
     },
     "out_eia__yearly_generators_by_ownership": {
-        "description": "A mega table of all EIA generators with ownership integrated.",
+        "description": {
+            "additional_summary_text": "all EIA generators with ownership integrated.",
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
