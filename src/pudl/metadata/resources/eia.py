@@ -754,7 +754,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_sector_consolidated": {
-        "description": "Long descriptions for the EIA consolidated NAICS sector codes. Codes and descriptions taken from the EIA-923 File Layout spreadsheet.",
+        "description": {
+            "additional_summary_text": "EIA consolidated NAICS sectors.",
+            "additional_details_text": "Codes and descriptions taken from the EIA-923 File Layout spreadsheet.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
