@@ -191,7 +191,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_eia__codes_emission_control_equipment_types": {
-        "description": "A coding table describing the type of emissions control equipment installed on a boiler.",
+        "description": {
+            "additional_summary_text": "emissions control equipment installed on a boiler.",
+        },
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
