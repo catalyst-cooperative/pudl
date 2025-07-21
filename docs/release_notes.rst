@@ -33,8 +33,13 @@ Bug Fixes
 Documentation
 ^^^^^^^^^^^^^
 
-* Migrated table description metadata into new format for EIA 860. See issue
-  :issue:`4399` and PR :pr:`4446`.
+* Migrated table description metadata into new format for:
+
+  * EIA 860: see issue :issue:`4399` and PR :pr:`4446`.
+
+* Added data source pages for:
+
+  * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
 
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
