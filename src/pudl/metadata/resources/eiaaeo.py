@@ -8,7 +8,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology": {
         "description": {
             "additional_summary_text": (
-                "of projected generation capacity & total generation in the electric "
+                "projected generation capacity & total generation in the electric "
                 "sector, broken out by technology."
             )
         },
@@ -117,14 +117,22 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "projected total generation in the end-use sector, across all "
                 "fuel types."
             ),
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": (
+                        "The solar photovoltaic capacity portion of "
+                        "Renewable Sources is reported in megawatts direct current; other technologies "
+                        "are reported in megawatts of alternating current."
+                    ),
+                }
+            ],
             "additional_details_text": (
                 "Includes combined-heat-and-power plants and electricity-only "
                 "plants in the commercial and industrial sectors; and small on-site "
                 "generating systems in the residential, commercial, and industrial "
                 "sectors used primarily for own-use generation, but which may also "
-                "sell some power to the grid. Solar photovoltaic capacity portion of "
-                "Renewable Sources in megawatts direct current; other technologies "
-                "in megawatts alternating current."
+                "sell some power to the grid."
             ),
         },
         "schema": {
