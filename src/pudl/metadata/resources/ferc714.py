@@ -83,7 +83,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                         "type": "custom",
                         "description": (
                             "The datetime_utc timestamps have been cleaned due to "
-                            "inconsistent datetime reporting. See below for additional details."
+                            "inconsistent datetime reporting. See :ref:`core_ferc714__hourly_planning_area_demand` for additional details."
                         ),
                     },
                 ],
