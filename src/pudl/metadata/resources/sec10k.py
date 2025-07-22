@@ -4,11 +4,14 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_sec10k__assn_exhibit_21_subsidiaries_and_filers": {
-        "description": """A table associating subsidiaries listed in Exhibit 21 with
-their SEC central index key, if the subsidiary also files Form 10-K.
-
-Exhibit 21 subsidiaries and SEC 10-K filers are considered matched if they have
-identical names and the same location of incorporation.""",
+        "description": {
+            "additional_summary_text": (
+                "subsidiaries listed in "
+                "Exhibit 21 and their SEC central index key, if the subsidiary also files Form 10-K."
+            ),
+            "additional_details_text": "Exhibit 21 subsidiaries and SEC 10-K filers are "
+            "considered matched if they have identical names and the same location of incorporation.",
+        },
         "schema": {
             "fields": ["subsidiary_company_id_sec10k", "central_index_key"],
             "primary_key": ["subsidiary_company_id_sec10k"],
@@ -18,13 +21,18 @@ identical names and the same location of incorporation.""",
         "field_namespace": "sec",
     },
     "core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities": {
-        "description": """A table matching subsidiaries listed in Exhibit 21 with EIA
-utilities.
-
-An Exhibit 21 subsidiary is considered matched to an EIA utility if their names are
-identical. Only subsidiaries that don't file SEC 10-K themselves are included in this
-table. SEC 10-K filers have much more information available and can be matched using
-probabilistic record linkage.""",
+        "description": {
+            "additional_summary_text": (
+                "subsidiaries listed in Exhibit 21 and EIA utilities."
+            ),
+            "additional_details_text": (
+                "An Exhibit 21 subsidiary is considered matched "
+                "to an EIA utility if their names are identical. Only subsidiaries that "
+                "don't file SEC 10-K themselves are included in this table. SEC 10-K filers "
+                "have much more information available and can be matched using "
+                "probabilistic record linkage."
+            ),
+        },
         "schema": {
             "fields": ["subsidiary_company_id_sec10k", "utility_id_eia"],
             "primary_key": ["subsidiary_company_id_sec10k"],
@@ -34,14 +42,15 @@ probabilistic record linkage.""",
         "field_namespace": "sec",
     },
     "core_sec10k__assn_sec10k_filers_and_eia_utilities": {
-        "description": """An association (crosswalk) table relating SEC 10-K filers and EIA utilities.
-
-SEC central index keys are matched to EIA utility IDs using probabilistic record
-linkage based on associated company information like company name, business and mailing
-addresses, and state of incorporation. The match between ``central_index_key`` and
-``utility_id_eia`` is one to one and is not allowed to change over time. In cases where
-there were multiple candidate matches, the match with the highest probability is
-selected.""",
+        "description": {
+            "additional_summary_text": "SEC 10-K filers and EIA utilities.",
+            "additional_details_text": """SEC central index keys are matched to EIA
+utility IDs using probabilistic record linkage based on associated company information
+like company name, business and mailing addresses, and state of incorporation.
+The match between ``central_index_key`` and ``utility_id_eia`` is one to one and is not
+allowed to change over time. In cases where there were multiple candidate matches,
+the match with the highest probability is selected.""",
+        },
         "schema": {
             "fields": ["central_index_key", "utility_id_eia"],
             "primary_key": ["central_index_key", "utility_id_eia"],
@@ -51,14 +60,16 @@ selected.""",
         "field_namespace": "sec",
     },
     "core_sec10k__quarterly_filings": {
-        "description": """Metadata describing SEC 10-K filings.
-
+        "description": {
+            "additional_summary_text": "metadata describing SEC 10-K filings.",
+            "additional_details_text": """
 Each SEC 10-K filing is submitted by a single company, but may contain information about
 numerous other companies. This table indicates the company submitting the filing, as
 well as some information about the overall filing. Each filing is guaranteed to have a
 unique filename, but ~1% of all filings are one company submitting the same form
 multiple times on the same day, so the filename is the only available natural primary
 key.""",
+        },
         "schema": {
             "fields": [
                 "filename_sec10k",
@@ -78,8 +89,9 @@ key.""",
         "field_namespace": "sec",
     },
     "out_sec10k__quarterly_filings": {
-        "description": """Metadata describing SEC 10-K filings.
-
+        "description": {
+            "additional_summary_text": "metadata describing SEC 10-K filings.",
+            "additional_details_text": """
 Each SEC 10-K filing is submitted by a single company, but may contain information about
 numerous other companies. This table indicates the company submitting the filing, as
 well as some information about the overall filing. Each filing is guaranteed to have a
@@ -87,6 +99,7 @@ unique filename, but ~1% of all filings are one company submitting the same form
 multiple times on the same day, so the filename is the only available natural primary
 key. This output table adds a link to the source URL for the filing, which is
 constructed from the filename.""",
+        },
         "schema": {
             "fields": [
                 "filename_sec10k",
@@ -107,14 +120,24 @@ constructed from the filename.""",
         "field_namespace": "sec",
     },
     "core_sec10k__quarterly_exhibit_21_company_ownership": {
-        "description": """Subsidiary company ownership data from the SEC 10-K Exhibit 21 attachments.
-
+        "description": {
+            "additional_summary_text": "subsidiary company ownership data from the SEC 10-K Exhibit 21 attachments.",
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": (
+                        "This data has been extracted probabilistically "
+                        "using a machine learning model and contains some incompletions and errors. It should not be "
+                        "treated as ground truth data."
+                    ),
+                }
+            ],
+            "additional_details_text": """
 Exhibit 21 is an unstructured text or PDF attachment to the main SEC 10-K filing
 that is used to describe the subsidiaries owned by the filing company. It may or may not
 provide the percentage of the subsidiary that is owned by the filing company, or the
-location of the subsidiary. This data has been extracted probabilistically using
-a machine learning model and contains some incompletions and errors. It should not be
-treated as ground truth data.""",
+location of the subsidiary.""",
+        },
         "schema": {
             "fields": [
                 "filename_sec10k",
@@ -130,9 +153,9 @@ treated as ground truth data.""",
         "field_namespace": "sec",
     },
     "core_sec10k__quarterly_company_information": {
-        "description": (
-            """Company and filing information extracted from SEC 10-K filing headers.
-
+        "description": {
+            "additional_summary_text": "company and filing information extracted from SEC 10-K filing headers.",
+            "additional_details_text": """
 While the SEC 10-K filings are submitted by a single company, they often contain
 references to many other related companies. Information about these companies and the
 filing itself are contained in text headers at the beginning of the filing. This table
@@ -147,8 +170,8 @@ associated with the filing they appeared in and their filer count. Note that all
 references to a particular company may not be perfectly consistent across all filings in
 which they appear. The various company names, addresses, and other information
 associated with the company's unique and permanent ``central_index_key`` are later used
-as inputs into the probabilistic record linkage process."""
-        ),
+as inputs into the probabilistic record linkage process.""",
+        },
         "schema": {
             "fields": [
                 "filename_sec10k",
@@ -187,13 +210,13 @@ as inputs into the probabilistic record linkage process."""
         "field_namespace": "sec",
     },
     "core_sec10k__changelog_company_name": {
-        "description": (
-            """A historical record of the names each SEC 10-K filer has used.
-
+        "description": {
+            "additional_summary_text": "the names each SEC 10-K filer has used.",
+            "additional_details_text": """
 This table is extracted from the same SEC 10-K filing header information as
-``core_sec10k__quarterly_company_information``. Each filing reports the full history of
+:ref:``core_sec10k__quarterly_company_information``. Each filing reports the full history of
 name change associated with a company up to the date of that filing. Because individual
-companies may appear in multiple filings in the same year, and the samy historical name
+companies may appear in multiple filings in the same year, and the same historical name
 changes will be reported in multiple years, the raw input data contains many duplicate
 entries, which are deduplicated to create this table. The original name change data only
 contains the former name and the date of the change.
@@ -201,8 +224,8 @@ contains the former name and the date of the change.
 Roughly 2% of all records describe multiple name changes happening on the same date
 (they are duplicates on the basis of ``central_index_key`` and ``name_change_date``).
 This may be due to company name reporting inconsistencies or reporting errors in which
-the old and new company names have been swapped."""
-        ),
+the old and new company names have been swapped.""",
+        },
         "schema": {
             "fields": [
                 "central_index_key",
@@ -216,12 +239,14 @@ the old and new company names have been swapped."""
         "field_namespace": "sec",
     },
     "out_sec10k__changelog_company_name": {
-        "description": """Denormalized table for company name changes from SEC 10-K filings.
-
+        "description": {
+            "additional_summary_text": "the names each SEC 10-K filer has used.",
+            "additional_details_text": """
 We use the company name reported in association each name change block in the company
 information table to fill in the most recent value of ``company_name_new``. Roughly
 1000 reported "name changes" in which the old and new names were identical have been
 dropped.""",
+        },
         "schema": {
             "fields": [
                 "central_index_key",
@@ -235,15 +260,16 @@ dropped.""",
         "field_namespace": "sec",
     },
     "out_sec10k__quarterly_company_information": {
-        "description": (
-            """Denormalized company and filing data extracted from SEC 10-K filings.
-
-In addition to the information provided by the
-``core_sec10k__quarterly_company_information`` table, this output table merges in the
-associated ``utility_id_eia`` (and utility name) if it is available, as well as the
-report and filing dates associated with the filing each record was extracted from, as
-well as providing a link to the source URL for the filing."""
-        ),
+        "description": {
+            "additional_summary_text": "company and filing data extracted from SEC 10-K filings.",
+            "additional_details_text": (
+                "In addition to the information provided by the "
+                ":ref:``core_sec10k__quarterly_company_information`` table, this output table merges in the "
+                "associated ``utility_id_eia`` (and utility name) if it is available, as well as the "
+                "report and filing dates associated with the filing each record was extracted from, as "
+                "well as providing a link to the source URL for the filing."
+            ),
+        },
         "schema": {
             "fields": [
                 "filename_sec10k",
@@ -287,19 +313,30 @@ well as providing a link to the source URL for the filing."""
         "field_namespace": "sec",
     },
     "out_sec10k__parents_and_subsidiaries": {
-        "description": (
-            """A denormalized table containing information about parent companies that
-file SEC Form 10-K and their subsidiaries, which may or may not file Form 10-K.
-
-Company ownership fractions are extracted from SEC 10-K Exhibit 21. Information about
+        "description": {
+            "additional_summary_text": (
+                "A denormalized table containing information about parent companies that "
+                "file SEC Form 10-K and their subsidiaries, which may or may not file Form 10-K."
+            ),
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": (
+                        "This data has been extracted probabilistically "
+                        "using a machine learning model and contains some incompletions and errors. It should not be "
+                        "treated as ground truth data."
+                    ),
+                }
+            ],
+            "additional_details_text": """Company ownership fractions are extracted from SEC 10-K Exhibit 21. Information about
 the companies is extracted primarily from the headers of the SEC 10-K filing.
 Subsidiaries that file Form 10-K will have much more information available than those
 that only appear as subsidiaries in Exhibit 21.
 
 SEC 10-K filers and EIA utilities are matched using probabilistic record linkage.
 Exhibit 21 subsidiaries that don't file a Form 10-K are matched to EIA utilities using
-the company name."""
-        ),
+the company name.""",
+        },
         "schema": {
             "fields": [
                 "filename_sec10k",
