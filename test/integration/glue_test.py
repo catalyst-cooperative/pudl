@@ -195,7 +195,7 @@ def test_for_fk_validation_and_unmapped_ids(
         id_cols,
     )
 
-    if label_df:
+    if label_df is not None:
         missing_df = label_missing_ids_for_manual_mapping(
             missing, glue_test_dfs[label_df]
         )
