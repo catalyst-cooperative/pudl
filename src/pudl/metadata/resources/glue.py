@@ -45,9 +45,11 @@ for aggregation. plant_id refers to a legal entity that often contains multiple 
 power plants, even of different technology or fuel types.
 
 EPA CEMS data combines information from several parts of a power plant:
+
 * emissions from smokestacks
 * fuel use from combustors
 * electricity production from generators
+
 But smokestacks, combustors, and generators can be connected in complex, many-to-many
 relationships. This complexity makes attribution difficult for, as an example,
 allocating pollution to energy producers. Furthermore, heterogeneity within plant_ids

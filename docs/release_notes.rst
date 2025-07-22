@@ -32,13 +32,17 @@ Bug Fixes
 
 Documentation
 ^^^^^^^^^^^^^
-* Migrated table description metadata into new format for EIA 923. See :issue:`4400`
-  and :pr:`4422`. This includes renaming two of the preliminarily published ``_core``
-  tables to better conform with our table naming conventions.
-  Table ``_core_eia923__cooling_system_information`` is now
-  :ref:`i_core_eia923__monthly_cooling_system_information` and
-  ``_core_eia923__fgd_operation_maintenance`` is now
-  :ref:`i_core_eia923__yearly_fgd_operation_maintenance`.
+
+* Added data source pages for:
+
+  * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
+  * :doc:`data_sources/eia923`; see :issue:`4400` and :pr:`4422`. This included
+    renaming two of the preliminarily published ``_core`` tables to better conform
+    with our table naming conventions. Table
+    ``_core_eia923__cooling_system_information`` is now
+    :ref:`i_core_eia923__monthly_cooling_system_information` and
+    ``_core_eia923__fgd_operation_maintenance`` is now
+    :ref:`i_core_eia923__yearly_fgd_operation_maintenance`.
 
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -55,8 +59,8 @@ tables include :ref:`out_eia930__hourly_operations`,
 :ref:`out_eia930__hourly_subregion_demand`, and
 :ref:`out_ferc714__hourly_planning_area_demand`. See PR :pr:`4334`.
 
-Check for entirely null columns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Check for entirely null column-years
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously we had a data validation check that ensured there were no entirely null
 columns applied to a handful of tables. Such columns were typically the result of typos
@@ -75,6 +79,9 @@ changes to the database schema:
 * Three previously entirely null ``boolean`` columns in the multifuel generator table
   now contain real values, they are: ``can_fuel_switch``, ``has_regulatory_limits``,
   and ``can_cofire_oil_and_gas``.
+
+Unusual patterns of null values were identified and investigated in issue :issue:`4407`
+with some additional explanations added in PR :pr:`4442`.
 
 .. _release-v2025.7.0:
 
