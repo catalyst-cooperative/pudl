@@ -7,13 +7,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": {
             "additional_summary_text": (
                 "capacity factors defining the capacity available from an "
-                "aggregated group of generators, stated as a fraction of the aggregate "
-                "nameplate capacity of the group."
+                "aggregated group of generators."
             ),
             "additional_details_text": (
                 "This table contains a mix of profiles representing whole regions and "
                 "individual plants, where the individual plants are hybrid wind or solar "
-                "plus electricity storage facilities. For the hybrid facilities the "
+                "plus electricity storage facilities. Capacity factors are stated as a fraction of the aggregate "
+                "nameplate capacity of the group.\n\nFor the hybrid facilities, the "
                 "capacity factor represents the available output of only the renewable "
                 "generators. Estimates of the generation profiles have been extended "
                 "across a longer range of dates than the original data. For wind, the "
