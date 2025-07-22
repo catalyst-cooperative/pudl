@@ -80,7 +80,7 @@ Naming convention: ``core_{source}__{asset_type}_{asset_name}``
       and generators.
   * ``changelog``: Changelog tables make it simpler to track changes in an entity's
     values over time by deduplicating repeated data. They preserve the first reported
-    instance when any of the tracked variables changed, dropping rows where data stays
+    instance when any of the tracked variables changed, ignoring rows where data stays
     the same over time. Examples:
 
     * ``core_eia860m__changelog_generators`` preserves the first

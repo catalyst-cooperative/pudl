@@ -51,7 +51,7 @@ source_descriptions: dict = {
 TableTypeFragments = namedtuple("TableTypeFragments", "subject conjunction")
 table_type_fragments: dict[str, TableTypeFragments] = {
     "assn": TableTypeFragments("Association table", "providing connections between"),
-    "changelog": TableTypeFragments("Changelog table", "tracking changes for"),
+    "changelog": TableTypeFragments("Changelog table", "tracking changes in"),
     "codes": TableTypeFragments(
         "Code table containing descriptions of categorical codes", "for"
     ),
