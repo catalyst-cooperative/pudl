@@ -255,11 +255,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_eia860__scd_ownership": {
         "description": {
-            "additional_summary_text": "generator ownership.",
+            "additional_summary_text": "generator ownership. Includes only jointly or third-party owned generators.",
             "additional_source_text": "(Schedule 4)",
-            "additional_details_text": (
-                "Includes only jointly or third-party owned generators."
-            ),
         },
         "schema": {
             "fields": [
@@ -290,14 +287,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "out_eia860__yearly_ownership": {
         "description": {
-            "additional_summary_text": "generator ownership.",
+            "additional_summary_text": "generator ownership. Includes only jointly or third-party owned generators.",
             "additional_source_text": "(Schedule 4)",
-            "usage_warnings": [
-                {
-                    "type": "custom",
-                    "description": "Includes only jointly or third-party owned generators.",
-                },
-            ],
             "additional_details_text": "Denormalized to include plant and utility names and other associated IDs.",
         },
         "schema": {
@@ -677,6 +668,16 @@ columns.""",
         "description": {
             "additional_summary_text": "Information about cooling equipment at generation facilities.",
             "additional_source_text": "(Schedule 6D)",
+            "usage_warnings": [
+                {
+                    "type": "unharvested",
+                    "description": (
+                        "This table has not been harvested with other "
+                        "EIA 923 or 860 data. The same variables present in this table "
+                        "may show up in other _core tables in other years."
+                    ),
+                },
+            ],
         },
         "schema": {
             "fields": [
@@ -738,6 +739,16 @@ columns.""",
         "description": {
             "additional_summary_text": "Information about flue gas desulfurization equipment at generation facilities.",
             "additional_source_text": "(Schedule 6E)",
+            "usage_warnings": [
+                {
+                    "type": "unharvested",
+                    "description": (
+                        "This table has not been harvested with other "
+                        "EIA 923 or 860 data. The same variables present in this table "
+                        "may show up in other _core tables in other years."
+                    ),
+                },
+            ],
         },
         "schema": {
             "fields": [
@@ -879,7 +890,7 @@ columns.""",
     },
     "core_eia860__scd_generators_energy_storage": {
         "description": {
-            "additional_summary_text": "energy storage which may change from year to year.",
+            "additional_summary_text": "energy storage which may vary from year to year.",
             "additional_source_text": "(Schedule 3)",
             "additional_details_text": (
                 "This table includes only those values that are unique to energy storage. "
