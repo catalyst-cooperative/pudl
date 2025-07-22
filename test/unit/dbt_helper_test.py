@@ -210,6 +210,7 @@ ROW_COUNT_TEST_CASES = [
             "clobber": True,
             "update": False,
             "has_test": True,
+            "should_write": True,
         },
         expect={
             "expected_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
@@ -228,6 +229,7 @@ ROW_COUNT_TEST_CASES = [
             "clobber": False,
             "update": False,
             "has_test": True,
+            "should_write": False,
         },
         expect={
             "expected_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
@@ -246,6 +248,7 @@ ROW_COUNT_TEST_CASES = [
             "clobber": False,
             "update": False,
             "has_test": False,
+            "should_write": False,
         },
         expect={
             "expected_csv": "table_name,partition,row_count\nfoo,2020,100\n",
@@ -301,17 +304,8 @@ def test_update_row_counts(case, schema_factory, mocker):
     # Assert the expected result object
     assert result == expect["result"]
 
-    # Determine whether something should be written
-    has_test = given["has_test"]
-    table_in_existing = given["table_name"] in existing_df["table_name"].to_numpy()
-    allow_update = given["clobber"] or given["update"]
-
-    should_write = (has_test and (not table_in_existing or allow_update)) or (
-        not has_test and table_in_existing and allow_update
-    )
-
     # If we expect a write, assert what would be written
-    if should_write:
+    if given["should_write"]:
         expected_df = pd.read_csv(StringIO(expect["expected_csv"]))
         mock_write.assert_called_once()
         pd.testing.assert_frame_equal(
