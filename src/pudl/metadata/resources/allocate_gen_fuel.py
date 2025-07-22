@@ -4,9 +4,12 @@ from typing import Any
 
 AGG_FREQS = ["yearly", "monthly"]
 
+USAGE_WARNING_DRAWBACK = {
+    "type": "custom",
+    "description": "This downscaling process used to create this table does not distinguish between primary and secondary energy_sources for generators (see below for implications).",
+}
 KNOWN_DRAWBACKS_DESCRIPTION = (
-    "This process does not "
-    "distinguish between primary and secondary energy_sources for generators. "
+    "This process does not distinguish between primary and secondary energy_sources for generators. "
     "Net generation is allocated equally between energy source codes, so if a "
     "plant has multiple generators with the same prime_mover_code but different "
     "energy source codes the core_eia923__monthly_generation_fuel records will be associated "
@@ -18,10 +21,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
     {
         f"out_eia923__{freq}_generation_fuel_by_generator_energy_source": {
             "description": {
-                "additional_summary_text": "of Downscaled Net Generation and Fuel Consumption.",
+                "additional_summary_text": "of estimated net generation and fuel consumption associated with each combination of generator, energy source, and prime mover.",
                 "additional_source_text": "(Schedule 3)",
                 "usage_warnings": [
                     "estimated_values",
+                    USAGE_WARNING_DRAWBACK,
                     "month_as_date",
                     {
                         "type": "custom",
@@ -29,12 +33,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     },
                 ],
                 "additional_details_text": (
-                    f"{freq.title()} estimated net generation and fuel consumption "
-                    "associated with each combination of generator, energy source, and "
-                    "prime mover. First, the net electricity generation and fuel consumption "
+                    f"First, the net electricity generation and fuel consumption "
                     "reported in the EIA-923 generation fuel are allocated to individual "
                     "generators. Then, these allocations are aggregated to unique generator, "
-                    f"prime mover, and energy source code combinations. "
+                    f"prime mover, and energy source code combinations.\n\n"
                     f"{KNOWN_DRAWBACKS_DESCRIPTION}"
                 ),
             },
@@ -67,10 +69,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
     | {
         f"out_eia923__{freq}_generation_fuel_by_generator": {
             "description": {
-                "additional_summary_text": "of Downscaled Net Generation and Fuel Consumption by Generator.",
+                "additional_summary_text": "of estimated net generation and fuel consumption by generator.",
                 "additional_source_text": "(Schedule 3)",
                 "usage_warnings": [
                     "estimated_values",
+                    USAGE_WARNING_DRAWBACK,
                     "month_as_date",
                     {
                         "type": "custom",
@@ -78,9 +81,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     },
                 ],
                 "additional_details_text": (
-                    f"{freq.title()} estimated net generation and fuel consumption by generator. "
                     "Based on allocating net electricity generation and fuel consumption reported "
-                    "in the EIA-923 generation and generation_fuel tables to individual generators."
+                    "in the EIA-923 generation and generation_fuel tables to individual generators.\n\n"
+                    f"{KNOWN_DRAWBACKS_DESCRIPTION}"
                 ),
             },
             "schema": {
@@ -113,18 +116,23 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
     | {
         "out_eia923__yearly_generation_fuel_by_generator_energy_source_owner": {
             "description": {
-                "additional_summary_text": "of Downscaled Net Generation and Fuel Consumption by Owner.",
+                "additional_summary_text": (
+                    "of estimated net generation and fuel consumption for each generator, "
+                    "associated with each combination of generator, energy source, prime mover, and owner."
+                ),
                 "additional_source_text": "(Schedule 3)",
-                "usage_warnings": ["estimated_values", "month_as_date"],
+                "usage_warnings": [
+                    "estimated_values",
+                    USAGE_WARNING_DRAWBACK,
+                    "month_as_date",
+                ],
                 "additional_details_text": (
-                    "Yearly estimated net generation and fuel consumption for each generator, "
-                    "associated with each combination of generator, energy source, prime mover, "
-                    "and owner. First, the net electricity generation and fuel consumption "
+                    "First, the net electricity generation and fuel consumption "
                     "reported in the EIA-923 generation fuel are allocated to individual "
                     "generators. Then, these allocations are aggregated to unique generator, "
                     "prime mover, energy source code, and owner combinations. Note that the "
                     "utility_id_eia in this table refers to the OWNER of the generator, not the "
-                    f"operator. {KNOWN_DRAWBACKS_DESCRIPTION}"
+                    f"operator.\n\n{KNOWN_DRAWBACKS_DESCRIPTION}"
                 ),
             },
             "schema": {

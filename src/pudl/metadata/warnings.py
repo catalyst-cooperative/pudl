@@ -7,6 +7,7 @@ USAGE_WARNINGS = {
     "estimated_values": "Contains estimated values.",  # TODO: what do we mean here
     "incomplete_id_coverage": "Not all IDs are present.",  # TODO: do we want to set a coverage threshold and only apply this when we don't meet it?
     "incomplete_value_coverage": "?",  # TODO: do we mean high rates of missingness? do we want to set a threshold?
+    "low_coverage": "Table has known low coverage - either geographic or temporal or otherwise.",
     "redacted_values": "Some values have been redacted.",  # eg 88888
     "mixed_aggregations": "Some entries contain aggregates that do not match the table type.",  # eg 99999
     "month_as_date": "Date column arbitrarily uses the first of the month.",
