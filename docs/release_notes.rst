@@ -33,6 +33,10 @@ Bug Fixes
 Documentation
 ^^^^^^^^^^^^^
 
+* Migrated table description metadata into new format for:
+
+  * EPA: see issue :issue:`4395` and PR :pr:`4398`.
+
 * Added data source pages for:
 
   * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
