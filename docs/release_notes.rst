@@ -17,12 +17,29 @@ Expanded Data Coverage
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* the output of ``dbt_helper update-tables`` now conforms to the format that
+  our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
+  :issue:`4119` and :pr:`4401`.
+
+* Stopped running code checks in CI when only the documentation has changed.
+  See issue :issue:`4410` and PR :pr:`4429`.
 
 Bug Fixes
 ^^^^^^^^^
 
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
   :issue:`4328` and PR :pr:`4392`.
+
+Documentation
+^^^^^^^^^^^^^
+
+* Migrated table description metadata into new format for:
+
+  * EPA: see issue :issue:`4395` and PR :pr:`4398`.
+
+* Added data source pages for:
+
+  * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
 
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -39,8 +56,8 @@ tables include :ref:`out_eia930__hourly_operations`,
 :ref:`out_eia930__hourly_subregion_demand`, and
 :ref:`out_ferc714__hourly_planning_area_demand`. See PR :pr:`4334`.
 
-Check for entirely null columns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Check for entirely null column-years
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously we had a data validation check that ensured there were no entirely null
 columns applied to a handful of tables. Such columns were typically the result of typos
@@ -59,6 +76,9 @@ changes to the database schema:
 * Three previously entirely null ``boolean`` columns in the multifuel generator table
   now contain real values, they are: ``can_fuel_switch``, ``has_regulatory_limits``,
   and ``can_cofire_oil_and_gas``.
+
+Unusual patterns of null values were identified and investigated in issue :issue:`4407`
+with some additional explanations added in PR :pr:`4442`.
 
 .. _release-v2025.7.0:
 
