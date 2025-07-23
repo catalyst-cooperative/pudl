@@ -426,20 +426,29 @@ def test__calculate_row_counts_(case, mocker):
         "pudl.scripts.dbt_helper._get_local_table_path",
         return_value=case.given["mocked_path"],
     )
-    mocker.patch(
-        "pudl.scripts.dbt_helper.duckdb.sql"
-    ).return_value.df.return_value = case.given["mocked_duckdb_df"]
+
+    mock_sql = mocker.patch("pudl.scripts.dbt_helper.duckdb.sql")
+    mock_sql.return_value.df.return_value = case.given["mocked_duckdb_df"]
 
     # When
     result = _calculate_row_counts(
         case.given["table_name"], case.given["partition_column"]
     )
 
-    # Then
+    # Then: Verify output
     pd.testing.assert_frame_equal(
         result.sort_values("partition").reset_index(drop=True),
         case.expect["expected_df"].sort_values("partition").reset_index(drop=True),
     )
+
+    # Then: Verify SQL input
+    mock_sql.assert_called_once()
+    sql_arg = mock_sql.call_args[0][0]
+    assert case.given["partition_column"] in sql_arg, (
+        f"The partition column '{case.given['partition_column']}' "
+        f"was not used in the SQL: {sql_arg}"
+    )
+    assert "COUNT(*)" in sql_arg.upper(), f"SQL is missing a row count: {sql_arg}"
 
 
 GENERATE_QUANTILE_BOUNDS = [
