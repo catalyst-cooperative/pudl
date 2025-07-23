@@ -375,18 +375,17 @@ time pricing, variable peak pricing, critical peak pricing, and critical peak re
         "etl_group": "eia861",
     },
     "core_eia861__yearly_energy_efficiency": {
-        "description": (
-            """Incremental energy savings, peak demand savings, weighted average life
+        "description": {
+            "additional_summary_text": """incremental energy savings, peak demand savings, weighted average life
 cycle, and associated costs for the reporting year and life cycle of energy efficiency
-programs.
-
-The EIA861 demand-side management (DSM) table (split into three normalized tables in
+programs.""",
+            "additional_details_text": """The EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
