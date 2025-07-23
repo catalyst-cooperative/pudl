@@ -327,7 +327,9 @@ and convert capacity reported in DC units to AC units.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_distribution_systems": {
-        "description": "The number of distribution circuits and circuits with voltage optimization by state.",
+        "description": {
+            "additional_summary_text": "distribution circuits and circuits with voltage optimization by state."
+        },
         "schema": {
             "fields": [
                 "circuits_with_voltage_optimization",
