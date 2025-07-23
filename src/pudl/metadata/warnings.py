@@ -19,5 +19,9 @@ USAGE_WARNINGS = {
     "scale_hazard": "Extremely large table; do not attempt to open with Excel.",  # TODO: set a threshold
     "outliers": "Outliers present.",
     "missing_years": "Some years are missing from the data record.",
-    "ferc_is_hard": "FERC data is notoriously difficult to extract cleanly; see TODO for details.",
+    "ferc_is_hard": (
+        "FERC data is notoriously difficult to extract cleanly; see "
+        "`Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ "
+        "for details."
+    ),
 }
