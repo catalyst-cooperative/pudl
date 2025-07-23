@@ -277,17 +277,13 @@ and convert capacity reported in DC units to AC units.""",
     },
     "core_eia861__yearly_distributed_generation_misc": {
         # TODO: might want to rename this table to be _capacity
-        "description": (
-            """Information on the capacity of utility or customer-owned distributed
-generation. Includes the number of generators, whether the capacity is estimated or
-actual, the amount of backup capacity, and how much capacity is from generators with
-less than 1 MW of nameplate capacity.
-
-The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "the capacity and quantity of utility or customer-owned distributed generation",
+            "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
 PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
 the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units."""
-        ),
+and convert capacity reported in DC units to AC units.""",
+        },
         "schema": {
             "fields": [
                 "backup_capacity_mw",
