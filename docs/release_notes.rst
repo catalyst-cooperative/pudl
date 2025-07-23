@@ -54,8 +54,8 @@ tables include :ref:`out_eia930__hourly_operations`,
 :ref:`out_eia930__hourly_subregion_demand`, and
 :ref:`out_ferc714__hourly_planning_area_demand`. See PR :pr:`4334`.
 
-Check for entirely null columns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Check for entirely null column-years
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously we had a data validation check that ensured there were no entirely null
 columns applied to a handful of tables. Such columns were typically the result of typos
@@ -74,6 +74,9 @@ changes to the database schema:
 * Three previously entirely null ``boolean`` columns in the multifuel generator table
   now contain real values, they are: ``can_fuel_switch``, ``has_regulatory_limits``,
   and ``can_cofire_oil_and_gas``.
+
+Unusual patterns of null values were identified and investigated in issue :issue:`4407`
+with some additional explanations added in PR :pr:`4442`.
 
 .. _release-v2025.7.0:
 
