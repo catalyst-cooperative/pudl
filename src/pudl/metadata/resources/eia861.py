@@ -462,11 +462,13 @@ representative from EIA.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_net_metering_customer_fuel_class": {
-        "description": (
-            """The amount of energy sold to back to the grid. From 2007 - 2009 the data
+        "description": {
+            "additional_summary_text": "net metering by customer and fuel class.",
+            "usage_warnings": ["irregular_years"],
+            "additional_details_text": """The amount of energy sold to back to the grid. From 2007 - 2009 the data
 are reported as a lump sum of total energy dispatched by sector. After 2009, the data
-are broken down by sector and technology type."""
-        ),
+are broken down by sector and technology type.""",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
