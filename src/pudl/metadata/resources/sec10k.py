@@ -29,8 +29,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "An Exhibit 21 subsidiary is considered matched "
                 "to an EIA utility if their names are identical. Only subsidiaries that "
                 "don't file SEC 10-K themselves are included in this table. SEC 10-K filers "
-                "have much more information available and can be matched using "
-                "probabilistic record linkage."
+                "have much more information available and are matched to EIA utilities using "
+                "probabilistic record linkage in :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`."
             ),
         },
         "schema": {
@@ -44,6 +44,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_sec10k__assn_sec10k_filers_and_eia_utilities": {
         "description": {
             "additional_summary_text": "SEC 10-K filers and EIA utilities.",
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": (
+                        "This data has been matched probabilistically "
+                        "using a machine learning model and contains some incompletions and errors. It should not be "
+                        "treated as ground truth data."
+                    ),
+                }
+            ],
             "additional_details_text": """SEC central index keys are matched to EIA
 utility IDs using probabilistic record linkage based on associated company information
 like company name, business and mailing addresses, and state of incorporation.
@@ -214,7 +224,7 @@ as inputs into the probabilistic record linkage process.""",
             "additional_summary_text": "the names each SEC 10-K filer has used.",
             "additional_details_text": """
 This table is extracted from the same SEC 10-K filing header information as
-:ref:``core_sec10k__quarterly_company_information``. Each filing reports the full history of
+:ref:`core_sec10k__quarterly_company_information`. Each filing reports the full history of
 name change associated with a company up to the date of that filing. Because individual
 companies may appear in multiple filings in the same year, and the same historical name
 changes will be reported in multiple years, the raw input data contains many duplicate
@@ -244,7 +254,7 @@ the old and new company names have been swapped.""",
             "additional_details_text": """
 We use the company name reported in association each name change block in the company
 information table to fill in the most recent value of ``company_name_new``. Roughly
-1000 reported "name changes" in which the old and new names were identical have been
+1,000 reported "name changes" in which the old and new names were identical have been
 dropped.""",
         },
         "schema": {
@@ -264,7 +274,7 @@ dropped.""",
             "additional_summary_text": "company and filing data extracted from SEC 10-K filings.",
             "additional_details_text": (
                 "In addition to the information provided by the "
-                ":ref:``core_sec10k__quarterly_company_information`` table, this output table merges in the "
+                ":ref:`core_sec10k__quarterly_company_information` table, this output table merges in the "
                 "associated ``utility_id_eia`` (and utility name) if it is available, as well as the "
                 "report and filing dates associated with the filing each record was extracted from, as "
                 "well as providing a link to the source URL for the filing."
