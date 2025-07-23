@@ -347,7 +347,11 @@ and convert capacity reported in DC units to AC units.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_dynamic_pricing": {
-        "description": "The number of customers enrolled in dynamic pricing programs by state, sector, and balancing authority. Respondents check if one or more customers are enrolled in time-of-use pricing, real time pricing, variable peak pricing, critical peak pricing, and critical peak rebates.",
+        "description": {
+            "additional_summary_text": " enrollment in dynamic pricing programs by state, sector, and balancing authority.",
+            "additional_details_text": """Respondents check if one or more customers are enrolled in time-of-use pricing, real
+time pricing, variable peak pricing, critical peak pricing, and critical peak rebates.""",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
