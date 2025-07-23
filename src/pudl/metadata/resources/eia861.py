@@ -228,16 +228,15 @@ representative from EIA.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_demand_side_management_sales": {
-        "description": (
-            """Electricity sales for resale and to ultimate customer.
-
-The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "electricity sales related to demand-side management (DSM).",
+            "additional_details_text": """The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
 information collected before and after 2012 are not comparable enough to combine into a
 singular, continuous table. We were discouraged from doing so after contacting a
-representative from EIA."""
-        ),
+representative from EIA.""",
+        },
         "schema": {
             "fields": [
                 "nerc_region",
@@ -254,15 +253,13 @@ representative from EIA."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_distributed_generation_fuel": {
-        "description": (
-            """Information on the energy sources used for utility or customer-owned
-distributed generation capacity.
-
-The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "the energy sources used for utility or customer-owned distributed generation capacity.",
+            "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
 PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
 the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units."""
-        ),
+and convert capacity reported in DC units to AC units.""",
+        },
         "schema": {
             "fields": [
                 "estimated_or_actual_fuel_data",
