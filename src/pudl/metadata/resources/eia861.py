@@ -436,7 +436,9 @@ representative from EIA.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_mergers": {
-        "description": "Information about utility mergers and acquisitions.",
+        "description": {
+            "additional_summary_text": "utility mergers and acquisitions.",
+        },
         "schema": {
             "fields": [
                 "entity_type",
