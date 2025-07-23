@@ -304,15 +304,13 @@ and convert capacity reported in DC units to AC units.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_distributed_generation_tech": {
-        "description": (
-            """Information on the technology used for utility or customer-owned
-distributed generation.
-
-The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "the technology used for utility or customer-owned distributed generation.",
+            "additional_details_text": """ The raw EIA861 distributed generation (DG) table (split into three normalized tables in
 PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
 the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units."""
-        ),
+and convert capacity reported in DC units to AC units.""",
+        },
         "schema": {
             "fields": [
                 "capacity_mw",
