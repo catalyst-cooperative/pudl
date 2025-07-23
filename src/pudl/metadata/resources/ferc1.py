@@ -423,7 +423,9 @@ any cleaning mechanisms in place to account for this."""
         "field_namespace": "ferc1",
     },
     "core_pudl__assn_ferc1_pudl_plants": {
-        "description": "FERC 1 Plants and their associated manually assigned PUDL Plant IDs",
+        "description": {
+            "additional_summary_text": "FERC 1 plants and their manually assigned PUDL plant IDs.",
+        },
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
             "primary_key": ["utility_id_ferc1", "plant_name_ferc1"],
@@ -731,7 +733,9 @@ columns.""",
         "field_namespace": "ferc1",
     },
     "core_pudl__assn_ferc1_dbf_pudl_utilities": {
-        "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 DBF inputs - originally reported as respondent_id.",
+        "description": {
+            "additional_summary_text": "PUDL FERC1 utility IDs and the native FERC1 DBF utility IDs originally reported as ``respondent_id``.",
+        },
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_dbf"],
             "primary_key": ["utility_id_ferc1_dbf"],
@@ -741,7 +745,9 @@ columns.""",
         "field_namespace": "ferc1",
     },
     "core_pudl__assn_ferc1_xbrl_pudl_utilities": {
-        "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 XBRL inputs - originally reported as entity_id.",
+        "description": {
+            "additional_summary_text": "PUDL FERC1 utility IDs and the native FERC1 XBRL utility IDs originally reported as ``entity_id``.",
+        },
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_xbrl"],
             "primary_key": ["utility_id_ferc1_xbrl"],

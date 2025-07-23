@@ -193,10 +193,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["pudl", "ferc714"],
     },
     "core_pudl__assn_ferc714_csv_pudl_respondents": {
-        "description": (
-            "This table maps the PUDL-assigned respondent ID FERC714 to the native "
-            "respondent ID from the FERC714 CSV inputs - originally reported as respondent_id."
-        ),
+        "description": {
+            "additional_summary_text": "PUDL FERC714 respondent IDs and native FERC714 CSV respondent IDs originally reported as ``respondent_id``.",
+        },
         "schema": {
             "fields": ["respondent_id_ferc714", "respondent_id_ferc714_csv"],
             "primary_key": ["respondent_id_ferc714", "respondent_id_ferc714_csv"],
@@ -206,10 +205,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["pudl", "ferc714"],
     },
     "core_pudl__assn_ferc714_xbrl_pudl_respondents": {
-        "description": (
-            "This table maps the PUDL-assigned respondent ID FERC714 to the native "
-            "respondent ID from the FERC714 XBRL inputs - originally reported as entity_id."
-        ),
+        "description": {
+            "additional_summary_text": "PUDL FERC714 respondent IDs and native FERC714 XBRL respondent IDs originally reported as ``entity_id``.",
+        },
         "schema": {
             "fields": ["respondent_id_ferc714", "respondent_id_ferc714_xbrl"],
             "primary_key": ["respondent_id_ferc714", "respondent_id_ferc714_xbrl"],
