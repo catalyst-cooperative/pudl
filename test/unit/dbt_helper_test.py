@@ -20,7 +20,6 @@ from pudl.scripts.dbt_helper import (
     _get_model_path,
     _get_row_count_csv_path,
     _schema_diff_summary,
-    _write_row_counts,
     get_data_source,
     get_row_count_test_dict,
     schema_has_removals_or_modifications,
@@ -139,26 +138,6 @@ my_table,2023,100
 
     # Explicitly assert string type
     assert result["partition"].apply(type).eq(str).all()
-
-
-def test__write_row_counts(mocker):
-    df = pd.DataFrame(
-        {
-            "table_name": ["my_table"],
-            "partition": ["2023"],
-            "row_count": [123],
-        }
-    )
-
-    mock_csv_path = mocker.patch(
-        "pudl.scripts.dbt_helper._get_row_count_csv_path", return_value="/fake/path.csv"
-    )
-    mock_to_csv = mocker.patch("pandas.DataFrame.to_csv")
-
-    _write_row_counts(df)
-
-    mock_csv_path.assert_called_once()
-    mock_to_csv.assert_called_once_with("/fake/path.csv", index=False)
 
 
 def test_get_row_count_test_dict():
