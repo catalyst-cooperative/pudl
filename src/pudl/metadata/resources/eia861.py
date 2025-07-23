@@ -412,7 +412,10 @@ representative from EIA.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_green_pricing": {
-        "description": "Green pricing program revenue, sales, and customer count by sector and state.",
+        "description": {
+            "additional_summary_text": "green pricing program revenue, sales, and customer count by sector and state.",
+            "usage_warnings": ["discontinued_data"],
+        },
         "schema": {
             "fields": [
                 "customer_class",
