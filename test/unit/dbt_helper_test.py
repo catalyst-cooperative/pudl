@@ -105,7 +105,28 @@ def test__get_row_count_csv_path():
 
 
 def test__get_existing_row_counts(mocker):
-    mock_df = pd.DataFrame(
+    # Simulate a CSV file in memory
+    csv_data = """table_name,partition,row_count
+my_table,2023,100
+"""
+    string_io = StringIO(csv_data)
+
+    # Save reference to the real pandas.read_csv
+    real_read_csv = pd.read_csv
+
+    # Patch pd.read_csv in the module under test
+    mocker.patch(
+        "pudl.scripts.dbt_helper.pd.read_csv",
+        side_effect=lambda path, *args, **kwargs: real_read_csv(
+            string_io, *args, **kwargs
+        ),
+    )
+
+    # Call the function
+    result = _get_existing_row_counts()
+
+    # Expected output
+    expected = pd.DataFrame(
         {
             "table_name": ["my_table"],
             "partition": ["2023"],
@@ -113,14 +134,11 @@ def test__get_existing_row_counts(mocker):
         }
     )
 
-    mock_read_csv = mocker.patch(
-        "pudl.scripts.dbt_helper.pd.read_csv", return_value=mock_df
-    )
+    # Check values and types
+    pd.testing.assert_frame_equal(result, expected)
 
-    result = _get_existing_row_counts()
-
-    pd.testing.assert_frame_equal(result, mock_df)
-    mock_read_csv.assert_called_once()
+    # Explicitly assert string type
+    assert result["partition"].apply(type).eq(str).all()
 
 
 def test__write_row_counts(mocker):
