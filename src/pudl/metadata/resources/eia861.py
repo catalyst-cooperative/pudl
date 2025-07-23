@@ -492,7 +492,9 @@ are broken down by sector and technology type.""",
     },
     "core_eia861__yearly_net_metering_misc": {
         # TODO: I feel skeptical that the pv_current_flow_type field shouldn't be linked to the other net metering table.
-        "description": "The PV current flow type for net metered capacity.",
+        "description": {
+            "additional_summary_text": "PV current flow type for net metered capacity.",
+        },
         "schema": {
             "fields": [
                 "balancing_authority_code_eia",
