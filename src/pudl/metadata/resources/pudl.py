@@ -102,8 +102,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["pudl"],
     },
     "out_ferc714__hourly_estimated_state_demand": {
-        "title": "Estimated Hourly State Electricity Demand",
-        "description": "Estimated hourly electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861.",
+        "description": {
+            "additional_summary_text": (
+                "estimated hourly electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861."
+            )
+        },
         "schema": {
             "fields": [
                 "state_id_fips",
