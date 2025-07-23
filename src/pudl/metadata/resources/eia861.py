@@ -536,16 +536,13 @@ and convert capacity reported in DC units to AC units.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_non_net_metering_misc": {
-        "description": (
-            """Information on the capacity of utility or customer-owned distributed
-generation. Includes the number of generators, pv current flow type, backup capacity
-and utility owned capacity.
-
-The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+        "description": {
+            "additional_summary_text": "non-net metered distributed generation generators, pv current flow type, backup capacity and utility owned capacity.",
+            "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
 PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
 the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units."""
-        ),
+and convert capacity reported in DC units to AC units.""",
+        },
         "schema": {
             "fields": [
                 "backup_capacity_mw",
