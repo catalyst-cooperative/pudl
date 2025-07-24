@@ -208,7 +208,7 @@ class ZenodoDoiSettings(BaseSettings):
     ferc714: ZenodoDoi = "10.5281/zenodo.13149091"
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
-    phmsagas: ZenodoDoi = "10.5281/zenodo.10493790"
+    phmsagas: ZenodoDoi = "10.5281/zenodo.16317542"
     sec10k: ZenodoDoi = "10.5281/zenodo.15161694"
     vcerare: ZenodoDoi = "10.5281/zenodo.15166129"
 

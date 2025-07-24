@@ -841,7 +841,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # 1970 - 1989 are all in one CSV in multiple tabs with multi-column headers
             # and will need to be more extensively processed, not currently integrated.
-            "years": sorted(set(range(1990, 2024))),
+            "years": sorted(set(range(1990, 2025))),
         },
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],

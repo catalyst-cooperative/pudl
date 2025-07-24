@@ -93,7 +93,7 @@ datasets:
     # We only use q1 for epacems etl_fast even if later quarters are available.
     year_quarters: ["2023q1"]
   phmsagas:
-    years: [2022]
+    years: [2024]
   nrelatb:
     years: [2024]
   gridpathratoolkit:
