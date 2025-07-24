@@ -230,6 +230,7 @@ representative from EIA.""",
     "core_eia861__yearly_demand_side_management_sales": {
         "description": {
             "additional_summary_text": "electricity sales related to demand-side management (DSM).",
+            "usage_warnings": ["discontinued_data"],
             "additional_details_text": """The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
 DSM table into energy efficiency and demand response tables. Though similar, the
