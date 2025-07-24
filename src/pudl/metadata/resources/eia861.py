@@ -608,13 +608,14 @@ losses."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_operational_data_revenue": {
-        "description": (
-            """A utility's revenue by type of electric operating revenue.
+        "description": {
+            "additional_summary_text": "utility revenue by type of electric operating revenue.",
+            "additional_details_text": """A utility's revenue by type of electric operating revenue.
 Includes electric operating revenue From sales to ultimate customers, revenue from
 unbundled (delivery) customers, revenue from sales for resale, electric credits/other
 adjustments, revenue from transmission, other electric operating revenue, and total
-electric operating revenue."""
-        ),
+electric operating revenue.""",
+        },
         "schema": {
             "fields": [
                 "nerc_region",
