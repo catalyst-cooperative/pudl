@@ -859,7 +859,7 @@ columns."""
             "additional_primary_key_text": (
                 "Each record of this table is supposed to represent one stretch of "
                 "a transmission line, but there are no IDs and many nulls in the fields "
-                "which would nominal distinguish unique transmission lines."
+                "which would nominally distinguish unique transmission lines."
             ),
             "usage_warnings": [
                 {"type": "custom", "description": "hi"},
