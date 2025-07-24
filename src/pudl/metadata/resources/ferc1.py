@@ -118,7 +118,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_source_text": "(Schedule 336 - Section A)",
             "usage_warnings": ["aggregation_hazard"],
             "additional_details_text": (
-                "Electric Plant refers to  FERC Account's 403, 404, 405. This table only "
+                "Electric Plant refers to FERC Accounts 403, 404, and 405. This table only "
                 "contains information from Section A: Summary of depreciation and "
                 "amortization changes."
             ),
