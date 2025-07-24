@@ -177,7 +177,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_ferc1__yearly_energy_dispositions_sched401": {
         "description": {
-            "additional_summary_text": "dispositions electric energy sold, exchanged, or stored.",
+            "additional_summary_text": "dispositions of electric energy sold, exchanged, or stored.",
             "additional_source_text": "(Schedule 401a)",
             "usage_warnings": ["aggregation_hazard"],
             "additional_details_text": (
