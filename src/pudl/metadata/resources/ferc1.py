@@ -469,7 +469,7 @@ any cleaning mechanisms in place to account for this."""
     },
     "core_ferc1__yearly_other_regulatory_liabilities_sched278": {
         "description": {
-            "additional_summary_text": "utility's other regulatory liabilities, including rate order docket number.",
+            "additional_summary_text": "utilities' other regulatory liabilities, including rate order docket number.",
             "additional_source_text": "(Schedule 278)",
             "additional_primary_key_text": "Respondents are able to enter any number of liabilities across many rows. There are no ID's or set fields enforced in the original table.",
             "usage_warnings": [
