@@ -227,7 +227,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_details_text": (
                 "These IDs are used to connect "
                 "older CSV data which uses different respondent IDs than the newer XBRL entity IDs. "
-                "These IDs are manually assigned when new FERC 714 data is is integrated, and any "
+                "These IDs are manually assigned when new FERC 714 data is integrated, and any "
                 "newly found utilities are added to "
                 "the list with a new ID. "
                 "This table is read in from a CSV stored in the PUDL "
