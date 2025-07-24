@@ -425,6 +425,7 @@ any cleaning mechanisms in place to account for this."""
     "core_pudl__assn_ferc1_pudl_plants": {
         "description": {
             "additional_summary_text": "FERC 1 plants and their manually assigned PUDL plant IDs.",
+            "additional_details_text": "FERC does not assign IDs to plants, so each FERC 1 plant is identified by a ``utility_id_ferc1`` and a ``plant_name_ferc1``."
         },
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
@@ -724,7 +725,7 @@ columns.""",
     "core_pudl__assn_ferc1_pudl_utilities": {
         "description": {
             "additional_summary_text": "PUDL utility IDs and PUDL FERC1 utility IDs.",
-            "additional_details_text": "This table maps two manually assigned utility IDs: a PUDL ID and a FERC1 ID. The PUDL IDs are used in EIA. The PUDL FERC1 IDs link records from older DBF respondent IDs and new XBRL entity IDs via :ref:`core_pudl__assn_ferc1_dbf_pudl_utilities` and :ref:`core_pudl__assn_ferc1_xbrl_pudl_utilities` respectively. This table is generated from a table stored in the PUDL repository: src/package_data/glue/utility_id_pudl.csv",
+            "additional_details_text": "This table maps two manually assigned utility IDs: a PUDL ID and a FERC1 ID. The PUDL IDs link EIA and FERC1 utilities. The PUDL FERC1 IDs link records from older DBF respondent IDs and new XBRL entity IDs via :ref:`core_pudl__assn_ferc1_dbf_pudl_utilities` and :ref:`core_pudl__assn_ferc1_xbrl_pudl_utilities` respectively. This table is generated from a table stored in the PUDL repository: src/package_data/glue/utility_id_pudl.csv",
         },
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
