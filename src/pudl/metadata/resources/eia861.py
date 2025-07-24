@@ -670,7 +670,9 @@ the standard (IEEE/other) and other relevant information.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_sales": {
-        "description": "Annual electricity sales to ultimate customers broken down by utility, balancing authority, state, and customer class.",
+        "description": {
+            "additional_summary_text": "electricity sales to ultimate customers by utility, balancing authority, state, and customer class."
+        },
         "schema": {
             "fields": [
                 "utility_id_eia",
