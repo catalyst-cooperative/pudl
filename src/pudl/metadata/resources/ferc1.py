@@ -935,7 +935,7 @@ columns."""
     "core_ferc1__yearly_utility_plant_summary_sched200": {
         "description": {
             "additional_summary_text": (
-                "summary of utility plant and accumulated provisions for depreciation, "
+                "utility plant and accumulated provisions for depreciation, "
                 "amortization and depletion of utility plant assets."
             ),
             "additional_source_text": "(Schedule 200)",
