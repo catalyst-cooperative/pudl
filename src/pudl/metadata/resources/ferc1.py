@@ -18,6 +18,15 @@ PLANT_PRIMARY_KEY_TEXT = (
     "FERC does not publish plant IDs. The main identifying column is ``plant_name_ferc1`` "
     "but that is a free-form string field and there are duplicate records."
 )
+DETAILED_ACCOUNTING_TABLES_WARNING = {
+    "type": "custom",
+    "description": (
+        "The data from these xbrl_factoid tables contains nested totals and subtotals - making "
+        "aggregations difficult. We used FERC 1's reported calculations to determine the "
+        "most granular, non-duplicative records. The reported calculations are not always perfect - "
+        "we've corrected many of them, but errors could still exist."
+    ),
+}
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_ferc1__yearly_balance_sheet_assets_sched110": {
         "description": {
@@ -1737,7 +1746,24 @@ columns."""
         "field_namespace": "ferc1",
     },
     "out_ferc1__yearly_all_plants": {
-        "description": "Denormalized table combining the steam, small generators, hydro, and pumped storage tables from FERC Form 1.",
+        "description": {
+            "additional_summary_text": "plants reported in the steam, small generators, hydro, and pumped storage tables",
+            "additional_source_text": "(Schedules 402, 404, 406 and 408)",
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": "Not all columns are originally reported in all of the input plant tables. Expect nulls.",
+                },
+                PLANT_AGGREGATION_HAZARD,
+            ],
+            "additional_details_text": (
+                "This table is a concatenation of the following plant tables:\n\n"
+                "* `core_ferc1__yearly_steam_plants_sched402`\n"
+                "* `core_ferc1__yearly_hydroelectric_plants_sched406`\n"
+                "* `core_ferc1__yearly_small_plants_sched410`\n"
+                "* `core_ferc1__yearly_pumped_storage_plants_sched408`"
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -1857,24 +1883,28 @@ columns."""
         "field_namespace": "ferc1",
     },
     "out_ferc1__yearly_detailed_income_statements": {
-        "description": (
-            "This table contains granular accounting data from utilities' income statements."
-            "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n\n"
-            " * `core_ferc1__yearly_income_statements_sched114`\n"
-            " * `core_ferc1__yearly_depreciation_summary_sched336`\n"
-            " * `core_ferc1__yearly_operating_expenses_sched320`\n"
-            " * `core_ferc1__yearly_operating_revenues_sched300`\n\n"
-            "We reconciled the nested calculations within these tables and then identified the "
-            "most granular data across the tables.\n"
-            "We applied slight modifications to two columns (utility_type & plant_function)"
-            "as compared to the originally reported values in our core tables. "
-            "The modifications were applied to either provide more specificity (i.e. we converted"
-            "some `total` utility_type's into `electric`) or to condense similar categories "
-            "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
-            "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
-            "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
-            "support and direction from RMI."
-        ),
+        "description": {
+            "additional_summary_text": "granular, de-duplicated accounting data of utilities' income statements.",
+            "additional_source_text": "(Schedule 114, 300, 320 and 336)",
+            "usage_warnings": [DETAILED_ACCOUNTING_TABLES_WARNING],
+            "additional_details_text": (
+                "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n\n"
+                "* :ref:`core_ferc1__yearly_income_statements_sched114`\n"
+                "* :ref:`core_ferc1__yearly_depreciation_summary_sched336`\n"
+                "* :ref:`core_ferc1__yearly_operating_expenses_sched320`\n"
+                "* :ref:`core_ferc1__yearly_operating_revenues_sched300`\n\n"
+                "We reconciled the nested calculations within these tables and then identified the "
+                "most granular data across the tables.\n"
+                "We applied slight modifications to two columns (utility_type & plant_function)"
+                "as compared to the originally reported values in our core tables. "
+                "The modifications were applied to either provide more specificity (i.e. we converted"
+                "some `total` utility_type's into `electric`) or to condense similar categories "
+                "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
+                "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
+                "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
+                "support and direction from RMI."
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -1896,24 +1926,28 @@ columns."""
         "field_namespace": "ferc1",
     },
     "out_ferc1__yearly_detailed_balance_sheet_assets": {
-        "description": (
-            "This table contains granular accounting data from utilities' balance sheet assets. "
-            "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n\n"
-            " * `core_ferc1__yearly_balance_sheet_assets_sched110`\n"
-            " * `core_ferc1__yearly_utility_plant_summary_sched200`\n"
-            " * `core_ferc1__yearly_plant_in_service_sched204`\n"
-            " * `core_ferc1__yearly_depreciation_by_function_sched219`\n\n"
-            "We reconciled the nested calculations within these tables and then identified the "
-            "most granular data across the tables.\n"
-            "We applied slight modifications to three columns (utility_type, plant_function & plant_status) "
-            "as compared to the originally reported values in our core tables. "
-            "The modifications were applied to either provide more specificity (i.e. we converted"
-            "some `total` utility_type's into `electric`) or to condense similar categories "
-            "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
-            "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
-            "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
-            "support and direction from RMI."
-        ),
+        "description": {
+            "additional_summary_text": "granular, de-duplicated accounting data of utilities' balance sheet assets.",
+            "additional_source_text": "(Schedule 110, 200, 204 and 219)",
+            "usage_warnings": [DETAILED_ACCOUNTING_TABLES_WARNING],
+            "additional_details_text": (
+                "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n\n"
+                "* `core_ferc1__yearly_balance_sheet_assets_sched110`\n"
+                "* `core_ferc1__yearly_utility_plant_summary_sched200`\n"
+                "* `core_ferc1__yearly_plant_in_service_sched204`\n"
+                "* `core_ferc1__yearly_depreciation_by_function_sched219`\n\n"
+                "We reconciled the nested calculations within these tables and then identified the "
+                "most granular data across the tables.\n"
+                "We applied slight modifications to three columns (utility_type, plant_function & plant_status) "
+                "as compared to the originally reported values in our core tables. "
+                "The modifications were applied to either provide more specificity (i.e. we converted"
+                "some `total` utility_type's into `electric`) or to condense similar categories "
+                "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
+                "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
+                "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
+                "support and direction from RMI."
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -1936,22 +1970,26 @@ columns."""
         "field_namespace": "ferc1",
     },
     "out_ferc1__yearly_detailed_balance_sheet_liabilities": {
-        "description": (
-            "This table contains granular accounting data from utilities' balance sheet liabilities. "
-            "This table is derived from two FERC Form 1 accounting tables with nested calculations:\n\n"
-            " * `core_ferc1__yearly_balance_sheet_liabilities_sched110`\n"
-            " * `core_ferc1__yearly_retained_earnings_sched118`\n\n"
-            "We reconciled the nested calculations within these tables and then identified the "
-            "most granular data across the tables.\n"
-            "We applied slight modifications to three columns (utility_type, plant_function & plant_status) "
-            "as compared to the originally reported values in our core tables. "
-            "The modifications were applied to either provide more specificity (i.e. we converted"
-            "some `total` utility_type's into `electric`) or to condense similar categories "
-            "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
-            "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
-            "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
-            "support and direction from RMI."
-        ),
+        "description": {
+            "additional_summary_text": "granular, de-duplicated accounting data of utilities' balance sheet liabilities.",
+            "additional_source_text": "(Schedule 110 and 118)",
+            "usage_warnings": [DETAILED_ACCOUNTING_TABLES_WARNING],
+            "additional_details_text": (
+                "This table is derived from two FERC Form 1 accounting tables with nested calculations:\n\n"
+                "* `core_ferc1__yearly_balance_sheet_liabilities_sched110`\n"
+                "* `core_ferc1__yearly_retained_earnings_sched118`\n\n"
+                "We reconciled the nested calculations within these tables and then identified the "
+                "most granular data across the tables.\n"
+                "We applied slight modifications to three columns (utility_type, plant_function & plant_status) "
+                "as compared to the originally reported values in our core tables. "
+                "The modifications were applied to either provide more specificity (i.e. we converted"
+                "some `total` utility_type's into `electric`) or to condense similar categories "
+                "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
+                "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
+                "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
+                "support and direction from RMI."
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -1971,21 +2009,29 @@ columns."""
         "field_namespace": "ferc1",
     },
     "out_ferc1__yearly_rate_base": {
-        "description": (
-            "This table contains granular accounting data consisting of what utilities can typically "
-            "include in their rate bases. This table is derived from seven FERC Form 1"
-            " accounting tables with nested calculations. "
-            "We reconciled these nested calculations and then identified the most "
-            "granular data across the tables.\n"
-            "We applied slight modifications to three columns (utility_type, plant_function & "
-            "plant_status) as compared to the originally reported values in our core tables. "
-            "The modifications were applied to either provide more specificity (i.e. we converted"
-            "some `total` utility_type's into `electric`) or to condense similar categories "
-            "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
-            "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
-            "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
-            "support and direction from RMI."
-        ),
+        "description": {
+            "additional_summary_text": "granular accounting data consisting of what utilities can typically include in their rate bases.",
+            "additional_source_text": "(Schedules 110, 118, 200, 204 219 and 320)",
+            "usage_warnings": [DETAILED_ACCOUNTING_TABLES_WARNING],
+            "additional_details_text": (
+                "This table is derived from seven FERC Form 1 "
+                "accounting tables with nested calculations. "
+                "We reconciled these nested calculations and then identified the most "
+                "granular data across the tables.\n"
+                "This table is derived three FERC Form 1 accounting tables:\n\n"
+                "* :ref:`out_ferc1__yearly_detailed_balance_sheet_assets`\n"
+                "* :ref:`out_ferc1__yearly_detailed_balance_sheet_liabilities`\n"
+                "* :ref:`core_ferc1__yearly_operating_expenses_sched320`\n\n"
+                "We applied slight modifications to three columns (utility_type, plant_function & "
+                "plant_status) as compared to the originally reported values in our core tables. "
+                "The modifications were applied to either provide more specificity (i.e. we converted"
+                "some `total` utility_type's into `electric`) or to condense similar categories "
+                "for easier analysis (i.e. creating a `hydraulic_production` plant_function by "
+                "combining `hydraulic_production_conventional` and `hydraulic_production_pumped_storage`\n"
+                "See ``pudl.output.ferc1.Exploder`` for more details. This table was made entirely with "
+                "support and direction from RMI."
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
