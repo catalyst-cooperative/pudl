@@ -12,7 +12,6 @@ from pudl.scripts.dbt_helper import (
     DbtTable,
     _get_local_table_path,
     _get_model_path,
-    _get_row_count_csv_path,
     _infer_partition_column,
     _schema_diff_summary,
     get_data_source,
@@ -46,12 +45,6 @@ def test__get_local_table_path(mocker):
 
 def test__get_model_path():
     assert "models" in str(_get_model_path("", ""))
-
-
-def test__get_row_count_csv_path():
-    assert _get_row_count_csv_path(target="etl-fast") != _get_row_count_csv_path(
-        target="etl-full"
-    )
 
 
 @pytest.mark.parametrize("key", ["report_year", "report_date", "datetime_utc", None])

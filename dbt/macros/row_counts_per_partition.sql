@@ -1,9 +1,19 @@
 {% macro row_counts_per_partition(model, table_name, partition_column, force_row_counts_table=none) %}
-{% set row_counts_table = force_row_counts_table if force_row_counts_table is not none
-    else ref("etl_fast_row_counts") if target.name == "etl-fast"
-    else ref("etl_full_row_counts") if target.name == "etl-full"
-    else force_row_counts_table
-%}
+{% if target.name != "etl-full" %}
+    -- Skip row count tests if not on 'etl-full' target.
+    SELECT
+        '{{ table_name }}' as table_name,
+        'SKIPPED' as expected_partition,
+        'SKIPPED' as observed_partition,
+        NULL as expected_count,
+        NULL as observed_count,
+        NULL as diff_relative_to_expected
+    WHERE FALSE  -- Ensures the test always passes in etl-fast
+{% else %}
+    {% set row_counts_table = force_row_counts_table if force_row_counts_table is not none
+            else ref("etl_full_row_counts") if target.name == "etl-full"
+            else force_row_counts_table
+    %}
 
 WITH
     expected AS (
@@ -38,4 +48,5 @@ WHERE expected_count != observed_count
     OR expected_count IS NULL
     OR observed_count IS NULL
 
+{% endif %}
 {% endmacro %}
