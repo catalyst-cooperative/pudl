@@ -167,7 +167,7 @@ All of the columns in this table that have a suffix of '_plant_gen' are attribut
     },
     "out_pudl__yearly_assn_eia_ferc1_plant_parts": {
         "description": {
-            "additional_summary_text": "power plant data reported in FERC Form 1 and related EIA data.",
+            "additional_summary_text": "power plant data reported in FERC Form 1 and any available EIA data related to the plant parts covered by each FERC Form 1 record.",
             "additional_details_text": """This table
 answers the question "What EIA data reported about plants or generators should be
 associated with a given plant record found in the FERC Form 1?"
