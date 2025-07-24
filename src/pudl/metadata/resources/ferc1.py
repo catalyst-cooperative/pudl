@@ -689,7 +689,7 @@ any cleaning mechanisms in place to account for this."""
             "usage_warnings": [PLANT_AGGREGATION_HAZARD],
             "additional_primary_key_text": PLANT_PRIMARY_KEY_TEXT,
             "additional_details_text": (
-                """The generating  As reported on FERC Form 1 Schedule 410 (pages 410-411)
+                """As reported on FERC Form 1 Schedule 410 (pages 410-411)
 and extracted from the FERC Visual FoxPro and XBRL. See our
 ``pudl.extract.ferc1.TABLE_NAME_MAP_FERC1`` for links to the raw tables.
 
