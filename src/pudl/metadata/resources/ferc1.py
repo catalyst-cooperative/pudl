@@ -425,7 +425,7 @@ any cleaning mechanisms in place to account for this."""
     "core_pudl__assn_ferc1_pudl_plants": {
         "description": {
             "additional_summary_text": "FERC 1 plants and their manually assigned PUDL plant IDs.",
-            "additional_details_text": "FERC does not assign IDs to plants, so each FERC 1 plant is identified by a ``utility_id_ferc1`` and a ``plant_name_ferc1``."
+            "additional_details_text": "FERC does not assign IDs to plants, so each FERC 1 plant is identified by a ``utility_id_ferc1`` and a ``plant_name_ferc1``.",
         },
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
