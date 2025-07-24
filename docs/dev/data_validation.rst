@@ -18,20 +18,21 @@ define our own `custom data tests
 
 .. note:: Why use dbt and SQL instead of Python?
 
-   Modern analytical SQL engines are extremely fast and memory efficient. By using dbt
+   Modern analytical query engines are extremely fast and memory efficient. By using dbt
    with `DuckDB <https://duckdb.org/>`_ to query the PUDL `Parquet
    <https://parquet.apache.org/>`_ outputs we're able to run thousands of validations
-   across hundreds of tables with billions of rows in a couple of minutes.
+   across hundreds of tables with billions of rows in a minute, instead of the 2-3 hours
+   it used to take our much less extensive validation tests to run. Plus we get to learn
+   SQL.
 
 --------------------------------------------------------------------------------
-Data validation expectations
+Data validation guidelines
 --------------------------------------------------------------------------------
 
-What is the minimum level data validation that we expect for a table?
+We should chat about the minimum level of data validation that we expect for a table.
 
 * row counts (all tables)
 * no entirely null columns (all tables)
-* test for uniqueness of PK?
 * ???
 
 --------------------------------------------------------------------------------
