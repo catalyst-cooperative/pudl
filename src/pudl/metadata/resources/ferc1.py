@@ -148,7 +148,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_ferc1__yearly_energy_sources_sched401": {
         "description": {
-            "additional_summary_text": "sources electric energy generated or purchased, exchanged and wheeled.",
+            "additional_summary_text": "sources of electric energy generated or purchased, exchanged and wheeled.",
             "additional_source_text": "(Schedule 401a)",
             "usage_warnings": ["aggregation_hazard"],
             "additional_details_text": (
