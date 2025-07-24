@@ -497,7 +497,7 @@ any cleaning mechanisms in place to account for this."""
     },
     "core_ferc1__yearly_plant_in_service_sched204": {
         "description": {
-            "additional_summary_text": "utility's balances and changes to FERC Electric Plant in Service accounts",
+            "additional_summary_text": "utilities' balances and changes to FERC Electric Plant in Service accounts.",
             "additional_source_text": "(Schedule 204)",
             "usage_warnings": ["aggregation_hazard"],
             "additional_details_text": (
