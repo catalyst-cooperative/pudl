@@ -24,4 +24,5 @@ USAGE_WARNINGS = {
         "`Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ "
         "for details."
     ),
+    "experimental_wip": "This table is experimental and/or a work in progress and may change in the future.",
 }
