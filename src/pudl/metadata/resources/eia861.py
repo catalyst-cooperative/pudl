@@ -751,7 +751,9 @@ Utilities report on Form EIA-861S if they:
         "etl_group": "eia861",
     },
     "core_eia861__yearly_service_territory": {
-        "description": "County FIPS codes for counties composing utility service territories.",
+        "description": {
+            "additional_summary_text": "counties in utility service territories."
+        },
         "schema": {
             "fields": [
                 "county",
