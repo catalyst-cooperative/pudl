@@ -4,17 +4,20 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860m__changelog_generators": {
-        "description": (
-            """This table is a changelog of the monthly reported EIA-860M data. EIA-860M includes
+        "description": {
+            "additional_summary_text": "generator characteristics reported in EIA-860M.",
+            "additional_details_text": (
+                """EIA-860M includes
 generator tables with the most up-to-date catalog of EIA generators and their
-operational status and other generator characteristics.  EIA-860M is reported monthly,
+operational status and other generator characteristics. EIA-860M is reported monthly,
 although for the vast majority of the generators nothing changes month-to-month. This
 table is a changelog of that monthly reported generator data. There is a record
 corresponding to the first instance of a generator and associated characteristics with a
 report_date column and a valid_until_date column. Whenever any of the reported EIA-860M
 data was changed for a record, there will be a new changelog record with a new
 report_date."""
-        ),
+            ),
+        },
         "schema": {
             "fields": [
                 "report_date",
