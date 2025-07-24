@@ -862,7 +862,6 @@ columns."""
                 "which would nominally distinguish unique transmission lines."
             ),
             "usage_warnings": [
-                {"type": "custom", "description": "hi"},
                 "free_text",
                 "aggregation_hazard",
             ],
