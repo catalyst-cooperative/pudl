@@ -562,13 +562,15 @@ and convert capacity reported in DC units to AC units.""",
     },
     "core_eia861__yearly_operational_data_misc": {
         # TODO: misc might be a misleading name
-        "description": (
-            """The annual megawatt hours (MWH) for all a utility's sources of
-electricity and disposition of electricity listed. Sources include: net generation
+        "description": {
+            "additional_summary_text": "megawatt hours (MWH) for all a utility's sources of electricity and disposition of electricity listed.",
+            "additional_details_text": (
+                """Sources include: net generation
 purchases from electricity suppliers, exchanges received, exchanges delivered, exchanges
 net, wheeled received, wheeled delivered, wheeled net, transmission by others, and
 losses."""
-        ),
+            ),
+        },
         "schema": {
             "fields": [
                 "consumed_by_facility_mwh",
