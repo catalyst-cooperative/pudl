@@ -51,6 +51,7 @@ Each BA produces a day-ahead electricity demand forecast for every hour of the n
     "core_eia930__hourly_net_generation_by_energy_source": {
         "description": {
             "additional_summary_text": "balancing authority net generation by energy source.",
+            "usage_warnings": ["known_discrepancies"],
             "additional_details_text": """BAs report generation from dual-fuel (switching from one fuel to another) and
 multiple-fuel (using multiple fuels simultaneously) generators under the actual energy source used, if known, and under the generator's primary energy source, if not known.
 
@@ -130,9 +131,12 @@ Negative interchange values indicate net inflows, and positive interchange value
     "out_eia930__hourly_operations": {
         "description": {
             "additional_summary_text": "balancing authority net generation, interchange, and demand with imputed demand.",
-            "additional_details_text": """(EXPERIMENTAL / WORK-IN-PROGRESS, 2025-03-31)
+            "additional_details_text": """(EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.)
 
-This table is based on ``core_eia930__hourly_operations``, but adds imputed demand where the original data was missing or anomalous. Codes explaining why values have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.""",
+This table is based on ``core_eia930__hourly_operations``, but adds imputed demand where the original data was missing or anomalous. Codes explaining why values have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.
+
+This table is available in the nightly builds during development, but has not been fully
+vetted yet.""",
             "usage_warnings": ["imputed_values"],
         },
         "schema": {
