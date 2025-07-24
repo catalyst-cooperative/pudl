@@ -6,7 +6,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "6.14.1"
+      version = "6.45.0"
     }
   }
 }
@@ -110,7 +110,7 @@ resource "google_sql_database_instance" "mlflow_backend_store" {
   region           = "us-central1"
   database_version = "POSTGRES_14"
   settings {
-    tier = "db-f1-micro"
+    tier              = "db-f1-micro"
     activation_policy = "NEVER"
     password_validation_policy {
       min_length                  = 6
