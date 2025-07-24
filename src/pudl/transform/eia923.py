@@ -1350,6 +1350,10 @@ def _core_eia923__fgd_operation_maintenance(
     fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] *= 1000
     fgd_df.columns = fgd_df.columns.str.replace("_1000_dollars", "")  # Rename columns
 
+    # Convert thousands of tons to tons
+    fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_tons")] *= 1000
+    fgd_df.columns = fgd_df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
+
     # Convert SO2 test date column to datetime
     # This column only exists for 2008-2011
     # First, convert a few troublesome datetimes that look like m/yy or mm/yy
