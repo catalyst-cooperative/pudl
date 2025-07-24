@@ -29,11 +29,13 @@ define our own `custom data tests
 Data validation guidelines
 --------------------------------------------------------------------------------
 
-We should chat about the minimum level of data validation that we expect for a table
+.. todo::
 
-* row counts
-* no entirely null columns
-* ???
+   We should chat about the minimum level of data validation that we expect for a table
+
+   * row counts
+   * no entirely null columns
+   * anything else now?
 
 --------------------------------------------------------------------------------
 Example of typical data validation workflow
@@ -64,13 +66,13 @@ The dbt directory contains the PUDL dbt project which manages our `data tests
 tests you'll want to run the following from within the ``dbt/`` directory in your pudl
 repo:
 
-.. code-block:: console
+.. code-block:: bash
 
     # Install additional dbt-specific dependencies in the dbt project
-    ~/pudl/dbt: dbt deps
+    dbt deps
     # Materializes dbt-specific "seed" tables from CSVs in the seeds/ directory
     # In our case, these contain the expected row counts for PUDL tables
-    ~/pudl/dbt: dbt seed
+    dbt seed
 
 The data validation tests run on the Parquet outputs that are in your
 ``$PUDL_OUTPUT/parquet/`` directory. It's important that you ensure the outputs you're
@@ -109,25 +111,25 @@ validation. Some quirks of our setup to be aware of:
 
 To run all of the data validation tests, from within the ``pudl/dbt/`` directory run:
 
-.. code-block:: console
+.. code-block:: bash
 
-   ~/pudl/dbt: dbt build
+   dbt build
 
 For more fine-grained control, you can use the ``--select`` option to run only the tests
 defined for a particular table, or all instances of a particular test no matter what
 table it's associated with. Or you can combine the two to run just a particular test
 on a particular table. Some examples:
 
-.. code-block:: console
+.. code-block:: bash
 
    # Run all tests defined for the out_eia__monthly_generators table
-   ~/pudl/dbt: dbt build --select "source:pudl.out_eia__monthly_generators"
+   dbt build --select "source:pudl.out_eia__monthly_generators"
    # Run all instances of the expect_columns_not_all_null test
-   ~/pudl/dbt: dbt build --select "test_name:expect_columns_not_all_null"
+   dbt build --select "test_name:expect_columns_not_all_null"
    # Run expect_columns_not_all_null test on the out_eia__monthly_generators table only
-   ~/pudl/dbt: dbt build --select "test_name:expect_columns_not_all_null,source:pudl.out_eia__monthly_generators"
+   dbt build --select "test_name:expect_columns_not_all_null,source:pudl.out_eia__monthly_generators"
    # Use a wildcard "*" to run all tests on tables whose names start with out_eia923__
-   ~/pudl/dbt: dbt build --select "source:pudl.out_eia923__*"
+   dbt build --select "source:pudl.out_eia923__*"
 
 Similarly, you can exclude individual tables or tests using ``--exclude``. One case
 where this is useful is running the data validation tests against the outputs of the
@@ -135,9 +137,9 @@ fast ETL. We do not store expected row-counts for the fast ETL outputs, and so g
 expect the row-count checks to fail. To run all of the data validation tests except for
 the row counts and avoid seeing all those spurious failures you could run:
 
-.. code-block:: console
+.. code-block:: bash
 
-   ~/pudl/dbt: dbt build --exclude "test_name:check_row_counts_per_partition"
+   dbt build --exclude "test_name:check_row_counts_per_partition"
 
 For more options, see the `dbt selection syntax documentation
 <https://docs.getdbt.com/reference/node-selection/syntax>`_.
@@ -167,14 +169,14 @@ use the `Dagster asset selection syntax
 
 Example usage:
 
-.. code-block:: console
+.. code-block:: bash
 
     # for just a single asset
-    ~/pudl/dbt: dbt_helper validate --asset-select "key:out_eia__yearly_generators"
+    dbt_helper validate --asset-select "key:out_eia__yearly_generators"
     # for this asset as well as all upstream assets
-    ~/pudl/dbt: dbt_helper validate --asset-select "+key:out_eia__yearly_generators"
+    dbt_helper validate --asset-select "+key:out_eia__yearly_generators"
     # same as above, but skip row counts
-    ~/pudl/dbt: dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"
+    dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"
 
 See ``dbt_helper validate --help`` for usage details.
 
@@ -244,18 +246,19 @@ the row count changes closely to see if there's anything unexpected.
 Debugging data validation failures
 --------------------------------------------------------------------------------
 
-* Using ``dbt_helper validate``.
-* Inspecting and running the compiled SQL yourself. What does "compiled" SQL mean here?
-* ``dbt build --store-failures`` and the ``pudl_dbt_tests.duckdb`` output -- what is
+* Using output from ``dbt_helper validate``.
+* By inspecting and running the compiled SQL yourself.
+* Explain What "compiled" SQL means here.
+* Using ``--store-failures`` and the ``pudl_dbt_tests.duckdb`` output -- what is
   stored in that database anyway?
-* using ``duckdb < path/to/compiled.sql``
+* Using ``duckdb < path/to/compiled.sql``
 * Using DuckDB's ``.read path/to/compiled.sql`` to play with data interactively.
 * Go through a simpler example before getting into the complicated quantile checks test.
 
 Debugging quantile checks
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. note::
+.. todo::
 
   This seems quite involved. Can we make it simpler? Improve the test failure output to
   enable some debugging without this level of user engagement? Can we provide additional
@@ -342,17 +345,18 @@ Depending on the situation, from here you can:
   case it gets worse)
 
 --------------------------------------------------------------------------------
-Applying pre-defined data validations to existing data
+Applying pre-defined validations to existing data
 --------------------------------------------------------------------------------
 
-To add an already defined test to an existing table or column, you just need to add
-the test and any necessary parameters to the ``schema.yml`` test associated with the
-table, found at ``src/pudl/dbt/models/{data_source}/{table_name}/schema.yml``. These
-go in the ``data_tests`` section of either the table or column-level schema.
+Applyng an existing generic test to an existing table should be as easy as editing
+the ``schema.yml`` file associated with that table, and adding a new test specification
+to the ``data_tests`` section of either the table as a whole or an individual column.
+The ``schema.yml`` for ``table_name`` can be found at
+``dbt/models/{data_source}/{table_name}/schema.yml``.
 
 In general, table-level tests depend on multiple columns or test some property of the
-table as a whole. Column-level tests typically depend only on values with the column
-they are applied to.
+table as a whole, while column-level tests typically depend only on values with the
+column they are applied to.
 
 Pre-defined tests
 ~~~~~~~~~~~~~~~~~
@@ -360,30 +364,182 @@ Our dbt project includes `dbt-utils <https://github.com/dbt-labs/dbt-utils>`_ an
 `dbt-expectations <https://github.com/metaplane/dbt-expectations>`_ as dependencies.
 These packages include a bunch of useful tests that can be applied to any table.
 There are several examples of applying tests from ``dbt-expectations`` in
-``src/pudl/dbt/models/vcerare/out_vcerare__hourly_available_capacity_factor/schema.yml``
+``dbt/models/vcerare/out_vcerare__hourly_available_capacity_factor/schema.yml``
+and in general they will look like the below. Each item in a ``data_tests`` section
+defines a single test, and may provide named parameters for the test. The tests whose
+names have the ``dbt_expectations`` prefix come from that package.
 
-See the full package documentation pages for exhaustive details.
+.. code-block:: yaml
+
+    version: 2
+    sources:
+      - name: pudl
+        tables:
+          - name: out_vcerare__hourly_available_capacity_factor
+            data_tests:
+              - expect_columns_not_all_null
+              - check_row_counts_per_partition:
+                  table_name: out_vcerare__hourly_available_capacity_factor
+                  partition_column: report_year
+              - expect_valid_hour_of_year
+              - expect_unique_column_combination:
+                  columns:
+                    - county_id_fips
+                    - datetime_utc
+            columns:
+              - name: state
+                data_tests:
+                  - not_null
+              - name: place_name
+                data_tests:
+                  - not_null
+                  - dbt_expectations.expect_column_values_to_not_be_in_set:
+                      value_set:
+                        - bedford_city
+                        - clifton_forge_city
+                        - lake_hurron
+                        - lake_st_clair
+                  - dbt_expectations.expect_column_values_to_be_in_set:
+                      value_set:
+                        - oglala lakota
+                      row_condition: "county_id_fips = '46012'"
+              - name: datetime_utc
+                data_tests:
+                  - not_null
+                  - dbt_expectations.expect_column_values_to_not_be_in_set:
+                      value_set:
+                        - "{{ dbt_date.date(2020, 12, 31) }}"
+              - name: report_year
+                data_tests:
+                  - not_null
+              - name: hour_of_year
+                data_tests:
+                  - not_null
+                  - dbt_expectations.expect_column_max_to_be_between:
+                      min_value: 8760
+                      max_value: 8760
+
 
 Tests defined within PUDL
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Using existing PUDL generic tests.
-* Need to integrate documentation of our existing generic tests into the docs build.
-* Need to convert all bespoke / singular tests into generic tests.
+Some of the tests in the example above like ``expect_columns_not_all_null`` or
+``check_row_counts_per_partition`` are defined by us, and can be found in the SQL
+files with the same name under ``dbt/tests/data_tests/generic_tests/``
+
+Documentation for the tests that we define is in
+``dbt/testse/data_tests/generic_tests/schema.yml``
+
+.. todo::
+
+   * Integrate documentation of our existing generic tests into the docs build.
+   * Convert all bespoke / singular tests into generic tests.
 
 --------------------------------------------------------------------------------
 Adding new tables
 --------------------------------------------------------------------------------
 
-* How to use ``dbt_helper update-tables`` to create new schemas.
-* Manually updating schema files (not generally recommended)
-* How we keep the dbt schemas in sync with the PUDL table definitions. Note that the
-  unit tests check for consistency between them (table and column names).
-* Should almost always add new row count tests for a new table.
-* Explain how to do that using ``dbt_helper`` after manually adding the test to the new
-  ``schema.yml`` file.
-* Should almost always apply ``expect_columns_not_all_null``
-* Set expectations for what level of data validation a new table should be subjected to.
+The tables that exist within PUDL are defined by the data structures within
+:mod:`pudl.metadata.resources`. Any Dagster asset that's being written out to Parquet
+or the PUDL SQLite database needs to be defined there. The ``schema.yml`` files within
+our dbt project are derived from that same PUDL metadata. Our unit tests check to make
+sure that the dbt schemas haven't drifted away from the canonical PUDL metadata. To make
+sure that the two sets of database table descriptions stay in sync, we try to create and
+update the dbt schemas programmatically when possible.
+
+Using ``dbt_helper update-tables``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To add a new PUDL table to the dbt project, you must add it as a `dbt
+source <https://docs.getdbt.com/docs/build/sources>`_. The ``dbt_helper`` script
+automates the initial setup with the ``update-tables`` subcommand.
+
+To add a new table called ``new_table_name`` that has already been defined as a resource
+that will be written out to Parquet in the PUDL metadata:
+
+.. code-block:: bash
+
+    dbt_helper update-tables --schema new_table_name
+
+This will add a file called ``dbt/models/{data_source}/new_table_name/schema.yml``. You
+can also give it a list of tables and they will all be created at once.  This yaml file
+tells ``dbt`` about the table and its schema, but initially it will not have any data
+validations defined. Tests need to be added by hand.
+
+Initial data tests
+~~~~~~~~~~~~~~~~~~
+
+There are a few tests that we apply to every table, which should be defined as soon as
+you've added a new table. These include ``check_row_counts_by_partition`` and
+``expect_columns_not_all_null``.
+
+Adding or updating row-counts
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To create or update the row count expectations for a given table you need to:
+
+* Make sure a fresh version of the table is available ``$PUDL_OUTPUT/parquet``. The
+  expectations will be derived from what's observed in that file.
+* Add ``check_row_counts_by_partition`` to the ``data_tests`` section of the the table's
+  ``schema.yml``.
+
+The initial ``data_tests`` for a new table might look like this:
+
+.. code-block:: yaml
+
+    version: 2
+    sources:
+      - name: pudl
+        tables:
+          - name: new_table_name
+            data_tests:
+              - check_row_counts_per_partition:
+                  table_name: new_table_name
+                  partition_column: report_date
+
+Then you can run:
+
+.. code-block:: bash
+
+    dbt_helper update-tables --row-counts new_table_name
+
+If this is a brand new table, you should see changes appear in
+``dbt/seeds/etl_full_row_counts.csv``. If you're updating the row counts for a table
+that already exists, you'll need to use the ``--clobber`` option to make the script
+overwrite existing row counts:
+
+.. code-block:: bash
+
+    dbt_helper update-tables --row-counts --clobber new_table_name
+
+.. warning::
+
+  You should rarely if ever need to edit the row-counts file directly. It needs to be
+  kept sorted to minimize diffs in git, and manually calculating and editing row counts
+  is both tedious and error prone.
+
+Checking for entirely null columns
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The other test we apply to basically all tables is ``expect_columns_not_all_null``. In
+its most basic form it verifies that there are no columns in the table which are
+completely null, since that is typically indicative of a bad ``ENUM`` constraint, a
+column naming error, or a bad merge, and should be investigated. To add this basic
+default, you add the test to the table level ``data_tests`` with no parameters, which
+building on the above example would look like:
+
+.. code-block:: yaml
+
+    version: 2
+    sources:
+      - name: pudl
+        tables:
+          - name: new_table_name
+            data_tests:
+              - expect_columns_not_all_null
+              - check_row_counts_per_partition:
+                  table_name: new_table_name
+                  partition_column: report_date
 
 --------------------------------------------------------------------------------
 Defining new data validation tests
@@ -410,6 +566,11 @@ Testing the Tests
 Creating intermediate tables for a test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. todo::
+
+   Do we actually have any tests that do the first option below? I don't really
+   understand what it is suggesting :user:`zaneselvans`
+
 In some cases you may need to modify a table or calculate some derived values before
 you can apply a test. There are two ways to accomplish this. First, you can add the
 table as a ``source`` as described above, then create a SQL file in the ``tests/``
@@ -430,88 +591,11 @@ and define tests exactly as you would for a ``source`` table. See
 this pattern.
 
 Note: when adding a model, it will be stored as a SQL ``view`` in the file
-``{PUDL_OUTPUT}/pudl_dbt_tests.duckdb``.
+``$PUDL_OUTPUT/pudl_dbt_tests.duckdb``.
 
-================================================================================
+--------------------------------------------------------------------------------
 Unmigrated Data Validation Docs (cannibalize)
-================================================================================
-
------------------
-Adding new tables
------------------
-
-The ``dbt_helper`` script
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To add a new PUDL table to the dbt project, you must add it as a `dbt
-source <https://docs.getdbt.com/docs/build/sources>`_. The ``dbt_helper`` script
-automates the initial setup. The script lives in ``src/pudl/scripts/dbt_helper.py``
-but it can be invoked in the ``pudl-dev`` environment at the command line. For example,
-to see the script's help message:
-
-.. code-block:: console
-
-  dbt_helper --help
-
-Usage
-^^^^^
-
-``update-tables``
-"""""""""""""""""
-
-The first command provided by the helper script is ``update-tables``. It is useful
-when adding new tables or changing the schemas or row count expectations of existing
-tables.
-
-When adding new tables, the command:
-
-.. code-block:: bash
-
-    dbt_helper update-tables --schema {table_name(s)}
-
-will add a file called ``dbt/models/{data_source}/{table_name}/schema.yml`` for each
-listed table. This yaml file tells ``dbt`` about the table and its schema. If the
-table already exists and you need to update it, you'll have to add ``--clobber``
-
-It will also specify the ``check_row_counts_per_partition`` test. This test works by
-comparing expected row counts for partitions within a table (typically distinct
-``report_date`` values) stored in ``etl_fast_row_counts.csv`` and
-``etl_full_row_counts.csv`` against the actual row counts in the materialized tables.
-
-To update the expected row counts based on the number of rows found in existing
-materialized tables, you can run:
-
-.. code-block:: bash
-
-    dbt_helper update-tables --row-counts {table_name(s)}
-
-To see all options for this command run:
-
-.. code-block:: bash
-
-    dbt_helper update-tables --help
-
-
-Updating a table
------------------
-
-Modify ``schema.yml``
-~~~~~~~~~~~~~~~~~~~~~
-
-Once we have generated an initial ``schema.yml`` file, we expect this configuration to
-be maintained/updated manually in the future. For example, we can add `data-tests
-<https://docs.getdbt.com/docs/build/data-tests>`_ as described in the ``dbt`` docs, or
-add/remove columns if the table schema is changed.
-
-Update row counts
-~~~~~~~~~~~~~~~~~~~~~
-
-When we run the ``update-tables`` command, it generates a test for each table called
-``check_row_counts_per_partition``. This test uses row counts that are stored in CSV
-files ``etl_fast_row_counts.csv`` and ``etl_full_row_counts.csv`` and compares these
-counts to the row counts found in the actual table when the test is run. The test
-partitions row counts by year, so there are a number of rows in these CSV files for each
-table (unless the table has no time dimension).
+--------------------------------------------------------------------------------
 
 During development row counts often change for normal and expected reasons like adding
 new data, updating transformations, etc. When these changes happen, the tests will fail
