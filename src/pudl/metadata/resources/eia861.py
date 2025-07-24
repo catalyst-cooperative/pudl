@@ -798,13 +798,12 @@ Utilities report on Form EIA-861S if they:
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_misc": {
-        "description": (
-            """A table of boolean values indicating what kind of business activities each utility engages in
-
-This includes whether they operate alternative fuel vehicles, whether they provide
+        "description": {
+            "additional_summary_text": "utility business activities.",
+            "additional_details_text": """This includes whether they operate alternative fuel vehicles, whether they provide
 transmission, distribution, or generation services (bundled or unbundled), and whether
-they engage in wholesale and/or retail markets."""
-        ),
+they engage in wholesale and/or retail markets.""",
+        },
         "schema": {
             "fields": [
                 "alternative_fuel_vehicle_2_activity",
@@ -833,7 +832,9 @@ they engage in wholesale and/or retail markets."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_nerc": {
-        "description": "The NERC regions that a utility operates in.",
+        "description": {
+            "additional_summary_text": "the NERC regions that utilities operate in.",
+        },
         "schema": {
             "fields": [
                 "nerc_region",
@@ -849,7 +850,9 @@ they engage in wholesale and/or retail markets."""
         "etl_group": "eia861",
     },
     "core_eia861__yearly_utility_data_rto": {
-        "description": "The RTOs that a utility operates in.",
+        "description": {
+            "additional_summary_text": "the RTOs that utilities operate in.",
+        },
         "schema": {
             "fields": [
                 "nerc_region",
