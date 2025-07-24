@@ -632,13 +632,13 @@ electric operating revenue.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_reliability": {
-        "description": (
-            """Standardized metrics of electricity system reliability and outage
-impacts. Includes the system average interruption duration index (SAIDI), system average
+        "description": {
+            "additional_summary_text": "electricity system reliability and outage impacts",
+            "additional_details_text": """Includes the system average interruption duration index (SAIDI), system average
 interruption frequency index (SAIFI), and customer average interruption duration index
 (CAIDI) aka SAIDI/SAIFI with and without major event days and loss of service. Includes
-the standard (IEEE/other) and other relevant information."""
-        ),
+the standard (IEEE/other) and other relevant information.""",
+        },
         "schema": {
             "fields": [
                 "caidi_w_major_event_days_minus_loss_of_service_minutes",
