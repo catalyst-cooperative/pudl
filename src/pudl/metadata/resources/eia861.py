@@ -706,9 +706,10 @@ the standard (IEEE/other) and other relevant information.""",
         "etl_group": "eia861",
     },
     "core_eia861__yearly_short_form": {
-        "description": (
-            """This is data extracted from Form EIA-861S, a shorter version of Form EIA-861.
-The data started being reported in 2012. However, the 2019 data is not available.
+        "description": {
+            "additional_summary_text": "data from the short form (EIA-861S).",
+            "usage_warnings": ["missing_years"],
+            "additional_details_text": """The data started being reported in 2012. However, the 2019 data is not available.
 They are expected to submit the completed Form EIA-861S to EIA by April 30th, following the end of the prior calendar year.
 Utilities report on Form EIA-861S if they:
 
@@ -720,8 +721,8 @@ Utilities report on Form EIA-861S if they:
 
 - Are not part of the aggregate TVA or WPPI.
 
-- Do not report on Form EIA-861M."""
-        ),
+- Do not report on Form EIA-861M.""",
+        },
         "schema": {
             "fields": [
                 "report_date",
