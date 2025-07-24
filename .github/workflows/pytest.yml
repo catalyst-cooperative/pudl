@@ -37,6 +37,7 @@ jobs:
               - '!docs/**.pdf'
               - '!docs/**.html'
               - '!docs/**.rst.jinja'
+              - '!docs/**.bib'
               - '!README.rst'
       - name: print out components
         run: |
