@@ -88,9 +88,16 @@ resource "google_sql_user" "pudl_usage_metrics_dashboard_readonly" {
 
 // cloud run service
 resource "google_cloud_run_v2_service" "pudl_usage_metrics_dashboard" {
+  provider            = google-beta
   name                = "pudl-usage-metrics-dashboard"
   location            = "us-east1"
   deletion_protection = false
+  # TODO 2025-07-22: latest GCP provider (6.45.0) doesn't let us configure more than just 'enabled' and 'disabled'
+  # I added catalyst-cooperative-pudl-admins@catalyst.coop to the IAP policy here.
+  # I also had to click a button in the console to give a service account `run.invoke` on this service, but that policy doesn't show up in IAM anywhere.
+  launch_stage         = "BETA"
+  iap_enabled          = true
+  invoker_iam_disabled = true
 
   scaling {
     min_instance_count = 1
@@ -150,12 +157,4 @@ resource "google_cloud_run_v2_service" "pudl_usage_metrics_dashboard" {
       }
     }
   }
-}
-
-
-resource "google_cloud_run_v2_service_iam_member" "pudl_usage_metrics_dashboard_internet" {
-  location = google_cloud_run_v2_service.pudl_usage_metrics_dashboard.location
-  name     = google_cloud_run_v2_service.pudl_usage_metrics_dashboard.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
 }
