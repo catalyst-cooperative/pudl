@@ -210,9 +210,7 @@ any cleaning mechanisms in place to account for this."""
             "respondent reports starting and ending balances for each account "
             "annually. Balances are organization wide, and are not broken down on a "
             "per-plant basis. End of year balance should equal beginning year balance "
-            "plus the sum of additions, retirements, adjustments, and transfers. "
-            "Pre-2021 data originally from the f1_plant_in_srvce table "
-            "in FERC's FoxPro database."
+            "plus the sum of additions, retirements, adjustments, and transfers."
         ),
     },
     "yearly_hydroelectric_plants_sched406": {
@@ -227,11 +225,7 @@ any cleaning mechanisms in place to account for this."""
         ],
         "additional_primary_key_text": PLANT_PRIMARY_KEY_TEXT,
         "additional_details_text": (
-            "Large plants "
-            "have an installed nameplate capacity of more than 10 MW. As reported on "
-            "FERC Form 1, Schedule 406 (pages 406-407), and extracted from the "
-            "f1_hydro table in FERC's pre-2021 FoxPro database or the Hydroelectric "
-            "Generating Plant Statistics."
+            "Large plants have an installed nameplate capacity of more than 10 MW."
         ),
     },
     "yearly_pumped_storage_plants_sched408": {
@@ -239,11 +233,7 @@ any cleaning mechanisms in place to account for this."""
         "additional_source_text": "(Schedule 408)",
         "usage_warnings": [PLANT_AGGREGATION_HAZARD],
         "additional_primary_key_text": PLANT_PRIMARY_KEY_TEXT,
-        "additional_details_text": (
-            "As reported in Schedule 408 of "
-            "FERC Form 1. Prior to 2021, this table was extracted from the "
-            "f1_pumped_storage table in FERC's Visual FoxPro Database."
-        ),
+        "additional_details_text": "As reported in Schedule 408 of FERC Form 1.",
     },
     "yearly_small_plants_sched410": {
         "additional_summary_text": (
@@ -279,10 +269,6 @@ columns."""
         "additional_source_text": "(Schedule 402)",
         "usage_warnings": [PLANT_AGGREGATION_HAZARD],
         "additional_primary_key_text": PLANT_PRIMARY_KEY_TEXT,
-        "additional_details_text": (
-            "Prior to 2021, this table is extracted from the "
-            "f1_gnrt_plant table in FERC's Visual FoxPro Database."
-        ),
     },
     "yearly_purchased_power_and_exchanges_sched326": {
         "additional_summary_text": (
@@ -299,10 +285,7 @@ columns."""
             "being bought from (``seller_name``) is poorly standardized, making it difficult to "
             "correlate with other data.\n\n"
             "Purchased Power is considered FERC Account 555 according to FERC's "
-            "Uniform System of Accounts. "
-            "Reported on pages 326-327 "
-            "of FERC Form 1. Extracted from the f1_purchased_pwr table in FERC's "
-            "Visual FoxPro database."
+            "Uniform System of Accounts. Reported on pages 326-327 of FERC Form 1."
         ),
     },
     "yearly_transmission_lines_sched422": {
