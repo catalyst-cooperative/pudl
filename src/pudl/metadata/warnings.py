@@ -20,5 +20,6 @@ USAGE_WARNINGS = {
     "outliers": "Outliers present.",
     "missing_years": "Some years are missing from the data record.",
     "ferc_is_hard": "FERC data is notoriously difficult to extract cleanly - often contains free-form strings, non-labeled total rows and lack of IDs.",
+    "discontinued_data": "The data is no longer being collected or reported in this way.",
     "experimental_wip": "This table is experimental and/or a work in progress and may change in the future.",
 }
