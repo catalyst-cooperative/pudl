@@ -258,3 +258,12 @@ macros:
       - name: rtol
         type: float
         description: Relative tolerance for comparison.
+  - name: test_expect_nuclear_units_are_generators
+    description: >
+      Check that all nuclear Unit IDs correspond to generator IDs.
+    arguments:
+      - name: generator_model
+        type: dbt source reference
+        description: >
+          Where to look for generator listings. This will generally be
+          "source('pudl', 'out_eia__yearly_generators')".
