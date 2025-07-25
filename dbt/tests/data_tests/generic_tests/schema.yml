@@ -267,3 +267,19 @@ macros:
         description: >
           Where to look for generator listings. This will generally be
           "source('pudl', 'out_eia__yearly_generators')".
+  - name: test_expect_bgas_show_low_differing_primary_fuels
+    description: >
+      Check that units are mostly only associated with a single fuel
+      when mapped through the boiler generator association
+      table. Fails when the incidence of units with multiple fuels
+      exceeds a maximum rate.
+    arguments:
+      - name: bga_model
+        type: dbt source reference
+        description: >
+          Where to look for boiler generator associations. This will
+          generally be "source('pudl',
+          'core_eia860__assn_boiler_generator')".
+      - name: max_differing_fuel_rate
+        type: float
+        description: Maximum acceptable fraction of units mapping to multiple fuels. (optional; default 0.01)

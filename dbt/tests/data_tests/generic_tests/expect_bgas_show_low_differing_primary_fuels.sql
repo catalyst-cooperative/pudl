@@ -1,3 +1,9 @@
+{% test expect_bgas_show_low_differing_primary_fuels(
+    model,
+    bga_model,
+    max_differing_fuel_rate = 0.01
+) %}
+
 -- Test the boiler generator associations.
 with GensSimple as (
     select
@@ -5,14 +11,14 @@ with GensSimple as (
         plant_id_eia,
         generator_id,
         fuel_type_code_pudl
-    from {{ source('pudl', 'out_eia__yearly_generators') }}
+    from {{ model }}
 ), BgaGens as (
     select distinct
         report_date,
         plant_id_eia,
         unit_id_pudl,
         generator_id
-    from {{ source('pudl', 'core_eia860__assn_boiler_generator') }}
+    from {{ bga_model }}
 ), UnitsSimple as (
     select distinct
         report_date,
@@ -41,6 +47,8 @@ with GensSimple as (
     from DifferingPrimaryFuels
 )
 select * from DifferingPrimaryFuelRate
-where (num_multi_fuel_units / all_units) >= 0.01
+where (num_multi_fuel_units / all_units) >= {{ max_differing_fuel_rate }}
 -- Failure rate for etl-fast as of Mar 2025 was 0.0087
 -- (we're primarily checking that this is not getting worse)
+
+{% endtest %}
