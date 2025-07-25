@@ -19,6 +19,11 @@ USAGE_WARNINGS = {
     "scale_hazard": "Extremely large table; do not attempt to open with Excel.",  # TODO: set a threshold
     "outliers": "Outliers present.",
     "missing_years": "Some years are missing from the data record.",
-    "ferc_is_hard": "FERC data is notoriously difficult to extract cleanly - often contains free-form strings, non-labeled total rows and lack of IDs.",
+    "ferc_is_hard": (
+        "FERC data is notoriously difficult to extract cleanly, and often contains free-form strings, "
+        "non-labeled total rows and lack of IDs. See "
+        "`Notable Irregularities <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_ "
+        "for details."
+    ),
     "experimental_wip": "This table is experimental and/or a work in progress and may change in the future.",
 }
