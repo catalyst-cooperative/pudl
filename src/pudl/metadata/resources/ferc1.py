@@ -1746,7 +1746,7 @@ columns."""
     },
     "out_ferc1__yearly_all_plants": {
         "description": {
-            "additional_summary_text": "plants reported in the steam, small generators, hydro, and pumped storage tables",
+            "additional_summary_text": "plants reported in the steam, small generators, hydro, and pumped storage tables.",
             "additional_source_text": "(Schedules 402, 404, 406 and 408)",
             "usage_warnings": [
                 {
