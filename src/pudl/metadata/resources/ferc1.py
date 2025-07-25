@@ -675,7 +675,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "core_pudl__assn_ferc1_pudl_plants": {
-        "description": "FERC 1 Plants and their associated manually assigned PUDL Plant IDs",
+        "description": {
+            "additional_summary_text": "FERC 1 plants and their manually assigned PUDL plant IDs.",
+            "additional_details_text": "FERC does not assign IDs to plants, so each FERC 1 plant is identified by a ``utility_id_ferc1`` and a ``plant_name_ferc1``.",
+        },
         "schema": {
             "fields": ["utility_id_ferc1", "plant_name_ferc1", "plant_id_pudl"],
             "primary_key": ["utility_id_ferc1", "plant_name_ferc1"],
@@ -937,7 +940,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "core_pudl__assn_ferc1_pudl_utilities": {
-        "description": "This table maps two manually assigned utility IDs: a PUDL ID and a FERC1 ID. The PUDL ID maps EIA and FERC1 utilities. The FERC1 ID maps the older DBF respondent IDs to new XBRL entity IDs. This table is generated from a table stored in the PUDL repository: src/package_data/glue/utility_id_pudl.csv",
+        "description": {
+            "additional_summary_text": "PUDL utility IDs and PUDL-assigned FERC1 utility IDs.",
+            "additional_details_text": "This table maps two manually assigned utility IDs: a PUDL ID and a FERC1 ID. The PUDL IDs link EIA and FERC1 utilities. The PUDL FERC1 IDs link records from older DBF respondent IDs and new XBRL entity IDs via :ref:`core_pudl__assn_ferc1_dbf_pudl_utilities` and :ref:`core_pudl__assn_ferc1_xbrl_pudl_utilities` respectively. This table is generated from a table stored in the PUDL repository: src/package_data/glue/utility_id_pudl.csv",
+        },
         "schema": {
             "fields": ["utility_id_ferc1", "utility_name_ferc1", "utility_id_pudl"],
             "primary_key": ["utility_id_ferc1"],
@@ -948,7 +954,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "core_pudl__assn_ferc1_dbf_pudl_utilities": {
-        "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 DBF inputs - originally reported as respondent_id.",
+        "description": {
+            "additional_summary_text": "PUDL-assigned FERC1 utility IDs and the native FERC1 DBF utility IDs originally reported as ``respondent_id``.",
+        },
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_dbf"],
             "primary_key": ["utility_id_ferc1_dbf"],
@@ -958,7 +966,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "core_pudl__assn_ferc1_xbrl_pudl_utilities": {
-        "description": "This table maps the assign utility ID FERC1 to the native utility ID from the FERC1 XBRL inputs - originally reported as entity_id.",
+        "description": {
+            "additional_summary_text": "PUDL-assigned FERC1 utility IDs and the native FERC1 XBRL utility IDs originally reported as ``entity_id``.",
+        },
         "schema": {
             "fields": ["utility_id_ferc1", "utility_id_ferc1_xbrl"],
             "primary_key": ["utility_id_ferc1_xbrl"],
