@@ -71,9 +71,12 @@ docs-clean:
 	rm -rf docs/data_dictionaries/code_csvs
 	rm -f docs/data_sources/eia*.rst
 	rm -f docs/data_sources/epacems*.rst
+	rm -f docs/data_sources/epacamd*.rst
 	rm -f docs/data_sources/ferc*.rst
 	rm -f docs/data_sources/gridpathratoolkit*.rst
+	rm -f docs/data_sources/nrelatb*.rst
 	rm -f docs/data_sources/phmsagas*.rst
+	rm -f docs/data_sources/vcerare*.rst
 
 # Note that there's some PUDL code which only gets run when we generate the docs, so
 # we want to generate coverage from the docs build.
