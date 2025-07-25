@@ -828,12 +828,11 @@ is for those supplies."""
     },
     "core_eia923__monthly_energy_storage": {
         "description": {
-            "additional_summary_text": "generation and fuel consumption of energy storage units.",
+            "additional_summary_text": """energy consumed and discharged ("generated") by energy storage units.""",
             "additional_source_text": "(Schedule 3)",
             "usage_warnings": ["month_as_date"],
             "additional_details_text": (
-                """Monthly quantities of energy consumed and discharged ("generated") by energy storage
-units. The total MWh discharged from the energy storage unit during the
+                """The total MWh discharged from the energy storage unit during the
 reporting period is the gross generation and the difference between gross generation
 and consumption is the net generation."""
             ),

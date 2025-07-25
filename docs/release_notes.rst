@@ -35,16 +35,17 @@ Documentation
 
 * Migrated table description metadata into new format; see epic :issue:`4358` for
   issues & PRs for all source groups.
-* Added data source pages for:
 
-  * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
-  * :doc:`data_sources/eia923`; see :issue:`4400` and :pr:`4422`. This included
-    renaming two of the preliminarily published ``_core`` tables to better conform
-    with our table naming conventions. Table
+  * This included renaming two of the preliminarily published ``_core`` tables to better
+    conform with our table naming conventions. Table
     ``_core_eia923__cooling_system_information`` is now
     :ref:`i_core_eia923__monthly_cooling_system_information` and
     ``_core_eia923__fgd_operation_maintenance`` is now
-    :ref:`i_core_eia923__yearly_fgd_operation_maintenance`.
+    :ref:`i_core_eia923__yearly_fgd_operation_maintenance`. See :pr:`4422`.
+
+* Added data source pages for:
+
+  * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
 
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
