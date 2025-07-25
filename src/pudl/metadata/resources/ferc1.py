@@ -297,8 +297,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_ferc1__yearly_sales_by_rate_schedules_sched304": {
         "description": {
-            "additional_summary_text": "",
-            "additional_source_text": "",
+            "additional_summary_text": "utilities' electric sales from all rate schedules in effect throughout the year.",
+            "additional_source_text": "(Schedule 304)",
             "usage_warnings": [
                 "aggregation_hazard",
                 {
@@ -355,7 +355,7 @@ totals, the utility totals across all rate schedules in a given year
 (marked with rate_schedule_description = "total" and rate_schedule_type =
 "total") and each of the utility's individual rate schedule totals in a
 given year (marked with rate_schedule_description = "total" and
-rate_schdedule_type = "residential" or any other rate schdedule type).
+rate_schedule_type = "residential" or any other rate schedule type).
 
 The rate schedule based XBRL tables only report billed values whereas the
 total tables report billed, unbilled, and total values. (See the column
@@ -1884,7 +1884,7 @@ columns."""
     "out_ferc1__yearly_detailed_income_statements": {
         "description": {
             "additional_summary_text": "granular, de-duplicated accounting data of utilities' income statements.",
-            "additional_source_text": "(Schedule 114, 300, 320 and 336)",
+            "additional_source_text": "(Schedules 114, 300, 320 and 336)",
             "usage_warnings": [DETAILED_ACCOUNTING_TABLES_WARNING],
             "additional_details_text": (
                 "This table is derived from four FERC Form 1 accounting tables with nested calculations:\n\n"
