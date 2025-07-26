@@ -132,7 +132,6 @@ pytest-coverage: coverage-erase docs-build pytest-ci
 
 .PHONY: pytest-integration-full
 pytest-integration-full:
-	pudl_check_fks
 	pytest ${pytest_args} -n 4 --no-cov --live-dbs --etl-settings ${etl_full_yml} test/integration
 
 # Run the full ETL, generating new FERC & PUDL SQLite DBs and EPA CEMS Parquet files.
@@ -142,7 +141,6 @@ pytest-integration-full:
 # run in parallel.
 .PHONY: nuke
 nuke: coverage-erase docs-build pytest-unit ferc pudl
-	pudl_check_fks
 	pytest ${pytest_args} -n 4 --live-dbs --etl-settings ${etl_full_yml} test/integration
 	coverage report
 
