@@ -447,7 +447,7 @@ in the database and the derived outputs by running
 
 .. code-block:: console
 
-    $ make pytest-validate
+    $ dbt_helper validate
 
 We expect at least some of the validation tests to fail initially because we haven't
 updated the number of records we expect to see in each table.

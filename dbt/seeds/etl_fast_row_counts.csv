@@ -7,6 +7,7 @@ _core_eia860__fgd_equipment,2023,827
 _core_eia860__fgd_equipment,2024,811
 _core_eia923__fgd_operation_maintenance,2020,813
 _core_eia923__monthly_cooling_system_information,2020,15450
+_core_eia923__yearly_fgd_operation_maintenance,2020,813
 core_eia860__assn_boiler_cooling,2020,3005
 core_eia860__assn_boiler_cooling,2023,2904
 core_eia860__assn_boiler_cooling,2024,2894
