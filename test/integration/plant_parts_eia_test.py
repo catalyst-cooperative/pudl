@@ -1,9 +1,8 @@
-"""Validate post-ETL Generators data from EIA 860."""
+"""Test the code that aggregates the EIA Plant Parts."""
 
 import logging
 
 import pandas as pd
-import pytest
 import sqlalchemy as sa
 
 import pudl
@@ -19,19 +18,39 @@ from pudl.helpers import get_parquet_table
 logger = logging.getLogger(__name__)
 
 
-#################
-# Data Validation
-#################
+def prep_test_merge(
+    part_name: str,
+    plant_parts_eia: pd.DataFrame,
+    gens_mega: pd.DataFrame,
+) -> pd.DataFrame:
+    """Run the test groupby and merge with the aggregations."""
+    id_cols = PLANT_PARTS[part_name]["id_cols"]
+    plant_cap = (
+        gens_mega[gens_mega.ownership_record_type == "owned"]
+        .pipe(pudl.helpers.convert_cols_dtypes, "eia")
+        .groupby(by=id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD, observed=True)[SUM_COLS]
+        .sum(min_count=1)
+        .reset_index()
+        .pipe(pudl.helpers.convert_cols_dtypes, "eia")
+    )
+    test_merge = pd.merge(
+        plant_parts_eia[plant_parts_eia.plant_part == part_name],
+        plant_cap,
+        on=id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD,
+        how="outer",
+        indicator=True,
+        suffixes=("", "_test"),
+    )
+    return test_merge
 
 
-def test_run_aggregations(live_dbs: bool, pudl_engine: sa.Engine) -> None:
+def test_run_aggregations(
+    pudl_engine: sa.Engine,  # Implicit dependency to ensure data is available.
+) -> None:
     """Run a test of the aggregated columns.
 
     This test will used the plant_parts_eia, re-run groubys and check similarity.
     """
-    if not live_dbs:
-        pytest.skip("Data validation only works with a live PUDL DB.")
-
     logger.info("Testing ownership fractions for owned records.")
 
     mcoe = get_parquet_table(table_name="out_eia__yearly_generators")
@@ -69,29 +88,3 @@ def test_run_aggregations(live_dbs: bool, pudl_engine: sa.Engine) -> None:
                 logger.warning(
                     f"{test_col} has {len([val for val in result if val is False])} non-unique values when aggregating for {part_name}."
                 )
-
-
-def prep_test_merge(
-    part_name: str,
-    plant_parts_eia: pd.DataFrame,
-    gens_mega: pd.DataFrame,
-) -> pd.DataFrame:
-    """Run the test groupby and merge with the aggregations."""
-    id_cols = PLANT_PARTS[part_name]["id_cols"]
-    plant_cap = (
-        gens_mega[gens_mega.ownership_record_type == "owned"]
-        .pipe(pudl.helpers.convert_cols_dtypes, "eia")
-        .groupby(by=id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD, observed=True)[SUM_COLS]
-        .sum(min_count=1)
-        .reset_index()
-        .pipe(pudl.helpers.convert_cols_dtypes, "eia")
-    )
-    test_merge = pd.merge(
-        plant_parts_eia[plant_parts_eia.plant_part == part_name],
-        plant_cap,
-        on=id_cols + IDX_TO_ADD + IDX_OWN_TO_ADD,
-        how="outer",
-        indicator=True,
-        suffixes=("", "_test"),
-    )
-    return test_merge
