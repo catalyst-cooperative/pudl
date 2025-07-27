@@ -23,7 +23,7 @@ class ExcessiveNullRowsError(ValueError):
 
 def no_null_rows(
     df: pd.DataFrame,
-    cols="all",
+    cols: list[str] | str = "all",
     df_name: str = "",
     max_null_fraction: float = 0.9,
 ) -> pd.DataFrame:
@@ -47,7 +47,7 @@ def no_null_rows(
         ``max_null_fraction``.
     """
     if cols == "all":
-        cols = df.columns
+        cols = list(df.columns)
 
     null_rows = df[cols].isna().sum(axis="columns") / len(cols) > max_null_fraction
     if null_rows.any():
@@ -68,7 +68,7 @@ def group_mean_continuity_check(
     groupby_col: str,
     n_outliers_allowed: int = 0,
 ) -> AssetCheckResult:
-    """Check that certain variables don't vary by too much.
+    """Check that certain variables don't vary too much on average between groups.
 
     Groups and sorts the data by ``groupby_col``, then takes the mean across
     each group. Useful for saying something like "the average water usage of
