@@ -33,6 +33,7 @@ def dbt_target(test_dir: Path, request) -> str:
     return dbt_target
 
 
+@pytest.mark.order(3)
 def test_dbt(
     pudl_io_manager: PudlMixedFormatIOManager,
     test_dir: Path,
