@@ -1,5 +1,7 @@
 """Unit tests for the functions in the pudl.validate module."""
 
+import io
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -28,7 +30,7 @@ import pudl.validate as pv
         ([5], [1], 0.5, 5),
         ([5], [1], 0.0, 5),
         ([5], [1], 1.0, 5),
-        # Two data points - corrected expected values
+        # Two data points
         ([1, 3], [1, 1], 0.5, 2),
         ([1, 3], [1, 3], 0.5, 2.5),
         ([1, 3], [3, 1], 0.5, 1.5),
@@ -104,3 +106,70 @@ def test_weighted_quantile_with_invalid_data(data, weights, quantile, expected):
     weights_series = pd.Series(weights)
     result = pv.weighted_quantile(data_series, weights_series, quantile)
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    "column,threshold,n_outliers_allowed,expected_pass",
+    [
+        # Test cases that should PASS
+        ("stable_metric", 0.1, 0, True),  # Very stable values, low threshold
+        ("gradual_growth", 0.2, 0, True),  # Gradual 10% growth per year, 20% threshold
+        ("sudden_jump", 5.0, 0, True),  # Large jump but threshold accommodates it
+        ("volatile_metric", 0.3, 1, True),  # Volatile but allowing 1 outlier
+        ("negative_change", 0.2, 0, True),  # Consistent 10% decline, 20% threshold
+        # Test cases that should FAIL
+        ("sudden_jump", 0.1, 0, False),  # Large jump (5x) exceeds 10% threshold
+        ("volatile_metric", 0.1, 0, False),  # High volatility exceeds 10% threshold
+        ("sudden_jump", 1.0, 0, False),  # Large jump exceeds even 100% threshold
+        ("gradual_growth", 0.05, 0, False),  # 10% growth exceeds 5% threshold
+    ],
+)
+def test_group_mean_continuity_check(
+    column, threshold, n_outliers_allowed, expected_pass
+):
+    """Test the group_mean_continuity_check function with various scenarios.
+
+    Uses a test dataframe with different column patterns:
+    - stable_metric: Values around 100 with minimal variation
+    - gradual_growth: Steady 10% growth per year
+    - sudden_jump: Large 5x jump from 2022 to 2023
+    - volatile_metric: Random fluctuations around 100
+    - negative_change: Consistent 10% decline per year
+    """
+    # Test data for group_mean_continuity_check function
+    # This dataframe contains various patterns for testing different scenarios
+    mean_continuity_df = pd.read_csv(
+        io.StringIO(
+            """year,stable_metric,gradual_growth,sudden_jump,volatile_metric,negative_change
+    2020,100,100,100,100,1000
+    2021,101,110,102,95,900
+    2022,99,120,105,110,800
+    2023,102,130,500,105,700
+    2024,98,140,510,90,600
+    """
+        )
+    )
+
+    result = pv.group_mean_continuity_check(
+        df=mean_continuity_df,
+        thresholds={column: threshold},
+        groupby_col="year",
+        n_outliers_allowed=n_outliers_allowed,
+    )
+
+    assert result.passed == expected_pass
+
+    # Verify metadata structure
+    assert hasattr(result, "metadata")
+    assert isinstance(result.metadata, dict)
+
+    # If test failed, metadata should contain information about the failing column
+    if not expected_pass:
+        assert column in result.metadata
+        # The metadata values are wrapped in JsonMetadataValue objects
+        # Access the underlying data using the .data attribute
+        column_metadata = result.metadata[column].data
+        assert isinstance(column_metadata, dict)
+        assert "threshold" in column_metadata
+        assert column_metadata["threshold"] == threshold
+        assert "top5" in column_metadata
