@@ -5,7 +5,7 @@ from typing import Any
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_plant_parts": {
         "description": {
-            "additional_summary_text": "the aggregation of all EIA plant parts, for use in matching to FERC 1.",
+            "additional_summary_text": "all EIA plant parts, for use in matching to FERC 1.",
             "usage_warnings": ["aggregation_hazard"],
             "additional_details_text": (
                 """Practically speaking, a plant is a collection of generator(s). There
