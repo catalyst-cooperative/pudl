@@ -31,11 +31,20 @@ Data validation guidelines
 
 .. todo::
 
-   We should chat about the minimum level of data validation that we expect for a table
+   We should chat about the minimum level of data validation that we expect for a table.
 
-   * row counts
-   * no entirely null columns
-   * anything else now?
+   * All dbt tests should pass meaningfully on both the Full ETL and Fast ETL outputs,
+     so that we have a chance of catching data issues in CI before the nightly builds.
+     The one exception to this is the row count checks -- they only apply to the Full
+     ETL outputs.
+   * All tables should have row count checks, unless they have a non-deterministic
+     number of rows. Tables with non-deterministic row counts should have their length
+     checked with `expect_table_row_count_to_be_between <https://github.com/metaplane/dbt-expectations?tab=readme-ov-file#expect_table_row_count_to_be_between>`_
+   * There should be no entirely null columns in the Full ETL outputs. For tables that
+     contain deprecated columns with no data in the recent years processed by the Fast
+     ETL, per-year nullness expectations should be added. See the
+     :mod:`pudl.scripts.pudl_null_cols` script.
+   * What else?
 
 --------------------------------------------------------------------------------
 Example of typical data validation workflow
@@ -60,19 +69,9 @@ Running the data validation tests
 Setting up dbt
 ~~~~~~~~~~~~~~
 
-The dbt directory contains the PUDL dbt project which manages our `data tests
+The ``dbt/`` directory contains the PUDL dbt project which manages our `data tests
 <https://docs.getdbt.com/docs/build/data-tests>`_. To run dbt you'll need to have the
-``pudl-dev`` conda environment activated (see :doc:`dev_setup`). Before running the
-tests you'll want to run the following from within the ``dbt/`` directory in your pudl
-repo:
-
-.. code-block:: bash
-
-    # Install additional dbt-specific dependencies in the dbt project
-    dbt deps
-    # Materializes dbt-specific "seed" tables from CSVs in the seeds/ directory
-    # In our case, these contain the expected row counts for PUDL tables
-    dbt seed
+``pudl-dev`` conda environment activated (see :doc:`dev_setup`).
 
 The data validation tests run on the Parquet outputs that are in your
 ``$PUDL_OUTPUT/parquet/`` directory. It's important that you ensure the outputs you're
@@ -93,26 +92,10 @@ Running dbt directly
 ~~~~~~~~~~~~~~~~~~~~
 
 dbt has its own much more `extensive documentation <https://docs.getdbt.com/>`_. PUDL
-uses only a small subset of its features, and our use case is slightly unusual, since we
-rely on Dagster to coordinate our data pipeline, and are only using dbt for data
-validation. Some quirks of our setup to be aware of:
+uses only a small subset of its features
 
-* From dbt's point of view, the PUDL tables are
-  `sources <https://docs.getdbt.com/docs/build/sources>`_ -- external tables about which
-  it knows very little other than the table and column names. It assumes the tables will
-  will be available, rather than trying to create them. In a typical dbt project, most
-  tables would be defined as `models <https://docs.getdbt.com/docs/build/models>`_ which
-  are somewhat analogous to `Dagster assets
-  <https://docs.dagster.io/guides/build/assets/defining-assets>`_.
-* As a SQL-based tool, dbt generally expects to be querying a database. However, in our
-  case the tables are stored as Apache Parquet files, which we query with SQL via
-  DuckDB. This means some of dbt's functionality is not available. For example, we can't
-  use `the dbt adapter object
-  <https://docs.getdbt.com/reference/dbt-jinja-functions/adapter>`_ in our test
-  definitions because it relies on being able to access the underlying database schema,
-  which doesn't exist (at least, not within the dbt context).
 
-To run all of the data validation tests, from within the ``pudl/dbt/`` directory run:
+To run all of the data validation tests, from within the ``dbt/`` directory run:
 
 .. code-block:: bash
 
@@ -214,12 +197,13 @@ downstream of them should work fine.
 Kicking off a branch build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-But especially when we're doing big quarterly or annual updates, and dozens or hundreds
-of tables are changing simultaneously, it is helpful to be able to run the full ETL from
-scratch, run all of the data validation tests against the outputs, and use the results
-to update the test parameters (especially expected row counts) appropriately. This can
-be done by manually kicking off a PUDL deployment on your branch. To initiate a branch
-build, in the PUDL repo on GitHub go to `Actions
+When we're doing big quarterly or annual updates, and dozens or hundreds of tables are
+changing simultaneously, it is helpful to be able to run the full ETL from scratch, run
+all of the data validation tests against the outputs, and use the results to update the
+test parameters (especially expected row counts) appropriately. This can be done by
+manually kicking off a PUDL deployment on your branch.
+
+To initiate a branch build, in the PUDL repo on GitHub go to `Actions
 <https://github.com/catalyst-cooperative/pudl/actions>`_ and select `build-deploy-pudl
 <https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml>`_.
 On the right hand side select Run Workflow and then select your branch in the dropdown
@@ -244,6 +228,32 @@ count expectations. After a branch build completes, you can download the updated
 outputs. Replace the ``etl_full_row_counts.csv`` in your local PUDL git repo with the
 one you've downloaded and use ``git diff`` to see what has changed. Make sure to review
 the row count changes closely to see if there's anything unexpected.
+
+PUDL Specific Design Choices
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Our usage of dbt is slightly unusual, since we rely on Dagster to coordinate our data
+pipeline, and are only using dbt for data validation. Some quirks of our setup to be
+aware of:
+
+* From dbt's point of view, the PUDL tables are
+  `sources <https://docs.getdbt.com/docs/build/sources>`_ -- external tables about which
+  it knows very little other than the table and column names. It assumes the tables will
+  will be available, rather than trying to create them. In a typical dbt project, most
+  tables would be defined as `models <https://docs.getdbt.com/docs/build/models>`_ which
+  are somewhat analogous to `Dagster assets
+  <https://docs.dagster.io/guides/build/assets/defining-assets>`_.
+* As a SQL-based tool, dbt generally expects to be querying a database. However, in our
+  case the tables are stored as Apache Parquet files, which we query with SQL via
+  DuckDB. This means some of dbt's functionality is not available. For example, we can't
+  use `the dbt adapter object
+  <https://docs.getdbt.com/reference/dbt-jinja-functions/adapter>`_ in our test
+  definitions because it relies on being able to access the underlying database schema,
+  which doesn't exist (at least, not within the dbt context).
+* One exception to this is any intermediate tables that are defined as dbt models (see
+  below). These will be created as materliazed views in a DuckDB database at
+  ``$PUDL_OUTPUT/pudl_dbt_tests.duckdb``. Any time you need to refer to those tables
+  while debugging, you'll need to be connected to that database.
 
 --------------------------------------------------------------------------------
 Debugging data validation failures
@@ -436,7 +446,6 @@ Documentation for the tests that we define is in
 .. todo::
 
    * Integrate documentation of our existing generic tests into the docs build.
-   * Convert all bespoke / singular tests into generic tests.
 
 --------------------------------------------------------------------------------
 Adding new tables
@@ -571,25 +580,19 @@ Creating intermediate tables for a test
 
 .. todo::
 
-   Do we actually have any tests that do the first option below? I don't really
-   understand what it is suggesting :user:`zaneselvans`
+  This section still seems a bit garbled. Clarify and confirm that the instructions are
+  complete and correct.
 
-In some cases you may need to modify a table or calculate some derived values before
-you can apply a test. There are two ways to accomplish this. First, you can add the
-table as a ``source`` as described above, then create a SQL file in the ``tests/``
-directory like ``tests/{data_source}/{table_name}.yml``.  From here you can construct a
-SQL query to modify the table and execute a test on the intermediate table you've
-created. ``dbt`` expects a SQL test to be a query that returns 0 rows for a successful
-test. See the ``dbt`` `source function
-<https://docs.getdbt.com/reference/dbt-jinja-functions/source>`_ for guidance on how to
-reference a ``source`` from a SQL file.
+In some cases you may need to modify a table or calculate some derived values before you
+can apply a test. This can be done by creating a new dbt `model
+<https://docs.getdbt.com/docs/build/models>`_ that materializes the intermediate table
+you want to execute tests on.  Defining a new model means adding a SQL file to
+``dbt/models/{data_source}/{table_name}/`` containing a ``SELECT`` statement. The
+results of that ``SELECT`` will constitute the new table.
 
-The second method is to create a `model <https://docs.getdbt.com/docs/build/models>`_
-which will produce the intermediate table you want to execute tests on. To use this
-approach, simply add a sql file to ``dbt/models/{data_source}/{table_name}/``. Now, add
-a SQL file to this directory named ``validate_{table_name}`` and define your model for
-producing the intermediate table here. Finally, add the model to the ``schema.yml`` file
-and define tests exactly as you would for a ``source`` table. See
+Now, add a SQL file to this directory named ``validate_{table_name}`` and define your
+model for producing the intermediate table here. Finally, add the model to the
+``schema.yml`` file and define tests exactly as you would for a ``source`` table. See
 ``models/ferc1/out_ferc1__yearly_steam_plants_fuel_by_plant_sched402`` for an example of
 this pattern.
 
