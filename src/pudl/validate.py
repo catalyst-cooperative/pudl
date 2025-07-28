@@ -53,10 +53,10 @@ def no_null_rows(
     if null_rows.any():
         raise ExcessiveNullRowsError(
             message=(
-                f"Found {null_rows.sum(axis='rows')} excessively null rows in {df_name}.\n"
+                f"Found {len(null_rows)} excessively null rows in {df_name}.\n"
                 f"{df[null_rows]}"
             ),
-            null_rows=null_rows,
+            null_rows=df[null_rows],
         )
 
     return df
