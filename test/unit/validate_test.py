@@ -21,8 +21,8 @@ import pudl.validate as pv
         ([1, 2, 3, 4, 5], [1, 1, 1, 1, 1], 0.0, 1),
         ([1, 2, 3, 4, 5], [1, 1, 1, 1, 1], 1.0, 5),
         # Non-uniform weights
-        ([1, 2, 3], [1, 2, 1], 0.5, 2),
-        ([10, 20, 30], [1, 3, 1], 0.5, 20),
+        ([1, 2, 3], [1, 1, 3], 0.5, 2.5),
+        ([10, 20, 40], [1, 1, 3], 0.5, 30),
         # Different quantiles with same data
         ([1, 2, 3, 4, 5], [1, 1, 1, 1, 1], 0.25, 1.75),
         ([1, 2, 3, 4, 5], [1, 1, 1, 1, 1], 0.75, 4.25),
@@ -42,12 +42,12 @@ import pudl.validate as pv
         ([1, 2, 3, 4, 5], [0, 0, 0, 0, 1], 0.5, 5),
     ],
 )
-def test_weighted_quantile_parametrized(data, weights, quantile, expected):
+def test_weighted_quantile(data, weights, quantile, expected):
     """Test the weighted quantile function with various inputs."""
     data_series = pd.Series(data)
     weights_series = pd.Series(weights)
     result = pv.weighted_quantile(data_series, weights_series, quantile)
-    assert result == expected
+    assert np.isclose(result, expected)
 
 
 @pytest.mark.parametrize(
@@ -112,16 +112,16 @@ def test_weighted_quantile_with_invalid_data(data, weights, quantile, expected):
     "column,threshold,n_outliers_allowed,expected_pass",
     [
         # Test cases that should PASS
-        ("stable_metric", 0.1, 0, True),  # Very stable values, low threshold
-        ("gradual_growth", 0.2, 0, True),  # Gradual 10% growth per year, 20% threshold
-        ("sudden_jump", 5.0, 0, True),  # Large jump but threshold accommodates it
-        ("volatile_metric", 0.3, 1, True),  # Volatile but allowing 1 outlier
-        ("negative_change", 0.2, 0, True),  # Consistent 10% decline, 20% threshold
+        ("stable_metric", 0.1, 0, True),
+        ("gradual_growth", 0.2, 0, True),
+        ("sudden_jump", 5.0, 0, True),
+        ("volatile_metric", 0.2, 1, True),
+        ("negative_change", 0.2, 0, True),
         # Test cases that should FAIL
-        ("sudden_jump", 0.1, 0, False),  # Large jump (5x) exceeds 10% threshold
-        ("volatile_metric", 0.1, 0, False),  # High volatility exceeds 10% threshold
-        ("sudden_jump", 1.0, 0, False),  # Large jump exceeds even 100% threshold
-        ("gradual_growth", 0.05, 0, False),  # 10% growth exceeds 5% threshold
+        ("sudden_jump", 0.1, 0, False),
+        ("volatile_metric", 0.1, 0, False),
+        ("sudden_jump", 1.0, 0, False),
+        ("gradual_growth", 0.05, 0, False),
     ],
 )
 def test_group_mean_continuity_check(
@@ -131,10 +131,10 @@ def test_group_mean_continuity_check(
 
     Uses a test dataframe with different column patterns:
     - stable_metric: Values around 100 with minimal variation
-    - gradual_growth: Steady 10% growth per year
+    - gradual_growth: Fixed growth of 10 per year
     - sudden_jump: Large 5x jump from 2022 to 2023
-    - volatile_metric: Random fluctuations around 100
-    - negative_change: Consistent 10% decline per year
+    - volatile_metric: Random fluctuations around 100, one of which is larger
+    - negative_change: Fixed decline of 100 per year
     """
     # Test data for group_mean_continuity_check function
     # This dataframe contains various patterns for testing different scenarios
@@ -143,7 +143,7 @@ def test_group_mean_continuity_check(
             """year,stable_metric,gradual_growth,sudden_jump,volatile_metric,negative_change
     2020,100,100,100,100,1000
     2021,101,110,102,95,900
-    2022,99,120,105,110,800
+    2022,99,120,105,130,800
     2023,102,130,500,105,700
     2024,98,140,510,90,600
     """
