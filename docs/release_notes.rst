@@ -21,11 +21,31 @@ Quality of Life Improvements
   our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
   :issue:`4119` and :pr:`4401`.
 
+* Stopped running code checks in CI when only the documentation has changed.
+  See issue :issue:`4410` and PR :pr:`4429`.
+
 Bug Fixes
 ^^^^^^^^^
 
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
   :issue:`4328` and PR :pr:`4392`.
+
+Documentation
+^^^^^^^^^^^^^
+
+* Migrated table description metadata into new format; see epic :issue:`4358` for
+  issues & PRs for all source groups.
+
+  * This included renaming two of the preliminarily published ``_core`` tables to better
+    conform with our table naming conventions. Table
+    ``_core_eia923__cooling_system_information`` is now
+    :ref:`i_core_eia923__monthly_cooling_system_information` and
+    ``_core_eia923__fgd_operation_maintenance`` is now
+    :ref:`i_core_eia923__yearly_fgd_operation_maintenance`. See :pr:`4422`.
+
+* Added data source pages for:
+
+  * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
 
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -42,8 +62,8 @@ tables include :ref:`out_eia930__hourly_operations`,
 :ref:`out_eia930__hourly_subregion_demand`, and
 :ref:`out_ferc714__hourly_planning_area_demand`. See PR :pr:`4334`.
 
-Check for entirely null columns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Check for entirely null column-years
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously we had a data validation check that ensured there were no entirely null
 columns applied to a handful of tables. Such columns were typically the result of typos
@@ -62,6 +82,9 @@ changes to the database schema:
 * Three previously entirely null ``boolean`` columns in the multifuel generator table
   now contain real values, they are: ``can_fuel_switch``, ``has_regulatory_limits``,
   and ``can_cofire_oil_and_gas``.
+
+Unusual patterns of null values were identified and investigated in issue :issue:`4407`
+with some additional explanations added in PR :pr:`4442`.
 
 .. _release-v2025.7.0:
 
@@ -765,7 +788,7 @@ EIA-860 & EIA-923
 
 * Added cleaned EIA860 Schedule 8E FGD Equipment and EIA923 Schedule 8C FGD Operation
   and Maintenance data to the PUDL database as
-  :ref:`i_core_eia923__fgd_operation_maintenance` and
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance` and
   :ref:`i_core_eia860__fgd_equipment`. Once harvested, these tables will eventually be
   removed from the database, but they are being published until then. See :issue:`3394`
   and :issue:`3392`, and :pr:`3403`.

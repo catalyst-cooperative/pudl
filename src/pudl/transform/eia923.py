@@ -435,13 +435,14 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _coalmine_cleanup(
-    cmi_df: pd.DataFrame, _core_censuspep__yearly_geocodes
+    cmi_df: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Clean up the core_eia923__entity_coalmine table.
 
-    This function does most of the core_eia923__entity_coalmine table transformation. It is separate
-    from the coalmine() transform function because of the peculiar way that we are
-    normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
+    This function does most of the core_eia923__entity_coalmine table transformation. It
+    is separate from the coalmine() transform function because of the peculiar way that
+    we are normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
 
     All of the coalmine information is originally coming from the EIA
     fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -1113,8 +1114,7 @@ def _core_eia923__fuel_receipts_costs(
     """
     frc_df = raw_eia923__fuel_receipts_costs
 
-    # Drop fields we're not inserting into the eia923__fuel_receipts_costs
-    # table.
+    # Drop fields we're not inserting into the eia923__fuel_receipts_costs table.
     cols_to_drop = [
         "plant_name_eia",
         "plant_state",
@@ -1226,7 +1226,7 @@ def _core_eia923__fuel_receipts_costs(
 
 
 @asset(io_manager_key="pudl_io_manager")
-def _core_eia923__cooling_system_information(
+def _core_eia923__monthly_cooling_system_information(
     raw_eia923__cooling_system_information: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the eia923__cooling_system_information dataframe.
@@ -1294,7 +1294,7 @@ def _core_eia923__cooling_system_information(
     )
 
 
-@asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
+@asset_check(asset=_core_eia923__monthly_cooling_system_information, blocking=True)
 def cooling_system_information_continuity(csi):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
@@ -1318,10 +1318,10 @@ def cooling_system_information_continuity(csi):
 
 
 @asset(io_manager_key="pudl_io_manager")
-def _core_eia923__fgd_operation_maintenance(
+def _core_eia923__yearly_fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transforms the _core_eia923__fgd_operation_maintenance table.
+    """Transforms the _core_eia923__yearly_fgd_operation_maintenance table.
 
     Transformations include:
 
@@ -1335,7 +1335,7 @@ def _core_eia923__fgd_operation_maintenance(
         raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__fgd_operation_maintenance`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for harvesting.
     """
     fgd_df = raw_eia923__fgd_operation_maintenance
 
@@ -1392,7 +1392,7 @@ def _core_eia923__fgd_operation_maintenance(
     )
 
 
-@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+@asset_check(asset=_core_eia923__yearly_fgd_operation_maintenance, blocking=True)
 def fgd_continuity_check(fgd):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
