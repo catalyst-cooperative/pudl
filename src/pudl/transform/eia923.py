@@ -1404,7 +1404,7 @@ def fgd_continuity_check(fgd):
         thresholds={
             "fgd_electricity_consumption_mwh": 0.3,
             "fgd_hours_in_service": 0.1,
-            "fgd_sorbent_consumption_1000_tons": 0.2,
+            "fgd_sorbent_consumption_tons": 0.2,
             "so2_removal_efficiency_tested": 0.1,
             "so2_removal_efficiency_annual": 0.1,
         },
