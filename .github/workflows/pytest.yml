@@ -19,7 +19,8 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && github.event.merge_group) }}
+      # 2025-07-17: because merge_group is an Object and run_code_checks is not a conditional, need to explicitly check for null-ness instead of relying on truthiness.
+      run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && (github.event.merge_group != null)) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,7 +37,13 @@ jobs:
               - '!docs/**.pdf'
               - '!docs/**.html'
               - '!docs/**.rst.jinja'
+              - '!docs/**.bib'
               - '!README.rst'
+      - name: print out components
+        run: |
+          echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
+          echo "found code changes: ${{ steps.filter.outputs.code }}"
+          echo "merge_group ${{ github.event.merge_group }} is not null: ${{ github.event.merge_group != null }}"
 
   ci-docs:
     runs-on: ubuntu-latest

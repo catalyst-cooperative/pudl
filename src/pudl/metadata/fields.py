@@ -1049,7 +1049,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "data_maturity": {
         "type": "string",
-        "description": "Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        "description": (
+            "Maturity of the source data published by EIA that is reflected in this "
+            "record. EIA releases data incrementally over time, including monthly "
+            "updates, annual year-to-date updates, provisional early releases of "
+            "annual data, and final annual release data that is not expected to change "
+            "further. Records sourced from multiple upstream EIA datasets may have "
+            "no well defined data maturity. Records whose values have been inferred "
+            "within PUDL will also have no data maturity."
+        ),
     },
     "datasource": {
         "type": "string",
@@ -1593,11 +1601,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. "
+            "The ID is manually assigned and has not been updated since 2020, but "
+            "only affects a couple hundred records total across all years."
+        ),
     },
     "ferc1_generator_agg_id_plant_gen": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. This ID is associated with the record_id_eia_plant_gen record.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. This "
+            "ID is associated with the record_id_eia_plant_gen record. It depends on "
+            "ferc1_generator_agg_id, which has not been updated since 2020, but only "
+            "affects a couple hundred records total across all years."
+        ),
     },
     "ferc_account": {
         "type": "string",

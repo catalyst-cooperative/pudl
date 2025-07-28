@@ -5,6 +5,11 @@ sources:
       - name: core_eia860__scd_boilers
         data_tests:
           - expect_columns_not_all_null:
+              description: >
+                This table has a lot of row_conditions because it has a few columns that
+                are found in the EIA-860M generators table (and so appear in the most
+                recent monthly data) but most of the columns are specific to boilers,
+                which are not reported in the EIA-860M.
               ignore_eia860m_nulls: true
               row_conditions:
                 boiler_operating_date: EXTRACT(year FROM report_date) >= 2009
