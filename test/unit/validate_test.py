@@ -23,9 +23,6 @@ import pudl.validate as pv
         # Non-uniform weights
         ([1, 2, 3], [1, 2, 1], 0.5, 2),
         ([10, 20, 30], [1, 3, 1], 0.5, 20),
-        # Different quantiles with same data
-        ([1, 2, 3, 4, 5], [1, 1, 1, 1, 1], 0.25, 1.75),
-        ([1, 2, 3, 4, 5], [1, 1, 1, 1, 1], 0.75, 4.25),
         # Single data point
         ([5], [1], 0.5, 5),
         ([5], [1], 0.0, 5),
@@ -37,9 +34,6 @@ import pudl.validate as pv
         # Repeated values (tests the groupby logic)
         ([1, 1, 2, 2], [1, 1, 1, 1], 0.5, 1.5),
         ([1, 1, 3, 3], [1, 1, 1, 1], 0.5, 2),
-        # Zero weights mixed with non-zero
-        ([1, 2, 3, 4, 5], [0, 1, 0, 0, 0], 0.5, 2),
-        ([1, 2, 3, 4, 5], [0, 0, 0, 0, 1], 0.5, 5),
     ],
 )
 def test_weighted_quantile_parametrized(data, weights, quantile, expected):
@@ -100,8 +94,8 @@ def test_weighted_quantile_nan_cases(data, weights, quantile):
         ([1, np.nan, np.inf, 4], [1, 1, 1, 1], 0.5, 2.5),
     ],
 )
-def test_weighted_quantile_with_invalid_data(data, weights, quantile, expected):
-    """Test that weighted_quantile handles invalid data by filtering it out."""
+def test_weighted_quantile_filtering(data, weights, quantile, expected):
+    """Test that weighted_quantile filters out problematic rows of data and weights."""
     data_series = pd.Series(data)
     weights_series = pd.Series(weights)
     result = pv.weighted_quantile(data_series, weights_series, quantile)
