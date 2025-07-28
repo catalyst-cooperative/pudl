@@ -26,6 +26,10 @@ estimates.""",
                     "type": "custom",
                     "description": "Due to coverage problems in other tables, some generators have heat rate estimates but not fuel cost estimates.",
                 },
+                {
+                    "type": "custom",
+                    "description": "Not all columns are originally reported in or calculable from the input tables. Expect nulls.",
+                    },
             ],
         },
         "schema": {

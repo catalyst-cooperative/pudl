@@ -6,6 +6,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_plant_parts": {
         "description": {
             "additional_summary_text": "the aggregation of all EIA plant parts, for use in matching to FERC 1.",
+            "usage_warnings": ["aggregation_hazard"],
             "additional_details_text": (
                 """Practically speaking, a plant is a collection of generator(s). There
 are many attributes of generators (i.e. prime mover, primary fuel source, technology
@@ -93,6 +94,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
     "out_eia__yearly_generators_by_ownership": {
         "description": {
             "additional_summary_text": "all EIA generators with ownership integrated.",
+            "usage_warnings": ["aggregation_hazard"],
         },
         "schema": {
             "fields": [
@@ -137,6 +139,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
     "out_eia__yearly_assn_plant_parts_plant_gen": {
         "description": {
             "additional_summary_text": "plant parts (identified as ``record_id_eia``) and  'plant_gen' records (identified as ``record_id_eia_plant_gen``) from the :ref:`out_eia__yearly_plant_parts` table.",
+            "usage_warnings": ["aggregation_hazard"],
             "additional_details_text": """
 The purpose of this table is to help determine what generator records are associated
 with every plant part record. The plant part records have a one to many relationship
