@@ -29,7 +29,7 @@ estimates.""",
                 {
                     "type": "custom",
                     "description": "Not all columns are originally reported in or calculable from the input tables. Expect nulls.",
-                    },
+                },
             ],
         },
         "schema": {
