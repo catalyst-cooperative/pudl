@@ -4157,7 +4157,7 @@ package:
     category: main
     optional: false
   - name: coverage
-    version: 7.10.0
+    version: 7.10.1
     manager: conda
     platform: linux-64
     dependencies:
@@ -4166,14 +4166,14 @@ package:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       tomli: ""
-    url: https://conda.anaconda.org/conda-forge/linux-64/coverage-7.10.0-py312h8a5da7c_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/coverage-7.10.1-py312h8a5da7c_0.conda
     hash:
-      md5: 10c5a17b4546b4e236031ef8177cf9d1
-      sha256: dd85469de0d62d65c456abfefd62939a28cb53704120b4f43f14f967b5123d53
+      md5: 712f11dddb6b50bce51ed11a73b6d9c2
+      sha256: ec4574e012597c73a49681fab4da8516a3582da019374a3826ab2e34d5568ac6
     category: main
     optional: false
   - name: coverage
-    version: 7.10.0
+    version: 7.10.1
     manager: conda
     platform: osx-64
     dependencies:
@@ -4181,14 +4181,14 @@ package:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       tomli: ""
-    url: https://conda.anaconda.org/conda-forge/osx-64/coverage-7.10.0-py312h3d55d04_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/coverage-7.10.1-py312h3d55d04_0.conda
     hash:
-      md5: 85bb94bf657c2ee1ca0b033208a3480e
-      sha256: 2fd77045f938584065d99433073652f1160c4147b2ae7e491b77011bc806730b
+      md5: 70f04b486763c0b733c9e5a9b767a6f7
+      sha256: 8094bbc0fe00b49d896772294f3e2bd48476c746802ba14d6e6a4ef399b5706d
     category: main
     optional: false
   - name: coverage
-    version: 7.10.0
+    version: 7.10.1
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -4196,10 +4196,10 @@ package:
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
       tomli: ""
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/coverage-7.10.0-py312h6daa0e5_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/coverage-7.10.1-py312h6daa0e5_0.conda
     hash:
-      md5: c5992e07bfe90eb90c59195274d9101c
-      sha256: 3e839d5be8df2f80df8dbba5d59dd5b65c4683449e56c7c61cfd06d939fae2ba
+      md5: 9f5d4fd13a414de7985297c8a55c3e65
+      sha256: e2b3ed7b55436a2be9c12998905962614fa6ca1711b2e89228a2e7d9f5a42399
     category: main
     optional: false
   - name: crashtest
@@ -8982,82 +8982,82 @@ package:
     category: main
     optional: false
   - name: graphviz
-    version: 12.2.1
+    version: 13.1.1
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
       adwaita-icon-theme: ""
-      cairo: ">=1.18.2,<2.0a0"
+      cairo: ">=1.18.4,<2.0a0"
       fonts-conda-ecosystem: ""
       gdk-pixbuf: ">=2.42.12,<3.0a0"
       gtk3: ">=3.24.43,<4.0a0"
       gts: ">=0.7.6,<0.8.0a0"
-      libexpat: ">=2.6.4,<3.0a0"
-      libgcc: ">=13"
+      libexpat: ">=2.7.1,<3.0a0"
+      libgcc: ">=14"
       libgd: ">=2.3.3,<2.4.0a0"
-      libglib: ">=2.82.2,<3.0a0"
+      libglib: ">=2.84.2,<3.0a0"
       librsvg: ">=2.58.4,<3.0a0"
-      libstdcxx: ">=13"
-      libwebp-base: ">=1.5.0,<2.0a0"
+      libstdcxx: ">=14"
+      libwebp-base: ">=1.6.0,<2.0a0"
       libzlib: ">=1.3.1,<2.0a0"
-      pango: ">=1.56.1,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/graphviz-12.2.1-h5ae0cbf_1.conda
+      pango: ">=1.56.4,<2.0a0"
+    url: https://conda.anaconda.org/conda-forge/linux-64/graphviz-13.1.1-h87b6fe6_0.conda
     hash:
-      md5: df7835d2c73cd1889d377cfd6694ada4
-      sha256: e6866409ba03df392ac5ec6f0d6ff9751a685ed917bfbcd8a73f550c5fe83c2b
+      md5: d7326344300afcd65b6c87f238301660
+      sha256: fedeeb51bf0ef7b986153f6a48418749d5a3aa5bcd6ea2153adc0c3549083d63
     category: dev
     optional: true
   - name: graphviz
-    version: 12.2.1
+    version: 13.1.1
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
       adwaita-icon-theme: ""
-      cairo: ">=1.18.2,<2.0a0"
+      cairo: ">=1.18.4,<2.0a0"
       fonts-conda-ecosystem: ""
       gdk-pixbuf: ">=2.42.12,<3.0a0"
       gtk3: ">=3.24.43,<4.0a0"
       gts: ">=0.7.6,<0.8.0a0"
-      libcxx: ">=18"
-      libexpat: ">=2.6.4,<3.0a0"
+      libcxx: ">=19"
+      libexpat: ">=2.7.1,<3.0a0"
       libgd: ">=2.3.3,<2.4.0a0"
-      libglib: ">=2.82.2,<3.0a0"
+      libglib: ">=2.84.2,<3.0a0"
       librsvg: ">=2.58.4,<3.0a0"
-      libwebp-base: ">=1.5.0,<2.0a0"
+      libwebp-base: ">=1.6.0,<2.0a0"
       libzlib: ">=1.3.1,<2.0a0"
-      pango: ">=1.56.1,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/graphviz-12.2.1-h44a0556_1.conda
+      pango: ">=1.56.4,<2.0a0"
+    url: https://conda.anaconda.org/conda-forge/osx-64/graphviz-13.1.1-h42bfd48_0.conda
     hash:
-      md5: f1e519616cb1c137cff9849cfa1beb93
-      sha256: 3a8eef238000e8fcb8f4f31a035869d7b5ad0466f69c72e9064786b54d1812cc
+      md5: ac9419958229e778c701783173b99560
+      sha256: 3da776740b21fc8a37d9e3ea4ea200a29d800dc141d58c94975067b354f8c2c9
     category: dev
     optional: true
   - name: graphviz
-    version: 12.2.1
+    version: 13.1.1
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
       adwaita-icon-theme: ""
-      cairo: ">=1.18.2,<2.0a0"
+      cairo: ">=1.18.4,<2.0a0"
       fonts-conda-ecosystem: ""
       gdk-pixbuf: ">=2.42.12,<3.0a0"
       gtk3: ">=3.24.43,<4.0a0"
       gts: ">=0.7.6,<0.8.0a0"
-      libcxx: ">=18"
-      libexpat: ">=2.6.4,<3.0a0"
+      libcxx: ">=19"
+      libexpat: ">=2.7.1,<3.0a0"
       libgd: ">=2.3.3,<2.4.0a0"
-      libglib: ">=2.82.2,<3.0a0"
+      libglib: ">=2.84.2,<3.0a0"
       librsvg: ">=2.58.4,<3.0a0"
-      libwebp-base: ">=1.5.0,<2.0a0"
+      libwebp-base: ">=1.6.0,<2.0a0"
       libzlib: ">=1.3.1,<2.0a0"
-      pango: ">=1.56.1,<2.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/graphviz-12.2.1-hff64154_1.conda
+      pango: ">=1.56.4,<2.0a0"
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/graphviz-13.1.1-hcd33d8b_0.conda
     hash:
-      md5: b0b656550a16dfba7efa1479756c5b63
-      sha256: 54e3ce5668b17ea41fed515e57fbd9e805969df468eaf7ff65389d7f53b46d54
+      md5: 6b14893bae1d5ecbfb9ca40cfd696708
+      sha256: c6b318b78b45984167338496b9c69b5733064c314c59b22da4dc51914512edaf
     category: dev
     optional: true
   - name: greenlet
@@ -20360,14 +20360,14 @@ package:
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      graphviz: ">=12.0.0,<13.0a0"
-      libgcc: ">=13"
+      graphviz: ">=13.1.1,<14.0a0"
+      libgcc: ">=14"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/pygraphviz-1.14-py312h011e53f_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/pygraphviz-1.14-py312hdfa1987_1.conda
     hash:
-      md5: bad112802852496a8a8e41fd3ae9128d
-      sha256: f423d359ed9e989dd48f9c4531acebb67b96a1eb7fd60257c8e08d77e741168f
+      md5: f1a41e0f9ddd2ec652b099eb76069d31
+      sha256: 511de6392984d8ad8f8d180c8dfa927f16599285459f1772b35ea2aed6495145
     category: dev
     optional: true
   - name: pygraphviz
@@ -20376,13 +20376,13 @@ package:
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-      graphviz: ">=12.0.0,<13.0a0"
+      graphviz: ">=13.1.1,<14.0a0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/pygraphviz-1.14-py312hc79309e_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/pygraphviz-1.14-py312h8a3153c_1.conda
     hash:
-      md5: 6b31481865012bc097123faab8d2483a
-      sha256: af9996bd040a0c1c5278777e1ed60efef38bea34dfcf61eefdef1022cd6073af
+      md5: e2f6bdc41672212c179ac539db728353
+      sha256: 8dbf681e8438ad79d6ff4abcc6567895e5c34919abec7e1549b5e02a61deb721
     category: dev
     optional: true
   - name: pygraphviz
@@ -20391,13 +20391,13 @@ package:
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-      graphviz: ">=12.0.0,<13.0a0"
+      graphviz: ">=13.1.1,<14.0a0"
       python: ">=3.12,<3.13.0a0"
       python_abi: 3.12.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pygraphviz-1.14-py312h1fbede1_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pygraphviz-1.14-py312he738534_1.conda
     hash:
-      md5: 52e4b69726aa9e114f8a6fa24bd643d2
-      sha256: 49496bce9ff96adfad0395f84f8f03ccc9906c8e811b126af93549d44493b454
+      md5: 27bafa424ae6d1c69015e11b57d20168
+      sha256: e618388fdf344c2d3904bcd91ebad0dad57c995f3546c74a6044e4353e67f4c2
     category: dev
     optional: true
   - name: pyicu
