@@ -4,23 +4,23 @@
 Data Validation Tests
 ================================================================================
 
-We use a tool called `dbt <https://www.getdbt.com/>`_ to manage our data validation
+We use a tool called `dbt <https://www.getdbt.com/>`__ to manage our data validation
 tests. dbt is a SQL-based data transformation tool that can be used to manage large data
 pipelines, but we're currently only using it for data validation.
 
 In dbt, every data validation test is a SQL query meant to select rows that fail the
 test. A successful test will return no results. The query can be parametrized so it can
 be reused across multiple tables. dbt includes a few `built-in data test definitions
-<https://docs.getdbt.com/docs/build/data-tests>`_, and the `dbt_expectations
-<https://github.com/metaplane/dbt-expectations>`_ package provides many more. We also
+<https://docs.getdbt.com/docs/build/data-tests>`__, and the `dbt_expectations
+<https://github.com/metaplane/dbt-expectations>`__ package provides many more. We also
 define our own `custom data tests
-<https://docs.getdbt.com/best-practices/writing-custom-generic-tests>`_.
+<https://docs.getdbt.com/best-practices/writing-custom-generic-tests>`__.
 
 .. note:: Why use dbt and SQL instead of Python?
 
    Modern analytical query engines are extremely fast and memory efficient. By using dbt
-   with `DuckDB <https://duckdb.org/>`_ to query the PUDL `Parquet
-   <https://parquet.apache.org/>`_ outputs we're able to run thousands of validations
+   with `DuckDB <https://duckdb.org/>`__ to query the PUDL `Parquet
+   <https://parquet.apache.org/>`__ outputs we're able to run thousands of validations
    across hundreds of tables with billions of rows in a minute, instead of the 2-3 hours
    it used to take our much less extensive validation tests to run. Plus we get to learn
    SQL.
@@ -70,7 +70,7 @@ Setting up dbt
 ~~~~~~~~~~~~~~
 
 The ``dbt/`` directory contains the PUDL dbt project which manages our `data tests
-<https://docs.getdbt.com/docs/build/data-tests>`_. To run dbt you'll need to have the
+<https://docs.getdbt.com/docs/build/data-tests>`__. To run dbt you'll need to have the
 ``pudl-dev`` conda environment activated (see :doc:`dev_setup`).
 
 The data validation tests run on the Parquet outputs that are in your
@@ -91,7 +91,7 @@ be surprised when the data test fails in CI or the nightly builds.
 Running dbt directly
 ~~~~~~~~~~~~~~~~~~~~
 
-dbt has its own much more `extensive documentation <https://docs.getdbt.com/>`_. PUDL
+dbt has its own much more `extensive documentation <https://docs.getdbt.com/>`__. PUDL
 uses only a small subset of its features
 
 
@@ -128,7 +128,7 @@ the row counts and avoid seeing all those spurious failures you could run:
    dbt build --exclude "test_name:check_row_counts_per_partition"
 
 For more options, see the `dbt selection syntax documentation
-<https://docs.getdbt.com/reference/node-selection/syntax>`_.
+<https://docs.getdbt.com/reference/node-selection/syntax>`__.
 
 .. note::
 
@@ -139,7 +139,7 @@ For more options, see the `dbt selection syntax documentation
 .. note::
 
    There are a handful of data validation tests that have been implemented using
-   `Dagster's asset checks <https://docs.dagster.io/guides/test/asset-checks>`_.
+   `Dagster's asset checks <https://docs.dagster.io/guides/test/asset-checks>`__.
    Typically these tests weren't well suited to SQL, weren't performance bottlenecks,
    and had already been implemented in Python. E.g. :func:`pudl.validate.no_null_rows`.
 
@@ -151,7 +151,7 @@ more ergonomic. It's called :mod:`pudl.scripts.dbt_helper` and is installed in t
 ``pudl-dev`` conda environment. ``dbt_helper validate`` runs the data validation tests
 and provides richer output when a test fails than ``dbt build``. It also allows us to
 use the `Dagster asset selection syntax
-<https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference>`_.
+<https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference>`__.
 
 Example usage:
 
@@ -204,14 +204,14 @@ test parameters (especially expected row counts) appropriately. This can be done
 manually kicking off a PUDL deployment on your branch.
 
 To initiate a branch build, in the PUDL repo on GitHub go to `Actions
-<https://github.com/catalyst-cooperative/pudl/actions>`_ and select `build-deploy-pudl
-<https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml>`_.
+<https://github.com/catalyst-cooperative/pudl/actions>`__ and select `build-deploy-pudl
+<https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml>`__.
 On the right hand side select Run Workflow and then select your branch in the dropdown
 and click the Run Workflow button. Shortly thereafter you should see a notification in
 the ``pudl-deployments`` channel in our Slack saying that the build has kicked off. It
 should take about 3 hours to complete. You can track its progress and watch the logs in
 the `Google Cloud Console
-<https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24>`_.
+<https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24>`__.
 
 Getting fresh row counts from a branch build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -229,6 +229,8 @@ outputs. Replace the ``etl_full_row_counts.csv`` in your local PUDL git repo wit
 one you've downloaded and use ``git diff`` to see what has changed. Make sure to review
 the row count changes closely to see if there's anything unexpected.
 
+.. _pudl_dbt_quirks:
+
 PUDL Specific Design Choices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -237,21 +239,20 @@ pipeline, and are only using dbt for data validation. Some quirks of our setup t
 aware of:
 
 * From dbt's point of view, the PUDL tables are
-  `sources <https://docs.getdbt.com/docs/build/sources>`_ -- external tables about which
-  it knows very little other than the table and column names. It assumes the tables will
-  will be available, rather than trying to create them. In a typical dbt project, most
-  tables would be defined as `models <https://docs.getdbt.com/docs/build/models>`_ which
-  are somewhat analogous to `Dagster assets
-  <https://docs.dagster.io/guides/build/assets/defining-assets>`_.
+  `sources <https://docs.getdbt.com/docs/build/sources>`__ -- external tables about
+  which it knows very little other than the table and column names. It assumes the
+  tables will be available, rather than trying to create them. In a typical dbt project,
+  most tables would be defined as `models <https://docs.getdbt.com/docs/build/models>`__
+  which are somewhat analogous to `Dagster assets
+  <https://docs.dagster.io/guides/build/assets/defining-assets>`__.
 * As a SQL-based tool, dbt generally expects to be querying a database. However, in our
   case the tables are stored as Apache Parquet files, which we query with SQL via
   DuckDB. This means some of dbt's functionality is not available. For example, we can't
   use `the dbt adapter object
-  <https://docs.getdbt.com/reference/dbt-jinja-functions/adapter>`_ in our test
+  <https://docs.getdbt.com/reference/dbt-jinja-functions/adapter>`__ in our test
   definitions because it relies on being able to access the underlying database schema,
-  which doesn't exist (at least, not within the dbt context).
 * One exception to this is any intermediate tables that are defined as dbt models (see
-  below). These will be created as materliazed views in a DuckDB database at
+  below). These will be created as materialized views in a DuckDB database at
   ``$PUDL_OUTPUT/pudl_dbt_tests.duckdb``. Any time you need to refer to those tables
   while debugging, you'll need to be connected to that database.
 
@@ -361,7 +362,7 @@ Depending on the situation, from here you can:
 Applying pre-defined validations to existing data
 --------------------------------------------------------------------------------
 
-Applyng an existing generic test to an existing table should be as easy as editing
+Applying an existing generic test to an existing table should be as easy as editing
 the ``schema.yml`` file associated with that table, and adding a new test specification
 to the ``data_tests`` section of either the table as a whole or an individual column.
 The ``schema.yml`` for ``table_name`` can be found at
@@ -373,8 +374,8 @@ column they are applied to.
 
 Pre-defined tests
 ~~~~~~~~~~~~~~~~~
-Our dbt project includes `dbt-utils <https://github.com/dbt-labs/dbt-utils>`_ and
-`dbt-expectations <https://github.com/metaplane/dbt-expectations>`_ as dependencies.
+Our dbt project includes `dbt-utils <https://github.com/dbt-labs/dbt-utils>`__ and
+`dbt-expectations <https://github.com/metaplane/dbt-expectations>`__ as dependencies.
 These packages include a bunch of useful tests that can be applied to any table.
 There are several examples of applying tests from ``dbt-expectations`` in
 ``dbt/models/vcerare/out_vcerare__hourly_available_capacity_factor/schema.yml``
@@ -463,7 +464,7 @@ Using ``dbt_helper update-tables``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To add a new PUDL table to the dbt project, you must add it as a `dbt
-source <https://docs.getdbt.com/docs/build/sources>`_. The ``dbt_helper`` script
+source <https://docs.getdbt.com/docs/build/sources>`__. The ``dbt_helper`` script
 automates the initial setup with the ``update-tables`` subcommand.
 
 To add a new table called ``new_table_name`` that has already been defined as a resource
@@ -557,13 +558,51 @@ building on the above example would look like:
 Defining new data validation tests
 --------------------------------------------------------------------------------
 
-* How to define a new generic test (lean on references to dbt docs when possible)
-* Focus on the things that make the PUDL use case unusual.
-* DuckDB + Parquet means we can't rely on ``adapter`` object methods (no real DB)
-* Almost all our tables are "sources" not "models"
+.. note::
+
+  For comprehensive coverage, see `the dbt documentation
+  <https://docs.getdbt.com/best-practices/writing-custom-generic-tests>`__
+
+In dbt a data test is a ``SELECT`` statement written in SQL that's designed to return
+no results when the test passes. When the test fails, the results should be helpful in
+diagnosing the reason for the failure. In simple tests that check some per-row criteria,
+the results might just be all the rows that didn't meet the specified criteria. For
+tests that check some property of groups, multiple columns, or the table as a whole, it
+can be helpful to construct a result set that provides a summary of what failed.
+
+Generic dbt data tests are often parametrized, meaning they take arguments other than
+the table being tested. These arguments and other information that is available from dbt
+can be used along with Jinja templates to dynamically construct complex SQL statements,
+leading to more generalizable, reusable tests.
+
+If you're not already familiar with SQL, some useful resources:
+
+* `Interactive Mode SQL Tutorial <https://mode.com/sql-tutorial>`__
+* `Greg Wilson's Querynomicon <https://third-bit.com/sql/>`__
+* `Interactive DuckDB SQL Tutorial <https://motherduckdb.github.io/sql-tutorial/>`__
+* `DuckDB SQL Introduction <https://duckdb.org/docs/stable/sql/introduction.html>`__
+* `SQL for Data Scientists <https://www.oreilly.com/library/view/sql-for-data/9781119669364/>`__ (book)
+
+Many LLMs are also good at converting detailed natural language descriptions of a query
+into SQL, but you'll still need to have your own understanding of SQL to ensure that
+it's really doing what you intended, and to keep the queries readable and concise.
+
+Before defining a custom generic data test, make sure you check to see whether the test
+you need is already provided by `dbt-utils
+<https://hub.getdbt.com/dbt-labs/dbt_utils/latest/>`__ or `dbt-expectations
+<https://github.com/metaplane/dbt-expectations>`__.
+
+.. note::
+
+  Refer to :ref:`pudl_dbt_quirks` above for an explanation of some details of our dbt
+  setup that may affect what functionality is available when writing new tests.
 
 Defining Macros
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo::
+
+  Flesh out this section :user:`jdangerx`
 
 * In dbt, macros are reusable SQL snippets that can be used to simplify your tests. You
   can define a macro once and then use it in multiple tests. This is particularly useful
@@ -571,6 +610,10 @@ Defining Macros
 
 Testing the Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. todo::
+
+  Flesh out this section :user:`jdangerx`
 
 * One reason to create macros for more complex functions is that they can be
   independently unit-tested.
@@ -581,11 +624,11 @@ Creating intermediate tables for a test
 .. todo::
 
   This section still seems a bit garbled. Clarify and confirm that the instructions are
-  complete and correct.
+  complete and correct. :user:`jdangerx`
 
 In some cases you may need to modify a table or calculate some derived values before you
-can apply a test. This can be done by creating a new dbt `model
-<https://docs.getdbt.com/docs/build/models>`_ that materializes the intermediate table
+can apply a test. This can be done by creating a new `dbt model
+<https://docs.getdbt.com/docs/build/models>`__ that materializes the intermediate table
 you want to execute tests on.  Defining a new model means adding a SQL file to
 ``dbt/models/{data_source}/{table_name}/`` containing a ``SELECT`` statement. The
 results of that ``SELECT`` will constitute the new table.
@@ -638,7 +681,7 @@ Debugging dbt test failures
 
 When a more complex test that relies on custom SQL fails, we can debug it using
 ``duckdb``.  There are many ways to interact with ``duckdb``, here will use the CLI. See
-the `here <https://duckdb.org/docs/installation/>`_ for installation directions. To
+the `here <https://duckdb.org/docs/installation/>`__ for installation directions. To
 launch the CLI, navigate to the directory that your ``PUDL_OUTPUT`` environment variable
 points to, and execute:
 
