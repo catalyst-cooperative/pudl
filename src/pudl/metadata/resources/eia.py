@@ -526,7 +526,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_pudl__codes_data_maturities": {
-        "description": "Level of maturities of data records. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        "description": {
+            "additional_summary_text": "maturity levels of data records. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        },
         "schema": {
             "fields": ["code", "description"],
             "primary_key": ["code"],
@@ -702,7 +704,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_pudl__assn_eia_pudl_plants": {
-        "description": "Association between EIA Plant IDs and manually assigned PUDL Plant IDs",
+        "description": {
+            "additional_summary_text": "EIA plant IDs and manually assigned PUDL plant IDs.",
+        },
         "schema": {
             "fields": ["plant_id_eia", "plant_name_eia", "plant_id_pudl"],
             "primary_key": ["plant_id_eia"],
@@ -785,7 +789,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
     },
     "core_pudl__assn_eia_pudl_utilities": {
-        "description": "Associations between the EIA Utility IDs and the manually assigned PUDL Utility IDs.",
+        "description": {
+            "additional_summary_text": "EIA utility IDs and manually assigned PUDL utility IDs.",
+        },
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia", "utility_id_pudl"],
             "primary_key": ["utility_id_eia"],

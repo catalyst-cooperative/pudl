@@ -176,9 +176,11 @@ the ``record_id_eia_plant_gen`` record.""",
         "field_namespace": "eia",
     },
     "out_pudl__yearly_assn_eia_ferc1_plant_parts": {
-        "description": """This table links power plant data reported in FERC Form 1 to related EIA data. It
+        "description": {
+            "additional_summary_text": "power plant data reported in FERC Form 1 and any available EIA data related to the plant parts covered by each FERC Form 1 record.",
+            "additional_details_text": """This table
 answers the question "What EIA data reported about plants or generators should be
-associated with a given plant record found in the FERC Form 1."
+associated with a given plant record found in the FERC Form 1?"
 
 Each record in this table corresponds to a single FERC Form 1 record reported in one of
 several tables describing power plants (large steam, hydro, small, etc.). These FERC
@@ -188,8 +190,10 @@ share of any of those categories (or other categories). Furthermore, the same ut
 may report the same plant in different ways in different years.
 
 The EIA data associated with each FERC plant record comes from our Plant Parts EIA
-table. The EIA data in each record represents an aggregation of several slices of an EIA
+table, :ref:`out_eia__yearly_plant_parts`.
+The EIA data in each record represents an aggregation of several slices of an EIA
 plant, across both physical characteristics and utility ownership.""",
+        },
         "schema": {
             "fields": [
                 "record_id_ferc1",
