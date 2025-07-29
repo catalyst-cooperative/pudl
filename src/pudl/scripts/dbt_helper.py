@@ -91,12 +91,12 @@ class DbtTable(BaseModel):
     tags: list[str] | None = None
     config: dict | None = None  # only for models
 
-    def add_source_tests(self, source_tests: list) -> "DbtSource":
+    def add_source_tests(self, source_tests: list) -> "DbtTable":
         """Add data tests to source in dbt config."""
         data_tests = self.data_tests if self.data_tests is not None else []
         return self.model_copy(update={"data_tests": data_tests + source_tests})
 
-    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
+    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtTable":
         """Add data tests to columns in dbt config."""
         columns = {column.name: column for column in self.columns}
         columns.update(
@@ -109,7 +109,7 @@ class DbtTable(BaseModel):
         return self.model_copy(update={"columns": list(columns.values())})
 
     @classmethod
-    def from_table_name(cls, table_name: str) -> "DbtSchema":
+    def from_table_name(cls, table_name: str) -> "DbtTable":
         """Construct configuration defining table from PUDL metadata."""
         return cls(
             name=table_name,
@@ -125,7 +125,6 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable]
-    data_tests: list | None = None
     description: str | None = None
     meta: dict | None = None
 
@@ -321,8 +320,9 @@ def update_row_counts(
     model_path = _get_model_path(table_name, data_source)
     schema_path = model_path / "schema.yml"
     schema = DbtSchema.from_yaml(schema_path)
+    table = schema.sources[0].tables[0]
 
-    partition_columns = _extract_row_count_partitions(schema)
+    partition_columns = _extract_row_count_partitions(table)
     if len(partition_columns) > 1:
         raise ValueError(
             f"Only a single row counts test per table is supported, "
@@ -439,6 +439,10 @@ def _extract_row_count_partitions(table: DbtTable) -> list[str | None]:
 
     if table.data_tests:
         for test in table.data_tests:
+            if "check_row_counts_per_partition" not in test:
+                continue
+            if not isinstance(test, dict):
+                raise ValueError(f"Row counts test expected to be a dictionary: {test}")
             test_def = test.get("check_row_counts_per_partition")
             if isinstance(test_def, dict):
                 partitions.append(test_def.get("partition_column"))

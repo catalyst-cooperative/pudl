@@ -60,7 +60,6 @@ def schema_factory():
             sources=[
                 DbtSource(
                     name=source_name,
-                    data_tests=None,
                     tables=[
                         DbtTable(
                             name=table_name,
@@ -179,6 +178,12 @@ def test_get_row_count_test_dict():
         (
             [
                 {"some_other_test": {}},
+            ],
+            [],
+        ),
+        (
+            [
+                {"test_without_parameters"},
             ],
             [],
         ),
@@ -616,7 +621,6 @@ def dbt_schema_mocks(request, mocker):
         sources=[
             DbtSource(
                 name="pudl",
-                data_tests=None,
                 tables=[
                     DbtTable(
                         name=table_name,
