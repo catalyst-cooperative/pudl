@@ -596,6 +596,7 @@ def validate(
     build_params = {
         "node_selection": node_selection,
         "node_exclusion": exclude,
+        "dbt_target": "etl-full",
     }
 
     if dry_run:
