@@ -218,7 +218,7 @@ ROW_COUNT_TEST_CASES = [
             "expected_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
             "result": UpdateResult(
                 success=True,
-                message="Successfully updated row count table with counts from foo.",
+                message="Successfully updated row count table with counts from foo, partitioned by report_year.",
             ),
         },
     ),

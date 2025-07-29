@@ -354,7 +354,7 @@ def update_row_counts(
         _write_row_counts(filtered, target)
         return UpdateResult(
             success=True,
-            message=f"Removed outdated row counts for {table_name} (no test defined).",
+            message=f"Removed {len(existing) - len(filtered)} outdated row counts for {table_name} (no test defined).",
         )
     if has_existing_row_counts and not allow_overwrite:
         return UpdateResult(
@@ -370,7 +370,7 @@ def update_row_counts(
 
     return UpdateResult(
         success=True,
-        message=f"Successfully updated row count table with counts from {table_name}.",
+        message=f"Successfully updated row count table with counts from {table_name}, partitioned by {partition_column}.",
     )
 
 
