@@ -22,8 +22,7 @@ define our own `custom data tests
    with `DuckDB <https://duckdb.org/>`__ to query the PUDL `Parquet
    <https://parquet.apache.org/>`__ outputs we're able to run thousands of validations
    across hundreds of tables with billions of rows in a minute, instead of the 2-3 hours
-   it used to take our much less extensive validation tests to run. Plus we get to learn
-   SQL.
+   it used to take our much less extensive validation tests to run.
 
 --------------------------------------------------------------------------------
 Data validation guidelines
@@ -442,7 +441,7 @@ Some of the tests in the example above like ``expect_columns_not_all_null`` or
 files with the same name under ``dbt/tests/data_tests/generic_tests/``
 
 Documentation for the tests that we define is in
-``dbt/testse/data_tests/generic_tests/schema.yml``
+``dbt/tests/data_tests/generic_tests/schema.yml``
 
 .. todo::
 
@@ -558,24 +557,56 @@ building on the above example would look like:
 Defining new data validation tests
 --------------------------------------------------------------------------------
 
-.. note::
 
-  For comprehensive coverage, see `the dbt documentation
-  <https://docs.getdbt.com/best-practices/writing-custom-generic-tests>`__
+Sometimes you will want to test a property that can't be expressed
+using the existing dbt tests like ``check_row_counts_per_partition`` (in
+``dbt/tests/data_tests/generic_tests``) or the tests in `dbt_expectations
+<https://hub.getdbt.com/metaplane/dbt_expectations/latest/>`__ or `dbt_utils
+<https://hub.getdbt.com/dbt-labs/dbt_utils/latest/>`__.
 
-In dbt a data test is a ``SELECT`` statement written in SQL that's designed to return
-no results when the test passes. When the test fails, the results should be helpful in
-diagnosing the reason for the failure. In simple tests that check some per-row criteria,
-the results might just be all the rows that didn't meet the specified criteria. For
-tests that check some property of groups, multiple columns, or the table as a whole, it
-can be helpful to construct a result set that provides a summary of what failed.
+In those cases you'll need to define a new *type* of data validation test using
+dbt!
 
-Generic dbt data tests are often parametrized, meaning they take arguments other than
-the table being tested. These arguments and other information that is available from dbt
-can be used along with Jinja templates to dynamically construct complex SQL statements,
-leading to more generalizable, reusable tests.
+Writing tests in dbt means they'll be located next to all the other data
+validation we're defining in the dbt schemas, which is nice. They also tend to
+be quite performant.
 
-If you're not already familiar with SQL, some useful resources:
+In a few rare cases you may need to write the check with access to all of
+the tools within Python. In those cases, you can use `Dagster's asset checks
+<https://docs.dagster.io/guides/test/asset-checks>`__, but in general we prefer
+using dbt tests.
+
+How do I write a new dbt test?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A dbt test is a templated SQL query that runs on your output data to look for
+problems in the data. The query should be designed to return no rows if there
+are no problems with the data. If the query returns any rows at all, then the
+test will fail.
+
+The test will need to live as a templated piece of SQL within
+``pudl/dbt/tests/data_tests/generic_tests``. dbt has `official docs
+<https://docs.getdbt.com/best-practices/writing-custom-generic-tests>`__ for
+doing this, but the core steps are:
+
+1. Check to see whether the test you need is already provided by `dbt-utils
+   <https://hub.getdbt.com/dbt-labs/dbt_utils/latest/>`__ or `dbt-expectations
+   <https://github.com/metaplane/dbt-expectations>`__.
+2. Make a file called ``pudl/dbt/tests/data_tests/generic_tests/your_test.sql``.
+3. Add ``{% test your_test(some_test_params...) %}`` to the top of the file
+   and ``{% endtest %}`` to the end. By default, if a test is defined at the
+   **table** level, it will receive the ``model`` parameter; if it's defined
+   at the **column** level, it will receive both ``model`` and ``column``
+   parameters; and you can add more custom parameters in the test signature
+   which will be read out of the schema YAML.
+4. Write a SQL ``SELECT`` statement that returns any data that would fail your
+   test, as well as useful debugging information. See our existing tests in
+   ``dbt/tests/data_tests/generic_tests`` to see some common patterns.
+   ``dbt/tests/data_tests/generic_tests/expect_consistent_years.sql`` may be
+   of particular use as a simple example that returns useful debugging context
+   along with the failing rows.
+
+If you're not already familiar with SQL, here are some useful resources:
 
 * `Interactive Mode SQL Tutorial <https://mode.com/sql-tutorial>`__
 * `Greg Wilson's Querynomicon <https://third-bit.com/sql/>`__
@@ -583,60 +614,158 @@ If you're not already familiar with SQL, some useful resources:
 * `DuckDB SQL Introduction <https://duckdb.org/docs/stable/sql/introduction.html>`__
 * `SQL for Data Scientists <https://www.oreilly.com/library/view/sql-for-data/9781119669364/>`__ (book)
 
-Many LLMs are also good at converting detailed natural language descriptions of a query
-into SQL, but you'll still need to have your own understanding of SQL to ensure that
-it's really doing what you intended, and to keep the queries readable and concise.
-
-Before defining a custom generic data test, make sure you check to see whether the test
-you need is already provided by `dbt-utils
-<https://hub.getdbt.com/dbt-labs/dbt_utils/latest/>`__ or `dbt-expectations
-<https://github.com/metaplane/dbt-expectations>`__.
-
 .. note::
 
   Refer to :ref:`pudl_dbt_quirks` above for an explanation of some details of our dbt
   setup that may affect what functionality is available when writing new tests.
 
-Defining Macros
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. todo::
-
-  Flesh out this section :user:`jdangerx`
-
-* In dbt, macros are reusable SQL snippets that can be used to simplify your tests. You
-  can define a macro once and then use it in multiple tests. This is particularly useful
-  for complex tests that require a lot of boilerplate code.
-
 Testing the Tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
-.. todo::
+OK, now you have a new test, which *seems* to be working.
+How can we check to make sure it's doing what we want?
 
-  Flesh out this section :user:`jdangerx`
+dbt has robust macro testing tools, and tests are basically macros,
+but unfortunately you still have to jump through a couple hoops:
 
-* One reason to create macros for more complex functions is that they can be
-  independently unit-tested.
+1. Pull the test logic out into a macro
+2. Use the test as a *very* thin wrapper around the logic macro
+3. Test the logic macro
+
+First, we pull the test logic out into a macro (let's call it ``your_macro()``):
+
+1. Move the test file from above to ``pudl/dbt/macros/your_macro.sql``
+2. Replace ``{% test your_macro(...) %}`` with ``{% macro your_macro(...) %}``
+3. Replace ``{% endtest %}`` with ``{% endmacro %}``
+
+The logic macro is now available to use in tests. Next, use the test as a
+wrapper around the logic macro you just wrote. Make the test file read
+like this:
+
+
+.. code-block:: jinja
+
+  {% test your_test(model, custom_param) %}
+
+  {{ your_macro(model, custom_param) }}
+
+  {% endtest %}
+
+This makes it a very simple wrapper that allows the test logic to be accessed
+from a ``data_tests`` block within the schema.
+
+Finally, write a test in ``pudl/dbt/tests/unit_tests/test_your_macro.sql``. This
+SQL file doesn't need any special ``{% ... %}`` stuff in it.
+
+The structure is easiest to explain with an example. Let's walk through a test
+that checks if the row-counts macro is working as expected:
+
+.. code-block:: sql
+
+  WITH test_row_counts AS (
+      SELECT * FROM (VALUES
+          ('test_table', 2022, 1),
+          ('test_table', 2023, 1),
+      ) AS t(table_name, partition, row_count)
+  ),
+
+Here, ``test_row_counts`` is setting up the expected row counts per partition.
+We use that ``SELECT * FROM (VALUES`` construction to make a temporary SQL table
+with that literal data - 2 rows saying that "``test_table`` should have 1 row in
+2022 and 1 in 2023". Continuing on:
+
+.. code-block:: sql
+
+  test_table AS (
+      SELECT * FROM (VALUES
+          (2022, 'x'),
+          (2023, 'x'),
+      ) AS t(report_year, dummy_col)
+  ),
+
+Here, we define ``test_table``, the actual table we're counting rows for. You
+can see we've added one row for 2022 and one for 2023 - so we expect the test
+to pass! Next:
+
+.. code-block:: sql
+
+  expected_mismatch_counts as (
+      SELECT * FROM (VALUES
+          ('test_table', 0),
+      ) AS t(table_name, num_mismatches)
+  ),
+
+We're saying here that ``expected_mismatch_counts`` is 0 - there are *no*
+partitions where we expect there to be a mismatch. Next, we call the macro:
+
+.. code-block:: jinja
+
+  result_comparison AS (
+      SELECT (SELECT COUNT(*)
+      FROM ({{
+          row_counts_per_partition('test_table', 'test_table', 'report_year', force_row_counts_table='test_row_counts')
+      }})) as observed_mismatch_count,
+      num_mismatches AS expected_mismatch_count,
+      FROM expected_mismatch_counts
+  )
+
+This one is a bit more complicated.
+
+Let's start from the macro call ``{{ row_counts_per_partition(...) }}``. This
+gets us one row per partition that has a mismatched number of rows between
+the expected row counts (``test_row_counts``) and the observed row counts in
+``test_table``.
+
+Then we wrap that in ``SELECT COUNT(*)`` which tells us how many rows that macro
+call returned (in this case, 0).
+
+Finally, we wrap that in ``SELECT (SELECT COUNT(*) FROM ...) as
+observed_mismatch_count ...``. That makes a table where the columns are the
+observed mismatch count (0, as counted by the macro) and the expected mismatch
+count (directly pulled from the ``expected_mismatch_counts`` table we set up
+earlier). Finally we are ready to actually run the top-level ``SELECT`` - much
+like other tests, we are looking for problem rows - if the ``SELECT`` returns 0
+rows that means a passing test:
+
+.. code-block:: sql
+
+  SELECT *
+  FROM result_comparison
+  WHERE observed_mismatch_count != expected_mismatch_count
+
+So if we observe a different number of mismatched partitions than what we
+expect, this test will fail. We can repeat this structure with different input
+data to cover many different use cases of the macro.
+
+If the test is particularly weird and hard to get good debug
+info for, you can add custom debug handlers for your test type in
+:func:`pudl.dbt_wrapper.build_with_context`, which gives you access to the full
+power of Python.
+
 
 Creating intermediate tables for a test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo::
+Sometimes you'll need to do a test in two steps. For example, if you want to
+use a column test (such as ``expect_quantile_constraints``) on the ratio of two
+columns, you will need to calculate that ratio as a separate column.
 
-  This section still seems a bit garbled. Clarify and confirm that the instructions are
-  complete and correct. :user:`jdangerx`
+This can be done by creating a new `dbt model
+<https://docs.getdbt.com/docs/build/models>`__ that materializes an
+intermediate table you want to execute tests on. Add a SQL file to
+``dbt/models/{data_source}/{source_table_name}/{intermediate_table_name}.sql``
+containing a ``SELECT`` statement that builds your new table. For
+example, if you need to divide the ``source_table_name.a`` column by
+``source_table_name.b``::
 
-In some cases you may need to modify a table or calculate some derived values before you
-can apply a test. This can be done by creating a new `dbt model
-<https://docs.getdbt.com/docs/build/models>`__ that materializes the intermediate table
-you want to execute tests on.  Defining a new model means adding a SQL file to
-``dbt/models/{data_source}/{table_name}/`` containing a ``SELECT`` statement. The
-results of that ``SELECT`` will constitute the new table.
+  select
+  a / b as my_ratio
+  from {{ source('pudl', 'source_table_name') }}
 
-Now, add a SQL file to this directory named ``validate_{table_name}`` and define your
-model for producing the intermediate table here. Finally, add the model to the
-``schema.yml`` file and define tests exactly as you would for a ``source`` table. See
-``models/ferc1/out_ferc1__yearly_steam_plants_fuel_by_plant_sched402`` for an example of
+Then add the model to the ``schema.yml`` file under the ``models`` top-level
+key, and define tests exactly as you would for a ``source`` table. See
+``models/ferc1/out_ferc1__yearly_steam_plants_fuel_by_plant_sched402`` for an
+example of
 this pattern.
 
 Note: when adding a model, it will be stored as a SQL ``view`` in the file
