@@ -186,7 +186,7 @@ TIMEZONE_CODES = {
 EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str], int] = {
     "combined": {
         # FERC 714 Respondent ID: EIA BA or Utility ID
-        125: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
+        24: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
         47: 56812,  # Duke Energy Control Area Services, LLC (Arlington Valley WECC AZ)
         146: 59504,  # Southwest Power Pool (Fixing bad EIA Coding)
         180: 32790,  # New Harquahala.
