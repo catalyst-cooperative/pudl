@@ -275,20 +275,18 @@ def _calculate_row_counts(
 ) -> pd.DataFrame:
     table_path = _get_local_table_path(table_name)
 
-    if partition_column == "report_year":
+    if partition_column in ("report_year", "year"):
         row_count_query = (
             f"SELECT {partition_column} as partition, COUNT(*) as row_count "  # noqa: S608
             f"FROM '{table_path}' GROUP BY {partition_column}"  # noqa: S608
         )
-    elif partition_column in ["report_date", "datetime_utc"]:
+    elif partition_column in ("report_date", "datetime_utc"):
         row_count_query = (
             f"SELECT CAST(YEAR({partition_column}) as VARCHAR) as partition, COUNT(*) as row_count "  # noqa: S608
             f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
         )
     else:
-        row_count_query = (
-            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
-        )
+        row_count_query = f"SELECT {partition_column} as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
 
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
