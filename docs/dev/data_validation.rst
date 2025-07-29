@@ -557,6 +557,33 @@ building on the above example would look like:
 Defining new data validation tests
 --------------------------------------------------------------------------------
 
+How do I write a test at all?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+* general idea:
+  spit out an empty dataset if everything is good;
+  spit out at least one row if something is bad.
+
+  * is this a *table* test or a *column* test?
+  * what goes in that row or rows?
+
+    * what does a failure mean? what's the meaningful unit of test failure?
+    * what would help me debug this test?
+      for each Thing that is failing the test, what do I need to know about it?
+      what do I want to see when this test fails?
+
+  * how to make it happen?
+
+    * if you already know SQL: use... it...?
+    * if you don't already know SQL: use LLMs + tests
+
+  * sometimes you might need to do a test in two steps:
+    e.g. if you want to define a test that is about the ratio of two columns,
+    you will need to calculate that ratio as a separate column
+
+    * this means making an intermediate table.
+
 .. note::
 
   For comprehensive coverage, see `the dbt documentation
@@ -596,26 +623,26 @@ you need is already provided by `dbt-utils
   Refer to :ref:`pudl_dbt_quirks` above for an explanation of some details of our dbt
   setup that may affect what functionality is available when writing new tests.
 
-Defining Macros
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. todo::
-
-  Flesh out this section :user:`jdangerx`
-
-* In dbt, macros are reusable SQL snippets that can be used to simplify your tests. You
-  can define a macro once and then use it in multiple tests. This is particularly useful
-  for complex tests that require a lot of boilerplate code.
-
 Testing the Tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
-.. todo::
+* how do I make sure the test is doing what I think? it's a bit weird.
 
-  Flesh out this section :user:`jdangerx`
+  * pull the test logic out into a macro
+  * call the logic-macro directly in the test-macro
+  * test the logic-macro, trusting that the test-macro doesn't need to be tested:
 
-* One reason to create macros for more complex functions is that they can be
-  independently unit-tested.
+    * make test data using CTEs, then call the logic-macro
+    * think about what would help me debug,
+      what is the useful output when this test fails
+
+  * what if the test is really weird and hard to get good debug info for?
+    (... might want to cut?)
+
+    * then write a special macro (like debug_quantile_constraints),
+      or just your own Python code,
+      and then update dbt_wrapper to handle more test types.
+
 
 Creating intermediate tables for a test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
