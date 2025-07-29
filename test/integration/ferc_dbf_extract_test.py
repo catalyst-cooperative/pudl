@@ -15,6 +15,7 @@ from pudl.extract.ferc60 import Ferc60DbfExtractor
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.order(1)
 def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
     """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
     assert isinstance(ferc1_engine_dbf, sa.Engine)
