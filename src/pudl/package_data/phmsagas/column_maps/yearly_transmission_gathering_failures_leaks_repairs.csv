@@ -250,7 +250,7 @@ excavation_damage_transmission_other_deteriorated_facility,,,,,,,,,,,,,,,,,,,,,,
 excavation_damage_transmission_other_one_call_center_error,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm4misconecall
 excavation_damage_transmission_other_previous_damage,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm4miscprevdamage
 excavation_damage_transmission_root_cause_not_listed,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm4miscrootcause
-excavation_transmission_tickets,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm4tottickets
+excavation_damage_transmission_tickets,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm4tottickets
 excavation_damage_gathering_total,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm5totdamages
 excavation_damage_gathering_notification_issues_total,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm5notiftotal
 excavation_damage_gathering_notification_no_one_call_made,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm5notifnocall
@@ -282,4 +282,4 @@ excavation_damage_gathering_other_deteriorated_facility,,,,,,,,,,,,,,,,,,,,,,,,,
 excavation_damage_gathering_other_one_call_center_error,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm5misconecall
 excavation_damage_gathering_other_previous_damage,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm5miscprevdamage
 excavation_damage_gathering_root_cause_not_listed,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm5miscrootcause
-excavation_gathering_tickets,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm5tottickets
+excavation_damage_gathering_tickets,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partm5tottickets

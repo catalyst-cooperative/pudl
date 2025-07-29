@@ -22,9 +22,9 @@ conditions_repaired_one_year_conditions_hca_segment_in_line,,,,,,,,,,,,,,,,,,,,,
 conditions_repaired_monitored_conditions_hca_segment_in_line,,,,,,,,,,,,,,,,,,,,,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3,partf2c3
 conditions_repaired_other_scheduled_conditions_hca_segment_in_line,,,,,,,,,,,,,,,,,,,,,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4,partf2c4
 conditions_repaired_192_710_segment_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2d,partf2d,partf2d,partf2d
-conditions_immediate_repair_conditions_repaired_192_710_segment_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2d1
-conditions_two_year_repair_conditions_repaired_192_710_segment_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2d2
-conditions_monitored_repair_conditions_repaired_192_710_segment_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2d3
+conditions_repaired_immediate_repair_conditions_192_710_segment_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2d1
+conditions_repaired_two_year_repair_conditions_192_710_segment_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2d2
+conditions_repaired_monitored_conditions_192_710_segment_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2d3
 conditions_repaired_class_3_or_4_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2e,partf2e,partf2e,partf2e
 conditions_repaired_class_1_or_2_in_line,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partf2f,partf2f,partf2f,partf2f
 inspected_pressure_testing_total_miles,,,,,,,,,,,,,,,,,,,,,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a,partf3a
