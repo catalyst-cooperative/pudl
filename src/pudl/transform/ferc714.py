@@ -212,7 +212,6 @@ EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str], int] =
         134: 5416,  # Duke Energy Corp. (bad id was non-existent 3260)
         203: 12341,  # MidAmerican Energy Co. (fixes typo, from 12431)
         292: 20382,  # City of West Memphis -- (fixes a typo, from 20383)
-        295: 40229,  # Old Dominion Electric Cooperative (missing)
         301: 14725,  # PJM Interconnection Eastern Hub (missing)
         302: 14725,  # PJM Interconnection Western Hub (missing)
         303: 14725,  # PJM Interconnection Illinois Hub (missing)
@@ -220,6 +219,9 @@ EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str], int] =
         305: 14725,  # PJM Interconnection Dominion Hub (missing)
         306: 14725,  # PJM Interconnection AEP-Dayton Hub (missing)
         309: 12427,  # Michigan Power Pool / Power Coordination Center (missing)
+        # [2025-07-29 kmm] the following EIA IDs don't / no longer exist :(
+        # but if I disable them here, the PK checks fail, so here they remain
+        295: 40229,  # Old Dominion Electric Cooperative (missing)
         312: 59435,  # NaturEner Glacier Wind (missing)
         329: 39347,  # East Texas Electricity Cooperative (missing)
     },
