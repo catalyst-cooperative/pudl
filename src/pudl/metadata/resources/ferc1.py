@@ -1106,7 +1106,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "out_ferc1__yearly_cash_flows_sched120": {
-        "description": "Denormalized table that contains FERC cash flow information.",
+        "description": TABLE_DESCRIPTIONS["yearly_cash_flows_sched120"],
         "schema": {
             "fields": [
                 "record_id",
@@ -1876,7 +1876,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferc1",
     },
     "out_ferc1__yearly_steam_plants_fuel_by_plant_sched402": {
-        "description": "A table summarizing FERC fuel data by plant, using FERC Form 1 data.",
+        "description": {
+            "additional_summary_text": "FERC fuel data by plant.",
+            "additional_source_text": "(Schedule 402)",
+            "usage_warnings": [
+                "aggregation_hazard",
+            ],
+        },
         "schema": {
             "fields": [
                 "report_year",
