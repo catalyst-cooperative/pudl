@@ -32,6 +32,8 @@ Bug Fixes
 
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
   :issue:`4328` and PR :pr:`4392`.
+* Fixed bug in how we were repairing a misfiled EIA code in
+  :ref:`core_ferc714__respondent_id`. See issue :issue:`4439` and PR :pr:`4497`.
 
 Documentation
 ^^^^^^^^^^^^^
