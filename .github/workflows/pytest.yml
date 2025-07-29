@@ -268,7 +268,7 @@ jobs:
           init-shell: bash
           environment-name: coverage
           create-args: >-
-            python=3.12
+            python=3.13
             coverage>=7.6.1
       - name: Combine coverage data and output XML report
         run: |
