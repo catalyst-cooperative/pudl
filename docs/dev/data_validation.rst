@@ -22,8 +22,7 @@ define our own `custom data tests
    with `DuckDB <https://duckdb.org/>`__ to query the PUDL `Parquet
    <https://parquet.apache.org/>`__ outputs we're able to run thousands of validations
    across hundreds of tables with billions of rows in a minute, instead of the 2-3 hours
-   it used to take our much less extensive validation tests to run. Plus we get to learn
-   SQL.
+   it used to take our much less extensive validation tests to run.
 
 --------------------------------------------------------------------------------
 Data validation guidelines
@@ -442,7 +441,7 @@ Some of the tests in the example above like ``expect_columns_not_all_null`` or
 files with the same name under ``dbt/tests/data_tests/generic_tests/``
 
 Documentation for the tests that we define is in
-``dbt/testse/data_tests/generic_tests/schema.yml``
+``dbt/tests/data_tests/generic_tests/schema.yml``
 
 .. todo::
 
