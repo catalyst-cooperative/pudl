@@ -8,8 +8,6 @@ sources:
           - check_row_counts_per_partition:
               table_name: core_eia__yearly_fuel_receipts_costs_aggs
               partition_column: "YEAR(report_date)"
-              config:
-                store_failures: true
         columns:
           - name: fuel_agg
           - name: geo_agg
