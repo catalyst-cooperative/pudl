@@ -12,16 +12,16 @@ WITH
         WHERE table_name = '{{ table_name }}'
     ),
     observed AS (
-        {% if partition_column == "report_year" %}
-        SELECT COALESCE(CAST({{ partition_column }} as VARCHAR), '') as partition, COUNT(*) as observed_count
+        {% if partition_column %}
+        SELECT
+            COALESCE(CAST({{ partition_column }} AS VARCHAR), '') AS partition,
+            COUNT(*) AS observed_count
         FROM {{ model }}
         GROUP BY {{ partition_column }}
-        {% elif partition_column in ["report_date", "datetime_utc"] %}
-        SELECT COALESCE(CAST(YEAR({{ partition_column }}) as VARCHAR), '') as partition, COUNT(*) as observed_count
-        FROM {{ model }}
-        GROUP BY YEAR({{ partition_column }})
         {% else %}
-        SELECT '' as partition, COUNT(*) as observed_count
+        SELECT
+            '' AS partition,
+            COUNT(*) AS observed_count
         FROM {{ model }}
         {% endif %}
     )

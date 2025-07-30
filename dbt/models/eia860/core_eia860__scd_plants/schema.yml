@@ -36,7 +36,7 @@ sources:
                 transmission_distribution_owner_state: EXTRACT(year FROM report_date) >= 2007
           - check_row_counts_per_partition:
               table_name: core_eia860__scd_plants
-              partition_column: report_date
+              partition_column: "YEAR(report_date)"
         columns:
           - name: plant_id_eia
           - name: report_date

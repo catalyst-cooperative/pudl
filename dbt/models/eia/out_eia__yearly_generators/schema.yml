@@ -65,7 +65,7 @@ sources:
           - test_idle_capacity
           - check_row_counts_per_partition:
               table_name: out_eia__yearly_generators
-              partition_column: report_date
+              partition_column: "YEAR(report_date)"
           - expect_bgas_show_low_differing_primary_fuels:
               bga_model: source('pudl', 'core_eia860__assn_boiler_generator')
         columns:

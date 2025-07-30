@@ -27,7 +27,7 @@ sources:
                 phone_extension_2: EXTRACT(year FROM report_date) <= 2006
           - check_row_counts_per_partition:
               table_name: out_eia__yearly_utilities
-              partition_column: report_date
+              partition_column: "YEAR(report_date)"
           - expect_date_frequency_ratio:
               compare_model: source("pudl", "out_eia__yearly_generators")
               multiplier: 1
