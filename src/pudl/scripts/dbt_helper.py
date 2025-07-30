@@ -343,26 +343,32 @@ def update_row_counts(
             message=f"Row counts exist for {table_name}, but no row count test is defined. Use clobber/update to remove.",
         )
 
-    # At this point, there is no test defined but there are row counts, and overwrite is allowed, so
-    # we want to remove the row counts for this table
-    if not has_test:
-        # Remove outdated entry
-        filtered = existing[existing["table_name"] != table_name]
-        _write_row_counts(filtered, target)
-        return UpdateResult(
-            success=True,
-            message=f"Removed {len(existing) - len(filtered)} outdated row counts for {table_name} (no test defined).",
-        )
     if has_existing_row_counts and not allow_overwrite:
         return UpdateResult(
             success=False,
             message=f"Row counts for {table_name} already exist. Use clobber or update to overwrite.",
         )
 
+    # At this point, we know row counts can be written: either because no row counts
+    # exist yet, or because clobber or update is set.
+
+    # In any case, we remove the old row counts for the table we are refreshing
+    filtered = existing[existing["table_name"] != table_name]
+
+    # At this point, there is no test defined but there are row counts, and overwrite is allowed, so
+    # we want to remove the row counts for this table
+    if not has_test:
+        # Remove outdated entry
+        _write_row_counts(filtered, target)
+        return UpdateResult(
+            success=True,
+            message=f"Removed {len(existing) - len(filtered)} outdated row counts for {table_name} (no test defined).",
+        )
+
     # At this point: test exists, and either no existing or overwrite allowed
     partition_column = partition_columns[0]  # TODO: support multiple partitions
     new = _calculate_row_counts(table_name, partition_column)
-    combined = _combine_row_counts(existing, new)
+    combined = _combine_row_counts(filtered, new)
     _write_row_counts(combined, target)
 
     return UpdateResult(
