@@ -4,6 +4,7 @@ sources:
     tables:
       - name: out_eia923__yearly_fuel_receipts_costs
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: out_eia923__yearly_fuel_receipts_costs
               partition_column: report_date

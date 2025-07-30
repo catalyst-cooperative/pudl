@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, asset, asset_check
+from dagster import asset, asset_check
 
 import pudl
 from pudl.helpers import drop_records_with_null_in_column
@@ -248,7 +248,7 @@ def _core_eia860__generators(
         "duct_burners",
         "can_burn_multiple_fuels",
         "deliver_power_transgrid",
-        "syncronized_transmission_grid",
+        "synchronized_transmission_grid",
         "solid_fuel_gasification",
         "pulverized_coal_tech",
         "fluidized_bed_tech",
@@ -260,6 +260,7 @@ def _core_eia860__generators(
         "other_combustion_tech",
         "can_cofire_fuels",
         "can_switch_oil_gas",
+        "can_switch_when_operating",
         "bypass_heat_recovery",
         "associated_combined_heat_power",
         "planned_modifications",
@@ -277,8 +278,8 @@ def _core_eia860__generators(
     ]
     gens_df = (
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
-        .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(pudl.helpers.fix_eia_na)
+        .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
@@ -386,7 +387,7 @@ def _core_eia860__generators_energy_storage(
     storage_pr = raw_eia860__generator_energy_storage_proposed.pipe(
         drop_records_with_null_in_column,
         column="generator_id",
-        num_of_expected_nulls=1,
+        num_of_expected_nulls=2,  # Plant ID 62844 in 2023-4
     )
     storage_re = raw_eia860__generator_energy_storage_retired
 
@@ -415,6 +416,33 @@ def _core_eia860__generators_energy_storage(
             )
         )
     )
+
+    # Capitalize the direct_support generator IDs
+    # We harvest these values into our generator tables, but they aren't as
+    # well-normalized as the directly reported generator IDs. The differences in
+    # capitalization were marking a larger number of generators as non-existent
+    # than are actually the case (e.g., a plant reporting both generator GEN1 and Gen1).
+    # See PR#3699 and PR#4332. We manually fix a known list of these.
+
+    # Any remaining 'fake' generator IDs get dropped in _out_eia__yearly_generators
+
+    known_bad_caps = [
+        "SunB",
+        "EcheB",
+        "MayB",
+        "IssaP",
+        "Matad",
+        "WolfB",
+        "IrisB",
+        "TwinB",
+    ]
+    filter_condition = (storage_df.report_date == "2024-01-01") & (
+        storage_df.generator_id_direct_support_1.isin(known_bad_caps)
+    )
+
+    storage_df.loc[filter_condition, "generator_id_direct_support_1"] = storage_df.loc[
+        filter_condition, "generator_id_direct_support_1"
+    ].str.upper()
 
     return storage_df
 
@@ -480,15 +508,18 @@ def _core_eia860__generators_multifuel(
     multifuel_re = raw_eia860__multifuel_retired
 
     boolean_columns_to_fix = [
-        "has_air_permit_limits",
-        "can_cofire_100_oil",
-        "can_cofire_fuels",
-        "has_factors_that_limit_switching",
         "can_burn_multiple_fuels",
-        "has_other_factors_that_limit_switching",
-        "has_storage_limits",
+        "can_cofire_fuels",
         "can_switch_oil_gas",
         "can_switch_when_operating",
+        "has_factors_that_limit_switching",
+        "has_storage_limits",
+        "has_air_permit_limits",
+        "has_other_factors_that_limit_switching",
+        "can_cofire_oil_and_gas",
+        "can_cofire_100_oil",
+        "can_fuel_switch",
+        "has_regulatory_limits",
     ]
 
     # A subset of the columns have zero values, where NA is appropriate:
@@ -694,7 +725,7 @@ def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
 
     # Combine phone number columns into one
     def _make_phone_number(col1, col2, col3):
-        """Make and validate full phone number seperated by dashes."""
+        """Make and validate full phone number separated by dashes."""
         p_num = (
             col1.astype("string")
             + "-"
@@ -1195,7 +1226,7 @@ def _core_eia860__boiler_stack_flue(
     # the individual stack or flue id columns because we can't be sure whether a
     # stack_flue_id_eia value is the stack or flue id. And we don't want to
     # missrepresent complicated relationships between stacks and flues. Also there's
-    # several instances where flue_id_eia is NA (hense the last fillna(x.stack_id_eia))
+    # several instances where flue_id_eia is NA (hence the last fillna(x.stack_id_eia))
     bsf_assn = bsf_assn.assign(
         stack_flue_id_pudl=lambda x: (
             x.stack_flue_id_eia.fillna(
@@ -1283,30 +1314,6 @@ def _core_eia860__cooling_equipment(
 
     # Encoding is required here because this table is not yet getting harvested.
     return apply_pudl_dtypes(ce_df, group="eia", strict=True).pipe(PUDL_PACKAGE.encode)
-
-
-@asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
-def cooling_equipment_null_cols(cooling_equipment):
-    """The only completely null cols we expect are tower type 3 and 4.
-
-    In fast-ETL, i.e. recent years, we also expect a few other columns to be
-    null since they only show up in older data.
-    """
-    expected_null_cols = {"tower_type_3", "tower_type_4"}
-    if cooling_equipment.report_date.min() > pd.Timestamp("2010-01-01T00:00:00"):
-        expected_null_cols.update(
-            {"plant_summer_capacity_mw", "water_source", "county", "cooling_type_4"}
-        )
-    pudl.validate.no_null_cols(
-        cooling_equipment,
-        cols=set(cooling_equipment.columns) - expected_null_cols,
-    )
-    col_is_null = cooling_equipment.isna().all()
-    if not all(col_is_null[col] for col in expected_null_cols):
-        return AssetCheckResult(
-            passed=False, metadata={"col_is_null": col_is_null.to_json()}
-        )
-    return AssetCheckResult(passed=True)
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
@@ -1434,28 +1441,6 @@ def _core_eia860__fgd_equipment(
 
     # Encoding required because this isn't fed into harvesting yet.
     return PUDL_PACKAGE.encode(fgd_df).pipe(apply_pudl_dtypes, strict=False)
-
-
-@asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
-def fgd_equipment_null_check(fgd):
-    """Check that columns other than expected columns aren't null."""
-    fast_run_null_cols = {
-        "county",
-        "county_id_fips",
-        "fgd_operational_status_code",
-        "fgd_operating_date",
-        "fgd_manufacturer",
-        "fgd_manufacturer_code",
-        "plant_summer_capacity_mw",
-        "water_source",
-        "so2_equipment_type_4",
-    }
-    if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
-        expected_cols = set(fgd.columns) - fast_run_null_cols
-    else:
-        expected_cols = set(fgd.columns)
-    pudl.validate.no_null_cols(fgd, cols=expected_cols)
-    return AssetCheckResult(passed=True)
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)

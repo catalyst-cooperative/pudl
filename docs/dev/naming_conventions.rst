@@ -78,6 +78,15 @@ Naming convention: ``core_{source}__{asset_type}_{asset_name}``
       PUDL Plant IDs.
     * ``core_epa__assn_epacamd_eia`` associates  EPA units with EIA plants, boilers,
       and generators.
+  * ``changelog``: Changelog tables make it simpler to track changes in an entity's
+    values over time by deduplicating repeated data. They preserve the first reported
+    instance when any of the tracked variables changed, ignoring rows where data stays
+    the same over time. Examples:
+
+    * ``core_eia860m__changelog_generators`` preserves the first
+      record when any new information about a generator was reported.
+    * ``core_sec10k__changelog_company_name`` preserves the first record when
+      a company reported a new name when filing the SEC-10K form.
   * ``codes``: Code tables contain more verbose descriptions of categorical codes
     typically manually compiled from source data dictionaries. Examples:
 
@@ -205,7 +214,7 @@ as we come across them again in maintaining the code.
   (e.g. connect_db), unless the function returns a simple value (e.g. datadir).
 * No duplication of information (e.g. form names).
 * lowercase, underscores separate words (i.e. ``snake_case``).
-* Add a preceeding underscore to semi-private helper functions (functions used
+* Add a preceding underscore to semi-private helper functions (functions used
   within a single module only and not exposed via the public API).
 * When the object is a table, use the full table name (e.g. ingest_fuel_ferc1).
 * When dataframe outputs are built from multiple tables, identify the type of

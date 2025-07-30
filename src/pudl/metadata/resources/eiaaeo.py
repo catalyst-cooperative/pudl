@@ -6,10 +6,12 @@ from typing import Any
 # documenting them or expecting assets to exist
 _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology": {
-        "description": (
-            "Projected generation capacity & total generation in the electric "
-            "sector, broken out by technology."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "projected generation capacity & total generation in the electric "
+                "sector, broken out by technology."
+            )
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -36,17 +38,29 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type": {
-        "description": (
-            "Projected generation capacity and total generation in the end-use "
-            "sector, broken out by fuel type.\n"
-            "Includes combined-heat-and-power plants and electricity-only "
-            "plants in the commercial and industrial sectors; and small on-site "
-            "generating systems in the residential, commercial, and industrial "
-            "sectors used primarily for own-use generation, but which may also "
-            "sell some power to the grid. Solar photovoltaic capacity portion of "
-            "Renewable Sources in megawatts direct current; other technologies "
-            "in megawatts alternating current."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "projected generation capacity and total generation in the end-use "
+                "sector, broken out by fuel type."
+            ),
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": (
+                        "The solar photovoltaic capacity portion of "
+                        "Renewable Sources is reported in megawatts direct current; other technologies "
+                        "are reported in megawatts of alternating current."
+                    ),
+                }
+            ],
+            "additional_details_text": (
+                "Includes combined-heat-and-power plants and electricity-only "
+                "plants in the commercial and industrial sectors; and small on-site "
+                "generating systems in the residential, commercial, and industrial "
+                "sectors used primarily for own-use generation, but which may also "
+                "sell some power to the grid."
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -70,10 +84,12 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_generation_in_electric_sector": {
-        "description": (
-            "Projected total generation in the electric sector, across all "
-            "technologies."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "projected total generation in the electric sector, across all "
+                "technologies."
+            )
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -96,17 +112,29 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_generation_in_end_use_sectors": {
-        "description": (
-            "Projected total generation in the end-use sector, across all "
-            "fuel types.\n"
-            "Includes combined-heat-and-power plants and electricity-only "
-            "plants in the commercial and industrial sectors; and small on-site "
-            "generating systems in the residential, commercial, and industrial "
-            "sectors used primarily for own-use generation, but which may also "
-            "sell some power to the grid. Solar photovoltaic capacity portion of "
-            "Renewable Sources in megawatts direct current; other technologies "
-            "in megawatts alternating current."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "projected total generation in the end-use sector, across all "
+                "fuel types."
+            ),
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": (
+                        "The solar photovoltaic capacity portion of "
+                        "Renewable Sources is reported in megawatts direct current; other technologies "
+                        "are reported in megawatts of alternating current."
+                    ),
+                }
+            ],
+            "additional_details_text": (
+                "Includes combined-heat-and-power plants and electricity-only "
+                "plants in the commercial and industrial sectors; and small on-site "
+                "generating systems in the residential, commercial, and industrial "
+                "sectors used primarily for own-use generation, but which may also "
+                "sell some power to the grid."
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -129,7 +157,9 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_electric_sales": {
-        "description": "Projected electricity sales by region and customer class.",
+        "description": {
+            "additional_summary_text": "projected electricity sales by region and customer class."
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -152,7 +182,7 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_net_energy_for_load": {
-        "description": "Projected net energy for load.",
+        "description": {"additional_summary_text": "projected net energy for load."},
         "schema": {
             "fields": [
                 "report_year",
@@ -175,7 +205,9 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_end_use_prices_by_sector": {
-        "description": "Projected electricity cost to the end user by sector.",
+        "description": {
+            "additional_summary_text": "projected electricity cost to the end user by sector."
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -199,9 +231,11 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_end_use_prices_by_service_category": {
-        "description": (
-            "Projected electricity cost to the end user by service category."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "projected electricity cost to the end user by service category."
+            )
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -225,11 +259,13 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_fuel_consumption_by_type": {
-        "description": (
-            "Projected fuel consumption by the electric power sector, "
-            "including electricity-only and combined-heat-and-power plants "
-            "that have a regulatory status."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "projected fuel consumption by the electric power sector, "
+                "including electricity-only and combined-heat-and-power plants "
+                "that have a regulatory status."
+            )
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -252,11 +288,13 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type": {
-        "description": (
-            "Projected fuel prices for the electric power sector, including "
-            "electricity-only and combined-heat-and-power plants that have a "
-            "regulatory status."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "projected fuel prices for the electric power sector, including "
+                "electricity-only and combined-heat-and-power plants that have a "
+                "regulatory status."
+            )
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -281,11 +319,13 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_emissions_in_electric_sector": {
-        "description": (
-            "Projected emissions from the electric power sector, including "
-            "electricity-only and combined-heat-and-power plants that have a "
-            "regulatory status."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "projected emissions from the electric power sector, including "
+                "electricity-only and combined-heat-and-power plants that have a "
+                "regulatory status."
+            )
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -310,15 +350,19 @@ _STAGING_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eiaaeo",
     },
     "core_eiaaeo__yearly_projected_energy_use_by_sector_and_type": {
-        "description": (
-            """Projected energy use for commercial, electric power, industrial, residential, and transportation sectors, drawn from AEO Table 2.
-
-The series in Table 2 which track energy use by sector do not always define each type
+        "description": {
+            "additional_summary_text": (
+                "projected energy use for commercial, "
+                "electric power, industrial, residential, and transportation sectors, "
+                "drawn from AEO Table 2."
+            ),
+            "usage_warnings": ["aggregation_hazard"],
+            "additional_details_text": """The series in Table 2 which track energy use by sector do not always define each type
 of use the same way across sectors. There is detailed information about what is
 included or excluded in each use type for each sector in the footnotes of the EIA's
 online AEO data browser:
 
-  https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023
+https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023
 
 Use caution when aggregating across use types! Energy Use has a tricky system of
 subtotals, and summing all types within a sector will result in double-counting.
@@ -332,8 +376,8 @@ array of fuels based on sector, and explicitly excludes electricity-related loss
 AEO Energy Use figures are variously referred to as delivered energy, energy
 consumption, energy use, and energy demand, depending on which use types are
 being discussed, and which org and which document is describing them. In PUDL we
-say energy use or energy consumption."""
-        ),
+say energy use or energy consumption.""",
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -405,7 +449,7 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "gross_international_imports",
                 "gross_international_exports",
                 "gross_interregional_electricity_imports",
-                "gross_interregional_electricty_exports",
+                "gross_interregional_electricity_exports",
                 "purchases_from_combined_heat_and_power",
                 "electric_power_sector_generation_for_customer",
             ]

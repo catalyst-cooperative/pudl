@@ -29,11 +29,11 @@ jobs:
         with:
           environment-name: conda-lock
           create-args: >-
-            python=3.12
+            python=3.13
             conda-lock>=3
-            prettier
-            pre-commit
-      - name: Run conda-lock to recreate lockfiles and update pre-commit hooks
+            prettier>=3.6
+            pre-commit>=4.2
+      - name: Update conda lockfiles, pre-commit hooks
         run: |
           make conda-clean
           make conda-lock.yml

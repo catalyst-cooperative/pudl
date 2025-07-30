@@ -1475,6 +1475,7 @@ CODE_METADATA: dict[str, dict[str, Any]] = {
             "OOG": "OG",
             "Sun": "SUN",
             "sub": "SUB",
+            "PV": "SUN",  # Plant ID 59898 and 59899 in 2024 ER
         },
         "ignored_codes": [
             0,

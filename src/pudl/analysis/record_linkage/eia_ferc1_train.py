@@ -248,7 +248,7 @@ def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
 
     Returns:
         dict: A subset of the inputs_dict that contains versions of the value dfs that
-            pertain only to the utilites and years specified in util_id_eia_list and
+            pertain only to the utilities and years specified in util_id_eia_list and
             years.
     """
     util_year_subset_dict = {}
@@ -267,7 +267,7 @@ def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
 
         if df_name == "eia_ferc1":
             # Add column with excel formula to check if the override record id is the
-            # same as the AI assigend id. Doing this here instead of prep_eia_ferc1
+            # same as the AI assigned id. Doing this here instead of prep_eia_ferc1
             # because it is based on row index number which is changes when you take a
             # subset of the data.
             subset_df = subset_df.reset_index(drop=True)
@@ -304,7 +304,7 @@ def _output_override_spreadsheet(
     # Enable unique file names and put all files in directory called overrides
     new_output_path = f"{output_dir_path}/{util_name}_fix_FERC-EIA_overrides.xlsx"
     # Output file to a folder called overrides
-    logger.info(f"Outputing {util_name} subsets to tabs\n")
+    logger.info(f"Outputting {util_name} subsets to tabs\n")
     with pd.ExcelWriter(new_output_path) as writer:
         # writer = pd.ExcelWriter(new_output_path, engine="xlsxwriter")
         for df_name, df in util_year_subset_dict.items():
@@ -518,7 +518,7 @@ def validate_override_fixes(
             right_on="record_id_eia",
             how="left",
         )
-        # Now we compare the two utlity_id_pudl columns
+        # Now we compare the two utility_id_pudl columns
         if (
             len(
                 bad_utils := only_overrides["utility_id_pudl"].compare(

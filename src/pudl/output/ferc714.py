@@ -356,7 +356,7 @@ def _out_ferc714__annualized_respondents(
     """Broadcast respondent data across all years with reported demand.
 
     The FERC 714 Respondent IDs and names are reported in their own table, without any
-    refence to individual years, but much of the information we are associating with
+    reference to individual years, but much of the information we are associating with
     them varies annually. This method creates an annualized version of the respondent
     table, with each respondent having an entry corresponding to every year for which
     FERC 714 has been processed. This means that many of the respondents will end up
@@ -433,7 +433,7 @@ def _out_ferc714__categorized_respondents(
     # after it changed hands. However, not merging on report_date in
     # addition to the balancing_authority_id_eia / eia_code fields ensures
     # that all years are populated for all BAs, which keeps them analogous
-    # to the Utiliies in structure. Sooo.... it's fine for now.
+    # to the Utilities in structure. Sooo.... it's fine for now.
     logger.info("Selecting FERC-714 Balancing Authority respondents.")
     ba_respondents = categorized.query("respondent_type=='balancing_authority'")
     logger.info(
@@ -693,5 +693,5 @@ imputed_hourly_planning_area_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="respondent_id_ferc714",
-    settings=ImputeTimeseriesSettings(min_data_fraction=0.9),
+    settings=ImputeTimeseriesSettings(min_data_fraction=0.7),
 )

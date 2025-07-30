@@ -117,7 +117,7 @@ SOURCES: dict[str, Any] = {
             "The EIA Form 757A, also known as the Natural Gas Processing Plant Survey "
             "Schedule A provides detailed plant-level information on the capacity, "
             "status, operations and connecting infrastructure of natural gas processing "
-            "plants. The form is completed tri-anually."
+            "plants. The form is completed tri-annually."
         ),
         "source_file_dict": {
             "respondents": ("Natural gas processing plants."),
@@ -160,7 +160,7 @@ SOURCES: dict[str, Any] = {
             CONTRIBUTORS["catalyst-cooperative"],
         ],
         "working_partitions": {
-            "years": sorted(set(range(2001, 2024))),
+            "years": sorted(set(range(2001, 2025))),
         },
         "keywords": sorted(
             set(
@@ -196,7 +196,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-03", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-04", freq="M")
             ],
         },
         "keywords": sorted(
@@ -264,7 +264,7 @@ SOURCES: dict[str, Any] = {
         ),
         "source_file_dict": {
             "respondents": (
-                "Electric, CHP plants, and sometimes fuel transfer termianls with "
+                "Electric, CHP plants, and sometimes fuel transfer terminals with "
                 "either 1MW+ or the ability to receive and deliver power to the grid."
             ),
             "records_liberated": "~5 million",
@@ -386,7 +386,7 @@ SOURCES: dict[str, Any] = {
             "* the Annual Energy Outlook, the International Energy Outlook and the Short "
             "Term Energy Outlook;\n"
             "* aggregate national, state, and mine-level coal production statistics, "
-            "including imports and exports, reciepts of coal at electric power plants, "
+            "including imports and exports, receipts of coal at electric power plants, "
             "consumption and quality, market sales, reserves, and productive capacity; "
             "* U.S. electric system operating data;\n"
             "* aggregate national, state, and plant-level electricity generation "
@@ -512,7 +512,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "glue",
-        "working_partitions": {"year": sorted(set(range(2018, 2024)))},
+        "working_partitions": {"years": sorted(set(range(2018, 2024)))},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
@@ -589,7 +589,7 @@ SOURCES: dict[str, Any] = {
             # Years 1991-1995 use strange formats that need to be investigated further.
             # Years 1996-1999 come in split archives and full archives and we are going
             # to be using the aggregated archives (part=None).
-            "years": sorted(set(range(1996, 2024))),
+            "years": sorted(set(range(1996, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -619,7 +619,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # Years 2000-2020 are backed by DBF format.
             # Years 2021-present are backed by XBRL.
-            "years": sorted(set(range(2000, 2024))),
+            "years": sorted(set(range(2000, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -647,7 +647,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc60",
         "working_partitions": {
-            "years": sorted(set(range(2006, 2024))),
+            "years": sorted(set(range(2006, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -841,7 +841,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # 1970 - 1989 are all in one CSV in multiple tabs with multi-column headers
             # and will need to be more extensively processed, not currently integrated.
-            "years": sorted(set(range(1990, 2024))),
+            "years": sorted(set(range(1990, 2025))),
         },
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
@@ -878,10 +878,10 @@ performance.
 
 The full contents of the SEC 10-K are available through the SEC's EDGAR
 database. PUDL integrates only some of the 10-K metadata and data extracted from the
-unstructured Exhibit 21 attachement, which describes the ownershp relationships between
+unstructured Exhibit 21 attachment, which describes the ownership relationships between
 the parent company and its subsidiaries. This data is used to create a linkage between
 EIA utilities and SEC reporting companies, to better understand the relationships
-between utlities and their affiliates, and the resulting economic and political impacts.
+between utilities and their affiliates, and the resulting economic and political impacts.
 
 This data was originally downloaded from the SEC and processed using a machine learning
 pipeline found here: https://github.com/catalyst-cooperative/mozilla-sec-eia"""

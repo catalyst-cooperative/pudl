@@ -268,7 +268,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "balancing_authority_code_adjacent_eia": {
         "type": "string",
-        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occuring. Includes Canadian and Mexican BAs.",
+        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occurring. Includes Canadian and Mexican BAs.",
     },
     "balancing_authority_code_eia": {
         "type": "string",
@@ -498,7 +498,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "can_switch_when_operating": {
         "type": "boolean",
-        "description": "Whether the generator can switch fuel while operating.",
+        "description": "Indicates whether a fuel switching generator can switch fuels while operating.",
     },
     "capacity_eoy_mw": {
         "type": "number",
@@ -817,13 +817,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
-    "company_id_sec10k": {
-        "type": "string",
-        "description": (
-            "PUDL-assigned ID for companies that file SEC Form 10-K or are referenced "
-            "in exhibit 21 attachments to Form 10-K. May not be stable over time."
-        ),
-    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -835,10 +828,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "company_name_old": {
         "type": "string",
         "description": "Name of company prior to name change.",
-    },
-    "company_name_raw": {
-        "type": "string",
-        "description": "Uncleaned name of company.",
     },
     "compliance_year_nox": {
         "type": "integer",
@@ -1086,7 +1075,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "data_maturity": {
         "type": "string",
-        "description": "Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        "description": (
+            "Maturity of the source data published by EIA that is reflected in this "
+            "record. EIA releases data incrementally over time, including monthly "
+            "updates, annual year-to-date updates, provisional early releases of "
+            "annual data, and final annual release data that is not expected to change "
+            "further. Records sourced from multiple upstream EIA datasets may have "
+            "no well defined data maturity. Records whose values have been inferred "
+            "within PUDL will also have no data maturity."
+        ),
     },
     "datasource": {
         "type": "string",
@@ -1272,7 +1269,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "doi": {
         "type": "string",
-        "description": "Unique digitial object identifier of Zenodo archive.",
+        "description": "Unique digital object identifier of Zenodo archive.",
     },
     "dollar_value": {
         "type": "number",
@@ -1642,11 +1639,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. "
+            "The ID is manually assigned and has not been updated since 2020, but "
+            "only affects a couple hundred records total across all years."
+        ),
     },
     "ferc1_generator_agg_id_plant_gen": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. This ID is associated with the record_id_eia_plant_gen record.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. This "
+            "ID is associated with the record_id_eia_plant_gen record. It depends on "
+            "ferc1_generator_agg_id, which has not been updated since 2020, but only "
+            "affects a couple hundred records total across all years."
+        ),
     },
     "ferc_account": {
         "type": "string",
@@ -1778,13 +1786,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "extension."
         ),
     },
-    "files_sec10k": {
-        "type": "boolean",
-        "description": "Indicates whether the company files an SEC 10-K.",
-    },
     "filing_date": {
         "type": "date",
-        "description": "Date filing was submitted, reported at a daily frequency.",
+        "description": "Date of the day on which the filing was submitted.",
     },
     "film_number": {
         "type": "string",
@@ -2045,7 +2049,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_received_units": {
         "type": "number",
-        "description": "Quanity of fuel received in tons, barrel, or Mcf.",
+        "description": "Quantity of fuel received in tons, barrel, or Mcf.",
     },
     "fuel_switch_energy_source_1": {
         "type": "string",
@@ -2216,17 +2220,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "grid_voltage_1_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distribution facilities",
         "unit": "kV",
     },
     "grid_voltage_2_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distribution facilities",
         "unit": "kV",
     },
     "grid_voltage_3_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distribution facilities",
         "unit": "kV",
     },
     "gross_generation_mwh": {
@@ -2294,7 +2298,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether or not a record from the detailed FERC1 accounting tables should "
             "be considered allowable in a utility's rate base based on utility "
             "accounting standards. "
-            "This flag was mannually compiled by RMI utility accounting experts "
+            "This flag was manually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes varies based on the utility_type, "
             "plant_status or plant_function."
         ),
@@ -2303,7 +2307,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": (
             "Whether or not a record from the detailed income statement data is typically "
-            "included in a utility's revenue requirement. This flag was mannually "
+            "included in a utility's revenue requirement. This flag was manually "
             "compiled by RMI utility accounting experts based on the xbrl_factoid and "
             "sometimes varies based on the utility_type or plant_function."
         ),
@@ -2703,7 +2707,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The change in energy use incurred in a given reporting year by "
             "new participants in existing load management programs and all "
-            "participants in new load managment programs."
+            "participants in new load management programs."
         ),
         "unit": "MWh",
     },
@@ -2715,14 +2719,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and all participants in new load management programs."
         ),
         "unit": "MW",
-    },
-    "location_of_incorporation": {
-        "type": "string",
-        "description": (
-            "Location of the company's incorporation. This can be a full US state "
-            "name, a state abbreviation, the name of a foreign country, etc. Not yet "
-            "standardized / cleaned."
-        ),
     },
     "longitude": {
         "type": "number",
@@ -2976,7 +2972,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "natural_gas_delivery_contract_type_code": {
         "type": "string",
-        "description": "Contract type for natrual gas delivery service:",
+        "description": "Contract type for natural gas delivery service:",
         "constraints": {"enum": ["firm", "interruptible"]},
     },
     "natural_gas_local_distribution_company": {
@@ -3124,7 +3120,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The difference between the amount of energy entering the respondent's "
             "system (wheeled received) for transmission through the respondent's "
             "system and the amount of energy leaving the respondent's system (wheeled "
-            "delievered). Wheeled net represents the energy losses on the respondent's "
+            "delivered). Wheeled net represents the energy losses on the respondent's "
             "system associated with the wheeling of energy for other systems."
         ),
         "unit": "MWh",
@@ -3285,10 +3281,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operating_datetime_utc": {
         "type": "datetime",
         "description": "Date and time measurement began (UTC).",
-    },
-    "operating_switch": {
-        "type": "string",
-        "description": "Indicates whether the fuel switching generator can switch when operating",
     },
     "operating_time_hours": {
         "type": "number",
@@ -3605,7 +3597,105 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "parent_company_central_index_key": {
         "type": "string",
-        "description": "Central index key (CIK) of the company's parent company.",
+        "description": "Central index key (CIK) of the parent company.",
+    },
+    "parent_company_business_city": {
+        "type": "string",
+        "description": "City where the parent company's place of business is located.",
+    },
+    "parent_company_business_state": {
+        "type": "string",
+        "description": "State where the parent company's place of business is located.",
+    },
+    "parent_company_business_street_address": {
+        "type": "string",
+        "description": "Street address of the parent company's place of business.",
+    },
+    "parent_company_business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the parent company's place of business.",
+    },
+    "parent_company_business_zip_code": {
+        "type": "string",
+        "description": "Zip code of the parent company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "parent_company_business_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "parent_company_incorporation_state": {
+        "type": "string",
+        "description": "Two letter state code where parent company is incorporated.",
+    },
+    "parent_company_industry_name_sic": {
+        "type": "string",
+        "description": "Text description of the parent company's Standard Industrial Classification (SIC)",
+    },
+    "parent_company_industry_id_sic": {
+        "type": "string",
+        "description": "Four-digit Standard Industrial Classification (SIC) code identifying "
+        "the parent company's primary industry. SIC codes have been replaced by NAICS "
+        "codes in many applications, but are still used by the SEC. See e.g. "
+        "https://www.osha.gov/data/sic-manual for code definitions.",
+    },
+    "parent_company_mail_city": {
+        "type": "string",
+        "description": "City of the parent company's mailing address.",
+    },
+    "parent_company_mail_state": {
+        "type": "string",
+        "description": "State of the parent company's mailing address.",
+    },
+    "parent_company_mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the parent company's mailing address.",
+    },
+    "parent_company_mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the parent company's mailing address.",
+    },
+    "parent_company_mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the parent company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "parent_company_mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the parent company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "parent_company_name": {
+        "type": "string",
+        "description": "Name of the parent company.",
+    },
+    "parent_company_phone_number": {
+        "type": "string",
+        "description": "Phone number of the parent company.",
+    },
+    "parent_company_taxpayer_id_irs": {
+        "type": "string",
+        "description": "Taxpayer ID of the parent company with the IRS.",
+        "constraints": {
+            "pattern": r"^\d{2}-\d{7}$",
+        },
+    },
+    "parent_company_utility_id_eia": {
+        "type": "integer",
+        "description": "The EIA utility ID of the parent company.",
+    },
+    "parent_company_utility_name_eia": {
+        "type": "string",
+        "description": "The EIA reported utility name of the parent company.",
     },
     "particulate_control_id_eia": {
         "type": "string",
@@ -3625,7 +3715,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "partitions": {
         "type": "string",
-        "description": "The data parititions used to generate this instance of the database.",
+        "description": "The data partitions used to generate this instance of the database.",
     },
     "peak_demand_mw": {
         "type": "number",
@@ -4093,7 +4183,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": (
             "PUDL-assigned identifying a respondent to FERC Form 714. This ID associates "
-            "natively reported respondent IDs from the orignal CSV and XBRL data sources."
+            "natively reported respondent IDs from the original CSV and XBRL data sources."
         ),
     },
     "respondent_id_ferc714_csv": {
@@ -4155,7 +4245,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "revenue_per_kwh": {
         "type": "number",
         "description": (
-            "The amount of revenue per kWh by rate schedule aquired in the given "
+            "The amount of revenue per kWh by rate schedule acquired in the given "
             "report year."
         ),
         "unit": "USD",
@@ -4169,7 +4259,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The category of revenue requirement associated with each component of utility's"
             "income statements. "
-            "These categories were mannually compiled by RMI utility accounting experts "
+            "These categories were manually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes vary based on the utility_type or "
             "plant_function. This column is intended to be used to aggregate this "
             "table."
@@ -4194,7 +4284,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The technology type associated with components of a utility's "
             "revenue requirement. "
-            "These categories were mannually compiled by RMI utility accounting experts "
+            "These categories were manually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes vary based on the utility_type or "
             "plant_function as well. This column is intended to be used to aggregate this "
             "table."
@@ -4242,7 +4332,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "rto_iso_location_wholesale_reporting_id": {
         "type": "string",
-        "description": "The designation used to report ths specific location of the wholesale sales transactions to FERC for the Electric Quarterly Report",
+        "description": "The designation used to report the specific location of the wholesale sales transactions to FERC for the Electric Quarterly Report",
     },
     "rtos_of_operation": {
         "type": "string",
@@ -4633,7 +4723,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "The stack or flue identification value reported to EIA. This denotes the "
-            "place where emissions from the combusion process are released into the "
+            "place where emissions from the combustion process are released into the "
             "atmosphere. Prior to 2013, this was reported as `stack_id_eia` and "
             "`flue_id_eia`."
         ),
@@ -4645,7 +4735,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "of the primary key for the stack flue equipment and boiler association "
             "tables. For 2013 and onward, this value is equal to the value for "
             "stack_flue_id_eia. Prior to 2013, this value is equal to the value for "
-            "stack_id_eia and the value for flue_id_eia seperated by an underscore or "
+            "stack_id_eia and the value for flue_id_eia separated by an underscore or "
             "just the stack_flue_eia in cases where flue_id_eia is NA."
         ),
     },
@@ -4786,7 +4876,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Two-letter ISO-3166 political subdivision code (e.g. US state "
-            "or Canadian provice abbreviations like CA or AB)."
+            "or Canadian province abbreviations like CA or AB)."
         ),
         "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
     },
@@ -4807,13 +4897,124 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
     },
+    "subsidiary_company_central_index_key": {
+        "type": "string",
+        "description": "Central index key (CIK) of the subsidiary company.",
+    },
+    "subsidiary_company_business_city": {
+        "type": "string",
+        "description": "City where the subsidiary company's place of business is located.",
+    },
+    "subsidiary_company_business_state": {
+        "type": "string",
+        "description": "State where the subsidiary company's place of business is located.",
+    },
+    "subsidiary_company_business_street_address": {
+        "type": "string",
+        "description": "Street address of the subsidiary company's place of business.",
+    },
+    "subsidiary_company_business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the subsidiary company's place of business.",
+    },
+    "subsidiary_company_business_zip_code": {
+        "type": "string",
+        "description": "Zip code of the subsidiary company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "subsidiary_company_business_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the subsidiary company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "subsidiary_company_incorporation_state": {
+        "type": "string",
+        "description": "Two letter state code where subisidary company is incorporated.",
+    },
+    "subsidiary_company_id_sec10k": {
+        "type": "string",
+        "description": (
+            "PUDL-assigned ID for subsidiaries found in SEC 10-K Exhibit 21. "
+            "The ID is created by concatenating the CIK of the company whose filing the subsidiary "
+            "was found in, the subsidiary company's name, and location of incorporation. It is not "
+            "guaranteed to be stable across different releases of PUDL and so should never be "
+            "hard-coded in analyses."
+        ),
+    },
+    "subsidiary_company_industry_name_sic": {
+        "type": "string",
+        "description": "Text description of the subsidiary company's Standard Industrial Classification (SIC)",
+    },
+    "subsidiary_company_industry_id_sic": {
+        "type": "string",
+        "description": "Four-digit Standard Industrial Classification (SIC) code identifying "
+        "the subsidiary company's primary industry. SIC codes have been replaced by NAICS "
+        "codes in many applications, but are still used by the SEC. See e.g. "
+        "https://www.osha.gov/data/sic-manual for code definitions.",
+    },
+    "subsidiary_company_location": {
+        "type": "string",
+        "description": (
+            "Location of subsidiary company. This is the full US state name or country name "
+            "and occasionally a two digit code that was not mapped to a full name during cleaning."
+        ),
+    },
+    "subsidiary_company_mail_city": {
+        "type": "string",
+        "description": "City of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_state": {
+        "type": "string",
+        "description": "State of the parent company's mailing address.",
+    },
+    "subsidiary_company_mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the subsidiary company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "subsidiary_company_mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the subsidiary company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
     "subsidiary_company_name": {
         "type": "string",
         "description": "Name of subsidiary company.",
     },
-    "subsidiary_company_location": {
+    "subsidiary_company_phone_number": {
         "type": "string",
-        "description": "Location of subsidiary company.",
+        "description": "Phone number of the subsidiary company.",
+    },
+    "subsidiary_company_taxpayer_id_irs": {
+        "type": "string",
+        "description": "Taxpayer ID of the subsidiary company with the IRS.",
+        "constraints": {
+            "pattern": r"^\d{2}-\d{7}$",
+        },
+    },
+    "subsidiary_company_utility_id_eia": {
+        "type": "integer",
+        "description": "The EIA utility ID of the subsidiary company.",
+    },
+    "subsidiary_company_utility_name_eia": {
+        "type": "string",
+        "description": "The EIA reported utility name of the subsidiary company.",
     },
     "sulfur_content_pct": {
         "type": "number",
@@ -4879,7 +5080,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "supplier_name": {
         "type": "string",
-        "description": "Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.",
+        "description": "Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner.",
     },
     "supporting_structure_type": {
         "type": "string",
@@ -4889,7 +5090,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether the generator can switch between oil and natural gas.",
     },
-    "syncronized_transmission_grid": {
+    "synchronized_transmission_grid": {
         "type": "boolean",
         "description": "Indicates whether standby generators (SB status) can be synchronized to the grid.",
     },
@@ -5619,7 +5820,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "model_case_nrelatb": {
         "type": "string",
         "description": (
-            "NREL's financial assumption cases. There are two cases which effect project finanical "
+            "NREL's financial assumption cases. There are two cases which effect project financial "
             "assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected "
             "R&D improvements while Market + Policy case includes policy and tax incentives. "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
@@ -5633,7 +5834,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "production tax credit (PTC) and investment tax credit (ITC). For more detail, see: "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
-        "constraints": {"enum": ["Market", "R&D"]},
+        "constraints": {"enum": ["ITC", "PTC + ITC", "PTC"]},
     },
     "projection_year": {
         "type": "integer",
@@ -5806,7 +6007,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "still charge from the grid)."
         ),
     },
-    "id_dc_coupled_tightly": {
+    "is_dc_coupled_tightly": {
         "type": "boolean",
         "description": (
             "Indicates if this energy storage device is DC tightly coupled (means the energy "
@@ -5918,13 +6119,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "A counter indicating which observation of company data within an SEC 10-K filing header the record pertains to.",
     },
-    # "fraction_owned": {
-    #    "type": "number",
-    #    "description": "Fraction of subsidiary company owned by parent.",
-    # },
     "mail_street_address": {
         "type": "string",
-        "description": "Street portion of the company's for mailing address.",
+        "description": "Street portion of the company's mailing address.",
     },
     "mail_street_address_2": {
         "type": "string",
@@ -5998,6 +6195,12 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     },
     "nrelatb": {
         "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
+    },
+    "sec10k": {
+        "fraction_owned": {
+            "type": "number",
+            "description": "Fraction of a subsidiary company owned by the parent.",
+        },
     },
     "vcerare": {
         "latitude": {
@@ -6769,9 +6972,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
 
 def get_pudl_dtypes(
     group: str | None = None,
-    field_meta: dict[str, Any] | None = FIELD_METADATA,
-    field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
-    dtype_map: dict[str, Any] | None = FIELD_DTYPES_PANDAS,
+    field_meta: dict[str, Any] = FIELD_METADATA,
+    field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    dtype_map: dict[str, Any] = FIELD_DTYPES_PANDAS,
 ) -> dict[str, Any]:
     """Compile a dictionary of field dtypes, applying group overrides.
 
@@ -6801,8 +7004,8 @@ def get_pudl_dtypes(
 def apply_pudl_dtypes(
     df: pd.DataFrame,
     group: str | None = None,
-    field_meta: dict[str, Any] | None = FIELD_METADATA,
-    field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
+    field_meta: dict[str, Any] = FIELD_METADATA,
+    field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
     strict: bool = False,
 ) -> pd.DataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.

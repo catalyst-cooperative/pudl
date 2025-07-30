@@ -4,16 +4,55 @@ sources:
     tables:
       - name: out_ferc714__hourly_planning_area_demand
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: out_ferc714__hourly_planning_area_demand
               partition_column: report_date
+          - expect_columns_are_close:
+              column_a: demand_reported_mwh
+              column_b: demand_imputed_pudl_mwh
+              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL and demand_reported_mwh > 300"
+              atol: 0.2
+          - expect_columns_are_close:
+              column_a: demand_reported_mwh
+              column_b: demand_imputed_pudl_mwh
+              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL and demand_reported_mwh < 300"
+              atol: 1.0
+          - expect_consistent_years:
+              datetime_column: datetime_utc
+              date_column: report_date
+              max_mismatch_ratio: 0.001
         columns:
           - name: respondent_id_ferc714
           - name: respondent_id_ferc714_csv
+            tests:
+              - expect_missingness_between:
+                  lower_bound: 0.0
+                  upper_bound: 0.025
           - name: respondent_id_ferc714_xbrl
+            tests:
+              - expect_missingness_between:
+                  lower_bound: 0.0
+                  upper_bound: 0.2
           - name: report_date
           - name: datetime_utc
           - name: timezone
+            tests:
+              - dbt_expectations.expect_column_values_to_not_be_null
           - name: demand_reported_mwh
+            tests:
+              - expect_missingness_between:
+                  lower_bound: 0.0
+                  upper_bound: 0.0
           - name: demand_imputed_pudl_mwh
+            tests:
+              - expect_missingness_between:
+                  lower_bound: 0.0
+                  upper_bound: 0.05
           - name: demand_imputed_pudl_mwh_imputation_code
+            tests:
+              - dbt_expectations.expect_column_values_to_not_be_in_set:
+                  value_set: ["simulated"]
+              - expect_missingness_between:
+                  lower_bound: 0.95
+                  upper_bound: 1.0

@@ -57,7 +57,7 @@ class DbfTableSchema:
             self._short_name_map[short_name] = col_name
 
     def get_columns(self) -> Iterator[tuple[str, sa.types.TypeEngine]]:
-        """Itereates over the (column_name, column_type) pairs."""
+        """Iterates over the (column_name, column_type) pairs."""
         for col_name in self._columns:
             yield (col_name, self._column_types[col_name])
 
@@ -609,7 +609,7 @@ class FercDbfExtractor:
         return meta
 
     def postprocess(self):
-        """This metod is called after all the data is loaded into sqlite."""
+        """This method is called after all the data is loaded into sqlite."""
 
 
 def add_key_constraints(

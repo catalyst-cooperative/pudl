@@ -169,9 +169,10 @@ def out_eia923__generation_fuel_combined(
     """Denormalize the `generation_fuel_combined_eia923` table.
 
     This asset first combines the :ref:`core_eia923__monthly_generation_fuel` and
-    :ref:`core_eia923__monthly_generation_fuel_nuclear` into a single table with a uniform primary
-    key (consolidating multiple nuclear unit IDs into a single plant record) and then
-    denormalizes it by merging in some addition plant and utility level columns.
+    :ref:`core_eia923__monthly_generation_fuel_nuclear` into a single table with a
+    uniform primary key (consolidating multiple nuclear unit IDs into a single plant
+    record) and then denormalizes it by merging in some addition plant and utility level
+    columns.
 
     This table contains the records at their originally reported temporal resolution,
     so it's outside of :func:`time_aggregated_eia923_asset_factory`.
@@ -216,7 +217,7 @@ def out_eia923__generation_fuel_combined(
     )
     # Nuclear plants don't report units of fuel consumed, so fuel heat content ends up
     # being calculated as infinite. However, some nuclear plants report using small
-    # amounts of DFO. Ensure infite heat contents are set to NA instead:
+    # amounts of DFO. Ensure infinite heat contents are set to NA instead:
     gfn_agg = gfn_agg.assign(
         fuel_mmbtu_per_unit=np.where(
             gfn_agg.fuel_consumed_units != 0,
@@ -310,7 +311,7 @@ def out_eia923__fuel_receipts_costs(
         the input source. Apply to the original source before any imputations have been
         applied and apply this directly after a new source of fuel cost has been added.
         """
-        if "fuel_cost_per_mmbtu_source" not in frc_df:
+        if "fuel_cost_per_mmbtu_source" not in frc_df.columns:
             frc_df["fuel_cost_per_mmbtu_source"] = pd.NA
         frc_df.loc[
             frc_df["fuel_cost_per_mmbtu_source"].isnull()
@@ -430,7 +431,7 @@ def time_aggregated_eia923_asset_factory(
         ).reset_index()
         # Nuclear plants don't report units of fuel consumed, so fuel heat content ends
         # up being calculated as infinite. However, some nuclear plants report using
-        # small amounts of DFO. Ensure infinte heat contents are set to NA instead:
+        # small amounts of DFO. Ensure infinite heat contents are set to NA instead:
         # Duplicates pudl.output.eia923.generation_fuel_all_eia923(). Should figure out
         # how to consolidate.
         gf = gf_both.loc[gf_both.energy_source_code != "NUC"]

@@ -48,10 +48,10 @@ datasets:
     eia923:
       years: [2020, 2025]
     eia860:
-      years: [2020, 2023]
+      years: [2020, 2024]
       eia860m: true
     eia860m:
-      year_months: ["2025-02", "2025-03"]
+      year_months: ["2025-03", "2025-04"]
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
       # This is a temporary hack to make the tests pass!
@@ -93,7 +93,7 @@ datasets:
     # We only use q1 for epacems etl_fast even if later quarters are available.
     year_quarters: ["2023q1"]
   phmsagas:
-    years: [2022]
+    years: [2024]
   nrelatb:
     years: [2024]
   gridpathratoolkit:

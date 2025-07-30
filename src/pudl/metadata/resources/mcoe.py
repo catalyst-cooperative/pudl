@@ -6,19 +6,32 @@ AGG_FREQS = ["yearly", "monthly"]
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     f"out_eia__{freq}_generators": {
-        "description": (
-            f"""{freq.title()} all generator attributes including calculated capacity factor,
-heat rate, fuel cost per MMBTU and fuel cost per MWh. These calculations are based on
+        "description": {
+            "additional_summary_text": "all generator attributes including calculated capacity factor, heat rate, fuel cost per MMBTU and fuel cost per MWh.",
+            "additional_details_text": """These calculations are based on
 the allocation of net generation reported on the basis of plant, prime mover and energy
 source to individual generators. Heat rates by generator-month are estimated by using
 allocated estimates for per-generator net generation and fuel consumption as well as the
 :ref:`core_eia923__monthly_boiler_fuel` table, which reports fuel consumed by boiler.
 Heat rates are necessary to estimate the amount of fuel consumed by a generation unit,
-and thus the fuel cost per MWh generated. Plant specific fuel prices are taken from the
+and thus the fuel cost per MWh generated.
+
+Plant specific fuel prices are taken from the
 :ref:`core_eia923__monthly_fuel_receipts_costs` table, which only has ~70% coverage,
 leading to some generators with heat rate estimates still lacking fuel cost
-estimates."""
-        ),
+estimates.""",
+            "usage_warnings": [
+                "estimated_values",
+                {
+                    "type": "custom",
+                    "description": "Due to coverage problems in other tables, some generators have heat rate estimates but not fuel cost estimates.",
+                },
+                {
+                    "type": "custom",
+                    "description": "Not all columns are originally reported in or calculable from the input tables. Expect nulls.",
+                },
+            ],
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -80,7 +93,7 @@ estimates."""
                 "can_burn_multiple_fuels",
                 "nameplate_power_factor",
                 "net_capacity_mwdc",
-                "operating_switch",
+                "can_switch_when_operating",
                 "operational_status_code",
                 "original_planned_generator_operating_date",
                 "other_combustion_tech",
@@ -118,7 +131,7 @@ estimates."""
                 "summer_estimated_capability_mw",
                 "supercritical_tech",
                 "can_switch_oil_gas",
-                "syncronized_transmission_grid",
+                "synchronized_transmission_grid",
                 "time_cold_shutdown_full_load_code",
                 "timezone",
                 "topping_bottoming_code",

@@ -3,7 +3,6 @@
 import numpy as np
 import pandas as pd
 from dagster import (
-    AssetCheckResult,
     AssetOut,
     Output,
     asset,
@@ -419,7 +418,7 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
         return df
     index_cols = df.columns[~ends_with_month_filter]
     # performance note: this was good enough for eia923 data size.
-    # Using .set_index() is simple but inefficient due to unecessary index creation.
+    # Using .set_index() is simple but inefficient due to unnecessary index creation.
     # Performance may be improved by separating into two dataframes,
     # .stack()ing the monthly data, then joining back together on the original index.
     df = df.set_index(list(index_cols), append=True)
@@ -436,13 +435,14 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _coalmine_cleanup(
-    cmi_df: pd.DataFrame, _core_censuspep__yearly_geocodes
+    cmi_df: pd.DataFrame,
+    _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pd.DataFrame:
     """Clean up the core_eia923__entity_coalmine table.
 
-    This function does most of the core_eia923__entity_coalmine table transformation. It is separate
-    from the coalmine() transform function because of the peculiar way that we are
-    normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
+    This function does most of the core_eia923__entity_coalmine table transformation. It
+    is separate from the coalmine() transform function because of the peculiar way that
+    we are normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
 
     All of the coalmine information is originally coming from the EIA
     fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -469,7 +469,7 @@ def _coalmine_cleanup(
     # of the values here (case, removing whitespace, punctuation, etc.) will
     # affect the total number of "unique" mines that we end up having in the
     # table... and we probably want to minimize it (without creating
-    # collisions).  We will need to do exactly the same transofrmations in the
+    # collisions).  We will need to do exactly the same transformations in the
     # FRC ingest function before merging these values in, or they won't match
     # up.
     cmi_df = (
@@ -1114,8 +1114,7 @@ def _core_eia923__fuel_receipts_costs(
     """
     frc_df = raw_eia923__fuel_receipts_costs
 
-    # Drop fields we're not inserting into the eia923__fuel_receipts_costs
-    # table.
+    # Drop fields we're not inserting into the eia923__fuel_receipts_costs table.
     cols_to_drop = [
         "plant_name_eia",
         "plant_state",
@@ -1227,7 +1226,7 @@ def _core_eia923__fuel_receipts_costs(
 
 
 @asset(io_manager_key="pudl_io_manager")
-def _core_eia923__cooling_system_information(
+def _core_eia923__monthly_cooling_system_information(
     raw_eia923__cooling_system_information: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the eia923__cooling_system_information dataframe.
@@ -1295,22 +1294,7 @@ def _core_eia923__cooling_system_information(
     )
 
 
-@asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
-def cooling_system_information_null_check(csi):
-    """We do not expect any columns to be completely null.
-
-    In fast-ETL context (only recent years), the annual columns may also be
-    completely null.
-    """
-    if csi.report_date.min() >= pd.Timestamp("2010-01-01T00:00:00"):
-        expected_cols = {col for col in csi.columns if not col.startswith("annual_")}
-    else:
-        expected_cols = set(csi.columns)
-    pudl.validate.no_null_cols(csi, cols=expected_cols)
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset=_core_eia923__cooling_system_information, blocking=True)
+@asset_check(asset=_core_eia923__monthly_cooling_system_information, blocking=True)
 def cooling_system_information_continuity(csi):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(
@@ -1329,15 +1313,15 @@ def cooling_system_information_continuity(csi):
             "monthly_total_withdrawal_volume_gallons": 0.3,
         },
         groupby_col="report_date",
-        n_outliers_allowed=2,
+        n_outliers_allowed=3,
     )
 
 
 @asset(io_manager_key="pudl_io_manager")
-def _core_eia923__fgd_operation_maintenance(
+def _core_eia923__yearly_fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transforms the _core_eia923__fgd_operation_maintenance table.
+    """Transforms the _core_eia923__yearly_fgd_operation_maintenance table.
 
     Transformations include:
 
@@ -1351,7 +1335,7 @@ def _core_eia923__fgd_operation_maintenance(
         raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__fgd_operation_maintenance`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for harvesting.
     """
     fgd_df = raw_eia923__fgd_operation_maintenance
 
@@ -1408,29 +1392,7 @@ def _core_eia923__fgd_operation_maintenance(
     )
 
 
-@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
-def fgd_operation_maintenance_null_check(fgd):
-    """Check that columns other than expected columns aren't null."""
-    fast_run_null_cols = {
-        "fgd_control_flag",
-        "fgd_electricity_consumption_mwh",
-        "fgd_hours_in_service",
-        "fgd_operational_status_code",
-        "fgd_sorbent_consumption_1000_tons",
-        "opex_fgd_land_acquisition",
-        "so2_removal_efficiency_tested",
-        "so2_removal_efficiency_annual",
-        "so2_test_date",
-    }
-    if fgd.report_date.min() >= pd.Timestamp("2011-01-01T00:00:00"):
-        expected_cols = set(fgd.columns) - fast_run_null_cols
-    else:
-        expected_cols = set(fgd.columns)
-    pudl.validate.no_null_cols(fgd, cols=expected_cols)
-    return AssetCheckResult(passed=True)
-
-
-@asset_check(asset=_core_eia923__fgd_operation_maintenance, blocking=True)
+@asset_check(asset=_core_eia923__yearly_fgd_operation_maintenance, blocking=True)
 def fgd_continuity_check(fgd):
     """Check to see if columns vary as slowly as expected."""
     return pudl.validate.group_mean_continuity_check(

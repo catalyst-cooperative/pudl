@@ -4,15 +4,17 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_plant_parts": {
-        "description": """Output table with the aggregation of all EIA plant parts. For use with matching to FERC 1.
-
-Practically speaking, a plant is a collection of generator(s). There are many
-attributes of generators (i.e. prime mover, primary fuel source, technology
-type). We can use these generator attributes to group generator records into
-larger aggregate records which we call "plant parts". A plant part is a record
-which corresponds to a particular collection of generators that all share an
-identical attribute and utility owner. E.g. all of the generators with unit_id=2, or all
-of the generators with coal as their primary fuel source.
+        "description": {
+            "additional_summary_text": "all EIA plant parts, for use in matching to FERC 1.",
+            "usage_warnings": ["aggregation_hazard"],
+            "additional_details_text": (
+                """Practically speaking, a plant is a collection of generator(s). There
+are many attributes of generators (i.e. prime mover, primary fuel source, technology
+type). We can use these generator attributes to group generator records into larger
+aggregate records which we call "plant parts". A plant part is a record which
+corresponds to a particular collection of generators that all share an identical
+attribute and utility owner. E.g. all of the generators with unit_id=2, or all of the
+generators with coal as their primary fuel source.
 
 The EIA data about power plants (from EIA 923 and 860) is reported in tables
 with records that correspond to mostly generators and plants. Other datasets
@@ -28,7 +30,9 @@ portion records are labeled in the ``ownership_record_type`` column as ``owned``
 and the total records are labeled as ``total``.
 
 This table includes A LOT of duplicative information about EIA plants. It is primarily
-meant for use as an input into the record linkage between FERC1 plants and EIA.""",
+meant for use as an input into the record linkage between FERC1 plants and EIA."""
+            ),
+        },
         "schema": {
             "fields": [
                 "record_id_eia",
@@ -88,7 +92,10 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "field_namespace": "eia",
     },
     "out_eia__yearly_generators_by_ownership": {
-        "description": "A mega table of all EIA generators with ownership integrated.",
+        "description": {
+            "additional_summary_text": "all EIA generators with ownership integrated.",
+            "usage_warnings": ["aggregation_hazard"],
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -130,16 +137,19 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "field_namespace": "eia",
     },
     "out_eia__yearly_assn_plant_parts_plant_gen": {
-        "description": """In order to easily determine what generator records are associated with every
-plant part record, we made this association table. This table associates every plant part
-record (identified as ``record_id_eia``) from the ``out_eia__yearly_plant_parts`` table to the associated
-'plant_gen' records (identified as ``record_id_eia_plant_gen``) from the same table. The plant part
-records have a one to many relationship to the associated 'plant_gen' records. The 'plant_gen' records
-are also included in the plant part records, so for these records there is a one to one relationship
-and the ``record_id_eia`` and the ``record_id_eia_plant_gen`` are the same.
+        "description": {
+            "additional_summary_text": "plant parts (identified as ``record_id_eia``) and  'plant_gen' records (identified as ``record_id_eia_plant_gen``) from the :ref:`out_eia__yearly_plant_parts` table.",
+            "usage_warnings": ["aggregation_hazard"],
+            "additional_details_text": """
+The purpose of this table is to help determine what generator records are associated
+with every plant part record. The plant part records have a one to many relationship
+to the associated 'plant_gen' records. The 'plant_gen' records are also included in
+the plant part records, so for these records there is a one to one relationship and
+the ``record_id_eia`` and the ``record_id_eia_plant_gen`` are the same.
 
-All of the columns in this table that have a suffix of '_plant_gen' are attributes of the
-``record_id_eia_plant_gen`` record.""",
+All of the columns in this table that have a suffix of '_plant_gen' are attributes of
+the ``record_id_eia_plant_gen`` record.""",
+        },
         "schema": {
             "fields": [
                 "record_id_eia",
@@ -166,9 +176,11 @@ All of the columns in this table that have a suffix of '_plant_gen' are attribut
         "field_namespace": "eia",
     },
     "out_pudl__yearly_assn_eia_ferc1_plant_parts": {
-        "description": """This table links power plant data reported in FERC Form 1 to related EIA data. It
+        "description": {
+            "additional_summary_text": "power plant data reported in FERC Form 1 and any available EIA data related to the plant parts covered by each FERC Form 1 record.",
+            "additional_details_text": """This table
 answers the question "What EIA data reported about plants or generators should be
-associated with a given plant record found in the FERC Form 1."
+associated with a given plant record found in the FERC Form 1?"
 
 Each record in this table corresponds to a single FERC Form 1 record reported in one of
 several tables describing power plants (large steam, hydro, small, etc.). These FERC
@@ -178,8 +190,10 @@ share of any of those categories (or other categories). Furthermore, the same ut
 may report the same plant in different ways in different years.
 
 The EIA data associated with each FERC plant record comes from our Plant Parts EIA
-table. The EIA data in each record represents an aggregation of several slices of an EIA
+table, :ref:`out_eia__yearly_plant_parts`.
+The EIA data in each record represents an aggregation of several slices of an EIA
 plant, across both physical characteristics and utility ownership.""",
+        },
         "schema": {
             "fields": [
                 "record_id_ferc1",

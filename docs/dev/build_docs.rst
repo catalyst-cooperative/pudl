@@ -46,3 +46,8 @@ documentation in your text editor with appropriate plugins.
     Similarly the :doc:`../data_dictionaries/pudl_db` is generated dynamically
     by the :mod:`pudl.convert.metadata_to_rst` script that gets run by Sphinx during
     the docs build.
+
+    `make docs-build` will build and the delete all of the rst files via
+    ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py``. If you want to
+    preserve them for a one-off build, you can comment out that step in
+    ``docs/conf.py``.

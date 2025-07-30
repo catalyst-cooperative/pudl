@@ -5,7 +5,6 @@ import pandas as pd
 from dagster import Field, asset
 
 import pudl
-from pudl.helpers import drop_all_null_records_with_multiindex
 from pudl.transform.eia import occurrence_consistency
 from pudl.transform.eia861 import add_backfilled_ba_code_column
 
@@ -144,20 +143,96 @@ def _out_eia__yearly_generators(
     )
 
     # If any generator data is completely empty, drop it.
-    # These are three known generators that originate from harvesting the plant and
+    # These are a handful of known generators that originate from harvesting the plant and
     # generator IDs found in the plant_id_eia_direct_support_x and
     # generator_id_direct_support_x in EIA 860 energy storage tables, in
     # order to enable foreign key relationships with these columns.
     # They do not show up in any other tables and thus lack data in all columns.
     # For more, see issue #3695 and PR #3699.
-    empty_generator_ids = [
-        (9170, "3093", "2023-01-01"),
-        (34516, "SOL1", "2023-01-01"),
-        (64966, "GEN1", "2023-01-01"),
-    ]
-    out_df = drop_all_null_records_with_multiindex(
-        out_df, ["plant_id_eia", "generator_id", "report_date"], empty_generator_ids
+    empty_generator_ids = pd.MultiIndex.from_tuples(
+        [
+            (1, "CFCPV"),
+            (1, "HB2PV"),
+            (1, "LUNPV"),
+            (1, "MIDPV"),
+            (1, "RDYPV"),
+            (1, "TE1PV"),
+            (9170, "3093"),
+            (34516, "SOL1"),
+            (56951, "VESTA"),
+            (57151, "1"),
+            (57991, "PV2"),
+            (58644, "All"),
+            (60441, "1"),
+            (60797, "61168"),
+            (61153, "61552"),
+            (61169, "60798"),
+            (61716, "26"),
+            (61720, "30"),
+            (61722, "32"),
+            (61752, "49"),
+            (61807, "66"),
+            (62355, "2WPSO"),
+            (62652, "63359"),
+            (62760, "SONRI"),
+            (62975, "SYNLB"),
+            (63210, "SAINT"),
+            (63506, "63243"),
+            (63541, "63257"),
+            (64094, "PBS0L"),
+            (64182, "PRAPV"),
+            (64245, "90FIB"),
+            (64246, "99MTB"),
+            (64436, "WLB"),
+            (64876, "OHAMP"),
+            (64966, "GEN1"),
+            (64996, "ARCPV"),
+            (65084, "ELDPV"),
+            (65550, "63843"),
+            (65550, "64921"),
+            (65550, "65789"),
+            (66574, "USFL"),
+            (65647, "GEN1"),
+            (65859, "GEN03"),
+            (66502, "FWSOL"),
+            (66147, "5653"),
+            (66222, "61194"),
+            (66394, "GEN01"),
+            (66502, "FWSOL"),
+            (66821, "7137"),
+            (66890, "63137"),
+            (66897, "ALBPV"),
+            (67295, "3658"),
+            (67744, "RS1"),
+            (68239, "C234B"),
+            (68609, "16501"),
+            (69312, "ECHEB"),
+        ]
     )
+    non_null_cols = [
+        "report_date",
+        "plant_id_eia",
+        "generator_id",
+        "fuel_type_count",
+    ]  # Columns that will have values
+
+    # Get all rows where all other columns have an NA value.
+    all_null_gens = out_df[
+        out_df[[col for col in out_df.columns if col not in non_null_cols]]
+        .isnull()
+        .all(axis=1)
+    ]
+
+    # Check to see if any generators are null but not in the expected list
+    unexpected_gens = all_null_gens.set_index(
+        ["plant_id_eia", "generator_id"]
+    ).index.difference(empty_generator_ids)
+    if not unexpected_gens.empty:
+        raise ValueError(
+            f"Got unexpected all-null generators:\n{unexpected_gens}\nCheck the expected_generator_id list in _out_eia__yearly_generators."
+        )
+
+    out_df = out_df.drop(all_null_gens.index)
 
     # Add core entity data about EIA plants
     out_df = pd.merge(
@@ -390,7 +465,7 @@ def add_consistent_ba_code_column(plants: pd.DataFrame) -> pd.DataFrame:
 
     Employ the harvesting function :func:`occurrence_consistency` which determines how
     consistent the values in a table are across all records within each plant. This
-    function grabs only the values determined to be at least 70% consitent and merges
+    function grabs only the values determined to be at least 70% consistent and merges
     them onto the plants table as a new column:
     ``balancing_authority_code_eia_consistent``
     """
@@ -462,7 +537,7 @@ def fill_in_missing_ba_codes(plants: pd.DataFrame) -> pd.DataFrame:
     """
 
     def log_current_ba_code_nulls(plants: pd.DataFrame, method_str: str) -> None:
-        """Internal function to log progress on fillin in BA codes.
+        """Internal function to log progress on filling in BA codes.
 
         Args:
             plants: the current plants table to check
@@ -1013,7 +1088,7 @@ def assign_cc_unit_ids(gens_df: pd.DataFrame) -> pd.DataFrame:
 
     Orphaned generators are still assigned a ``unit_id_pudl`` so that they can
     potentially be associated with other generators in the same unit across
-    years. It's likely that these orphans are a result of mislabled or missing
+    years. It's likely that these orphans are a result of mislabeled or missing
     generators. Note that as generators are added or removed over time, the
     flags associated with each generator may change, even though it remains
     part of the same inferred unit.
