@@ -182,21 +182,6 @@ generation.
 """
         ),
     },
-    "core_eia923__monthly_energy_storage": (
-        """EIA-923 Monthly Generation and Fuel Consumption Time Series. From EIA-923 Schedule 3.
-
-Monthly quantities of energy consumed and discharged ("generated") by energy storage
-units. The total MWh discharged from the energy storage unit during the
-reporting period is the gross generation and the difference between gross generation
-and consumption is the net generation."""
-    ),
-    "_core_eia923__byproduct_disposition": (
-        """EIA-923 Yearly Byproduct Disposition. From EIA-923 Schedule 8A.
-
-Annual quantities of by-products reported by thermoelectric power plants with total steam turbine
-capacity of 100 megawatts or greater. By-products are reported in thousand tons and are rounded to
-whole numbers."""
-    ),
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -877,7 +862,17 @@ and consumption is the net generation."""
         "etl_group": "eia923",
     },
     "_core_eia923__byproduct_disposition": {
-        "description": TABLE_DESCRIPTIONS["_core_eia923__byproduct_disposition"],
+        "description": {
+            "additional_summary_text": (
+                "by-products reported by thermoelectric power "
+                "plants with total steam turbine capacity of 100 megawatts or greater."
+            ),
+            "additional_source_text": "(Schedule 8A)",
+            "additional_details_text": (
+                "By-products are reported in thousand tons and "
+                "are rounded to whole numbers."
+            ),
+        },
         "schema": {
             "fields": [
                 "byproduct_description",
