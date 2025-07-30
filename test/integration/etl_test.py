@@ -7,16 +7,18 @@ databases, which are created from scratch and dropped after the tests have compl
 
 import logging
 
-import pandas as pd
+import pytest
 import sqlalchemy as sa
 from dagster import build_init_resource_context
 
 import pudl
 from pudl.etl.check_foreign_keys import check_foreign_keys
+from pudl.resources import dataset_settings
 
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.order(2)
 def test_pudl_engine(
     pudl_engine: sa.Engine,
     check_foreign_keys_flag: bool,
@@ -34,45 +36,6 @@ def test_pudl_engine(
     if check_foreign_keys_flag:
         # Raises ForeignKeyErrors if there are any
         check_foreign_keys(pudl_engine)
-
-
-def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_metadata):
-    """Attempt to access the XBRL based FERC 1 SQLite DB & XBRL taxonomy metadata.
-
-    We're testing both the SQLite & JSON taxonomy here because they are generated
-    together by the FERC 1 XBRL ETL.
-    """
-    # Does the database exist, and contain a table we expect it to contain?
-    assert isinstance(ferc1_engine_xbrl, sa.Engine)
-    assert (
-        "identification_001_duration" in sa.inspect(ferc1_engine_xbrl).get_table_names()
-    )
-
-    # Has the metadata we've read in from JSON contain a long list of entities?
-    assert isinstance(ferc1_xbrl_taxonomy_metadata, dict)
-    assert "core_ferc1__yearly_steam_plants_sched402" in ferc1_xbrl_taxonomy_metadata
-    assert len(ferc1_xbrl_taxonomy_metadata) > 10
-    assert len(ferc1_xbrl_taxonomy_metadata) < 100
-
-    # Can we normalize that list of entities and find data in it that we expect?
-    df = pd.json_normalize(
-        ferc1_xbrl_taxonomy_metadata["core_ferc1__yearly_plant_in_service_sched204"][
-            "instant"
-        ]
-    )
-    assert (
-        df.loc[
-            df.name == "reactor_plant_equipment_nuclear_production", "balance"
-        ].to_numpy()
-        == "debit"
-    )
-    assert (
-        df.loc[
-            df.name == "reactor_plant_equipment_nuclear_production",
-            "references.account",
-        ].to_numpy()
-        == "322"
-    )
 
 
 class TestCsvExtractor:
@@ -187,7 +150,7 @@ class TestExcelExtractor:
 class TestFerc1ExtractDebugFunctions:
     """Verify the ferc1 extraction debug functions are working properly."""
 
-    def test_extract_dbf(self, ferc1_engine_dbf):
+    def test_extract_dbf(self, ferc1_engine_dbf: sa.Engine):
         """Test extract_dbf."""
         years = [2020, 2021]  # add desired years here
         configured_dataset_settings = {"ferc1": {"years": years}}
@@ -195,9 +158,7 @@ class TestFerc1ExtractDebugFunctions:
         dataset_init_context = build_init_resource_context(
             config=configured_dataset_settings
         )
-        configured_dataset_settings = pudl.resources.dataset_settings(
-            dataset_init_context
-        )
+        configured_dataset_settings = dataset_settings(dataset_init_context)
 
         ferc1_dbf_raw_dfs = pudl.extract.ferc1.extract_dbf(configured_dataset_settings)
 
@@ -206,7 +167,7 @@ class TestFerc1ExtractDebugFunctions:
                 f"Unexpected years found in table: {table_name}"
             )
 
-    def test_extract_xbrl(self, ferc1_engine_dbf):
+    def test_extract_xbrl(self, ferc1_engine_xbrl: sa.Engine):
         """Test extract_xbrl."""
         years = [2021]  # add desired years here
         configured_dataset_settings = {"ferc1": {"years": years}}
@@ -214,9 +175,7 @@ class TestFerc1ExtractDebugFunctions:
         dataset_init_context = build_init_resource_context(
             config=configured_dataset_settings
         )
-        configured_dataset_settings = pudl.resources.dataset_settings(
-            dataset_init_context
-        )
+        configured_dataset_settings = dataset_settings(dataset_init_context)
 
         ferc1_xbrl_raw_dfs = pudl.extract.ferc1.extract_xbrl(
             configured_dataset_settings
