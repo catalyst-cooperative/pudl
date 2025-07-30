@@ -5540,7 +5540,7 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 5554,,,61854,Veolia Energy Operating Service
 5555,,,61905,Oleander Holdings LLC
 5556,,,62027,"LaPorte Power, LLC"
-5557,,,61903,Stanton Clean Energy LLC
+5557,453,stanton clean energy llc,61903,Stanton Clean Energy LLC
 5558,,,61913,"Kestrel Acquisition, LLC"
 5559,,,61505,NRG Chalk Point CT
 5560,,,63034,"Sayreville Power, LLC"
@@ -6933,7 +6933,7 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 6957,,,63465,"Candela Renewables, LLC"
 6958,,,8501,Heritage Power LLC
 6959,,,62895,Vineyard Wind LLC
-6960,,,22313,Oleander Power Project LP
+6960,454,"oleander power project, limited partnership",22313,Oleander Power Project LP
 6961,,,10913,Lee Power Partners LLC
 6962,,,14046,Orion Power Operating Services
 6963,,,32874,Air Solutions Inc
@@ -16100,10 +16100,10 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 16143,,,66070,"Hornshadow Solar II, LLC"
 16144,,,66088,"FRP Gadsden County Solar, LLC"
 16145,,,66089,"FRP Columbia County Solar, LLC"
-16146,,,66091,"Harmony Florida Solar II, LLC"
+16146,457,"harmony florida solar ii, llc",66091,"Harmony Florida Solar II, LLC"
 16147,,,66090,"FRP Gilchrist County Solar, LLC"
-16148,,,66092,"Storey Bend Solar, LLC"
-16149,,,66063,"FRP Tupelo Solar, LLC"
+16148,455,"storey bend solar, llc",66092,"Storey Bend Solar, LLC"
+16149,456,"frp tupelo solar, llc",66063,"FRP Tupelo Solar, LLC"
 16150,,,66076,"Sun Ridge Solar, LLC"
 16151,,,66039,"SC Oregon 2 Lessor Parent, LLC"
 16152,,,66081,Salka Cabazon Wind LLC
