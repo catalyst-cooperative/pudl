@@ -861,7 +861,7 @@ and consumption is the net generation."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "_core_eia923__byproduct_disposition": {
+    "_core_eia923__yearly_byproduct_disposition": {
         "description": {
             "additional_summary_text": (
                 "by-products reported by thermoelectric power "

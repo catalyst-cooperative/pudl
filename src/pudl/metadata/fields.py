@@ -4667,7 +4667,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
     "sold_tons_or_mmbtu": {
-        "type": "integer",
+        "type": "number",
         "description": "Sold by-products, in tons (to the nearest 0.1 thousand ton) or, for Steam, MMBtu.",
     },
     "sold_to_utility_mwh": {

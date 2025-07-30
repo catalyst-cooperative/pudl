@@ -1461,8 +1461,8 @@ def _core_eia923__energy_storage(
     return es_df
 
 
-@asset
-def _core_eia923__byproduct_disposition(
+@asset  # (io_manager_key="pudl_io_manager")
+def _core_eia923__yearly_byproduct_disposition(
     raw_eia923__byproduct_disposition: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the eia923__byproduct_disposition table.
@@ -1470,13 +1470,10 @@ def _core_eia923__byproduct_disposition(
     Transformations include:
 
     * Replace . values with NA
-    * Rename byproducts_to_report to no_byproducts_to_report
-        * "Y" is supposed to be checked if no byproducts are being reported
-        * We do not standardize further as the data is too messy/could be better interpreted from other columns
-    * Drop rows with NA byproduct_description
-        * This also removes all duplicates based on report_year, plant_id_eia, and byproduct_description
-    * Drop early_release column with no data values
+    * Drop rows with NA byproduct_description. This also removes all duplicates based on
+        report_year, plant_id_eia, and byproduct_description
     * Convert 1000 tons to tons
+    * Divide plant 6041's 2009 reported values by 1000 tons, as they're 1000 times too big.
 
     Args:
         raw_eia923__byproduct_disposition: The raw ``raw_eia923__byproduct_disposition`` dataframe.
@@ -1484,36 +1481,50 @@ def _core_eia923__byproduct_disposition(
     Returns:
         Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
     """
-    df = raw_eia923__byproduct_disposition
+    df = pudl.helpers.fix_eia_na(raw_eia923__byproduct_disposition)
 
-    cols_to_drop = [
-        "early_release",
-    ]
-    df = df.drop(cols_to_drop, axis=1)
-    df = pudl.helpers.fix_eia_na(df)
-
-    # More accurate name for what this column contains
-    df = df.rename(columns={"byproducts_to_report": "no_byproducts_to_report"})
-
-    # Drops known duplicate primary keys
-    #   These rows contain no meaningful data, to prevent dropping future rows unexpectedly, we
-    #   expect a set number of rows to be dropped
+    # Drops known duplicate primary keys.
+    # These rows contain no meaningful data. To prevent dropping future rows unexpectedly, we
+    # expect a set number of rows to be dropped
     null_byproduct_descriptions = df["byproduct_description"].isnull().sum()
-    assert null_byproduct_descriptions == 18, (
-        f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 18"
+    assert null_byproduct_descriptions <= 22, (
+        f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 22"
     )
     df = df.dropna(subset=["byproduct_description"])
 
     # Convert 1000 tons to tons
-    df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
+    df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000.0
+    # Because these are all to the nearest 100 tons, we know they should be represented
+    # as integers rather than floats.
+    df.loc[:, df.columns.str.endswith("_1000_tons")] = (
+        df.loc[:, df.columns.str.endswith("_1000_tons")].round().astype(pd.Int64Dtype)
+    )
+
+    # Handle a special case.
     # This column is not converted when the unit is MMBtu, which is determined from byproduct_description
     df["sold_1000_tons_or_mmbtu"] = np.where(
         df["byproduct_description"] != "Steam Sales (MMBtu)",
-        df["sold_1000_tons_or_mmbtu"] * 1000,
+        df["sold_1000_tons_or_mmbtu"] * 1000.0,
         df["sold_1000_tons_or_mmbtu"],
     )
+
+    # For all columns, rename from 1000 tons to tons.
     df.columns = df.columns.str.replace("_1000_tons", "_tons")
 
-    df = PUDL_PACKAGE.encode(df)
+    # For one plant's records in 2008, the steam sales values are
+    # 1000x the values in all previous years. This is exceeding
+    # the values possible for an integer in Parquet, and it's
+    # clearly an error. Let's manually fix this.abs
+    logger.info("Correcting values that are 1000x too large.")
+    bad_pairs = {50651: set(range(2008, 2014)), 6041: {2009}}
+    for plant_id, years in bad_pairs.items():
+        plant_values = (
+            (df.plant_id_eia == plant_id)
+            & (df.byproduct_description == "Steam Sales (MMBtu)")
+            & (df.report_year.isin(years))
+        )
+        df.loc[(plant_values), ["disposal_landfill_tons", "total_disposal_tons"]] /= (
+            1000.0
+        )
 
     return df
