@@ -50,7 +50,7 @@ exposed through the CLI.
 
 The `DbtSchema` class has generic methods `add_source_tests` and `add_column_tests`. These require the user to pass the tests and relevant parameters as dictionaries and write the result to yaml
 
-One test that is often added is the `check_row_counts_per_partition` source test. This test works by comparing expected row counts for partitions within a table (typically distinct `report_date` values) stored in `etl_fast_row_counts.csv` and `etl_full_row_counts.csv` against the actual row counts in the materialized tables. For this test, there is a helper function `_get_row_count_test_dict` that helps the user format the input dictionary to the `DbtSchema.add_source_tests` method correctly.
+One test that is often added is the `check_row_counts_per_partition` source test. This test works by comparing expected row counts for partitions within a table (typically distinct `report_year` or `"YEAR(report_date)"` values; note that `partition_column` accepts column names, SQL expressions or `null`) stored in `etl_fast_row_counts.csv` and `etl_full_row_counts.csv` against the actual row counts in the materialized tables. For this test, there is a helper function `_get_row_count_test_dict` that helps the user format the input dictionary to the `DbtSchema.add_source_tests` method correctly.
 
 To update the expected row counts based on the number of rows found in existing
 materialized tables, you can run:
