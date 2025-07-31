@@ -278,10 +278,12 @@ def _calculate_row_counts(
     else:
         group_by_clause = f"GROUP BY {partition_expr}"
 
-    row_count_query = (
-        f"SELECT CAST({partition_expr} AS VARCHAR) as partition, COUNT(*) as row_count "  # noqa: S608
-        f"FROM '{table_path}' {group_by_clause}"  # noqa: S608
-    )
+    row_count_query = f"""
+SELECT
+    CAST({partition_expr} AS VARCHAR) AS partition,
+    COUNT(*) AS row_count
+FROM '{table_path}' {group_by_clause}
+    """  # noqa: S608
 
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
