@@ -25,7 +25,7 @@ sources:
                 water_source: EXTRACT(year FROM report_date) <= 2010
           - check_row_counts_per_partition:
               table_name: _core_eia860__fgd_equipment
-              partition_expr: "YEAR(report_date)"
+              partition_expr: "EXTRACT(YEAR FROM report_date)"
           - expect_fgd_cost_totals_to_agree
         columns:
           - name: report_date

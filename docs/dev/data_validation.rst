@@ -508,7 +508,7 @@ The initial ``data_tests`` for a new table might look like this:
             data_tests:
               - check_row_counts_per_partition:
                   table_name: new_table_name
-                  partition_expr: "YEAR(report_date)"
+                  partition_expr: "EXTRACT(YEAR FROM report_date)"
 
 Then you can run:
 
@@ -552,7 +552,7 @@ building on the above example would look like:
               - expect_columns_not_all_null
               - check_row_counts_per_partition:
                   table_name: new_table_name
-                  partition_expr: "YEAR(report_date)"
+                  partition_expr: "EXTRACT(YEAR FROM report_date)"
 
 --------------------------------------------------------------------------------
 Defining new data validation tests

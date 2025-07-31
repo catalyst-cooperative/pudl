@@ -11,7 +11,7 @@ sources:
                 ferc1_generator_agg_id_plant_gen: EXTRACT(year FROM report_date) BETWEEN 2005 AND 2019
           - check_row_counts_per_partition:
               table_name: out_eia__yearly_assn_plant_parts_plant_gen
-              partition_expr: "YEAR(report_date)"
+              partition_expr: "EXTRACT(YEAR FROM report_date)"
           - expect_includes_all_value_combinations_from:
               compare_table_name: out_eia__yearly_plant_parts
               compare_cols:
