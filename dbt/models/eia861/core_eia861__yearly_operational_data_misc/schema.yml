@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eia861__yearly_operational_data_misc
-              partition_column: "YEAR(report_date)"
+              partition_expr: "YEAR(report_date)"
         columns:
           - name: consumed_by_facility_mwh
           - name: consumed_by_respondent_without_charge_mwh

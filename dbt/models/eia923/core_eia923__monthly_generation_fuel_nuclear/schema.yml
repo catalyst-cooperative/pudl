@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eia923__monthly_generation_fuel_nuclear
-              partition_column: "YEAR(report_date)"
+              partition_expr: "YEAR(report_date)"
           - expect_nuclear_units_are_generators:
               generator_model: source('pudl', 'out_eia__yearly_generators')
         columns:

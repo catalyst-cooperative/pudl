@@ -40,17 +40,17 @@ def schema_factory():
     def _make_schema(
         table_name,
         columns,
-        partition_column=None,
+        partition_expr=None,
         add_row_count_test=True,
         source_name="pudl",
     ):
         data_tests = None
-        if add_row_count_test and partition_column:
+        if add_row_count_test and partition_expr:
             data_tests = [
                 {
                     "check_row_counts_per_partition": {
                         "table_name": table_name,
-                        "partition_column": partition_column,
+                        "partition_expr": partition_expr,
                     }
                 }
             ]
@@ -144,7 +144,7 @@ def test_get_row_count_test_dict():
     expected = {
         "check_row_counts_per_partition": {
             "table_name": "plants",
-            "partition_column": "report_year",
+            "partition_expr": "report_year",
         }
     }
     assert result == expected
@@ -158,7 +158,7 @@ def test_get_row_count_test_dict():
                 {
                     "check_row_counts_per_partition": {
                         "table_name": "plants",
-                        "partition_column": "report_year",
+                        "partition_expr": "report_year",
                     }
                 }
             ],
@@ -169,7 +169,7 @@ def test_get_row_count_test_dict():
                 {
                     "check_row_counts_per_partition": {
                         "table_name": "plants",
-                        "partition_column": None,
+                        "partition_expr": None,
                     }
                 },
             ],
@@ -207,7 +207,7 @@ ROW_COUNT_TEST_CASES = [
         given={
             "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
             "table_name": "foo",
-            "partition_column": "report_year",
+            "partition_expr": "report_year",
             "new_counts_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
             "clobber": True,
             "update": False,
@@ -226,7 +226,7 @@ ROW_COUNT_TEST_CASES = [
         given={
             "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
             "table_name": "foo",
-            "partition_column": "report_year",
+            "partition_expr": "report_year",
             "new_counts_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
             "clobber": False,
             "update": False,
@@ -245,7 +245,7 @@ ROW_COUNT_TEST_CASES = [
         given={
             "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
             "table_name": "foo",
-            "partition_column": "report_year",
+            "partition_expr": "report_year",
             "new_counts_csv": None,  # no new counts if test is missing
             "clobber": False,
             "update": False,
@@ -278,7 +278,7 @@ def test_update_row_counts(case, schema_factory, mocker):
     schema = schema_factory(
         table_name=given["table_name"],
         columns=["report_year", "id"],
-        partition_column=given["partition_column"],
+        partition_expr=given["partition_expr"],
         add_row_count_test=given["has_test"],
     )
 
@@ -292,7 +292,7 @@ def test_update_row_counts(case, schema_factory, mocker):
     mocker.patch("pudl.scripts.dbt_helper.DbtSchema.from_yaml", return_value=schema)
     mocker.patch(
         "pudl.scripts.dbt_helper._extract_row_count_partitions",
-        return_value=[given["partition_column"]] if given["has_test"] else [],
+        return_value=[given["partition_expr"]] if given["has_test"] else [],
     )
 
     result = update_row_counts(
@@ -399,7 +399,7 @@ CALCULATE_ROW_COUNTS_CASES = [
     GivenExpect(
         given={
             "table_name": "foo",
-            "partition_column": "report_year",
+            "partition_expr": "report_year",
             "mocked_path": "fake.parquet",
             "mocked_duckdb_df": pd.DataFrame(
                 {
@@ -434,7 +434,7 @@ def test__calculate_row_counts_(case, mocker):
 
     # When
     result = _calculate_row_counts(
-        case.given["table_name"], case.given["partition_column"]
+        case.given["table_name"], case.given["partition_expr"]
     )
 
     # Then: Verify output
@@ -446,8 +446,8 @@ def test__calculate_row_counts_(case, mocker):
     # Then: Verify SQL input
     mock_sql.assert_called_once()
     sql_arg = mock_sql.call_args[0][0]
-    assert case.given["partition_column"] in sql_arg, (
-        f"The partition column '{case.given['partition_column']}' "
+    assert case.given["partition_expr"] in sql_arg, (
+        f"The partition column '{case.given['partition_expr']}' "
         f"was not used in the SQL: {sql_arg}"
     )
     assert "COUNT(*)" in sql_arg.upper(), f"SQL is missing a row count: {sql_arg}"
@@ -566,7 +566,7 @@ class DbtSchemaMocks:
     resource: unittest.mock.Mock
     pudl_package: unittest.mock.Mock
     table_name: str
-    partition_column: str
+    partition_expr: str
     schema: DbtSchema
     yaml: str
     has_row_count_test: bool
@@ -591,7 +591,7 @@ def dbt_schema_mocks(request, mocker):
 
     field_name = str(mocker.sentinel.field_name)
     table_name = str(mocker.sentinel.table_name)
-    partition_column = str(mocker.sentinel.partition_column)
+    partition_expr = str(mocker.sentinel.partition_expr)
 
     mocked_field = mocker.Mock()
     mocked_field.name = field_name
@@ -607,7 +607,7 @@ def dbt_schema_mocks(request, mocker):
             {
                 "check_row_counts_per_partition": {
                     "table_name": table_name,
-                    "partition_column": partition_column,
+                    "partition_expr": partition_expr,
                 }
             }
         ]
@@ -641,7 +641,7 @@ def dbt_schema_mocks(request, mocker):
         data_tests:
           - check_row_counts_per_partition:
               table_name: {table_name}
-              partition_column: {partition_column}
+              partition_expr: {partition_expr}
         """
         if has_row_count_test
         else ""
@@ -662,7 +662,7 @@ sources:
         resource=mocked_resource,
         pudl_package=mocked_ppkg,
         table_name=table_name,
-        partition_column=partition_column,
+        partition_expr=partition_expr,
         schema=schema,
         yaml=yaml,
         has_row_count_test=has_row_count_test,

@@ -271,16 +271,15 @@ def _get_existing_row_counts(target: str = "etl-full") -> pd.DataFrame:
 
 def _calculate_row_counts(
     table_name: str,
-    partition_column: str = "report_year",
+    partition_expr: str = "report_year",
 ) -> pd.DataFrame:
     table_path = _get_local_table_path(table_name)
 
-    if partition_column is None:
+    if partition_expr is None:
         partition_expr = "''"
         group_by_clause = ""
     else:
-        partition_expr = partition_column
-        group_by_clause = f"GROUP BY {partition_column}"
+        group_by_clause = f"GROUP BY {partition_expr}"
 
     row_count_query = (
         f"SELECT CAST({partition_expr} AS VARCHAR) as partition, COUNT(*) as row_count "  # noqa: S608
@@ -319,14 +318,14 @@ def update_row_counts(
     schema = DbtSchema.from_yaml(schema_path)
     table = schema.sources[0].tables[0]
 
-    partition_columns = _extract_row_count_partitions(table)
-    if len(partition_columns) > 1:
+    partition_expressions = _extract_row_count_partitions(table)
+    if len(partition_expressions) > 1:
         raise ValueError(
             f"Only a single row counts test per table is supported, "
-            f"but found {len(partition_columns)} in {table_name}."
+            f"but found {len(partition_expressions)} in {table_name}."
         )
 
-    has_test = bool(partition_columns)
+    has_test = bool(partition_expressions)
     existing = _get_existing_row_counts(target)
     has_existing_row_counts = table_name in existing["table_name"].to_numpy()
     allow_overwrite = clobber or update
@@ -365,15 +364,14 @@ def update_row_counts(
             message=f"Removed {len(existing) - len(filtered)} outdated row counts for {table_name} (no test defined).",
         )
 
-    # At this point: test exists, and either no existing or overwrite allowed
-    partition_column = partition_columns[0]  # TODO: support multiple partitions
-    new = _calculate_row_counts(table_name, partition_column)
+    partition_expr = partition_expressions[0]  # TODO: support multiple partitions
+    new = _calculate_row_counts(table_name, partition_expr)
     combined = _combine_row_counts(filtered, new)
     _write_row_counts(combined, target)
 
     return UpdateResult(
         success=True,
-        message=f"Successfully updated row count table with counts from {table_name}, partitioned by {partition_column}.",
+        message=f"Successfully updated row count table with counts from {table_name}, partitioned by {partition_expr}.",
     )
 
 
@@ -448,17 +446,17 @@ def _extract_row_count_partitions(table: DbtTable) -> list[str | None]:
                 raise ValueError(f"Row counts test expected to be a dictionary: {test}")
             test_def = test.get("check_row_counts_per_partition")
             if isinstance(test_def, dict):
-                partitions.append(test_def.get("partition_column"))
+                partitions.append(test_def.get("partition_expr"))
 
     return partitions
 
 
-def get_row_count_test_dict(table_name: str, partition_column: str):
+def get_row_count_test_dict(table_name: str, partition_expr: str):
     """Return a dictionary with a dbt row count data test encoded in a dict."""
     return {
         "check_row_counts_per_partition": {
             "table_name": table_name,
-            "partition_column": partition_column,
+            "partition_expr": partition_expr,
         }
     }
 

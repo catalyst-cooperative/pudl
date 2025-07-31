@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eia__yearly_fuel_receipts_costs_aggs
-              partition_column: "YEAR(report_date)"
+              partition_expr: "YEAR(report_date)"
         columns:
           - name: fuel_agg
           - name: geo_agg
