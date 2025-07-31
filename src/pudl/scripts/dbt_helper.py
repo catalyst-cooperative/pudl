@@ -134,7 +134,7 @@ class DbtSource(BaseModel):
             update={"tables": [self.tables[0].add_source_tests(source_tests)]}
         )
 
-    def add_column_tests(self, column_tests: dict) -> "DbtSource":
+    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
         return self.model_copy(
             update={"tables": [self.tables[0].add_column_tests(column_tests)]}
@@ -164,7 +164,7 @@ class DbtSchema(BaseModel):
         return schema
 
     def add_column_tests(
-        self, column_tests: dict, model_name: str | None = None
+        self, column_tests: dict[str, list], model_name: str | None = None
     ) -> "DbtSchema":
         """Add data tests to columns in dbt config."""
         if model_name is None:
