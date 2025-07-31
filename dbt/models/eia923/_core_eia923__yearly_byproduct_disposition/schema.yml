@@ -4,21 +4,23 @@ sources:
     tables:
       - name: _core_eia923__yearly_byproduct_disposition
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: _core_eia923__yearly_byproduct_disposition
               partition_column: report_year
         columns:
-          - name: byproduct_description
-          - name: no_byproducts_to_report
-          - name: disposal_landfill_tons
-          - name: disposal_offsite_tons
-          - name: disposal_ponds_tons
-          - name: plant_id_eia
           - name: report_year
+          - name: plant_id_eia
+          - name: byproduct_description
+          - name: byproduct_units
+          - name: disposal_landfill_tons_or_mmbtu
+          - name: disposal_offsite_tons_or_mmbtu
+          - name: disposal_ponds_tons_or_mmbtu
           - name: sold_tons_or_mmbtu
-          - name: stored_offsite_tons
-          - name: stored_onsite_tons
-          - name: total_disposal_tons
-          - name: used_offsite_tons
-          - name: used_onsite_tons
+          - name: stored_offsite_tons_or_mmbtu
+          - name: stored_onsite_tons_or_mmbtu
+          - name: used_offsite_tons_or_mmbtu
+          - name: used_onsite_tons_or_mmbtu
+          - name: total_disposal_tons_or_mmbtu
+          - name: no_byproducts_to_report
           - name: data_maturity

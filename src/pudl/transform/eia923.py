@@ -1461,7 +1461,7 @@ def _core_eia923__energy_storage(
     return es_df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def _core_eia923__yearly_byproduct_disposition(
     raw_eia923__byproduct_disposition: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1472,8 +1472,8 @@ def _core_eia923__yearly_byproduct_disposition(
     * Replace . values with NA
     * Drop rows with NA byproduct_description. This also removes all duplicates based on
         report_year, plant_id_eia, and byproduct_description
-    * Convert 1000 tons to tons
-    * Divide plant 6041's 2009 reported values by 1000 tons, as they're 1000 times too big.
+    * Convert 1000 tons to tons (avoiding steam sales, which are reported in MMBtu)
+    * Create a byproducts_unit column based on the byproduct_disposition
 
     Args:
         raw_eia923__byproduct_disposition: The raw ``raw_eia923__byproduct_disposition`` dataframe.
@@ -1492,39 +1492,42 @@ def _core_eia923__yearly_byproduct_disposition(
     )
     df = df.dropna(subset=["byproduct_description"])
 
-    # Convert 1000 tons to tons
-    df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000.0
-    # Because these are all to the nearest 100 tons, we know they should be represented
-    # as integers rather than floats.
-    df.loc[:, df.columns.str.endswith("_1000_tons")] = (
-        df.loc[:, df.columns.str.endswith("_1000_tons")].round().astype(pd.Int64Dtype)
-    )
-
-    # Handle a special case.
-    # This column is not converted when the unit is MMBtu, which is determined from byproduct_description
-    df["sold_1000_tons_or_mmbtu"] = np.where(
+    # For all the tons data, we want to convert 1000s of tons to tons.
+    # We want to leave the Steam Sales (MMBtu) unconverted, as they
+    # are reported in MMBtu and not 1000 tons.
+    # TODO 07/31: Investigate why steam values show up sporadically in some
+    # columns.
+    df.loc[
         df["byproduct_description"] != "Steam Sales (MMBtu)",
-        df["sold_1000_tons_or_mmbtu"] * 1000.0,
-        df["sold_1000_tons_or_mmbtu"],
-    )
+        df.columns.str.endswith("_1000_tons_or_mmbtu"),
+    ] *= 1000.0
 
     # For all columns, rename from 1000 tons to tons.
     df.columns = df.columns.str.replace("_1000_tons", "_tons")
 
-    # For one plant's records in 2008, the steam sales values are
-    # 1000x the values in all previous years. This is exceeding
-    # the values possible for an integer in Parquet, and it's
-    # clearly an error. Let's manually fix this.abs
-    logger.info("Correcting values that are 1000x too large.")
-    bad_pairs = {50651: set(range(2008, 2014)), 6041: {2009}}
-    for plant_id, years in bad_pairs.items():
-        plant_values = (
-            (df.plant_id_eia == plant_id)
-            & (df.byproduct_description == "Steam Sales (MMBtu)")
-            & (df.report_year.isin(years))
-        )
-        df.loc[(plant_values), ["disposal_landfill_tons", "total_disposal_tons"]] /= (
-            1000.0
-        )
-
+    # Create units column
+    df["byproduct_units"] = np.where(
+        df["byproduct_description"] == "Steam Sales (MMBtu)", "mmbtu", "tons"
+    )
     return df
+
+
+@asset_check(asset=_core_eia923__yearly_byproduct_disposition, blocking=True)
+def disposition_continuity_check(bpd):
+    """Check to see if columns vary as slowly as expected."""
+    return pudl.validate.group_mean_continuity_check(
+        df=bpd,
+        thresholds={
+            "disposal_landfill_tons_or_mmbtu": 0.4,
+            "disposal_offsite_tons_or_mmbtu": 0.4,
+            "disposal_ponds_tons_or_mmbtu": 0.4,
+            "sold_tons_or_mmbtu": 0.4,
+            # "stored_offsite_tons_or_mmbtu":0.9, # High enough that they're not worth validating
+            # "stored_onsite_tons_or_mmbtu":0.9,
+            "used_offsite_tons_or_mmbtu": 0.4,
+            "used_onsite_tons_or_mmbtu": 0.4,
+            "total_disposal_tons_or_mmbtu": 0.4,
+        },
+        groupby_col="report_year",
+        n_outliers_allowed=5,
+    )

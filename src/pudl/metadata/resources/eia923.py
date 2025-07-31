@@ -869,25 +869,26 @@ and consumption is the net generation."""
             ),
             "additional_source_text": "(Schedule 8A)",
             "additional_details_text": (
-                "By-products are reported in thousand tons and "
-                "are rounded to whole numbers."
+                "All by-products other than steam sales are reported in thousand tons and "
+                "are rounded to whole numbers. Steam sales are reported in MMBTu."
             ),
         },
         "schema": {
             "fields": [
-                "byproduct_description",
-                "no_byproducts_to_report",
-                "disposal_landfill_tons",
-                "disposal_offsite_tons",
-                "disposal_ponds_tons",
-                "plant_id_eia",
                 "report_year",
+                "plant_id_eia",
+                "byproduct_description",
+                "byproduct_units",
+                "disposal_landfill_tons_or_mmbtu",
+                "disposal_offsite_tons_or_mmbtu",
+                "disposal_ponds_tons_or_mmbtu",
                 "sold_tons_or_mmbtu",
-                "stored_offsite_tons",
-                "stored_onsite_tons",
-                "total_disposal_tons",
-                "used_offsite_tons",
-                "used_onsite_tons",
+                "stored_offsite_tons_or_mmbtu",
+                "stored_onsite_tons_or_mmbtu",
+                "used_offsite_tons_or_mmbtu",
+                "used_onsite_tons_or_mmbtu",
+                "total_disposal_tons_or_mmbtu",
+                "no_byproducts_to_report",
                 "data_maturity",
             ],
             "primary_key": [
