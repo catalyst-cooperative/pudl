@@ -5,7 +5,7 @@ from collections import namedtuple
 from dataclasses import dataclass
 from difflib import unified_diff
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 import click
 import duckdb
@@ -273,14 +273,12 @@ def _get_model_path(table_name: str, data_source: str) -> Path:
     return Path("./dbt") / "models" / data_source / table_name
 
 
-def _get_row_count_csv_path(target: str = "etl-full") -> Path:
-    if target == "etl-fast":
-        return Path("./dbt") / "seeds" / "etl_fast_row_counts.csv"
+def _get_row_count_csv_path() -> Path:
     return Path("./dbt") / "seeds" / "etl_full_row_counts.csv"
 
 
-def _get_existing_row_counts(target: str = "etl-full") -> pd.DataFrame:
-    return pd.read_csv(_get_row_count_csv_path(target), dtype={"partition": str})
+def _get_existing_row_counts() -> pd.DataFrame:
+    return pd.read_csv(_get_row_count_csv_path(), dtype={"partition": str})
 
 
 def _calculate_row_counts(
@@ -318,20 +316,19 @@ def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFra
     )
 
 
-def _write_row_counts(row_counts: pd.DataFrame, target: str = "etl-full"):
-    csv_path = _get_row_count_csv_path(target)
+def _write_row_counts(row_counts: pd.DataFrame):
+    csv_path = _get_row_count_csv_path()
     row_counts.to_csv(csv_path, index=False)
 
 
 def update_row_counts(
     table_name: str,
     partition_column: str = "report_year",
-    target: str = "etl-full",
     clobber: bool = False,
     update: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
-    existing = _get_existing_row_counts(target)
+    existing = _get_existing_row_counts()
     if table_name in existing["table_name"].to_numpy() and not (clobber or update):
         return UpdateResult(
             success=False,
@@ -340,7 +337,7 @@ def update_row_counts(
 
     new = _calculate_row_counts(table_name, partition_column)
     combined = _combine_row_counts(existing, new)
-    _write_row_counts(combined, target)
+    _write_row_counts(combined)
 
     return UpdateResult(
         success=True,
@@ -426,7 +423,6 @@ class TableUpdateArgs:
     """Define a single class to collect the args for all table update commands."""
 
     tables: list[str]
-    target: Literal["etl-full", "etl-fast"] = "etl-full"
     schema: bool = False
     row_counts: bool = False
     clobber: bool = False
@@ -437,13 +433,6 @@ class TableUpdateArgs:
 @click.argument(
     "tables",
     nargs=-1,
-)
-@click.option(
-    "--target",
-    default="etl-full",
-    type=click.Choice(["etl-full", "etl-fast"]),
-    show_default=True,
-    help="What dbt target should be used as the source of new row counts.",
 )
 @click.option(
     "--schema/--no-schema",
@@ -467,7 +456,6 @@ class TableUpdateArgs:
 )
 def update_tables(
     tables: list[str],
-    target: str,
     clobber: bool,
     update: bool,
     schema: bool,
@@ -484,7 +472,6 @@ def update_tables(
     """
     args = TableUpdateArgs(
         tables=list(tables),
-        target=target,
         schema=schema,
         row_counts=row_counts,
         clobber=clobber,
@@ -522,7 +509,6 @@ def update_tables(
                 update_row_counts(
                     table_name=table_name,
                     partition_column=partition_column,
-                    target=args.target,
                     clobber=args.clobber,
                     update=args.update,
                 )
@@ -552,12 +538,6 @@ def update_tables(
     "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
 )
 @click.option(
-    "--target",
-    default="etl-full",
-    type=click.Choice(["etl-full", "etl-fast"]),
-    help="DBT target - etl-full (default) or etl-fast.",
-)
-@click.option(
     "--dry-run/--no-dry-run",
     default=False,
     help="If dry, will print out the parameters we would pass to dbt, but not "
@@ -567,7 +547,6 @@ def validate(
     select: str | None = None,
     asset_select: str | None = None,
     exclude: str | None = None,
-    target: str = "etl-full",
     dry_run: bool = False,
 ) -> None:
     """Validate a selection of DBT nodes.
@@ -616,8 +595,8 @@ def validate(
 
     build_params = {
         "node_selection": node_selection,
-        "dbt_target": target,
         "node_exclusion": exclude,
+        "dbt_target": "etl-full",
     }
 
     if dry_run:
