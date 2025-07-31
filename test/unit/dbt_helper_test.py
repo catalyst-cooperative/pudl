@@ -291,7 +291,6 @@ def test_update_row_counts(case, schema_factory, mocker):
     result = update_row_counts(
         table_name=given["table_name"],
         data_source="pudl",
-        target="etl-full",
         clobber=given["clobber"],
         update=given["update"],
     )

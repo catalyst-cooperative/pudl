@@ -14,7 +14,7 @@ import yaml
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
-from pudl.dbt_wrapper import build_with_context, dagster_to_dbt_selection
+from pudl.dbt_wrapper import DBT_DIR, build_with_context, dagster_to_dbt_selection
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
@@ -134,7 +134,7 @@ class DbtSource(BaseModel):
             update={"tables": [self.tables[0].add_source_tests(source_tests)]}
         )
 
-    def add_column_tests(self, column_tests: dict[list]) -> "DbtSource":
+    def add_column_tests(self, column_tests: dict) -> "DbtSource":
         """Add data tests to columns in dbt config."""
         return self.model_copy(
             update={"tables": [self.tables[0].add_column_tests(column_tests)]}
@@ -164,7 +164,7 @@ class DbtSchema(BaseModel):
         return schema
 
     def add_column_tests(
-        self, column_tests: dict[list], model_name: str | None = None
+        self, column_tests: dict, model_name: str | None = None
     ) -> "DbtSchema":
         """Add data tests to columns in dbt config."""
         if model_name is None:
@@ -184,7 +184,6 @@ class DbtSchema(BaseModel):
         return cls(
             sources=[
                 DbtSource(
-                    version=2,
                     tables=[DbtTable.from_table_name(table_name)],
                 )
             ],
@@ -256,11 +255,11 @@ def _get_local_table_path(table_name):
 
 
 def _get_model_path(table_name: str, data_source: str) -> Path:
-    return Path("./dbt") / "models" / data_source / table_name
+    return DBT_DIR / "models" / data_source / table_name
 
 
 def _get_row_count_csv_path() -> Path:
-    return Path("./dbt") / "seeds" / "etl_full_row_counts.csv"
+    return DBT_DIR / "seeds" / "etl_full_row_counts.csv"
 
 
 def _get_existing_row_counts() -> pd.DataFrame:
@@ -269,7 +268,7 @@ def _get_existing_row_counts() -> pd.DataFrame:
 
 def _calculate_row_counts(
     table_name: str,
-    partition_expr: str = "report_year",
+    partition_expr: str,
 ) -> pd.DataFrame:
     table_path = _get_local_table_path(table_name)
 
@@ -306,7 +305,6 @@ def _write_row_counts(row_counts: pd.DataFrame):
 def update_row_counts(
     table_name: str,
     data_source: str,
-    target: str = "etl-full",
     clobber: bool = False,
     update: bool = False,
 ) -> UpdateResult:
@@ -324,7 +322,7 @@ def update_row_counts(
         )
 
     has_test = bool(partition_expressions)
-    existing = _get_existing_row_counts(target)
+    existing = _get_existing_row_counts()
     has_existing_row_counts = table_name in existing["table_name"].to_numpy()
     allow_overwrite = clobber or update
 
@@ -356,7 +354,7 @@ def update_row_counts(
     # we want to remove the row counts for this table
     if not has_test:
         # Remove outdated entry
-        _write_row_counts(filtered, target)
+        _write_row_counts(filtered)
         return UpdateResult(
             success=True,
             message=f"Removed {len(existing) - len(filtered)} outdated row counts for {table_name} (no test defined).",
@@ -365,7 +363,7 @@ def update_row_counts(
     partition_expr = partition_expressions[0]  # TODO: support multiple partitions
     new = _calculate_row_counts(table_name, partition_expr)
     combined = _combine_row_counts(filtered, new)
-    _write_row_counts(combined, target)
+    _write_row_counts(combined)
 
     return UpdateResult(
         success=True,
@@ -548,7 +546,6 @@ def update_tables(
                 update_row_counts(
                     table_name=table_name,
                     data_source=data_source,
-                    target=args.target,
                     clobber=args.clobber,
                     update=args.update,
                 )
