@@ -18,7 +18,6 @@ from pudl.scripts.dbt_helper import (
     _get_existing_row_counts,
     _get_local_table_path,
     _get_model_path,
-    _get_row_count_csv_path,
     _schema_diff_summary,
     get_data_source,
     get_row_count_test_dict,
@@ -94,12 +93,6 @@ def test__get_local_table_path(mocker):
 
 def test__get_model_path():
     assert "models" in str(_get_model_path("", ""))
-
-
-def test__get_row_count_csv_path():
-    assert _get_row_count_csv_path(target="etl-fast") != _get_row_count_csv_path(
-        target="etl-full"
-    )
 
 
 def test__get_existing_row_counts(mocker):
