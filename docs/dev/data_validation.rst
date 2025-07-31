@@ -669,12 +669,10 @@ run the command:
 
 .. code-block:: bash
 
-    dbt_helper update-tables --target etl-full --row-counts --clobber {table_name}
+    dbt_helper update-tables --row-counts --clobber {table_name}
 
 This will tell the helper script to overwrite the existing row counts with new row
-counts from the table in your local ``PUDL_OUTPUT`` stash. If you want to update the
-``etl-fast`` row counts, use ``--target etl-fast`` instead of the default ``--target
-etl-full``.
+counts from the table in your local ``PUDL_OUTPUT`` stash.
 
 Debugging dbt test failures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
