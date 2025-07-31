@@ -268,19 +268,20 @@ def _get_existing_row_counts() -> pd.DataFrame:
 
 def _calculate_row_counts(
     table_name: str,
-    partition_expr: str,
+    partition_expr: str | None = None,
 ) -> pd.DataFrame:
     table_path = _get_local_table_path(table_name)
 
     if partition_expr is None:
-        partition_expr = "''"
+        partition_expr_sql = "''"
         group_by_clause = ""
     else:
-        group_by_clause = f"GROUP BY {partition_expr}"
+        partition_expr_sql = partition_expr
+        group_by_clause = f"GROUP BY {partition_expr_sql}"
 
     row_count_query = f"""
 SELECT
-    CAST({partition_expr} AS VARCHAR) AS partition,
+    CAST({partition_expr_sql} AS VARCHAR) AS partition,
     COUNT(*) AS row_count
 FROM '{table_path}' {group_by_clause}
     """  # noqa: S608
