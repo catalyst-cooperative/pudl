@@ -861,6 +861,46 @@ and consumption is the net generation."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
+    "_core_eia923__yearly_byproduct_disposition": {
+        "description": {
+            "additional_summary_text": (
+                "by-products reported by thermoelectric power "
+                "plants with total steam turbine capacity of 100 megawatts or greater."
+            ),
+            "additional_source_text": "(Schedule 8A)",
+            "additional_details_text": (
+                "All by-products other than steam sales are reported in thousand tons and "
+                "are rounded to whole numbers. Steam sales are reported in MMBTu."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_year",
+                "plant_id_eia",
+                "byproduct_description",
+                "byproduct_units",
+                "disposal_landfill_tons_or_mmbtu",
+                "disposal_offsite_tons_or_mmbtu",
+                "disposal_ponds_tons_or_mmbtu",
+                "sold_tons_or_mmbtu",
+                "stored_offsite_tons_or_mmbtu",
+                "stored_onsite_tons_or_mmbtu",
+                "used_offsite_tons_or_mmbtu",
+                "used_onsite_tons_or_mmbtu",
+                "total_disposal_tons_or_mmbtu",
+                "no_byproducts_to_report",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_year",
+                "byproduct_description",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
 }
 """EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
 
