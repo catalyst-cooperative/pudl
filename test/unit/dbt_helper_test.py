@@ -1072,9 +1072,97 @@ def test_complex_schema_diff_output():
     ]
 
 
-def test_update_table_row_counts(tmp_path, mocker):
+@pytest.mark.parametrize(
+    ["partition_definition", "test_data", "old_row_counts", "expected_row_counts"],
+    [
+        (
+            "partition_expr: part",
+            pd.DataFrame(
+                [
+                    {"part": 1, "value": 1},
+                    {"part": 2, "value": 2},
+                    {"part": 2, "value": 2.1},
+                    {"part": 3, "value": 3},
+                ]
+            ),
+            pd.read_csv(
+                StringIO(
+                    "table_name,partition,row_count\n"
+                    "test_source__table_name,1,1\n"
+                    "test_source__table_name,2,1\n"
+                    "test_source__table_name,3,1\n"
+                )
+            ),
+            pd.read_csv(
+                StringIO(
+                    "table_name,partition,row_count\n"
+                    "test_source__table_name,1,1\n"
+                    "test_source__table_name,2,2\n"
+                    "test_source__table_name,3,1\n"
+                )
+            ),
+        ),
+        (
+            "partition_expr: part",
+            pd.DataFrame(
+                [
+                    {"part": 1, "value": 1},
+                    {"part": 2, "value": 2},
+                    {"part": 2, "value": 2.1},
+                    {"part": None, "value": 3},
+                ]
+            ),
+            pd.read_csv(
+                StringIO(
+                    "table_name,partition,row_count\n"
+                    "test_source__table_name,1,1\n"
+                    "test_source__table_name,2,1\n"
+                    "test_source__table_name,3,1\n"
+                )
+            ),
+            pd.read_csv(
+                StringIO(
+                    "table_name,partition,row_count\n"
+                    "test_source__table_name,1,1\n"
+                    "test_source__table_name,2,2\n"
+                    "test_source__table_name,,1\n"
+                )
+            ),
+        ),
+        (
+            "",
+            pd.DataFrame(
+                [
+                    {"part": 1, "value": 1},
+                    {"part": 2, "value": 2},
+                    {"part": 2, "value": 2.1},
+                    {"part": None, "value": 3},
+                ]
+            ),
+            pd.read_csv(
+                StringIO(
+                    "table_name,partition,row_count\n"
+                    "test_source__table_name,1,1\n"
+                    "test_source__table_name,2,1\n"
+                    "test_source__table_name,3,1\n"
+                )
+            ),
+            pd.read_csv(
+                StringIO("table_name,partition,row_count\ntest_source__table_name,,4\n")
+            ),
+        ),
+    ],
+)
+def test_update_table_row_counts_update(
+    partition_definition,
+    test_data,
+    old_row_counts,
+    expected_row_counts,
+    tmp_path,
+    mocker,
+):
     # make test data
-    test_schema = """
+    test_schema = f"""
 sources:
   - name: pudl_test
     tables:
@@ -1082,27 +1170,11 @@ sources:
         data_tests:
           - check_row_counts_per_partition:
               table_name: test_source__table_name
-              partition_expr: part
+              {partition_definition}
         columns:
           - name: part
           - name: value
 """
-    test_data = pd.DataFrame(
-        [
-            {"part": 1, "value": 1},
-            {"part": 2, "value": 2},
-            {"part": 2, "value": 2.1},
-            {"part": 3, "value": 3},
-        ]
-    )
-    test_rowcounts = pd.DataFrame(
-        [
-            {"table_name": "test_source__table_name", "partition": 1, "row_count": 1},
-            {"table_name": "test_source__table_name", "partition": 2, "row_count": 1},
-            {"table_name": "test_source__table_name", "partition": 3, "row_count": 1},
-        ]
-    )
-
     # set up test paths (patch dbt_dir to a tmp path, add schema and rowcounts directories)
     # don't need to make temporary PUDL_OUT because we do that already in conftest.py
     dbt_dir = tmp_path / "dbt"
@@ -1112,13 +1184,13 @@ sources:
     row_count_csv_path = dbt_dir / "seeds" / "etl_full_row_counts.csv"
     parquet_path = PudlPaths().parquet_path("test_source__table_name")
 
-    schema_path.parent.mkdir(parents=True)
-    row_count_csv_path.parent.mkdir(parents=True)
-    parquet_path.parent.mkdir(parents=True)
+    schema_path.parent.mkdir(parents=True, exist_ok=True)
+    row_count_csv_path.parent.mkdir(parents=True, exist_ok=True)
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
     # write out test data to disk
     test_data.to_parquet(parquet_path)
-    test_rowcounts.to_csv(row_count_csv_path, index=False)
+    old_row_counts.to_csv(row_count_csv_path, index=False)
     with schema_path.open("w") as f:
         f.write(test_schema)
 
@@ -1136,18 +1208,13 @@ sources:
         ],
     )
     assert (
-        "Successfully updated row counts for test_source__table_name, partitioned by part."
-        in result.stdout
+        "Successfully updated row counts for test_source__table_name" in result.stdout
     )
 
     # read out data & compare
     observed_row_counts = pd.read_csv(row_count_csv_path)
-    expected_row_counts = pd.DataFrame(
-        [
-            {"table_name": "test_source__table_name", "partition": 1, "row_count": 1},
-            {"table_name": "test_source__table_name", "partition": 2, "row_count": 2},
-            {"table_name": "test_source__table_name", "partition": 3, "row_count": 1},
-        ]
+    index = ["table_name", "partition"]
+    pd.testing.assert_frame_equal(
+        observed_row_counts.set_index(index).sort_index(),
+        expected_row_counts.set_index(index).sort_index(),
     )
-
-    pd.testing.assert_frame_equal(observed_row_counts, expected_row_counts)
