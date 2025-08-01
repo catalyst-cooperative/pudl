@@ -5,6 +5,7 @@ from io import StringIO
 
 import pandas as pd
 import pytest
+from click.testing import CliRunner
 
 from pudl.scripts.dbt_helper import (
     DbtColumn,
@@ -23,7 +24,9 @@ from pudl.scripts.dbt_helper import (
     get_row_count_test_dict,
     schema_has_removals_or_modifications,
     update_row_counts,
+    update_tables,
 )
+from pudl.workspace.setup import PudlPaths
 
 GivenExpect = namedtuple("GivenExpect", ["given", "expect"])
 
@@ -211,7 +214,7 @@ ROW_COUNT_TEST_CASES = [
             "expected_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
             "result": UpdateResult(
                 success=True,
-                message="Successfully updated row count table with counts from foo, partitioned by report_year.",
+                message="Successfully updated row counts for foo, partitioned by report_year.",
             ),
         },
     ),
@@ -231,6 +234,25 @@ ROW_COUNT_TEST_CASES = [
             "result": UpdateResult(
                 success=False,
                 message="Row counts for foo already exist. Use clobber or update to overwrite.",
+            ),
+        },
+    ),
+    GivenExpect(
+        given={
+            "existing_csv": "table_name,partition,row_count\nfoo,2020,100\n",
+            "table_name": "foo",
+            "partition_expr": "report_year",
+            "new_counts_csv": None,  # no new counts if test is missing
+            "clobber": False,
+            "update": False,
+            "has_test": False,
+            "should_write": False,
+        },
+        expect={
+            "expected_csv": "table_name,partition,row_count\nfoo,2020,100\n",
+            "result": UpdateResult(
+                success=False,
+                message="Row counts exist for foo, but no row count test is defined. Use clobber/update to remove.",
             ),
         },
     ),
@@ -303,7 +325,9 @@ def test_update_row_counts(case, schema_factory, mocker):
         expected_df = pd.read_csv(StringIO(expect["expected_csv"]))
         mock_write.assert_called_once()
         pd.testing.assert_frame_equal(
-            mock_write.call_args[0][0].reset_index(drop=True),
+            mock_write.call_args[0][0]
+            .reset_index(drop=True)
+            .astype({"partition": "int", "row_count": "int"}),
             expected_df.reset_index(drop=True),
             check_dtype=False,
         )
@@ -1046,3 +1070,84 @@ def test_complex_schema_diff_output():
     assert [line.strip() for line in expected.strip().split("\n")] == [
         line.strip() for line in output
     ]
+
+
+def test_update_table_row_counts(tmp_path, mocker):
+    # make test data
+    test_schema = """
+sources:
+  - name: pudl_test
+    tables:
+      - name: test_source__table_name
+        data_tests:
+          - check_row_counts_per_partition:
+              table_name: test_source__table_name
+              partition_expr: part
+        columns:
+          - name: part
+          - name: value
+"""
+    test_data = pd.DataFrame(
+        [
+            {"part": 1, "value": 1},
+            {"part": 2, "value": 2},
+            {"part": 2, "value": 2.1},
+            {"part": 3, "value": 3},
+        ]
+    )
+    test_rowcounts = pd.DataFrame(
+        [
+            {"table_name": "test_source__table_name", "partition": 1, "row_count": 1},
+            {"table_name": "test_source__table_name", "partition": 2, "row_count": 1},
+            {"table_name": "test_source__table_name", "partition": 3, "row_count": 1},
+        ]
+    )
+
+    # set up test paths (patch dbt_dir to a tmp path, add schema and rowcounts directories)
+    # don't need to make temporary PUDL_OUT because we do that already in conftest.py
+    dbt_dir = tmp_path / "dbt"
+    schema_path = (
+        dbt_dir / "models" / "source" / "test_source__table_name" / "schema.yml"
+    )
+    row_count_csv_path = dbt_dir / "seeds" / "etl_full_row_counts.csv"
+    parquet_path = PudlPaths().parquet_path("test_source__table_name")
+
+    schema_path.parent.mkdir(parents=True)
+    row_count_csv_path.parent.mkdir(parents=True)
+    parquet_path.parent.mkdir(parents=True)
+
+    # write out test data to disk
+    test_data.to_parquet(parquet_path)
+    test_rowcounts.to_csv(row_count_csv_path, index=False)
+    with schema_path.open("w") as f:
+        f.write(test_schema)
+
+    # patch out DBT_DIR so we use our lovely test schema + rowcounts
+    mocker.patch("pudl.scripts.dbt_helper.DBT_DIR", new=dbt_dir)
+    # patch out ALL_TABLES so that we're allowed to run tests
+    mocker.patch("pudl.scripts.dbt_helper.ALL_TABLES", new=["test_source__table_name"])
+    runner = CliRunner()
+    result = runner.invoke(
+        update_tables,
+        [
+            "test_source__table_name",
+            "--update",
+            "--row-counts",
+        ],
+    )
+    assert (
+        "Successfully updated row counts for test_source__table_name, partitioned by part."
+        in result.stdout
+    )
+
+    # read out data & compare
+    observed_row_counts = pd.read_csv(row_count_csv_path)
+    expected_row_counts = pd.DataFrame(
+        [
+            {"table_name": "test_source__table_name", "partition": 1, "row_count": 1},
+            {"table_name": "test_source__table_name", "partition": 2, "row_count": 2},
+            {"table_name": "test_source__table_name", "partition": 3, "row_count": 1},
+        ]
+    )
+
+    pd.testing.assert_frame_equal(observed_row_counts, expected_row_counts)
