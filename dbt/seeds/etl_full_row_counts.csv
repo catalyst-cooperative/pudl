@@ -1817,8 +1817,8 @@ core_pudl__assn_eia_pudl_plants,,18378
 core_pudl__assn_eia_pudl_utilities,,16617
 core_pudl__assn_ferc1_dbf_pudl_utilities,,411
 core_pudl__assn_ferc1_pudl_plants,,8101
-core_pudl__assn_ferc1_pudl_utilities,,427
-core_pudl__assn_ferc1_xbrl_pudl_utilities,,277
+core_pudl__assn_ferc1_pudl_utilities,,432
+core_pudl__assn_ferc1_xbrl_pudl_utilities,,282
 core_pudl__assn_ferc714_csv_pudl_respondents,,213
 core_pudl__assn_ferc714_pudl_respondents,,218
 core_pudl__assn_ferc714_xbrl_pudl_respondents,,118
@@ -1829,7 +1829,7 @@ core_pudl__codes_imputation_reasons,,12
 core_pudl__codes_subdivisions,,69
 core_pudl__entity_plants_pudl,,20320
 core_pudl__entity_utilities_pudl,,17061
-core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities,,5545
+core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities,,5546
 core_sec10k__assn_exhibit_21_subsidiaries_and_filers,,26109
 core_sec10k__assn_sec10k_filers_and_eia_utilities,,529
 core_sec10k__changelog_company_name,,17796
