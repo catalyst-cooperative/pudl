@@ -1085,80 +1085,115 @@ def test_complex_schema_diff_output():
 @pytest.mark.parametrize(
     ["partition_definition", "test_data", "old_row_counts", "expected_row_counts"],
     [
+        # The normal case -- just update with new row counts.
         (
-            "partition_expr: part",
-            pd.DataFrame(
-                [
-                    {"part": 1, "value": 1},
-                    {"part": 2, "value": 2},
-                    {"part": 2, "value": 2.1},
-                    {"part": 3, "value": 3},
-                ]
-            ),
+            "partition_expr: year",
             pd.read_csv(
                 StringIO(
-                    "table_name,partition,row_count\n"
-                    "test_source__table_name,1,1\n"
-                    "test_source__table_name,2,1\n"
-                    "test_source__table_name,3,1\n"
+                    "year, fake_data\n"
+                    "2020, 1.23456\n"
+                    "2021, 2.34567\n"
+                    "2021, 4.56789\n"
+                    "2022, 3.14159\n"
                 )
             ),
             pd.read_csv(
                 StringIO(
                     "table_name,partition,row_count\n"
-                    "test_source__table_name,1,1\n"
-                    "test_source__table_name,2,2\n"
-                    "test_source__table_name,3,1\n"
+                    "test_source__table_name,2020,1\n"
+                    "test_source__table_name,2021,1\n"
+                    "test_source__table_name,2022,1\n"
+                )
+            ),
+            pd.read_csv(
+                StringIO(
+                    "table_name,partition,row_count\n"
+                    "test_source__table_name,2020,1\n"
+                    "test_source__table_name,2021,2\n"
+                    "test_source__table_name,2022,1\n"
                 )
             ),
         ),
+        # A partition column with null values
         (
-            "partition_expr: part",
-            pd.DataFrame(
-                [
-                    {"part": 1, "value": 1},
-                    {"part": 2, "value": 2},
-                    {"part": 2, "value": 2.1},
-                    {"part": None, "value": 3},
-                ]
-            ),
+            "partition_expr: year",
             pd.read_csv(
                 StringIO(
-                    "table_name,partition,row_count\n"
-                    "test_source__table_name,1,1\n"
-                    "test_source__table_name,2,1\n"
-                    "test_source__table_name,3,1\n"
+                    "year, fake_data\n"
+                    "2020, 1.23456\n"
+                    "2021, 2.34567\n"
+                    "2021, 4.56789\n"
+                    ", 3.14159\n"
                 )
             ),
             pd.read_csv(
                 StringIO(
                     "table_name,partition,row_count\n"
-                    "test_source__table_name,1,1\n"
-                    "test_source__table_name,2,2\n"
+                    "test_source__table_name,2020,1\n"
+                    "test_source__table_name,2021,1\n"
+                    "test_source__table_name,2022,1\n"
+                )
+            ),
+            pd.read_csv(
+                StringIO(
+                    "table_name,partition,row_count\n"
+                    "test_source__table_name,2020,1\n"
+                    "test_source__table_name,2021,2\n"
                     "test_source__table_name,,1\n"
                 )
             ),
         ),
+        # No partitioning -- count up all rows in the table.
         (
             "",
-            pd.DataFrame(
-                [
-                    {"part": 1, "value": 1},
-                    {"part": 2, "value": 2},
-                    {"part": 2, "value": 2.1},
-                    {"part": None, "value": 3},
-                ]
+            pd.read_csv(
+                StringIO(
+                    "year,state,fake_data\n"
+                    "2020,CA,1.23456\n"
+                    "2021,TX,2.34567\n"
+                    "2021,FL,4.56789\n"
+                    "2022,CA,3.14159\n"
+                )
             ),
             pd.read_csv(
                 StringIO(
                     "table_name,partition,row_count\n"
-                    "test_source__table_name,1,1\n"
-                    "test_source__table_name,2,1\n"
-                    "test_source__table_name,3,1\n"
+                    "test_source__table_name,2020,1\n"
+                    "test_source__table_name,2021,2\n"
+                    "test_source__table_name,2022,1\n"
                 )
             ),
             pd.read_csv(
                 StringIO("table_name,partition,row_count\ntest_source__table_name,,4\n")
+            ),
+        ),
+        # Change which column we're partitioning by.
+        (
+            "partition_expr: state",
+            pd.read_csv(
+                StringIO(
+                    "year,state,fake_data\n"
+                    "2020,CA,1.23456\n"
+                    "2021,TX,2.34567\n"
+                    "2021,FL,4.56789\n"
+                    "2022,CA,3.14159\n"
+                )
+            ),
+            pd.read_csv(
+                StringIO(
+                    "table_name,partition,row_count\n"
+                    "test_source__table_name,2020,1\n"
+                    "test_source__table_name,2021,2\n"
+                    "test_source__table_name,2022,1\n"
+                )
+            ),
+            pd.read_csv(
+                StringIO(
+                    "table_name,partition,row_count\n"
+                    "test_source__table_name,CA,2\n"
+                    "test_source__table_name,FL,1\n"
+                    "test_source__table_name,TX,1\n"
+                )
             ),
         ),
     ],
@@ -1182,8 +1217,9 @@ sources:
               table_name: test_source__table_name
               {partition_definition}
         columns:
-          - name: part
-          - name: value
+          - name: year
+          - name: state
+          - name: fake_data
 """
     # set up test paths (patch dbt_dir to a tmp path, add schema and rowcounts directories)
     # don't need to make temporary PUDL_OUT because we do that already in conftest.py
