@@ -121,10 +121,15 @@ my_table,2023,100
 
     # Expected output
     expected = pd.DataFrame(
-        {
+        data={
             "table_name": ["my_table"],
             "partition": ["2023"],
             "row_count": [100],
+        },
+    ).astype(
+        {
+            "table_name": "string",
+            "partition": "string",
         }
     )
 
@@ -427,9 +432,14 @@ CALCULATE_ROW_COUNTS_CASES = [
         expect={
             "expected_df": pd.DataFrame(
                 {
+                    "table_name": ["foo", "foo"],
                     "partition": ["2020", "2021"],
                     "row_count": [10, 15],
-                    "table_name": ["foo", "foo"],
+                }
+            ).astype(
+                {
+                    "table_name": "string",
+                    "partition": "string",
                 }
             ),
         },
