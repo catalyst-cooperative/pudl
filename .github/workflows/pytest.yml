@@ -284,3 +284,6 @@ jobs:
           fail_ci_if_error: true # optional (default = false)
           plugins: noop
           verbose: true
+      - name: Run coverage report again but fail if we're under the minimum
+        run: |
+          micromamba run -n coverage coverage report
