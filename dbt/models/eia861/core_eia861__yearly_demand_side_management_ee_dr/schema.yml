@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eia861__yearly_demand_side_management_ee_dr
-              partition_column: report_date
+              partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: annual_indirect_program_cost
           - name: annual_total_cost

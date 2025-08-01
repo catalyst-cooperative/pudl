@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eia861__yearly_dynamic_pricing
-              partition_column: report_date
+              partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: balancing_authority_code_eia
           - name: critical_peak_pricing

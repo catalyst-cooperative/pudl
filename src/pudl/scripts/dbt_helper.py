@@ -14,7 +14,7 @@ import yaml
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
-from pudl.dbt_wrapper import build_with_context, dagster_to_dbt_selection
+from pudl.dbt_wrapper import DBT_DIR, build_with_context, dagster_to_dbt_selection
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
@@ -91,12 +91,12 @@ class DbtTable(BaseModel):
     tags: list[str] | None = None
     config: dict | None = None  # only for models
 
-    def add_source_tests(self, source_tests: list) -> "DbtSource":
+    def add_source_tests(self, source_tests: list) -> "DbtTable":
         """Add data tests to source in dbt config."""
         data_tests = self.data_tests if self.data_tests is not None else []
         return self.model_copy(update={"data_tests": data_tests + source_tests})
 
-    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
+    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtTable":
         """Add data tests to columns in dbt config."""
         columns = {column.name: column for column in self.columns}
         columns.update(
@@ -108,23 +108,10 @@ class DbtTable(BaseModel):
 
         return self.model_copy(update={"columns": list(columns.values())})
 
-    @staticmethod
-    def get_row_count_test_dict(table_name: str, partition_column: str):
-        """Return a dictionary with a dbt row count data test encoded in a dict."""
-        return [
-            {
-                "check_row_counts_per_partition": {
-                    "table_name": table_name,
-                    "partition_column": partition_column,
-                }
-            }
-        ]
-
     @classmethod
-    def from_table_name(cls, table_name: str, partition_column: str) -> "DbtSchema":
+    def from_table_name(cls, table_name: str) -> "DbtTable":
         """Construct configuration defining table from PUDL metadata."""
         return cls(
-            data_tests=cls.get_row_count_test_dict(table_name, partition_column),
             name=table_name,
             columns=[
                 DbtColumn(name=f.name)
@@ -138,7 +125,6 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable]
-    data_tests: list | None = None
     description: str | None = None
     meta: dict | None = None
 
@@ -148,7 +134,7 @@ class DbtSource(BaseModel):
             update={"tables": [self.tables[0].add_source_tests(source_tests)]}
         )
 
-    def add_column_tests(self, column_tests: dict[list]) -> "DbtSource":
+    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
         return self.model_copy(
             update={"tables": [self.tables[0].add_column_tests(column_tests)]}
@@ -178,7 +164,7 @@ class DbtSchema(BaseModel):
         return schema
 
     def add_column_tests(
-        self, column_tests: dict[list], model_name: str | None = None
+        self, column_tests: dict[str, list], model_name: str | None = None
     ) -> "DbtSchema":
         """Add data tests to columns in dbt config."""
         if model_name is None:
@@ -193,13 +179,12 @@ class DbtSchema(BaseModel):
         return schema
 
     @classmethod
-    def from_table_name(cls, table_name: str, partition_column: str) -> "DbtSchema":
+    def from_table_name(cls, table_name: str) -> "DbtSchema":
         """Construct configuration defining table from PUDL metadata."""
         return cls(
             sources=[
                 DbtSource(
-                    version=2,
-                    tables=[DbtTable.from_table_name(table_name, partition_column)],
+                    tables=[DbtTable.from_table_name(table_name)],
                 )
             ],
         )
@@ -270,11 +255,11 @@ def _get_local_table_path(table_name):
 
 
 def _get_model_path(table_name: str, data_source: str) -> Path:
-    return Path("./dbt") / "models" / data_source / table_name
+    return DBT_DIR / "models" / data_source / table_name
 
 
 def _get_row_count_csv_path() -> Path:
-    return Path("./dbt") / "seeds" / "etl_full_row_counts.csv"
+    return DBT_DIR / "seeds" / "etl_full_row_counts.csv"
 
 
 def _get_existing_row_counts() -> pd.DataFrame:
@@ -283,24 +268,23 @@ def _get_existing_row_counts() -> pd.DataFrame:
 
 def _calculate_row_counts(
     table_name: str,
-    partition_column: str = "report_year",
+    partition_expr: str | None = None,
 ) -> pd.DataFrame:
     table_path = _get_local_table_path(table_name)
 
-    if partition_column == "report_year":
-        row_count_query = (
-            f"SELECT {partition_column} as partition, COUNT(*) as row_count "  # noqa: S608
-            f"FROM '{table_path}' GROUP BY {partition_column}"  # noqa: S608
-        )
-    elif partition_column in ["report_date", "datetime_utc"]:
-        row_count_query = (
-            f"SELECT CAST(YEAR({partition_column}) as VARCHAR) as partition, COUNT(*) as row_count "  # noqa: S608
-            f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
-        )
+    if partition_expr is None:
+        partition_expr_sql = "''"
+        group_by_clause = ""
     else:
-        row_count_query = (
-            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
-        )
+        partition_expr_sql = partition_expr
+        group_by_clause = f"GROUP BY {partition_expr_sql}"
+
+    row_count_query = f"""
+SELECT
+    CAST({partition_expr_sql} AS VARCHAR) AS partition,
+    COUNT(*) AS row_count
+FROM '{table_path}' {group_by_clause}
+    """  # noqa: S608
 
     new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
     new_row_counts["table_name"] = table_name
@@ -323,32 +307,76 @@ def _write_row_counts(row_counts: pd.DataFrame):
 
 def update_row_counts(
     table_name: str,
-    partition_column: str = "report_year",
+    data_source: str,
     clobber: bool = False,
     update: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
-    existing = _get_existing_row_counts()
-    if table_name in existing["table_name"].to_numpy() and not (clobber or update):
-        return UpdateResult(
-            success=False,
-            message=f"Row counts for {table_name} already exist (run with clobber or update to overwrite).",
+    model_path = _get_model_path(table_name, data_source)
+    schema_path = model_path / "schema.yml"
+    schema = DbtSchema.from_yaml(schema_path)
+    table = schema.sources[0].tables[0]
+
+    partition_expressions = _extract_row_count_partitions(table)
+    if len(partition_expressions) > 1:
+        raise ValueError(
+            f"Only a single row counts test per table is supported, "
+            f"but found {len(partition_expressions)} in {table_name}."
         )
 
-    new = _calculate_row_counts(table_name, partition_column)
-    combined = _combine_row_counts(existing, new)
+    has_test = bool(partition_expressions)
+    existing = _get_existing_row_counts()
+    has_existing_row_counts = table_name in existing["table_name"].to_numpy()
+    allow_overwrite = clobber or update
+
+    if not has_test and not has_existing_row_counts:
+        return UpdateResult(
+            success=False,
+            message=f"No row count test defined for {table_name}, nothing to update.",
+        )
+
+    if not has_test and not allow_overwrite:
+        return UpdateResult(
+            success=False,
+            message=f"Row counts exist for {table_name}, but no row count test is defined. Use clobber/update to remove.",
+        )
+
+    if has_existing_row_counts and not allow_overwrite:
+        return UpdateResult(
+            success=False,
+            message=f"Row counts for {table_name} already exist. Use clobber or update to overwrite.",
+        )
+
+    # At this point, we know row counts can be written: either because no row counts
+    # exist yet, or because clobber or update is set.
+
+    # In any case, we remove the old row counts for the table we are refreshing
+    filtered = existing[existing["table_name"] != table_name]
+
+    # At this point, there is no test defined but there are row counts, and overwrite is allowed, so
+    # we want to remove the row counts for this table
+    if not has_test:
+        # Remove outdated entry
+        _write_row_counts(filtered)
+        return UpdateResult(
+            success=True,
+            message=f"Removed {len(existing) - len(filtered)} outdated row counts for {table_name} (no test defined).",
+        )
+
+    partition_expr = partition_expressions[0]  # TODO: support multiple partitions
+    new = _calculate_row_counts(table_name, partition_expr)
+    combined = _combine_row_counts(filtered, new)
     _write_row_counts(combined)
 
     return UpdateResult(
         success=True,
-        message=f"Successfully updated row count table with counts from {table_name}.",
+        message=f"Successfully updated row count table with counts from {table_name}, partitioned by {partition_expr}.",
     )
 
 
 def update_table_schema(
     table_name: str,
     data_source: str,
-    partition_column: str = "report_year",
     clobber: bool = False,
     update: bool = False,
 ) -> UpdateResult:
@@ -362,9 +390,7 @@ def update_table_schema(
             message=f"DBT configuration already exists for table {table_name} and clobber or update is not set.",
         )
 
-    new_schema = DbtSchema.from_table_name(
-        table_name, partition_column=partition_column
-    )
+    new_schema = DbtSchema.from_table_name(table_name)
 
     if model_path.exists() and update:
         # Load existing schema
@@ -407,15 +433,31 @@ def _log_update_result(result: UpdateResult):
         logger.error(result.message)
 
 
-def _infer_partition_column(table_name: str) -> str:
-    all_columns = [c.name for c in PUDL_PACKAGE.get_resource(table_name).schema.fields]
-    if (
-        (partition_column := "report_year") in all_columns
-        or (partition_column := "report_date") in all_columns
-        or (partition_column := "datetime_utc") in all_columns
-    ):
-        return partition_column
-    return None
+def _extract_row_count_partitions(table: DbtTable) -> list[str | None]:
+    """Extract partition columns from check_row_counts_per_partition tests in a DbtTable."""
+    partitions: list[str | None] = []
+
+    if table.data_tests:
+        for test in table.data_tests:
+            if "check_row_counts_per_partition" not in test:
+                continue
+            if not isinstance(test, dict):
+                raise ValueError(f"Row counts test expected to be a dictionary: {test}")
+            test_def = test.get("check_row_counts_per_partition")
+            if isinstance(test_def, dict):
+                partitions.append(test_def.get("partition_expr"))
+
+    return partitions
+
+
+def get_row_count_test_dict(table_name: str, partition_expr: str):
+    """Return a dictionary with a dbt row count data test encoded in a dict."""
+    return {
+        "check_row_counts_per_partition": {
+            "table_name": table_name,
+            "partition_expr": partition_expr,
+        }
+    }
 
 
 @dataclass
@@ -493,13 +535,11 @@ def update_tables(
 
     for table_name in tables:
         data_source = get_data_source(table_name)
-        partition_column = _infer_partition_column(table_name)
         if args.schema:
             _log_update_result(
                 update_table_schema(
                     table_name,
                     data_source,
-                    partition_column=partition_column,
                     clobber=args.clobber,
                     update=args.update,
                 )
@@ -508,7 +548,7 @@ def update_tables(
             _log_update_result(
                 update_row_counts(
                     table_name=table_name,
-                    partition_column=partition_column,
+                    data_source=data_source,
                     clobber=args.clobber,
                     update=args.update,
                 )
