@@ -17,6 +17,8 @@ Expanded Data Coverage
 * Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
   data is not currently published to the PUDL database. See :issue:`4449` and
   :pr:`4470`.
+* Update FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+  :pr:`4507`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
