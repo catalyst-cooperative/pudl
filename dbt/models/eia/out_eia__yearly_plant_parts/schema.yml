@@ -17,7 +17,7 @@ sources:
                 total_mmbtu: EXTRACT(year FROM report_date) >= 2008
           - check_row_counts_per_partition:
               table_name: out_eia__yearly_plant_parts
-              partition_column: report_year
+              partition_expr: report_year
           - expect_valid_plantparts_ownership_fraction
           - expect_includes_all_value_combinations_from:
               compare_table_name: out_eia__yearly_assn_plant_parts_plant_gen

@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eia861__yearly_distributed_generation_misc
-              partition_column: report_date
+              partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: backup_capacity_mw
           - name: distributed_generation_owned_capacity_mw

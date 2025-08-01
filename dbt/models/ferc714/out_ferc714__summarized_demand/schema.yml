@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: out_ferc714__summarized_demand
-              partition_column: report_date
+              partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: respondent_id_ferc714
