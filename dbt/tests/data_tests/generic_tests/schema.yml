@@ -19,9 +19,9 @@ macros:
       - name: table_name
         type: string
         description: The name of the table to check
-      - name: partition_column
+      - name: partition_expr
         type: string
-        description: The name of the column to partition by
+        description: A SQL expression to partition by
   - name: test_expect_column_fraction_with_condition
     description: >
       Check whether the fraction of a column's total sum that meet a specified condition

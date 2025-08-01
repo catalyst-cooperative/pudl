@@ -1,4 +1,4 @@
-{% macro row_counts_per_partition(model, table_name, partition_column, force_row_counts_table=none) %}
+{% macro row_counts_per_partition(model, table_name, partition_expr, force_row_counts_table=none) %}
 {% set row_counts_table = force_row_counts_table if force_row_counts_table is not none
     else ref("etl_full_row_counts") if target.name == "etl-full"
     else force_row_counts_table
@@ -11,16 +11,16 @@ WITH
         WHERE table_name = '{{ table_name }}'
     ),
     observed AS (
-        {% if partition_column == "report_year" %}
-        SELECT COALESCE(CAST({{ partition_column }} as VARCHAR), '') as partition, COUNT(*) as observed_count
+        {% if partition_expr %}
+        SELECT
+            COALESCE(CAST({{ partition_expr }} AS VARCHAR), '') AS partition,
+            COUNT(*) AS observed_count
         FROM {{ model }}
-        GROUP BY {{ partition_column }}
-        {% elif partition_column in ["report_date", "datetime_utc"] %}
-        SELECT COALESCE(CAST(YEAR({{ partition_column }}) as VARCHAR), '') as partition, COUNT(*) as observed_count
-        FROM {{ model }}
-        GROUP BY YEAR({{ partition_column }})
+        GROUP BY {{ partition_expr }}
         {% else %}
-        SELECT '' as partition, COUNT(*) as observed_count
+        SELECT
+            '' AS partition,
+            COUNT(*) AS observed_count
         FROM {{ model }}
         {% endif %}
     )

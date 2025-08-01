@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: out_ferc1__yearly_energy_dispositions_sched401
-              partition_column: report_year
+              partition_expr: report_year
         columns:
           - name: utility_id_ferc1
           - name: utility_id_pudl
