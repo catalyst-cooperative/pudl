@@ -331,8 +331,8 @@ def update_row_counts(
 
     if not has_test and not has_existing_row_counts:
         return UpdateResult(
-            success=False,
-            message=f"No row count test defined for {table_name}, nothing to update.",
+            success=True,
+            message=f"No row count test defined for {table_name}, and no row counts found, nothing to update.",
         )
 
     if not has_test and not allow_overwrite:
@@ -352,6 +352,7 @@ def update_row_counts(
 
     # In any case, we remove the old row counts for the table we are refreshing
     filtered = existing[existing["table_name"] != table_name]
+    old = existing[existing["table_name"] == table_name]
 
     # At this point, there is no test defined but there are row counts, and overwrite is allowed, so
     # we want to remove the row counts for this table
@@ -365,13 +366,37 @@ def update_row_counts(
 
     partition_expr = partition_expressions[0]  # TODO: support multiple partitions
     new = _calculate_row_counts(table_name, partition_expr)
-    combined = _combine_row_counts(filtered, new)
-    _write_row_counts(combined)
 
-    return UpdateResult(
-        success=True,
-        message=f"Successfully updated row count table with counts from {table_name}, partitioned by {partition_expr}.",
+    # Make old and new row counts comparable so we can detect changes
+    row_count_idx = ["table_name", "partition"]
+    std_old = (
+        old.astype("string")
+        .fillna(value="")
+        .sort_values(row_count_idx)
+        .reset_index(drop=True)
     )
+    std_new = (
+        new.astype("string")
+        .assign(partition=lambda df: df["partition"].replace("None", pd.NA))
+        .fillna(value="")
+        .sort_values(row_count_idx)
+        .reset_index(drop=True)
+    )
+
+    try:
+        pd.testing.assert_frame_equal(std_old, std_new, check_like=True)
+        return UpdateResult(
+            success=True,
+            message=f"Row counts for {table_name} are unchanged.",
+        )
+    except AssertionError:
+        combined = _combine_row_counts(filtered, std_new)
+        _write_row_counts(combined)
+
+        return UpdateResult(
+            success=True,
+            message=f"Successfully updated row counts for {table_name}, partitioned by {partition_expr}.",
+        )
 
 
 def update_table_schema(
