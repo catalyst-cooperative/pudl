@@ -5,6 +5,8 @@ sources:
       - name: out_ferc1__yearly_rate_base
         data_tests:
           - dbt_expectations.expect_table_row_count_to_be_between:
+              description: "Nightly builds and local ETL yield slightly different output"
+              enabled: "{{ target.name == 'etl-full' }}"
               min_value: 433000
               max_value: 434000
           - expect_columns_not_all_null:
