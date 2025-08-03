@@ -73,7 +73,7 @@ dependencies:
   - brotli-python=1.1.0=py313h928ef07_3
   - bzip2=1.0.8=h99b78c6_7
   - c-ares=1.34.5=h5505292_0
-  - ca-certificates=2025.7.14=hbd8a1cb_0
+  - ca-certificates=2025.8.3=hbd8a1cb_0
   - cachecontrol=0.14.3=pyha770c72_0
   - cachecontrol-with-filecache=0.14.3=pyhd8ed1ab_0
   - cached-property=1.5.2=hd8ed1ab_1
@@ -452,7 +452,7 @@ dependencies:
   - pynacl=1.5.0=py313h20a7fcf_4
   - pyobjc-core=11.1=py313had225c5_0
   - pyobjc-framework-cocoa=11.1=py313hb6afeec_0
-  - pyogrio=0.11.0=py313h7c5de85_1
+  - pyogrio=0.11.1=py313hd8ca31c_0
   - pyopenssl=25.1.0=pyhd8ed1ab_0
   - pyparsing=3.2.3=pyhe01879c_2
   - pyproj=3.7.1=py313h84bd6f1_1

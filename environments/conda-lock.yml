@@ -15,7 +15,7 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 2dfc4774484b391c3f7c9cd43cb0255d838c1463a46fb1ed89ebdab5102adc34
+    linux-64: 4fa4b9941fd6c120a7912a43119f32f46c8f75e073640d82e728d9cdd97bc5ee
     osx-64: 6a51b2797723a84c2f138d8fb5c5be9b5ad31b9db0a0eab94765198ec443d00f
     osx-arm64: bbb012227361da33a7d0e02c7c9b4e3cd2380b505f93916080a3ed6876c4a8ed
   channels:
@@ -3096,39 +3096,39 @@ package:
     category: main
     optional: false
   - name: ca-certificates
-    version: 2025.7.14
+    version: 2025.8.3
     manager: conda
     platform: linux-64
     dependencies:
       __unix: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.7.14-hbd8a1cb_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.8.3-hbd8a1cb_0.conda
     hash:
-      md5: d16c90324aef024877d8713c0b7fea5b
-      sha256: 29defbd83c7829788358678ec996adeee252fa4d4274b7cd386c1ed73d2b201e
+      md5: 74784ee3d225fc3dca89edb635b4e5cc
+      sha256: 837b795a2bb39b75694ba910c13c15fa4998d4bb2a622c214a6a5174b2ae53d1
     category: main
     optional: false
   - name: ca-certificates
-    version: 2025.7.14
+    version: 2025.8.3
     manager: conda
     platform: osx-64
     dependencies:
       __unix: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.7.14-hbd8a1cb_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.8.3-hbd8a1cb_0.conda
     hash:
-      md5: d16c90324aef024877d8713c0b7fea5b
-      sha256: 29defbd83c7829788358678ec996adeee252fa4d4274b7cd386c1ed73d2b201e
+      md5: 74784ee3d225fc3dca89edb635b4e5cc
+      sha256: 837b795a2bb39b75694ba910c13c15fa4998d4bb2a622c214a6a5174b2ae53d1
     category: main
     optional: false
   - name: ca-certificates
-    version: 2025.7.14
+    version: 2025.8.3
     manager: conda
     platform: osx-arm64
     dependencies:
       __unix: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.7.14-hbd8a1cb_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.8.3-hbd8a1cb_0.conda
     hash:
-      md5: d16c90324aef024877d8713c0b7fea5b
-      sha256: 29defbd83c7829788358678ec996adeee252fa4d4274b7cd386c1ed73d2b201e
+      md5: 74784ee3d225fc3dca89edb635b4e5cc
+      sha256: 837b795a2bb39b75694ba910c13c15fa4998d4bb2a622c214a6a5174b2ae53d1
     category: main
     optional: false
   - name: cachecontrol
@@ -20628,58 +20628,58 @@ package:
     category: main
     optional: false
   - name: pyogrio
-    version: 0.11.0
+    version: 0.11.1
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      libgcc: ">=13"
-      libgdal-core: ">=3.11.0,<3.12.0a0"
-      libstdcxx: ">=13"
+      libgcc: ">=14"
+      libgdal-core: ">=3.11.3,<3.12.0a0"
+      libstdcxx: ">=14"
       numpy: ""
       packaging: ""
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/pyogrio-0.11.0-py313hf96fbec_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/pyogrio-0.11.1-py313h8b61037_0.conda
     hash:
-      md5: 432c15ecd0e79cc14a3df23fd2be3bda
-      sha256: 490f4c0092866f02d027efe36769ebc8de0bf74b39123ff0e81ad6ad64b98651
+      md5: 2d7e4dbb3d364a8e136d6ba8e93fac89
+      sha256: 73f6e73e137a8ba8d9069975f88b3d134080edcb28c8a6716f64daed2076db09
     category: main
     optional: false
   - name: pyogrio
-    version: 0.11.0
+    version: 0.11.1
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-      libcxx: ">=18"
-      libgdal-core: ">=3.11.0,<3.12.0a0"
+      libcxx: ">=19"
+      libgdal-core: ">=3.11.3,<3.12.0a0"
       numpy: ""
       packaging: ""
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/pyogrio-0.11.0-py313he9ba3a6_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/pyogrio-0.11.1-py313h515dd1c_0.conda
     hash:
-      md5: 8e997818328aaf37faf5a9d239a0c419
-      sha256: 6b6707241e253e6445a2f66c6ad598586cf2faf4132b9c0c0130894291d83b1a
+      md5: 1a019c4b6cbd18d0ae2282aaa07b5843
+      sha256: 0cbeb0cf07c013ac1ce8e3ce6a93773e8064566703329be3569f91ca9b4f1551
     category: main
     optional: false
   - name: pyogrio
-    version: 0.11.0
+    version: 0.11.1
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-      libcxx: ">=18"
-      libgdal-core: ">=3.11.0,<3.12.0a0"
+      libcxx: ">=19"
+      libgdal-core: ">=3.11.3,<3.12.0a0"
       numpy: ""
       packaging: ""
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pyogrio-0.11.0-py313h7c5de85_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pyogrio-0.11.1-py313hd8ca31c_0.conda
     hash:
-      md5: 0c60d21752526e15a302bc59e981e4f3
-      sha256: ec1f21fd4c4c1a4c3ba4f94be41af9343102c3a971e7850dda8fb1f508b9b1fb
+      md5: 53d4b58cca252bbf3bec57940d6d2898
+      sha256: fc63269ee811a988907152b7a71fdc3acc61ad5366f0974013e216304dfc24b4
     category: main
     optional: false
   - name: pyopenssl
