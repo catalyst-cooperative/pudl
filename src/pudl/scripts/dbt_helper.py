@@ -263,7 +263,10 @@ def _get_row_count_csv_path() -> Path:
 
 
 def _get_existing_row_counts() -> pd.DataFrame:
-    return pd.read_csv(_get_row_count_csv_path(), dtype={"partition": str})
+    return pd.read_csv(
+        _get_row_count_csv_path(),
+        dtype={"partition": "string", "table_name": "string"},
+    ).fillna(value="")
 
 
 def _calculate_row_counts(
@@ -281,13 +284,18 @@ def _calculate_row_counts(
 
     row_count_query = f"""
 SELECT
-    CAST({partition_expr_sql} AS VARCHAR) AS partition,
+    CAST(COALESCE(CAST({partition_expr_sql} AS VARCHAR), '') AS VARCHAR) AS partition,
     COUNT(*) AS row_count
 FROM '{table_path}' {group_by_clause}
     """  # noqa: S608
 
-    new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
-    new_row_counts["table_name"] = table_name
+    new_row_counts = (
+        duckdb.sql(row_count_query)
+        .df()
+        .assign(table_name=table_name)
+        .astype({"partition": "string", "table_name": "string"})
+        .loc[:, ["table_name", "partition", "row_count"]]
+    )
 
     return new_row_counts
 
@@ -331,8 +339,8 @@ def update_row_counts(
 
     if not has_test and not has_existing_row_counts:
         return UpdateResult(
-            success=False,
-            message=f"No row count test defined for {table_name}, nothing to update.",
+            success=True,
+            message=f"No row count test defined for {table_name}, and no row counts found, nothing to update.",
         )
 
     if not has_test and not allow_overwrite:
@@ -352,6 +360,7 @@ def update_row_counts(
 
     # In any case, we remove the old row counts for the table we are refreshing
     filtered = existing[existing["table_name"] != table_name]
+    old = existing[existing["table_name"] == table_name]
 
     # At this point, there is no test defined but there are row counts, and overwrite is allowed, so
     # we want to remove the row counts for this table
@@ -365,12 +374,26 @@ def update_row_counts(
 
     partition_expr = partition_expressions[0]  # TODO: support multiple partitions
     new = _calculate_row_counts(table_name, partition_expr)
+
+    # Make old and new row counts comparable so we can detect changes
+    row_count_idx = ["table_name", "partition"]
+    if (
+        old.sort_values(by=row_count_idx)
+        .reset_index(drop=True)
+        .equals(new.sort_values(by=row_count_idx).reset_index(drop=True))
+    ):
+        return UpdateResult(
+            success=True,
+            message=f"Row counts for {table_name} are unchanged.",
+        )
+
+    # Finally, we reach the case where there are actual row counts to update:
     combined = _combine_row_counts(filtered, new)
     _write_row_counts(combined)
 
     return UpdateResult(
         success=True,
-        message=f"Successfully updated row count table with counts from {table_name}, partitioned by {partition_expr}.",
+        message=f"Successfully updated row counts for {table_name}, partitioned by {partition_expr}.",
     )
 
 
