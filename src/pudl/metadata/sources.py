@@ -317,7 +317,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "half_years": [
                 f"{year}half{half}" for year in range(2015, 2026) for half in [1, 2]
-            ][1:-1]  # Begins in H2 of 2015 and currently ends in H1 of 2025
+            ][1:]  # Begins in H2 of 2015 and currently ends in H2 of 2025
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
