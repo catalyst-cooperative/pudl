@@ -12,8 +12,26 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA 930
+~~~~~~~
+* Updated EIA 930 data published up through the beginning of August 2025. See
+  :issue:`4517` and PR :pr:`4523`.
+
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  the beginning of August 2025. See :issue:`4519` and PR :pr:`4523`.
+
+FERC Forms 2, 6 and 60
+~~~~~~~~~~~~~~~~~~~~~~
 * Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
   2024 data. See :issue:`4418` and :pr:`4433`.
+
+PHMSA Gas Data
+~~~~~~~~~~~~~~
 * Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
   data is not currently published to the PUDL database. See :issue:`4449` and
   :pr:`4470`.
