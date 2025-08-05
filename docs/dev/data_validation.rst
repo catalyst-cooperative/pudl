@@ -394,7 +394,7 @@ names have the ``dbt_expectations`` prefix come from that package.
               - expect_columns_not_all_null
               - check_row_counts_per_partition:
                   table_name: out_vcerare__hourly_available_capacity_factor
-                  partition_column: report_year
+                  partition_expr: report_year
               - expect_valid_hour_of_year
               - expect_unique_column_combination:
                   columns:
@@ -508,7 +508,7 @@ The initial ``data_tests`` for a new table might look like this:
             data_tests:
               - check_row_counts_per_partition:
                   table_name: new_table_name
-                  partition_column: report_date
+                  partition_expr: "EXTRACT(YEAR FROM report_date)"
 
 Then you can run:
 
@@ -552,7 +552,7 @@ building on the above example would look like:
               - expect_columns_not_all_null
               - check_row_counts_per_partition:
                   table_name: new_table_name
-                  partition_column: report_date
+                  partition_expr: "EXTRACT(YEAR FROM report_date)"
 
 --------------------------------------------------------------------------------
 Defining new data validation tests
@@ -669,12 +669,10 @@ run the command:
 
 .. code-block:: bash
 
-    dbt_helper update-tables --target etl-full --row-counts --clobber {table_name}
+    dbt_helper update-tables --row-counts --clobber {table_name}
 
 This will tell the helper script to overwrite the existing row counts with new row
-counts from the table in your local ``PUDL_OUTPUT`` stash. If you want to update the
-``etl-fast`` row counts, use ``--target etl-fast`` instead of the default ``--target
-etl-full``.
+counts from the table in your local ``PUDL_OUTPUT`` stash.
 
 Debugging dbt test failures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

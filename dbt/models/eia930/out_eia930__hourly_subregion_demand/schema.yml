@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: out_eia930__hourly_subregion_demand
-              partition_column: datetime_utc
+              partition_expr: "EXTRACT(YEAR FROM datetime_utc)"
           - expect_columns_are_close:
               column_a: demand_reported_mwh
               column_b: demand_imputed_pudl_mwh

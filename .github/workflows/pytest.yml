@@ -270,10 +270,11 @@ jobs:
           create-args: >-
             python=3.13
             coverage>=7.6.1
-      - name: Combine coverage data and output XML report
+      - name: Combine coverage data, output XML, and report
         run: |
           micromamba run -n coverage coverage combine coverage/*/.coverage
           micromamba run -n coverage coverage xml --fail-under=0
+          micromamba run -n coverage coverage report --fail-under=0
       - name: Upload XML coverage report to CodeCov
         uses: codecov/codecov-action@v5
         with:
@@ -283,7 +284,6 @@ jobs:
           fail_ci_if_error: true # optional (default = false)
           plugins: noop
           verbose: true
-      - name: Display coverage report and ensure it meets required minimum
-        # Required coverage is set in pyproject.toml section [tool.coverage.report]
+      - name: Run coverage report again but fail if we're under the minimum
         run: |
           micromamba run -n coverage coverage report
