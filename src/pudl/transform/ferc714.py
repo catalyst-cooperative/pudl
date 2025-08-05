@@ -43,6 +43,7 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     15: {"MS": "MST"},
     17: {"CS": "CST", "CD": "CDT"},
     19: {"CTR": "CST", "CSR": "CST", "CPT": "CST", "DST": "CST", np.nan: "CST"},
+    20: {"3": "MST"},  # black hills (CO). in year after this 3 its all MST
     27: {
         "AKS": "AKST",
         "AST": "AKST",
@@ -53,6 +54,7 @@ TIMEZONE_OFFSET_CODE_FIXES = {
         "2": "AKDT",
     },
     28: {np.nan: "EST"},
+    29: {np.nan: "PST"},  # just empty in 2022, other years is PST
     31: {np.nan: "CST"},
     34: {"1": "EST", "2": "EDT", np.nan: "EST", "UTC": "EST"},  # city of Tallahassee
     35: {np.nan: "CST"},
@@ -82,8 +84,10 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     83: {"CS": "CST", "CD": "CDT"},
     84: {"PPT": "PST"},  # LADWP, constant across all years.
     85: {"CPT": "CST"},
+    95: {np.nan: "PST"},  # just empty in 2021, other years is PST
     97: {np.nan: "CST"},
     100: {"206": "EST", "DST": "EDT", np.nan: "EST"},
+    101: {np.nan: "EST"},  # this was just one lil empty guy
     102: {"CDS": "CDT", "CDST": "CDT"},
     105: {np.nan: "CDT"},
     106: {"MPP": "MST", "MPT": "MST"},
@@ -122,10 +126,6 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     211: {  # more recent years have CST & CDT. CDST correspond to DST months
         "CDST": "CDT"
     },
-    20: {"3": "MST"},  # black hills (CO). in year after this 3 its all MST
-    95: {np.nan: "PST"},  # just empty in 2021, other years is PST
-    29: {np.nan: "PST"},  # just empty in 2022, other years is PST
-    101: {np.nan: "EST"},  # this was just one lil empty guy
 }
 
 TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR = [
