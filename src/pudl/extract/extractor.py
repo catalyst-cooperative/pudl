@@ -101,10 +101,21 @@ class GenericMetadata:
         """Returns list of all pudl columns for a given page across all partitions."""
         return sorted(self._column_map[page].T.columns)
 
-    def get_column_map(self, page, **partition):
-        """Return dictionary for renaming columns in a given partition and page."""
+    def get_column_map(self, page, **partition) -> dict:
+        """Return dictionary of original columns to renamed columns for renaming in a given partition and page."""
         return {
             v: k
+            for k, v in self._column_map[page]
+            .T.loc[str(self._get_partition_selection(partition))]
+            .to_dict()
+            .items()
+            if v != -1
+        }
+
+    def get_column_map_inverted(self, page, **partition) -> dict:
+        """Return dictionary of renamed to original columns in a given partition and page."""
+        return {
+            k: v
             for k, v in self._column_map[page]
             .T.loc[str(self._get_partition_selection(partition))]
             .to_dict()
@@ -199,7 +210,7 @@ class GenericExtractor(ABC):
             missing_raw_cols = set(expected_cols).difference(df.columns)
             if extra_raw_cols:
                 raise ValueError(
-                    f"{page}/{partition_selection}: Extra columns found in extracted table:"
+                    f"{page}/{partition_selection}: Columns found in raw extracted table that are unmapped:"
                     f"\n{extra_raw_cols}"
                 )
             if missing_raw_cols:

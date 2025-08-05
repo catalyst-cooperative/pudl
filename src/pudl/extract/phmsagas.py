@@ -3,6 +3,8 @@
 This modules pulls data from PHMSA's published Excel spreadsheets.
 """
 
+from collections import Counter, OrderedDict, defaultdict
+
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
@@ -26,6 +28,68 @@ class Extractor(excel.ExcelExtractor):
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
+    def remove_duplicate_column_name(self, df: pd.DataFrame, page: str) -> pd.DataFrame:
+        """Rename the duplicate column names in 1984.
+
+        On ingest of the should be a multi-header excel sheet, 20 of the columns
+        are read in with the same column name. This a little weird because
+        pd.read_excel typically just adds a _n to the next iteration of the same
+        column name on import. But alas... in the mapping CSV's there are 20x2
+        columns which have the same original name mapped to different PUDL names.
+
+        The first iteration of the duplicate og column name gets renamed to
+        the second name... in the df all of the main_* comes first, then
+        the services_* comes afterward. Because of this we have 20 instances
+        of duplicate pudl-renamed columns. So we need to rename the first ones
+        (the main_* ones). We need to find the locations of all the should be
+        main_* columns in the df & all the map of the services_* cols and the
+        main_* column names from the mapping sheet when they have the same mapped
+        og name.
+        """
+        # We want a dictionary of pudl column names (keys) with the first location (values)
+        # of where they are in the df when there are duplicate column names
+        duplicate_column_names_by_location = defaultdict(list)
+        for i, item in enumerate(list(df.columns)):
+            duplicate_column_names_by_location[item].append(i)
+        duplicate_column_names_by_location = OrderedDict(
+            {
+                k: v[0]
+                for k, v in duplicate_column_names_by_location.items()
+                if len(v) > 1
+            }
+        )
+        assert len(duplicate_column_names_by_location) == 20
+
+        column_map_inverted = self._metadata.get_column_map_inverted(page, year=1984)
+
+        # first find all of the pudl col names (keys) to og name (values) when these og names repeat at all
+        count_dict = Counter(column_map_inverted.values())
+        column_map_duplicates = {
+            key: value
+            for key, value in column_map_inverted.items()
+            if count_dict[value] > 1 and str(value) != "nan"
+        }
+        # then we invert
+        duplicate_cols_services_to_main = OrderedDict(
+            {
+                col: [
+                    col1
+                    for col1, val in column_map_duplicates.items()
+                    if val == og_name and "services_" not in og_name
+                ][0]
+                for col, og_name in column_map_duplicates.items()
+                if "services_" in col
+            }
+        )
+        assert len(duplicate_cols_services_to_main) == 20
+
+        # renaming the column by index
+        df.columns.to_numpy()[list(duplicate_column_names_by_location.values())] = list(
+            duplicate_cols_services_to_main.values()
+        )
+        assert len(set(df.columns)) == len(df.columns)
+        return df
+
     def process_renamed(self, newdata: pd.DataFrame, page: str, **partition):
         """Drop columns that get mapped to other assets and columns with unstructured data.
 
@@ -36,6 +100,8 @@ class Extractor(excel.ExcelExtractor):
         older years, filter by the list of columns specified for the page, with a
         warning.
         """
+        if (int(partition["year"]) == 1984) and (page == "yearly_distribution"):
+            newdata = self.remove_duplicate_column_name(newdata, page)
         if (int(partition["year"]) < 2010) and (
             self._metadata.get_form(page) == "gas_transmission_gathering"
         ):
@@ -59,7 +125,7 @@ class Extractor(excel.ExcelExtractor):
         # FYI: In 2009 there were a ton of extra columns seemingly from two records that had a
         # multi-line comment that shifted the rest of the cells over. Presumably we could map
         # them all and do a manual shift of the data. But its only 2 records so rn we are just
-        # droppign them.
+        # dropping them.
         unnamed_page_years = {
             "yearly_distribution": [
                 2000,
