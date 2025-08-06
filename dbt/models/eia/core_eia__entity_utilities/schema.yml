@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eia__entity_utilities
-              partition_column: null
+              partition_expr: null
         columns:
           - name: utility_id_eia
           - name: utility_name_eia

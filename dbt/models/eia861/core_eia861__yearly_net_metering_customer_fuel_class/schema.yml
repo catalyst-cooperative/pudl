@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_eia861__yearly_net_metering_customer_fuel_class
-              partition_column: report_date
+              partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: balancing_authority_code_eia
           - name: capacity_mw
