@@ -2,7 +2,7 @@
 
 from typing import Any
 
-TABLE_DESCRIPTIONS: dict[str, str] = {
+TABLE_DESCRIPTIONS: dict[str, dict[str, Any]] = {
     "_core_eia923__yearly_fgd_operation_maintenance": {
         "additional_summary_text": "flue gas desulfurization (FGD) operation and maintenance expenses at generation facilities.",
         "additional_source_text": "(Schedule 8C)",
