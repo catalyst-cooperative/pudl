@@ -201,6 +201,76 @@ class DbtSchema(BaseModel):
             yaml_output = _prettier_yaml_dumps(self.model_dump(exclude_none=True))
             schema_file.write(yaml_output)
 
+    def merge_metadata_from(self, old_schema: "DbtSchema") -> "DbtSchema":
+        """Merge metadata from an old schema into this one, preferring new values where present."""
+
+        def merge_tables(new_tables, old_tables):
+            old_table_map = {t.name: t for t in old_tables or []}
+            merged = []
+
+            for new_table in new_tables or []:
+                old_table = old_table_map.get(new_table.name)
+                if not old_table:
+                    merged.append(new_table)
+                    continue
+
+                old_columns = {c.name: c for c in old_table.columns or []}
+                merged_columns = [
+                    (
+                        col.model_copy(
+                            update={
+                                "description": col.description
+                                or old_columns.get(col.name, {}).description,
+                                "tests": col.tests
+                                or old_columns.get(col.name, {}).tests,
+                                "tags": col.tags or old_columns.get(col.name, {}).tags,
+                            }
+                        )
+                        if col.name in old_columns
+                        else col
+                    )
+                    for col in new_table.columns or []
+                ]
+
+                merged_table = new_table.model_copy(
+                    update={
+                        "description": new_table.description or old_table.description,
+                        "tests": new_table.tests or old_table.tests,
+                        "tags": new_table.tags or old_table.tags,
+                        "meta": new_table.meta or old_table.meta,
+                        "columns": merged_columns,
+                    }
+                )
+                merged.append(merged_table)
+
+            return merged
+
+        # Merge sources
+        old_sources = {s.name: s for s in old_schema.sources or []}
+        new_sources = []
+        for new_source in self.sources or []:
+            old_source = old_sources.get(new_source.name)
+            merged_tables = merge_tables(
+                new_source.tables, old_source.tables if old_source else []
+            )
+            merged_source = new_source.model_copy(update={"tables": merged_tables})
+            new_sources.append(merged_source)
+
+        # Merge models (if any)
+        if self.models:
+            old_models = {m.name: m for m in old_schema.models or []}
+            new_models = []
+            for new_model in self.models:
+                old_model = old_models.get(new_model.name)
+                merged_model = merge_tables(
+                    [new_model], [old_model] if old_model else []
+                )[0]
+                new_models.append(merged_model)
+        else:
+            new_models = None
+
+        return self.model_copy(update={"sources": new_sources, "models": new_models})
+
 
 def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
     """Check if the DeepDiff includes any removals or modifications."""
@@ -413,11 +483,16 @@ def update_table_schema(
             message=f"DBT configuration already exists for table {table_name} and clobber or update is not set.",
         )
 
-    new_schema = DbtSchema.from_table_name(table_name)
+    generated_schema = DbtSchema.from_table_name(table_name)
+    # Default: use generated schema
+    new_schema = generated_schema
 
     if model_path.exists() and update:
         # Load existing schema
         old_schema = DbtSchema.from_yaml(schema_path)
+        # Replace new schema with the generated schema but copying missing metadata
+        # from the old schema
+        new_schema = generated_schema.merge_metadata_from(old_schema)
 
         # Generate the diff report
         diff = DeepDiff(
