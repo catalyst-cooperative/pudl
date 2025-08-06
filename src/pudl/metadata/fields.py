@@ -454,7 +454,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "byproduct_units": {
         "type": "string",
-        "description": "Reported unit of measure for combustion byproduct.",
+        "description": "Reported unit of measure for combustion byproduct. MMBtu for steam, tons for all other byproducts.",
         "constraints": {"enum": ["mmbtu", "tons"]},
     },
     "no_byproducts_to_report": {
@@ -1234,7 +1234,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "disposal_ponds_tons_or_mmbtu": {
         "type": "number",
-        "description": "Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales.z",
+        "description": "Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "distributed_generation": {
         "type": "boolean",

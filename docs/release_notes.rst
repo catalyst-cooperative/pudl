@@ -11,8 +11,9 @@ New Data
 
 * Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
   Schedule 8A Byproduct Disposition to the PUDL database as
-  :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, these tables will
-  eventually be removed from the database, but they are being published until then.
+  :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, this table will
+  be replaced with a well-normalized version of the same data, but it is being published
+  in this form until then.
   See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
 
 Expanded Data Coverage
