@@ -1224,15 +1224,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "short notice."
         ),
     },
-    "disposal_landfill_tons_or_mmbtu": {
+    "disposal_landfill_units": {
         "type": "number",
         "description": "Disposed by-products in landfill, to the nearest hundred tons or in MMBtu for steam sales.",
     },
-    "disposal_offsite_tons_or_mmbtu": {
+    "disposal_offsite_units": {
         "type": "number",
         "description": "Disposed by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
     },
-    "disposal_ponds_tons_or_mmbtu": {
+    "disposal_ponds_units": {
         "type": "number",
         "description": "Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales.",
     },
@@ -4672,7 +4672,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
-    "sold_tons_or_mmbtu": {
+    "sold_units": {
         "type": "number",
         "description": "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBtu.",
     },
@@ -4859,12 +4859,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
     },
-    "stored_offsite_tons_or_mmbtu": {
+    "stored_offsite_units": {
         "type": "number",
         "unit": "tons or MMBtu",
         "description": "Stored by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
     },
-    "stored_onsite_tons_or_mmbtu": {
+    "stored_onsite_units": {
         "type": "number",
         "unit": "tons or MMBtu",
         "description": "Stored by-products onsite, to the nearest hundred tons or in MMBtu for steam sales.",
@@ -5205,7 +5205,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "total_disposal_tons_or_mmbtu": {
+    "total_disposal_units": {
         "type": "number",
         "unit": "tons or mmbtu",
         "description": "Total by-product disposal, to the nearest hundred tons or in MMBtu for steam sales.",
@@ -5401,12 +5401,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
     },
-    "used_offsite_tons_or_mmbtu": {
+    "used_offsite_units": {
         "type": "number",
         "unit": "tons or mmbtu",
         "description": "Used offsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",
     },
-    "used_onsite_tons_or_mmbtu": {
+    "used_onsite_units": {
         "type": "number",
         "unit": "tons or mmbtu",
         "description": "Used onsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",

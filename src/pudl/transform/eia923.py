@@ -1499,7 +1499,7 @@ def _core_eia923__yearly_byproduct_disposition(
     # columns.
     df.loc[
         df["byproduct_description"] != "Steam Sales (MMBtu)",
-        df.columns.str.endswith("_1000_tons_or_mmbtu"),
+        df.columns.str.endswith("_units"),
     ] *= 1000.0
 
     # For all columns, rename from 1000 tons to tons.
@@ -1518,15 +1518,15 @@ def disposition_continuity_check(bpd):
     return pudl.validate.group_mean_continuity_check(
         df=bpd,
         thresholds={
-            "disposal_landfill_tons_or_mmbtu": 0.4,
-            "disposal_offsite_tons_or_mmbtu": 0.4,
-            "disposal_ponds_tons_or_mmbtu": 0.4,
-            "sold_tons_or_mmbtu": 0.4,
-            # "stored_offsite_tons_or_mmbtu":0.9, # High enough that they're not worth validating
-            # "stored_onsite_tons_or_mmbtu":0.9,
-            "used_offsite_tons_or_mmbtu": 0.4,
-            "used_onsite_tons_or_mmbtu": 0.4,
-            "total_disposal_tons_or_mmbtu": 0.4,
+            "disposal_landfill_units": 0.4,
+            "disposal_offsite_units": 0.4,
+            "disposal_ponds_units": 0.4,
+            "sold_units": 0.4,
+            # "stored_offsite_units":0.9, # High enough that they're not worth validating
+            # "stored_onsite_units":0.9,
+            "used_offsite_units": 0.4,
+            "used_onsite_units": 0.4,
+            "total_disposal_units": 0.4,
         },
         groupby_col="report_year",
         n_outliers_allowed=5,
