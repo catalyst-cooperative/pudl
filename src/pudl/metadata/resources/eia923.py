@@ -2,7 +2,7 @@
 
 from typing import Any
 
-TABLE_DESCRIPTIONS: dict[str, str] = {
+TABLE_DESCRIPTIONS: dict[str, dict[str, Any]] = {
     "_core_eia923__yearly_fgd_operation_maintenance": {
         "additional_summary_text": "flue gas desulfurization (FGD) operation and maintenance expenses at generation facilities.",
         "additional_source_text": "(Schedule 8C)",
@@ -855,6 +855,46 @@ and consumption is the net generation."""
                 "report_date",
                 "prime_mover_code",
                 "energy_source_code",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "_core_eia923__yearly_byproduct_disposition": {
+        "description": {
+            "additional_summary_text": (
+                "by-products reported by thermoelectric power "
+                "plants with total steam turbine capacity of 100 megawatts or greater."
+            ),
+            "additional_source_text": "(Schedule 8A)",
+            "additional_details_text": (
+                "All by-products other than steam sales are reported in thousand tons and "
+                "are rounded to whole numbers. Steam sales are reported in MMBTu."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_year",
+                "plant_id_eia",
+                "byproduct_description",
+                "byproduct_units",
+                "disposal_landfill_units",
+                "disposal_offsite_units",
+                "disposal_ponds_units",
+                "sold_units",
+                "stored_offsite_units",
+                "stored_onsite_units",
+                "used_offsite_units",
+                "used_onsite_units",
+                "total_disposal_units",
+                "no_byproducts_to_report",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_year",
+                "byproduct_description",
             ],
         },
         "field_namespace": "eia",
