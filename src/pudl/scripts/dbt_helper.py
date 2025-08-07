@@ -221,8 +221,8 @@ class DbtSchema(BaseModel):
                             update={
                                 "description": col.description
                                 or old_columns.get(col.name, {}).description,
-                                "tests": col.tests
-                                or old_columns.get(col.name, {}).tests,
+                                "data_tests": col.data_tests
+                                or old_columns.get(col.name, {}).data_tests,
                                 "tags": col.tags or old_columns.get(col.name, {}).tags,
                             }
                         )
@@ -235,7 +235,7 @@ class DbtSchema(BaseModel):
                 merged_table = new_table.model_copy(
                     update={
                         "description": new_table.description or old_table.description,
-                        "tests": new_table.tests or old_table.tests,
+                        "data_tests": new_table.data_tests or old_table.data_tests,
                         "tags": new_table.tags or old_table.tags,
                         "meta": new_table.meta or old_table.meta,
                         "columns": merged_columns,
