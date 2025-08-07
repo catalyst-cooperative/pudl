@@ -183,7 +183,7 @@ TIMEZONE_CODES = {
 }
 """Mapping between standardized time offset codes and canonical timezones."""
 
-EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str], int] = {
+EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str, int]] = {
     "combined": {
         # FERC 714 Respondent ID: EIA BA or Utility ID
         24: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
