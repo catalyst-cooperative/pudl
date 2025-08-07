@@ -1476,7 +1476,8 @@ def _core_eia923__yearly_byproduct_disposition(
     * Create a byproducts_unit column based on the byproduct_disposition
 
     Args:
-        raw_eia923__byproduct_disposition: The raw ``raw_eia923__byproduct_disposition`` dataframe.
+        raw_eia923__byproduct_disposition: The raw ``raw_eia923__byproduct_disposition``
+        dataframe.
 
     Returns:
         Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
@@ -1508,6 +1509,17 @@ def _core_eia923__yearly_byproduct_disposition(
     # Create units column
     df["byproduct_units"] = np.where(
         df["byproduct_description"] == "Steam Sales (MMBtu)", "mmbtu", "tons"
+    )
+    # A large number of plants report entirely NA values in all columns across all
+    # categories of byproducts and also do not indicate whether they have any byproducts
+    # to report. We can drop these rows without losing any information. In 2022 and
+    # later years, this seems to be what EIA is doing as well, so applying this across
+    # all years of data make the table more consistent across time.
+    cols_to_check = list(
+        df.filter(regex=r"^(disposal|sold|stored|used|total)_.*_units$").columns
+    ) + ["no_byproducts_to_report"]
+    df = df.groupby(["report_year", "plant_id_eia"]).filter(
+        lambda group: group[cols_to_check].notna().any(axis=None)
     )
     return df
 
