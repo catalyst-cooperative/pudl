@@ -3,8 +3,6 @@
 This modules pulls data from PHMSA's published Excel spreadsheets.
 """
 
-from collections import Counter, OrderedDict, defaultdict
-
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
@@ -28,66 +26,30 @@ class Extractor(excel.ExcelExtractor):
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
-    def remove_duplicate_column_name(self, df: pd.DataFrame, page: str) -> pd.DataFrame:
-        """Rename the duplicate column names in 1984.
+    def load_source(self, page: str, **partition) -> pd.DataFrame:
+        """Run same load_source and then replace all periods w/ n's.
 
-        On ingest of the should be a multi-header excel sheet, 20 of the columns
-        are read in with the same column name. This a little weird because
-        pd.read_excel typically just adds a _n to the next iteration of the same
-        column name on import. But alas... in the mapping CSV's there are 20x2
-        columns which have the same original name mapped to different PUDL names.
-
-        The first iteration of the duplicate og column name gets renamed to
-        the second name... in the df all of the main_* comes first, then
-        the services_* comes afterward. Because of this we have 20 instances
-        of duplicate pudl-renamed columns. So we need to rename the first ones
-        (the main_* ones). We need to find the locations of all the should be
-        main_* columns in the df & all the map of the services_* cols and the
-        main_* column names from the mapping sheet when they have the same mapped
-        og name.
+        There are a ton of identical column names in the raw dataset for 1984.
+        Typically these get processed in load_source via pd.read_excel which adds
+        a period and then an auto-incremented number as a suffix. Then this
+        data gets run through :func:`pudl.helpers.simplify_columns` which converts
+        all non-alphanumeric (aka periods) into spaces and then condenses any multiple
+        spaces into one space. This would all be fine and good except for the fact that
+        there are 22 column names that are identical expect for trailing spaces in the
+        raw source. These trailing spaces effectively get removed in
+        :func:`pudl.helpers.simplify_columns` and then we have duplicate column names.
+        This method runs the parent adds _n#'s to these trailing space column names.
         """
-        # We want a dictionary of pudl column names (keys) with the first location (values)
-        # of where they are in the df when there are duplicate column names
-        duplicate_column_names_by_location = defaultdict(list)
-        for i, item in enumerate(list(df.columns)):
-            duplicate_column_names_by_location[item].append(i)
-        duplicate_column_names_by_location = OrderedDict(
-            {
-                k: v[0]
-                for k, v in duplicate_column_names_by_location.items()
-                if len(v) > 1
-            }
-        )
-        assert len(duplicate_column_names_by_location) == 20
-
-        column_map_inverted = self._metadata.get_column_map_inverted(page, year=1984)
-
-        # first find all of the pudl col names (keys) to og name (values) when these og names repeat at all
-        count_dict = Counter(column_map_inverted.values())
-        column_map_duplicates = {
-            key: value
-            for key, value in column_map_inverted.items()
-            if count_dict[value] > 1 and str(value) != "nan"
-        }
-        # then we invert
-        duplicate_cols_services_to_main = OrderedDict(
-            {
-                col: [
-                    col1
-                    for col1, val in column_map_duplicates.items()
-                    if val == og_name and "services_" not in og_name
-                ][0]
-                for col, og_name in column_map_duplicates.items()
-                if "services_" in col
-            }
-        )
-        assert len(duplicate_cols_services_to_main) == 20
-
-        # renaming the column by index
-        df.columns.to_numpy()[list(duplicate_column_names_by_location.values())] = list(
-            duplicate_cols_services_to_main.values()
-        )
-        assert len(set(df.columns)) == len(df.columns)
+        df = super().load_source(page, **partition)
+        if (int(partition["year"]) == 1984) and (page == "yearly_distribution"):
+            df.columns = df.columns.str.replace(" .", "n")
+            # the first two iterations of these columns that have trailing spaces
+            # don't get the .# at the end and such need this special treatment
+            ends_w_space_cols = [col for col in df.columns if col.endswith(" ")]
+            assert len(ends_w_space_cols) == 2
+            df = df.rename(
+                columns={raw_col: f"{raw_col}_n0" for raw_col in ends_w_space_cols}
+            )
         return df
 
     def process_renamed(self, newdata: pd.DataFrame, page: str, **partition):
@@ -100,8 +62,6 @@ class Extractor(excel.ExcelExtractor):
         older years, filter by the list of columns specified for the page, with a
         warning.
         """
-        if (int(partition["year"]) == 1984) and (page == "yearly_distribution"):
-            newdata = self.remove_duplicate_column_name(newdata, page)
         if (int(partition["year"]) < 2010) and (
             self._metadata.get_form(page) == "gas_transmission_gathering"
         ):

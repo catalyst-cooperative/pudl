@@ -112,17 +112,6 @@ class GenericMetadata:
             if v != -1
         }
 
-    def get_column_map_inverted(self, page, **partition) -> dict:
-        """Return dictionary of renamed to original columns in a given partition and page."""
-        return {
-            k: v
-            for k, v in self._column_map[page]
-            .T.loc[str(self._get_partition_selection(partition))]
-            .to_dict()
-            .items()
-            if v != -1
-        }
-
 
 class GenericExtractor(ABC):
     """Generic extractor base class."""
