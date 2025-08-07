@@ -407,6 +407,8 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
         )
         partition = partition[0]
         parts = getattr(data_settings, partition)  # Get the actual values
+        if name == "phmsagas":  # phmsa has old years with multiple years in each tab
+            parts = data_settings.extraction_years
         # In Zenodo we use "year", "half_year" as the partition, but in our settings
         # we use the plural "years". Drop the "s" at the end if present.
         partition = partition.removesuffix("s")

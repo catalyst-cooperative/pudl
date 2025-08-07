@@ -55,13 +55,25 @@ class Extractor(excel.ExcelExtractor):
     def process_renamed(self, newdata: pd.DataFrame, page: str, **partition):
         """Drop columns that get mapped to other assets and columns with unstructured data.
 
-        Older years of PHMSA data have one Excel tab in the raw data, while newer data
-        has multiple tabs. To extract data into tables that follow the newer data format
-        without duplicating the older data, we need to split older pages into multiple
-        tables by column. To prevent each table from containing all columns from these
-        older years, filter by the list of columns specified for the page, with a
+        Old-ish years (1990-2009) of PHMSA data have one Excel tab in the raw data, while
+        newer data has multiple tabs. To extract data into tables that follow the newer
+        data format without duplicating the older data, we need to split older pages into
+        multiple tables by column. To prevent each table from containing all columns from
+        these older years, filter by the list of columns specified for the page, with a
         warning.
+
+        The oldest years (before 1990) contain multiple years in one tab. The records
+        contain a report_year column but some of them are reported at a two digit year
+        (ex: 87 for 1987). We convert these into four digit years.
         """
+        if (int(partition["year"]) <= 1989) and (page == "yearly_distribution"):
+            newdata.report_year = newdata.report_year.astype(pd.Int64Dtype())
+            double_digit_year_mask = (
+                newdata["report_year"].astype("str").str.contains(r"^[0-9]{2}$")
+            )
+            newdata.loc[double_digit_year_mask, "report_year"] = (
+                newdata.loc[double_digit_year_mask, "report_year"] + 1900
+            )
         if (int(partition["year"]) < 2010) and (
             self._metadata.get_form(page) == "gas_transmission_gathering"
         ):
