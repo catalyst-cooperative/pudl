@@ -48,6 +48,10 @@ Quality of Life Improvements
   the dbt schema, whether any existing row counts for that table are present in the seed
   table, as well as user provided settings such as ``--clobber``.
 
+* when running ``dbt_helper update-tables`` with the flag ``--update``, existing
+  schema tests, descriptions and other metadata are now preserved. See issue
+  :issue:`4466` and PR :pr:`4525`.
+
 * Stopped running code checks in CI when only the documentation has changed.
   See issue :issue:`4410` and PR :pr:`4429`.
 
