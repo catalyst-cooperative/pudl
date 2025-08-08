@@ -201,23 +201,250 @@ validate``
 Debugging data validation failures
 --------------------------------------------------------------------------------
 
-Common failures:
+So, you've run the data validations, but one or more of them has failed. Now what?
 
-* Row counts
-* Quantile checks
-
-
+We'll go over some general strategies first, then look at the two most common failures: row counts and quantiles.
 
 General strategies and tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Using output from ``dbt_helper validate``.
-* By inspecting and running the compiled SQL yourself.
-* Explain What "compiled" SQL means here.
-* Using ``--store-failures`` and the ``pudl_dbt_tests.duckdb`` output -- what is
+Use ``dbt_helper validate``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you habitually use ``dbt``, try using ``dbt_helper validate`` instead -- it will print out additional context information to help with debugging failures.
+
+**Example: validation ``expect_columns_not_all_null`` on table ``out_eia__yearly_generators``**
+
+If you run this validation in ``dbt``, it tells you:
+
+* the test failed
+* there was 1 failure row
+* the compiled SQL query for the test is at ``target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql``
+
+& that's it:
+
+.. code-block:: console
+
+    $ dbt build --select source:pudl.out_eia__yearly_generators,test_name:expect_columns_not_all_null
+    20:38:56  Running with dbt=1.10.6
+    20:38:57  Registered adapter: duckdb=1.9.4
+    20:38:57  Unable to do partial parsing because config vars, config profile, or config target have changed
+    20:39:00  Found 2 models, 700 data tests, 1 seed, 240 sources, 850 macros
+    20:39:00
+    20:39:00  Concurrency: 1 threads (target='etl-full')
+    20:39:00
+    20:39:00  1 of 1 START test source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009  [RUN]
+    20:39:01  1 of 1 FAIL 1 source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009  [FAIL 1 in 0.15s]
+    20:39:01
+    20:39:01  Finished running 1 test in 0 hours 0 minutes and 0.21 seconds (0.21s).
+    20:39:01
+    20:39:01  Completed with 1 error, 0 partial successes, and 0 warnings:
+    20:39:01
+    20:39:01  Failure in test source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009 (models/eia/out_eia__yearly_generators/schema.yml)
+    20:39:01    Got 1 result, configured to fail if != 0
+    20:39:01
+    20:39:01    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    20:39:01
+    20:39:01  Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1
+
+It doesn't tell you what the failure row was; you'd have to run the compiled query yourself to figure that out (see below for details on what that means and how to do it).
+
+If you run this validation in ``dbt_helper``, it shows you the dbt output, but it **also** runs the compiled SQL query and gives you the results:
+
+.. code-block:: console
+
+    $ dbt_helper validate --select source:pudl.out_eia__yearly_generators,test_name:expect_columns_not_all_null
+    [...]
+    20:37:49  Finished running 1 test in 0 hours 0 minutes and 0.17 seconds (0.17s).
+    20:37:49
+    20:37:49  Completed with 1 error, 0 partial successes, and 0 warnings:
+    20:37:49
+    20:37:49  Failure in test source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009 (models/eia/out_eia__yearly_generators/schema.yml)
+    20:37:49    Got 1 result, configured to fail if != 0
+    20:37:49
+    20:37:49    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    20:37:49
+    20:37:49  Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1
+    Traceback (most recent call last):
+    [...]
+    AssertionError: failure contexts:
+    source_expect_columns_not_all_null_pudl_out_eia__yearly_generators_False__EXTRACT_year_FROM_report_date_2008__[...]EXTRACT_year_FROM_report_date_2009:
+
+    | table_name                 | failing_column   | failure_reason                         | row_condition                         |   total_rows_matching_condition |   non_null_count |
+    |:---------------------------|:-----------------|:---------------------------------------|:--------------------------------------|--------------------------------:|-----------------:|
+    | out_eia__yearly_generators | unit_id_pudl     | Conditional check failed: EXTRACT(year | EXTRACT(year FROM report_date) < 2008 |                          136918 |                0 |
+    |                            |                  | FROM report_date) < 2008               |                                       |                                 |                  |
+
+This saves you a step. Most times, this is enough to figure out what has gone wrong, and you never need to look at the compiled SQL query at all.
+
+Inspect the SQL query for the test and run it yourself
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some tests have very long failure row output that ``dbt_helper`` doesn't handle very well. To debug those failures, you will need to run the SQL yourself, and explore duckdb's `output formatting options <https://duckdb.org/docs/stable/clients/cli/output_formats.html>`__ to display the results legibly.
+
+Some tests have terrible failure row output that doesn't tell you anything useful. To debug those failures, you will need to bust into the SQL to pull out enough information to figure out what went wrong.
+
+Both of these cases require you to touch the compiled SQL query for the test directly.
+
+dbt gives you a path for the "compiled code" for the failing test, in a line that looks like this:
+
+.. code-block:: console
+
+    20:37:49    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+
+"Compiled" is important here because the source code for each test is merely a template. The template cannot directly be used to query the database. Each instance of a test is configured in the schema.yml for the table being tested. dbt compiles the SQL query for that test by filling in the template values using information from the test config. It saves the resulting SQL query to a new file in the ``target/compiled`` directory. This is the compiled query.
+
+Running this query in duckdb will generate the failure row output. There are two ways to run the query.
+
+Run once using the shell
+++++++++++++++++++++++++
+
+You can run duckdb against the test database, and input the compiled code path using ``<``.
+
+If you are in the ``pudl`` working directory, you may need to add ``dbt/`` to the front of the compiled code path. Like this:
+
+.. code-block:: console
+
+    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    ┌────────────────────────────┬────────────────┬─────────────────────────────────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────┬────────────────┐
+    │         table_name         │ failing_column │                         failure_reason                          │             row_condition             │ total_rows_matching_condition │ non_null_count │
+    │          varchar           │    varchar     │                             varchar                             │                varchar                │             int64             │     int64      │
+    ├────────────────────────────┼────────────────┼─────────────────────────────────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────┼────────────────┤
+    │ out_eia__yearly_generators │ unit_id_pudl   │ Conditional check failed: EXTRACT(year FROM report_date) < 2008 │ EXTRACT(year FROM report_date) < 2008 │            136918             │       0        │
+    └────────────────────────────┴────────────────┴─────────────────────────────────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────┴────────────────┘
+
+The advantage of this approach is that it is very quick, and it immediately returns you to a shell.
+
+**Variation: change output modes**
+
+To transpose very wide output, consider setting ``.mode``. Using the ``-cmd`` argument to duckdb will execute a command before processing input provided using ``<``. Like this:
+
+.. code-block:: console
+
+    $ duckdb -cmd '.mode line' $PUDL_OUTPUT/pudl_dbt_tests.duckdb <dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+                       table_name = out_eia__yearly_generators
+                   failing_column = unit_id_pudl
+                   failure_reason = Conditional check failed: EXTRACT(year FROM report_date) < 2008
+                    row_condition = EXTRACT(year FROM report_date) < 2008
+    total_rows_matching_condition = 136918
+                   non_null_count = 0
+
+There are lots of `output format modes available <https://duckdb.org/docs/stable/clients/cli/output_formats.html>`__; hopefully one of them will be legible for your failure row output!
+
+
+Run inside a duckdb session
++++++++++++++++++++++++++++
+
+You can open a duckdb session against the test database, and input the compiled code path using the duckdb ``.read`` command. Like this:
+
+.. code-block:: console
+
+    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb
+    v1.2.0 5f5512b827
+    Enter ".help" for usage hints.
+    D .read dbt/target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_columns_not_all__790ceaac9ad08187ce2e9323e6b58961.sql
+    ┌────────────────────────────┬────────────────┬─────────────────────────────────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────┬────────────────┐
+    │         table_name         │ failing_column │                         failure_reason                          │             row_condition             │ total_rows_matching_condition │ non_null_count │
+    │          varchar           │    varchar     │                             varchar                             │                varchar                │             int64             │     int64      │
+    ├────────────────────────────┼────────────────┼─────────────────────────────────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────┼────────────────┤
+    │ out_eia__yearly_generators │ unit_id_pudl   │ Conditional check failed: EXTRACT(year FROM report_date) < 2008 │ EXTRACT(year FROM report_date) < 2008 │            136918             │       0        │
+    └────────────────────────────┴────────────────┴─────────────────────────────────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────┴────────────────┘
+
+You can type other SQL queries and duckdb commands at the duckdb prompt as well.
+
+The advantage of this approach is that you are at a database prompt, and can immediately run other queries to narrow down what has gone wrong.
+
+The disadvantage of this approach is that you have to remember to quit (CTRL-D or ``.quit``) before you can run more dbt commands. duckdb does not like having multiple programs accessing the database simultaneously.
+
+Dealing with terrible failure row output
+++++++++++++++++++++++++++++++++++++++++
+
+If the failure row output for a test says something useless like "false" with no other identifying information, you'll need to actually read the SQL query and adapt some portion of it to give you the context you need.
+
+Such as:
+
+.. code-block:: console
+
+    $ duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb <target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/dbt_expectations_source_expect_33dc33ad0a260e896f11f41b4422dda8.sql
+    ┌─────────────┐
+    │ expression  │
+    │   boolean   │
+    ├─────────────┤
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │   ·         │
+    │   ·         │
+    │   ·         │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    │ false       │
+    ├─────────────┤
+    │ 570499 rows │
+    │ (20 shown)  │
+    └─────────────┘
+
+The only thing this tells us is that there are 570,499 rows that failed the test. We need to know which rows they are in order to debug further.
+
+Opening ``dbt_expectations_source_expect_33dc33ad0a260e896f11f41b4422dda8.sql`` in a pager or text editor yields the following:
+
+.. code-block:: sql
+
+        with grouped_expression as (
+        select
+
+
+
+      unit_id_pudl is not null as expression
+
+
+        from '/Users/catalyst/pudl_output/parquet/out_eia__yearly_generators.parquet'
+
+
+    ),
+    validation_errors as (
+
+        select
+            *
+        from
+            grouped_expression
+        where
+            not(expression = true)
+
+    )
+
+    select *
+    from validation_errors
+
+Here we'd have several options:
+
+* Add a few primary key columns to the ``grouped_expression`` table, so that they pop out in the final ``select``
+* Adapt the inner ``select`` from ``grouped_expression`` to work on its own
+* Grab only the parquet path and put it in a custom query like ``select plant_id_eia, generator_id, report_date from {parquet path} where unit_id_pudl is null``
+
+The query you build using any of the above could be copied and pasted into a duckdb session, and the results interrogated further from there.
+
+When to use ``--store-failures``
+++++++++++++++++++++++++++++++++
+
+
+.. todo::
+  Using ``--store-failures`` and the ``pudl_dbt_tests.duckdb`` output -- what is
   stored in that database anyway?
-* Using ``duckdb < path/to/compiled.sql``
-* Using DuckDB's ``.read path/to/compiled.sql`` to play with data interactively.
 
 
 Debugging and fixing row count failures
@@ -225,16 +452,20 @@ Debugging and fixing row count failures
 
 Row count checks fail when the local data has a different number of rows in it than dbt expected.
 
+.. todo::
 
-
+    * Explain how to tell and what to do if seed file is wrong
+    * Explain how to tell and what to do if local data is wrong
 
 Debugging quantile checks
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+
 .. todo::
 
-  This seems quite involved. Can we make it simpler? Improve the test failure output to
-  enable some debugging without this level of user engagement? Can we provide additional
+  * Update to use ``dbt_helper`` output directly instead of manually running the dbt op.
+
+  Can we provide additional
   guidance on understanding what to do about the failure, beyond updating the test
   parameters (i.e. how to tell if it's a reasonable evolution of the underlying data
   vs. an indication that something in our data processing has gone wrong).
@@ -247,52 +478,52 @@ In this example, we're running quantile checks for ``out_eia__yearly_generators`
 
 .. code-block:: console
 
-$ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
-[...]
-18:39:46  Finished running 24 data tests in 0 hours 0 minutes and 1.01 seconds (1.01s).
-18:39:46  
-18:39:46  Completed with 1 error, 0 partial successes, and 0 warnings:
-18:39:46  
-18:39:46  Failure in test source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw (models/eia/out_eia__yearly_generators/schema.yml)
-18:39:46    Got 1 result, configured to fail if != 0
-18:39:46  
-18:39:46    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_quantile_constra_392a2df5d1590fb6bc46821e0b879c86.sql
-18:39:46  
-18:39:46  Done. PASS=23 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=24
-Traceback (most recent call last):
-  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/bin/dbt_helper", line 7, in <module>
-    sys.exit(dbt_helper())
-             ~~~~~~~~~~^^
-  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1161, in __call__
-    return self.main(*args, **kwargs)
-           ~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1082, in main
-    rv = self.invoke(ctx)
-  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1697, in invoke
-    return _process_result(sub_ctx.command.invoke(sub_ctx))
-                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1443, in invoke
-    return ctx.invoke(self.callback, **ctx.params)
-           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 788, in invoke
-    return __callback(*args, **kwargs)
-  File "/Users/catalyst/Documents/work/catalyst/pudl/src/pudl/scripts/dbt_helper.py", line 673, in validate
-    raise AssertionError(
-        f"failure contexts:\n{test_result.format_failure_contexts()}"
-    )
-AssertionError: failure contexts:
-source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw:
+    $ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+    [...]
+    18:39:46  Finished running 24 data tests in 0 hours 0 minutes and 1.01 seconds (1.01s).
+    18:39:46
+    18:39:46  Completed with 1 error, 0 partial successes, and 0 warnings:
+    18:39:46
+    18:39:46  Failure in test source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw (models/eia/out_eia__yearly_generators/schema.yml)
+    18:39:46    Got 1 result, configured to fail if != 0
+    18:39:46
+    18:39:46    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_quantile_constra_392a2df5d1590fb6bc46821e0b879c86.sql
+    18:39:46
+    18:39:46  Done. PASS=23 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=24
+    Traceback (most recent call last):
+      File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/bin/dbt_helper", line 7, in <module>
+        sys.exit(dbt_helper())
+                 ~~~~~~~~~~^^
+      File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1161, in __call__
+        return self.main(*args, **kwargs)
+               ~~~~~~~~~^^^^^^^^^^^^^^^^^
+      File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1082, in main
+        rv = self.invoke(ctx)
+      File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1697, in invoke
+        return _process_result(sub_ctx.command.invoke(sub_ctx))
+                               ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+      File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1443, in invoke
+        return ctx.invoke(self.callback, **ctx.params)
+               ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 788, in invoke
+        return __callback(*args, **kwargs)
+      File "/Users/catalyst/Documents/work/catalyst/pudl/src/pudl/scripts/dbt_helper.py", line 673, in validate
+        raise AssertionError(
+            f"failure contexts:\n{test_result.format_failure_contexts()}"
+        )
+    AssertionError: failure contexts:
+    source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw:
 
- table: source.pudl_dbt.pudl.out_eia__yearly_generators
- test: expect_quantile_constraints
- column: capacity_factor
- row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
- weight column: capacity_mw
- description: Historical note, EIA natural gas reporting really only becomes usable in 2015.
-  quantile |     value |       min |       max
-      0.65 | 0.4638245 |     0.500 |      0.60
-      0.15 | 0.0246494 |     0.005 |      None
-      0.95 | 0.7754576 |      None |      0.95
+     table: source.pudl_dbt.pudl.out_eia__yearly_generators
+     test: expect_quantile_constraints
+     column: capacity_factor
+     row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
+     weight column: capacity_mw
+     description: Historical note, EIA natural gas reporting really only becomes usable in 2015.
+      quantile |     value |       min |       max
+          0.65 | 0.4638245 |     0.500 |      0.60
+          0.15 | 0.0246494 |     0.005 |      None
+          0.95 | 0.7754576 |      None |      0.95
 
 .. code-block:: console
 
