@@ -9,12 +9,42 @@ v2025.XX.x (2025-MM-DD)
 New Data
 ^^^^^^^^
 
+* Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
+  Schedule 8A Byproduct Disposition to the PUDL database as
+  :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, this table will
+  be replaced with a well-normalized version of the same data, but it is being published
+  in this form until then.
+  See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA 930
+~~~~~~~
+* Updated EIA 930 data published up through the beginning of August 2025. See
+  :issue:`4517` and PR :pr:`4523`.
+
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  the beginning of August 2025. See :issue:`4519` and PR :pr:`4523`.
+
+FERC Form 1
+~~~~~~~~~~~
+* Updated FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+  :pr:`4507`.
+
+FERC Forms 2, 6 and 60
+~~~~~~~~~~~~~~~~~~~~~~
 * Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
   2024 data. See :issue:`4418` and :pr:`4433`.
+
+FERC Forms 714
+~~~~~~~~~~~~~~
 * Integrated 2024 data for FERC Form 714. See issue :issue:`4409` and PR :pr`4530`.
+
+PHMSA Gas Data
+~~~~~~~~~~~~~~
 * Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
   data is not currently published to the PUDL database. See :issue:`4449` and
   :pr:`4470`.
@@ -39,6 +69,8 @@ Bug Fixes
 
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
   :issue:`4328` and PR :pr:`4392`.
+* Fixed bug in how we were repairing a misfiled EIA code in
+  :ref:`core_ferc714__respondent_id`. See issue :issue:`4439` and PR :pr:`4497`.
 
 Documentation
 ^^^^^^^^^^^^^

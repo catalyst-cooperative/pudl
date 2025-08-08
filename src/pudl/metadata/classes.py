@@ -33,6 +33,7 @@ from pydantic import (
     StrictStr,
     StringConstraints,
     ValidationInfo,
+    field_serializer,
     field_validator,
     model_validator,
 )
@@ -1126,6 +1127,14 @@ class PudlResourceDescriptor(PudlMeta):
         )
         code_fixes: dict = {}
         ignored_codes: list = []
+        model_config = ConfigDict(arbitrary_types_allowed=True)
+
+        @field_serializer("df")
+        def serialize_df(
+            self, df: pr.typing.DataFrame[CodeDataFrame], _info
+        ) -> pd.DataFrame:
+            """Return DataFrame to avoid warnings from default serializer."""
+            return df
 
     class PudlDescriptionComponents(PudlMeta):
         """Container to hold description configuration information.
