@@ -134,7 +134,7 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
     ),
 }
 
-MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str]] = {
+MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str | int | pandas_NAType]] = {
     "less_noncurrent_portion_of_allowances": {
         "dbf2020_row_number": 53,
         "dbf2020_table_name": "f1_comp_balance_db",
