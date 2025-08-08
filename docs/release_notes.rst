@@ -14,6 +14,7 @@ Expanded Data Coverage
 
 * Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
   2024 data. See :issue:`4418` and :pr:`4433`.
+* Integrated 2024 data for FERC Form 714. See issue :issue:`4409` and PR :pr`4530`.
 * Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
   data is not currently published to the PUDL database. See :issue:`4449` and
   :pr:`4470`.
