@@ -625,7 +625,6 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
 
     * Remove fields implicated elsewhere.
     * Replace . values with NA.
-    * Remove rows with utility ids 99999.
     * Create a fuel_type_code_pudl field that organizes fuel types into
       clean, distinguishable categories.
     * Combine year and month columns into a single date column.
@@ -668,9 +667,6 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     gen_fuel = _yearly_to_monthly_records(gen_fuel)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gen_fuel = pudl.helpers.fix_eia_na(gen_fuel)
-    # Remove "State fuel-level increment" records... which don't pertain to
-    # any particular plant (they have plant_id_eia == operator_id == 99999)
-    gen_fuel = gen_fuel[gen_fuel.plant_id_eia != 99999]
 
     # conservative manual correction for bad prime mover codes
     gen_fuel["prime_mover_code"] = (
