@@ -1,8 +1,8 @@
-"""add xbrl and dbf util ids to ferc tables
+"""add xbrl, dbf util id cols to ferc1 out tables
 
-Revision ID: 494ffd1c495d
+Revision ID: 341e3c844e85
 Revises: af82802f2b64
-Create Date: 2025-08-07 14:30:59.489160
+Create Date: 2025-08-08 14:36:42.355526
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '494ffd1c495d'
+revision = '341e3c844e85'
 down_revision = 'af82802f2b64'
 branch_labels = None
 depends_on = None
@@ -83,6 +83,10 @@ def upgrade() -> None:
         batch_op.add_column(sa.Column('utility_id_ferc1_xbrl', sa.Text(), nullable=True, comment='FERC-assigned entity_id from XBRL reporting years, identifying the reporting entity. Stable from year to year.'))
 
     with op.batch_alter_table('out_ferc1__yearly_other_regulatory_liabilities_sched278', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('utility_id_ferc1_dbf', sa.Integer(), nullable=True, comment='FERC-assigned respondent_id from DBF reporting years, identifying the reporting entity. Stable from year to year.'))
+        batch_op.add_column(sa.Column('utility_id_ferc1_xbrl', sa.Text(), nullable=True, comment='FERC-assigned entity_id from XBRL reporting years, identifying the reporting entity. Stable from year to year.'))
+
+    with op.batch_alter_table('out_ferc1__yearly_plant_in_service_sched204', schema=None) as batch_op:
         batch_op.add_column(sa.Column('utility_id_ferc1_dbf', sa.Integer(), nullable=True, comment='FERC-assigned respondent_id from DBF reporting years, identifying the reporting entity. Stable from year to year.'))
         batch_op.add_column(sa.Column('utility_id_ferc1_xbrl', sa.Text(), nullable=True, comment='FERC-assigned entity_id from XBRL reporting years, identifying the reporting entity. Stable from year to year.'))
 
@@ -176,6 +180,10 @@ def downgrade() -> None:
         batch_op.drop_column('utility_id_ferc1_dbf')
 
     with op.batch_alter_table('out_ferc1__yearly_pumped_storage_plants_sched408', schema=None) as batch_op:
+        batch_op.drop_column('utility_id_ferc1_xbrl')
+        batch_op.drop_column('utility_id_ferc1_dbf')
+
+    with op.batch_alter_table('out_ferc1__yearly_plant_in_service_sched204', schema=None) as batch_op:
         batch_op.drop_column('utility_id_ferc1_xbrl')
         batch_op.drop_column('utility_id_ferc1_dbf')
 
