@@ -117,7 +117,7 @@ ferc_to_sqlite_settings:
   ferc60_xbrl_to_sqlite_settings:
     years: [2021, 2022, 2023, 2024]
   ferc714_xbrl_to_sqlite_settings:
-    years: [2021, 2022, 2023]
+    years: [2021, 2022, 2023, 2024]
 
 ###########################################################################
 # Settings for pudl_etl script
@@ -185,6 +185,7 @@ datasets:
         2021,
         2022,
         2023,
+        2024,
       ]
   eia:
     eia176:

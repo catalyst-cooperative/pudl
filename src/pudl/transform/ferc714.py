@@ -41,9 +41,14 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     2: {"CPT": "CST"},
     10: {"CPT": "EST"},
     15: {"MS": "MST"},
-    17: {"CS": "CST", "CD": "CDT"},
+    17: {"CS": "CST", "CD": "CDT", np.nan: "CST"},  # missing 24 entries in Feb 2024
     19: {"CTR": "CST", "CSR": "CST", "CPT": "CST", "DST": "CST", np.nan: "CST"},
     20: {"3": "MST"},  # black hills (CO). in year after this 3 its all MST
+    23: {
+        # these are missing for all of 2024, but this respondent has history back to 2006
+        # and the only year they observed DST was 2021, so we're going with EST
+        np.nan: "EST"
+    },
     27: {
         "AKS": "AKST",
         "AST": "AKST",
@@ -105,6 +110,7 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     143: {"DST": "CDT"},
     146: {"CPT": "CST"},
     148: {"DST": "CDT"},
+    152: {np.nan: "CST"},  # missing 24 entries in December 2024
     153: {"CDS": "CDT"},
     159: {"EDS": "EDT"},
     163: {"CPT": "CST"},
@@ -120,12 +126,13 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     194: {"PPT": "PST"},  # Pacificorp, constant across the whole year.
     195: {"DST": "EDT", "EDS": "EDT", "EPT": "EST"},
     210: {"EPT": "EST"},
-    217: {"CPT": "CST"},
-    214: {"EPT": "EST"},
-    215: {"EDT/EST": "EST", "EST/EDT": "EST"},  # this is duke.
     211: {  # more recent years have CST & CDT. CDST correspond to DST months
         "CDST": "CDT"
     },
+    214: {"EPT": "EST"},
+    215: {"EDT/EST": "EST", "EST/EDT": "EST"},  # this is duke.
+    216: {np.nan: "CST"},  # missing 24 entries in December 2024
+    217: {"CPT": "CST"},
 }
 
 TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR = [
@@ -134,6 +141,44 @@ TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR = [
     {"respondent_id_ferc714": 176, "report_year": 2011, "utc_offset_code": "CST"},
     {"respondent_id_ferc714": 179, "report_year": 2011, "utc_offset_code": "CST"},
 ]
+
+DISCONTINUOUS_DATES = [
+    # 2024 DST: 3/10-11/3
+    #  1 1-hr gap  on 3/1
+    #  1 2-hr gap  on 3/9
+    # 10 2-hr gaps on 3/10
+    #  1 2-hr gap  on 11/3
+    {"report_year": 2024, "gap_count": 13},
+    # 2023 DST: 3/12-11/5
+    #  1 2-hr gap  on 1/1
+    # 12 2-hr gaps on 3/12
+    {"report_year": 2023, "gap_count": 13},
+    # 2022 DST: 3/13-11/6
+    #  1 25-hr gap  on 1/1
+    #  1  2-hr gap  on 1/1
+    # 15  2-hr gaps on 3/13
+    {"report_year": 2022, "gap_count": 17},
+    # 2021 DST: 3/14-11/7
+    # 9 2-hr gaps on 3/14
+    # 1 31-day gap on 11/1
+    # 1 2-hr gap on 11/7
+    {"report_year": 2021, "gap_count": 11},
+]
+"""Identified gaps in hourly timeseries. The vast majority of these are around
+daylight saving time switchover dates, though there are a couple exceptions. We
+expect to add to this list each year."""
+
+DUPLICATED_DATETIMES = {
+    2007: 1,
+    2008: 1,
+    2009: 1,
+    2012: 1,
+    2013: 2,
+    2022: 4,
+    2024: 1,
+}
+"""Identified duplicated UTC datetimes resulting from changes to a planning area's
+reporting timezone."""
 
 BAD_RESPONDENTS = [
     2,
@@ -912,14 +957,17 @@ class HourlyPlanningAreaDemand:
     def ensure_dates_are_continuous(df: pd.DataFrame, source: Literal["csv", "xbrl"]):
         """Assert that almost all respondents have continuous timestamps.
 
-        In the xbrl data, we found 41 gaps in the timeseries! They are almost entirely
-        on the hour in which daylight savings times goes into effect. The csv data
-        had 10 gaps. Pretty good all in all!
+        The xbrl data frequently includes gaps around daylight savings switchover
+        dates. These are catalogued in DISCONTINUOUS_DATES. The csv data has 10 gaps.
+        Pretty good all in all!
         """
         df["gap"] = df[["respondent_id_ferc714", "report_date"]].sort_values(
             by=["respondent_id_ferc714", "report_date"]
         ).groupby("respondent_id_ferc714").diff() > pd.to_timedelta("1h")
-        max_gaps = 41 if source == "xbrl" else 10
+        if source == "xbrl":
+            max_gaps = pd.DataFrame(DISCONTINUOUS_DATES).gap_count.sum()
+        else:
+            max_gaps = 10
         if len(gappy_dates := df[df.gap]) > max_gaps:
             raise AssertionError(
                 f"We expect there to be fewer than {max_gaps} gaps in the {source} time "
@@ -1020,12 +1068,13 @@ class HourlyPlanningAreaDemand:
     @staticmethod
     def ensure_non_duplicated_datetimes(df):
         """Report and drop duplicated UTC datetimes."""
-        # There should be less than 10 of these,
+        # There should be a limited number of these,
         # resulting from changes to a planning area's reporting timezone.
         duplicated = df.duplicated(["respondent_id_ferc714", "datetime_utc"])
-        if (num_dupes := np.count_nonzero(duplicated)) > 10:
+        max_dupes = sum(DUPLICATED_DATETIMES.values())
+        if (num_dupes := np.count_nonzero(duplicated)) > max_dupes:
             raise AssertionError(
-                f"Found {num_dupes} duplicate UTC datetimes, but we expected 10 or less.\n{df[duplicated]}"
+                f"Found {num_dupes} duplicate UTC datetimes, but we expected {max_dupes} or less.\n{df[duplicated]}"
             )
         df = df.query("~@duplicated")
         return df
@@ -1093,7 +1142,7 @@ class YearlyPlanningAreaDemandForecast:
         """Build the :ref:`core_ferc714__yearly_planning_area_demand_forecast` asset.
 
         To transform this table we have to process the CSV data and the XBRL duration data
-        (this data has not instant table), merge together the XBRL and CSV data, and
+        (this data has no instant table), merge together the XBRL and CSV data, and
         process the combined datasets.
 
         The main transforms include spot-fixing forecast years with
@@ -1140,7 +1189,15 @@ class YearlyPlanningAreaDemandForecast:
         This function also checks that the values for forecast year are within an
         expected range.
         """
-        df = df.astype({"forecast_year": "Int64"})
+        # [2024-aug kmm]
+        # there was some mixup and C004245 put text in their forecast year fields;
+        # excluding those records for now
+        text_in_year_mask = (
+            (df.respondent_id_ferc714_xbrl == "C004245")
+            & (df.report_year == 2024)
+            & (df.net_demand_forecast_mwh.isna())
+        )
+        df = df.loc[~text_in_year_mask].astype({"forecast_year": "Int64"})
         # Make sure there's only one NA forecast_year value and remove it
         if len(nulls := df[df["forecast_year"].isna()]) > 2:
             raise AssertionError(
@@ -1152,7 +1209,7 @@ class YearlyPlanningAreaDemandForecast:
         # lower than that would signify a transition into 2100.
         mask = (df["respondent_id_ferc714"] == 107) & (df["forecast_year"] > 21)
         df.loc[mask, "forecast_year"] = df["forecast_year"] + 2000
-        # Fix extraneus 3022 value from respondent 17
+        # Fix extraneous 3022 value from respondent 17 in 2023
         mask = (
             (df["respondent_id_ferc714"] == 17)
             & (df["report_year"] == 2023)
