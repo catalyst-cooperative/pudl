@@ -201,6 +201,16 @@ validate``
 Debugging data validation failures
 --------------------------------------------------------------------------------
 
+Common failures:
+
+* Row counts
+* Quantile checks
+
+
+
+General strategies and tools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 * Using output from ``dbt_helper validate``.
 * By inspecting and running the compiled SQL yourself.
 * Explain What "compiled" SQL means here.
@@ -208,7 +218,15 @@ Debugging data validation failures
   stored in that database anyway?
 * Using ``duckdb < path/to/compiled.sql``
 * Using DuckDB's ``.read path/to/compiled.sql`` to play with data interactively.
-* Go through a simpler example before getting into the complicated quantile checks test.
+
+
+Debugging and fixing row count failures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Row count checks fail when the local data has a different number of rows in it than dbt expected.
+
+
+
 
 Debugging quantile checks
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -225,7 +243,56 @@ Run the quantile check by selecting a the table you want to check.  If you want 
 all the tables, you can instead select all the quantile checks by using
 ``test_name:expect_quantile_constraints`` in the select clause.
 
-In this example, we're running quantile checks for ``out_eia__monthly_generators``.
+In this example, we're running quantile checks for ``out_eia__yearly_generators``.
+
+.. code-block:: console
+
+$ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+[...]
+18:39:46  Finished running 24 data tests in 0 hours 0 minutes and 1.01 seconds (1.01s).
+18:39:46  
+18:39:46  Completed with 1 error, 0 partial successes, and 0 warnings:
+18:39:46  
+18:39:46  Failure in test source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw (models/eia/out_eia__yearly_generators/schema.yml)
+18:39:46    Got 1 result, configured to fail if != 0
+18:39:46  
+18:39:46    compiled code at target/compiled/pudl_dbt/models/eia/out_eia__yearly_generators/schema.yml/source_expect_quantile_constra_392a2df5d1590fb6bc46821e0b879c86.sql
+18:39:46  
+18:39:46  Done. PASS=23 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=24
+Traceback (most recent call last):
+  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/bin/dbt_helper", line 7, in <module>
+    sys.exit(dbt_helper())
+             ~~~~~~~~~~^^
+  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1161, in __call__
+    return self.main(*args, **kwargs)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1082, in main
+    rv = self.invoke(ctx)
+  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1697, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 1443, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/catalyst/bin/miniforge3/envs/pudl-dev/lib/python3.13/site-packages/click/core.py", line 788, in invoke
+    return __callback(*args, **kwargs)
+  File "/Users/catalyst/Documents/work/catalyst/pudl/src/pudl/scripts/dbt_helper.py", line 673, in validate
+    raise AssertionError(
+        f"failure contexts:\n{test_result.format_failure_contexts()}"
+    )
+AssertionError: failure contexts:
+source_expect_quantile_constraints_pudl_out_eia__yearly_generators_capacity_factor___quantile_0_65_min_value_0_5_max_value_0_6____quantile_0_15_min_value_0_005____quantile_0_95_max_value_0_95___fuel_type_code_pudl_gas_and_report_date_CAST_2015_01_01_AS_DATE_and_capacity_factor_0_0__capacity_mw:
+
+ table: source.pudl_dbt.pudl.out_eia__yearly_generators
+ test: expect_quantile_constraints
+ column: capacity_factor
+ row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE) and capacity_factor<>0.0
+ weight column: capacity_mw
+ description: Historical note, EIA natural gas reporting really only becomes usable in 2015.
+  quantile |     value |       min |       max
+      0.65 | 0.4638245 |     0.500 |      0.60
+      0.15 | 0.0246494 |     0.005 |      None
+      0.95 | 0.7754576 |      None |      0.95
 
 .. code-block:: console
 
