@@ -247,13 +247,20 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
 
         Merge in utility IDs from ``core_pudl__assn_ferc1_pudl_utilities``.
         """
-        return_df = kwargs[f"core_ferc1__{table_name}"].merge(
-            kwargs["core_pudl__assn_ferc1_pudl_utilities"],
-            on="utility_id_ferc1",
-            how="left",
-            validate="many_to_one",
+        return (
+            kwargs[f"core_ferc1__{table_name}"]
+            .merge(
+                kwargs["core_pudl__assn_ferc1_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                pudl.glue.ferc1_eia.get_utility_map_ferc1(),
+                on="utility_id_ferc1",
+                how="left",
+            )
         )
-        return return_df
 
     return _create_output_asset
 
@@ -293,6 +300,8 @@ def _out_ferc1__yearly_plants_utilities(
         core_pudl__assn_ferc1_pudl_plants,
         core_pudl__assn_ferc1_pudl_utilities,
         on="utility_id_ferc1",
+    ).merge(
+        pudl.glue.ferc1_eia.get_utility_map_ferc1(), on="utility_id_ferc1", how="left"
     )
 
 
@@ -984,6 +993,11 @@ def exploded_table_asset_factory(
                 on="utility_id_ferc1",
                 how="left",
                 validate="many_to_one",
+            )
+            .merge(
+                pudl.glue.ferc1_eia.get_utility_map_ferc1(),
+                on="utility_id_ferc1",
+                how="left",
             )
         )
 

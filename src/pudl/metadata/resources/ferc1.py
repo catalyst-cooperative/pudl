@@ -1057,6 +1057,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "record_id",
@@ -1085,6 +1087,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "record_id",
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "starting_balance",
@@ -1112,6 +1116,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "record_id",
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "amount_type",
@@ -1136,6 +1142,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "record_id",
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "plant_function",
@@ -1159,10 +1167,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": TABLE_DESCRIPTIONS["yearly_energy_dispositions_sched401"],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "energy_disposition_type",
                 "row_type_xbrl",
                 "energy_mwh",
@@ -1182,10 +1192,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": TABLE_DESCRIPTIONS["yearly_energy_sources_sched401"],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "energy_source_type",
                 "row_type_xbrl",
                 "energy_mwh",
@@ -1205,10 +1217,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": TABLE_DESCRIPTIONS["yearly_operating_expenses_sched320"],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "dollar_value",
                 "expense_type",
                 "utility_type",
@@ -1226,10 +1240,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": TABLE_DESCRIPTIONS["yearly_operating_revenues_sched300"],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "record_id",
                 "revenue_type",
                 "dollar_value",
@@ -1253,10 +1269,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": TABLE_DESCRIPTIONS["yearly_depreciation_changes_sched219"],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "depreciation_type",
                 "plant_status",
                 "utility_type",
@@ -1282,10 +1300,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": TABLE_DESCRIPTIONS["yearly_depreciation_by_function_sched219"],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "depreciation_type",
                 "plant_function",
                 "plant_status",
@@ -1312,10 +1332,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": TABLE_DESCRIPTIONS["yearly_sales_by_rate_schedules_sched304"],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "rate_schedule_type",
                 "billing_status",
                 "rate_schedule_description",
@@ -1336,10 +1358,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "record_id",
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "utility_type",
                 "income_type",
                 "dollar_value",
@@ -1364,10 +1388,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         ],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "description",
                 "ending_balance",
                 "starting_balance",
@@ -1384,10 +1410,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": TABLE_DESCRIPTIONS["yearly_retained_earnings_sched118"],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "record_id",
                 "earnings_type",
                 "starting_balance",
@@ -1412,10 +1440,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "record_id",
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "start_point",
                 "end_point",
                 "operating_voltage_kv",
@@ -1442,10 +1472,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": TABLE_DESCRIPTIONS["yearly_utility_plant_summary_sched200"],
         "schema": {
             "fields": [
+                "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
-                "report_year",
                 "utility_type",
                 "utility_type_other",
                 "utility_plant_asset_type",
@@ -1470,6 +1502,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "plant_id_pudl",
@@ -1538,6 +1572,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "plant_id_pudl",
@@ -1573,6 +1609,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "plant_name_ferc1",
@@ -1628,6 +1666,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "plant_name_ferc1",
@@ -1687,6 +1727,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "plant_id_pudl",
@@ -1718,6 +1760,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "seller_name",
@@ -1748,6 +1792,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "utility_type",
@@ -1792,6 +1838,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "plant_id_pudl",
@@ -1887,6 +1935,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "plant_id_pudl",
@@ -1939,6 +1989,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "xbrl_factoid",
@@ -1982,6 +2034,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "xbrl_factoid",
@@ -2024,6 +2078,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "xbrl_factoid",
@@ -2067,6 +2123,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "utility_type",
