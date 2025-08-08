@@ -1792,6 +1792,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_year",
                 "utility_id_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
                 "utility_id_pudl",
                 "utility_name_ferc1",
                 "utility_type",
