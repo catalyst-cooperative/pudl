@@ -353,8 +353,8 @@ of data. Common updates include:
 * :py:const:`pudl.transform.ferc714.DUPLICATED_DATETIMES` - Update this if you see
   ``AssertionError: Found YY duplicate UTC datetimes, but we expected XX or less``,
   after investigating the new duplicates and confirming they occur on reasonable
-  dates (usually when a respondent changes timezones, whether due to daylight saving
-  time or otherwise).
+  dates (usually when a respondent changes their UTC offset, whether due to daylight
+  savings time or otherwise).
 
 5. Update the PUDL DB Schema
 ----------------------------
