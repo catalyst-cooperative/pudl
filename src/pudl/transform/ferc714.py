@@ -1191,7 +1191,7 @@ class YearlyPlanningAreaDemandForecast:
         This function also checks that the values for forecast year are within an
         expected range.
         """
-        # [2024-aug kmm]
+        # [2025-aug kmm]
         # there was some mixup and C004245 put text in their forecast year fields;
         # excluding those records for now
         text_in_year_mask = (
@@ -1199,6 +1199,19 @@ class YearlyPlanningAreaDemandForecast:
             & (df.report_year == 2024)
             & (df.net_demand_forecast_mwh.isna())
         )
+        # Notify us if the data gets fixed:
+        expect_bad_data: bool = (2024, "C004245") in df.loc[
+            :, ["report_year", "respondent_id_ferc714_xbrl"]
+        ].drop_duplicates().set_index(
+            ["report_year", "respondent_id_ferc714_xbrl"]
+        ).index
+        if expect_bad_data and not text_in_year_mask.any():
+            raise AssertionError(
+                "Expected to find invalid demand forecast data for (2024, C004245) but "
+                "text_in_year_mask selects no records. The data may have been fixed "
+                "in a revised filing and this spot fix can be removed."
+            )
+
         df = df.loc[~text_in_year_mask].astype({"forecast_year": "Int64"})
         # Make sure there's only one NA forecast_year value and remove it
         if len(nulls := df[df["forecast_year"].isna()]) > 2:
