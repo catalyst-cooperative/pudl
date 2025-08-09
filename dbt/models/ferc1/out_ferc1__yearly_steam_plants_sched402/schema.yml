@@ -27,8 +27,8 @@ sources:
               groupby_column: plant_id_ferc1
               counted_column: plant_id_pudl
               n_acceptable: 6
-          - expect_unique_column_combination:
-              columns:
+          - dbt_expectations.expect_compound_columns_to_be_unique:
+              column_list:
                 - plant_id_ferc1
                 - report_year
         columns:
