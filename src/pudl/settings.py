@@ -175,6 +175,24 @@ class PhmsaGasSettings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
+    @property
+    def extraction_years(self) -> list[int]:
+        """The list of years to extract.
+
+        These are different from the standard :attr:`years` because
+        the oldest years (1970 - 1989) are published with multiple years
+        in each tab. Instead of running the extraction step on each year
+        and filtering on the year from each tab, we extract the whole tab
+        all at once using the first year in the tab as the partition.
+        """
+        old_years = range(1970, 1990)
+        first_year_tabs = [1970, 1980, 1982, 1984]
+        return [
+            year
+            for year in self.years
+            if (year not in old_years) or (year in first_year_tabs)
+        ]
+
 
 class Sec10kSettings(GenericDatasetSettings):
     """An immutable Pydantic model to validate SEC 10-K settings."""

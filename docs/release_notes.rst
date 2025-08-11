@@ -42,6 +42,9 @@ PHMSA Gas Data
 * Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
   data is not currently published to the PUDL database. See :issue:`4449` and
   :pr:`4470`.
+* Extracted 1970 through 1989 PHMSA transmission data to raw assets.  This data is not
+  currently published to the PUDL database. See :issue:`3290` and
+  :pr:`4500`.
 * Update FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
   :pr:`4507`.
 
