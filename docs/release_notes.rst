@@ -70,6 +70,8 @@ Quality of Life Improvements
   table, as well as user provided settings such as ``--clobber``.
 * Stopped running code checks in CI when only the documentation has changed.
   See issue :issue:`4410` and PR :pr:`4429`.
+* Added ``utility_id_ferc1_dbf`` and ``utility_id_ferc1_xbrl`` columns into all ferc1
+  output tables. See :issue:`4365` and PR :pr:`4528`.
 
 Bug Fixes
 ^^^^^^^^^

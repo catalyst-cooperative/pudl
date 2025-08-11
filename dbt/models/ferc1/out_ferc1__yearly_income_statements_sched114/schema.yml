@@ -11,6 +11,8 @@ sources:
         columns:
           - name: record_id
           - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
           - name: utility_id_pudl
           - name: utility_name_ferc1
           - name: report_year
