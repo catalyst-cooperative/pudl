@@ -1791,7 +1791,9 @@ class Resource(PudlMeta):
         pk = self.schema.primary_key
         if pk and not (dupes := df[df.duplicated(subset=pk)]).empty:
             raise ValueError(
-                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema:\n{dupes.head()}{'\n...' if len(dupes) > 5 else ''}"
+                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) "
+                "when enforcing schema:\n"
+                f"{dupes.head()}{'\n...' if len(dupes) > 5 else ''}"
             )
         if pk and not (nulls := df[df[pk].isna().any(axis=1)]).empty:
             raise ValueError(
