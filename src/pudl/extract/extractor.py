@@ -101,8 +101,8 @@ class GenericMetadata:
         """Returns list of all pudl columns for a given page across all partitions."""
         return sorted(self._column_map[page].T.columns)
 
-    def get_column_map(self, page, **partition):
-        """Return dictionary for renaming columns in a given partition and page."""
+    def get_column_map(self, page, **partition) -> dict:
+        """Return dictionary of original columns to renamed columns for renaming in a given partition and page."""
         return {
             v: k
             for k, v in self._column_map[page]
@@ -199,7 +199,7 @@ class GenericExtractor(ABC):
             missing_raw_cols = set(expected_cols).difference(df.columns)
             if extra_raw_cols:
                 raise ValueError(
-                    f"{page}/{partition_selection}: Extra columns found in extracted table:"
+                    f"{page}/{partition_selection}: Columns found in raw extracted table that are unmapped:"
                     f"\n{extra_raw_cols}"
                 )
             if missing_raw_cols:
@@ -407,6 +407,8 @@ def partitions_from_settings_factory(name: str) -> OpDefinition:
         )
         partition = partition[0]
         parts = getattr(data_settings, partition)  # Get the actual values
+        if name == "phmsagas":  # phmsa has old years with multiple years in each tab
+            parts = data_settings.extraction_years
         # In Zenodo we use "year", "half_year" as the partition, but in our settings
         # we use the plural "years". Drop the "s" at the end if present.
         partition = partition.removesuffix("s")
