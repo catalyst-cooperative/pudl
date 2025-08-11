@@ -9,10 +9,12 @@ sources:
               table_name: out_ferc1__yearly_utility_plant_summary_sched200
               partition_expr: report_year
         columns:
+          - name: report_year
           - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
           - name: utility_id_pudl
           - name: utility_name_ferc1
-          - name: report_year
           - name: utility_type
           - name: utility_type_other
           - name: utility_plant_asset_type
