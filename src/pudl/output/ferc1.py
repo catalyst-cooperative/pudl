@@ -232,6 +232,12 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
         "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
             "core_pudl__assn_ferc1_pudl_utilities"
         ),
+        "core_pudl__assn_ferc1_dbf_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_dbf_pudl_utilities"
+        ),
+        "core_pudl__assn_ferc1_xbrl_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_xbrl_pudl_utilities"
+        ),
     }
 
     @asset(
@@ -256,9 +262,16 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
                 validate="many_to_one",
             )
             .merge(
-                pudl.glue.ferc1_eia.get_utility_map_ferc1(),
+                kwargs["core_pudl__assn_ferc1_dbf_pudl_utilities"],
                 on="utility_id_ferc1",
                 how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_xbrl_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
             )
         )
 
@@ -294,14 +307,27 @@ out_ferc1_assets = [
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
+    **kwargs: dict[str, pd.DataFrame],
 ) -> pd.DataFrame:
     """A denormalized table containing FERC plant and utility names and IDs."""
-    return pd.merge(
-        core_pudl__assn_ferc1_pudl_plants,
-        core_pudl__assn_ferc1_pudl_utilities,
-        on="utility_id_ferc1",
-    ).merge(
-        pudl.glue.ferc1_eia.get_utility_map_ferc1(), on="utility_id_ferc1", how="left"
+    return (
+        pd.merge(
+            core_pudl__assn_ferc1_pudl_plants,
+            core_pudl__assn_ferc1_pudl_utilities,
+            on="utility_id_ferc1",
+        )
+        .merge(
+            kwargs["core_pudl__assn_ferc1_dbf_pudl_utilities"],
+            on="utility_id_ferc1",
+            how="left",
+            validate="many_to_one",
+        )
+        .merge(
+            kwargs["core_pudl__assn_ferc1_xbrl_pudl_utilities"],
+            on="utility_id_ferc1",
+            how="left",
+            validate="many_to_one",
+        )
     )
 
 
@@ -995,9 +1021,16 @@ def exploded_table_asset_factory(
                 validate="many_to_one",
             )
             .merge(
-                pudl.glue.ferc1_eia.get_utility_map_ferc1(),
+                kwargs["core_pudl__assn_ferc1_dbf_pudl_utilities"],
                 on="utility_id_ferc1",
                 how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_xbrl_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
             )
         )
 
