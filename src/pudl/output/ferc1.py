@@ -307,7 +307,8 @@ out_ferc1_assets = [
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
-    **kwargs: dict[str, pd.DataFrame],
+    core_pudl__assn_ferc1_dbf_pudl_utilities: pd.DataFrame,
+    core_pudl__assn_ferc1_xbrl_pudl_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized table containing FERC plant and utility names and IDs."""
     return (
@@ -317,13 +318,13 @@ def _out_ferc1__yearly_plants_utilities(
             on="utility_id_ferc1",
         )
         .merge(
-            kwargs["core_pudl__assn_ferc1_dbf_pudl_utilities"],
+            core_pudl__assn_ferc1_dbf_pudl_utilities,
             on="utility_id_ferc1",
             how="left",
             validate="many_to_one",
         )
         .merge(
-            kwargs["core_pudl__assn_ferc1_xbrl_pudl_utilities"],
+            core_pudl__assn_ferc1_xbrl_pudl_utilities,
             on="utility_id_ferc1",
             how="left",
             validate="many_to_one",
@@ -974,6 +975,12 @@ def exploded_table_asset_factory(
         "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
             "core_pudl__assn_ferc1_pudl_utilities"
         ),
+        "core_pudl__assn_ferc1_dbf_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_dbf_pudl_utilities"
+        ),
+        "core_pudl__assn_ferc1_xbrl_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_xbrl_pudl_utilities"
+        ),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
@@ -1000,6 +1007,8 @@ def exploded_table_asset_factory(
                 "_out_ferc1__detailed_tags",
                 "off_by_facts",
                 "core_pudl__assn_ferc1_pudl_utilities",
+                "core_pudl__assn_ferc1_dbf_pudl_utilities",
+                "core_pudl__assn_ferc1_xbrl_pudl_utilities",
             ]
         }
         return (
