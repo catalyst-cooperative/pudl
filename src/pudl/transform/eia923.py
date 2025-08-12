@@ -1006,7 +1006,7 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
     # so it's pretty clear which one to drop.
     unique_subset = ["report_date", "plant_id_eia", "generator_id"]
     dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
-    gen_df = gen_df.drop(dupes.net_generation_mwh.isna().index)
+    gen_df = gen_df.drop(index=dupes[dupes.net_generation_mwh.isna()].index)
 
     return gen_df
 
