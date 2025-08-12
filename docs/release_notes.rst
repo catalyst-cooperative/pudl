@@ -15,6 +15,9 @@ New Data
   be replaced with a well-normalized version of the same data, but it is being published
   in this form until then. See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
 
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
 EIA 930
 ~~~~~~~
 
