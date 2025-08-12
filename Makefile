@@ -1,6 +1,6 @@
 gcs_cache_path := --gcs-cache-path=gs://zenodo-cache.catalyst.coop
 covargs := --append
-pytest_args := --durations 20 ${gcs_cache_path} --cov-fail-under=0
+pytest_args := --durations 20 ${gcs_cache_path} --cov-fail-under=0 -s
 etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
 
