@@ -251,6 +251,8 @@ EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str, int]] =
         "C002447": 7004,  # Buckeye Power: was null or the entity_id
         "C001526": 14369,  # Avangrid Renewables: was null or the entity_id
         "C001132": 15248,  # PGE. Bad id was 43. New one lines up w/ CSV  and is EIA util
+        # "C011399": 16534,  # Sacramento Municipal Utility District (SMUD)
+        # "C000045": 40211,  # Wabash Valley Power Association, Inc.
     },
     "csv": {
         # FERC 714 Respondent ID CSV: EIA BA or Utility ID
@@ -580,7 +582,7 @@ class RespondentId:
         )
         xbrl.loc[code_is_respondent_id_mask, "eia_code"] = pd.NA
 
-        # lets null out some of the eia_code's from XBRL that we've manually culled
+        # let's null some of the eia_code values from XBRL that we've manually culled
         # because they are were determined to be wrong. These respondents
         # had more than one value for their eia_code and one was always wrong
         respondent_id_xbrl_to_bad_eia_code = {
