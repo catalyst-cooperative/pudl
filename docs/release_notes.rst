@@ -46,6 +46,8 @@ FERC Forms 714
 ~~~~~~~~~~~~~~
 
 * Integrated 2024 data for FERC Form 714. See issue :issue:`4409` and PR :pr:`4530`.
+* Updated FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+  :pr:`4507`.
 
 PHMSA Gas Data
 ~~~~~~~~~~~~~~
@@ -55,6 +57,10 @@ PHMSA Gas Data
   :pr:`4470`.
 * Extracted 1970 through 1989 PHMSA transmission data to raw assets.  This data is not
   currently published to the PUDL database. See :issue:`3290` and :pr:`4500`.
+
+EPACEMS
+~~~~~~~
+* Added EPACEMS data through June 2025. See :issue:`4518` and :pr:`4531`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
