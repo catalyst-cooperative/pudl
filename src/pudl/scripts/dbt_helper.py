@@ -480,7 +480,7 @@ def update_table_schema(
     if model_path.exists() and not (clobber or update):
         return UpdateResult(
             success=False,
-            message=f"DBT configuration already exists for table {table_name} and clobber or update is not set.",
+            message=f"dbt configuration already exists for table {table_name} and clobber or update is not set.",
         )
 
     generated_schema = DbtSchema.from_table_name(table_name)
@@ -509,7 +509,7 @@ def update_table_schema(
             # into the --clobber command?
             return UpdateResult(
                 success=False,
-                message=f"DBT configuration for table {table_name} has "
+                message=f"dbt configuration for table {table_name} has "
                 "information that would be deleted. Update manually, or: "
                 "1) re-run with --clobber, 2) run `git add dbt/models -p` "
                 "and follow the instructions for recovering the deleted info",
@@ -636,8 +636,8 @@ def update_tables(
         if args.schema:
             _log_update_result(
                 update_table_schema(
-                    table_name,
-                    data_source,
+                    table_name=table_name,
+                    data_source=data_source,
                     clobber=args.clobber,
                     update=args.update,
                 )
@@ -656,7 +656,7 @@ def update_tables(
 @click.command()
 @click.option(
     "--select",
-    help="DBT selector for the asset(s) you want to validate. Syntax "
+    help="dbt selector for the asset(s) you want to validate. Syntax "
     "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
 )
 @click.option(
@@ -664,7 +664,7 @@ def update_tables(
     "-a",
     help=(
         "*DAGSTER* selector for the asset(s) you want to validate. "
-        "This gets translated into a DBT selection. For example, you can "
+        "This gets translated into a dbt selection. For example, you can "
         "use '+key:\"out_eia__yearly_generators\"' to validate "
         "out_eia_yearly_generators and its upstream assets. Syntax "
         "documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference "
@@ -672,7 +672,7 @@ def update_tables(
 )
 @click.option(
     "--exclude",
-    help="DBT selector for the asset(s) you want to exclude from validation. Syntax "
+    help="dbt selector for the asset(s) you want to exclude from validation. Syntax "
     "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
 )
 @click.option(
@@ -687,7 +687,7 @@ def validate(
     exclude: str | None = None,
     dry_run: bool = False,
 ) -> None:
-    """Validate a selection of DBT nodes.
+    """Validate a selection of dbt nodes.
 
     Wraps the ``dbt build`` command line so we can annotate the result with the
     actual data that was returned from the test query.
@@ -758,14 +758,13 @@ def dbt_helper():
 
     This CLI currently provides the following sub-commands:
 
-    * ``update-tables`` which can update or create a dbt table (model)
-      schema.yml file under the ``dbt/models`` repo. These configuration files
-      tell dbt about the structure of the table and what data tests are specified
-      for it. It also adds a (required) row count test by default. The script
-      can also generate or update the expected row counts for existing tables,
-      assuming they have been materialized to parquet files and are sitting in
-      your $PUDL_OUT directory.
-    * ``validate``: run validation tests for a selection of DBT nodes.
+    update-tables: which can update or create a dbt table (model) schema.yml file under
+    the ``dbt/models`` repo. These configuration files tell dbt about the structure of
+    the table and what data tests are specified for it. The script can also generate or
+    update the expected row counts for existing tables, assuming they have been
+    materialized to parquet files and are sitting in your $PUDL_OUTPUT directory.
+
+    validate: run validation tests for a selection of dbt nodes.
 
     Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
