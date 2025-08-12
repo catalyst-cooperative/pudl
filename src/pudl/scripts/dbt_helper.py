@@ -487,6 +487,8 @@ def update_table_schema(
     # Default: use generated schema
     new_schema = generated_schema
 
+    # If we are updating an existing model, augment the newly generated schema with
+    # whatever additional information is available from the old dbt schema.
     if model_path.exists() and update:
         # Load existing schema
         old_schema = DbtSchema.from_yaml(schema_path)
@@ -515,6 +517,10 @@ def update_table_schema(
                 "and follow the instructions for recovering the deleted info",
             )
 
+    # By the time we've gotten here, either:
+    # * We've merged the old and new schema (if old schema existed, and we're updating)
+    # * We're clobbering an existing schema entirely (clobber is True)
+    # * We're creating a new schema from scratch (model_path did not exist)
     model_path.mkdir(parents=True, exist_ok=True)
     new_schema.to_yaml(schema_path)
 
