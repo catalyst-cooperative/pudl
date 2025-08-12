@@ -430,9 +430,41 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?",
     },
+    "byproduct_description": {
+        "type": "string",
+        "description": "Description of combustion by-product.",
+        "constraints": {
+            "enum": [
+                "Ash from coal gasification (IGCC) units",
+                "Bottom ash from standard boiler units",
+                "Bottom (bed) ash from FBC units",
+                "FGD Gypsum",
+                "Fly ash from FBC units",
+                "Fly ash from standard boiler/PCD units",
+                "Fly ash from units with dry FGD",
+                "Other FGD byproducts",
+                "Other (specify via footnote on Schedule 9)",
+                "Steam Sales (MMBtu)",
+            ],
+        },
+    },
     "byproduct_recovery": {
         "type": "boolean",
-        "description": "Is salable byproduct is recovered by the unit?",
+        "description": "Is saleable byproduct recovered by the unit?",
+    },
+    "byproduct_units": {
+        "type": "string",
+        "description": "Reported unit of measure for combustion byproduct. MMBtu for steam, tons for all other byproducts.",
+        "constraints": {"enum": ["mmbtu", "tons"]},
+    },
+    "no_byproducts_to_report": {
+        "type": "string",
+        "description": (
+            "Whether any combustion by-products were produced by a plant. 'Y' "
+            "indicates no byproducts to report. The 'Y' and 'N' values do not align "
+            "with expected values of reported byproducts. This column is messy and "
+            "requires standardization."
+        ),
     },
     "caidi_w_major_event_days_minutes": {
         "type": "number",
@@ -1191,6 +1223,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "customer’s electrical equipment (e.g. air conditioner, water heater) on "
             "short notice."
         ),
+    },
+    "disposal_landfill_units": {
+        "type": "number",
+        "description": "Disposed by-products in landfill, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "disposal_offsite_units": {
+        "type": "number",
+        "description": "Disposed by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "disposal_ponds_units": {
+        "type": "number",
+        "description": "Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "distributed_generation": {
         "type": "boolean",
@@ -4628,6 +4672,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
+    "sold_units": {
+        "type": "number",
+        "description": "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBtu.",
+    },
     "sold_to_utility_mwh": {
         "type": "number",
         "description": (
@@ -4810,6 +4858,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "stored_excess_wind_and_solar_generation": {
         "type": "boolean",
         "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
+    },
+    "stored_offsite_units": {
+        "type": "number",
+        "unit": "tons or MMBtu",
+        "description": "Stored by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "stored_onsite_units": {
+        "type": "number",
+        "unit": "tons or MMBtu",
+        "description": "Stored by-products onsite, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "street_address": {
         "type": "string",
@@ -5147,6 +5205,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "total_disposal_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Total by-product disposal, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
     "total_disposition_mwh": {
         "type": "number",
         "description": (
@@ -5337,6 +5400,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "uprate_derate_during_year": {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
+    },
+    "used_offsite_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Used offsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "used_onsite_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Used onsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "utility_id_eia": {
         "type": "integer",

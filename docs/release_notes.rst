@@ -9,8 +9,12 @@ v2025.XX.x (2025-MM-DD)
 New Data
 ^^^^^^^^
 
-Expanded Data Coverage
-^^^^^^^^^^^^^^^^^^^^^^
+* Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
+  Schedule 8A Byproduct Disposition to the PUDL database as
+  :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, this table will
+  be replaced with a well-normalized version of the same data, but it is being published
+  in this form until then.
+  See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -35,6 +39,11 @@ PHMSA Gas Data
 * Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
   data is not currently published to the PUDL database. See :issue:`4449` and
   :pr:`4470`.
+* Extracted 1970 through 1989 PHMSA transmission data to raw assets.  This data is not
+  currently published to the PUDL database. See :issue:`3290` and
+  :pr:`4500`.
+* Update FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+  :pr:`4507`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -47,19 +56,21 @@ Quality of Life Improvements
   the logic for updating row counts now depends on whether a test has been defined in
   the dbt schema, whether any existing row counts for that table are present in the seed
   table, as well as user provided settings such as ``--clobber``.
-
 * when running ``dbt_helper update-tables`` with the flag ``--update``, existing
   schema tests, descriptions and other metadata are now preserved. See issue
   :issue:`4466` and PR :pr:`4525`.
-
 * Stopped running code checks in CI when only the documentation has changed.
   See issue :issue:`4410` and PR :pr:`4429`.
+* Added ``utility_id_ferc1_dbf`` and ``utility_id_ferc1_xbrl`` columns into all ferc1
+  output tables. See :issue:`4365` and PR :pr:`4528`.
 
 Bug Fixes
 ^^^^^^^^^
 
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
   :issue:`4328` and PR :pr:`4392`.
+* Fixed bug in how we were repairing a misfiled EIA code in
+  :ref:`core_ferc714__respondent_id`. See issue :issue:`4439` and PR :pr:`4497`.
 
 Documentation
 ^^^^^^^^^^^^^
