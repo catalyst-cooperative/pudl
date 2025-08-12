@@ -45,8 +45,12 @@ PHMSA Gas Data
 * Extracted 1970 through 1989 PHMSA transmission data to raw assets.  This data is not
   currently published to the PUDL database. See :issue:`3290` and
   :pr:`4500`.
-* Update FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+* Updated FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
   :pr:`4507`.
+
+EPACEMS
+~~~~~~~
+* Added EPACEMS data through June 2025. See :issue:`4518` and :pr:`4531`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
