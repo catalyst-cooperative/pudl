@@ -94,6 +94,11 @@ def __get_quantile_contexts(
     return contexts
 
 
+def longest_linelength(text):
+    all_lengths = (len(line) for line in text.split("\n"))
+    return max(all_lengths)
+
+
 def __get_compiled_sql_contexts(nodes: list[GenericTestNode]) -> list[NodeContext]:
     """Run the compiled SQL against duckdb to get failure contexts."""
     contexts = []
@@ -102,7 +107,10 @@ def __get_compiled_sql_contexts(nodes: list[GenericTestNode]) -> list[NodeContex
         for node in nodes:
             con.execute(node.compiled_code)
             node_df = con.fetchdf()
-            contexts.append(NodeContext(name=node.name, context=str(node_df)))
+            node_str = node_df.head(20).to_markdown(maxcolwidths=40, index=False)
+            if node_df.shape[0] > 20:
+                node_str += f"\n(of {node_df.shape[0]})"
+            contexts.append(NodeContext(name=node.name, context=node_str))
     return contexts
 
 
