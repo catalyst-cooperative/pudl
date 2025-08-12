@@ -251,8 +251,6 @@ EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str, int]] =
         "C002447": 7004,  # Buckeye Power: was null or the entity_id
         "C001526": 14369,  # Avangrid Renewables: was null or the entity_id
         "C001132": 15248,  # PGE. Bad id was 43. New one lines up w/ CSV  and is EIA util
-        "C011399": 16534,  # Sacramento Municipal Utility District (SMUD)
-        "C000045": 40211,  # Wabash Valley Power Association, Inc.
     },
     "csv": {
         # FERC 714 Respondent ID CSV: EIA BA or Utility ID
@@ -521,6 +519,7 @@ class RespondentId:
             .convert_dtypes()
             .pipe(cls.spot_fix_eia_codes, "combined")
             .pipe(cls.ensure_eia_code_uniqueness, "combined")
+            .pipe(cls.fill_missing_eia_codes)
             .pipe(cls.condense_into_one_source_table)
             .pipe(_fillna_respondent_id_ferc714_source, "csv")
             # the xbrl version of this is fillna is not *strictly necessary*
@@ -651,6 +650,16 @@ class RespondentId:
         return df.sort_values(["source"], ascending=False).drop_duplicates(
             subset=["respondent_id_ferc714", "eia_code"], keep="first"
         )
+
+    @staticmethod
+    def fill_missing_eia_codes(df: pd.DataFrame) -> pd.DataFrame:
+        """Fill missing eia_code values with unique non-null value per respondent."""
+        # Fill with first valid value. We don't have to worry about whether the eia_code
+        # is unique because that has already been verified
+        df["eia_code"] = df.groupby("respondent_id_ferc714")["eia_code"].transform(
+            "first"
+        )
+        return df
 
 
 @asset(
