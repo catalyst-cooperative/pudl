@@ -251,8 +251,8 @@ EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str, int]] =
         "C002447": 7004,  # Buckeye Power: was null or the entity_id
         "C001526": 14369,  # Avangrid Renewables: was null or the entity_id
         "C001132": 15248,  # PGE. Bad id was 43. New one lines up w/ CSV  and is EIA util
-        # "C011399": 16534,  # Sacramento Municipal Utility District (SMUD)
-        # "C000045": 40211,  # Wabash Valley Power Association, Inc.
+        "C011399": 16534,  # Sacramento Municipal Utility District (SMUD)
+        "C000045": 40211,  # Wabash Valley Power Association, Inc.
     },
     "csv": {
         # FERC 714 Respondent ID CSV: EIA BA or Utility ID
