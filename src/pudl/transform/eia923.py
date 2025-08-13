@@ -1000,16 +1000,25 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
     )
     gen_df = gen_df[~row_drop_mask]
 
-    # There are a few hundred (out of a few hundred thousand) records which
+    # There are a several hundred (out of a few hundred thousand) records which
     # have duplicate records for a given generator/date combo. However, in all
     # cases one of them has no data (net_generation_mwh) associated with it,
     # so it's pretty clear which one to drop.
     unique_subset = ["report_date", "plant_id_eia", "generator_id"]
+    # resent
+    gen_df = gen_df.reset_index(drop=True)
     dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     drop_em = dupes[dupes.net_generation_mwh.isna() | (dupes.net_generation_mwh == 0)]
     gen_df = gen_df.drop(index=drop_em.index)
+    # raise alarm bells if we are dropping more than we expect...
     assert len(drop_em) / len(gen_df) < 0.0023
-    assert gen_df[gen_df.duplicated(subset=unique_subset, keep=False)].empty
+    if not (
+        still_dupes := gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
+    ).empty:
+        raise AssertionError(
+            "There are still duplicates found in the table when we expect none:\n"
+            f"{still_dupes.set_index(unique_subset).sort_index()}"
+        )
     return gen_df
 
 
