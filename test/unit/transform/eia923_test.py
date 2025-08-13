@@ -1,5 +1,7 @@
 """Unit tests for the pudl.transform.eia923 module."""
 
+from io import StringIO
+
 import pandas as pd
 
 import pudl.transform.eia923 as eia923
@@ -60,3 +62,76 @@ def test__yearly_to_monthly_records__empty_frame():
     # report_month dtype changes from object to int64
     # but only because they are empty and get sent to default types during df.stack()
     pd.testing.assert_frame_equal(expected, actual, check_dtype=False)
+
+
+def test___drop_duplicates__core_eia923__generation():
+    """Test whether this bespoke de-duper actually preserves one of the records."""
+    # This is the standard there are two records one is null or 0.0 dupe
+    dupes = (
+        pd.read_csv(
+            StringIO(
+                """plant_id_eia,generator_id,report_date,net_generation_mwh
+55358,CT1,2025-01-01,
+55358,CT1,2025-01-01,100413.0
+55358,CT1,2025-02-01
+55358,CT1,2025-02-01,96550.0
+"""
+            )
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+
+    expected_deduped = (
+        pd.read_csv(
+            StringIO(
+                """plant_id_eia,generator_id,report_date,net_generation_mwh
+55358,CT1,2025-01-01,100413.0
+55358,CT1,2025-02-01,96550.0
+"""
+            )
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+
+    got_deduped = eia923._drop_duplicates__core_eia923__generation(
+        dupes, unit_test=True
+    ).reset_index(drop=True)
+    pd.testing.assert_frame_equal(expected_deduped, got_deduped)
+    # This is the specific plant from 2012/2013 that has two records per gen
+    # with different prime_mover_code
+    still_dupes = (
+        pd.read_csv(
+            StringIO(
+                """plant_id_eia,generator_id,report_date,net_generation_mwh,sector_id_eia,prime_mover_code
+3405,1,2012-08-01,1000,1.0,CA
+3405,1,2012-08-01,50,1.0,ST
+3405,1,2012-09-01,2000,1.0,CA
+3405,1,2012-09-01,-80.0,1.0,ST
+3405,1,2013-11-01,3000,1.0,CA
+3405,1,2013-11-01,-100,1.0,ST"""
+            )
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+    got_still_deduped = eia923._drop_duplicates__core_eia923__generation(
+        still_dupes, unit_test=True
+    ).reset_index(drop=True)
+
+    expected_still_deduped = (
+        pd.read_csv(
+            StringIO(
+                """plant_id_eia,generator_id,report_date,net_generation_mwh,sector_id_eia,prime_mover_code
+3405,1,2012-08-01,1050,1.0,
+3405,1,2012-09-01,1920,1.0,
+3405,1,2013-11-01,2900,1.0,"""
+            )
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+    pd.testing.assert_frame_equal(
+        expected_still_deduped, got_still_deduped, check_dtype=False
+    )

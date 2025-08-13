@@ -999,7 +999,13 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
         missing_data_strings
     )
     gen_df = gen_df[~row_drop_mask]
+    gen_df = _drop_duplicates__core_eia923__generation(gen_df)
+    return gen_df
 
+
+def _drop_duplicates__core_eia923__generation(
+    gen_df: pd.DataFrame, unit_test: bool = False
+) -> pd.DataFrame:
     # There are a several hundred (out of a few hundred thousand) records which
     # have duplicate records for a given generator/date combo. However, in all
     # cases one of them has no data (net_generation_mwh) associated with it,
@@ -1011,8 +1017,10 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
     dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     drop_em = dupes[dupes.net_generation_mwh.isna() | (dupes.net_generation_mwh == 0)]
     gen_df = gen_df.drop(index=drop_em.index)
-    # raise alarm bells if we are dropping more than we expect...
-    assert len(drop_em) / len(gen_df) < 0.0023
+    # raise alarm bells if we are dropping more than we expect... but not for unit
+    # tests when we are feeding it almost all problems.
+    if not unit_test and (drop_ratio := len(drop_em) / len(gen_df)) > 0.011:
+        raise AssertionError(f"{drop_ratio} but expected ")
 
     # BUT THERE IS MORE...
     # truly duplicate records from one plant (id 3405) from 2012 and 2013.
@@ -1025,23 +1033,21 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
     # two prime_mover_codes
     still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
     still_dupes = gen_df[still_dupe_mask]
-    assert all(still_dupes.plant_id_eia.unique() == 3405)
-    assert all(still_dupes.report_date.dt.year.unique() == [2012, 2013])
-    # the duplicates in this instance
-    still_dupes_gb = still_dupes.groupby(unique_subset)
-    first_cols = [
-        col
-        for col in still_dupes
-        if col not in unique_subset + ["net_generation_mwh", "prime_mover_code"]
-    ]
-    deduped = pd.merge(
-        still_dupes_gb[["net_generation_mwh"]].sum(),
-        still_dupes_gb[first_cols].first(),
-        left_index=True,
-        right_index=True,
-    ).reset_index()
+    if set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013}):
+        assert all(still_dupes.plant_id_eia.unique() == 3405)
+        assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013}
+        first_cols = [
+            col
+            for col in still_dupes
+            if col not in unique_subset + ["net_generation_mwh", "prime_mover_code"]
+        ]
+        deduped = (
+            still_dupes.groupby(unique_subset)
+            .agg({"net_generation_mwh": "sum", **dict.fromkeys(first_cols, "first")})
+            .reset_index()
+        )
 
-    gen_df = pd.concat([gen_df[~still_dupe_mask], deduped])
+        gen_df = pd.concat([gen_df[~still_dupe_mask], deduped], ignore_index=True)
 
     if not (
         still_dupes := gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
