@@ -13,7 +13,7 @@ def get_logger(name: str):
 def configure_root_logger(
     logfile: str | None = None,
     loglevel: str = "INFO",
-    dependency_loglevels: dict[str, int] = {"numba": logging.DEBUG},
+    dependency_loglevels: dict[str, int] = {"numba": logging.WARNING},
 ):
     """Configure the root catalystcoop logger.
 

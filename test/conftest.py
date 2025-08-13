@@ -44,7 +44,7 @@ from pudl.workspace.setup import PudlPaths
 
 pudl.logging_helpers.configure_root_logger(
     dependency_loglevels={
-        "numba": logging.DEBUG,
+        "numba": logging.WARNING,
         "fsspec": logging.INFO,
         "asyncio": logging.INFO,
         "google": logging.INFO,
