@@ -13,44 +13,59 @@ New Data
   Schedule 8A Byproduct Disposition to the PUDL database as
   :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, this table will
   be replaced with a well-normalized version of the same data, but it is being published
-  in this form until then.
-  See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
-
-Expanded Data Coverage
-^^^^^^^^^^^^^^^^^^^^^^
+  in this form until then. See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
 EIA 930
 ~~~~~~~
+
 * Updated EIA 930 data published up through the beginning of August 2025. See
   :issue:`4517` and PR :pr:`4523`.
 
 EIA Bulk Electricity API
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
 * Updated the EIA Bulk Electricity data to include data published up through
   the beginning of August 2025. See :issue:`4519` and PR :pr:`4523`.
 
+FERC Form 1
+~~~~~~~~~~~
+
+* Updated FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+  :pr:`4507`.
+
 FERC Forms 2, 6 and 60
 ~~~~~~~~~~~~~~~~~~~~~~
+
 * Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
   2024 data. See :issue:`4418` and :pr:`4433`.
 
+FERC Forms 714
+~~~~~~~~~~~~~~
+
+* Integrated 2024 data for FERC Form 714. See issue :issue:`4409` and PR :pr:`4530`.
+* Updated FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+  :pr:`4507`.
+
 PHMSA Gas Data
 ~~~~~~~~~~~~~~
+
 * Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
   data is not currently published to the PUDL database. See :issue:`4449` and
   :pr:`4470`.
 * Extracted 1970 through 1989 PHMSA transmission data to raw assets.  This data is not
-  currently published to the PUDL database. See :issue:`3290` and
-  :pr:`4500`.
-* Update FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
-  :pr:`4507`.
+  currently published to the PUDL database. See :issue:`3290` and :pr:`4500`.
+
+EPACEMS
+~~~~~~~
+* Added EPACEMS data through June 2025. See :issue:`4518` and :pr:`4531`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-* the output of ``dbt_helper update-tables`` now conforms to the format that
+
+* The output of ``dbt_helper update-tables`` now conforms to the format that
   our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
   :issue:`4119` and :pr:`4401`.
 * Improved behavior of ``dbt_helper`` when interacting with row count test definitions
