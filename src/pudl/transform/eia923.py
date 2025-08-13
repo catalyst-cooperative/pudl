@@ -1005,13 +1005,44 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
     # cases one of them has no data (net_generation_mwh) associated with it,
     # so it's pretty clear which one to drop.
     unique_subset = ["report_date", "plant_id_eia", "generator_id"]
-    # resent
+    # reset the index omigosh we are using the index to drop records it needs
+    # to be actually unique
     gen_df = gen_df.reset_index(drop=True)
     dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     drop_em = dupes[dupes.net_generation_mwh.isna() | (dupes.net_generation_mwh == 0)]
     gen_df = gen_df.drop(index=drop_em.index)
     # raise alarm bells if we are dropping more than we expect...
     assert len(drop_em) / len(gen_df) < 0.0023
+
+    # BUT THERE IS MORE...
+    # truly duplicate records from one plant (id 3405) from 2012 and 2013.
+    # they are duplicate except for having different prime movers (which we
+    # very much don’t expect to be the primary key for this table)
+    # we are going to find them... make sure they are the plant we expect... then
+    # aggregate them and effectively drop their prime mover code bc that is
+    # only column that differs in these records. We don't expect this table
+    # to vary by pm code.... also generators definitionally shouldn't have
+    # two prime_mover_codes
+    still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
+    still_dupes = gen_df[still_dupe_mask]
+    assert all(still_dupes.plant_id_eia.unique() == 3405)
+    assert all(still_dupes.report_date.dt.year.unique() == [2012, 2013])
+    # the duplicates in this instance
+    still_dupes_gb = still_dupes.groupby(unique_subset)
+    first_cols = [
+        col
+        for col in still_dupes
+        if col not in unique_subset + ["net_generation_mwh", "prime_mover_code"]
+    ]
+    deduped = pd.merge(
+        still_dupes_gb[["net_generation_mwh"]].sum(),
+        still_dupes_gb[first_cols].first(),
+        left_index=True,
+        right_index=True,
+    ).reset_index()
+
+    gen_df = pd.concat([gen_df[~still_dupe_mask], deduped])
+
     if not (
         still_dupes := gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     ).empty:
