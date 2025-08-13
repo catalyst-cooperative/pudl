@@ -42,6 +42,15 @@ from pudl.settings import (
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
 
+pudl.logging_helpers.configure_root_logger(
+    dependency_loglevels={
+        "numba": logging.DEBUG,
+        "fsspec": logging.INFO,
+        "asyncio": logging.INFO,
+        "google": logging.INFO,
+        "alembic": logging.WARNING,
+    }
+)
 logger = logging.getLogger(__name__)
 
 AS_MS_ONLY_FREQ_TABLES = [
