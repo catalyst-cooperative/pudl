@@ -3,8 +3,21 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2025.XX.x (2025-MM-DD)
+v202X.XX.x (YYYY-MM-DD)
 ---------------------------------------------------------------------------------------
+
+.. _release-v2025.8.0:
+
+---------------------------------------------------------------------------------------
+v2025.8.0 (2025-08-14)
+---------------------------------------------------------------------------------------
+
+This is a regular quarterly release of PUDL. It includes new 2024 annual updates for a
+number of datasets (FERC Forms 2, 6, 60, & 714), and a minor update to the 2024 FERC
+Form 1 data that includes late filings & revisions. It also includes year-to-date
+updates for the monthly and quarterly datasets, including EIA-860M, EIA-923, EIA-930,
+and the EPA CEMS hourly emissions. There were also a number of data processing bug fixes
+and data usability improvements. See the full notes below for details.
 
 New Data
 ^^^^^^^^
@@ -24,6 +37,11 @@ EIA-860M
 * Updated EIA-860M monthly generator report with newly published data for May and June
   of 2025. See issue :issue:`4379` and PR :pr:`4536`.
 
+EIA-923
+~~~~~~~
+
+* Added EIA-923 data through May 2025. See :issue:`4516` and :pr:`4538`.
+
 EIA 930
 ~~~~~~~
 
@@ -35,6 +53,11 @@ EIA Bulk Electricity API
 
 * Updated the EIA Bulk Electricity data to include data published up through
   the beginning of August 2025. See :issue:`4519` and PR :pr:`4523`.
+
+EPA CEMS
+~~~~~~~~
+
+* Added EPA CEMS data through June 2025. See :issue:`4518` and :pr:`4531`.
 
 FERC Form 1
 ~~~~~~~~~~~
@@ -48,12 +71,10 @@ FERC Forms 2, 6 and 60
 * Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
   2024 data. See :issue:`4418` and :pr:`4433`.
 
-FERC Forms 714
-~~~~~~~~~~~~~~
+FERC Form 714
+~~~~~~~~~~~~~
 
 * Integrated 2024 data for FERC Form 714. See issue :issue:`4409` and PR :pr:`4530`.
-* Updated FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
-  :pr:`4507`.
 
 PHMSA Gas Data
 ~~~~~~~~~~~~~~
@@ -63,14 +84,6 @@ PHMSA Gas Data
   :pr:`4470`.
 * Extracted 1970 through 1989 PHMSA transmission data to raw assets.  This data is not
   currently published to the PUDL database. See :issue:`3290` and :pr:`4500`.
-
-EPACEMS
-~~~~~~~
-* Added EPACEMS data through June 2025. See :issue:`4518` and :pr:`4531`.
-
-EIA-923
-~~~~~~~
-* Added EIA-923 data through May 2025. See :issue:`4516` and :pr:`4538`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
