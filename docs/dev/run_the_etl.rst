@@ -317,16 +317,25 @@ telling Dagster how to access it. With Postgres set up, your
 .. code-block:: yaml
 
   storage:
-  postgres:
-    postgres_db:
-      username: dagster
-      password: dagster_password
-      hostname: 127.0.0.1
-      db_name: dagster
-      port: 5432
+    postgres:
+      postgres_db:
+        username: dagster
+        password: dagster_password
+        hostname: 127.0.0.1
+        db_name: dagster
+        port: 5432
   run_coordinator:
     module: dagster.core.run_coordinator
     class: DefaultRunCoordinator
+
+This says: "Look for a database name 'dagster' running on my local computer, on port
+5432. Log into it with username 'dagster' and password 'dagster_password'. Use it to
+store all of Dagster's internal bookkeeping (event logs, runs, schedules).
+
+The second section under ``run_coordinator`` forces Dagster to use it's default
+coordinator which kicks off runs immediately, rather than queuing them for later. Some of
+us have had issues with Dagster defaulting to the queuing run coordinator, and never
+actually starting our runs.
 
 See the `Dagster configuration documentation
 <https://docs.dagster.io/deployment/oss/dagster-yaml#storage>`__ for much more detail.
