@@ -9,10 +9,11 @@ sources:
               table_name: out_vcerare__hourly_available_capacity_factor
               partition_expr: report_year
           - expect_valid_hour_of_year
-          - expect_unique_column_combination:
-              columns:
+          - dbt_expectations.expect_compound_columns_to_be_unique:
+              column_list:
                 - county_id_fips
                 - datetime_utc
+              ignore_row_if: "any_value_is_missing"
         columns:
           - name: state
             data_tests:
