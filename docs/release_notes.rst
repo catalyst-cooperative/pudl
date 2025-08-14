@@ -18,6 +18,12 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for May and June
+  of 2025. See issue :issue:`4379` and PR :pr:`4536`.
+
 EIA 930
 ~~~~~~~
 
@@ -62,6 +68,10 @@ EPACEMS
 ~~~~~~~
 * Added EPACEMS data through June 2025. See :issue:`4518` and :pr:`4531`.
 
+EIA-923
+~~~~~~~
+* Added EIA-923 data through May 2025. See :issue:`4516` and :pr:`4538`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -86,6 +96,9 @@ Bug Fixes
   :issue:`4328` and PR :pr:`4392`.
 * Fixed bug in how we were repairing a misfiled EIA code in
   :ref:`core_ferc714__respondent_id`. See issue :issue:`4439` and PR :pr:`4497`.
+* Fixed bug in how we were removing duplicates in :ref:`core_eia923__monthly_generation`
+  resulting in ~400 more records in this table over several years. See details in PR
+  :pr:`4538`
 
 Documentation
 ^^^^^^^^^^^^^
