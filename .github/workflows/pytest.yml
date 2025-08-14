@@ -39,6 +39,10 @@ jobs:
               - '!docs/**.rst.jinja'
               - '!docs/**.bib'
               - '!README.rst'
+              - '!CONTRIBUTING.rst'
+              - '!LICENSE.txt'
+              - '!CITATION.cff'
+              - '!.zenodo.json'
       - name: print out components
         run: |
           echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
