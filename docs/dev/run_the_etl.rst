@@ -341,7 +341,9 @@ See the `Dagster configuration documentation
 <https://docs.dagster.io/deployment/oss/dagster-yaml#storage>`__ for much more detail.
 
 On MacOS, one (relatively) easy way to install Postgres and manage databases is
-to use `Postgres.app <https://postgresapp.com/>`__.
+to use `Postgres.app <https://postgresapp.com/>`__. Before you can switch your Dagster
+configuration to using Postgres, you'll need to create a new, empty database and a user
+with access to that database that Dagster can use.
 
 .. _run-cli:
 
