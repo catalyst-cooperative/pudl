@@ -10,16 +10,24 @@ def get_logger(name: str):
     return logging.getLogger(f"catalystcoop.{name}")
 
 
-def configure_root_logger(logfile: str | None = None, loglevel: str = "INFO"):
+def configure_root_logger(
+    logfile: str | None = None,
+    loglevel: str = "INFO",
+    dependency_loglevels: dict[str, int] = {"numba": logging.WARNING},
+):
     """Configure the root catalystcoop logger.
 
     Args:
         logfile: Path to logfile or None.
         loglevel: Level of detail at which to log, by default INFO.
+        dependency_loglevels: Dictionary mapping dependency name to desired loglevel.
+            This allows us to filter excessive logs from dependencies.
     """
-    # Set numba log-level to warning to suppress excessive logs
-    numba_logger = logging.getLogger("numba")
-    numba_logger.setLevel(logging.WARNING)
+    # Explicitly set log-level for dependency loggers
+    [
+        logging.getLogger(dependency_name).setLevel(dependency_loglevel)
+        for dependency_name, dependency_loglevel in dependency_loglevels.items()
+    ]
 
     logger = logging.getLogger("catalystcoop")
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
