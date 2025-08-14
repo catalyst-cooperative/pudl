@@ -4,9 +4,10 @@ sources:
     tables:
       - name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
-              partition_column: report_year
+              partition_expr: report_year
           - expect_matching_primary_fuel_by_cost_and_mmbtu
           - check_column_correlation:
               column1: gas_fraction_mmbtu
@@ -24,6 +25,8 @@ sources:
         columns:
           - name: report_year
           - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
           - name: utility_id_pudl
           - name: utility_name_ferc1
           - name: plant_id_pudl

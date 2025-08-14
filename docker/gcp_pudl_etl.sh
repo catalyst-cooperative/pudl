@@ -51,12 +51,6 @@ function run_pudl_etl() {
             --etl-settings "$PUDL_SETTINGS_YML" \
             --live-dbs test/integration test/unit \
             --no-cov &&
-        pytest \
-            -n auto \
-            --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
-            --etl-settings "$PUDL_SETTINGS_YML" \
-            --live-dbs test/validate \
-            --no-cov &&
         touch "$PUDL_OUTPUT/success"
 }
 

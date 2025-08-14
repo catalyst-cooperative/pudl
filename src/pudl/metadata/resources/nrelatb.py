@@ -4,10 +4,12 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
     "core_nrelatb__yearly_projected_financial_cases": {
-        "description": (
-            "Financial assumptions for each model case (model_case_nrelatb), "
-            "and sub-type of technology (technology_description)."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "financial assumptions for each model case (model_case_nrelatb), "
+                "and sub-type of technology (technology_description)."
+            )
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -34,15 +36,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
         "field_namespace": "nrelatb",
     },
     "core_nrelatb__yearly_projected_financial_cases_by_scenario": {
-        "description": (
-            "Additional financial assumptions for NREL ATB projections that also vary by "
-            "technology innovation scenario (scenario_atb), tax credit case (model_tax_credit_case_nrelatb), "
-            "and cost recovery period (cost_recovery_period_years). \nThere are a small number of records which have nulls in"
-            "the cost_recovery_period_years column. Based on NREL's documentation, this seems to indicate "
-            "that those records apply to any relevant cost_recovery_period_years. If those records were "
-            "non-null, the primary keys of this table would be: "
-            "['report_year', 'model_case_nrelatb', 'model_tax_credit_case_nrelatb', 'projection_year', 'technology_description', 'scenario_atb', 'cost_recovery_period_years']"
-        ),
+        "description": {
+            "additional_summary_text": (
+                "additional financial assumptions for NREL ATB projections that also vary by "
+                "technology innovation scenario (scenario_atb), tax credit case (model_tax_credit_case_nrelatb), "
+                "and cost recovery period (cost_recovery_period_years)."
+            ),
+            "additional_primary_key_text": (
+                "There are a small number of records which have nulls in "
+                "the cost_recovery_period_years column. Based on NREL's documentation, this seems to indicate "
+                "that those records apply to any relevant cost_recovery_period_years. If those records were "
+                "non-null, the primary keys of this table would be: "
+                "['report_year', 'model_case_nrelatb', 'model_tax_credit_case_nrelatb', 'projection_year', 'technology_description', 'scenario_atb', 'cost_recovery_period_years']"
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -66,7 +73,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
         "field_namespace": "nrelatb",
     },
     "core_nrelatb__yearly_projected_cost_performance": {
-        "description": "Projections of costs and performance for various technologies.",
+        "description": {
+            "additional_summary_text": "projections of costs and performance for various technologies.",
+            "additional_primary_key_text": (
+                "The fields technology_description_detail_1 and "
+                "technology_description_detail_2 occasionally contain nulls, preventing this table from "
+                "having a primary key."
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -76,7 +90,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
                 "technology_description",
                 "cost_recovery_period_years",
                 "scenario_atb",
-                # These two detail fields have nulls in them! which is fine for the data but means we don't have non-null PKs
                 "technology_description_detail_1",
                 "technology_description_detail_2",
                 "capacity_factor",
@@ -99,10 +112,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
         "field_namespace": "nrelatb",
     },
     "core_nrelatb__yearly_technology_status": {
-        "description": (
-            "Annual table indicating whether technologies in the ATB scenarios are mature,"
-            "and whether they are the default technologies."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "technology statuses, indicating whether technologies in the ATB scenarios are mature, "
+                "and whether they are the default technologies."
+            )
+        },
         "schema": {
             "fields": [
                 "report_year",

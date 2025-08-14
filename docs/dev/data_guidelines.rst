@@ -99,7 +99,7 @@ Reading on Tidy Data
 * `Best practices for scientific computing <https://doi.org/10.1371/journal.pbio.1001745>`__
   An earlier version of the above whitepaper aimed at a more technical,
   data-oriented set of scientific users.
-  (Greg Wilson et al., BLOS Biology, 2014)
+  (Greg Wilson et al., PLOS Biology, 2014)
 * `A Simple Guide to Five Normal Forms <http://www.bkent.net/Doc/simple5.htm>`__
   A classic 1983 rundown of database normalization. Concise, informal, and
   understandable, with a few good illustrative examples. Bonus points for the

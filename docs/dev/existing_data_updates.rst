@@ -121,17 +121,8 @@ pages, or columns) then create new mappings to track that information over time.
 
 B. FERC Form 714
 ^^^^^^^^^^^^^^^^
-FERC Form 714 is distributed as an archive of CSV files, each of which spans
-all available years of data. This means there's much less structure to keep track of.
-The main thing that changes from year to year is the names of the CSV files within the
-ZIP archive.
-
-**2.B.1)** Update the mapping between extracted dataframes and those filenames in the
-:py:const:`pudl.extract.ferc714.TABLE_FNAME` dictionary.
-
-**2.B.2)** The character encodings of these CSV files may vary with some of them using
-``iso-8859-1`` (Latin) rather than ``utf-8`` (Unicode). Note the per-file encoding
-in :py:const:`pudl.extract.ferc714.TABLE_ENCODING` and that it may change over time.
+From 2021 onward, FERC Form 714 is distributed as an archive of XBRL files, and does
+not need to be mapped.
 
 C. NREL ATB
 ^^^^^^^^^^^
@@ -343,6 +334,28 @@ above. Continue to iterate and debug until assets generate successfully.
 create new tables in :mod:`pudl.metadata.resources.nrelatb` for these descriptors,
 following the example of ``core_nrelatb__yearly_technology_status``.
 
+E. FERC Form 714
+^^^^^^^^^^^^^^^^
+**4.E.1)** Materialize everything downstream of the raw FERC-714 assets using Dagster
+query ``key:"raw_ferc714_xbrl*"+``. Investigate any errors that occur, and update the
+constants in :mod:`pudl.transform.ferc714` to add any new fix cases for the new year
+of data. Common updates include:
+
+* :py:const:`pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES` - Update this if you
+  see ``AssertionError: We expect all but XX of the records without a cleaned
+  utc_offset to not have any demand data, but we found YY records``, after
+  investigating the records with missing utc_offset and determining what the correct
+  value should be.
+* :py:const:`pudl.transform.ferc714.DISCONTINUOUS_DATES` - Update this if you see
+  ``AssertionError: We expect there to be fewer than XX gaps in the xbrl time series
+  but we found these YY gaps:``, after investigating the new gaps and confirming
+  they occur on reasonable dates (usually around daylight saving time start or end).
+* :py:const:`pudl.transform.ferc714.DUPLICATED_DATETIMES` - Update this if you see
+  ``AssertionError: Found YY duplicate UTC datetimes, but we expected XX or less``,
+  after investigating the new duplicates and confirming they occur on reasonable
+  dates (usually when a respondent changes their UTC offset, whether due to daylight
+  savings time or otherwise).
+
 5. Update the PUDL DB Schema
 ----------------------------
 If new columns or tables have been added, you must also update the PUDL DB schema,
@@ -447,7 +460,7 @@ in the database and the derived outputs by running
 
 .. code-block:: console
 
-    $ make pytest-validate
+    $ dbt_helper validate
 
 We expect at least some of the validation tests to fail initially because we haven't
 updated the number of records we expect to see in each table.

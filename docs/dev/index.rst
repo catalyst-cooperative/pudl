@@ -10,6 +10,7 @@ Development
   dev_dagster
   project_management
   testing
+  data_validation
   build_docs
   datastore
   clone_ferc1

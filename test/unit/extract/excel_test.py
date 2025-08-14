@@ -17,7 +17,7 @@ class TestMetadata:
     def test_basics(self):
         """Test that basic API method return expected results."""
         assert self._metadata.get_dataset_name() == "test"
-        assert self._metadata.get_all_pages() == ["books", "boxes", "shoes"]
+        assert self._metadata.get_all_pages() == ["books", "boxes", "shoes", "time"]
         assert self._metadata.get_all_columns("books") == ["author", "pages", "title"]
         assert self._metadata.get_column_map("books", year=2010) == {
             "book_title": "title",
@@ -80,6 +80,8 @@ def _fake_data_frames(page_name, **kwargs):
         "boxes-2011": pd.DataFrame.from_dict(
             {"composition": ["metal"], "size_cm": [99]}
         ),
+        "time-2010": pd.DataFrame.from_dict({"tick": [1, 2], "woosh": ["fly", "by"]}),
+        "time-2011": pd.DataFrame.from_dict({"tick": [3, 4], "woosh": ["flew", "by"]}),
     }
     return fake_data[page_name]
 
@@ -104,6 +106,34 @@ class TestExtractor:
             "size": {0: 10, 1: 99},
         }
         assert expected_boxes == res["boxes"].to_dict()
+
+    def test_add_data_maturity(self):
+        """Test whether we assign the correct data_maturity given the file names."""
+        extractor = FakeExtractor()
+        test_time = pd.DataFrame(
+            data=[1],
+            columns=["second"],
+        )
+        assert all(
+            extractor.add_data_maturity(test_time, page="time", year=2010).data_maturity
+            == "final"
+        )
+        assert all(
+            extractor.add_data_maturity(test_time, page="time", year=2011).data_maturity
+            == "final"
+        )
+        assert all(
+            extractor.add_data_maturity(test_time, page="time", year=2012).data_maturity
+            == "incremental_ytd"
+        )
+        assert all(
+            extractor.add_data_maturity(test_time, page="time", year=2013).data_maturity
+            == "provisional"
+        )
+        assert all(
+            extractor.add_data_maturity(test_time, page="time", year=2014).data_maturity
+            == "provisional"
+        )
 
     # @patch('pudl.extract.excel.pd.read_excel', _fake_data_frames)
     # def test_resulting_dataframes(self):

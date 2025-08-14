@@ -97,7 +97,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "rto_iso_location_wholesale_reporting_id",
             "associated_combined_heat_power",
             "original_planned_generator_operating_date",
-            "operating_switch",
+            "can_switch_when_operating",
             "previously_canceled",
         ],
         "annual_cols": [

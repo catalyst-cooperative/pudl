@@ -5540,7 +5540,7 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 5554,,,61854,Veolia Energy Operating Service
 5555,,,61905,Oleander Holdings LLC
 5556,,,62027,"LaPorte Power, LLC"
-5557,,,61903,Stanton Clean Energy LLC
+5557,453,stanton clean energy llc,61903,Stanton Clean Energy LLC
 5558,,,61913,"Kestrel Acquisition, LLC"
 5559,,,61505,NRG Chalk Point CT
 5560,,,63034,"Sayreville Power, LLC"
@@ -6933,7 +6933,7 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 6957,,,63465,"Candela Renewables, LLC"
 6958,,,8501,Heritage Power LLC
 6959,,,62895,Vineyard Wind LLC
-6960,,,22313,Oleander Power Project LP
+6960,454,"oleander power project, limited partnership",22313,Oleander Power Project LP
 6961,,,10913,Lee Power Partners LLC
 6962,,,14046,Orion Power Operating Services
 6963,,,32874,Air Solutions Inc
@@ -16100,10 +16100,10 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 16143,,,66070,"Hornshadow Solar II, LLC"
 16144,,,66088,"FRP Gadsden County Solar, LLC"
 16145,,,66089,"FRP Columbia County Solar, LLC"
-16146,,,66091,"Harmony Florida Solar II, LLC"
+16146,457,"harmony florida solar ii, llc",66091,"Harmony Florida Solar II, LLC"
 16147,,,66090,"FRP Gilchrist County Solar, LLC"
-16148,,,66092,"Storey Bend Solar, LLC"
-16149,,,66063,"FRP Tupelo Solar, LLC"
+16148,455,"storey bend solar, llc",66092,"Storey Bend Solar, LLC"
+16149,456,"frp tupelo solar, llc",66063,"FRP Tupelo Solar, LLC"
 16150,,,66076,"Sun Ridge Solar, LLC"
 16151,,,66039,"SC Oregon 2 Lessor Parent, LLC"
 16152,,,66081,Salka Cabazon Wind LLC
@@ -17143,3 +17143,41 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 17186,,,67159,Padua 2
 17187,,,67160,Padua 3
 17188,,,67165,"Beavertail Solar, LLC"
+17189,,,67189,Clear Fork
+17190,,,67171,Overnight Solar LLC
+17191,,,67162,"Ferdinand Grid, LLC"
+17192,,,67181,MPG Solar LLC
+17193,,,67197,"Gonzaga Ridge Wind Farm, LLC"
+17194,,,67169,Midway BESS LLC
+17195,,,67179,"Border Basin, LLC"
+17196,,,67180,Strinestown Solar LLC
+17197,,,67205,Dover Solar LLC (PA)
+17198,,,67168,Panoche BESS LLC
+17199,,,67167,Enterprise BESS LLC
+17200,,,67196,"Gonzaga Ridge Battery Facility, LLC"
+17201,,,67182,Ho-Fel Solar LLC
+17202,,,67166,"MC Solar, LLC"
+17203,,,67176,"Kifer Energy Storage, LLC"
+17204,,,67192,RWE Clean Energy
+17205,,,67190,GD Richmond Beaver River I LLC
+17206,,,67206,"Ohio Solar, LLC"
+17207,,,67187,Washington Street Solar 1 LLC
+17208,,,67186,Ashley Solar LLC PV
+17209,,,67183,Moseley Hermon Solar
+17210,,,67173,SV CSG East St Louis LLC
+17211,,,67195,Hanover II PV LLC
+17212,,,67184,Gilman Solar LLC PV
+17213,,,67185,Ridge Farm Renewables LLC PV
+17214,,,67191,White Brook Renewables LLC
+17215,,,67175,"SV CSG Naplate, LLC"
+17216,,,67177,JKB Energy
+17217,,,67207,TotalEnergies Renewables USA LLC
+17218,,,67174,SV CSG Roxana 1 LLC
+17219,,,67194,Sunset Ridge Solar LLC
+17220,,,67164,"Anthony Vineyards, Inc."
+17221,,,67172,"SV CSG Corbell, LLC"
+17222,,,67198,Kaiser Permanente South Sacramento Medical Center
+17223,,,67201,"Radial O'Neil Rooftop, LLC"
+17224,,,67200,"RP Farmers Coop 1, LLC"
+17225,,,67199,"Radial Harris Ag 3, LLC"
+17226,,,67203,"Radial O'Neil Tracker 1, LLC"

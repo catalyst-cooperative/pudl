@@ -100,7 +100,9 @@ def test_validate_extra_columns(mocker, extractor):
     df = pd.DataFrame(columns=["col1", "col2", "col3"])
 
     # Call the validate method and check for ValueError
-    with pytest.raises(ValueError, match="Extra columns found in extracted table"):
+    with pytest.raises(
+        ValueError, match="Columns found in raw extracted table that are unmapped"
+    ):
         extractor.validate(df, "page1", partition="partition1")
 
 
@@ -126,7 +128,9 @@ def test_validate_extra_and_missing_columns(mocker, extractor):
     df = pd.DataFrame(columns=["col1", "col3"])
 
     # Call the validate method and check for ValueError
-    with pytest.raises(ValueError, match="Extra columns found in extracted table"):
+    with pytest.raises(
+        ValueError, match="Columns found in raw extracted table that are unmapped"
+    ):
         extractor.validate(df, "page1", partition="partition1")
 
     # Adjust the DataFrame to only have missing columns

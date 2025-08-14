@@ -196,7 +196,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-04", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-06", freq="M")
             ],
         },
         "keywords": sorted(
@@ -317,7 +317,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "half_years": [
                 f"{year}half{half}" for year in range(2015, 2026) for half in [1, 2]
-            ][1:-1]  # Begins in H2 of 2015 and currently ends in H1 of 2025
+            ][1:]  # Begins in H2 of 2015 and currently ends in H2 of 2025
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -512,7 +512,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "glue",
-        "working_partitions": {"year": sorted(set(range(2018, 2024)))},
+        "working_partitions": {"years": sorted(set(range(2018, 2024)))},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
@@ -589,7 +589,7 @@ SOURCES: dict[str, Any] = {
             # Years 1991-1995 use strange formats that need to be investigated further.
             # Years 1996-1999 come in split archives and full archives and we are going
             # to be using the aggregated archives (part=None).
-            "years": sorted(set(range(1996, 2024))),
+            "years": sorted(set(range(1996, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -619,7 +619,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # Years 2000-2020 are backed by DBF format.
             # Years 2021-present are backed by XBRL.
-            "years": sorted(set(range(2000, 2024))),
+            "years": sorted(set(range(2000, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -647,7 +647,7 @@ SOURCES: dict[str, Any] = {
         ),
         "field_namespace": "ferc60",
         "working_partitions": {
-            "years": sorted(set(range(2006, 2024))),
+            "years": sorted(set(range(2006, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -680,7 +680,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # 2021 and later data is in XBRL.
             # 2006-2020 data is in monolithic CSV files, so any year means all years.
-            "years": sorted(set(range(2006, 2024))),
+            "years": sorted(set(range(2006, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -838,11 +838,7 @@ SOURCES: dict[str, Any] = {
             "and installation dates."
         ),
         "field_namespace": "phmsagas",
-        "working_partitions": {
-            # 1970 - 1989 are all in one CSV in multiple tabs with multi-column headers
-            # and will need to be more extensively processed, not currently integrated.
-            "years": sorted(set(range(1990, 2024))),
-        },
+        "working_partitions": {"years": sorted(set(range(1970, 2025)))},
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],

@@ -4,12 +4,15 @@ sources:
     tables:
       - name: out_ferc1__yearly_balance_sheet_assets_sched110
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: out_ferc1__yearly_balance_sheet_assets_sched110
-              partition_column: report_year
+              partition_expr: report_year
         columns:
           - name: report_year
           - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
           - name: utility_id_pudl
           - name: utility_name_ferc1
           - name: record_id
