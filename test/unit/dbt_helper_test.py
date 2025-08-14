@@ -947,6 +947,103 @@ def test_dbt_schema__add_column_tests(mocker, blank_schema):
     )
 
 
+MERGE_METADATA_TEST_CASES = [
+    GivenExpect(
+        given={
+            "old_schema": {
+                "table_name": "test_table",
+                "columns": ["col1"],
+                "partition_expr": "year",
+                "add_row_count_test": True,
+            },
+            "new_schema": {
+                "table_name": "test_table",
+                "columns": ["col1"],
+                "partition_expr": None,
+                "add_row_count_test": False,
+            },
+        },
+        expect={
+            "data_tests": [
+                {
+                    "check_row_counts_per_partition": {
+                        "table_name": "test_table",
+                        "partition_expr": "year",
+                    }
+                }
+            ],
+            "column_names": ["col1"],
+        },
+    ),
+    GivenExpect(
+        given={
+            "old_schema": {
+                "table_name": "test_table",
+                "columns": ["col1"],
+                "partition_expr": "old_expr",
+                "add_row_count_test": True,
+            },
+            "new_schema": {
+                "table_name": "test_table",
+                "columns": ["col1"],
+                "partition_expr": "new_expr",
+                "add_row_count_test": True,
+            },
+        },
+        expect={
+            "data_tests": [
+                {
+                    "check_row_counts_per_partition": {
+                        "table_name": "test_table",
+                        "partition_expr": "new_expr",
+                    }
+                }
+            ],
+            "column_names": ["col1"],
+        },
+    ),
+    GivenExpect(
+        given={
+            "old_schema": {
+                "table_name": "test_table",
+                "columns": ["col1", "col2"],
+                "partition_expr": "year",
+                "add_row_count_test": False,
+            },
+            "new_schema": {
+                "table_name": "test_table",
+                "columns": ["col1", "col3"],
+                "partition_expr": None,
+                "add_row_count_test": False,
+            },
+        },
+        expect={
+            "data_tests": None,
+            "column_names": ["col1", "col3"],
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("case", MERGE_METADATA_TEST_CASES)
+def test_dbt_schema__merge_metadata_from(case, schema_factory):
+    old_schema_args = case.given["old_schema"]
+    new_schema_args = case.given["new_schema"]
+
+    old_schema = schema_factory(**old_schema_args)
+    new_schema = schema_factory(**new_schema_args)
+
+    merged = new_schema.merge_metadata_from(old_schema)
+
+    merged_table = merged.sources[0].tables[0]
+
+    assert merged_table.data_tests == case.expect["data_tests"]
+
+    expected_column_names = case.expect["column_names"]
+    actual_column_names = [col.name for col in merged_table.columns]
+    assert actual_column_names == expected_column_names
+
+
 @pytest.mark.parametrize(
     "diff, expected",
     [

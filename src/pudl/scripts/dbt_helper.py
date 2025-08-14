@@ -201,6 +201,76 @@ class DbtSchema(BaseModel):
             yaml_output = _prettier_yaml_dumps(self.model_dump(exclude_none=True))
             schema_file.write(yaml_output)
 
+    def merge_metadata_from(self, old_schema: "DbtSchema") -> "DbtSchema":
+        """Merge metadata from an old schema into this one, preferring new values where present."""
+
+        def merge_tables(new_tables, old_tables):
+            old_table_map = {t.name: t for t in old_tables or []}
+            merged = []
+
+            for new_table in new_tables or []:
+                old_table = old_table_map.get(new_table.name)
+                if not old_table:
+                    merged.append(new_table)
+                    continue
+
+                old_columns = {c.name: c for c in old_table.columns or []}
+                merged_columns = [
+                    (
+                        col.model_copy(
+                            update={
+                                "description": col.description
+                                or old_columns.get(col.name, {}).description,
+                                "data_tests": col.data_tests
+                                or old_columns.get(col.name, {}).data_tests,
+                                "tags": col.tags or old_columns.get(col.name, {}).tags,
+                            }
+                        )
+                        if col.name in old_columns
+                        else col
+                    )
+                    for col in new_table.columns or []
+                ]
+
+                merged_table = new_table.model_copy(
+                    update={
+                        "description": new_table.description or old_table.description,
+                        "data_tests": new_table.data_tests or old_table.data_tests,
+                        "tags": new_table.tags or old_table.tags,
+                        "meta": new_table.meta or old_table.meta,
+                        "columns": merged_columns,
+                    }
+                )
+                merged.append(merged_table)
+
+            return merged
+
+        # Merge sources
+        old_sources = {s.name: s for s in old_schema.sources or []}
+        new_sources = []
+        for new_source in self.sources or []:
+            old_source = old_sources.get(new_source.name)
+            merged_tables = merge_tables(
+                new_source.tables, old_source.tables if old_source else []
+            )
+            merged_source = new_source.model_copy(update={"tables": merged_tables})
+            new_sources.append(merged_source)
+
+        # Merge models (if any)
+        if self.models:
+            old_models = {m.name: m for m in old_schema.models or []}
+            new_models = []
+            for new_model in self.models:
+                old_model = old_models.get(new_model.name)
+                merged_model = merge_tables(
+                    [new_model], [old_model] if old_model else []
+                )[0]
+                new_models.append(merged_model)
+        else:
+            new_models = None
+
+        return self.model_copy(update={"sources": new_sources, "models": new_models})
+
 
 def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
     """Check if the DeepDiff includes any removals or modifications."""
@@ -410,14 +480,21 @@ def update_table_schema(
     if model_path.exists() and not (clobber or update):
         return UpdateResult(
             success=False,
-            message=f"DBT configuration already exists for table {table_name} and clobber or update is not set.",
+            message=f"dbt configuration already exists for table {table_name} and clobber or update is not set.",
         )
 
-    new_schema = DbtSchema.from_table_name(table_name)
+    generated_schema = DbtSchema.from_table_name(table_name)
+    # Default: use generated schema
+    new_schema = generated_schema
 
+    # If we are updating an existing model, augment the newly generated schema with
+    # whatever additional information is available from the old dbt schema.
     if model_path.exists() and update:
         # Load existing schema
         old_schema = DbtSchema.from_yaml(schema_path)
+        # Replace new schema with the generated schema but copying missing metadata
+        # from the old schema
+        new_schema = generated_schema.merge_metadata_from(old_schema)
 
         # Generate the diff report
         diff = DeepDiff(
@@ -434,12 +511,16 @@ def update_table_schema(
             # into the --clobber command?
             return UpdateResult(
                 success=False,
-                message=f"DBT configuration for table {table_name} has "
+                message=f"dbt configuration for table {table_name} has "
                 "information that would be deleted. Update manually, or: "
                 "1) re-run with --clobber, 2) run `git add dbt/models -p` "
                 "and follow the instructions for recovering the deleted info",
             )
 
+    # By the time we've gotten here, either:
+    # * We've merged the old and new schema (if old schema existed, and we're updating)
+    # * We're clobbering an existing schema entirely (clobber is True)
+    # * We're creating a new schema from scratch (model_path did not exist)
     model_path.mkdir(parents=True, exist_ok=True)
     new_schema.to_yaml(schema_path)
 
@@ -561,8 +642,8 @@ def update_tables(
         if args.schema:
             _log_update_result(
                 update_table_schema(
-                    table_name,
-                    data_source,
+                    table_name=table_name,
+                    data_source=data_source,
                     clobber=args.clobber,
                     update=args.update,
                 )
@@ -581,7 +662,7 @@ def update_tables(
 @click.command()
 @click.option(
     "--select",
-    help="DBT selector for the asset(s) you want to validate. Syntax "
+    help="dbt selector for the asset(s) you want to validate. Syntax "
     "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
 )
 @click.option(
@@ -589,7 +670,7 @@ def update_tables(
     "-a",
     help=(
         "*DAGSTER* selector for the asset(s) you want to validate. "
-        "This gets translated into a DBT selection. For example, you can "
+        "This gets translated into a dbt selection. For example, you can "
         "use '+key:\"out_eia__yearly_generators\"' to validate "
         "out_eia_yearly_generators and its upstream assets. Syntax "
         "documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference "
@@ -597,7 +678,7 @@ def update_tables(
 )
 @click.option(
     "--exclude",
-    help="DBT selector for the asset(s) you want to exclude from validation. Syntax "
+    help="dbt selector for the asset(s) you want to exclude from validation. Syntax "
     "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
 )
 @click.option(
@@ -612,7 +693,7 @@ def validate(
     exclude: str | None = None,
     dry_run: bool = False,
 ) -> None:
-    """Validate a selection of DBT nodes.
+    """Validate a selection of dbt nodes.
 
     Wraps the ``dbt build`` command line so we can annotate the result with the
     actual data that was returned from the test query.
@@ -683,14 +764,13 @@ def dbt_helper():
 
     This CLI currently provides the following sub-commands:
 
-    * ``update-tables`` which can update or create a dbt table (model)
-      schema.yml file under the ``dbt/models`` repo. These configuration files
-      tell dbt about the structure of the table and what data tests are specified
-      for it. It also adds a (required) row count test by default. The script
-      can also generate or update the expected row counts for existing tables,
-      assuming they have been materialized to parquet files and are sitting in
-      your $PUDL_OUT directory.
-    * ``validate``: run validation tests for a selection of DBT nodes.
+    update-tables: which can update or create a dbt table (model) schema.yml file under
+    the ``dbt/models`` repo. These configuration files tell dbt about the structure of
+    the table and what data tests are specified for it. The script can also generate or
+    update the expected row counts for existing tables, assuming they have been
+    materialized to parquet files and are sitting in your $PUDL_OUTPUT directory.
+
+    validate: run validation tests for a selection of dbt nodes.
 
     Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
