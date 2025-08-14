@@ -152,8 +152,9 @@ There are two main Definitions in the PUDL processing pipeline:
    is partitioned by state and year (for the EPA CEMS).
 
 Both definitions have two preconfigured jobs:
-  - ``etl_fast`` processes one year of data
-  - ``etl_full`` processes all years of data
+
+  * ``etl_fast`` processes 1-2 years of data depending on the dataset.
+  * ``etl_full`` processes all available data.
 
 .. _run-dagster-ui:
 
@@ -294,7 +295,44 @@ want to rerun the entire ETL.
   be resolved by re-materializing the asset group of the desired asset.
 
 Read the :ref:`dev_dagster` documentation page to learn more about working
-with dagster.
+with Dagster.
+
+Using Postgres for Dagster Internal Storage
+-------------------------------------------
+
+Dagster generates a large volume of its own logging and events output, with multiple
+streams of information coming from many different subprocess, since every asset
+materialization has its own process. To organize all that output effectively, Dagster
+writes its logs to a database. By default it uses SQLite, which has support built-in to
+Python. However, SQLite can't deal with concurrent writes, which means it can't handle
+the logging from our full ETL when it's highly parallelized.
+
+In the nightly builds we use a Postgres database to store this logging and events output
+instead of SQLite.  If you want to run the full ETL locally and use all available CPU
+cores to parallelize the process, you will also probably need to set up Postgres on your
+computer. This means installing Postgres, and creating a database for Dagster, and then
+telling Dagster how to access it. With Postgres set up, your
+``$DAGSTER_HOME/dagster.yaml`` configuration might look like this:
+
+.. code-block:: yaml
+
+  storage:
+  postgres:
+    postgres_db:
+      username: dagster
+      password: dagster_password
+      hostname: 127.0.0.1
+      db_name: dagster
+      port: 5432
+  run_coordinator:
+    module: dagster.core.run_coordinator
+    class: DefaultRunCoordinator
+
+See the `Dagster configuration documentation
+<https://docs.dagster.io/deployment/oss/dagster-yaml#storage>`__ for much more detail.
+
+On MacOS, one (relatively) easy way to install Postgres and manage databases is
+to use `Postgres.app <https://postgresapp.com/>`__.
 
 .. _run-cli:
 
@@ -422,11 +460,11 @@ it should take around 15 minutes total.
 
 The Full ETL
 ------------
-The Full ETL settings includes all all available data that PUDL can process. All
-the years, all the states, and all the tables, including the ~1 billion record
-EPA CEMS dataset. Assuming you already have the data downloaded, on a computer
-with at least 16 GB of RAM, and a solid-state disk, the Full ETL including EPA
-CEMS should take around 2 hours.
+The Full ETL settings includes all all available data that PUDL can process. All the
+years, all the states, and all the tables, including the ~1 billion record EPA CEMS
+dataset. Assuming you already have the data downloaded, on a computer with at least 32
+GB of RAM, 8+ CPU cores, and a solid-state disk, the Full ETL including EPA CEMS should
+take 1.5 to 2 hours.
 
 .. code-block:: console
 
@@ -435,13 +473,18 @@ CEMS should take around 2 hours.
 
 Custom ETL
 ----------
-You've changed the settings and renamed the file to CUSTOM_ETL.yml
+If you've changed the ETL settings and renamed the file to CUSTOM_ETL.yml:
 
 .. code-block:: console
 
     $ ferc_to_sqlite the/path/to/your/custom_etl.yml
     $ pudl_etl the/path/to/your/custom_etl.yml
 
+.. warning::
+
+  Most possible ETL configurations are not expected to run successfully. The only two
+  that we test regularly and expect to succeed are the ones defined by the fast and full
+  ETL settings referenced above.
 
 Additional Notes
 ----------------
