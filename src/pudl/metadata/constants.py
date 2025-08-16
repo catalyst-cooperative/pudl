@@ -3,6 +3,7 @@
 import datetime
 from collections.abc import Callable
 
+import geoarrow.pyarrow as ga
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
@@ -12,6 +13,7 @@ FIELD_DTYPES_PANDAS: dict[str, str] = {
     "boolean": "boolean",
     "date": "datetime64[s]",
     "datetime": "datetime64[s]",
+    "geometry": "geometry",
     "integer": "Int64",
     "number": "float64",
     "string": "string",
@@ -19,10 +21,11 @@ FIELD_DTYPES_PANDAS: dict[str, str] = {
 }
 """Pandas data type by PUDL field type (Data Package `field.type`)."""
 
-FIELD_DTYPES_PYARROW: dict[str, pa.lib.DataType] = {
+FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
     "boolean": pa.bool_(),
     "date": pa.date32(),
     "datetime": pa.timestamp("ms"),
+    "geometry": ga.wkb(),
     "integer": pa.int32(),
     "number": pa.float32(),
     "string": pa.string(),

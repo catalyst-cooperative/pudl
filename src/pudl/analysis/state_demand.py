@@ -96,18 +96,18 @@ def county_assignments_ferc714(
 
 
 def census_counties(
-    _core_censusdp1tract__counties: gpd.GeoDataFrame,
-) -> gpd.GeoDataFrame:
+    out_censusdp1tract__counties: gpd.GeoDataFrame,
+) -> pd.DataFrame:
     """Load county attributes.
 
     Args:
-        county_censusdp: The county layer of the Census DP1 geodatabase.
+        out_censusdp1tract__counties: The county layer of the Census DP1 geodatabase.
 
     Returns:
         Dataframe with columns `county_id_fips` and `population`.
     """
-    return _core_censusdp1tract__counties[["geoid10", "dp0010001"]].rename(
-        columns={"geoid10": "county_id_fips", "dp0010001": "population"}
+    return out_censusdp1tract__counties[["county_id_fips", "dp0010001"]].rename(
+        columns={"dp0010001": "population"}
     )
 
 
@@ -158,15 +158,15 @@ def total_state_sales_eia861(
 def out_ferc714__hourly_estimated_state_demand(
     context,
     out_ferc714__hourly_planning_area_demand: pd.DataFrame,
-    _core_censusdp1tract__counties: pd.DataFrame,
+    out_censusdp1tract__counties: gpd.GeoDataFrame,
     out_ferc714__respondents_with_fips: pd.DataFrame,
-    core_eia861__yearly_sales: pd.DataFrame = None,
+    core_eia861__yearly_sales: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Estimate hourly electricity demand by state.
 
     Args:
         out_ferc714__hourly_planning_area_demand: Hourly demand timeseries, with imputed demand.
-        _core_censusdp1tract__counties: The county layer of the Census DP1 shapefile.
+        out_censusdp1tract__counties: The county layer of the Census DP1 shapefile.
         out_ferc714__respondents_with_fips: Annual respondents with the county FIPS IDs
             for their service territories.
         core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly
@@ -186,7 +186,7 @@ def out_ferc714__hourly_estimated_state_demand(
     count_assign_ferc714 = county_assignments_ferc714(
         out_ferc714__respondents_with_fips
     )
-    counties = census_counties(_core_censusdp1tract__counties)
+    counties = census_counties(out_censusdp1tract__counties)
     total_sales_eia861 = total_state_sales_eia861(core_eia861__yearly_sales)
 
     # Pre-compute list of respondent-years with demand

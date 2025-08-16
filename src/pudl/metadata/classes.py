@@ -566,7 +566,9 @@ class Field(PudlMeta):
 
     name: SnakeCase
     # Shadows built-in type.
-    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]
+    type: Literal[
+        "string", "number", "integer", "boolean", "date", "datetime", "year", "geometry"
+    ]
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
@@ -647,7 +649,7 @@ class Field(PudlMeta):
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
 
-    def to_pyarrow_dtype(self) -> pa.lib.DataType:
+    def to_pyarrow_dtype(self) -> pa.DataType:
         """Return PyArrow data type."""
         if self.constraints.enum and self.type == "string":
             return pa.dictionary(pa.int32(), pa.string(), ordered=False)
@@ -1380,6 +1382,7 @@ class Resource(PudlMeta):
     encoder: Encoder | None = None
     field_namespace: (
         Literal[
+            "censusdp1tract",
             "eia",
             "eiaaeo",
             "eiaapi",
@@ -1398,6 +1401,7 @@ class Resource(PudlMeta):
     ) = None
     etl_group: (
         Literal[
+            "censusdp1tract",
             "eia860",
             "eia861",
             "eia861_disabled",

@@ -6,6 +6,7 @@ from sqlite3 import sqlite_version
 from typing import Any
 
 import dask.dataframe as dd
+import geopandas as gpd
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -311,7 +312,7 @@ class PudlParquetIOManager(IOManager):
 
     def handle_output(self, context: OutputContext, df: Any) -> None:
         """Writes pudl dataframe to parquet file."""
-        assert isinstance(df, pd.DataFrame), "Only panda dataframes are supported."
+        assert isinstance(df, pd.DataFrame), "Only pandas dataframes are supported."
         table_name = get_table_name_from_context(context)
         parquet_path = PudlPaths().parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
@@ -333,6 +334,35 @@ class PudlParquetIOManager(IOManager):
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
         return get_parquet_table(table_name)
+
+
+class PudlGeoParquetIOManager(IOManager):
+    """IO Manager for reading/writing geopandas dataframes as geoparquet files."""
+
+    def handle_output(self, context: OutputContext, gdf: gpd.GeoDataFrame) -> None:
+        """Write a Geopandas dataframe out to geoparquet."""
+        assert isinstance(gdf, gpd.GeoDataFrame), (
+            "Only Geopandas dataframes are supported."
+        )
+        table_name = get_table_name_from_context(context)
+        parquet_path = PudlPaths().parquet_path(table_name)
+        parquet_path.parent.mkdir(parents=True, exist_ok=True)
+        gdf.to_parquet(parquet_path, engine="pyarrow", compression="snappy")
+
+    def load_input(self, context: InputContext) -> gpd.GeoDataFrame:
+        """Loads PUDL table from GeoParquet file."""
+        table_name = get_table_name_from_context(context)
+        gdf = gpd.read_parquet(PudlPaths().parquet_path(table_name))
+        assert isinstance(gdf, gpd.GeoDataFrame), (
+            f"Expected a GeoDataFrame but read a {type(gdf)}."
+        )
+        return gdf
+
+
+@io_manager
+def geoparquet_io_manager(init_context: InitResourceContext) -> IOManager:
+    """Create a Parquet only IO manager."""
+    return PudlGeoParquetIOManager()
 
 
 class PudlSQLiteIOManager(SQLiteIOManager):
