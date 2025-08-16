@@ -417,7 +417,7 @@ def service_territory_asset_factory(
         out_eia__yearly_utilities: pd.DataFrame,
         core_eia861__yearly_service_territory: pd.DataFrame,
         core_eia861__assn_utility: pd.DataFrame,
-        out_censusdp1tract__counties: pd.DataFrame,
+        out_censusdp1tract__counties: gpd.GeoDataFrame,
     ) -> pd.DataFrame:
         """Compile all available utility or balancing authority geometries.
 
