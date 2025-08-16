@@ -329,14 +329,12 @@ class PudlParquetIOManager(IOManager):
             # Extract metadata before modifying geometry columns
             geo_metadata = self._create_geoparquet_metadata(df, res)
 
-            # Convert geometry columns to WKB in-place (no backup needed)
+            # Convert geometry columns to WKB
             geometry_fields = [
                 field.name
                 for field in res.schema.fields
                 if field.type == "geometry" and field.name in df.columns
             ]
-
-            # Convert geometry columns to WKB in-place
             for field_name in geometry_fields:
                 df[field_name] = df[field_name].to_wkb()
 
@@ -348,7 +346,7 @@ class PudlParquetIOManager(IOManager):
             metadata[b"geo"] = geo_metadata.encode()
             pa_table = pa_table.replace_schema_metadata(metadata)
         else:
-            # Regular DataFrame - use PyArrow table approach for consistency
+            # Regular DataFrame - the built in from_pandas() method is fine.
             pa_table = pa.Table.from_pandas(df, schema=pa_schema, preserve_index=False)
 
         pq.write_table(pa_table, parquet_path)
@@ -365,7 +363,7 @@ class PudlParquetIOManager(IOManager):
                     "encoding": "WKB",
                     "geometry_types": [],  # Could be enhanced with actual geometry type detection
                     "crs": gdf.crs.to_wkt() if gdf.crs else None,
-                    # Calculate bbox from original geometry if available
+                    # Calculate bbox from geometry
                     "bbox": gdf.total_bounds.tolist()
                     if not gdf.empty and gdf.crs
                     else None,

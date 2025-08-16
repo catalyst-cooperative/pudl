@@ -20,7 +20,6 @@ from matplotlib import pyplot as plt
 
 import pudl
 from pudl.helpers import get_parquet_table
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -679,10 +678,6 @@ def pudl_service_territories(
     # Display logged output from the PUDL package:
     pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
 
-    county_gdf = gpd.read_parquet(
-        PudlPaths().parquet_path("out_censusdp1tract__counties")
-    )
-
     _ = compile_geoms(
         core_eia861__yearly_balancing_authority=get_parquet_table(
             "core_eia861__yearly_balancing_authority"
@@ -695,7 +690,10 @@ def pudl_service_territories(
             "core_eia861__yearly_service_territory"
         ),
         core_eia861__assn_utility=get_parquet_table("core_eia861__assn_utility"),
-        census_counties=county_gdf,
+        census_counties=get_parquet_table(
+            "out_censusdp1tract__counties",
+            columns=["county_id_fips", "geometry", "county", "dp0010001"],
+        ),
         dissolve=dissolve,
         save_format="geoparquet",
         output_dir=output_dir,
