@@ -169,6 +169,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "area_km2",
                 "demand_annual_mwh",
             ],
+            "primary_key": ["respondent_id_ferc714", "report_date"],
         },
         "sources": ["ferc714", "censusdp1tract", "eia861"],
         "field_namespace": "ferc714",
