@@ -2,7 +2,9 @@
 
 import importlib.resources
 import itertools
+from typing import Any
 
+import geopandas as gpd
 import pandera.pandas as pr
 from dagster import (
     AssetCheckResult,
@@ -23,11 +25,11 @@ from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,
-    geoparquet_io_manager,
     parquet_io_manager,
     pudl_mixed_format_io_manager,
 )
 from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import Resource
 from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
 from pudl.settings import EtlSettings
 
@@ -133,6 +135,98 @@ default_asset_checks = list(
 )
 
 
+def _collect_asset_metadata(asset_value, resource: Resource) -> dict[str, Any]:
+    """Collect basic metadata about the asset and its schema."""
+    return {
+        "asset_type": str(type(asset_value)),
+        "asset_columns": list(asset_value.columns)
+        if hasattr(asset_value, "columns")
+        else "No columns attribute",
+        "asset_shape": list(getattr(asset_value, "shape", "No shape attribute")),
+        "expected_schema_columns": [field.name for field in resource.schema.fields],
+    }
+
+
+def _collect_dtype_metadata(asset_value, resource, pandera_schema) -> dict[str, Any]:
+    """Collect data type information for comparison."""
+    metadata = {}
+
+    # Add actual column types
+    if hasattr(asset_value, "dtypes"):
+        metadata["asset_column_types"] = {
+            col: str(dtype) for col, dtype in asset_value.dtypes.items()
+        }
+
+    # Add pandera schema columns
+    metadata["pandera_schema_columns"] = (
+        list(pandera_schema.columns.keys())
+        if hasattr(pandera_schema, "columns")
+        else "No columns in schema"
+    )
+
+    # Add expected schema types
+    expected_types = {}
+    for field in resource.schema.fields:
+        try:
+            pandera_col = field.to_pandera_column()
+            expected_types[field.name] = {
+                "field_type": field.type,
+                "pandera_dtype": str(pandera_col.dtype),
+                "pandera_type_class": str(type(pandera_col.dtype)),
+            }
+        except Exception as e:
+            expected_types[field.name] = {"error_creating_pandera_column": str(e)}
+
+    metadata["expected_column_types"] = expected_types
+    return metadata
+
+
+def _collect_geometry_metadata(asset_value) -> dict[str, Any]:
+    """Collect GeoPandas-specific metadata."""
+    if not isinstance(asset_value, gpd.GeoDataFrame):
+        return {}
+
+    metadata = {
+        "geometry_column": (
+            asset_value.geometry.name
+            if hasattr(asset_value, "geometry")
+            else "No geometry attribute"
+        )
+    }
+
+    if hasattr(asset_value, "geometry") and hasattr(asset_value.geometry, "dtype"):
+        metadata["geometry_dtype"] = str(asset_value.geometry.dtype)
+
+    return metadata
+
+
+def _process_schema_errors(schema_errors: pr.errors.SchemaErrors) -> dict[str, Any]:
+    """Process Pandera schema errors into structured metadata."""
+    detailed_errors = []
+
+    for err in schema_errors.schema_errors:
+        error_info = {
+            "error_type": type(err).__name__,
+            "error_message": str(err),
+            "failure_cases": str(err.failure_cases)
+            if hasattr(err, "failure_cases")
+            else "No failure_cases",
+            "data": str(err.data) if hasattr(err, "data") else "No data",
+        }
+
+        # Add optional error attributes
+        for attr in ["schema", "check", "args"]:
+            if hasattr(err, attr):
+                error_info[f"{attr}_info"] = str(getattr(err, attr))
+
+        detailed_errors.append(error_info)
+
+    return {
+        "detailed_errors": detailed_errors,
+        "num_errors": len(schema_errors.schema_errors),
+    }
+
+
 def asset_check_from_schema(
     asset_key: AssetKey,
     package: pudl.metadata.classes.Package,
@@ -143,26 +237,32 @@ def asset_check_from_schema(
         resource = package.get_resource(resource_id)
     except ValueError:
         return None
+
     pandera_schema = resource.schema.to_pandera()
 
     @asset_check(asset=asset_key, blocking=True)
     def pandera_schema_check(asset_value) -> AssetCheckResult:
+        # Collect all metadata
+        metadata = {}
+        metadata.update(_collect_asset_metadata(asset_value, resource))
+        metadata.update(_collect_dtype_metadata(asset_value, resource, pandera_schema))
+        metadata.update(_collect_geometry_metadata(asset_value))
+
         try:
             pandera_schema.validate(asset_value, lazy=True)
+            return AssetCheckResult(passed=True, metadata=metadata)
+
         except pr.errors.SchemaErrors as schema_errors:
-            return AssetCheckResult(
-                passed=False,
-                metadata={
-                    "errors": [
-                        {
-                            "failure_cases": str(err.failure_cases),
-                            "data": str(err.data),
-                        }
-                        for err in schema_errors.schema_errors
-                    ],
-                },
-            )
-        return AssetCheckResult(passed=True)
+            metadata.update(_process_schema_errors(schema_errors))
+            return AssetCheckResult(passed=False, metadata=metadata)
+
+        except Exception as e:
+            metadata["unexpected_error"] = {
+                "error_type": type(e).__name__,
+                "error_message": str(e),
+                "error_args": str(e.args) if hasattr(e, "args") else "No args",
+            }
+            return AssetCheckResult(passed=False, metadata=metadata)
 
     return pandera_schema_check
 
@@ -216,7 +316,6 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "epacems_io_manager": epacems_io_manager,
     "parquet_io_manager": parquet_io_manager,
-    "geoparquet_io_manager": geoparquet_io_manager,
 }
 
 # Limit the number of concurrent workers when launch assets that use a lot of memory.

@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
 import frictionless
+import geopandas as gpd
 import jinja2
 import numpy as np
 import pandas as pd
@@ -737,7 +738,12 @@ class Field(PudlMeta):
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
         checks = constraints.to_pandera_checks()
-        column_type = "category" if constraints.enum else FIELD_DTYPES_PANDAS[self.type]
+        if constraints.enum:
+            column_type = "category"
+        elif self.type == "geometry":
+            column_type = gpd.array.GeometryDtype()
+        else:
+            column_type = FIELD_DTYPES_PANDAS[self.type]
 
         return pr.Column(
             column_type,
@@ -1709,7 +1715,9 @@ class Resource(PudlMeta):
             matches = {key: key for key in keys if key in names}
         return matches if len(matches) == len(keys) else None
 
-    def format_df(self, df: pd.DataFrame | None = None, **kwargs: Any) -> pd.DataFrame:
+    def format_df(
+        self, df: pd.DataFrame | gpd.GeoDataFrame | None = None, **kwargs: Any
+    ) -> pd.DataFrame | gpd.GeoDataFrame:
         """Format a dataframe according to the resources's table schema.
 
         * DataFrame columns not in the schema are dropped.
@@ -1771,7 +1779,9 @@ class Resource(PudlMeta):
                 df[key] = PERIODS[period](df[key])
         return df
 
-    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
+    def enforce_schema(
+        self, df: pd.DataFrame | gpd.GeoDataFrame
+    ) -> pd.DataFrame | gpd.GeoDataFrame:
         """Drop columns not in the DB schema and enforce specified types."""
         expected_cols = pd.Index(self.get_field_names())
         missing_cols = list(expected_cols.difference(df.columns))

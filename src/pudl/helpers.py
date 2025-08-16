@@ -22,6 +22,7 @@ from io import BytesIO
 from typing import Any, Literal, NamedTuple
 
 import datasette
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
@@ -2245,7 +2246,7 @@ def get_parquet_table(
     filters: list[tuple[str, str, Any]]
     | list[list[tuple[str, str, Any]]]
     | None = None,
-) -> pd.DataFrame:
+) -> pd.DataFrame | gpd.GeoDataFrame:
     """Read a table from Parquet files with optional column selection and filtering.
 
     This function provides a general-purpose interface for reading PUDL tables from
@@ -2278,15 +2279,24 @@ def get_parquet_table(
     resource = Resource.from_id(table_name)
     pyarrow_schema = resource.to_pyarrow()
 
-    # Read the Parquet file
-    df = pq.read_table(
-        source=parquet_path,
-        schema=pyarrow_schema,
-        columns=columns,
-        filters=filters,
-        use_threads=True,
-        memory_map=True,
-    ).to_pandas()
+    try:  # Attempt to read as a GeoDataFrame
+        df = gpd.read_parquet(
+            parquet_path,
+            columns=columns,
+            filters=filters,
+            schema=pyarrow_schema,
+            use_threads=True,
+            memory_map=True,
+        )
+    except (ValueError, TypeError):  # Fall back to normal Pandas DataFrame
+        df = pq.read_table(
+            source=parquet_path,
+            schema=pyarrow_schema,
+            columns=columns,
+            filters=filters,
+            use_threads=True,
+            memory_map=True,
+        ).to_pandas()
 
     # Only enforce schema if we're reading all columns
     if columns is None:

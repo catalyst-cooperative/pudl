@@ -599,7 +599,7 @@ def _out_ferc714__georeferenced_counties(
 
 @asset(
     compute_kind="pandas",
-    io_manager_key="geoparquet_io_manager",
+    io_manager_key="parquet_io_manager",
 )
 def out_ferc714__georeferenced_respondents(
     out_ferc714__respondents_with_fips: pd.DataFrame,

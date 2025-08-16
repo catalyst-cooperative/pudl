@@ -3,7 +3,6 @@
 import re
 from pathlib import Path
 from sqlite3 import sqlite_version
-from typing import Any
 
 import dask.dataframe as dd
 import geopandas as gpd
@@ -310,59 +309,87 @@ class SQLiteIOManager(IOManager):
 class PudlParquetIOManager(IOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
 
-    def handle_output(self, context: OutputContext, df: Any) -> None:
+    def handle_output(
+        self, context: OutputContext, df: pd.DataFrame | gpd.GeoDataFrame
+    ) -> None:
         """Writes pudl dataframe to parquet file."""
-        assert isinstance(df, pd.DataFrame), "Only pandas dataframes are supported."
+        if not isinstance(df, (pd.DataFrame, gpd.GeoDataFrame)):
+            raise TypeError(
+                f"Only pandas or geopandas dataframes are supported, got {type(df)}."
+            )
         table_name = get_table_name_from_context(context)
         parquet_path = PudlPaths().parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
+
         res = Resource.from_id(table_name)
-
         df = res.enforce_schema(df)
-        schema = res.to_pyarrow()
-        with pq.ParquetWriter(
-            where=parquet_path,
-            schema=schema,
-            compression="snappy",
-            version="2.6",
-        ) as writer:
-            writer.write_table(
-                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
-            )
+        pa_schema = res.to_pyarrow()
 
-    def load_input(self, context: InputContext) -> pd.DataFrame:
+        if isinstance(df, gpd.GeoDataFrame):
+            # Extract metadata before modifying geometry columns
+            geo_metadata = self._create_geoparquet_metadata(df, res)
+
+            # Convert geometry columns to WKB in-place (no backup needed)
+            geometry_fields = [
+                field.name
+                for field in res.schema.fields
+                if field.type == "geometry" and field.name in df.columns
+            ]
+
+            # Convert geometry columns to WKB in-place
+            for field_name in geometry_fields:
+                df[field_name] = df[field_name].to_wkb()
+
+            # Convert to PyArrow table with explicit schema
+            pa_table = pa.Table.from_pandas(df, schema=pa_schema, preserve_index=False)
+
+            # Add GeoParquet metadata
+            metadata = pa_table.schema.metadata or {}
+            metadata[b"geo"] = geo_metadata.encode()
+            pa_table = pa_table.replace_schema_metadata(metadata)
+        else:
+            # Regular DataFrame - use PyArrow table approach for consistency
+            pa_table = pa.Table.from_pandas(df, schema=pa_schema, preserve_index=False)
+
+        pq.write_table(pa_table, parquet_path)
+
+    def _create_geoparquet_metadata(self, gdf: gpd.GeoDataFrame, res: Resource) -> str:
+        """Create GeoParquet metadata JSON string."""
+        import json
+
+        # Find geometry columns from the resource schema
+        geometry_columns = {}
+        for field in res.schema.fields:
+            if field.type == "geometry" and field.name in gdf.columns:
+                geometry_columns[field.name] = {
+                    "encoding": "WKB",
+                    "geometry_types": [],  # Could be enhanced with actual geometry type detection
+                    "crs": gdf.crs.to_wkt() if gdf.crs else None,
+                    # Calculate bbox from original geometry if available
+                    "bbox": gdf.total_bounds.tolist()
+                    if not gdf.empty and gdf.crs
+                    else None,
+                }
+
+        # Determine primary geometry column
+        primary_column = None
+        if hasattr(gdf, "geometry") and gdf.geometry.name in geometry_columns:
+            primary_column = gdf.geometry.name
+        elif geometry_columns:
+            primary_column = list(geometry_columns.keys())[0]
+
+        geo_metadata = {
+            "version": "1.0.0",
+            "primary_column": primary_column,
+            "columns": geometry_columns,
+        }
+
+        return json.dumps(geo_metadata)
+
+    def load_input(self, context: InputContext) -> pd.DataFrame | gpd.GeoDataFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
         return get_parquet_table(table_name)
-
-
-class PudlGeoParquetIOManager(IOManager):
-    """IO Manager for reading/writing geopandas dataframes as geoparquet files."""
-
-    def handle_output(self, context: OutputContext, gdf: gpd.GeoDataFrame) -> None:
-        """Write a Geopandas dataframe out to geoparquet."""
-        assert isinstance(gdf, gpd.GeoDataFrame), (
-            "Only Geopandas dataframes are supported."
-        )
-        table_name = get_table_name_from_context(context)
-        parquet_path = PudlPaths().parquet_path(table_name)
-        parquet_path.parent.mkdir(parents=True, exist_ok=True)
-        gdf.to_parquet(parquet_path, engine="pyarrow", compression="snappy")
-
-    def load_input(self, context: InputContext) -> gpd.GeoDataFrame:
-        """Loads PUDL table from GeoParquet file."""
-        table_name = get_table_name_from_context(context)
-        gdf = gpd.read_parquet(PudlPaths().parquet_path(table_name))
-        assert isinstance(gdf, gpd.GeoDataFrame), (
-            f"Expected a GeoDataFrame but read a {type(gdf)}."
-        )
-        return gdf
-
-
-@io_manager
-def geoparquet_io_manager(init_context: InitResourceContext) -> IOManager:
-    """Create a Parquet only IO manager."""
-    return PudlGeoParquetIOManager()
 
 
 class PudlSQLiteIOManager(SQLiteIOManager):

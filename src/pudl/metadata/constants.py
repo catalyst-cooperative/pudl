@@ -4,6 +4,7 @@ import datetime
 from collections.abc import Callable
 
 import geoarrow.pyarrow as ga
+import geopandas as gpd
 import pandas as pd
 import pyarrow as pa
 import sqlalchemy as sa
@@ -50,6 +51,7 @@ CONSTRAINT_DTYPES: dict[str, type] = {
     "boolean": bool,
     "date": datetime.date,
     "datetime": datetime.datetime,
+    "geometry": gpd.array.GeometryDtype,
     "integer": int,
     "number": float,
     "string": str,
