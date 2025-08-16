@@ -36,7 +36,7 @@ def census_asset_factory(
             "plural": "counties",
             "rename": {
                 "geoid10": "county_id_fips",
-                "namelsad10": "county_name",
+                "namelsad10": "county",
                 "funcstat10": "functional_status_code_census",
             },
         },

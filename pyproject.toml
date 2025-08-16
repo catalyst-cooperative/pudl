@@ -39,6 +39,7 @@ dependencies = [
     "gcsfs>=2025",
     "gdal==3.11.3", # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.1",
+    "geoarrow-pyarrow>=0.2",
     "grpcio==1.71.0", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.71.0", # Required by dagster, binary dependencies are flaky
     "grpcio-status==1.71.0", # Required by dagster, binary dependencies are flaky

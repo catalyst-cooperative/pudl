@@ -151,10 +151,10 @@ def add_geometries(
         A GeoDataFrame with the merged census geometries.
     """
     out_gdf = (
-        census_gdf[["county_id_fips", "county_name", "dp0010001", "geometry"]]
+        census_gdf[["county_id_fips", "county", "dp0010001", "geometry"]]
         .rename(
             columns={
-                "county_name": "county_name_census",
+                "county": "county_name_census",
                 "dp0010001": "population",
             }
         )
