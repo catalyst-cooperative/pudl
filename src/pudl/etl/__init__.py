@@ -136,48 +136,78 @@ default_asset_checks = list(
 
 
 def _collect_asset_metadata(asset_value, resource: Resource) -> dict[str, Any]:
-    """Collect basic metadata about the asset and its schema."""
+    """Collect basic metadata about the asset."""
     return {
         "asset_type": str(type(asset_value)),
-        "asset_columns": list(asset_value.columns)
-        if hasattr(asset_value, "columns")
-        else "No columns attribute",
         "asset_shape": list(getattr(asset_value, "shape", "No shape attribute")),
-        "expected_schema_columns": [field.name for field in resource.schema.fields],
     }
 
 
 def _collect_dtype_metadata(asset_value, resource, pandera_schema) -> dict[str, Any]:
-    """Collect data type information for comparison."""
+    """Collect comprehensive column and data type information for comparison."""
     metadata = {}
 
-    # Add actual column types
-    if hasattr(asset_value, "dtypes"):
-        metadata["asset_column_types"] = {
-            col: str(dtype) for col, dtype in asset_value.dtypes.items()
-        }
-
-    # Add pandera schema columns
-    metadata["pandera_schema_columns"] = (
-        list(pandera_schema.columns.keys())
-        if hasattr(pandera_schema, "columns")
-        else "No columns in schema"
+    # Get actual columns and types
+    actual_columns = (
+        list(asset_value.columns) if hasattr(asset_value, "columns") else []
     )
+    actual_dtypes = {}
+    if hasattr(asset_value, "dtypes"):
+        actual_dtypes = {col: str(dtype) for col, dtype in asset_value.dtypes.items()}
 
-    # Add expected schema types
-    expected_types = {}
+    # Get expected columns and types
+    expected_columns = [field.name for field in resource.schema.fields]
+    expected_dtypes = {}
+    pandera_dtypes = {}
+
     for field in resource.schema.fields:
         try:
             pandera_col = field.to_pandera_column()
-            expected_types[field.name] = {
-                "field_type": field.type,
-                "pandera_dtype": str(pandera_col.dtype),
-                "pandera_type_class": str(type(pandera_col.dtype)),
-            }
+            pandera_dtypes[field.name] = str(pandera_col.dtype)
+            expected_dtypes[field.name] = str(pandera_col.dtype)
         except Exception as e:
-            expected_types[field.name] = {"error_creating_pandera_column": str(e)}
+            expected_dtypes[field.name] = f"Error: {str(e)}"
+            pandera_dtypes[field.name] = f"Error: {str(e)}"
 
-    metadata["expected_column_types"] = expected_types
+    # Detailed field information
+    field_details = {}
+    for field in resource.schema.fields:
+        field_details[field.name] = {
+            "pudl_field_type": field.type,
+            "expected_pandera_dtype": pandera_dtypes.get(field.name, "Unknown"),
+            "actual_dtype": actual_dtypes.get(field.name, "Column not present"),
+            "column_present": field.name in actual_columns,
+        }
+
+    metadata["field_details"] = field_details
+
+    # Column comparison summary
+    missing_columns = set(expected_columns) - set(actual_columns)
+    extra_columns = set(actual_columns) - set(expected_columns)
+
+    metadata["column_comparison"] = {
+        "expected_count": len(expected_columns),
+        "actual_count": len(actual_columns),
+    }
+
+    if missing_columns:
+        metadata["column_comparison"]["missing_columns"] = list(missing_columns)
+    if extra_columns:
+        metadata["column_comparison"]["extra_columns"] = list(extra_columns)
+
+    # Type mismatches for common columns
+    common_columns = set(expected_columns) & set(actual_columns)
+    type_mismatches = {}
+
+    for col in common_columns:
+        expected_type = expected_dtypes.get(col, "Unknown")
+        actual_type = actual_dtypes.get(col, "Unknown")
+        if expected_type != actual_type and expected_type != "Unknown":
+            type_mismatches[col] = {"expected": expected_type, "actual": actual_type}
+
+    if type_mismatches:
+        metadata["type_mismatches"] = type_mismatches
+
     return metadata
 
 
