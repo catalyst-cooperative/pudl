@@ -1749,7 +1749,7 @@ class Resource(PudlMeta):
                     if value not in dtypes[field.name].categories
                 ]
                 if uncategorized:
-                    logger.warning(
+                    raise ValueError(
                         f"Values in {field.name} column are not included in "
                         "categorical values in field enum constraint "
                         f"and will be converted to nulls ({uncategorized})."
