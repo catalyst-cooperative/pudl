@@ -2190,9 +2190,9 @@ class XbrlCalculationForestFerc1(BaseModel):
         forest.remove_nodes_from(almost_pure_stepparents)
 
         forest = self.prune_unrooted(forest)
-        if not nx.is_forest(forest):
+        if not nx.is_directed_acyclic_graph(forest):
             logger.error(
-                "Calculations in Exploded Metadata can not be represented as a forest!"
+                "Calculations in Exploded Metadata cannot be represented as a directed acyclic graph!"
             )
         remaining_stepparents = set(self.stepparents(forest))
         if remaining_stepparents:
