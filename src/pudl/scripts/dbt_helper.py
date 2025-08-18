@@ -19,7 +19,6 @@ from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
-configure_root_logger()
 logger = get_logger(__name__)
 logger.parent.propagate = False
 
@@ -694,6 +693,7 @@ def dbt_helper():
 
     Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
+    configure_root_logger()
 
 
 dbt_helper.add_command(update_tables)

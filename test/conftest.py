@@ -42,15 +42,6 @@ from pudl.settings import (
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
 
-pudl.logging_helpers.configure_root_logger(
-    dependency_loglevels={
-        "numba": logging.WARNING,
-        "fsspec": logging.INFO,
-        "asyncio": logging.INFO,
-        "google": logging.INFO,
-        "alembic": logging.WARNING,
-    }
-)
 logger = logging.getLogger(__name__)
 
 AS_MS_ONLY_FREQ_TABLES = [
@@ -409,7 +400,21 @@ def dataset_settings_config(request, etl_settings: EtlSettings):
 
 
 @pytest.fixture(scope="session")
-def pudl_datastore_config(request) -> dict[str, Any]:
+def logger_config():
+    """Configure root logger to filter out excessive logs from certain dependencies."""
+    pudl.logging_helpers.configure_root_logger(
+        dependency_loglevels={
+            "numba": logging.WARNING,
+            "fsspec": logging.INFO,
+            "asyncio": logging.INFO,
+            "google": logging.INFO,
+            "alembic": logging.WARNING,
+        }
+    )
+
+
+@pytest.fixture(scope="session")
+def pudl_datastore_config(logger_config, request) -> dict[str, Any]:
     """Produce a :class:pudl.workspace.datastore.Datastore."""
     gcs_cache_path = request.config.getoption("--gcs-cache-path")
     return {

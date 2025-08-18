@@ -18,8 +18,6 @@ from . import (
     workspace,
 )
 
-logging_helpers.configure_root_logger()
-
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"
 __maintainer__ = "Catalyst Cooperative"
