@@ -3,8 +3,21 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2025.XX.x (2025-MM-DD)
+v202X.XX.x (YYYY-MM-DD)
 ---------------------------------------------------------------------------------------
+
+.. _release-v2025.8.0:
+
+---------------------------------------------------------------------------------------
+v2025.8.0 (2025-08-14)
+---------------------------------------------------------------------------------------
+
+This is a regular quarterly release of PUDL. It includes new 2024 annual updates for a
+number of datasets (FERC Forms 2, 6, 60, & 714), and a minor update to the 2024 FERC
+Form 1 data that includes late filings & revisions. It also includes year-to-date
+updates for the monthly and quarterly datasets, including EIA-860M, EIA-923, EIA-930,
+and the EPA CEMS hourly emissions. There were also a number of data processing bug fixes
+and data usability improvements. See the full notes below for details.
 
 New Data
 ^^^^^^^^
@@ -13,44 +26,69 @@ New Data
   Schedule 8A Byproduct Disposition to the PUDL database as
   :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, this table will
   be replaced with a well-normalized version of the same data, but it is being published
-  in this form until then.
-  See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
+  in this form until then. See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Expanded Data Coverage
-^^^^^^^^^^^^^^^^^^^^^^
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for May and June
+  of 2025. See issue :issue:`4379` and PR :pr:`4536`.
+
+EIA-923
+~~~~~~~
+
+* Added EIA-923 data through May 2025. See :issue:`4516` and :pr:`4538`.
 
 EIA 930
 ~~~~~~~
+
 * Updated EIA 930 data published up through the beginning of August 2025. See
   :issue:`4517` and PR :pr:`4523`.
 
 EIA Bulk Electricity API
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
 * Updated the EIA Bulk Electricity data to include data published up through
   the beginning of August 2025. See :issue:`4519` and PR :pr:`4523`.
 
+EPA CEMS
+~~~~~~~~
+
+* Added EPA CEMS data through June 2025. See :issue:`4518` and :pr:`4531`.
+
+FERC Form 1
+~~~~~~~~~~~
+
+* Updated FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+  :pr:`4507`.
+
 FERC Forms 2, 6 and 60
 ~~~~~~~~~~~~~~~~~~~~~~
+
 * Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
   2024 data. See :issue:`4418` and :pr:`4433`.
 
+FERC Form 714
+~~~~~~~~~~~~~
+
+* Integrated 2024 data for FERC Form 714. See issue :issue:`4409` and PR :pr:`4530`.
+
 PHMSA Gas Data
 ~~~~~~~~~~~~~~
+
 * Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
   data is not currently published to the PUDL database. See :issue:`4449` and
   :pr:`4470`.
 * Extracted 1970 through 1989 PHMSA transmission data to raw assets.  This data is not
-  currently published to the PUDL database. See :issue:`3290` and
-  :pr:`4500`.
-* Update FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
-  :pr:`4507`.
+  currently published to the PUDL database. See :issue:`3290` and :pr:`4500`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-* the output of ``dbt_helper update-tables`` now conforms to the format that
+
+* The output of ``dbt_helper update-tables`` now conforms to the format that
   our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
   :issue:`4119` and :pr:`4401`.
 * Improved behavior of ``dbt_helper`` when interacting with row count test definitions
@@ -71,6 +109,9 @@ Bug Fixes
   :issue:`4328` and PR :pr:`4392`.
 * Fixed bug in how we were repairing a misfiled EIA code in
   :ref:`core_ferc714__respondent_id`. See issue :issue:`4439` and PR :pr:`4497`.
+* Fixed bug in how we were removing duplicates in :ref:`core_eia923__monthly_generation`
+  resulting in ~400 more records in this table over several years. See details in PR
+  :pr:`4538`
 
 Documentation
 ^^^^^^^^^^^^^
