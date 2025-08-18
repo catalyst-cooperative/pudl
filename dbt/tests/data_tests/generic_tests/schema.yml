@@ -64,8 +64,6 @@ macros:
           A list of column names present in both tables. The test will succeed only if
           all combinations of column values present in at least one row in the
           comparison table are present in this table.
-  - name: test_no_null_rows
-    description: Check that there are no null rows in the table
   - name: test_expect_columns_not_all_null
     description: >
       Check that all columns in a table are not entirely NULL. Can exclude specific
@@ -183,14 +181,6 @@ macros:
       - name: n_acceptable
         type: integer
         description: The number of acceptable ``groupby_column`` values having more than one ``counted_column`` value associated with them.
-  - name: test_expect_unique_column_combination
-    description: >
-      Check whether the combination of values of the specified columns is unique. Fails
-      when any combination occurs more than once.
-    arguments:
-      - name: columns
-        type: list[string]
-        description: The columns in the unique combination.
   - name: test_expect_unique_utility_id_eia
     description: >
       Check whether each generator has exactly one operator utility on any particular
