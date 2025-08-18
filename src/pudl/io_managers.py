@@ -326,9 +326,6 @@ class PudlParquetIOManager(IOManager):
         pa_schema = res.to_pyarrow()
 
         if isinstance(df, gpd.GeoDataFrame):
-            # Extract metadata before modifying geometry columns
-            geo_metadata = self._create_geoparquet_metadata(df, res)
-
             # Convert geometry columns to WKB
             geometry_fields = [
                 field.name
@@ -338,9 +335,11 @@ class PudlParquetIOManager(IOManager):
             for field_name in geometry_fields:
                 df[field_name] = df[field_name].to_wkb()
 
-            # Convert to PyArrow table with explicit schema
+            # Convert Pandas dataframe to PyArrow table with an explicit schema
             pa_table = pa.Table.from_pandas(df, schema=pa_schema, preserve_index=False)
 
+            # Extract metadata before modifying geometry columns
+            geo_metadata = self._create_geoparquet_metadata(df, res)
             # Add GeoParquet metadata
             metadata = pa_table.schema.metadata or {}
             metadata[b"geo"] = geo_metadata.encode()
