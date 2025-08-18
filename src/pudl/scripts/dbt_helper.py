@@ -693,7 +693,6 @@ def dbt_helper():
 
     Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
-    configure_root_logger()
 
 
 dbt_helper.add_command(update_tables)
@@ -701,4 +700,5 @@ dbt_helper.add_command(validate)
 
 
 if __name__ == "__main__":
+    configure_root_logger()
     dbt_helper()

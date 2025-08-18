@@ -399,7 +399,7 @@ def dataset_settings_config(request, etl_settings: EtlSettings):
     return etl_settings.datasets.model_dump()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def logger_config():
     """Configure root logger to filter out excessive logs from certain dependencies."""
     pudl.logging_helpers.configure_root_logger(
@@ -414,7 +414,7 @@ def logger_config():
 
 
 @pytest.fixture(scope="session")
-def pudl_datastore_config(logger_config, request) -> dict[str, Any]:
+def pudl_datastore_config(request) -> dict[str, Any]:
     """Produce a :class:pudl.workspace.datastore.Datastore."""
     gcs_cache_path = request.config.getoption("--gcs-cache-path")
     return {

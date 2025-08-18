@@ -8,6 +8,9 @@ the logger at import time, which avoids a weird case where ``pytest`` won't appl
 ``log_cli`` option to loggers which are created at import time.
 """
 
+import os
+
 from pudl.logging_helpers import configure_root_logger
 
-configure_root_logger()
+if "PYTEST_CURRENT_TEST" in os.environ:
+    configure_root_logger()
