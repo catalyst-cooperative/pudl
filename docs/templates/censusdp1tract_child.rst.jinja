@@ -13,6 +13,19 @@ and visualizations, and we use county-level population to provide context for th
 FERC-714 hourly electricity demand. However, it should not be considered canonical
 information since it's from 2010 and more recent analogous data is available from the
 Census directly.
+
+We convert the original GeoDatabase to SQLite using the `ogr2ogr
+<https://gdal.org/en/stable/programs/ogr2ogr.html>`__ command-line tool that is part of
+the `open source geospatial library GDAL <https://gdal.org/en/stable/index.html>`__. The
+resulting state, county, and tract level tables are then output to `GeoParquet
+<https://geoparquet.org/>`__, which preserves the coordinate reference system and
+provides performant access to the vectorized geometries.
+
+We rename the handful of columns that do not contain demographic data to be more legible
+and consistent with the rest of the PUDL database. The ~170 demographic data columns are
+left named by their standard Census data series IDs, which begin with ``dp``, followed
+by 7-digits.
+
 {% endblock %}
 
 {% block availability %}
@@ -30,6 +43,9 @@ This data is summarized from the 2010 decennial census.
 {% endblock %}
 
 {% block original_data %}
+The original data is published as an `ESRI GeoDatabase
+<https://en.wikipedia.org/wiki/Geodatabase_(Esri)>`__.
+
 {% endblock %}
 
 {% block notable_irregularities %}
@@ -39,5 +55,4 @@ This data is summarized from the 2010 decennial census.
   boundaries. The population estimates and other demographic information it contains is
   also out of date. If you need more accurate geometries and demographics, you should go
   directly to canonical US Census data sources.
-
 {% endblock %}
