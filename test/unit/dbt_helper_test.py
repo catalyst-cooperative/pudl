@@ -1247,6 +1247,8 @@ sources:
     # patch out ALL_TABLES so that we're allowed to run tests
     mocker.patch("pudl.scripts.dbt_helper.ALL_TABLES", new=["test_source__table_name"])
     runner = CliRunner()
+
+    # Use builtin pytest caplog fixture to check for expected log outputs
     with caplog.at_level(logging.INFO):
         runner.invoke(
             update_tables,
