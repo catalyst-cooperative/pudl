@@ -272,8 +272,24 @@ class DbtSchema(BaseModel):
         return self.model_copy(update={"sources": new_sources, "models": new_models})
 
 
-def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
-    """Check if the DeepDiff includes any removals or modifications."""
+def schema_has_removals_or_modifications(
+    old_schema: dict,
+    new_schema: dict,
+) -> bool:
+    """Check if schema changes include removals or modifications.
+
+    Ignores:
+    * Column removals with no metadata (only {"name"} or empty dict)
+    * Column renames (values_changed on ['name'])
+    """
+    diff = DeepDiff(
+        old_schema,
+        new_schema,
+        ignore_order=True,
+        verbose_level=2,
+        view="tree",
+    )
+
     change_keys = {
         "values_changed",
         "type_changes",
@@ -282,7 +298,30 @@ def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
         "attribute_deleted",
     }
 
-    return any(key in diff and diff[key] for key in change_keys)
+    for key in change_keys:
+        if key not in diff:
+            continue
+
+        items = diff[key]
+
+        for obj in items.values() if isinstance(items, dict) else items:
+            path_str = obj.path() if hasattr(obj, "path") else str(obj)
+            removed_val = getattr(obj, "t1", None)
+
+            if (
+                key in ("dictionary_item_removed", "iterable_item_removed")
+                and "['columns']" in path_str
+                and isinstance(removed_val, dict)
+                and (not removed_val or set(removed_val.keys()) == {"name"})
+            ):
+                continue  # ignore empty column drop
+
+            if key == "values_changed" and path_str.endswith("['name']"):
+                continue  # ignore renames
+
+            return True  # anything else is a modification/removal
+
+    return False
 
 
 def _log_schema_diff(old_schema: DbtSchema, new_schema: DbtSchema):
@@ -387,7 +426,6 @@ def update_row_counts(
     table_name: str,
     data_source: str,
     clobber: bool = False,
-    update: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
     model_path = _get_model_path(table_name, data_source)
@@ -405,7 +443,6 @@ def update_row_counts(
     has_test = bool(partition_expressions)
     existing = _get_existing_row_counts()
     has_existing_row_counts = table_name in existing["table_name"].to_numpy()
-    allow_overwrite = clobber or update
 
     if not has_test and not has_existing_row_counts:
         return UpdateResult(
@@ -413,20 +450,20 @@ def update_row_counts(
             message=f"No row count test defined for {table_name}, and no row counts found, nothing to update.",
         )
 
-    if not has_test and not allow_overwrite:
+    if not has_test and not clobber:
         return UpdateResult(
             success=False,
-            message=f"Row counts exist for {table_name}, but no row count test is defined. Use clobber/update to remove.",
+            message=f"Row counts exist for {table_name}, but no row count test is defined. Use clobber to remove.",
         )
 
-    if has_existing_row_counts and not allow_overwrite:
+    if has_existing_row_counts and not clobber:
         return UpdateResult(
             success=False,
-            message=f"Row counts for {table_name} already exist. Use clobber or update to overwrite.",
+            message=f"Row counts for {table_name} already exist. Use clobber to overwrite.",
         )
 
     # At this point, we know row counts can be written: either because no row counts
-    # exist yet, or because clobber or update is set.
+    # exist yet, or because clobber is set.
 
     # In any case, we remove the old row counts for the table we are refreshing
     filtered = existing[existing["table_name"] != table_name]
@@ -471,41 +508,26 @@ def update_table_schema(
     table_name: str,
     data_source: str,
     clobber: bool = False,
-    update: bool = False,
 ) -> UpdateResult:
     """Generate and write out a schema.yaml file defining a new or updated table."""
     model_path = _get_model_path(table_name, data_source)
     schema_path = model_path / "schema.yml"
 
-    if model_path.exists() and not (clobber or update):
-        return UpdateResult(
-            success=False,
-            message=f"dbt configuration already exists for table {table_name} and clobber or update is not set.",
-        )
-
     generated_schema = DbtSchema.from_table_name(table_name)
-    # Default: use generated schema
-    new_schema = generated_schema
 
     # If we are updating an existing model, augment the newly generated schema with
     # whatever additional information is available from the old dbt schema.
-    if model_path.exists() and update:
+    if model_path.exists() and not clobber:
         # Load existing schema
         old_schema = DbtSchema.from_yaml(schema_path)
         # Replace new schema with the generated schema but copying missing metadata
         # from the old schema
         new_schema = generated_schema.merge_metadata_from(old_schema)
 
-        # Generate the diff report
-        diff = DeepDiff(
+        if schema_has_removals_or_modifications(
             old_schema.model_dump(exclude_none=True),
             new_schema.model_dump(exclude_none=True),
-            ignore_order=True,
-            verbose_level=2,
-            view="tree",
-        )
-
-        if schema_has_removals_or_modifications(diff):
+        ):
             _log_schema_diff(old_schema, new_schema)
             # TODO 2025-07-11: perhaps we can integrate this `git add -p` flow directly
             # into the --clobber command?
@@ -516,6 +538,9 @@ def update_table_schema(
                 "1) re-run with --clobber, 2) run `git add dbt/models -p` "
                 "and follow the instructions for recovering the deleted info",
             )
+    else:
+        # Either there is no existing schema, or --clobber is set. Use generated schema as is.
+        new_schema = generated_schema
 
     # By the time we've gotten here, either:
     # * We've merged the old and new schema (if old schema existed, and we're updating)
@@ -572,7 +597,6 @@ class TableUpdateArgs:
     schema: bool = False
     row_counts: bool = False
     clobber: bool = False
-    update: bool = False
 
 
 @click.command
@@ -593,17 +617,11 @@ class TableUpdateArgs:
 @click.option(
     "--clobber/--no-clobber",
     default=False,
-    help="Overwrite existing table schema config and row counts. Otherwise, the script will fail if the table configuration already exists.",
-)
-@click.option(
-    "--update/--no-update",
-    default=False,
-    help="Allow the table schema to be updated if the new schema is a superset of the existing schema.",
+    help="Overwrite existing table schema config and row counts. Otherwise, the script will fail if destructive changes are made.",
 )
 def update_tables(
     tables: list[str],
     clobber: bool,
-    update: bool,
     schema: bool,
     row_counts: bool,
 ):
@@ -613,7 +631,6 @@ def update_tables(
     'all'. If 'all' the script will update configurations for for all PUDL tables.
 
     If ``--clobber`` is set, existing configurations for tables will be overwritten.
-    If ``--update`` is set, existing configurations for tables will be updated only
     if this does not result in deletions.
     """
     args = TableUpdateArgs(
@@ -621,13 +638,7 @@ def update_tables(
         schema=schema,
         row_counts=row_counts,
         clobber=clobber,
-        update=update,
     )
-
-    if args.clobber and args.update:
-        raise click.UsageError(
-            "Cannot use --clobber and --update at the same time. Choose one."
-        )
 
     tables = args.tables
     if "all" in tables:
@@ -645,7 +656,6 @@ def update_tables(
                     table_name=table_name,
                     data_source=data_source,
                     clobber=args.clobber,
-                    update=args.update,
                 )
             )
         if args.row_counts:
@@ -654,7 +664,6 @@ def update_tables(
                     table_name=table_name,
                     data_source=data_source,
                     clobber=args.clobber,
-                    update=args.update,
                 )
             )
 
