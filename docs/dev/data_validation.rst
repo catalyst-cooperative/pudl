@@ -4,6 +4,138 @@
 Data Validation Tests
 ================================================================================
 
+Quickstart
+----------
+
+Setup
+~~~~~
+
+The ``dbt/`` directory contains the PUDL dbt project which manages our `data tests
+<https://docs.getdbt.com/docs/build/data-tests>`__. To run dbt you'll need to have the
+``pudl-dev`` conda environment activated (see :doc:`dev_setup`).
+
+The data validation tests run on the Parquet outputs that are in your
+``$PUDL_OUTPUT/parquet/`` directory. It's important that you ensure the outputs you're
+testing are actually the result of the code on your current branch, otherwise you may
+be surprised when the data test fails in CI or the nightly builds.
+
+We have a script, :mod:`pudl.scripts.dbt_helper`, to help with some common workflows.
+
+Updating table schemas
+~~~~~~~~~~~~~~~~~~~~~~
+
+dbt stores information about a table's schema and what tests are defined
+in a special YAML file that you need to keep up to date.
+
+That file lives in ``pudl/dbt/models/<data_source>/<table_name>/schema.yml``.
+
+When you change a table's schema in ``pudl.metadata.resources``,
+you need to make sure that file is up to date as well.
+
+For now, you have to update the columns manually,
+by editing the ``columns`` list in the appropriate schema file.
+
+.. TODO 2025-08-19 Add `dbt_helper update-tables --schema` usage here.
+
+Updating row counts
+~~~~~~~~~~~~~~~~~~~
+
+To create or update the row count expectations for a given table you need to:
+
+* Make sure a fresh version of the table is available ``$PUDL_OUTPUT/parquet``. The
+  expectations will be derived from what's observed in that file.
+* Add ``check_row_counts_by_partition`` to the ``data_tests`` section of the the table's
+  ``schema.yml``.
+
+The initial ``data_tests`` for a new table might look like this:
+
+.. code-block:: yaml
+
+    version: 2
+    sources:
+      - name: pudl
+        tables:
+          - name: new_table_name
+            data_tests:
+              - check_row_counts_per_partition:
+                  table_name: new_table_name
+                  partition_expr: "EXTRACT(YEAR FROM report_date)"
+
+Then you can run:
+
+.. code-block:: bash
+
+    dbt_helper update-tables --row-counts new_table_name
+
+If this is a brand new table, you should see changes appear in
+``dbt/seeds/etl_full_row_counts.csv``. If you're updating the row counts for a table
+that already exists, you'll need to use the ``--clobber`` option to make the script
+overwrite existing row counts:
+
+.. code-block:: bash
+
+    dbt_helper update-tables --row-counts --clobber new_table_name
+
+.. warning::
+
+  You should rarely if ever need to edit the row-counts file directly. It needs to be
+  kept sorted to minimize diffs in git, and manually calculating and editing row counts
+  is both tedious and error prone.
+
+Running data validation tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``dbt_helper validate`` runs the data validation tests.
+It's a wrapper around the official dbt tool, ``dbt build`` - see :ref:`_dbt_build`.
+
+``dbt_helper validate`` provides rich output when a test fails,
+and allows us to use the `Dagster asset selection syntax
+<https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference>`__.
+
+Example usage:
+
+.. code-block:: bash
+
+    # for *all* assets
+    dbt_helper validate
+    # for just a single asset
+    dbt_helper validate --asset-select "key:out_eia__yearly_generators"
+    # for this asset as well as all upstream assets
+    dbt_helper validate --asset-select "+key:out_eia__yearly_generators"
+    # same as above, but skip row counts
+    dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"
+
+See ``dbt_helper validate --help`` for usage details.
+
+.. tip::
+
+   You may want to run the validation tests against multiple sets of Parquet files.
+
+   To do this:
+
+   1. Download the Parquet files to ``<any_directory_you_want>/parquet/``.
+   2. Set the ``PUDL_OUTPUT`` environment variable to ``<any_directory_you_want>``.
+   3. Run any of the ``dbt_helper`` commands you need.
+
+   Some examples of useful Parquet outputs and where to find them:
+
+   * `the most recent nightly builds <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/>`__
+   * the fast ETL outputs from your integration tests:
+     these are in a temporary directory created by ``pytest``.
+     Since these are already on your computer you don't need to download them.
+     The path is printed out at the beginning of the ``pytest`` run and will look like:
+     ``2025-07-25 16:05:49 [    INFO] test.conftest:386 Using temporary PUDL_OUTPUT:
+     /path/to/your/temp/dir``
+   * Any :ref:`_branch_build` outputs: if you have access to the internal build bucket,
+     `builds.catalyst.coop
+     <https://console.cloud.google.com/storage/browser/builds.catalyst.coop>`__,
+     you can also use the Parquet files you find there.
+
+
+--------------------------------------------------------------------------------
+Data validation guidelines
+--------------------------------------------------------------------------------
+
 We use a tool called `dbt <https://www.getdbt.com/>`__ to manage our data validation
 tests. dbt is a SQL-based data transformation tool that can be used to manage large data
 pipelines, but we're currently only using it for data validation.
@@ -23,10 +155,6 @@ define our own `custom data tests
    <https://parquet.apache.org/>`__ outputs we're able to run thousands of validations
    across hundreds of tables with billions of rows in a minute, instead of the 2-3 hours
    it used to take our much less extensive validation tests to run.
-
---------------------------------------------------------------------------------
-Data validation guidelines
---------------------------------------------------------------------------------
 
 .. todo::
 
@@ -65,27 +193,7 @@ Example of typical data validation workflow
 Running the data validation tests
 --------------------------------------------------------------------------------
 
-Setting up dbt
-~~~~~~~~~~~~~~
-
-The ``dbt/`` directory contains the PUDL dbt project which manages our `data tests
-<https://docs.getdbt.com/docs/build/data-tests>`__. To run dbt you'll need to have the
-``pudl-dev`` conda environment activated (see :doc:`dev_setup`).
-
-The data validation tests run on the Parquet outputs that are in your
-``$PUDL_OUTPUT/parquet/`` directory. It's important that you ensure the outputs you're
-testing are actually the result of the code on your current branch, otherwise you may
-be surprised when the data test fails in CI or the nightly builds.
-
-.. tip::
-
-   If you want to run the tests against the fast ETL outputs that are generated by the
-   integration tests without wiping out your local full ETL outputs, you can temporarily
-   set the ``$PUDL_OUTPUT`` environment variable to point at the temporary directory
-   created by ``pytest``. This is printed out at the beginning of the ``pytest`` run and
-   will look like:
-
-   ``2025-07-25 16:05:49 [    INFO] test.conftest:386 Using temporary PUDL_OUTPUT: /path/to/your/temp/dir``
+.. _dbt_build:
 
 Running dbt directly
 ~~~~~~~~~~~~~~~~~~~~
@@ -142,28 +250,6 @@ For more options, see the `dbt selection syntax documentation
    Typically these tests weren't well suited to SQL, weren't performance bottlenecks,
    and had already been implemented in Python. E.g. :func:`pudl.validate.no_null_rows`.
 
-The ``dbt_helper`` script
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-We've created a script that helps make working with the dbt tests within PUDL a little
-more ergonomic. It's called :mod:`pudl.scripts.dbt_helper` and is installed in the
-``pudl-dev`` conda environment. ``dbt_helper validate`` runs the data validation tests
-and provides richer output when a test fails than ``dbt build``. It also allows us to
-use the `Dagster asset selection syntax
-<https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference>`__.
-
-Example usage:
-
-.. code-block:: bash
-
-    # for just a single asset
-    dbt_helper validate --asset-select "key:out_eia__yearly_generators"
-    # for this asset as well as all upstream assets
-    dbt_helper validate --asset-select "+key:out_eia__yearly_generators"
-    # same as above, but skip row counts
-    dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"
-
-See ``dbt_helper validate --help`` for usage details.
 
 Data validation in our integration tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -183,8 +269,10 @@ If the data validations fail in the ``pytest`` integration tests, they should pr
 helpful output indicating what failed and why, in the same way as ``dbt_helper
 validate``
 
-Data validation in branch builds
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _branch_builds:
+
+Branch builds
+~~~~~~~~~~~~~
 
 Depending on your computer, running the full ETL locally can be extremely time consuming
 and may run into memory limits. It's also easy to accidentally end up with local outputs
@@ -485,55 +573,11 @@ There are a few tests that we apply to every table, which should be defined as s
 you've added a new table. These include ``check_row_counts_by_partition`` and
 ``expect_columns_not_all_null``.
 
-Adding or updating row-counts
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-To create or update the row count expectations for a given table you need to:
-
-* Make sure a fresh version of the table is available ``$PUDL_OUTPUT/parquet``. The
-  expectations will be derived from what's observed in that file.
-* Add ``check_row_counts_by_partition`` to the ``data_tests`` section of the the table's
-  ``schema.yml``.
-
-The initial ``data_tests`` for a new table might look like this:
-
-.. code-block:: yaml
-
-    version: 2
-    sources:
-      - name: pudl
-        tables:
-          - name: new_table_name
-            data_tests:
-              - check_row_counts_per_partition:
-                  table_name: new_table_name
-                  partition_expr: "EXTRACT(YEAR FROM report_date)"
-
-Then you can run:
-
-.. code-block:: bash
-
-    dbt_helper update-tables --row-counts new_table_name
-
-If this is a brand new table, you should see changes appear in
-``dbt/seeds/etl_full_row_counts.csv``. If you're updating the row counts for a table
-that already exists, you'll need to use the ``--clobber`` option to make the script
-overwrite existing row counts:
-
-.. code-block:: bash
-
-    dbt_helper update-tables --row-counts --clobber new_table_name
-
-.. warning::
-
-  You should rarely if ever need to edit the row-counts file directly. It needs to be
-  kept sorted to minimize diffs in git, and manually calculating and editing row counts
-  is both tedious and error prone.
 
 Checking for entirely null columns
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The other test we apply to basically all tables is ``expect_columns_not_all_null``. In
+A test we apply to basically all tables is ``expect_columns_not_all_null``. In
 its most basic form it verifies that there are no columns in the table which are
 completely null, since that is typically indicative of a bad ``ENUM`` constraint, a
 column naming error, or a bad merge, and should be investigated. To add this basic
@@ -556,7 +600,6 @@ building on the above example would look like:
 --------------------------------------------------------------------------------
 Defining new data validation tests
 --------------------------------------------------------------------------------
-
 
 Sometimes you will want to test a property that can't be expressed
 using the existing dbt tests like ``check_row_counts_per_partition`` (in
