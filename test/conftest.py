@@ -409,6 +409,8 @@ def logger_config():
             "asyncio": logging.INFO,
             "google": logging.INFO,
             "alembic": logging.WARNING,
+            "arelle": logging.INFO,
+            "matplotlib": logging.WARNING,
         }
     )
 
