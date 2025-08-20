@@ -19,7 +19,6 @@ from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
-configure_root_logger()
 logger = get_logger(__name__)
 logger.parent.propagate = False
 
@@ -701,4 +700,5 @@ dbt_helper.add_command(validate)
 
 
 if __name__ == "__main__":
+    configure_root_logger()
     dbt_helper()
