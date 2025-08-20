@@ -2280,7 +2280,7 @@ def get_parquet_table(
 
     try:  # Attempt to read as a GeoDataFrame
         df = gpd.read_parquet(
-            parquet_path,
+            path=parquet_path,
             columns=columns,
             filters=filters,
             schema=pyarrow_schema,
