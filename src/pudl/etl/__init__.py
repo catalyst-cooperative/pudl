@@ -273,10 +273,11 @@ def asset_check_from_schema(
     @asset_check(asset=asset_key, blocking=True)
     def pandera_schema_check(asset_value) -> AssetCheckResult:
         # Collect all metadata
-        metadata = {}
-        metadata.update(_collect_asset_metadata(asset_value, resource))
-        metadata.update(_collect_dtype_metadata(asset_value, resource, pandera_schema))
-        metadata.update(_collect_geometry_metadata(asset_value))
+        metadata = (
+            _collect_asset_metadata(asset_value, resource)
+            | _collect_dtype_metadata(asset_value, resource, pandera_schema)
+            | _collect_geometry_metadata(asset_value)
+        )
 
         try:
             pandera_schema.validate(asset_value, lazy=True)
