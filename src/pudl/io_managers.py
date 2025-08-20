@@ -339,7 +339,9 @@ class PudlParquetIOManager(IOManager):
 class PudlGeoParquetIOManager(PudlParquetIOManager):
     """Do some extra work to output valid GeoParquet files when appropriate."""
 
-    def _create_geoparquet_metadata(self, gdf: gpd.GeoDataFrame, res: Resource) -> str:
+    def _create_geoparquet_metadata(
+        self, gdf: gpd.GeoDataFrame, res: Resource
+    ) -> bytes:
         """Create GeoParquet metadata JSON string."""
         # Find geometry columns from the resource schema
         geometry_columns = {}
@@ -367,7 +369,7 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
             "primary_column": primary_column,
             "columns": geometry_columns,
         }
-        return json.dumps(geo_metadata)
+        return json.dumps(geo_metadata).encode()
 
     def handle_output(self, context: OutputContext, obj: gpd.GeoDataFrame) -> None:
         """Write a PUDL dataframe to GeoParquet."""
@@ -381,10 +383,9 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
 
         res = Resource.from_id(table_name)
         gdf = res.enforce_schema(obj)
-        pa_schema = res.to_pyarrow()
+
         # Extract metadata before modifying geometry columns
         geo_metadata = self._create_geoparquet_metadata(gdf, res)
-
         # Convert geometry columns to WKB
         geometry_fields = [
             field.name
@@ -395,10 +396,12 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
             gdf[field_name] = gdf[field_name].to_wkb()
 
         # Convert to PyArrow table with explicit schema
-        pa_table = pa.Table.from_pandas(gdf, schema=pa_schema, preserve_index=False)
+        pa_table = pa.Table.from_pandas(
+            gdf, schema=res.to_pyarrow(), preserve_index=False
+        )
         # Add GeoParquet metadata
         metadata = pa_table.schema.metadata or {}
-        metadata[b"geo"] = geo_metadata.encode()
+        metadata[b"geo"] = geo_metadata
         pa_table = pa_table.replace_schema_metadata(metadata)
         pq.write_table(pa_table, parquet_path)
 
