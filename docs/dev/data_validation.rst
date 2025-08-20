@@ -30,24 +30,24 @@ in a special YAML file that you need to keep up to date.
 That file lives in ``pudl/dbt/models/<data_source>/<table_name>/schema.yml``.
 
 When you change a table's schema in ``pudl.metadata.resources``,
-you need to make sure that file is up to date as well.
+you need to make a matching change to the corresponding dbt YAML file.
 
 For now, you have to update the columns manually,
 by editing the ``columns`` list in the appropriate schema file.
-
-.. TODO 2025-08-19 Add `dbt_helper update-tables --schema` usage here.
 
 Updating row counts
 ~~~~~~~~~~~~~~~~~~~
 
 To create or update the row count expectations for a given table you need to:
 
-* Make sure a fresh version of the table is available ``$PUDL_OUTPUT/parquet``. The
-  expectations will be derived from what's observed in that file.
-* Add ``check_row_counts_by_partition`` to the ``data_tests`` section of the the table's
-  ``schema.yml``.
+* Make sure a fresh version of the table is available in ``$PUDL_OUTPUT/parquet``.
+  The expectations will be derived from what's observed in that file.
+* Add ``check_row_counts_by_partition`` to the ``data_tests`` section
+  of the the table's ``schema.yml``,
+  if it isn't there already.
 
-The initial ``data_tests`` for a new table might look like this:
+When ready to generate row count expectations,
+the ``data_tests`` for a new table might look like this:
 
 .. code-block:: yaml
 
@@ -282,7 +282,7 @@ in Dagster and then running the specific dbt tests that apply to them and any ta
 downstream of them should work fine.
 
 Kicking off a branch build
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When we're doing big quarterly or annual updates, and dozens or hundreds of tables are
 changing simultaneously, it is helpful to be able to run the full ETL from scratch, run
@@ -301,7 +301,7 @@ the `Google Cloud Console
 <https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24>`__.
 
 Getting fresh row counts from a branch build
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To catch unexpected changes to the data, we keep track of the expected number of rows in
 each data table we distribute. These expectations are stored in
@@ -319,7 +319,7 @@ the row count changes closely to see if there's anything unexpected.
 .. _pudl_dbt_quirks:
 
 PUDL Specific Design Choices
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Our usage of dbt is slightly unusual, since we rely on Dagster to coordinate our data
 pipeline, and are only using dbt for data validation. Some quirks of our setup to be
@@ -575,7 +575,7 @@ you've added a new table. These include ``check_row_counts_by_partition`` and
 
 
 Checking for entirely null columns
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A test we apply to basically all tables is ``expect_columns_not_all_null``. In
 its most basic form it verifies that there are no columns in the table which are
