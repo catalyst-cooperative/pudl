@@ -208,58 +208,44 @@ class DbtSchema(BaseModel):
                 "Merging metadata is not allowed when models are defined in the schema."
             )
 
-        def merge_tables(new_tables, old_tables):
-            # If old_tables is None, replace with empty list, resulting in empty map
-            old_table_map = {t.name: t for t in old_tables or []}
-            merged = []
+        def merge_pydantic_model(
+            new_model: BaseModel, old_model: BaseModel
+        ) -> BaseModel:
+            """Recursively merge fields of two pydantic models."""
+            if not old_model:
+                return new_model
 
-            for new_table in new_tables or []:
-                old_table = old_table_map.get(new_table.name)
-                if not old_table:
-                    merged.append(new_table)
-                    continue
+            merged_data = {}
+            for field_name, _field_info in new_model.model_fields.items():
+                new_value = getattr(new_model, field_name, None)
+                old_value = getattr(old_model, field_name, None)
 
-                old_columns = {c.name: c for c in old_table.columns or []}
-                merged_columns = [
-                    (
-                        col.model_copy(
-                            update={
-                                "description": col.description
-                                or old_columns.get(col.name, {}).description,
-                                "data_tests": col.data_tests
-                                or old_columns.get(col.name, {}).data_tests,
-                                "tags": col.tags or old_columns.get(col.name, {}).tags,
-                            }
-                        )
-                        if col.name in old_columns
-                        else col
+                if isinstance(new_value, BaseModel):
+                    merged_data[field_name] = merge_pydantic_model(new_value, old_value)
+                elif (
+                    isinstance(new_value, list)
+                    and new_value
+                    and isinstance(new_value[0], BaseModel)
+                ):
+                    # Merge lists of models by matching names
+                    old_map = {m.name: m for m in old_value or []}
+                    merged_list = [
+                        merge_pydantic_model(m, old_map.get(m.name)) for m in new_value
+                    ]
+                    merged_data[field_name] = merged_list
+                else:
+                    merged_data[field_name] = (
+                        new_value if new_value is not None else old_value
                     )
-                    for col in new_table.columns or []
-                ]
 
-                merged_table = new_table.model_copy(
-                    update={
-                        "description": new_table.description or old_table.description,
-                        "data_tests": new_table.data_tests or old_table.data_tests,
-                        "tags": new_table.tags or old_table.tags,
-                        "meta": new_table.meta or old_table.meta,
-                        "columns": merged_columns,
-                    }
-                )
-                merged.append(merged_table)
-
-            return merged
+            return new_model.model_copy(update=merged_data)
 
         # Merge sources
-        old_sources = {s.name: s for s in old_schema.sources or []}
-        new_sources = []
-        for new_source in self.sources or []:
-            old_source = old_sources.get(new_source.name)
-            merged_tables = merge_tables(
-                new_source.tables, old_source.tables if old_source else []
-            )
-            merged_source = new_source.model_copy(update={"tables": merged_tables})
-            new_sources.append(merged_source)
+        old_sources_map = {s.name: s for s in old_schema.sources or []}
+        new_sources = [
+            merge_pydantic_model(src, old_sources_map.get(src.name))
+            for src in self.sources
+        ]
 
         return self.model_copy(update={"sources": new_sources})
 
