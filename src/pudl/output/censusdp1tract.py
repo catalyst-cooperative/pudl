@@ -23,32 +23,6 @@ def census_asset_factory(
     layer: Literal["state", "county", "tract"],
 ) -> AssetsDefinition:
     """An asset factory for finished EIA tables."""
-    layer_params: dict[str, LayerParams] = {
-        "state": {
-            "plural": "states",
-            "rename": {
-                "geoid10": "state_id_fips",
-                "name10": "state_name",
-                "stusps10": "state",
-            },
-        },
-        "county": {
-            "plural": "counties",
-            "rename": {
-                "geoid10": "county_id_fips",
-                "namelsad10": "county",
-                "funcstat10": "functional_status_code_census",
-            },
-        },
-        "tract": {
-            "plural": "tracts",
-            "rename": {
-                "geoid10": "tract_id_fips",
-                "namelsad10": "tract_name",
-            },
-        },
-    }
-
     common_rename: dict[str, str] = {
         "aland10": "land_area",
         "awater10": "water_area",
@@ -56,6 +30,35 @@ def census_asset_factory(
         "intptlon10": "internal_point_longitude",
         "shape_length": "shape_length",
         "shape_area": "shape_area",
+    }
+
+    layer_params: dict[str, LayerParams] = {
+        "state": {
+            "plural": "states",
+            "rename": common_rename
+            | {
+                "geoid10": "state_id_fips",
+                "name10": "state_name",
+                "stusps10": "state",
+            },
+        },
+        "county": {
+            "plural": "counties",
+            "rename": common_rename
+            | {
+                "geoid10": "county_id_fips",
+                "namelsad10": "county",
+                "funcstat10": "functional_status_code_census",
+            },
+        },
+        "tract": {
+            "plural": "tracts",
+            "rename": common_rename
+            | {
+                "geoid10": "tract_id_fips",
+                "namelsad10": "tract_name",
+            },
+        },
     }
 
     @asset(
@@ -119,7 +122,7 @@ WHERE table_name = ?
                 )
                 .rename_geometry("geometry")
                 .drop(columns=["objectid"])
-                .rename(columns=layer_params[layer]["rename"] | common_rename)
+                .rename(columns=layer_params[layer]["rename"])
                 .astype(
                     {
                         "land_area": float,
