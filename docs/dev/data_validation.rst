@@ -1,14 +1,15 @@
 .. _data_validation:
 
-================================================================================
+********************************************************************************
 Data Validation Tests
-================================================================================
+********************************************************************************
 
+==========
 Quickstart
-----------
+==========
 
 Setup
-~~~~~
+-----
 
 The ``dbt/`` directory contains the PUDL dbt project which manages our `data tests
 <https://docs.getdbt.com/docs/build/data-tests>`__. To run dbt you'll need to have the
@@ -22,7 +23,7 @@ be surprised when the data test fails in CI or the nightly builds.
 We have a script, :mod:`pudl.scripts.dbt_helper`, to help with some common workflows.
 
 Updating table schemas
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 dbt stores information about a table's schema and what tests are defined
 in a special YAML file that you need to keep up to date.
@@ -35,8 +36,10 @@ you need to make a matching change to the corresponding dbt YAML file.
 For now, you have to update the columns manually,
 by editing the ``columns`` list in the appropriate schema file.
 
+.. _row_counts:
+
 Updating row counts
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 To create or update the row count expectations for a given table you need to:
 
@@ -83,7 +86,7 @@ overwrite existing row counts:
   is both tedious and error prone.
 
 Running data validation tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
 ``dbt_helper validate`` runs the data validation tests.
 It's a wrapper around the official dbt tool, ``dbt build`` - see :ref:`_dbt_build`.
@@ -132,13 +135,12 @@ See ``dbt_helper validate --help`` for usage details.
      you can also use the Parquet files you find there.
 
 
---------------------------------------------------------------------------------
-Data validation guidelines
---------------------------------------------------------------------------------
+=========
+Reference
+=========
 
-We use a tool called `dbt <https://www.getdbt.com/>`__ to manage our data validation
-tests. dbt is a SQL-based data transformation tool that can be used to manage large data
-pipelines, but we're currently only using it for data validation.
+Overview
+--------
 
 In dbt, every data validation test is a SQL query meant to select rows that fail the
 test. A successful test will return no results. The query can be parametrized so it can
@@ -147,14 +149,6 @@ be reused across multiple tables. dbt includes a few `built-in data test definit
 <https://github.com/metaplane/dbt-expectations>`__ package provides many more. We also
 define our own `custom data tests
 <https://docs.getdbt.com/best-practices/writing-custom-generic-tests>`__.
-
-.. note:: Why use dbt and SQL instead of Python?
-
-   Modern analytical query engines are extremely fast and memory efficient. By using dbt
-   with `DuckDB <https://duckdb.org/>`__ to query the PUDL `Parquet
-   <https://parquet.apache.org/>`__ outputs we're able to run thousands of validations
-   across hundreds of tables with billions of rows in a minute, instead of the 2-3 hours
-   it used to take our much less extensive validation tests to run.
 
 .. todo::
 
@@ -173,33 +167,99 @@ define our own `custom data tests
      :mod:`pudl.scripts.pudl_null_cols` script.
    * What else?
 
---------------------------------------------------------------------------------
-Example of typical data validation workflow
---------------------------------------------------------------------------------
+Common workflows
+^^^^^^^^^^^^^^^^
 
-* Explain that the dbt tests are looking at whatever Parquet files are in
-  ``$PUDL_OUTPUT``.
-* Need to be aware of the state of your Dagster outputs and how they relate to the
-  branch / code that you're working on. If you have mixed outputs from multiple
-  branches, and you run the full data validation tests, they might fail because of the
-  mismatch.
 * Typical workflow: tweaking an asset, remateralize it in Dagster, re-run the data
   validations that pertain to just that table.
 * Often also useful to rematerialize the changed table and all of its downstream
   dependencies, and then run the data validations on all of those downstream
   dependencies to see if there were any unforeseen consequences.
 
---------------------------------------------------------------------------------
-Running the data validation tests
---------------------------------------------------------------------------------
+.. _pudl_dbt_quirks:
+
+PUDL Specific Design Choices
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Our usage of dbt is slightly unusual, since we rely on Dagster to coordinate our data
+pipeline, and are only using dbt for data validation. Some quirks of our setup to be
+aware of:
+
+* From dbt's point of view, the PUDL tables are all
+  `sources <https://docs.getdbt.com/docs/build/sources>`__ -- external tables about
+  which it knows very little other than the table and column names. It assumes the
+  tables will be available, rather than trying to create them. In a typical dbt project,
+  most tables would be defined as `models <https://docs.getdbt.com/docs/build/models>`__
+  which are somewhat analogous to `Dagster assets
+  <https://docs.dagster.io/guides/build/assets/defining-assets>`__.
+* As a SQL-based tool, dbt generally expects to be querying a database. However, in our
+  case the tables are stored as Apache Parquet files, which we query with SQL via
+  DuckDB. This means some of dbt's functionality is not available. For example, we can't
+  use `the dbt adapter object
+  <https://docs.getdbt.com/reference/dbt-jinja-functions/adapter>`__ in our test
+  definitions because it relies on being able to access the underlying database schema,
+* One exception to this is any intermediate tables that are defined as dbt models (see
+  below). These will be created as materialized views in a DuckDB database at
+  ``$PUDL_OUTPUT/pudl_dbt_tests.duckdb``. Any time you need to refer to those tables
+  while debugging, you'll need to be connected to that database.
+
+
+.. _branch_builds:
+
+-------------
+Branch builds
+-------------
+
+Depending on your computer, running the full ETL locally can be extremely time consuming
+and may run into memory limits. It's also easy to accidentally end up with local outputs
+that are the result of code from multiple different branches, and so may not be
+consistent with each other. If you're only altering a few tables, rematerializing them
+in Dagster and then running the specific dbt tests that apply to them and any tables
+downstream of them should work fine.
+
+Kicking off a branch build
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When we're doing big quarterly or annual updates, and dozens or hundreds of tables are
+changing simultaneously, it is helpful to be able to run the full ETL from scratch, run
+all of the data validation tests against the outputs, and use the results to update the
+test parameters (especially expected row counts) appropriately. This can be done by
+manually kicking off a PUDL deployment on your branch.
+
+To initiate a branch build, in the PUDL repo on GitHub go to `Actions
+<https://github.com/catalyst-cooperative/pudl/actions>`__ and select `build-deploy-pudl
+<https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml>`__.
+On the right hand side select Run Workflow and then select your branch in the dropdown
+and click the Run Workflow button. Shortly thereafter you should see a notification in
+the ``pudl-deployments`` channel in our Slack saying that the build has kicked off. It
+should take about 3 hours to complete. You can track its progress and watch the logs in
+the `Google Cloud Console
+<https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24>`__.
+
+Getting fresh row counts from a branch build
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To catch unexpected changes to the data, we keep track of the expected number of rows in
+each data table we distribute. These expectations are stored in
+``dbt/seeds/etl_full_row_counts.csv`` and they can be updated using the ``dbt_helper``
+script based on the observed row counts in your local PUDL Parquet outputs. If you can't
+run the full ETL locally, the nightly builds / branch build also generate updated row
+count expectations. After a branch build completes, you can download the updated
+``etl_full_row_counts.csv`` file from the build outputs that are uploaded to
+``gs://builds.catalyst.coop/<build-id>/etl_full_row_counts.csv`` See the
+:doc:`nightly_data_builds` documentation for more details on accessing the nightly build
+outputs. Replace the ``etl_full_row_counts.csv`` in your local PUDL git repo with the
+one you've downloaded and use ``git diff`` to see what has changed. Make sure to review
+the row count changes closely to see if there's anything unexpected.
 
 .. _dbt_build:
 
+--------------------
 Running dbt directly
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
-dbt has its own much more `extensive documentation <https://docs.getdbt.com/>`__. PUDL
-uses only a small subset of its features
+dbt has its own much more `extensive documentation <https://docs.getdbt.com/>`__.
+PUDL uses only a small subset of its features.
 
 
 To run all of the data validation tests, from within the ``dbt/`` directory run:
@@ -251,8 +311,9 @@ For more options, see the `dbt selection syntax documentation
    and had already been implemented in Python. E.g. :func:`pudl.validate.no_null_rows`.
 
 
+----------------------------------------
 Data validation in our integration tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------
 
 The dbt data tests are invoked by ``pytest`` as part of our integration tests. This
 means they run as part of our continuous integration (CI) checks before a PR can be
@@ -269,79 +330,6 @@ If the data validations fail in the ``pytest`` integration tests, they should pr
 helpful output indicating what failed and why, in the same way as ``dbt_helper
 validate``
 
-.. _branch_builds:
-
-Branch builds
-~~~~~~~~~~~~~
-
-Depending on your computer, running the full ETL locally can be extremely time consuming
-and may run into memory limits. It's also easy to accidentally end up with local outputs
-that are the result of code from multiple different branches, and so may not be
-consistent with each other. If you're only altering a few tables, rematerializing them
-in Dagster and then running the specific dbt tests that apply to them and any tables
-downstream of them should work fine.
-
-Kicking off a branch build
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When we're doing big quarterly or annual updates, and dozens or hundreds of tables are
-changing simultaneously, it is helpful to be able to run the full ETL from scratch, run
-all of the data validation tests against the outputs, and use the results to update the
-test parameters (especially expected row counts) appropriately. This can be done by
-manually kicking off a PUDL deployment on your branch.
-
-To initiate a branch build, in the PUDL repo on GitHub go to `Actions
-<https://github.com/catalyst-cooperative/pudl/actions>`__ and select `build-deploy-pudl
-<https://github.com/catalyst-cooperative/pudl/actions/workflows/build-deploy-pudl.yml>`__.
-On the right hand side select Run Workflow and then select your branch in the dropdown
-and click the Run Workflow button. Shortly thereafter you should see a notification in
-the ``pudl-deployments`` channel in our Slack saying that the build has kicked off. It
-should take about 3 hours to complete. You can track its progress and watch the logs in
-the `Google Cloud Console
-<https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24>`__.
-
-Getting fresh row counts from a branch build
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To catch unexpected changes to the data, we keep track of the expected number of rows in
-each data table we distribute. These expectations are stored in
-``dbt/seeds/etl_full_row_counts.csv`` and they can be updated using the ``dbt_helper``
-script based on the observed row counts in your local PUDL Parquet outputs. If you can't
-run the full ETL locally, the nightly builds / branch build also generate updated row
-count expectations. After a branch build completes, you can download the updated
-``etl_full_row_counts.csv`` file from the build outputs that are uploaded to
-``gs://builds.catalyst.coop/<build-id>/etl_full_row_counts.csv`` See the
-:doc:`nightly_data_builds` documentation for more details on accessing the nightly build
-outputs. Replace the ``etl_full_row_counts.csv`` in your local PUDL git repo with the
-one you've downloaded and use ``git diff`` to see what has changed. Make sure to review
-the row count changes closely to see if there's anything unexpected.
-
-.. _pudl_dbt_quirks:
-
-PUDL Specific Design Choices
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Our usage of dbt is slightly unusual, since we rely on Dagster to coordinate our data
-pipeline, and are only using dbt for data validation. Some quirks of our setup to be
-aware of:
-
-* From dbt's point of view, the PUDL tables are
-  `sources <https://docs.getdbt.com/docs/build/sources>`__ -- external tables about
-  which it knows very little other than the table and column names. It assumes the
-  tables will be available, rather than trying to create them. In a typical dbt project,
-  most tables would be defined as `models <https://docs.getdbt.com/docs/build/models>`__
-  which are somewhat analogous to `Dagster assets
-  <https://docs.dagster.io/guides/build/assets/defining-assets>`__.
-* As a SQL-based tool, dbt generally expects to be querying a database. However, in our
-  case the tables are stored as Apache Parquet files, which we query with SQL via
-  DuckDB. This means some of dbt's functionality is not available. For example, we can't
-  use `the dbt adapter object
-  <https://docs.getdbt.com/reference/dbt-jinja-functions/adapter>`__ in our test
-  definitions because it relies on being able to access the underlying database schema,
-* One exception to this is any intermediate tables that are defined as dbt models (see
-  below). These will be created as materialized views in a DuckDB database at
-  ``$PUDL_OUTPUT/pudl_dbt_tests.duckdb``. Any time you need to refer to those tables
-  while debugging, you'll need to be connected to that database.
 
 --------------------------------------------------------------------------------
 Debugging data validation failures
@@ -357,7 +345,7 @@ Debugging data validation failures
 * Go through a simpler example before getting into the complicated quantile checks test.
 
 Debugging quantile checks
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. todo::
 
@@ -460,7 +448,7 @@ table as a whole, while column-level tests typically depend only on values with 
 column they are applied to.
 
 Pre-defined tests
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 Our dbt project includes `dbt-utils <https://github.com/dbt-labs/dbt-utils>`__ and
 `dbt-expectations <https://github.com/metaplane/dbt-expectations>`__ as dependencies.
 These packages include a bunch of useful tests that can be applied to any table.
@@ -522,7 +510,7 @@ names have the ``dbt_expectations`` prefix come from that package.
 
 
 Tests defined within PUDL
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Some of the tests in the example above like ``expect_columns_not_all_null`` or
 ``check_row_counts_per_partition`` are defined by us, and can be found in the SQL
@@ -548,14 +536,18 @@ sure that the two sets of database table descriptions stay in sync, we try to cr
 update the dbt schemas programmatically when possible.
 
 Using ``dbt_helper update-tables``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To add a new PUDL table to the dbt project, you must add it as a `dbt
 source <https://docs.getdbt.com/docs/build/sources>`__. The ``dbt_helper`` script
 automates the initial setup with the ``update-tables`` subcommand.
 
-To add a new table called ``new_table_name`` that has already been defined as a resource
-that will be written out to Parquet in the PUDL metadata:
+Before adding a table as a dbt source, you need to:
+
+* define that table as a resource in :mod:`pudl.metadata.resources`
+* make sure that table is written out to Parquet
+
+Then you can use the ``dbt_helper update-tables`` command to initialize the file.
 
 .. code-block:: bash
 
@@ -567,15 +559,16 @@ tells ``dbt`` about the table and its schema, but initially it will not have any
 validations defined. Tests need to be added by hand.
 
 Initial data tests
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
-There are a few tests that we apply to every table, which should be defined as soon as
-you've added a new table. These include ``check_row_counts_by_partition`` and
-``expect_columns_not_all_null``.
+There are a few tests that we apply to every table,
+which should be defined as soon as you've added a new table.
+These include ``check_row_counts_by_partition`` and ``expect_columns_not_all_null``.
+We talk about ``check_row_counts_by_partition`` in :ref:`_row_counts`.
 
 
 Checking for entirely null columns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A test we apply to basically all tables is ``expect_columns_not_all_null``. In
 its most basic form it verifies that there are no columns in the table which are
@@ -620,7 +613,7 @@ the tools within Python. In those cases, you can use `Dagster's asset checks
 using dbt tests.
 
 How do I write a new dbt test?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A dbt test is a templated SQL query that runs on your output data to look for
 problems in the data. The query should be designed to return no rows if there
@@ -662,8 +655,8 @@ If you're not already familiar with SQL, here are some useful resources:
   Refer to :ref:`pudl_dbt_quirks` above for an explanation of some details of our dbt
   setup that may affect what functionality is available when writing new tests.
 
-Testing the Tests
-~~~~~~~~~~~~~~~~~
+Testing your new test
+^^^^^^^^^^^^^^^^^^^^^
 
 OK, now you have a new test, which *seems* to be working.
 How can we check to make sure it's doing what we want?
@@ -787,7 +780,7 @@ power of Python.
 
 
 Creating intermediate tables for a test
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Sometimes you'll need to do a test in two steps. For example, if you want to
 use a column test (such as ``expect_quantile_constraints``) on the ratio of two
@@ -813,95 +806,3 @@ this pattern.
 
 Note: when adding a model, it will be stored as a SQL ``view`` in the file
 ``$PUDL_OUTPUT/pudl_dbt_tests.duckdb``.
-
---------------------------------------------------------------------------------
-Unmigrated Data Validation Docs (cannibalize)
---------------------------------------------------------------------------------
-
-During development row counts often change for normal and expected reasons like adding
-new data, updating transformations, etc. When these changes happen, the tests will fail
-unless we update the row counts stored in the csv files mentioned above. To see where
-these tests failed, you can run:
-
-.. code-block:: bash
-
-    dbt build --select "source:pudl.table_name" --store-failures
-
-The output of this command should show you a ``sql`` query you can use to see partitions
-where the row count test failed. To see these, you can do:
-
-.. code-block:: bash
-
-    duckdb $PUDL_OUTPUT/pudl_dbt_tests.duckdb
-
-Then copy and paste the query into the duckdb CLI (you'll need to add a semicolon to the
-end). This should show you the years and the expected and found row counts. If the
-changes seem reasonable and expected, you can manually update these files, or you can
-run the command:
-
-.. code-block:: bash
-
-    dbt_helper update-tables --row-counts --clobber {table_name}
-
-This will tell the helper script to overwrite the existing row counts with new row
-counts from the table in your local ``PUDL_OUTPUT`` stash.
-
-Debugging dbt test failures
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When a more complex test that relies on custom SQL fails, we can debug it using
-``duckdb``.  There are many ways to interact with ``duckdb``, here will use the CLI. See
-the `here <https://duckdb.org/docs/installation/>`__ for installation directions. To
-launch the CLI, navigate to the directory that your ``PUDL_OUTPUT`` environment variable
-points to, and execute:
-
-.. code-block:: bash
-
-    duckdb pudl_dbt_tests.duckdb
-
-For debugging purposes, we'll often want to execute portions of the compiled SQL
-produced by ``dbt``. To find this, look at the output of the test failure, and you
-should see a line under the test failure that looks like ``compiled code at
-{path_to_sql}``.  Looking at this file, for a failing test that looks at weighted
-quantiles, we might pull out the section:
-
-.. code-block:: sql
-
-    WITH CumulativeWeights AS (
-        SELECT
-            capacity_factor,
-            capacity_mw,
-            SUM(capacity_mw) OVER (ORDER BY capacity_factor) AS cumulative_weight,
-            SUM(capacity_mw) OVER () AS total_weight
-        FROM '/your/local/pudl_output/parquet/out_eia__yearly_generators.parquet'
-        WHERE capacity_factor IS NOT NULL OR capacity_mw IS NOT NULL
-    ),
-    QuantileData AS (
-        SELECT
-            capacity_factor,
-            capacity_mw,
-            cumulative_weight,
-            total_weight,
-            cumulative_weight / total_weight AS cumulative_probability
-        FROM CumulativeWeights
-    )
-    SELECT capacity_factor
-    FROM QuantileData
-    WHERE cumulative_probability >= 0.65
-    ORDER BY capacity_factor
-    LIMIT 1
-
-This is where the weighted quantile is actually calculated. We can copy this into the
-``duckdb`` CLI, add a semicolon to the end of the last line and hit ``Enter``. This
-produces the output:
-
-.. list-table::
-   :header-rows: 1
-
-   * - capacity_factor float
-   * - 0.82587963
-
-This is failing because the ``max_value`` is set to ``0.65``. If we change this value to
-0.83, this test should now pass (though if this is an unexpected change in the
-capacity factor, you would want to investigate why it changed before updating the
-test threshold!)
