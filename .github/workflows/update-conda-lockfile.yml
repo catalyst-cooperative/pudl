@@ -21,7 +21,7 @@ jobs:
       - name: Get today's date
         run: |
           echo "TODAY=$(date +%Y-%m-%d)" >> $GITHUB_ENV
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ secrets.PUDL_BOT_PAT }}
       - name: Install Micromamba

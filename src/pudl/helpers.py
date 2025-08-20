@@ -2045,7 +2045,7 @@ def get_dagster_execution_config(
 
     start_method_config = {}
     if "forkserver" in multiprocessing.get_all_start_methods():
-        start_method_config = {"forkserver": {"preload_modules": ["pudl"]}}
+        start_method_config = {"forkserver": {"preload_modules": ["pudl.init_logging"]}}
 
     return {
         "execution": {

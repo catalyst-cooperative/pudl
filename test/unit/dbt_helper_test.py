@@ -1,3 +1,4 @@
+import logging
 import unittest
 from collections import namedtuple
 from dataclasses import dataclass
@@ -1406,6 +1407,7 @@ def test_update_table_schema(case, mocker):
     ],
 )
 def test_update_table_row_counts_clobber(
+    caplog,
     partition_definition,
     test_data,
     old_row_counts,
@@ -1452,17 +1454,18 @@ sources:
     # patch out ALL_TABLES so that we're allowed to run tests
     mocker.patch("pudl.scripts.dbt_helper.ALL_TABLES", new=["test_source__table_name"])
     runner = CliRunner()
-    result = runner.invoke(
-        update_tables,
-        [
-            "test_source__table_name",
-            "--clobber",
-            "--row-counts",
-        ],
-    )
-    assert (
-        "Successfully updated row counts for test_source__table_name" in result.stdout
-    )
+
+    # Use builtin pytest caplog fixture to check for expected log outputs
+    with caplog.at_level(logging.INFO):
+        runner.invoke(
+            update_tables,
+            [
+                "test_source__table_name",
+                "--clobber",
+                "--row-counts",
+            ],
+        )
+    assert "Successfully updated row counts for test_source__table_name" in caplog.text
 
     # read out data & compare
     observed_row_counts = pd.read_csv(row_count_csv_path)
