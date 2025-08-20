@@ -203,8 +203,13 @@ class DbtSchema(BaseModel):
 
     def merge_metadata_from(self, old_schema: "DbtSchema") -> "DbtSchema":
         """Merge metadata from an old schema into this one, preferring new values where present."""
+        if self.models:
+            raise ValueError(
+                "Merging metadata is not allowed when models are defined in the schema."
+            )
 
         def merge_tables(new_tables, old_tables):
+            # If old_tables is None, replace with empty list, resulting in empty map
             old_table_map = {t.name: t for t in old_tables or []}
             merged = []
 
@@ -256,20 +261,7 @@ class DbtSchema(BaseModel):
             merged_source = new_source.model_copy(update={"tables": merged_tables})
             new_sources.append(merged_source)
 
-        # Merge models (if any)
-        if self.models:
-            old_models = {m.name: m for m in old_schema.models or []}
-            new_models = []
-            for new_model in self.models:
-                old_model = old_models.get(new_model.name)
-                merged_model = merge_tables(
-                    [new_model], [old_model] if old_model else []
-                )[0]
-                new_models.append(merged_model)
-        else:
-            new_models = None
-
-        return self.model_copy(update={"sources": new_sources, "models": new_models})
+        return self.model_copy(update={"sources": new_sources})
 
 
 def schema_has_removals_or_modifications(
