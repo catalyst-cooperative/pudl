@@ -25,7 +25,6 @@ import datasette
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
 import yaml
@@ -2289,14 +2288,14 @@ def get_parquet_table(
             memory_map=True,
         )
     except (ValueError, TypeError):  # Fall back to normal Pandas DataFrame
-        df = pq.read_table(
-            source=parquet_path,
-            schema=pyarrow_schema,
+        df = pd.read_parquet(
+            path=parquet_path,
             columns=columns,
             filters=filters,
+            schema=pyarrow_schema,
             use_threads=True,
             memory_map=True,
-        ).to_pandas()
+        )
 
     # Only enforce schema if we're reading all columns
     if columns is None:

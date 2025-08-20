@@ -63,7 +63,7 @@ def census_asset_factory(
             "raw_censusdp1tract__all_tables": AssetIn("raw_censusdp1tract__all_tables")
         },
         name=f"out_censusdp1tract__{layer_params[layer]['plural']}",
-        io_manager_key="parquet_io_manager",
+        io_manager_key="geoparquet_io_manager",
     )
     def census_layer(raw_censusdp1tract__all_tables, **kwargs) -> gpd.GeoDataFrame:
         """Select one layer from the Census DP1 database.
