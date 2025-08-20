@@ -36,26 +36,21 @@ def _collect_dtype_metadata(asset_value, resource: Resource) -> dict[str, Any]:
 
     # Get expected columns and types
     expected_columns = [field.name for field in resource.schema.fields]
-    expected_dtypes = {}
     pandera_dtypes = {}
 
     for field in resource.schema.fields:
         try:
-            pandera_col = field.to_pandera_column()
-            pandera_dtypes[field.name] = str(pandera_col.dtype)
-            expected_dtypes[field.name] = str(pandera_col.dtype)
+            pandera_dtypes[field.name] = str(field.to_pandera_column().dtype)
         except Exception as e:
-            expected_dtypes[field.name] = f"Error: {str(e)}"
             pandera_dtypes[field.name] = f"Error: {str(e)}"
 
     # Detailed field information
     field_details = {}
     for field in resource.schema.fields:
         field_details[field.name] = {
-            "pudl_field_type": field.type,
+            "pudl_field_dtype": field.type,
             "expected_pandera_dtype": pandera_dtypes.get(field.name, "Unknown"),
             "actual_dtype": actual_dtypes.get(field.name, "Column not present"),
-            "column_present": field.name in actual_columns,
         }
 
     metadata["field_details"] = field_details
@@ -79,7 +74,7 @@ def _collect_dtype_metadata(asset_value, resource: Resource) -> dict[str, Any]:
     type_mismatches = {}
 
     for col in common_columns:
-        expected_type = expected_dtypes.get(col, "Unknown")
+        expected_type = pandera_dtypes.get(col, "Unknown")
         actual_type = actual_dtypes.get(col, "Unknown")
         if expected_type != actual_type and expected_type != "Unknown":
             type_mismatches[col] = {"expected": expected_type, "actual": actual_type}
