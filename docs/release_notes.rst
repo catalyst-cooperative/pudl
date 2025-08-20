@@ -97,9 +97,12 @@ Quality of Life Improvements
   the logic for updating row counts now depends on whether a test has been defined in
   the dbt schema, whether any existing row counts for that table are present in the seed
   table, as well as user provided settings such as ``--clobber``.
-* when running ``dbt_helper update-tables`` with the flag ``--update``, existing
-  schema tests, descriptions and other metadata are now preserved. See issue
-  :issue:`4466` and PR :pr:`4525`.
+* When running ``dbt_helper update-tables`` without the ``clobber`` flag, existing
+  schema tests, descriptions and other metadata are now preserved. Furthermore, the
+  ``--update`` flag has been removed, with the default schema update logic behaving
+  as follows: if columns are added or removed, updates are allowed to pass. However, if
+  any metadata is removed, such as tests or descriptions, the update fails unless
+  ``--clobber`` is used. See issue :issue:`4466` and PR :pr:`4525`.
 * Stopped running code checks in CI when only the documentation has changed.
   See issue :issue:`4410` and PR :pr:`4429`.
 * Added ``utility_id_ferc1_dbf`` and ``utility_id_ferc1_xbrl`` columns into all ferc1
