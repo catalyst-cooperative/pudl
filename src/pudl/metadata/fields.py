@@ -430,9 +430,41 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?",
     },
+    "byproduct_description": {
+        "type": "string",
+        "description": "Description of combustion by-product.",
+        "constraints": {
+            "enum": [
+                "Ash from coal gasification (IGCC) units",
+                "Bottom ash from standard boiler units",
+                "Bottom (bed) ash from FBC units",
+                "FGD Gypsum",
+                "Fly ash from FBC units",
+                "Fly ash from standard boiler/PCD units",
+                "Fly ash from units with dry FGD",
+                "Other FGD byproducts",
+                "Other (specify via footnote on Schedule 9)",
+                "Steam Sales (MMBtu)",
+            ],
+        },
+    },
     "byproduct_recovery": {
         "type": "boolean",
-        "description": "Is salable byproduct is recovered by the unit?",
+        "description": "Is saleable byproduct recovered by the unit?",
+    },
+    "byproduct_units": {
+        "type": "string",
+        "description": "Reported unit of measure for combustion byproduct. MMBtu for steam, tons for all other byproducts.",
+        "constraints": {"enum": ["mmbtu", "tons"]},
+    },
+    "no_byproducts_to_report": {
+        "type": "string",
+        "description": (
+            "Whether any combustion by-products were produced by a plant. 'Y' "
+            "indicates no byproducts to report. The 'Y' and 'N' values do not align "
+            "with expected values of reported byproducts. This column is messy and "
+            "requires standardization."
+        ),
     },
     "caidi_w_major_event_days_minutes": {
         "type": "number",
@@ -472,7 +504,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "can_switch_when_operating": {
         "type": "boolean",
-        "description": "Whether the generator can switch fuel while operating.",
+        "description": "Indicates whether a fuel switching generator can switch fuels while operating.",
     },
     "capacity_eoy_mw": {
         "type": "number",
@@ -1049,7 +1081,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "data_maturity": {
         "type": "string",
-        "description": "Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        "description": (
+            "Maturity of the source data published by EIA that is reflected in this "
+            "record. EIA releases data incrementally over time, including monthly "
+            "updates, annual year-to-date updates, provisional early releases of "
+            "annual data, and final annual release data that is not expected to change "
+            "further. Records sourced from multiple upstream EIA datasets may have "
+            "no well defined data maturity. Records whose values have been inferred "
+            "within PUDL will also have no data maturity."
+        ),
     },
     "datasource": {
         "type": "string",
@@ -1183,6 +1223,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "customer’s electrical equipment (e.g. air conditioner, water heater) on "
             "short notice."
         ),
+    },
+    "disposal_landfill_units": {
+        "type": "number",
+        "description": "Disposed by-products in landfill, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "disposal_offsite_units": {
+        "type": "number",
+        "description": "Disposed by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "disposal_ponds_units": {
+        "type": "number",
+        "description": "Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "distributed_generation": {
         "type": "boolean",
@@ -1593,11 +1645,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. "
+            "The ID is manually assigned and has not been updated since 2020, but "
+            "only affects a couple hundred records total across all years."
+        ),
     },
     "ferc1_generator_agg_id_plant_gen": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. This ID is associated with the record_id_eia_plant_gen record.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. This "
+            "ID is associated with the record_id_eia_plant_gen record. It depends on "
+            "ferc1_generator_agg_id, which has not been updated since 2020, but only "
+            "affects a couple hundred records total across all years."
+        ),
     },
     "ferc_account": {
         "type": "string",
@@ -3225,10 +3288,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "datetime",
         "description": "Date and time measurement began (UTC).",
     },
-    "operating_switch": {
-        "type": "string",
-        "description": "Indicates whether the fuel switching generator can switch when operating",
-    },
     "operating_time_hours": {
         "type": "number",
         "description": "Length of time interval measured.",
@@ -4613,6 +4672,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
+    "sold_units": {
+        "type": "number",
+        "description": "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBtu.",
+    },
     "sold_to_utility_mwh": {
         "type": "number",
         "description": (
@@ -4795,6 +4858,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "stored_excess_wind_and_solar_generation": {
         "type": "boolean",
         "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
+    },
+    "stored_offsite_units": {
+        "type": "number",
+        "unit": "tons or MMBtu",
+        "description": "Stored by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "stored_onsite_units": {
+        "type": "number",
+        "unit": "tons or MMBtu",
+        "description": "Stored by-products onsite, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "street_address": {
         "type": "string",
@@ -5132,6 +5205,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "total_disposal_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Total by-product disposal, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
     "total_disposition_mwh": {
         "type": "number",
         "description": (
@@ -5322,6 +5400,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "uprate_derate_during_year": {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
+    },
+    "used_offsite_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Used offsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "used_onsite_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Used onsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "utility_id_eia": {
         "type": "integer",
@@ -5752,7 +5840,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "production tax credit (PTC) and investment tax credit (ITC). For more detail, see: "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
-        "constraints": {"enum": ["Market", "R&D"]},
+        "constraints": {"enum": ["ITC", "PTC + ITC", "PTC"]},
     },
     "projection_year": {
         "type": "integer",
@@ -5925,7 +6013,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "still charge from the grid)."
         ),
     },
-    "id_dc_coupled_tightly": {
+    "is_dc_coupled_tightly": {
         "type": "boolean",
         "description": (
             "Indicates if this energy storage device is DC tightly coupled (means the energy "
@@ -6890,9 +6978,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
 
 def get_pudl_dtypes(
     group: str | None = None,
-    field_meta: dict[str, Any] | None = FIELD_METADATA,
-    field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
-    dtype_map: dict[str, Any] | None = FIELD_DTYPES_PANDAS,
+    field_meta: dict[str, Any] = FIELD_METADATA,
+    field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    dtype_map: dict[str, Any] = FIELD_DTYPES_PANDAS,
 ) -> dict[str, Any]:
     """Compile a dictionary of field dtypes, applying group overrides.
 
@@ -6922,8 +7010,8 @@ def get_pudl_dtypes(
 def apply_pudl_dtypes(
     df: pd.DataFrame,
     group: str | None = None,
-    field_meta: dict[str, Any] | None = FIELD_METADATA,
-    field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
+    field_meta: dict[str, Any] = FIELD_METADATA,
+    field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
     strict: bool = False,
 ) -> pd.DataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.

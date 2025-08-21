@@ -4,9 +4,10 @@ sources:
     tables:
       - name: core_ferc1__yearly_transmission_lines_sched422
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               table_name: core_ferc1__yearly_transmission_lines_sched422
-              partition_column: report_year
+              partition_expr: report_year
         columns:
           - name: record_id
           - name: utility_id_ferc1

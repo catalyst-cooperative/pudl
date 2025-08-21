@@ -71,9 +71,12 @@ docs-clean:
 	rm -rf docs/data_dictionaries/code_csvs
 	rm -f docs/data_sources/eia*.rst
 	rm -f docs/data_sources/epacems*.rst
+	rm -f docs/data_sources/epacamd*.rst
 	rm -f docs/data_sources/ferc*.rst
 	rm -f docs/data_sources/gridpathratoolkit*.rst
+	rm -f docs/data_sources/nrelatb*.rst
 	rm -f docs/data_sources/phmsagas*.rst
+	rm -f docs/data_sources/vcerare*.rst
 
 # Note that there's some PUDL code which only gets run when we generate the docs, so
 # we want to generate coverage from the docs build.
@@ -131,11 +134,6 @@ pytest-coverage: coverage-erase docs-build pytest-ci
 pytest-integration-full:
 	pytest ${pytest_args} -n 4 --no-cov --live-dbs --etl-settings ${etl_full_yml} test/integration
 
-.PHONY: pytest-validate
-pytest-validate:
-	pudl_check_fks
-	pytest ${pytest_args} -n 4 --no-cov --live-dbs test/validate
-
 # Run the full ETL, generating new FERC & PUDL SQLite DBs and EPA CEMS Parquet files.
 # Then run the full integration tests and data validations on all years of data.
 # NOTE: This will clobber your existing databases and takes hours to run!!!
@@ -143,9 +141,7 @@ pytest-validate:
 # run in parallel.
 .PHONY: nuke
 nuke: coverage-erase docs-build pytest-unit ferc pudl
-	pudl_check_fks
 	pytest ${pytest_args} -n 4 --live-dbs --etl-settings ${etl_full_yml} test/integration
-	pytest ${pytest_args} -n 4 --live-dbs test/validate
 	coverage report
 
 # Check that designated Jupyter notebooks can be run against the current DB

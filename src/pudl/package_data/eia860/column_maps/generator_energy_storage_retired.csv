@@ -49,4 +49,4 @@ plant_id_eia_direct_support_3,,,,,,,,direct_support_plant_id_3,direct_support_pl
 generator_id_direct_support_3,,,,,,,,direct_support_gen_id_3,direct_support_gen_id_3
 is_transmission_and_distribution_asset_support,,,,,,,,support_t_d_asset,support_t_d_asset
 is_dc_coupled,,,,,,,,dc_coupled,dc_coupled
-id_dc_coupled_tightly,,,,,,,,dc_tightly_coupled,dc_tightly_coupled
+is_dc_coupled_tightly,,,,,,,,dc_tightly_coupled,dc_tightly_coupled

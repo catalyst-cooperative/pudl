@@ -7,7 +7,7 @@ from io import StringIO
 import hypothesis
 import numpy as np
 import pandas as pd
-import pandera
+import pandera.pandas as pa
 import pytest
 
 import pudl.logging_helpers
@@ -1265,21 +1265,19 @@ def test_filter_for_freshest_data_xbrl_simple():
     assert observed_table.str_factoid.to_numpy().item() == "updated 2021 EOY value"
 
 
-example_schema = pandera.DataFrameSchema(
+example_schema = pa.DataFrameSchema(
     {
-        "entity_id": pandera.Column(
-            str, pandera.Check.isin("C0123456789"), nullable=False
-        ),
-        "date": pandera.Column("datetime64[ns]", nullable=False),
-        "utility_type": pandera.Column(
+        "entity_id": pa.Column(str, pa.Check.isin("C0123456789"), nullable=False),
+        "date": pa.Column("datetime64[ns]", nullable=False),
+        "utility_type": pa.Column(
             str,
-            pandera.Check.isin(["electric", "gas", "total", "other"]),
+            pa.Check.isin(["electric", "gas", "total", "other"]),
             nullable=False,
         ),
-        "publication_time": pandera.Column("datetime64[ns]", nullable=False),
-        "int_factoid": pandera.Column(int),
-        "float_factoid": pandera.Column(float),
-        "str_factoid": pandera.Column(str),
+        "publication_time": pa.Column("datetime64[ns]", nullable=False),
+        "int_factoid": pa.Column(int),
+        "float_factoid": pa.Column(float),
+        "str_factoid": pa.Column(str),
     }
 )
 

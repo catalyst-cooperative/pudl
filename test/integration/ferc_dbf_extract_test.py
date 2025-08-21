@@ -1,6 +1,5 @@
 """PyTest based testing of the FERC DBF Extraction logic."""
 
-import logging
 import os
 
 import pytest
@@ -11,10 +10,12 @@ from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.ferc2 import Ferc2DbfExtractor
 from pudl.extract.ferc6 import Ferc6DbfExtractor
 from pudl.extract.ferc60 import Ferc60DbfExtractor
+from pudl.logging_helpers import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
+@pytest.mark.order(1)
 def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
     """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
     assert isinstance(ferc1_engine_dbf, sa.Engine)

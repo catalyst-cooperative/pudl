@@ -39,7 +39,7 @@ from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
-import pandera as pa
+import pandera.pandas as pa
 import scipy.stats
 from dagster import (
     AssetCheckResult,
@@ -56,7 +56,7 @@ from sklearn.metrics import mean_absolute_percentage_error
 from pudl.logging_helpers import get_logger
 from pudl.metadata.dfs import ImputationReasonCodes
 
-logger = get_logger(__file__)
+logger = get_logger(__name__)
 
 # --- Constants --- #
 
@@ -691,6 +691,10 @@ def impute_latc_tubal(  # noqa: C901
     rng = np.random.default_rng()
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
+    # [2025-08 kmm] Not sure how an empty tensor makes it this far,
+    # but one found a way
+    if np.prod(dim) == 0:
+        return tensor
     dim_time = int(np.prod(dim) / dim[0])
     d = len(lags)
     max_lag = np.max(lags)
