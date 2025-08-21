@@ -9,23 +9,31 @@ v202X.XX.x (YYYY-MM-DD)
 Enhancements
 ^^^^^^^^^^^^
 
-* We've started producing `GeoParquet <https://geoparquet.org/>`__ outputs that include
-  explicit geometries for use with `GeoPandas <https://geopandas.org/>`__ and other
-  mapping and geospatial analysis packages. See :func:`geopandas.read_parquet` for
-  dcoumentation on how to read We've also tested it with the `DuckDB
-  Spatial extension
-  <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__. This is
-  still experimental and there are only a handful of tables that currently include
-  geometries, but we hope to apply it more widely in the future for any tables with
-  geospatial information. See PR :pr:`4546`.
-* On that note... we've also started writing the :doc:`data_sources/censusdp1tract`
-  state, county, and tract level data out as GeoParquet files, so they can be used
-  alongside the other Parquet data without needing to read the Census DP1 SQLite DB.
-  This will allow us to point our `Kaggle (and other) notebooks
-  <https://www.kaggle.com/catalystcooperative/code>`__ that make maps directly at the
-  Parquet files in S3 rather than depending on the (somewhat chonky) `Kaggle PUDL
-  dataset <https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__. See PR
-  :pr:`4546`.
+Geospatial outputs with GeoParquet
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We've started producing `GeoParquet <https://geoparquet.org/>`__ outputs that include
+explicit geometries for use with `GeoPandas <https://geopandas.org/>`__ and other
+mapping and geospatial analysis packages. See :func:`geopandas.read_parquet` for
+dcoumentation on how to read them. We've also tested it with the `DuckDB Spatial
+extension <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__.
+This is still experimental and there are only a handful of tables that currently include
+geometries, but we hope to apply it more widely in the future for any tables with
+geospatial information. See PR :pr:`4546`.
+
+We've started by writing the :doc:`data_sources/censusdp1tract` state, county, and tract
+level data out as GeoParquet files, so they can be used alongside the other Parquet data
+without needing to read the Census DP1 SQLite DB.  This will allow us to point our
+`Kaggle (and other) notebooks <https://www.kaggle.com/catalystcooperative/code>`__ that
+make maps directly at the Parquet files in S3 rather than depending on the (somewhat
+chonky) `Kaggle PUDL dataset
+<https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__. For now the only
+tables with a valid ``geometry`` column are:
+
+* :ref:`out_censusdp1tract__states`
+* :ref:`out_censusdp1tract__counties`
+* :ref:`out_censusdp1tract__tracts`
+* :ref:`out_ferc714__georeferenced_respondents`
 
 New Data
 ^^^^^^^^

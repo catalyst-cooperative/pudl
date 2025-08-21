@@ -1,4 +1,11 @@
-"""Programmatically defined Dagster asset checks for PUDL."""
+"""Programmatically defined Dagster asset checks for PUDL.
+
+We primarily use Dagster asset checks to validate the schemas of PUDL tables. We use
+Pandera to programmatically define dataframe schemas based on the PUDL metadata with the
+asset check factory :func:`asset_check_from_schema` defined below.
+
+For data validation we almost entirely rely on dbt data tests.
+"""
 
 from typing import Any
 
