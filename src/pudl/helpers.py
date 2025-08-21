@@ -2269,18 +2269,18 @@ def get_parquet_table(
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
 
-    paths = PudlPaths()
-
-    # Get the Parquet file path
-    parquet_path = paths.parquet_path(table_name)
-
-    # Get the schema for validation
     resource = Resource.from_id(table_name)
+    if columns is None:
+        columns = resource.get_field_names()
+    # Get the schema for validation
     pyarrow_schema = resource.to_pyarrow()
 
-    is_geospatial = (columns is not None and "geometry" in columns) or (
-        columns is None and "geometry" in resource.get_field_names()
-    )
+    # Get the Parquet file path
+    paths = PudlPaths()
+    parquet_path = paths.parquet_path(table_name)
+
+    is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
+
     if is_geospatial:
         df = gpd.read_parquet(
             path=parquet_path,
@@ -2301,7 +2301,7 @@ def get_parquet_table(
         )
 
     # Only enforce schema if we're reading all columns
-    if columns is None:
+    if set(columns) == set(resource.get_field_names()):
         return resource.enforce_schema(df)
     # For specific columns, apply PUDL dtypes for the columns we have
     return apply_pudl_dtypes(df, group=resource.field_namespace)
