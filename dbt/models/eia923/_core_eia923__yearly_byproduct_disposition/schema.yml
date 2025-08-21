@@ -6,22 +6,24 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: _core_eia923__yearly_byproduct_disposition
-              partition_expr: report_year
+              arguments:
+                table_name: _core_eia923__yearly_byproduct_disposition
+                partition_expr: report_year
           - expect_sum_close_to_total_column:
               name: total_disposal_units_discrepancy_rate
-              sum_columns:
-                - disposal_landfill_units
-                - disposal_offsite_units
-                - disposal_ponds_units
-                - sold_units
-                - stored_offsite_units
-                - stored_onsite_units
-                - used_offsite_units
-                - used_onsite_units
-              total_column: total_disposal_units
-              discrepancy_threshold: 0.01
-              max_discrepancy_rate: 0.01
+              arguments:
+                sum_columns:
+                  - disposal_landfill_units
+                  - disposal_offsite_units
+                  - disposal_ponds_units
+                  - sold_units
+                  - stored_offsite_units
+                  - stored_onsite_units
+                  - used_offsite_units
+                  - used_onsite_units
+                total_column: total_disposal_units
+                discrepancy_threshold: 0.01
+                max_discrepancy_rate: 0.01
         columns:
           - name: report_year
           - name: plant_id_eia
