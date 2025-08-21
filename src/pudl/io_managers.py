@@ -321,9 +321,6 @@ class PudlParquetIOManager(IOManager):
         res = Resource.from_id(table_name)
         df = res.enforce_schema(obj)
         pa_schema = res.to_pyarrow()
-        # Test whether these are actually necessary, or if we can use df.to_parquet()
-        # pa_table = pa.Table.from_pandas(df, schema=pa_schema, preserve_index=False)
-        # pq.write_table(pa_table, parquet_path)
         df.to_parquet(
             path=parquet_path,
             index=False,
@@ -339,9 +336,7 @@ class PudlParquetIOManager(IOManager):
 class PudlGeoParquetIOManager(PudlParquetIOManager):
     """Do some extra work to output valid GeoParquet files when appropriate."""
 
-    def _create_geoparquet_metadata(
-        self, gdf: gpd.GeoDataFrame, res: Resource
-    ) -> bytes:
+    def _create_geoparquet_metadata(self, gdf: gpd.GeoDataFrame, res: Resource) -> str:
         """Create GeoParquet metadata JSON string."""
         # Find geometry columns from the resource schema
         geometry_columns = {}
@@ -369,7 +364,7 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
             "primary_column": primary_column,
             "columns": geometry_columns,
         }
-        return json.dumps(geo_metadata).encode()
+        return json.dumps(geo_metadata)
 
     def handle_output(self, context: OutputContext, obj: gpd.GeoDataFrame) -> None:
         """Write a PUDL dataframe to GeoParquet."""
@@ -405,7 +400,7 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
         )
         # Add GeoParquet metadata
         metadata = pa_table.schema.metadata or {}
-        metadata[b"geo"] = geo_metadata
+        metadata["geo"] = geo_metadata
         pa_table = pa_table.replace_schema_metadata(metadata)
         pq.write_table(pa_table, parquet_path)
 
