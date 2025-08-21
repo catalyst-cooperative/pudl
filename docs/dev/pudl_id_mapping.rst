@@ -168,16 +168,16 @@ to have the same PUDL ID.
     plants csv for the first plant under 5 MW and everything below that can remain
     unlinked.
 
-For each new record, search the entire plants_combined tab for a piece of the
+For each new record, search the ``pudl_id_mapping`` spreadsheet for a piece of the
 plant name string (e.g. for ``chenango solar``, you could search for ``chen``,
-or ``chenan``). Searching the entire plant tab helps find other records within
-both FERC and EIA that may be the same or part of the same facility. Searching
+or ``chenan``). If the new records you're mapping come from FERC, look for matches
+in the ``plant_name_eia`` column (and vice versa for EIA). Searching
 for a piece can help catch misspellings in the plant name, which are more common
-in the FERC records. Use the ``devtools/pudl_id_mapping_help.ipynb`` notebook to speed
-up this process.
+in the FERC records. You can also use the ``devtools/pudl_id_mapping_help.ipynb``
+notebook to speed up this process.
 
-* **If co-located EIA plants have distinct plant IDs and no FERC 1 plant:**
-  they should not be lumped under a single PUDL Plant ID, as that artificially reduces
+* **If co-located EIA plants have distinct EIA plant IDs and no FERC 1 plant:**
+  they should *not* be lumped under a single PUDL Plant ID, as that artificially reduces
   the granularity of data without providing any additional linkage to other datasets.
 * **If a record has the same plant and utility name as another record:**
   assign it the same PUDL ID as the other record **by reference** to the cell in which
