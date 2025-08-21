@@ -12,5 +12,5 @@ import os
 
 from pudl.logging_helpers import configure_root_logger
 
-if "PYTEST_CURRENT_TEST" in os.environ:
+if "PYTEST_CURRENT_TEST" not in os.environ:
     configure_root_logger()

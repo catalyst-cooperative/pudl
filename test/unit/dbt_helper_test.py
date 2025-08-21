@@ -1,4 +1,3 @@
-import logging
 import unittest
 from collections import namedtuple
 from dataclasses import dataclass
@@ -1200,7 +1199,6 @@ def test_complex_schema_diff_output():
     ],
 )
 def test_update_table_row_counts_update(
-    caplog,
     partition_definition,
     test_data,
     old_row_counts,
@@ -1248,17 +1246,20 @@ sources:
     mocker.patch("pudl.scripts.dbt_helper.ALL_TABLES", new=["test_source__table_name"])
     runner = CliRunner()
 
-    # Use builtin pytest caplog fixture to check for expected log outputs
-    with caplog.at_level(logging.INFO):
-        runner.invoke(
-            update_tables,
-            [
-                "test_source__table_name",
-                "--update",
-                "--row-counts",
-            ],
-        )
-    assert "Successfully updated row counts for test_source__table_name" in caplog.text
+    # Mock logger.info to check for expected logging outputs
+    logger_mock = mocker.patch("pudl.scripts.dbt_helper.logger.info")
+    runner.invoke(
+        update_tables,
+        [
+            "test_source__table_name",
+            "--update",
+            "--row-counts",
+        ],
+    )
+    assert (
+        "Successfully updated row counts for test_source__table_name"
+        in logger_mock.call_args[0][0]
+    )
 
     # read out data & compare
     observed_row_counts = pd.read_csv(row_count_csv_path)
