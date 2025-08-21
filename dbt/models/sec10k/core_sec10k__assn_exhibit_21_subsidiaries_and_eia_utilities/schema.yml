@@ -14,6 +14,6 @@ sources:
                 max_value: 5546
         columns:
           - name: subsidiary_company_id_sec10k
-            tests:
+            data_tests:
               - unique
           - name: utility_id_eia

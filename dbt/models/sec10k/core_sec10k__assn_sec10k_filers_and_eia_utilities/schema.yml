@@ -11,8 +11,8 @@ sources:
                 partition_expr:
         columns:
           - name: central_index_key
-            tests:
+            data_tests:
               - unique
           - name: utility_id_eia
-            tests:
+            data_tests:
               - unique

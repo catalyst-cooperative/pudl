@@ -19,7 +19,7 @@ sources:
           - name: datetime_utc
           - name: balancing_authority_code_eia
           - name: net_generation_reported_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
                   arguments:
                     lower_bound: 0.0
@@ -27,7 +27,7 @@ sources:
           - name: net_generation_adjusted_mwh
           - name: net_generation_imputed_eia_mwh
           - name: interchange_reported_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
                   arguments:
                     lower_bound: 0.0
@@ -35,20 +35,20 @@ sources:
           - name: interchange_adjusted_mwh
           - name: interchange_imputed_eia_mwh
           - name: demand_reported_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
                   arguments:
                     lower_bound: 0.1
                     upper_bound: 0.2
           - name: demand_adjusted_mwh
           - name: demand_imputed_pudl_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
                   arguments:
                     lower_bound: 0.1
                     upper_bound: 0.2
           - name: demand_imputed_pudl_mwh_imputation_code
-            tests:
+            data_tests:
               - dbt_expectations.expect_column_values_to_not_be_in_set:
                   arguments:
                     value_set: ["simulated"]
@@ -58,7 +58,7 @@ sources:
                     upper_bound: 1.0
           - name: demand_imputed_eia_mwh
           - name: demand_forecast_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
                   arguments:
                     lower_bound: 0.1

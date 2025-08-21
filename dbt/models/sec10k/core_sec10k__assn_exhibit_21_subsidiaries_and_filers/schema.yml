@@ -11,6 +11,6 @@ sources:
                 partition_expr:
         columns:
           - name: subsidiary_company_id_sec10k
-            tests:
+            data_tests:
               - unique
           - name: central_index_key

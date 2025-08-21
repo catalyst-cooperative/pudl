@@ -12,7 +12,7 @@ sources:
         columns:
           - name: datetime_utc
           - name: aggregation_group
-            tests:
+            data_tests:
               - relationships:
                   description: >
                     Check that every capacity factor aggregation key appears in the
