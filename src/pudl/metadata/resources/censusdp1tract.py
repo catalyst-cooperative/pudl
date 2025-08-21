@@ -193,7 +193,12 @@ CENSUS_DP1_DEMOGRAPHIC_COLUMNS = [
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_censusdp1tract__states": {
-        "description": "",
+        "description": (
+            "State-level summarized US Census demographic information, along with "
+            "a geometry describing state boundaries. Based on the 2010 Census. Used "
+            "as a convenient source of geospatial information within PUDL, but should "
+            "not be treated as authoritative."
+        ),
         "schema": {
             "fields": [
                 "state_id_fips",
@@ -216,7 +221,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "create_database_schema": False,
     },
     "out_censusdp1tract__counties": {
-        "description": "",
+        "description": (
+            "County-level summarized US Census demographic information, along with "
+            "a geometry describing county boundaries. Based on the 2010 Census. Used "
+            "as a convenient source of geospatial information within PUDL, but should "
+            "not be treated as authoritative."
+        ),
         "schema": {
             "fields": [
                 "county_id_fips",
@@ -239,7 +249,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "create_database_schema": False,
     },
     "out_censusdp1tract__tracts": {
-        "description": "",
+        "description": (
+            "Census tract-level summarized US Census demographic information, along "
+            "with a geometry describing tract boundaries. Based on the 2010 Census. "
+            "Used as a convenient source of geospatial information within PUDL, but "
+            "should not be treated as authoritative."
+        ),
         "schema": {
             "fields": [
                 "tract_id_fips",

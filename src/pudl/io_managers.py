@@ -393,6 +393,10 @@ class PudlGeoParquetIOManager(PudlParquetIOManager):
             if field.type == "geometry" and field.name in gdf.columns
         ]
         for field_name in geometry_fields:
+            # This conversion is required to get the right data into the Parquet output
+            # but it isn't technically compatible with the GeoDataFrame, so we get a
+            # warning from Geopandas about the geometry column not being a geometry.
+            logger.info(f"Convert geometry column {table_name}.{field_name} to WKB.")
             gdf[field_name] = gdf[field_name].to_wkb()
 
         # Convert to PyArrow table with explicit schema

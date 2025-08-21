@@ -147,11 +147,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "out_ferc714__georeferenced_respondents": {
-        "description": (
-            "Annual information about FERC-714 respondents including the geometry of "
-            "their service territory in that year, as inferred from the counties "
-            "associated with their EIA utility or balancing authority counterpart."
-        ),
+        "description": """An annual summary of demand and other information about FERC-714 respondents.
+
+This table differs from :ref:`out_ferc714__summarized_demand` in that it also
+includes a geometry column describing the respondent's service territory in each year.
+These service territories are based on the counties that the corresponding EIA-861
+respondent reported serving in that year. There is sometimes ambiguity as to
+whether a FERC-714 respondent should be interpreted as an individual utility or a
+balancing authority. The ``respodent_type`` column indicates which type of entity has
+been assumed in determining the service territory from EIA-861 data.""",
         "schema": {
             "fields": [
                 "report_date",
@@ -179,7 +183,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_ferc714__summarized_demand": {
         "description": {
             "additional_summary_text": (
-                "Compile FERC 714 annualized, categorized respondents and summarize values."
+                "Summarized demand statistics and FERC-714 respondent attributes by respondent-year."
             )
         },
         "schema": {
