@@ -10,11 +10,11 @@ profile: "pudl_dbt"
 # Opt out of telemetry
 flags:
   send_anonymous_usage_stats: false
-
-  # These configurations specify where dbt should look for different types of files.
-  # The `model-paths` config, for example, states that models in this project can be
-  # found in the "models/" directory. You probably won't need to change these!
   require_generic_test_arguments_property: true
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
 model-paths: ["models"]
 macro-paths: ["macros", "tests/data_tests/generic_tests"]
 seed-paths: ["seeds"]
