@@ -2278,7 +2278,10 @@ def get_parquet_table(
     resource = Resource.from_id(table_name)
     pyarrow_schema = resource.to_pyarrow()
 
-    try:  # Attempt to read as a GeoDataFrame
+    is_geospatial = (columns is not None and "geometry" in columns) or (
+        columns is None and "geometry" in resource.get_field_names()
+    )
+    if is_geospatial:
         df = gpd.read_parquet(
             path=parquet_path,
             columns=columns,
@@ -2287,7 +2290,7 @@ def get_parquet_table(
             use_threads=True,
             memory_map=True,
         )
-    except (ValueError, TypeError):  # Fall back to normal Pandas DataFrame
+    else:
         df = pd.read_parquet(
             path=parquet_path,
             columns=columns,
