@@ -334,13 +334,15 @@ names have the ``dbt_expectations`` prefix come from that package.
             data_tests:
               - expect_columns_not_all_null
               - check_row_counts_per_partition:
-                  table_name: out_vcerare__hourly_available_capacity_factor
-                  partition_expr: report_year
+                  arguments:
+                    table_name: out_vcerare__hourly_available_capacity_factor
+                    partition_expr: report_year
               - expect_valid_hour_of_year
               - expect_unique_column_combination:
-                  columns:
-                    - county_id_fips
-                    - datetime_utc
+                  arguments:
+                    columns:
+                      - county_id_fips
+                      - datetime_utc
             columns:
               - name: state
                 data_tests:
@@ -349,21 +351,24 @@ names have the ``dbt_expectations`` prefix come from that package.
                 data_tests:
                   - not_null
                   - dbt_expectations.expect_column_values_to_not_be_in_set:
-                      value_set:
-                        - bedford_city
-                        - clifton_forge_city
-                        - lake_hurron
-                        - lake_st_clair
+                      arguments:
+                        value_set:
+                          - bedford_city
+                          - clifton_forge_city
+                          - lake_hurron
+                          - lake_st_clair
                   - dbt_expectations.expect_column_values_to_be_in_set:
-                      value_set:
-                        - oglala lakota
-                      row_condition: "county_id_fips = '46012'"
+                      arguments:
+                        value_set:
+                          - oglala lakota
+                        row_condition: "county_id_fips = '46012'"
               - name: datetime_utc
                 data_tests:
                   - not_null
                   - dbt_expectations.expect_column_values_to_not_be_in_set:
-                      value_set:
-                        - "{{ dbt_date.date(2020, 12, 31) }}"
+                      arguments:
+                        value_set:
+                          - "{{ dbt_date.date(2020, 12, 31) }}"
               - name: report_year
                 data_tests:
                   - not_null
@@ -371,8 +376,9 @@ names have the ``dbt_expectations`` prefix come from that package.
                 data_tests:
                   - not_null
                   - dbt_expectations.expect_column_max_to_be_between:
-                      min_value: 8760
-                      max_value: 8760
+                      arguments:
+                        min_value: 8760
+                        max_value: 8760
 
 
 Tests defined within PUDL
@@ -440,8 +446,7 @@ A test we apply to basically all tables is ``expect_columns_not_all_null``. In
 its most basic form it verifies that there are no columns in the table which are
 completely null, since that is typically indicative of a bad ``ENUM`` constraint, a
 column naming error, or a bad merge, and should be investigated. To add this basic
-default, you add the test to the table level ``data_tests`` with no parameters, which
-building on the above example would look like:
+default, you add the test to the table level ``data_tests`` with no parameters:
 
 .. code-block:: yaml
 
@@ -453,8 +458,9 @@ building on the above example would look like:
             data_tests:
               - expect_columns_not_all_null
               - check_row_counts_per_partition:
-                  table_name: new_table_name
-                  partition_expr: "EXTRACT(YEAR FROM report_date)"
+                  arguments:
+                    table_name: new_table_name
+                    partition_expr: "EXTRACT(YEAR FROM report_date)"
 
 --------------------------------------------------------------------------------
 Defining new data validation tests

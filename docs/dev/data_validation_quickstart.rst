@@ -106,8 +106,9 @@ the ``data_tests`` for a new table might look like this:
           - name: new_table_name
             data_tests:
               - check_row_counts_per_partition:
-                  table_name: new_table_name
-                  partition_expr: "EXTRACT(YEAR FROM report_date)"
+                  arguments:
+                    table_name: new_table_name
+                    partition_expr: "EXTRACT(YEAR FROM report_date)"
 
 Then you can run:
 
