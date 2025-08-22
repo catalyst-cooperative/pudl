@@ -2,27 +2,26 @@
 
 import importlib.resources
 import itertools
+from pathlib import Path
 
-import pandera.pandas as pr
 from dagster import (
-    AssetCheckResult,
-    AssetChecksDefinition,
     AssetKey,
     AssetsDefinition,
     AssetSpec,
     Definitions,
-    asset_check,
     define_asset_job,
     load_asset_checks_from_modules,
     load_assets_from_modules,
 )
 
 import pudl
+from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
     epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,
+    geoparquet_io_manager,
     parquet_io_manager,
     pudl_mixed_format_io_manager,
 )
@@ -132,40 +131,6 @@ default_asset_checks = list(
 )
 
 
-def asset_check_from_schema(
-    asset_key: AssetKey,
-    package: pudl.metadata.classes.Package,
-) -> AssetChecksDefinition | None:
-    """Create a dagster asset check based on the resource schema, if defined."""
-    resource_id = asset_key.to_user_string()
-    try:
-        resource = package.get_resource(resource_id)
-    except ValueError:
-        return None
-    pandera_schema = resource.schema.to_pandera()
-
-    @asset_check(asset=asset_key, blocking=True)
-    def pandera_schema_check(asset_value) -> AssetCheckResult:
-        try:
-            pandera_schema.validate(asset_value, lazy=True)
-        except pr.errors.SchemaErrors as schema_errors:
-            return AssetCheckResult(
-                passed=False,
-                metadata={
-                    "errors": [
-                        {
-                            "failure_cases": str(err.failure_cases),
-                            "data": str(err.data),
-                        }
-                        for err in schema_errors.schema_errors
-                    ],
-                },
-            )
-        return AssetCheckResult(passed=True)
-
-    return pandera_schema_check
-
-
 def _get_keys_from_assets(asset_def: AssetsDefinition | AssetSpec) -> list[AssetKey]:
     """Get a list of asset keys.
 
@@ -185,14 +150,13 @@ def _get_keys_from_assets(asset_def: AssetsDefinition | AssetSpec) -> list[Asset
     return []
 
 
-_package = PUDL_PACKAGE
 _asset_keys = itertools.chain.from_iterable(
     _get_keys_from_assets(asset_def) for asset_def in default_assets
 )
 default_asset_checks += [
     check
     for check in (
-        asset_check_from_schema(asset_key, _package)
+        asset_check_from_schema(asset_key, PUDL_PACKAGE)
         for asset_key in _asset_keys
         if (
             asset_key.to_user_string()
@@ -215,6 +179,7 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "epacems_io_manager": epacems_io_manager,
     "parquet_io_manager": parquet_io_manager,
+    "geoparquet_io_manager": geoparquet_io_manager,
 }
 
 # Limit the number of concurrent workers when launch assets that use a lot of memory.

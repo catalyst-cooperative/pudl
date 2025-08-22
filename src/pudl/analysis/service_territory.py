@@ -15,12 +15,11 @@ from typing import Literal
 import click
 import geopandas as gpd
 import pandas as pd
-import sqlalchemy as sa
 from dagster import AssetsDefinition, Field, asset
 from matplotlib import pyplot as plt
 
 import pudl
-from pudl.workspace.setup import PudlPaths
+from pudl.helpers import get_parquet_table
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -126,7 +125,7 @@ def add_geometries(
     df: pd.DataFrame,
     census_gdf: gpd.GeoDataFrame,
     dissolve: bool = False,
-    dissolve_by: list[str] = None,
+    dissolve_by: list[str] | None = None,
 ) -> gpd.GeoDataFrame:
     """Merge census geometries into dataframe on county_id_fips, optionally dissolving.
 
@@ -137,7 +136,7 @@ def add_geometries(
 
     Args:
         df: A DataFrame containing a county_id_fips column.
-        census_gdf (geopandas.GeoDataFrame): A GeoDataFrame based on the US Census
+        census_gdf: A GeoDataFrame based on the US Census
             demographic profile (DP1) data at county resolution, with the original
             column names as published by US Census.
         dissolve: If True, dissolve individual county geometries into larger
@@ -148,14 +147,13 @@ def add_geometries(
             would provide annual balancing authority territories.
 
     Returns:
-        geopandas.GeoDataFrame
+        A GeoDataFrame with the merged census geometries.
     """
     out_gdf = (
-        census_gdf[["geoid10", "namelsad10", "dp0010001", "geometry"]]
+        census_gdf[["county_id_fips", "county", "dp0010001", "geometry"]]
         .rename(
             columns={
-                "geoid10": "county_id_fips",
-                "namelsad10": "county_name_census",
+                "county": "county_name_census",
                 "dp0010001": "population",
             }
         )
@@ -165,12 +163,7 @@ def add_geometries(
     )
     if dissolve is True:
         # Don't double-count duplicated counties, if any.
-        out_gdf = out_gdf.drop_duplicates(
-            subset=dissolve_by
-            + [
-                "county_id_fips",
-            ]
-        )
+        out_gdf = out_gdf.drop_duplicates(subset=dissolve_by or [] + ["county_id_fips"])
         # Sum these numerical columns so we can merge with dissolved geometries
         summed = (
             out_gdf.groupby(dissolve_by)[["population", "area_km2"]].sum().reset_index()
@@ -178,7 +171,7 @@ def add_geometries(
         out_gdf = (
             out_gdf.dissolve(by=dissolve_by)
             .drop(
-                [
+                columns=[
                     "county_id_fips",
                     "county",
                     "county_name_census",
@@ -187,7 +180,6 @@ def add_geometries(
                     "population",
                     "area_km2",
                 ],
-                axis="columns",
             )
             .reset_index()
             .merge(summed)
@@ -424,7 +416,7 @@ def service_territory_asset_factory(
         out_eia__yearly_utilities: pd.DataFrame,
         core_eia861__yearly_service_territory: pd.DataFrame,
         core_eia861__assn_utility: pd.DataFrame,
-        _core_censusdp1tract__counties: pd.DataFrame,
+        out_censusdp1tract__counties: gpd.GeoDataFrame,
     ) -> pd.DataFrame:
         """Compile all available utility or balancing authority geometries.
 
@@ -442,7 +434,7 @@ def service_territory_asset_factory(
             out_eia__yearly_utilities=out_eia__yearly_utilities,
             core_eia861__yearly_service_territory=core_eia861__yearly_service_territory,
             core_eia861__assn_utility=core_eia861__assn_utility,
-            census_counties=_core_censusdp1tract__counties,
+            census_counties=out_censusdp1tract__counties,
             entity_type=entity_type,
             dissolve=dissolve,
             limit_by_state=limit_by_state,
@@ -686,40 +678,22 @@ def pudl_service_territories(
     # Display logged output from the PUDL package:
     pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)
 
-    pudl_engine = sa.create_engine(PudlPaths().pudl_db)
-    # Load the required US Census DP1 county geometry data:
-    dp1_engine = PudlPaths().sqlite_db_uri("censusdp1tract")
-    sql = """
-SELECT
-    geoid10,
-    namelsad10,
-    dp0010001,
-    shape AS geometry
-FROM
-    county_2010census_dp1;
-"""
-    county_gdf = gpd.read_postgis(
-        sql,
-        con=dp1_engine,
-        geom_col="geometry",
-        crs="EPSG:4326",
-    )
-
     _ = compile_geoms(
-        core_eia861__yearly_balancing_authority=pd.read_sql(
-            "core_eia861__yearly_balancing_authority",
-            pudl_engine,
+        core_eia861__yearly_balancing_authority=get_parquet_table(
+            "core_eia861__yearly_balancing_authority"
         ),
-        core_eia861__assn_balancing_authority=pd.read_sql(
-            "core_eia861__assn_balancing_authority",
-            pudl_engine,
+        core_eia861__assn_balancing_authority=get_parquet_table(
+            "core_eia861__assn_balancing_authority"
         ),
-        out_eia__yearly_utilities=pd.read_sql("out_eia__yearly_utilities", pudl_engine),
-        core_eia861__yearly_service_territory=pd.read_sql(
-            "core_eia861__yearly_service_territory", pudl_engine
+        out_eia__yearly_utilities=get_parquet_table("out_eia__yearly_utilities"),
+        core_eia861__yearly_service_territory=get_parquet_table(
+            "core_eia861__yearly_service_territory"
         ),
-        core_eia861__assn_utility=pd.read_sql("core_eia861__assn_utility", pudl_engine),
-        census_counties=county_gdf,
+        core_eia861__assn_utility=get_parquet_table("core_eia861__assn_utility"),
+        census_counties=get_parquet_table(
+            "out_censusdp1tract__counties",
+            columns=["county_id_fips", "geometry", "county", "dp0010001"],
+        ),
         dissolve=dissolve,
         save_format="geoparquet",
         output_dir=output_dir,

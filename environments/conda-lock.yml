@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 55d8dabfd751ba9e3344b2bc34baa0065be783872db7ac23746eefb61e670d5d
-    osx-64: eafe2c006ef1c25d2f3e09d81b561ba6d2995fe14a096258e3b56e87fe7e5e39
-    osx-arm64: 0656ef5f5459fe88d50a54aa9ad05bc3720997e2b55afe409c5875a69924c950
+    linux-64: 1672573fb65a66eed3657f342fa1a54de546df3ac0f637b6a6260a8407fe95de
+    osx-64: 7907e3307b18e9041979a4fdb1c589a378561be419b75c2a542178577ab448f9
+    osx-arm64: 9c706e7570c31cd3e6138385dd48464f898ba1dfd994fe47433b2d01d7f12361
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -7838,6 +7838,134 @@ package:
       sha256: b9a928be779da5ce90e4dbc1f70829ac6bb45c3b244d6913c71439ce6a0d631b
     category: dev
     optional: true
+  - name: geoarrow-c
+    version: 0.3.0
+    manager: conda
+    platform: linux-64
+    dependencies:
+      __glibc: ">=2.17,<3.0.a0"
+      libcxx: ""
+      libgcc: ">=13"
+      libstdcxx: ">=13"
+      python: ">=3.13,<3.14.0a0"
+      python_abi: 3.13.*
+    url: https://conda.anaconda.org/conda-forge/linux-64/geoarrow-c-0.3.0-py313h46c70d0_0.conda
+    hash:
+      md5: 70f50612b54b29887d9a45365a888d03
+      sha256: 4b75f6b605ab092f9e99d4a2075303304c34d11c9a2189d27db4aab511c2a8c4
+    category: main
+    optional: false
+  - name: geoarrow-c
+    version: 0.3.0
+    manager: conda
+    platform: osx-64
+    dependencies:
+      __osx: ">=10.13"
+      libcxx: ">=18"
+      python: ">=3.13,<3.14.0a0"
+      python_abi: 3.13.*
+    url: https://conda.anaconda.org/conda-forge/osx-64/geoarrow-c-0.3.0-py313h14b76d3_0.conda
+    hash:
+      md5: 7e45e1371a0a250018d6ac12a8f2ef11
+      sha256: 6098103faacd7862083c94ea42f1f689160a6790a1a264e02a89072407164f6a
+    category: main
+    optional: false
+  - name: geoarrow-c
+    version: 0.3.0
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      __osx: ">=11.0"
+      libcxx: ">=18"
+      python: ">=3.13,<3.14.0a0"
+      python_abi: 3.13.*
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/geoarrow-c-0.3.0-py313h928ef07_0.conda
+    hash:
+      md5: da557c4d92974c73fefadc9090245821
+      sha256: da75bade9039d64396002d60e6ceb761999f461df701a9c01af984e8535f72ca
+    category: main
+    optional: false
+  - name: geoarrow-pyarrow
+    version: 0.2.0
+    manager: conda
+    platform: linux-64
+    dependencies:
+      geoarrow-c: ">=0.3.0"
+      geoarrow-types: ">=0.3.0"
+      pyarrow: ""
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
+    hash:
+      md5: 1f4f9d6122f503a0946ebf5ee3c311a2
+      sha256: 7134d2d0ad205b30b5824449c29744de1257627a6d4e33e2bbd22250fdc0f96e
+    category: main
+    optional: false
+  - name: geoarrow-pyarrow
+    version: 0.2.0
+    manager: conda
+    platform: osx-64
+    dependencies:
+      geoarrow-c: ">=0.3.0"
+      geoarrow-types: ">=0.3.0"
+      pyarrow: ""
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
+    hash:
+      md5: 1f4f9d6122f503a0946ebf5ee3c311a2
+      sha256: 7134d2d0ad205b30b5824449c29744de1257627a6d4e33e2bbd22250fdc0f96e
+    category: main
+    optional: false
+  - name: geoarrow-pyarrow
+    version: 0.2.0
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      geoarrow-c: ">=0.3.0"
+      geoarrow-types: ">=0.3.0"
+      pyarrow: ""
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
+    hash:
+      md5: 1f4f9d6122f503a0946ebf5ee3c311a2
+      sha256: 7134d2d0ad205b30b5824449c29744de1257627a6d4e33e2bbd22250fdc0f96e
+    category: main
+    optional: false
+  - name: geoarrow-types
+    version: 0.3.0
+    manager: conda
+    platform: linux-64
+    dependencies:
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
+    hash:
+      md5: 2c6442daf1ecc13177acd144e7f015e0
+      sha256: 071816d2d824461fbf7b842c110ed2a8434ca762eb68c7767baaeb9a5db92f73
+    category: main
+    optional: false
+  - name: geoarrow-types
+    version: 0.3.0
+    manager: conda
+    platform: osx-64
+    dependencies:
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
+    hash:
+      md5: 2c6442daf1ecc13177acd144e7f015e0
+      sha256: 071816d2d824461fbf7b842c110ed2a8434ca762eb68c7767baaeb9a5db92f73
+    category: main
+    optional: false
+  - name: geoarrow-types
+    version: 0.3.0
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
+    hash:
+      md5: 2c6442daf1ecc13177acd144e7f015e0
+      sha256: 071816d2d824461fbf7b842c110ed2a8434ca762eb68c7767baaeb9a5db92f73
+    category: main
+    optional: false
   - name: geopandas
     version: 1.1.1
     manager: conda
@@ -13121,6 +13249,20 @@ package:
   - name: libcxx
     version: 20.1.8
     manager: conda
+    platform: linux-64
+    dependencies:
+      __glibc: ">=2.28,<3.0.a0"
+      libcxxabi: 20.1.8
+      libgcc: ">=14"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libcxx-20.1.8-hf532b92_1.conda
+    hash:
+      md5: 0e6e904d5a3873c513543a9a2554d06f
+      sha256: dfbe9a1fb16959920ff089e50a386a00853a0fda69baeeb07838107e4f02a80d
+    category: main
+    optional: false
+  - name: libcxx
+    version: 20.1.8
+    manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
@@ -13140,6 +13282,19 @@ package:
     hash:
       md5: a69ef3239d3268ef8602c7a7823fd982
       sha256: 119b3ac75cb1ea29981e5053c2cb10d5f0b06fcc81b486cb7281f160daf673a1
+    category: main
+    optional: false
+  - name: libcxxabi
+    version: 20.1.8
+    manager: conda
+    platform: linux-64
+    dependencies:
+      __glibc: ">=2.28,<3.0.a0"
+      libgcc: ">=14"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libcxxabi-20.1.8-hf4943e6_1.conda
+    hash:
+      md5: d28be7be3b4a6b3bf70f7722c4090713
+      sha256: 61fc2aa51d84897cc6d6f77cd8e7b8c98da24343bb537c72e1d20ead0ae0d077
     category: main
     optional: false
   - name: libdeflate

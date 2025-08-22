@@ -4,10 +4,11 @@
 Testing PUDL
 ===============================================================================
 
-We use `pytest <https://pytest.org>`__ to specify software unit & integration tests,
-including calling ``dbt build`` to run our :doc:`data_validation` tests. There are
-several ``pytest`` commands stored as targets in the PUDL ``Makefile`` for convenience
-and to ensure that we're all running the tests in similar ways by default.
+We use `pytest <https://pytest.org>`__ to specify software unit
+& integration tests, including calling ``dbt build`` to run our
+:doc:`data_validation_quickstart` tests. There are several ``pytest`` commands
+stored as targets in the PUDL ``Makefile`` for convenience and to ensure that
+we're all running the tests in similar ways by default.
 
 To run the checks that will be run on a PR by our continuous integration (CI) on GitHub
 before it's merged into the ``main`` branch you can use the following command:
