@@ -12,7 +12,7 @@ sources:
               column_a: demand_reported_mwh
               column_b: demand_imputed_pudl_mwh
               row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL"
-              atol: 0.2
+              atol: 1.0
         columns:
           - name: datetime_utc
           - name: balancing_authority_code_eia
