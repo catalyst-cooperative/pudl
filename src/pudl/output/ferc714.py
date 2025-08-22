@@ -580,7 +580,7 @@ def out_ferc714__respondents_with_fips(
 )
 def _out_ferc714__georeferenced_counties(
     out_ferc714__respondents_with_fips: pd.DataFrame,
-    _core_censusdp1tract__counties: gpd.GeoDataFrame,
+    out_censusdp1tract__counties: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with all associated county-level geometries.
 
@@ -592,16 +592,19 @@ def _out_ferc714__georeferenced_counties(
     """
     counties_gdf = pudl.analysis.service_territory.add_geometries(
         out_ferc714__respondents_with_fips,
-        census_gdf=_core_censusdp1tract__counties,
+        census_gdf=out_censusdp1tract__counties,
     ).pipe(apply_pudl_dtypes)
     return counties_gdf
 
 
-@asset(compute_kind="pandas")
-def _out_ferc714__georeferenced_respondents(
+@asset(
+    compute_kind="pandas",
+    io_manager_key="geoparquet_io_manager",
+)
+def out_ferc714__georeferenced_respondents(
     out_ferc714__respondents_with_fips: pd.DataFrame,
     out_ferc714__summarized_demand: pd.DataFrame,
-    _core_censusdp1tract__counties: gpd.GeoDataFrame,
+    out_censusdp1tract__counties: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with a single all-encompassing geometry for each year.
 
@@ -616,7 +619,7 @@ def _out_ferc714__georeferenced_respondents(
     respondents_gdf = (
         pudl.analysis.service_territory.add_geometries(
             out_ferc714__respondents_with_fips,
-            census_gdf=_core_censusdp1tract__counties,
+            census_gdf=out_censusdp1tract__counties,
             dissolve=True,
             dissolve_by=["report_date", "respondent_id_ferc714"],
         )

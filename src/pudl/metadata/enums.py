@@ -696,3 +696,22 @@ INCOME_TYPES_FERC1: list[str] = [
     "utility_operating_expenses",
 ]
 """Income types for FERC Form 1 data."""
+
+FUNCTIONAL_STATUS_CODES_CENSUS: list[str] = [
+    "A",
+    "B",
+    "C",
+    "E",
+    "F",
+    "G",
+    "I",
+    "L",
+    "M",
+    "N",
+    "S",
+    "T",
+]
+"""Functional status codes for Census geographic entities.
+
+https://www.census.gov/library/reference/code-lists/functional-status-codes.html
+"""
