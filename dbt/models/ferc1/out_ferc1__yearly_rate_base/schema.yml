@@ -6,12 +6,15 @@ sources:
         data_tests:
           - dbt_expectations.expect_table_row_count_to_be_between:
               description: "Nightly builds and local ETL yield slightly different output"
-              enabled: "{{ target.name == 'etl-full' }}"
-              min_value: 433000
-              max_value: 434000
+              config:
+                enabled: "{{ target.name == 'etl-full' }}"
+              arguments:
+                min_value: 433000
+                max_value: 434000
           - expect_columns_not_all_null:
               description: ferc_account is entirely null. Seems like an error.
-              severity: warn
+              config:
+                severity: warn
         columns:
           - name: report_year
           - name: utility_id_ferc1

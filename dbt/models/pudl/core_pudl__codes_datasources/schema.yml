@@ -6,8 +6,9 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: core_pudl__codes_datasources
-              partition_expr: null
+              arguments:
+                table_name: core_pudl__codes_datasources
+                partition_expr:
         columns:
           - name: datasource
           - name: partitions
