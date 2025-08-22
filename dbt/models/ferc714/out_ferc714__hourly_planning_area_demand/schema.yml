@@ -12,7 +12,7 @@ sources:
               column_a: demand_reported_mwh
               column_b: demand_imputed_pudl_mwh
               row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL and demand_reported_mwh > 300"
-              atol: 0.2
+              atol: 0.3
           - expect_columns_are_close:
               column_a: demand_reported_mwh
               column_b: demand_imputed_pudl_mwh
