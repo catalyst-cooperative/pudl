@@ -163,6 +163,7 @@ def data_dictionary_metadata_to_rst(app):
 
 
 INCLUDED_SOURCES = [
+    "censusdp1tract",
     "eia860",
     "eia861",
     "eia923",
