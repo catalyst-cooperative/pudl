@@ -6,14 +6,16 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: out_vcerare__hourly_available_capacity_factor
-              partition_expr: report_year
+              arguments:
+                table_name: out_vcerare__hourly_available_capacity_factor
+                partition_expr: report_year
           - expect_valid_hour_of_year
           - dbt_expectations.expect_compound_columns_to_be_unique:
-              column_list:
-                - county_id_fips
-                - datetime_utc
-              ignore_row_if: "any_value_is_missing"
+              arguments:
+                column_list:
+                  - county_id_fips
+                  - datetime_utc
+                ignore_row_if: "any_value_is_missing"
         columns:
           - name: state
             data_tests:
@@ -22,21 +24,24 @@ sources:
             data_tests:
               - not_null
               - dbt_expectations.expect_column_values_to_not_be_in_set:
-                  value_set:
-                    - bedford_city
-                    - clifton_forge_city
-                    - lake_hurron
-                    - lake_st_clair
+                  arguments:
+                    value_set:
+                      - bedford_city
+                      - clifton_forge_city
+                      - lake_hurron
+                      - lake_st_clair
               - dbt_expectations.expect_column_values_to_be_in_set:
-                  value_set:
-                    - oglala lakota
-                  row_condition: "county_id_fips = '46012'"
+                  arguments:
+                    value_set:
+                      - oglala lakota
+                    row_condition: "county_id_fips = '46012'"
           - name: datetime_utc
             data_tests:
               - not_null
               - dbt_expectations.expect_column_values_to_not_be_in_set:
-                  value_set:
-                    - "{{ dbt_date.date(2020, 12, 31) }}"
+                  arguments:
+                    value_set:
+                      - "{{ dbt_date.date(2020, 12, 31) }}"
           - name: report_year
             data_tests:
               - not_null
@@ -44,8 +49,9 @@ sources:
             data_tests:
               - not_null
               - dbt_expectations.expect_column_max_to_be_between:
-                  min_value: 8760
-                  max_value: 8760
+                  arguments:
+                    min_value: 8760
+                    max_value: 8760
           - name: county_id_fips
           - name: latitude
             data_tests:
@@ -57,17 +63,20 @@ sources:
             data_tests:
               - not_null
               - dbt_expectations.expect_column_values_to_be_between:
-                  min_value: 0.0
-                  max_value: 1.1
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.1
           - name: capacity_factor_onshore_wind
             data_tests:
               - not_null
               - dbt_expectations.expect_column_values_to_be_between:
-                  min_value: 0.0
-                  max_value: 1.0
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: capacity_factor_offshore_wind
             data_tests:
               - not_null
               - dbt_expectations.expect_column_values_to_be_between:
-                  min_value: 0.0
-                  max_value: 1.0
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0

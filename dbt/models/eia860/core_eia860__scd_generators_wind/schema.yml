@@ -5,11 +5,13 @@ sources:
       - name: core_eia860__scd_generators_wind
         data_tests:
           - expect_columns_not_all_null:
-              row_conditions:
-                obstacle_id_faa: EXTRACT(year FROM report_date) <= 2015
+              arguments:
+                row_conditions:
+                  obstacle_id_faa: EXTRACT(year FROM report_date) <= 2015
           - check_row_counts_per_partition:
-              table_name: core_eia860__scd_generators_wind
-              partition_expr: "EXTRACT(YEAR FROM report_date)"
+              arguments:
+                table_name: core_eia860__scd_generators_wind
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: plant_id_eia
           - name: generator_id

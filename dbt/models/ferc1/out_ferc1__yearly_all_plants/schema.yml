@@ -18,19 +18,21 @@ sources:
                 still end up with a non-null value. The capex_annual_per_* columns are
                 all derived from the capex_annual_addition column, so they have the same
                 pattern of null values.
-              exclude_columns:
-                - capex_annual_addition_rolling
-                - capex_annual_per_mw_rolling
-                - capex_annual_per_mwh_rolling
-              row_conditions:
-                asset_retirement_cost: report_year >= 2003
-                capex_annual_addition: report_year >= 1995
-                capex_annual_per_kw: report_year >= 1995
-                capex_annual_per_mw: report_year >= 1995
-                capex_annual_per_mwh: report_year >= 1995
+              arguments:
+                exclude_columns:
+                  - capex_annual_addition_rolling
+                  - capex_annual_per_mw_rolling
+                  - capex_annual_per_mwh_rolling
+                row_conditions:
+                  asset_retirement_cost: report_year >= 2003
+                  capex_annual_addition: report_year >= 1995
+                  capex_annual_per_kw: report_year >= 1995
+                  capex_annual_per_mw: report_year >= 1995
+                  capex_annual_per_mwh: report_year >= 1995
           - check_row_counts_per_partition:
-              table_name: out_ferc1__yearly_all_plants
-              partition_expr: report_year
+              arguments:
+                table_name: out_ferc1__yearly_all_plants
+                partition_expr: report_year
         columns:
           - name: report_year
           - name: utility_id_ferc1
