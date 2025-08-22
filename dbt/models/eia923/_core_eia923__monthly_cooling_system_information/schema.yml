@@ -38,6 +38,7 @@ sources:
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
           - expect_sum_close_to_total_column:
               name: monthly_withdrawal_discrepancy_rate
+              description: "Discrepancy rate on etl-fast observed April 2025: 0.1002"
               arguments:
                 sum_columns:
                   - monthly_average_consumption_rate_gallons_per_minute
