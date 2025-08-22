@@ -18,6 +18,15 @@ SOURCES: dict[str, Any] = {
             {
                 "censusdp1tract",
                 "census",
+                "demographics",
+                "geospatial",
+                "gis",
+                "population",
+                "gender",
+                "age",
+                "race",
+                "household",
+                "spatial",
             }
         ),
         "license_raw": LICENSES["us-govt"],

@@ -18,6 +18,7 @@ semi-structured but machine readable formats. For details on exactly what data i
 available from these data sources and what state it is in, see the individual
 pages for each source:
 
+* :doc:`data_sources/censusdp1tract`
 * :doc:`data_sources/eia860`
 * :doc:`data_sources/eia861`
 * :doc:`data_sources/eia923`

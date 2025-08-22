@@ -39,6 +39,7 @@ dependencies = [
     "gcsfs>=2025",
     "gdal==3.11.3", # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.1",
+    "geoarrow-pyarrow>=0.2",
     "grpcio==1.71.0", # Required by dagster, binary dependencies are flaky
     "grpcio-health-checking==1.71.0", # Required by dagster, binary dependencies are flaky
     "grpcio-status==1.71.0", # Required by dagster, binary dependencies are flaky
@@ -47,7 +48,7 @@ dependencies = [
     "jinja2>=3.1",
     "jupyter",
     "matplotlib>=3.10",
-    "mlflow>=3.1",
+    "mlflow>=3.2",
     "nbconvert>=7",
     "nbformat>=5.10",
     "networkx>=3.5",
@@ -56,7 +57,7 @@ dependencies = [
     "numpy>=2.2",
     "packaging>=24",
     "pandas>=2.3",
-    "pandera>=0.25",
+    "pandera>=0.26",
     "pre-commit>=4",
     "pyarrow>=20", # pandas[parquet]
     "pydantic>=2.11",
