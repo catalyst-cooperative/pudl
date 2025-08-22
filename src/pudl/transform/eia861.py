@@ -1074,7 +1074,16 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
         # columns, we drop the duplicates and return the first row.
         # This is a bit of a hack, but it ensures that we don't end up with multiple rows
         # with the same primary key, which would cause problems later on.
-        return group.drop_duplicates(subset=idx_cols)
+        # There are very few instances of this anyways. On the order of 1-2 per idx group.
+        # Right now there the following tables have the following dupes. Note that most of
+        # the dupes are the same utility in different years.
+        # - BA table: 1
+        # - OD table: 16
+        # - Sales table: 32
+        # - UD table: 15
+        # - DP table: 8
+        no_dupes = group.drop_duplicates(subset=idx_cols)
+        return no_dupes
 
     utils_88888 = df[df["utility_id_eia"] == 88888]
     agg_utils_88888 = utils_88888.groupby(
