@@ -6,16 +6,19 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: out_eia923__monthly_generation_fuel_combined
-              partition_expr: "EXTRACT(YEAR FROM report_date)"
+              arguments:
+                table_name: out_eia923__monthly_generation_fuel_combined
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
           - expect_date_frequency_ratio:
-              compare_model: source("pudl", "out_eia__yearly_generators")
-              multiplier: 12
-              date_column: report_date
+              arguments:
+                compare_model: source("pudl", "out_eia__yearly_generators")
+                multiplier: 12
+                date_column: report_date
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
-              column_A: fuel_consumed_mmbtu
-              column_B: fuel_consumed_for_electricity_mmbtu
-              or_equal: True
+              arguments:
+                column_A: fuel_consumed_mmbtu
+                column_B: fuel_consumed_for_electricity_mmbtu
+                or_equal: true
         columns:
           - name: report_date
           - name: plant_id_eia
@@ -35,27 +38,33 @@ sources:
           - name: net_generation_mwh
             data_tests:
               - expect_column_fraction_with_condition:
-                  numerator_row_condition: fuel_type_code_pudl='nuclear'
-                  min_fraction: 0.18
-                  max_fraction: 0.22
+                  arguments:
+                    numerator_row_condition: fuel_type_code_pudl='nuclear'
+                    min_fraction: 0.18
+                    max_fraction: 0.22
               - expect_column_fraction_with_condition:
-                  numerator_row_condition: fuel_type_code_pudl='coal'
-                  min_fraction: 0.15
-                  max_fraction: 0.40
+                  arguments:
+                    numerator_row_condition: fuel_type_code_pudl='coal'
+                    min_fraction: 0.15
+                    max_fraction: 0.40
               - expect_column_fraction_with_condition:
-                  numerator_row_condition: fuel_type_code_pudl='gas'
-                  min_fraction: 0.25
-                  max_fraction: 0.50
+                  arguments:
+                    numerator_row_condition: fuel_type_code_pudl='gas'
+                    min_fraction: 0.25
+                    max_fraction: 0.50
               - expect_column_fraction_with_condition:
-                  numerator_row_condition: fuel_type_code_pudl='hydro'
-                  min_fraction: 0.04
-                  max_fraction: 0.10
+                  arguments:
+                    numerator_row_condition: fuel_type_code_pudl='hydro'
+                    min_fraction: 0.04
+                    max_fraction: 0.10
               - expect_column_fraction_with_condition:
-                  numerator_row_condition: fuel_type_code_pudl='wind'
-                  min_fraction: 0.04
-                  max_fraction: 0.15
+                  arguments:
+                    numerator_row_condition: fuel_type_code_pudl='wind'
+                    min_fraction: 0.04
+                    max_fraction: 0.15
               - expect_column_fraction_with_condition:
-                  numerator_row_condition: fuel_type_code_pudl='solar'
-                  min_fraction: 0.00
-                  max_fraction: 0.10
+                  arguments:
+                    numerator_row_condition: fuel_type_code_pudl='solar'
+                    min_fraction: 0.00
+                    max_fraction: 0.10
           - name: data_maturity

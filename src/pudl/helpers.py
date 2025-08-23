@@ -22,9 +22,9 @@ from io import BytesIO
 from typing import Any, Literal, NamedTuple
 
 import datasette
+import geopandas as gpd
 import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
 import yaml
@@ -2045,7 +2045,7 @@ def get_dagster_execution_config(
 
     start_method_config = {}
     if "forkserver" in multiprocessing.get_all_start_methods():
-        start_method_config = {"forkserver": {"preload_modules": ["pudl"]}}
+        start_method_config = {"forkserver": {"preload_modules": ["pudl.init_logging"]}}
 
     return {
         "execution": {
@@ -2245,7 +2245,7 @@ def get_parquet_table(
     filters: list[tuple[str, str, Any]]
     | list[list[tuple[str, str, Any]]]
     | None = None,
-) -> pd.DataFrame:
+) -> pd.DataFrame | gpd.GeoDataFrame:
     """Read a table from Parquet files with optional column selection and filtering.
 
     This function provides a general-purpose interface for reading PUDL tables from
@@ -2269,27 +2269,39 @@ def get_parquet_table(
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
 
-    paths = PudlPaths()
-
-    # Get the Parquet file path
-    parquet_path = paths.parquet_path(table_name)
-
-    # Get the schema for validation
     resource = Resource.from_id(table_name)
+    if columns is None:
+        columns = resource.get_field_names()
+    # Get the schema for validation
     pyarrow_schema = resource.to_pyarrow()
 
-    # Read the Parquet file
-    df = pq.read_table(
-        source=parquet_path,
-        schema=pyarrow_schema,
-        columns=columns,
-        filters=filters,
-        use_threads=True,
-        memory_map=True,
-    ).to_pandas()
+    # Get the Parquet file path
+    paths = PudlPaths()
+    parquet_path = paths.parquet_path(table_name)
+
+    is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
+
+    if is_geospatial:
+        df = gpd.read_parquet(
+            path=parquet_path,
+            columns=columns,
+            filters=filters,
+            schema=pyarrow_schema,
+            use_threads=True,
+            memory_map=True,
+        )
+    else:
+        df = pd.read_parquet(
+            path=parquet_path,
+            columns=columns,
+            filters=filters,
+            schema=pyarrow_schema,
+            use_threads=True,
+            memory_map=True,
+        )
 
     # Only enforce schema if we're reading all columns
-    if columns is None:
+    if set(columns) == set(resource.get_field_names()):
         return resource.enforce_schema(df)
     # For specific columns, apply PUDL dtypes for the columns we have
     return apply_pudl_dtypes(df, group=resource.field_namespace)

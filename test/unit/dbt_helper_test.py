@@ -1245,7 +1245,10 @@ sources:
     # patch out ALL_TABLES so that we're allowed to run tests
     mocker.patch("pudl.scripts.dbt_helper.ALL_TABLES", new=["test_source__table_name"])
     runner = CliRunner()
-    result = runner.invoke(
+
+    # Mock logger.info to check for expected logging outputs
+    logger_mock = mocker.patch("pudl.scripts.dbt_helper.logger.info")
+    runner.invoke(
         update_tables,
         [
             "test_source__table_name",
@@ -1254,7 +1257,8 @@ sources:
         ],
     )
     assert (
-        "Successfully updated row counts for test_source__table_name" in result.stdout
+        "Successfully updated row counts for test_source__table_name"
+        in logger_mock.call_args[0][0]
     )
 
     # read out data & compare
