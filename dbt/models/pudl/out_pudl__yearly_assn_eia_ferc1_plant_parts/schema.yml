@@ -10,13 +10,15 @@ sources:
                 of data have been processed, since the moving window will exclude the
                 first couple of years in the range. This means we can't define a simple
                 range of years in which we expect them to be non-null.
-              exclude_columns:
-                - capex_annual_addition_rolling
-                - capex_annual_per_mw_rolling
-                - capex_annual_per_mwh_rolling
+              arguments:
+                exclude_columns:
+                  - capex_annual_addition_rolling
+                  - capex_annual_per_mw_rolling
+                  - capex_annual_per_mwh_rolling
           - check_row_counts_per_partition:
-              table_name: out_pudl__yearly_assn_eia_ferc1_plant_parts
-              partition_expr: report_year
+              arguments:
+                table_name: out_pudl__yearly_assn_eia_ferc1_plant_parts
+                partition_expr: report_year
         columns:
           - name: record_id_ferc1
           - name: record_id_eia
