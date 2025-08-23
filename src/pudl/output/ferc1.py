@@ -2195,8 +2195,10 @@ class XbrlCalculationForestFerc1(BaseModel):
                 "Calculations in Exploded Metadata cannot be represented as a directed acyclic graph!"
             )
         remaining_stepparents = set(self.stepparents(forest))
+        # "Stepparents" (nodes that have a child with more than 1 parent) are okay in
+        # a DAG, which is what our "Forest" is now.
         if remaining_stepparents:
-            logger.error(f"{remaining_stepparents=}")
+            logger.info(f"{remaining_stepparents=}")
 
         return forest
 
