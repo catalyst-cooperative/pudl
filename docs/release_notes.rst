@@ -54,6 +54,11 @@ Quality of Life Improvements
 Bug Fixes
 ^^^^^^^^^
 
+* Stopped nulling values in columns with ENUM constraints when the value was not found
+  in the ENUM. Previously we logged a warning, and now it will raise an error. There
+  were a couple of trivial cases in which we were losing values that violated the
+  constraints, but nothing serious. See PR :pr:`4548`.
+
 Documentation
 ^^^^^^^^^^^^^
 
