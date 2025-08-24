@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 1672573fb65a66eed3657f342fa1a54de546df3ac0f637b6a6260a8407fe95de
-    osx-64: 7907e3307b18e9041979a4fdb1c589a378561be419b75c2a542178577ab448f9
-    osx-arm64: 9c706e7570c31cd3e6138385dd48464f898ba1dfd994fe47433b2d01d7f12361
+    linux-64: a71bb6b1d5c92e6ec9f58298e7505f91b95d0bece409f081bd269df703640875
+    osx-64: 51ba056fd7917b404c1b3ef6852b3ea8528f85eddbaafba035df7a1a0aff93da
+    osx-arm64: dc3ac5a60633c33438f7a8ca4dfcf493e65683ce6abd3855623ad2318de6f0e6
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -10148,54 +10148,54 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.138.2
+    version: 6.138.3
     manager: conda
     platform: linux-64
     dependencies:
       attrs: ">=22.2.0"
       click: ">=7.0"
       exceptiongroup: ">=1.0.0"
-      python: ">=3.9"
+      python: ">=3.10"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.2-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.3-pyha770c72_0.conda
     hash:
-      md5: 538129918942d35ed622bca862d19ec4
-      sha256: e222d47519dd337bbcd4c8690ebd3ea4c16d42c5345a4335b9d8159bc7e7dd9b
+      md5: 64af8c71b6888acfa09a9f9d2e10f375
+      sha256: f3fd2fedc1952f34b17280c88117654fd6209fc2641c19978416024e1ac9a116
     category: main
     optional: false
   - name: hypothesis
-    version: 6.138.2
+    version: 6.138.3
     manager: conda
     platform: osx-64
     dependencies:
       attrs: ">=22.2.0"
       click: ">=7.0"
       exceptiongroup: ">=1.0.0"
-      python: ">=3.9"
+      python: ">=3.10"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.2-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.3-pyha770c72_0.conda
     hash:
-      md5: 538129918942d35ed622bca862d19ec4
-      sha256: e222d47519dd337bbcd4c8690ebd3ea4c16d42c5345a4335b9d8159bc7e7dd9b
+      md5: 64af8c71b6888acfa09a9f9d2e10f375
+      sha256: f3fd2fedc1952f34b17280c88117654fd6209fc2641c19978416024e1ac9a116
     category: main
     optional: false
   - name: hypothesis
-    version: 6.138.2
+    version: 6.138.3
     manager: conda
     platform: osx-arm64
     dependencies:
       attrs: ">=22.2.0"
       click: ">=7.0"
       exceptiongroup: ">=1.0.0"
-      python: ">=3.9"
+      python: ">=3.10"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.2-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.3-pyha770c72_0.conda
     hash:
-      md5: 538129918942d35ed622bca862d19ec4
-      sha256: e222d47519dd337bbcd4c8690ebd3ea4c16d42c5345a4335b9d8159bc7e7dd9b
+      md5: 64af8c71b6888acfa09a9f9d2e10f375
+      sha256: f3fd2fedc1952f34b17280c88117654fd6209fc2641c19978416024e1ac9a116
     category: main
     optional: false
   - name: icu
