@@ -67,19 +67,36 @@ See ``dbt_helper validate --help`` for usage details.
      <https://console.cloud.google.com/storage/browser/builds.catalyst.coop>`__,
      you can also use the Parquet files you find there.
 
+.. _update_dbt_schema:
+
 Updating table schemas
 ----------------------
 
-dbt stores information about a table's schema and what tests are defined
-in a special YAML file that you need to keep up to date.
+dbt stores information about a table's schema and what tests are defined in a special
+YAML file that you need to keep up to date.
 
 That file lives in ``pudl/dbt/models/<data_source>/<table_name>/schema.yml``.
 
-When you change a table's schema in ``pudl.metadata.resources``,
-you need to make a matching change to the corresponding dbt YAML file.
+When you change a table's schema in ``pudl.metadata.resources``, you need to make a
+matching change to the corresponding dbt YAML file.
 
-For now, you have to update the columns manually,
-by editing the ``columns`` list in the appropriate schema file.
+In simple cases, ``dbt_helper`` can automatically update the schema of an existing
+table with:
+
+.. code-block:: bash
+
+  dbt_helper update-tables --schema table_to_update
+
+This will work so long as none of the columns being updated have data tests or other
+manually defined metadata associated with them. If the script finds tests or metadata it
+will abort, leaving the schema unchanged, and you will have to update the schema
+manually, by editing the ``columns`` list in the appropriate ``schema.yml`` file. If you
+want to destructively replace an existing schema **including any manually added tests or
+metadata** you can use ``--clobber``:
+
+.. code-block:: bash
+
+  dbt_helper update-tables --schema --clobber table_to_replace_entirely
 
 .. _row_counts:
 

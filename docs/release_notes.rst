@@ -44,6 +44,24 @@ Expanded Data Coverage
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* We updated `our Kaggle notebooks <https://www.kaggle.com/catalystcooperative/code>`__
+  to read PUDL data from our `AWS Open Data Registry
+  <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__ S3 bucket instead of
+  relying on the `PUDL Kaggle Dataset
+  <https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__, since copying
+  all of the PUDL data into the notebook workspace was taking more than 5 minutes, which
+  made it frustrating for users to get started working with the data. This also means it
+  should be easier to run the notebooks locally (in an appropriate Python environment)
+  since the data doesn't need to be present locally. The notebooks are also pushed to
+  our `PUDL Examples GitHub repo
+  <https://github.com/catalyst-cooperative/pudl-examples/>`__. See issue :issue:`4381`.
+* When running ``dbt_helper update-tables`` without the ``--clobber`` flag, existing
+  schema tests, descriptions and other metadata are now preserved. Furthermore, the
+  ``--update`` flag has been removed, with the default schema update logic behaving
+  as follows: if columns are added or removed, updates are allowed to pass. However, if
+  any metadata is removed, such as tests or descriptions, the update fails unless
+  ``--clobber`` is used. See issue :issue:`4466` and PR :pr:`4525`.
+
 Bug Fixes
 ^^^^^^^^^
 
