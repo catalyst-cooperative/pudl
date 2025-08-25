@@ -36,7 +36,9 @@ def test_pkg() -> Package:
         },
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
-    artist_resource = Resource(name="artist", schema=schema, description="Artist")
+    artist_resource = Resource(
+        name="core_eia__artist", schema=schema, description="Artist"
+    )
 
     fields = [
         {"name": "artistid", "type": "integer", "description": "artistid"},
@@ -49,7 +51,7 @@ def test_pkg() -> Package:
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
     view_resource = Resource(
-        name="artist_view",
+        name="core_eia__artist_view",
         schema=schema,
         description="Artist view",
         create_database_schema=False,
@@ -68,11 +70,13 @@ def test_pkg() -> Package:
     fkeys = [
         {
             "fields": ["trackartist"],
-            "reference": {"resource": "artist", "fields": ["artistid"]},
+            "reference": {"resource": "core_eia__artist", "fields": ["artistid"]},
         }
     ]
     schema = {"fields": fields, "primary_key": ["trackid"], "foreign_keys": fkeys}
-    track_resource = Resource(name="track", schema=schema, description="Track")
+    track_resource = Resource(
+        name="core_eia__track", schema=schema, description="Track"
+    )
     return Package(
         name="music", resources=[track_resource, artist_resource, view_resource]
     )
@@ -89,7 +93,7 @@ def test_sqlite_io_manager_delete_stmt(sqlite_io_manager_fixture):
     """Test we are replacing the data without dropping the table schema."""
     manager = sqlite_io_manager_fixture
 
-    asset_key = "artist"
+    asset_key = "core_eia__artist"
     artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     manager.handle_output(output_context, artist)
@@ -114,12 +118,12 @@ def test_foreign_key_failure(sqlite_io_manager_fixture):
     """Ensure ForeignKeyErrors are raised when there are foreign key errors."""
     manager = sqlite_io_manager_fixture
 
-    asset_key = "artist"
+    asset_key = "core_eia__artist"
     artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     manager.handle_output(output_context, artist)
 
-    asset_key = "track"
+    asset_key = "core_eia__track"
     track = pd.DataFrame(
         {"trackid": [1], "trackname": ["FERC Ya!"], "trackartist": [2]}
     )
@@ -130,8 +134,8 @@ def test_foreign_key_failure(sqlite_io_manager_fixture):
         check_foreign_keys(manager.engine)
 
     assert excinfo.value[0] == ForeignKeyError(
-        child_table="track",
-        parent_table="artist",
+        child_table="core_eia__track",
+        parent_table="core_eia__artist",
         foreign_key="(artistid)",
         rowids=[1],
     )
@@ -141,7 +145,7 @@ def test_extra_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when there is an extra column in the dataframe."""
     manager = sqlite_io_manager_fixture
 
-    asset_key = "artist"
+    asset_key = "core_eia__artist"
     artist = pd.DataFrame(
         {"artistid": [1], "artistname": ["Co-op Mop"], "artistmanager": [1]}
     )
@@ -154,7 +158,7 @@ def test_missing_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when a dataframe is missing a column in the schema."""
     manager = sqlite_io_manager_fixture
 
-    asset_key = "artist"
+    asset_key = "core_eia__artist"
     artist = pd.DataFrame(
         {
             "artistid": [1],
@@ -169,7 +173,7 @@ def test_nullable_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when a non nullable column is missing data."""
     manager = sqlite_io_manager_fixture
 
-    asset_key = "artist"
+    asset_key = "core_eia__artist"
     artist = pd.DataFrame({"artistid": [1, 2], "artistname": ["Co-op Mop", pd.NA]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
 
@@ -182,7 +186,7 @@ def test_null_primary_key_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when a primary key contains a nullable value."""
     manager = sqlite_io_manager_fixture
 
-    asset_key = "artist"
+    asset_key = "core_eia__artist"
     artist = pd.DataFrame(
         {"artistid": [1, pd.NA], "artistname": ["Co-op Mop", "Cxtxlyst"]}
     )
@@ -195,7 +199,7 @@ def test_primary_key_column_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when a primary key is violated."""
     manager = sqlite_io_manager_fixture
 
-    asset_key = "artist"
+    asset_key = "core_eia__artist"
     artist = pd.DataFrame({"artistid": [1, 1], "artistname": ["Co-op Mop", "Cxtxlyst"]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     with pytest.raises(IntegrityError):
@@ -206,7 +210,7 @@ def test_incorrect_type_error(sqlite_io_manager_fixture):
     """Ensure an error is thrown when dataframe type doesn't match the table schema."""
     manager = sqlite_io_manager_fixture
 
-    asset_key = "artist"
+    asset_key = "core_eia__artist"
     artist = pd.DataFrame({"artistid": ["abc"], "artistname": ["Co-op Mop"]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     with pytest.raises(IntegrityError):
@@ -217,7 +221,7 @@ def test_missing_schema_error(sqlite_io_manager_fixture):
     """Test a ValueError is raised when a table without a schema is loaded."""
     manager = sqlite_io_manager_fixture
 
-    asset_key = "venues"
+    asset_key = "out_ferc1__venues"
     venue = pd.DataFrame({"venueid": [1], "venuename": "Vans Dive Bar"})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     with pytest.raises(ValueError):
@@ -240,7 +244,7 @@ def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture)
     """Test we are replacing the data without dropping the table schema."""
     manager = fake_pudl_sqlite_io_manager_fixture
 
-    asset_key = "artist"
+    asset_key = "core_eia__artist"
     artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
     output_context = build_output_context(asset_key=AssetKey(asset_key))
     manager.handle_output(output_context, artist)
@@ -298,15 +302,15 @@ def test_error_when_handling_view_without_metadata(fake_pudl_sqlite_io_manager_f
 def test_empty_read_fails(fake_pudl_sqlite_io_manager_fixture):
     """Reading empty table fails."""
     with pytest.raises(AssertionError):
-        context = build_input_context(asset_key=AssetKey("artist"))
+        context = build_input_context(asset_key=AssetKey("core_eia__artist"))
         fake_pudl_sqlite_io_manager_fixture.load_input(context)
 
 
 def test_replace_on_insert(fake_pudl_sqlite_io_manager_fixture):
     """Tests that two runs of the same asset overwrite existing contents."""
     artist_df = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
-    output_context = build_output_context(asset_key=AssetKey("artist"))
-    input_context = build_input_context(asset_key=AssetKey("artist"))
+    output_context = build_output_context(asset_key=AssetKey("core_eia__artist"))
+    input_context = build_input_context(asset_key=AssetKey("core_eia__artist"))
 
     # Write then read.
     fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, artist_df)
