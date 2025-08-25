@@ -552,6 +552,10 @@ def _pre_process(df: pd.DataFrame) -> pd.DataFrame:
 
 def _post_process(df: pd.DataFrame) -> pd.DataFrame:
     """Post-processing applied to all EIA-861 dataframes."""
+    # If we're only processing some years of data, we may have entirely empty dataframes
+    # in the extraction phase, in which case the data_maturity field doesn't get added.
+    if "data_maturity" not in df.columns and len(df) == 0:
+        df["data_maturity"] = pd.NA
     return convert_cols_dtypes(df, data_source="eia")
 
 
@@ -727,10 +731,10 @@ def _tidy_class_dfs(
     # of tables.
     data_dupe_mask = data_cols.duplicated(subset=idx_cols + [class_type], keep=False)
     data_dupes = data_cols[data_dupe_mask]
-    fraction_data_dupes = len(data_dupes) / len(data_cols)
+    fraction_data_dupes = len(data_dupes) / len(data_cols) if len(data_cols) else 0
     denorm_dupe_mask = denorm_cols.duplicated(subset=idx_cols, keep=False)
     denorm_dupes = denorm_cols[denorm_dupe_mask]
-    fraction_denorm_dupes = len(denorm_dupes) / len(data_cols)
+    fraction_denorm_dupes = len(denorm_dupes) / len(data_cols) if len(data_cols) else 0
     err_msg = (
         f"{df_name} table: Found {len(data_dupes)}/{len(data_cols)} "
         f"({fraction_data_dupes:0.2%}) records with duplicated PKs. "
@@ -770,7 +774,7 @@ def _drop_dupes(df, df_name, subset):
     logger.info(
         f"Dropped {tidy_nrows - deduped_nrows} duplicate records from EIA 861 "
         f"{df_name} table, out of a total of {tidy_nrows} records "
-        f"({(tidy_nrows - deduped_nrows) / tidy_nrows:.4%} of all records). "
+        f"({(tidy_nrows - deduped_nrows) / tidy_nrows if tidy_nrows else 0:.4%} of all records). "
     )
     return deduped_df
 
@@ -1013,7 +1017,11 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
         if set(df.columns).issuperset(set(cols)):
             assn = pd.concat([assn, df[cols]])
     assn = assn.dropna().drop_duplicates()
-    if assn.empty:
+    # If we found no associations AND any of our dfs were non-empty, we raise an error.
+    # We need to check for non-empty dataframes because in some cases we separately
+    # harvest associations for early vs. late reporting periods, and in the fast ETL
+    # we don't have any of the early years.
+    if assn.empty and any(not df.empty for df in dfs):
         raise ValueError(
             f"These dataframes contain no associations for the columns: {cols}"
         )
@@ -1476,6 +1484,9 @@ def core_demand_side_management_eia861(
         .query("utility_id_eia not in [88888]")
     )
 
+    # This happens if the extracted dataframe was empty, as is the case in the fast ETL.
+    if "data_maturity" not in transformed_dsm1.columns:
+        transformed_dsm1["data_maturity"] = pd.NA
     # Separate dsm data into sales vs. other table (the latter of which can be tidied)
     dsm_sales = transformed_dsm1[idx_cols + sales_cols].copy()
     dsm_ee_dr = transformed_dsm1.drop(
@@ -1652,6 +1663,9 @@ def core_distributed_generation_eia861(
         ),
     )
 
+    # This happens if the extracted dataframe was empty, as is the case in the fast ETL.
+    if "data_maturity" not in raw_dg.columns:
+        raw_dg["data_maturity"] = pd.NA
     # Split into three tables: Capacity/tech-related, fuel-related, and misc.
     raw_dg_tech = raw_dg[idx_cols + tech_cols].copy()
     raw_dg_fuel = raw_dg[idx_cols + fuel_cols].copy()
