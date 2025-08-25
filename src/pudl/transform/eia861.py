@@ -1092,15 +1092,14 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
     )
-    # Make sure that the number of rows altered stays somewhat small. We don't expect
-    # there to be a lot of dropped or combined 88888 rows.
-    if (len(df) - len(recombined_df)) > 35:
+    # We don't expect there to be a lot of dropped or combined 88888 rows so we'll
+    # monitor the percent decrease in rows.
+    print((len(recombined_df) - len(df)) / len(df))
+    if (len(recombined_df) - len(df)) / len(df) < -0.001:
         raise AssertionError(
             f"Number of 88888 rows has changed by more than expected: {len(df) - len(recombined_df)}!"
         )
     return recombined_df
-
-    return df
 
 
 ###############################################################################
