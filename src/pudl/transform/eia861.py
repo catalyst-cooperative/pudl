@@ -1162,6 +1162,9 @@ def _core_eia861__balancing_authority(
     * Fill in balancing authrority IDs based on date, utility ID, and BA Name.
     * Backfill balancing authority codes based on BA ID.
     * Fix BA code and ID typos.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. This is a small number of records and
+      represents less than a 0.001 decrease in rows.
     """
     # No data tidying required
     # All columns are already type compatible.
@@ -1222,6 +1225,9 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
     * Convert 1000s of dollars into dollars.
     * Convert data_observed field I/O into boolean.
     * Map full spelling onto code values.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. This is a small number of records and
+      represents less than a 0.001 decrease in rows.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1865,6 +1871,9 @@ def core_eia861__yearly_dynamic_pricing(
 
     * Tidy subset of the data by customer class.
     * Convert Y/N columns to booleans.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. This is a small number of records and
+      represents less than a 0.001 decrease in rows.
     """
     idx_cols = [
         "utility_id_eia",
@@ -2262,6 +2271,9 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     * Convert data_observed field I/O into boolean.
     * Tidy subset of the data by revenue class.
     * Convert 1000s of dollars into dollars.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. This is a small number of records and
+      represents less than a 0.001 decrease in rows.
     """
     idx_cols = [
         "utility_id_eia",
@@ -2415,6 +2427,9 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     * Tidy subset of the data by NERC region.
     * Tidy subset of the data by RTO.
     * Convert Y/N columns to booleans.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. This is a small number of records and
+      represents less than a 0.001 decrease in rows.
     """
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
