@@ -198,12 +198,18 @@ Kaggle
 ---------------------------------------------------------------------------------------
 
 Are you comfortable with Jupyter Notebooks? Want to explore a fresh version of all
-available PUDL data without needing to do any environment setup? Our nightly build
-outputs automatically update `the PUDL Project Dataset on Kaggle
-<https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__ once a week. There
-are `several notebooks
-<https://www.kaggle.com/datasets/catalystcooperative/pudl-project/code>`__ associated
-with the dataset, both curated by Catalyst and contributed by other Kaggle users.
+available PUDL data without needing to do any environment setup?  We provide several
+`example notebooks on Kaggle <https://www.kaggle.com/catalystcooperative/code>`__.
+(they are also pushed to our `PUDL Examples Repo on GitHub
+<https://github.com/catalyst-cooperative/pudl-examples>`__). These notebooks pull data
+directly from the Parquet outputs in S3 (see below) and so can also be used locally if
+you're familiar with setting up a Python environment and running Jupyter.
+
+Our nightly build outputs also automatically update the `PUDL Kaggle dataset
+<https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__ once a week. This
+dataset contains all the PUDL outputs, so it's quite large and can take a few minutes
+to copy into your Kaggle notebook's private workspace, but once it's copied, access will
+be fast.
 
 .. _access-cloud:
 
