@@ -1165,7 +1165,8 @@ def _core_eia861__balancing_authority(
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
       non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows.
+      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      _pre_process for details.
     """
     # No data tidying required
     # All columns are already type compatible.
@@ -1229,7 +1230,8 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
       non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows.
+      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      _pre_process for details.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1876,7 +1878,8 @@ def core_eia861__yearly_dynamic_pricing(
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
       non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows.
+      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      _pre_process for details.
     """
     idx_cols = [
         "utility_id_eia",
@@ -2277,7 +2280,8 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
       non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows.
+      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      _pre_process for details.
     """
     idx_cols = [
         "utility_id_eia",
@@ -2434,7 +2438,8 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
       non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows.
+      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      _pre_process for details.
     """
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
