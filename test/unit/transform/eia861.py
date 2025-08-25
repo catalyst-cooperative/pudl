@@ -34,7 +34,7 @@ actual_2 = pd.read_csv(
         """report_date,utility_id_eia,state,ba_code,value
 2019-01-01,10000,TX,ERCOT,100
 2019-01-01,10000,TX,ERCOT,300
-2019-01-01,10000,pd.NA,ERCOT,800
+2019-01-01,10000,,ERCOT,800
 """
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
@@ -44,7 +44,7 @@ expected_2 = pd.read_csv(
         """report_date,utility_id_eia,state,ba_code,value
 2019-01-01,10000,TX,ERCOT,100
 2019-01-01,10000,TX,ERCOT,300
-2019-01-01,10000,pd.NA,ERCOT,800
+2019-01-01,10000,,ERCOT,800
 """
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
@@ -55,7 +55,7 @@ actual_3 = pd.read_csv(
         """report_date,utility_id_eia,state,ba_code,value
 2019-01-01,88888,TX,ERCOT,100
 2019-01-01,88888,TX,EXAMPLE,300
-2019-01-01,88888,pd.NA,ERCOT,800
+2019-01-01,88888,,ERCOT,800
 """
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
@@ -64,7 +64,7 @@ expected_3 = pd.read_csv(
     StringIO(
         """report_date,utility_id_eia,state,ba_code,value
     2019-01-01,88888,TX,ERCOT,100
-    2019-01-01,88888,pd.NA,ERCOT,800
+    2019-01-01,88888,,ERCOT,800
 """
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
@@ -74,8 +74,8 @@ actual_4 = pd.read_csv(
     StringIO(
         """report_date,utility_id_eia,state,ba_code,value
 2019-01-01,88888,TX,ERCOT,100
-2019-01-01,88888,pd.NA,ERCOT,300
-2019-01-01,88888,pd.NA,ERCOT,800
+2019-01-01,88888,,ERCOT,300
+2019-01-01,88888,,ERCOT,800
 """
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
@@ -84,7 +84,7 @@ expected_4 = pd.read_csv(
     StringIO(
         """report_date,utility_id_eia,state,ba_code,value
 2019-01-01,88888,TX,ERCOT,100
-2019-01-01,88888,pd.NA,ERCOT,1100
+2019-01-01,88888,,ERCOT,1100
 """
     ),
 ).pipe(apply_pudl_dtypes, group="eia")
@@ -102,5 +102,5 @@ expected_4 = pd.read_csv(
 def test__combine_88888_values(actual, expected):
     """Test that combine_88888 correctly combines data from multiple sources."""
     idx_cols = ["report_date", "utility_id_eia", "state"]
-    actual_outcome = eia861._combine_88888_values(actual, idx_cols)
-    pd.testing.assert_frame_equal(expected, actual_outcome)
+    observed_outcome = eia861._combine_88888_values(actual, idx_cols)
+    pd.testing.assert_frame_equal(expected, observed_outcome)
