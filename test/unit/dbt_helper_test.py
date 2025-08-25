@@ -24,6 +24,7 @@ from pudl.scripts.dbt_helper import (
     get_row_count_test_dict,
     schema_has_removals_or_modifications,
     update_row_counts,
+    update_table_schema,
     update_tables,
 )
 from pudl.workspace.setup import PudlPaths
@@ -211,7 +212,6 @@ ROW_COUNT_TEST_CASES = [
             "partition_expr": "report_year",
             "new_counts_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
             "clobber": True,
-            "update": False,
             "has_test": True,
             "should_write": True,
         },
@@ -230,7 +230,6 @@ ROW_COUNT_TEST_CASES = [
             "partition_expr": "report_year",
             "new_counts_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
             "clobber": False,
-            "update": False,
             "has_test": True,
             "should_write": False,
         },
@@ -238,7 +237,7 @@ ROW_COUNT_TEST_CASES = [
             "expected_csv": "table_name,partition,row_count\nfoo,2020,100\nfoo,2021,120\n",
             "result": UpdateResult(
                 success=False,
-                message="Row counts for foo already exist. Use clobber or update to overwrite.",
+                message="Row counts for foo already exist. Use clobber to overwrite.",
             ),
         },
     ),
@@ -249,7 +248,6 @@ ROW_COUNT_TEST_CASES = [
             "partition_expr": "report_year",
             "new_counts_csv": None,  # no new counts if test is missing
             "clobber": False,
-            "update": False,
             "has_test": False,
             "should_write": False,
         },
@@ -257,7 +255,7 @@ ROW_COUNT_TEST_CASES = [
             "expected_csv": "table_name,partition,row_count\nfoo,2020,100\n",
             "result": UpdateResult(
                 success=False,
-                message="Row counts exist for foo, but no row count test is defined. Use clobber/update to remove.",
+                message="Row counts exist for foo, but no row count test is defined. Use clobber to remove.",
             ),
         },
     ),
@@ -268,7 +266,6 @@ ROW_COUNT_TEST_CASES = [
             "partition_expr": "report_year",
             "new_counts_csv": None,  # no new counts if test is missing
             "clobber": False,
-            "update": False,
             "has_test": False,
             "should_write": False,
         },
@@ -276,7 +273,7 @@ ROW_COUNT_TEST_CASES = [
             "expected_csv": "table_name,partition,row_count\nfoo,2020,100\n",
             "result": UpdateResult(
                 success=False,
-                message="Row counts exist for foo, but no row count test is defined. Use clobber/update to remove.",
+                message="Row counts exist for foo, but no row count test is defined. Use clobber to remove.",
             ),
         },
     ),
@@ -319,7 +316,6 @@ def test_update_row_counts(case, schema_factory, mocker):
         table_name=given["table_name"],
         data_source="pudl",
         clobber=given["clobber"],
-        update=given["update"],
     )
 
     # Assert the expected result object
@@ -947,57 +943,170 @@ def test_dbt_schema__add_column_tests(mocker, blank_schema):
     )
 
 
+MERGE_METADATA_TEST_CASES = [
+    GivenExpect(
+        given={
+            "old_schema": {
+                "table_name": "test_table",
+                "columns": ["col1"],
+                "partition_expr": "year",
+                "add_row_count_test": True,
+            },
+            "new_schema": {
+                "table_name": "test_table",
+                "columns": ["col1"],
+                "partition_expr": None,
+                "add_row_count_test": False,
+            },
+        },
+        expect={
+            "data_tests": [
+                {
+                    "check_row_counts_per_partition": {
+                        "table_name": "test_table",
+                        "partition_expr": "year",
+                    }
+                }
+            ],
+            "column_names": ["col1"],
+        },
+    ),
+    GivenExpect(
+        given={
+            "old_schema": {
+                "table_name": "test_table",
+                "columns": ["col1"],
+                "partition_expr": "old_expr",
+                "add_row_count_test": True,
+            },
+            "new_schema": {
+                "table_name": "test_table",
+                "columns": ["col1"],
+                "partition_expr": "new_expr",
+                "add_row_count_test": True,
+            },
+        },
+        expect={
+            "data_tests": [
+                {
+                    "check_row_counts_per_partition": {
+                        "table_name": "test_table",
+                        "partition_expr": "new_expr",
+                    }
+                }
+            ],
+            "column_names": ["col1"],
+        },
+    ),
+    GivenExpect(
+        given={
+            "old_schema": {
+                "table_name": "test_table",
+                "columns": ["col1", "col2"],
+                "partition_expr": "year",
+                "add_row_count_test": False,
+            },
+            "new_schema": {
+                "table_name": "test_table",
+                "columns": ["col1", "col3"],
+                "partition_expr": None,
+                "add_row_count_test": False,
+            },
+        },
+        expect={
+            "data_tests": None,
+            "column_names": ["col1", "col3"],
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("case", MERGE_METADATA_TEST_CASES)
+def test_dbt_schema__merge_metadata_from(case, schema_factory):
+    old_schema_args = case.given["old_schema"]
+    new_schema_args = case.given["new_schema"]
+
+    old_schema = schema_factory(**old_schema_args)
+    new_schema = schema_factory(**new_schema_args)
+
+    merged = new_schema.merge_metadata_from(old_schema)
+
+    merged_table = merged.sources[0].tables[0]
+
+    assert merged_table.data_tests == case.expect["data_tests"]
+
+    expected_column_names = case.expect["column_names"]
+    actual_column_names = [col.name for col in merged_table.columns]
+    assert actual_column_names == expected_column_names
+
+
 @pytest.mark.parametrize(
-    "diff, expected",
+    "old, new, expected",
     [
         pytest.param(
-            {"dictionary_item_added": {"root['description']"}}, False, id="Add only"
+            {"description": "x"},
+            {"description": "x", "extra": "added"},
+            False,
+            id="Add only",
         ),
         pytest.param(
-            {
-                "values_changed": {
-                    "root['description']": {"old_value": "x", "new_value": "y"}
-                }
-            },
+            {"description": "x"},
+            {"description": "y"},
             True,
             id="Scalar mod",
         ),
         pytest.param(
-            {"dictionary_item_removed": {"root['columns']['col_a']"}},
-            True,
-            id="Removed column",
+            {"columns": {"col_a": {}}},
+            {"columns": {}},
+            False,
+            id="Removed column only",
         ),
         pytest.param(
-            {
-                "values_changed": {
-                    "root['columns']['col_b']['tags']": {
-                        "old_value": ["a"],
-                        "new_value": ["b"],
-                    }
-                }
-            },
+            {"columns": {"col_a": {}, "col_b": {}, "col_c": {}}},
+            {"columns": {}},
+            False,
+            id="Multiple removed empty columns",
+        ),
+        pytest.param(
+            {"columns": {"col_old": {}}},
+            {"columns": {"col_new": {}}},
+            False,
+            id="Empty column rename (or add and remove different empty columns) ignored",
+        ),
+        pytest.param(
+            {"columns": {"col_a": {"tests": ["not_null"]}}},
+            {"columns": {}},
+            True,
+            id="Removed column with test(s)",
+        ),
+        pytest.param(
+            {"columns": {"col_b": {"tags": ["a"]}}},
+            {"columns": {"col_b": {"tags": ["b"]}}},
             True,
             id="Nested mod",
         ),
-        pytest.param({}, False, id="Empty"),
         pytest.param(
-            {"dictionary_item_added": {"root['meta']['notes']"}},
+            {},
+            {},
+            False,
+            id="Empty",
+        ),
+        pytest.param(
+            {"meta": {}},
+            {"meta": {"notes": "foo"}},
             False,
             id="Add in nested key",
         ),
         pytest.param(
-            {
-                "values_changed": {
-                    "root['meta']['notes']": {"old_value": "foo", "new_value": "bar"}
-                }
-            },
+            {"meta": {"notes": "foo"}},
+            {"meta": {"notes": "bar"}},
             True,
             id="Nested old",
         ),
     ],
 )
-def test_schema_has_removals_or_modifications(diff, expected):
-    assert schema_has_removals_or_modifications(diff) == expected
+def test_schema_has_removals_or_modifications(old, new, expected):
+    assert schema_has_removals_or_modifications(old, new) == expected
 
 
 def test_complex_schema_diff_output():
@@ -1080,6 +1189,104 @@ def test_complex_schema_diff_output():
     assert [line.strip() for line in expected.strip().split("\n")] == [
         line.strip() for line in output
     ]
+
+
+UPDATE_TABLE_SCHEMA_CASES = [
+    # add column and metadata, no clobber -> success
+    GivenExpect(
+        given={
+            "existing_columns": ["col_new"],
+            "removed_columns_have_metadata": False,
+            "clobber": False,
+        },
+        expect={"success": True},
+    ),
+    # add column and metadata, clobber -> success
+    GivenExpect(
+        given={
+            "existing_columns": ["col_new"],
+            "removed_columns_have_metadata": False,
+            "clobber": True,
+        },
+        expect={"success": True},
+    ),
+    # remove column with no metadata, no clobber -> success
+    GivenExpect(
+        given={
+            "existing_columns": [],
+            "removed_columns_have_metadata": False,
+            "clobber": False,
+        },
+        expect={"success": True},
+    ),
+    # remove column with no metadata, clobber -> success
+    GivenExpect(
+        given={
+            "existing_columns": [],
+            "removed_columns_have_metadata": False,
+            "clobber": True,
+        },
+        expect={"success": True},
+    ),
+    # remove column with metadata, no clobber -> fail
+    GivenExpect(
+        given={
+            "existing_columns": [],
+            "removed_columns_have_metadata": True,
+            "clobber": False,
+        },
+        expect={"success": False},
+    ),
+    # remove column with metadata, clobber -> success
+    GivenExpect(
+        given={
+            "existing_columns": [],
+            "removed_columns_have_metadata": True,
+            "clobber": True,
+        },
+        expect={"success": True},
+    ),
+]
+
+
+@pytest.mark.parametrize("case", UPDATE_TABLE_SCHEMA_CASES)
+def test_update_table_schema(case, mocker):
+    table_name = "my_table"
+    data_source = "pudl"
+    clobber = case.given["clobber"]
+
+    # Patch filesystem and DBT methods
+    mocker.patch("pathlib.Path.exists", return_value=not clobber)
+    mocker.patch("pathlib.Path.mkdir")
+    mock_schema = mocker.MagicMock()
+    mock_schema.model_dump.return_value = {"columns": case.given["existing_columns"]}
+    mock_schema.merge_metadata_from.return_value = mock_schema
+
+    mocker.patch(
+        "pudl.scripts.dbt_helper.DbtSchema.from_table_name", return_value=mock_schema
+    )
+    mocker.patch(
+        "pudl.scripts.dbt_helper.DbtSchema.from_yaml", return_value=mock_schema
+    )
+
+    # Mock DeepDiff depending on metadata removal
+    if case.given["removed_columns_have_metadata"]:
+        mocker.patch(
+            "pudl.scripts.dbt_helper.DeepDiff",
+            return_value={
+                "dictionary_item_removed": {
+                    "root['columns']['col_a']",
+                    "root['columns']['col_a']['description']",
+                }
+            },
+        )
+    else:
+        mocker.patch("pudl.scripts.dbt_helper.DeepDiff", return_value={})
+
+    mocker.patch("pudl.scripts.dbt_helper._log_schema_diff")  # suppress logging
+
+    result = update_table_schema(table_name, data_source, clobber=clobber)
+    assert result.success == case.expect["success"]
 
 
 @pytest.mark.parametrize(
@@ -1198,7 +1405,7 @@ def test_complex_schema_diff_output():
         ),
     ],
 )
-def test_update_table_row_counts_update(
+def test_update_table_row_counts_clobber(
     partition_definition,
     test_data,
     old_row_counts,
@@ -1246,13 +1453,12 @@ sources:
     mocker.patch("pudl.scripts.dbt_helper.ALL_TABLES", new=["test_source__table_name"])
     runner = CliRunner()
 
-    # Mock logger.info to check for expected logging outputs
     logger_mock = mocker.patch("pudl.scripts.dbt_helper.logger.info")
     runner.invoke(
         update_tables,
         [
             "test_source__table_name",
-            "--update",
+            "--clobber",
             "--row-counts",
         ],
     )

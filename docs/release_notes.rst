@@ -55,6 +55,12 @@ Quality of Life Improvements
   since the data doesn't need to be present locally. The notebooks are also pushed to
   our `PUDL Examples GitHub repo
   <https://github.com/catalyst-cooperative/pudl-examples/>`__. See issue :issue:`4381`.
+* When running ``dbt_helper update-tables`` without the ``--clobber`` flag, existing
+  schema tests, descriptions and other metadata are now preserved. Furthermore, the
+  ``--update`` flag has been removed, with the default schema update logic behaving
+  as follows: if columns are added or removed, updates are allowed to pass. However, if
+  any metadata is removed, such as tests or descriptions, the update fails unless
+  ``--clobber`` is used. See issue :issue:`4466` and PR :pr:`4525`.
 
 Bug Fixes
 ^^^^^^^^^
