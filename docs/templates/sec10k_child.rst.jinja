@@ -1,0 +1,84 @@
+{% extends "data_source_parent.rst.jinja" %}
+
+{% block background %}
+
+The `SEC Form 10-K <https://en.wikipedia.org/wiki/Form_10-K>`__ includes detailed
+financial statements for publicly listed US companies. Most of this data is available in
+the structured, machine-readable `XBRL (eXtensible Business Reporting Lanugae)
+<https://en.wikipedia.org/wiki/XBRL> format. However, some common attachments to the
+10-K have not been integrated into the XBRL reporting and are available only as
+unstructured PDFs or HTML.
+
+Our main interest in the SEC Form 10-K is providing better access to some of that
+unstructured data, primarily an attachment called Exhibit
+21 which reports "Subsidiaries of the Registrant" as described in `17 CFR § 229.601
+<https://www.law.cornell.edu/cfr/text/17/229.601>`__.
+
+    List all subsidiaries of the registrant, the state or other jurisdiction of
+    incorporation or organization of each, and the names under which such subsidiaries
+    do business. This list may be incorporated by reference from a document which
+    includes a complete and accurate list.
+
+This data is relevant to the US energy system and the transition away from fossil fuels
+because electricity and natural gas utility holding companies often have complex
+ownership relationships that tie together the economic and political interests of many
+nested parent and subsidiary companies. Without understanding that network of
+relationships, it is hard to understand the incentives driving the behavior of
+individual utilities.
+
+In 2024 we captured a snapshot of the raw HTML of the SEC 10-K filings, and any
+associated Exhibit 21 attachments and processed it using the machine learning pipeline
+found in `this repository <https://github.com/catalyst-cooperative/mozilla-sec-eia>`__.
+
+Metadata related to the filing was parsed out of the plaintext headers of the HTML
+documents. Some of these headers pertain to the filing as a whole and others describe
+attributes of the individual companies associated with the filing. Each filing has a
+single company that is the primary filer and the filing is associated with their
+`Central Index Key <https://www.sec.gov/search-filings/cik-lookup>`__ (CIK) -- a
+persistent company identifier assigned by the SEC that is more durable and standardized
+than the company name.
+
+These plaintext headers are not necessarily intended to be machine readable, but they
+are highly structured and are the source material for most of the ``core_sec10k``
+tables.
+
+{% endblock %}
+
+{% block download_docs %}
+{% for filename in download_paths -%}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block availability %}
+
+The SEC filing database is called EDGAR. The agency provides an `online search interface
+<https://www.sec.gov/search-filings>`__ for all filings as well as `a REST API
+<https://www.sec.gov/search-filings/edgar-application-programming-interfaces>`__ and
+`several RSS feeds <https://www.sec.gov/about/rss-feeds>`__.
+
+{% endblock %}
+
+
+{% block respondents %}
+
+Who da fuck reports the 10-K?
+
+{% endblock %}
+
+{% block original_data %}
+
+The original data is a collection of HTML documents with custom plaintext SEC headers.
+The PUDL output tables contain a field ``source_url`` which points to these original
+documents as plain text on the SEC website. `See this filing as an example
+<https://www.sec.gov/Archives/edgar/data/1058624/0001104659-09-021814.txt>`__.
+
+
+{% endblock %}
+
+{% block notable_irregularities %}
+
+* Missing 5 years of shit.
+* Unaligned blocks.
+
+{% endblock %}
