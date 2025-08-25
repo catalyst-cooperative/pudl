@@ -6,12 +6,13 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: core_sec10k__assn_sec10k_filers_and_eia_utilities
-              partition_expr: null
+              arguments:
+                table_name: core_sec10k__assn_sec10k_filers_and_eia_utilities
+                partition_expr:
         columns:
           - name: central_index_key
-            tests:
+            data_tests:
               - unique
           - name: utility_id_eia
-            tests:
+            data_tests:
               - unique
