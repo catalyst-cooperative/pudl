@@ -1,0 +1,78 @@
+{% extends "data_source_parent.rst.jinja" %}
+
+{% block background %}
+EIA's API makes much of its data available through an Application Programming Interface (API)
+to better serve our customers. EIA's API is multi-facetted and contains the time-series data
+sets organized by the main energy categories:
+
+* Electricity
+* Natural gas
+* Petroleum
+* Crude oil imports
+* Coal
+* Densified biomass
+* Nuclear plant generation outages
+* Outlook of energy market/projections
+* Total energy
+* State energy data system (SEDS)
+* CO2 emissions
+* International energy
+{% endblock %}
+
+
+{% block availability %}
+PUDL archives all the data available within the API through the EIA's bulk API download,
+but only integrates one table of Electricity timeseries.
+
+{% endblock %}
+
+
+{% block respondents %}
+Respondents within the API are wide ranging because the API pulls from many different
+EIA forms.
+{% endblock %}
+
+{% block original_data %}
+
+EIA's bulk electricity data contains +750,000 objects, most of which are timeseries.
+These timeseries contain a variety of measures (fuel amount and cost are just two)
+across multiple levels of aggregation from individual plants to national averages.
+
+The data is formatted as a single +1B text file of line-delimited JSON with one line
+per object. Each JSON structure has two nested levels: the top level contains metadata
+describing the series and the second level (under the "data" heading) contains an array
+of timestamp/value pairs. This structure leads to a natural normalization into two
+tables - one of metadata and one of timeseries. That is the format delivered by PUDL's
+extract module. PUDL's transform module parses a compound primary key out of long string
+IDs ("series_id") which is published as :ref:`core_eia__yearly_fuel_receipts_costs_aggs`.
+The rest of the metadata is not very valuable so is not transformed or returned.
+
+The EIA aggregates are related to their component categories via a set of association
+tables defined in pudl.metadata.dfs. For example, the "all_coal" fuel aggregate is
+linked to all the coal-related energy_source_code values: BIT, SUB, LIG, and WC. Similar
+relationships are defined for aggregates over fuel, sector, geography, and time.
+
+Within other EIA tables, we use the monthly state-level fuel costs to fill the gaps in
+missing fuel cost in originating the :ref:`core_eia923__monthly_fuel_receipts_costs`
+table.
+{% endblock %}
+
+{% block notable_irregularities %}
+
+The state-level fuel data that PUDL uses is compiled from published and redacted
+plant-level fuel deliveries. This fills in about 71% of all of the missing monthly
+fuel cost records in :ref:`out_eia923__fuel_receipts_costs`. Another missing ~6% is
+filled in using rolling averages, but 23% of the originally missing records aren't
+able to be filled in with these two methods. Why? It turns out that the original
+data is not missing at random and the EIA redacts enough records to leave large gaps.
+In general IPPs (merchant generators) redact all their fuel prices, and these
+generators are concentrated in competitive wholesale markets, especially the
+Northeastern US, where there are essentially no reported fuel prices. In addition,
+the Northeast has a unique seasonality in its natural gas prices, which would be
+impossible to infer by sampling data elsewhere in the country. Also, major
+discontinuities in data collection and processing methodology. The most severe (and
+most recent) was in 2013, when the temporal resolution changed from annual to monthly.
+Prior to 2013, monthly resolution data was collected for a sample of plants and the
+rest calculated via a regression model. Also, the reporting threshold for oil and
+gas fueled plants changed from 50MW to 200MW.
+{% endblock %}
