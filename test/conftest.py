@@ -410,6 +410,7 @@ def logger_config():
             "google": logging.INFO,
             "alembic": logging.WARNING,
             "arelle": logging.INFO,
+            "urllib3": logging.INFO,
             "matplotlib": logging.WARNING,
         }
     )

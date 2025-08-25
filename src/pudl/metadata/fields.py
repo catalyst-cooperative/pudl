@@ -2262,7 +2262,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "reported in for the generator referenced in the same record."
         ),
         "constraints": {
-            "enum": sorted({f"energy_source_code_{n}" for n in range(1, 9)})
+            "enum": sorted({f"energy_source_code_{n}" for n in range(1, 13)})
         },
     },
     "energy_source_1_transport_1": {

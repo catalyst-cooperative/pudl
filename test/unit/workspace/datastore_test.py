@@ -306,11 +306,9 @@ def test_get_zipfile_resource_failure(mocker):
     ds = datastore.Datastore()
     ds.get_unique_resource = mocker.MagicMock(return_value=b"")
     sleep_mock = mocker.MagicMock()
-    with (
-        mocker.patch("time.sleep", sleep_mock),
-        mocker.patch("zipfile.ZipFile", side_effect=zipfile.BadZipFile),
-        pytest.raises(zipfile.BadZipFile),
-    ):
+    mocker.patch("time.sleep", sleep_mock)
+    mocker.patch("zipfile.ZipFile", side_effect=zipfile.BadZipFile)
+    with pytest.raises(zipfile.BadZipFile):
         ds.get_zipfile_resource("test_dataset")
 
 
@@ -322,20 +320,18 @@ def test_get_zipfile_resource_eventual_success(mocker):
 
     ds = datastore.Datastore()
     ds.get_unique_resource = mocker.MagicMock(return_value=b"")
-    with (
-        mocker.patch("time.sleep"),
-        mocker.patch(
-            "zipfile.ZipFile",
-            side_effect=[
-                zipfile.BadZipFile,
-                zipfile.BadZipFile,
-                zipfile.ZipFile(zipfile_bytes),
-            ],
-        ),
-    ):
-        observed_zipfile = ds.get_zipfile_resource("test_dataset")
-        test_file = observed_zipfile.open("file_name")
-        assert test_file.read().decode(encoding="utf-8") == file_contents
+    mocker.patch("time.sleep")
+    mocker.patch(
+        "zipfile.ZipFile",
+        side_effect=[
+            zipfile.BadZipFile,
+            zipfile.BadZipFile,
+            zipfile.ZipFile(zipfile_bytes),
+        ],
+    )
+    observed_zipfile = ds.get_zipfile_resource("test_dataset")
+    test_file = observed_zipfile.open("file_name")
+    assert test_file.read().decode(encoding="utf-8") == file_contents
 
 
 def test_get_zipfile_resources_eventual_success(mocker):
@@ -359,24 +355,22 @@ def test_get_zipfile_resources_eventual_success(mocker):
             ]
         )
     )
-    with (
-        mocker.patch(
-            "zipfile.ZipFile",
-            side_effect=[
-                zipfile.BadZipFile,
-                zipfile.BadZipFile,
-                zipfile.ZipFile(zipfile_bytes),
-                zipfile.BadZipFile,
-                zipfile.BadZipFile,
-                zipfile.ZipFile(zipfile_bytes),
-            ],
-        ),
-        mocker.patch("time.sleep"),
-    ):
-        observed_zipfiles = ds.get_zipfile_resources("test_dataset")
-        for _key, observed_zipfile in observed_zipfiles:
-            with observed_zipfile.open("file_name") as test_file:
-                assert test_file.read().decode(encoding="utf-8") == file_contents
+    mocker.patch(
+        "zipfile.ZipFile",
+        side_effect=[
+            zipfile.BadZipFile,
+            zipfile.BadZipFile,
+            zipfile.ZipFile(zipfile_bytes),
+            zipfile.BadZipFile,
+            zipfile.BadZipFile,
+            zipfile.ZipFile(zipfile_bytes),
+        ],
+    )
+    mocker.patch("time.sleep")
+    observed_zipfiles = ds.get_zipfile_resources("test_dataset")
+    for _key, observed_zipfile in observed_zipfiles:
+        with observed_zipfile.open("file_name") as test_file:
+            assert test_file.read().decode(encoding="utf-8") == file_contents
 
 
 # TODO: add unit tests for Datasource class as well
