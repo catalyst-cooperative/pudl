@@ -2,6 +2,7 @@
 
 import logging
 from itertools import chain
+from typing import Any
 
 import pandas as pd
 import pytest
@@ -20,6 +21,12 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_met
 
     We're testing both the SQLite & JSON taxonomy here because they are generated
     together by the FERC 1 XBRL ETL.
+
+    This test is marked with order(1) to ensure that it is explicitly run before the
+    main PUDL ETL test, and is the first attempt to make use of the conceptually related
+    FERC Form 1 XBRL DB engine & taxonomy fixtures. This means that if they fail, the
+    failure will be more clearly associated with the fixture, and not some random
+    downstream test that just happened to run first.
     """
     # Does the database exist, and contain a table we expect it to contain?
     assert isinstance(ferc1_engine_xbrl, sa.Engine)
@@ -52,6 +59,30 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_met
         ].to_numpy()
         == "322"
     )
+
+
+@pytest.mark.order(1)
+def test_ferc714_xbrl2sqlite(
+    ferc714_engine_xbrl: sa.Engine, ferc714_xbrl_taxonomy_metadata: dict[str, Any]
+):
+    """Attempt to access the XBRL based FERC 714 SQLite DB & XBRL taxonomy metadata.
+
+    This test is marked with order(1) to ensure that it is explicitly run before the
+    main PUDL ETL test, and is the first attempt to make use of the conceptually related
+    FERC-714 XBRL DB engine & taxonomy fixtures. This means that if they fail, the
+    failure will be more clearly associated with the fixture, and not some random
+    downstream test that just happened to run first.
+    """
+    assert isinstance(ferc714_engine_xbrl, sa.Engine)
+    assert (
+        "identification_and_certification_01_1_duration"
+        in sa.inspect(ferc714_engine_xbrl).get_table_names()
+    )
+
+    assert isinstance(ferc714_xbrl_taxonomy_metadata, dict)
+    assert "core_ferc714__hourly_planning_area_demand" in ferc714_xbrl_taxonomy_metadata
+    assert len(ferc714_xbrl_taxonomy_metadata) > 1
+    assert len(ferc714_xbrl_taxonomy_metadata) < 10
 
 
 @pytest.mark.parametrize(
