@@ -63,11 +63,15 @@ aware of:
   DuckDB. This means some of dbt's functionality is not available. For example, we can't
   use `the dbt adapter object
   <https://docs.getdbt.com/reference/dbt-jinja-functions/adapter>`__ in our test
-  definitions because it relies on being able to access the underlying database schema,
-* One exception to this is any intermediate tables that are defined as dbt models (see
-  below). These will be created as materialized views in a DuckDB database at
-  ``$PUDL_OUTPUT/pudl_dbt_tests.duckdb``. Any time you need to refer to those tables
-  while debugging, you'll need to be connected to that database.
+  definitions because it relies on being able to access the underlying database schema.
+* One place we use true dbt models instead of sources is when
+  we define intermediate tables to simplify test definitions.
+  See :ref:`intermediate_tables`.
+  These intermediate tables are created as materialized views in a DuckDB database
+  at ``$PUDL_OUTPUT/pudl_dbt_tests.duckdb``.
+  In this case, the underlying database schema *will* be accessible to dbt.
+  Additionally, any time you need to refer to those tables while debugging,
+  you'll need to be connected to that database.
 
 
 .. _branch_builds:
@@ -820,10 +824,6 @@ default, you add the test to the table level ``data_tests`` with no parameters:
           - name: new_table_name
             data_tests:
               - expect_columns_not_all_null
-              - check_row_counts_per_partition:
-                  arguments:
-                    table_name: new_table_name
-                    partition_expr: "EXTRACT(YEAR FROM report_date)"
 
 --------------------------------------------------------------------------------
 Defining new data validation tests
@@ -1013,6 +1013,8 @@ info for, you can add custom debug handlers for your test type in
 :func:`pudl.dbt_wrapper.build_with_context`, which gives you access to the full
 power of Python.
 
+
+.. _intermediate_tables:
 
 Creating intermediate tables for a test
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
