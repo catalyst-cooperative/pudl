@@ -7,6 +7,7 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=2_gnu
+  - _python_abi3_support=1.0=hd8ed1ab_2
   - adwaita-icon-theme=48.1=unix_1
   - agate=1.9.1=pyh707e725_1
   - aiobotocore=2.24.1=pyhe01879c_0
@@ -59,7 +60,7 @@ dependencies:
   - backports=1.0=pyhd8ed1ab_5
   - backports.tarfile=1.2.0=pyhd8ed1ab_1
   - bcrypt=4.3.0=py313h4b2b08d_1
-  - beautifulsoup4=4.13.4=pyha770c72_0
+  - beautifulsoup4=4.13.5=pyha770c72_0
   - bleach=6.2.0=pyh29332c3_4
   - bleach-with-css=6.2.0=h82add2a_4
   - blinker=1.9.0=pyhff2d567_0
@@ -100,6 +101,7 @@ dependencies:
   - conda-lock=3.0.4=pyh367d9c9_1
   - contourpy=1.3.3=py313h7037e92_1
   - coverage=7.10.5=py313h3dea7bd_0
+  - cpython=3.13.5=py313hd8ed1ab_102
   - crashtest=0.4.1=pyhd8ed1ab_1
   - cryptography=45.0.6=py313hafb0bba_0
   - curl=8.14.1=h332b0f4_0
@@ -140,8 +142,8 @@ dependencies:
   - docstring_parser=0.17.0=pyhd8ed1ab_0
   - docutils=0.21.2=pyhd8ed1ab_1
   - dulwich=0.22.8=py313h920b4c0_0
-  - email-validator=2.2.0=pyhd8ed1ab_1
-  - email_validator=2.2.0=hd8ed1ab_1
+  - email-validator=2.3.0=pyhd8ed1ab_0
+  - email_validator=2.3.0=hd8ed1ab_0
   - ensureconda=1.4.7=pyh29332c3_0
   - epoxy=1.5.10=h166bdaf_1
   - et_xmlfile=2.0.0=pyhd8ed1ab_1
@@ -224,7 +226,7 @@ dependencies:
   - httptools=0.6.4=py313h536fd9c_0
   - httpx=0.28.1=pyhd8ed1ab_0
   - humanfriendly=10.0=pyh707e725_8
-  - humanize=4.12.3=pyhd8ed1ab_0
+  - humanize=4.13.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_1
   - hyperframe=6.1.0=pyhd8ed1ab_0
   - hypothesis=6.138.3=pyha770c72_0
@@ -386,7 +388,7 @@ dependencies:
   - munkres=1.1.4=pyhd8ed1ab_1
   - muparser=2.3.5=h5888daf_0
   - mypy_extensions=1.1.0=pyha770c72_0
-  - narwhals=2.1.2=pyhe01879c_0
+  - narwhals=2.2.0=pyhcf101f3_0
   - nbclient=0.10.2=pyhd8ed1ab_0
   - nbconvert=7.16.6=hb482800_0
   - nbconvert-core=7.16.6=pyh29332c3_0
@@ -491,6 +493,7 @@ dependencies:
   - python-duckdb=1.3.2=py313h7033f15_0
   - python-fastjsonschema=2.21.2=pyhe01879c_0
   - python-flatbuffers=25.2.10=pyhbc23db3_0
+  - python-gil=3.13.5=h4df99d1_102
   - python-igraph=0.11.9=py313h0f5efaa_1
   - python-installer=0.7.0=pyhff2d567_1
   - python-json-logger=2.0.7=pyhd8ed1ab_0
@@ -503,7 +506,7 @@ dependencies:
   - pyu2f=0.1.5=pyhd8ed1ab_1
   - pywin32-on-windows=0.1.0=pyh1179c8e_3
   - pyyaml=6.0.2=py313h8060acc_2
-  - pyzmq=27.0.2=py313h14c051a_1
+  - pyzmq=27.0.2=py312hfb55c3c_2
   - qhull=2020.2=h434a139_5
   - querystring_parser=1.2.4=pyhd8ed1ab_2
   - re2=2025.06.26=h9925aae_0
@@ -549,7 +552,7 @@ dependencies:
   - snowplow-tracker=1.0.4=pyhd8ed1ab_0
   - sortedcontainers=2.4.0=pyhd8ed1ab_1
   - soupsieve=2.7=pyhd8ed1ab_0
-  - sphinx=8.2.3=pyhd8ed1ab_0
+  - sphinx=8.3.0=pyhd8ed1ab_0
   - sphinx-autoapi=3.6.0=pyhd8ed1ab_0
   - sphinx-basic-ng=1.0.0b2=pyhd8ed1ab_3
   - sphinx-issues=5.0.1=pyhd8ed1ab_0
@@ -570,9 +573,9 @@ dependencies:
   - sqlite=3.50.4=hbc0de68_0
   - sqlparse=0.5.3=pyhd8ed1ab_0
   - stack_data=0.6.3=pyhd8ed1ab_1
-  - starlette=0.47.2=pyh82d4cca_0
+  - starlette=0.47.3=pyhfdc7a7d_0
   - stdlib-list=0.11.1=pyhd8ed1ab_0
-  - stevedore=5.4.1=pyhd8ed1ab_0
+  - stevedore=5.5.0=pyhd8ed1ab_0
   - stringcase=1.2.0=pyhd8ed1ab_2
   - structlog=25.4.0=pyhd8ed1ab_0
   - tabulate=0.9.0=pyhd8ed1ab_2
@@ -593,7 +596,7 @@ dependencies:
   - tornado=6.5.2=py313h07c4f96_0
   - tqdm=4.67.1=pyhd8ed1ab_1
   - traitlets=5.14.3=pyhd8ed1ab_1
-  - trove-classifiers=2025.8.6.13=pyhd8ed1ab_0
+  - trove-classifiers=2025.8.26.11=pyhd8ed1ab_0
   - typeguard=4.4.4=pyhd8ed1ab_0
   - typer=0.16.1=pyhc167863_0
   - typer-slim=0.16.1=pyhe01879c_0
@@ -601,9 +604,9 @@ dependencies:
   - types-python-dateutil=2.9.0.20250822=pyhd8ed1ab_0
   - types-pyyaml=6.0.12.20250822=pyhd8ed1ab_0
   - types-requests=2.32.4.20250809=pyhd8ed1ab_0
-  - typing-extensions=4.14.1=h4440ef1_0
+  - typing-extensions=4.15.0=h396c80c_0
   - typing-inspection=0.4.1=pyhd8ed1ab_0
-  - typing_extensions=4.14.1=pyhe01879c_0
+  - typing_extensions=4.15.0=pyhcf101f3_0
   - typing_inspect=0.9.0=pyhd8ed1ab_1
   - typing_utils=0.1.0=pyhd8ed1ab_1
   - typos=1.35.5=hdab8a38_0
@@ -656,5 +659,5 @@ dependencies:
   - zip=3.0=hd590300_3
   - zipp=3.23.0=pyhd8ed1ab_0
   - zlib=1.3.1=hb9d3cd8_2
-  - zstandard=0.23.0=py313h536fd9c_2
+  - zstandard=0.23.0=py313h07c4f96_3
   - zstd=1.5.7=hb8e6e7a_2
