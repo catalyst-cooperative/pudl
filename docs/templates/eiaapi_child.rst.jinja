@@ -1,36 +1,37 @@
 {% extends "data_source_parent.rst.jinja" %}
 
 {% block background %}
-EIA's API makes much of its data available through an Application Programming Interface (API).
+EIA's makes much of its data available through an Application Programming Interface (API).
 EIA's API is multi-faceted and contains time-series data sets organized by the main
 energy categories:
 
-* **Electricity** : U.S. electric system operating data including aggregate national,
+* **Electricity**: U.S. electric system operating data including aggregate national,
   state, and plant-level electricity generation statistics, including fuel quality and
   consumption, for grid-connected plants with nameplate capacity of 1 megawatt or greater.
-* **Natural gas** : statistics of U.S. natural gas production, imports, exploration,
+* **Natural gas**: statistics of U.S. natural gas production, imports, exploration,
   pipelines, exports, prices, consumption, stocks, and reserves.
-* **Petroleum** : statistics of U.S. petroleum and other liquid fuel production,
+* **Petroleum**: statistics of U.S. petroleum and other liquid fuel production,
   imports, refining, exports, prices, consumption, stocks, and reserves
-* **Crude oil imports** :  aggregate national, PADD, state, city, port, and refinery
-  petroleum imports data for various grades of crude oil and country of origin.
-* **Coal** : aggregate national, state, and mine-level coal production statistics,
+* **Crude oil imports**:  aggregate national, Petroleum Administration for Defense
+  Districts, state, city, port, and refinery petroleum imports data for various
+  grades of crude oil and country of origin.
+* **Coal**: aggregate national, state, and mine-level coal production statistics,
   including imports and exports, receipts of coal at electric power plants,
   consumption and quality, market sales, reserves, and productive capacity;
-* **Densified biomass** : statistics of U.S. biomass production, capacity,
+* **Densified biomass**: statistics of U.S. biomass production, capacity,
   inventories, feedstocks, costs, exports and other characteristics.
-* **Nuclear plant generation outages** : daily facility, generator U.S. level outage
+* **Nuclear plant generation outages**: daily facility, generator U.S. level outage
   reports with capacity, outages, and percent outage from the Nuclear Regulatory
   Commission.
-* **Outlook of energy market/projections** : the Annual Energy Outlook, the
+* **Outlook of energy market/projections**: the Annual Energy Outlook, the
   International Energy Outlook and the Short Term Energy Outlook.
-* **Total energy** : U.S. total energy production, prices, carbon dioxide emissions,
+* **Total energy**: U.S. total energy production, prices, carbon dioxide emissions,
   and consumption of energy from all sources by sector.
-* **State energy data system** : state and national energy production and consumption,
+* **State energy data system**: state and national energy production and consumption,
   using survey and estimates to create comprehensive state energy statistics and flows.
-* **CO2 emissions** : CO2 emissions aggregates, CO2 emissions and carbon coefficients
+* **CO2 emissions**: CO2 emissions aggregates, CO2 emissions and carbon coefficients
   by fuel, state, and sector.
-* **International energy** : International Energy System (IES) data containing
+* **International energy**: International Energy System (IES) data containing
   production, reserves, consumption, capacity, storage, imports, exports, and emissions
   time series by country for electricity, petroleum, natural gas, coal, nuclear, and
   renewable energy.
@@ -57,7 +58,7 @@ that are processed in PUDL. See the other EIA data source pages for more details
 {% endblock %}
 
 {% block original_data %}
-EIA's bulk electricity data contains +750,000 objects, most of which are timeseries.
+EIA's bulk electricity data contains >750,00 JSON objects, most of which are timeseries.
 These timeseries contain a variety of measures (fuel amount and cost are just two)
 across multiple levels of aggregation from individual plants to national averages.
 
