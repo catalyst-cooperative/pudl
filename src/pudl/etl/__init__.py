@@ -82,6 +82,7 @@ core_module_groups = {
     "core_sec10k": [pudl.transform.sec10k],
     "core_nrelatb": [pudl.transform.nrelatb],
     "core_vcerare": [pudl.transform.vcerare],
+    "core_phmsagas": [pudl.transform.phmsagas],
 }
 
 out_module_groups = {
