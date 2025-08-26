@@ -68,6 +68,11 @@ Bug Fixes
 Documentation
 ^^^^^^^^^^^^^
 
+* Added data source pages for:
+
+  * :doc:`data_sources/eiaapi`; see issue :issue:`4372` and PR :pr:`4567`.
+
+
 Deprecations
 ^^^^^^^^^^^^
 
