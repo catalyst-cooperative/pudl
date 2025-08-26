@@ -11,7 +11,7 @@ repos:
 
   # Other file formatting, plus common Git mistakes & text file standardization:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files # Don't accidentally commit giant files.
       - id: check-merge-conflict # Watch for lingering merge markers.
@@ -26,24 +26,45 @@ repos:
       - id: end-of-file-fixer
 
   ####################################################################################
-  # Formatters: hooks that re-write Python & documentation files
+  # Formatters: hooks that re-write code & documentation files
   ####################################################################################
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.5
+    rev: v0.12.10
     hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-check
+        args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.5.3
+    rev: v3.6.2
     hooks:
       - id: prettier
         types_or: [yaml]
 
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.11.0
+    hooks:
+      - id: shellcheck
+
   ####################################################################################
   # Linters: hooks that check but don't alter files
   ####################################################################################
+
+  # Spell check our documentation and code comments
+  - repo: https://github.com/adhtruong/mirrors-typos
+    rev: v1.35.5
+    hooks:
+      - id: typos
+        exclude: |
+          (?x)^(
+            .*\.yml
+            |.*\.toml
+            |.*\.bib
+            |.*\.csv
+            |.*\.html
+          )$ | migrations/ | devtools/ | test/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
+        args: [] # Make this read, not write
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
@@ -53,7 +74,7 @@ repos:
 
   # Check for errors in restructuredtext (.rst) files under the doc hierarchy
   - repo: https://github.com/PyCQA/doc8
-    rev: v1.1.2
+    rev: v2.0.0
     hooks:
       - id: doc8
         args: [--config, pyproject.toml]
@@ -69,6 +90,17 @@ repos:
   #####################################################################################
   - repo: local
     hooks:
+      - id: sort-row-counts
+        name: sort-row-counts
+        stages: [pre-commit]
+        language: python
+        additional_dependencies: [csvkit]
+        verbose: false
+        files: "^dbt/seeds/etl_full_row_counts\\.csv$"
+        pass_filenames: true
+        always_run: false
+        entry: bash -c 'for file in "$@"; do csvsort -c "table_name,partition" "$file" > "$file.tmp" && mv "$file.tmp" "$file"; done' --
+
       - id: nb-output-clear
         name: nb-output-clear
         stages: [pre-commit]
@@ -107,5 +139,5 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, conda-lock]
+  skip: [unit-tests, nb-output-clear, conda-lock, shellcheck]
   submodules: false

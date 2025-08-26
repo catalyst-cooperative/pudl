@@ -2,7 +2,7 @@
 {% block database_text %}
 Clicking on the links will show you a description of the table as well as the names and
 descriptions of each of its fields. Due to the size of the EIA-930 hourly tables we only
-publish them as Parquet files, which are not browseable online, but they can be
+publish them as Parquet files, which are not browsable online, but they can be
 downloaded directly from :ref:`access-cloud` via the links embedded in the
 :doc:`/data_dictionaries/pudl_db` or accessed on :ref:`access-kaggle`.
 {% endblock %}
@@ -129,10 +129,22 @@ it includes many irregularities including oulying and missing values, which they
 to manage in their aggregated (daily or nationwide) data, but which are present in the
 original reported data.
 
+For the EIA-930 output tables published in PUDL, in addition to the original reported
+electricity demand, we provide a column with anomalous and missing values replaced by
+imputed values so the data can be more easily used in capacity expansion modeling
+and other applications where having complete and plausible (if not exactly correct)
+values is desirable. For an overview of that process and links to additional references,
+see :doc:`/methodology/timeseries_imputation`
+
 .. _data-sources-eia930-changes-in-energy-source-granularity-over-time:
 
 Changes in energy source granularity over time
 ----------------------------------------------
+
+In the Q2 2025 data release, imputed and adjusted columns for the "unknown" energy
+source were added to the raw dataset, so that tracking "unknown" behaves like
+tracking any other energy source. This change was backdated as zero to all years.
+
 In the Q1 2025 data release, the wind, solar, and hydro power energy source columns
 were removed from the raw dataset, and new columns for multiple different kinds of
 wind, solar, hydro power, and energy storage were added. The change takes effect

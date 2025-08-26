@@ -18,14 +18,19 @@ semi-structured but machine readable formats. For details on exactly what data i
 available from these data sources and what state it is in, see the individual
 pages for each source:
 
+* :doc:`data_sources/censusdp1tract`
 * :doc:`data_sources/eia860`
 * :doc:`data_sources/eia861`
 * :doc:`data_sources/eia923`
 * :doc:`data_sources/eia930`
+* :doc:`data_sources/epacamd_eia`
 * :doc:`data_sources/epacems`
 * :doc:`data_sources/ferc1`
 * :doc:`data_sources/ferc714`
+* :doc:`data_sources/gridpathratoolkit`
+* :doc:`data_sources/nrelatb`
 * :doc:`data_sources/phmsagas`
+* :doc:`data_sources/vcerare`
 
 PUDL's clean and complete versions of these data sources are stored in the
 ``pudl.sqlite`` database. Larger datasets, like EPA CEMS, are stored in parquet files.
@@ -174,11 +179,9 @@ variety of output tables that contain all of the useful information in one place
 some cases, like with EIA, the output tables are composed to closely resemble the raw
 spreadsheet tables you're familiar with.
 
-The Output layer also contains tables produced by analytical routines for
-calculating derived values like the heat rate by generation unit (:meth:`hr_by_unit
-<pudl.output.pudltabl.PudlTabl.hr_by_unit>`) or the capacity factor by generator
-(:meth:`capacity_factor <pudl.output.pudltabl.PudlTabl.capacity_factor>`). We intend to
-integrate more analytical outputs into the library over time.
+The Output layer also contains tables produced by analytical routines for calculating
+derived values like the heat rate by generation unit, the capacity factor by
+generator, or hourly electricity demand with missing and outlying values imputed.
 
 .. seealso::
 
@@ -297,6 +300,7 @@ Enable Open Source Ecosystems (POSE) program
   PUDL Database Viewer <https://viewer.catalyst.coop>
   data_sources/index
   data_dictionaries/index
+  methodology/index
   Contributing <CONTRIBUTING>
   dev/index
   Licensing <LICENSE>

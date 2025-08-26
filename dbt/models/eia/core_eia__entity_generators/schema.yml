@@ -1,0 +1,40 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__entity_generators
+        data_tests:
+          - expect_columns_not_all_null:
+              description: >
+                The can_switch_when_operating column is only reported in a single year,
+                but assumed to be static (and thus is included in the entity table).
+                However, if the one year in which it was reported isn't processed, then
+                it ends up being entirely null, so it is excluded from the null check.
+              arguments:
+                exclude_columns:
+                  - can_switch_when_operating
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia__entity_generators
+                partition_expr:
+        columns:
+          - name: plant_id_eia
+          - name: generator_id
+          - name: duct_burners
+          - name: generator_operating_date
+          - name: topping_bottoming_code
+          - name: solid_fuel_gasification
+          - name: pulverized_coal_tech
+          - name: fluidized_bed_tech
+          - name: subcritical_tech
+          - name: supercritical_tech
+          - name: ultrasupercritical_tech
+          - name: stoker_tech
+          - name: other_combustion_tech
+          - name: bypass_heat_recovery
+          - name: rto_iso_lmp_node_id
+          - name: rto_iso_location_wholesale_reporting_id
+          - name: associated_combined_heat_power
+          - name: original_planned_generator_operating_date
+          - name: can_switch_when_operating
+          - name: previously_canceled

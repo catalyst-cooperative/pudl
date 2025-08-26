@@ -5,7 +5,7 @@ This modules pulls data from EIA's published Excel spreadsheets.
 This code is for use analyzing EIA Form 860M data. EIA 860M is only used in
 conjunction with EIA 860. This module both extracts EIA 860M and appends
 the extracted EIA 860M dataframes to the extracted EIA 860 dataframes. Example
-setup with pre-genrated `eia860_raw_dfs` and datastore as `ds`:
+setup with pre-generated `eia860_raw_dfs` and datastore as `ds`:
 
 eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
     Eia860Settings.eia860m_date)
@@ -73,7 +73,7 @@ def append_eia860m(
     Args:
         eia860_raw_dfs: EIA 860 raw tables. Result of
             :meth:`pudl.extract.eia860.Extractor.extract`
-        eia860m_raw_dfs: EIA 860M raw tables. Restult of :meth:`Extractor.extract`
+        eia860m_raw_dfs: EIA 860M raw tables. Result of :meth:`Extractor.extract`
 
     Return:
         Augmented version of eia860_raw_dfs. Each raw page stored in eia860m_raw_dfs

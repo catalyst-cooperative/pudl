@@ -4,15 +4,18 @@ sources:
     tables:
       - name: core_ferc1__yearly_pumped_storage_plants_sched408
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: core_ferc1__yearly_pumped_storage_plants_sched408
-              partition_column: report_year
+              arguments:
+                table_name: core_ferc1__yearly_pumped_storage_plants_sched408
+                partition_expr: report_year
           - dbt_utils.unique_combination_of_columns:
-              combination_of_columns:
-                - report_year
-                - utility_id_ferc1
-                - plant_name_ferc1
-                - capacity_mw
+              arguments:
+                combination_of_columns:
+                  - report_year
+                  - utility_id_ferc1
+                  - plant_name_ferc1
+                  - capacity_mw
         columns:
           - name: record_id
             data_tests:

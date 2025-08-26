@@ -10,6 +10,7 @@ profile: "pudl_dbt"
 # Opt out of telemetry
 flags:
   send_anonymous_usage_stats: false
+  require_generic_test_arguments_property: true
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -17,11 +18,9 @@ flags:
 model-paths: ["models"]
 macro-paths: ["macros", "tests/data_tests/generic_tests"]
 seed-paths: ["seeds"]
-test-paths: ["tests/data_tests/singular_tests", "tests/unit_tests"]
+test-paths: ["tests/unit_tests"]
 
 sources:
   pudl_dbt:
     +external_location: |
-      {%- if target.name == "nightly" -%} 'https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{name}.parquet'
-      {%- else -%} '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'
-      {%- endif -%}
+      '{{ env_var('PUDL_OUTPUT') }}/parquet/{name}.parquet'

@@ -16,7 +16,7 @@ to provide easy access to and analyses or data products that are derived from
 that original data. The original data is meant to be archived and re-used as an
 alternative to other users re-processing the raw data from various public
 agencies. For the sake of reproducibility, it's important that we archive the
-inputs alongside the ouputs -- since the reporting agencies often go back and
+inputs alongside the outputs -- since the reporting agencies often go back and
 update the data they have published without warning and without version
 control.
 
@@ -99,7 +99,7 @@ Reading on Tidy Data
 * `Best practices for scientific computing <https://doi.org/10.1371/journal.pbio.1001745>`__
   An earlier version of the above whitepaper aimed at a more technical,
   data-oriented set of scientific users.
-  (Greg Wilson et al., BLOS Biology, 2014)
+  (Greg Wilson et al., PLOS Biology, 2014)
 * `A Simple Guide to Five Normal Forms <http://www.bkent.net/Doc/simple5.htm>`__
   A classic 1983 rundown of database normalization. Concise, informal, and
   understandable, with a few good illustrative examples. Bonus points for the
@@ -117,7 +117,7 @@ seriously M=1000 because Roman numerals? So MM is a million, despite the fact
 that M/Mega is a million in SI. And a `BTU
 <https://en.wikipedia.org/wiki/British_thermal_unit>`__ is... the amount of
 energy required to raise the temperature of one an *avoirdupois pound* of water
-by 1 degree *Farenheit*?! What century even is this?).
+by 1 degree *Fahrenheit*?! What century even is this?).
 
 -------------------------------------------------------------------------------
 Partition Big Data

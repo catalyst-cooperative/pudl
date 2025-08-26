@@ -14,12 +14,11 @@ should include a raw datasource suffix.
 
 import importlib
 import re
-from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, AssetChecksDefinition, AssetIn, asset, asset_check
+from dagster import AssetIn, asset
 
 import pudl.logging_helpers
 from pudl.extract.ferc714 import TABLE_NAME_MAP_FERC714
@@ -42,8 +41,14 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     2: {"CPT": "CST"},
     10: {"CPT": "EST"},
     15: {"MS": "MST"},
-    17: {"CS": "CST", "CD": "CDT"},
+    17: {"CS": "CST", "CD": "CDT", np.nan: "CST"},  # missing 24 entries in Feb 2024
     19: {"CTR": "CST", "CSR": "CST", "CPT": "CST", "DST": "CST", np.nan: "CST"},
+    20: {"3": "MST"},  # black hills (CO). in year after this 3 its all MST
+    23: {
+        # these are missing for all of 2024, but this respondent has history back to 2006
+        # and the only year they observed DST was 2021, so we're going with EST
+        np.nan: "EST"
+    },
     27: {
         "AKS": "AKST",
         "AST": "AKST",
@@ -54,6 +59,7 @@ TIMEZONE_OFFSET_CODE_FIXES = {
         "2": "AKDT",
     },
     28: {np.nan: "EST"},
+    29: {np.nan: "PST"},  # just empty in 2022, other years is PST
     31: {np.nan: "CST"},
     34: {"1": "EST", "2": "EDT", np.nan: "EST", "UTC": "EST"},  # city of Tallahassee
     35: {np.nan: "CST"},
@@ -83,8 +89,10 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     83: {"CS": "CST", "CD": "CDT"},
     84: {"PPT": "PST"},  # LADWP, constant across all years.
     85: {"CPT": "CST"},
+    95: {np.nan: "PST"},  # just empty in 2021, other years is PST
     97: {np.nan: "CST"},
     100: {"206": "EST", "DST": "EDT", np.nan: "EST"},
+    101: {np.nan: "EST"},  # this was just one lil empty guy
     102: {"CDS": "CDT", "CDST": "CDT"},
     105: {np.nan: "CDT"},
     106: {"MPP": "MST", "MPT": "MST"},
@@ -102,6 +110,7 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     143: {"DST": "CDT"},
     146: {"CPT": "CST"},
     148: {"DST": "CDT"},
+    152: {np.nan: "CST"},  # missing 24 entries in December 2024
     153: {"CDS": "CDT"},
     159: {"EDS": "EDT"},
     163: {"CPT": "CST"},
@@ -117,16 +126,13 @@ TIMEZONE_OFFSET_CODE_FIXES = {
     194: {"PPT": "PST"},  # Pacificorp, constant across the whole year.
     195: {"DST": "EDT", "EDS": "EDT", "EPT": "EST"},
     210: {"EPT": "EST"},
-    217: {"CPT": "CST"},
-    214: {"EPT": "EST"},
-    215: {"EDT/EST": "EST", "EST/EDT": "EST"},  # this is duke.
     211: {  # more recent years have CST & CDT. CDST correspond to DST months
         "CDST": "CDT"
     },
-    20: {"3": "MST"},  # black hills (CO). in year after this 3 its all MST
-    95: {np.nan: "PST"},  # just empty in 2021, other years is PST
-    29: {np.nan: "PST"},  # just empty in 2022, other years is PST
-    101: {np.nan: "EST"},  # this was just one lil empty guy
+    214: {"EPT": "EST"},
+    215: {"EDT/EST": "EST", "EST/EDT": "EST"},  # this is duke.
+    216: {np.nan: "CST"},  # missing 24 entries in December 2024
+    217: {"CPT": "CST"},
 }
 
 TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR = [
@@ -135,6 +141,44 @@ TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR = [
     {"respondent_id_ferc714": 176, "report_year": 2011, "utc_offset_code": "CST"},
     {"respondent_id_ferc714": 179, "report_year": 2011, "utc_offset_code": "CST"},
 ]
+
+DISCONTINUOUS_DATES = [
+    # 2024 DST: 3/10-11/3
+    #  1 1-hr gap  on 3/1
+    #  1 2-hr gap  on 3/9
+    # 10 2-hr gaps on 3/10
+    #  1 2-hr gap  on 11/3
+    {"report_year": 2024, "gap_count": 13},
+    # 2023 DST: 3/12-11/5
+    #  1 2-hr gap  on 1/1
+    # 12 2-hr gaps on 3/12
+    {"report_year": 2023, "gap_count": 13},
+    # 2022 DST: 3/13-11/6
+    #  1 25-hr gap  on 1/1
+    #  1  2-hr gap  on 1/1
+    # 15  2-hr gaps on 3/13
+    {"report_year": 2022, "gap_count": 17},
+    # 2021 DST: 3/14-11/7
+    # 9 2-hr gaps on 3/14
+    # 1 31-day gap on 11/1
+    # 1 2-hr gap on 11/7
+    {"report_year": 2021, "gap_count": 11},
+]
+"""Identified gaps in hourly timeseries. The vast majority of these are around
+daylight saving time switchover dates, though there are a couple exceptions. We
+expect to add to this list each year."""
+
+DUPLICATED_DATETIMES = {
+    2007: 1,
+    2008: 1,
+    2009: 1,
+    2012: 1,
+    2013: 2,
+    2022: 4,
+    2024: 1,
+}
+"""Identified duplicated UTC datetimes resulting from changes to a planning area's
+reporting timezone."""
 
 BAD_RESPONDENTS = [
     2,
@@ -184,10 +228,10 @@ TIMEZONE_CODES = {
 }
 """Mapping between standardized time offset codes and canonical timezones."""
 
-EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str], int] = {
+EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str, int]] = {
     "combined": {
         # FERC 714 Respondent ID: EIA BA or Utility ID
-        125: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
+        24: 2775,  # EIA BA CAISO (fixing bad EIA Code of 229)
         47: 56812,  # Duke Energy Control Area Services, LLC (Arlington Valley WECC AZ)
         146: 59504,  # Southwest Power Pool (Fixing bad EIA Coding)
         180: 32790,  # New Harquahala.
@@ -213,7 +257,6 @@ EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str], int] =
         134: 5416,  # Duke Energy Corp. (bad id was non-existent 3260)
         203: 12341,  # MidAmerican Energy Co. (fixes typo, from 12431)
         292: 20382,  # City of West Memphis -- (fixes a typo, from 20383)
-        295: 40229,  # Old Dominion Electric Cooperative (missing)
         301: 14725,  # PJM Interconnection Eastern Hub (missing)
         302: 14725,  # PJM Interconnection Western Hub (missing)
         303: 14725,  # PJM Interconnection Illinois Hub (missing)
@@ -221,6 +264,9 @@ EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str], int] =
         305: 14725,  # PJM Interconnection Dominion Hub (missing)
         306: 14725,  # PJM Interconnection AEP-Dayton Hub (missing)
         309: 12427,  # Michigan Power Pool / Power Coordination Center (missing)
+        # [2025-07-29 kmm] the following EIA IDs don't / no longer exist :(
+        # but if I disable them here, the PK checks fail, so here they remain
+        295: 40229,  # Old Dominion Electric Cooperative (missing)
         312: 59435,  # NaturEner Glacier Wind (missing)
         329: 39347,  # East Texas Electricity Cooperative (missing)
     },
@@ -473,6 +519,7 @@ class RespondentId:
             .convert_dtypes()
             .pipe(cls.spot_fix_eia_codes, "combined")
             .pipe(cls.ensure_eia_code_uniqueness, "combined")
+            .pipe(cls.fill_missing_eia_codes)
             .pipe(cls.condense_into_one_source_table)
             .pipe(_fillna_respondent_id_ferc714_source, "csv")
             # the xbrl version of this is fillna is not *strictly necessary*
@@ -534,7 +581,7 @@ class RespondentId:
         )
         xbrl.loc[code_is_respondent_id_mask, "eia_code"] = pd.NA
 
-        # lets null out some of the eia_code's from XBRL that we've manually culled
+        # let's null some of the eia_code values from XBRL that we've manually culled
         # because they are were determined to be wrong. These respondents
         # had more than one value for their eia_code and one was always wrong
         respondent_id_xbrl_to_bad_eia_code = {
@@ -603,6 +650,16 @@ class RespondentId:
         return df.sort_values(["source"], ascending=False).drop_duplicates(
             subset=["respondent_id_ferc714", "eia_code"], keep="first"
         )
+
+    @staticmethod
+    def fill_missing_eia_codes(df: pd.DataFrame) -> pd.DataFrame:
+        """Fill missing eia_code values with unique non-null value per respondent."""
+        # Fill with first valid value. We don't have to worry about whether the eia_code
+        # is unique because that has already been verified
+        df["eia_code"] = df.groupby("respondent_id_ferc714")["eia_code"].transform(
+            "first"
+        )
+        return df
 
 
 @asset(
@@ -899,11 +956,13 @@ class HourlyPlanningAreaDemand:
     @staticmethod
     def spot_fix_records_xbrl(xbrl: pd.DataFrame):
         """Spot fix some specific XBRL records."""
-        xbrl_years_mask = xbrl.report_date.dt.year >= min(Ferc714Settings().xbrl_years)
-        if (len_csv_years := len(xbrl[~xbrl_years_mask])) > 25:
+        xbrl_years_mask = (
+            xbrl.report_date.dt.year >= min(Ferc714Settings().xbrl_years)
+        ) & (xbrl.report_date.dt.year <= max(Ferc714Settings().xbrl_years))
+        if (len_xbrl_years := len(xbrl[~xbrl_years_mask])) >= 100:
             raise AssertionError(
-                "We expected less than 25 XBRL records that have timestamps "
-                f"with years before the XBRL years, but we found {len_csv_years}"
+                "We expected less than 100 XBRL records that have timestamps "
+                f"outside the XBRL reporting years, but we found {len_xbrl_years}"
             )
         return xbrl[xbrl_years_mask]
 
@@ -911,17 +970,21 @@ class HourlyPlanningAreaDemand:
     def ensure_dates_are_continuous(df: pd.DataFrame, source: Literal["csv", "xbrl"]):
         """Assert that almost all respondents have continuous timestamps.
 
-        In the xbrl data, we found 41 gaps in the timeseries! They are almost entirely
-        on the hour in which daylight savings times goes into effect. The csv data
-        had 10 gaps. Pretty good all in all!
+        The xbrl data frequently includes gaps around daylight savings switchover
+        dates. These are catalogued in DISCONTINUOUS_DATES. The csv data has 10 gaps.
+        Pretty good all in all!
         """
         df["gap"] = df[["respondent_id_ferc714", "report_date"]].sort_values(
             by=["respondent_id_ferc714", "report_date"]
         ).groupby("respondent_id_ferc714").diff() > pd.to_timedelta("1h")
-        if len(gappy_dates := df[df.gap]) > (41 if source == "xbrl" else 10):
+        if source == "xbrl":
+            max_gaps = pd.DataFrame(DISCONTINUOUS_DATES).gap_count.sum()
+        else:
+            max_gaps = 10
+        if len(gappy_dates := df[df.gap]) > max_gaps:
             raise AssertionError(
-                "We expect there to be nearly no gaps in the time series."
-                f"but we found these gaps:\n{gappy_dates}"
+                f"We expect there to be fewer than {max_gaps} gaps in the {source} time "
+                f"series but we found these {len(gappy_dates)} gaps:\n{gappy_dates}"
             )
         return df.drop(columns=["gap"])
 
@@ -1018,12 +1081,13 @@ class HourlyPlanningAreaDemand:
     @staticmethod
     def ensure_non_duplicated_datetimes(df):
         """Report and drop duplicated UTC datetimes."""
-        # There should be less than 10 of these,
+        # There should be a limited number of these,
         # resulting from changes to a planning area's reporting timezone.
         duplicated = df.duplicated(["respondent_id_ferc714", "datetime_utc"])
-        if (num_dupes := np.count_nonzero(duplicated)) > 10:
+        max_dupes = sum(DUPLICATED_DATETIMES.values())
+        if (num_dupes := np.count_nonzero(duplicated)) > max_dupes:
             raise AssertionError(
-                f"Found {num_dupes} duplicate UTC datetimes, but we expected 10 or less.\n{df[duplicated]}"
+                f"Found {num_dupes} duplicate UTC datetimes, but we expected {max_dupes} or less.\n{df[duplicated]}"
             )
         df = df.query("~@duplicated")
         return df
@@ -1091,7 +1155,7 @@ class YearlyPlanningAreaDemandForecast:
         """Build the :ref:`core_ferc714__yearly_planning_area_demand_forecast` asset.
 
         To transform this table we have to process the CSV data and the XBRL duration data
-        (this data has not instant table), merge together the XBRL and CSV data, and
+        (this data has no instant table), merge together the XBRL and CSV data, and
         process the combined datasets.
 
         The main transforms include spot-fixing forecast years with
@@ -1127,8 +1191,8 @@ class YearlyPlanningAreaDemandForecast:
         This function fixes the following errors:
 
         - There's one record with an NA forecast_year value. This row
-          also has no demand forcast values. Because forcast_year is a primary key
-          we can't have any NA values. Because there are no substantive forcasts
+          also has no demand forecast values. Because forecast_year is a primary key
+          we can't have any NA values. Because there are no substantive forecasts
           in this row, we can safely remove this row.
         - respondent_id_ferc714 number 107 reported their forecast_year
           as YY instead of YYYY values.
@@ -1138,7 +1202,28 @@ class YearlyPlanningAreaDemandForecast:
         This function also checks that the values for forecast year are within an
         expected range.
         """
-        df = df.astype({"forecast_year": "Int64"})
+        # [2025-aug kmm]
+        # there was some mixup and C004245 put text in their forecast year fields;
+        # excluding those records for now
+        text_in_year_mask = (
+            (df.respondent_id_ferc714_xbrl == "C004245")
+            & (df.report_year == 2024)
+            & (df.net_demand_forecast_mwh.isna())
+        )
+        # Notify us if the data gets fixed:
+        expect_bad_data: bool = (2024, "C004245") in df.loc[
+            :, ["report_year", "respondent_id_ferc714_xbrl"]
+        ].drop_duplicates().set_index(
+            ["report_year", "respondent_id_ferc714_xbrl"]
+        ).index
+        if expect_bad_data and not text_in_year_mask.any():
+            raise AssertionError(
+                "Expected to find invalid demand forecast data for (2024, C004245) but "
+                "text_in_year_mask selects no records. The data may have been fixed "
+                "in a revised filing and this spot fix can be removed."
+            )
+
+        df = df.loc[~text_in_year_mask].astype({"forecast_year": "Int64"})
         # Make sure there's only one NA forecast_year value and remove it
         if len(nulls := df[df["forecast_year"].isna()]) > 2:
             raise AssertionError(
@@ -1150,7 +1235,7 @@ class YearlyPlanningAreaDemandForecast:
         # lower than that would signify a transition into 2100.
         mask = (df["respondent_id_ferc714"] == 107) & (df["forecast_year"] > 21)
         df.loc[mask, "forecast_year"] = df["forecast_year"] + 2000
-        # Fix extraneus 3022 value from respondent 17
+        # Fix extraneous 3022 value from respondent 17 in 2023
         mask = (
             (df["respondent_id_ferc714"] == 17)
             & (df["report_year"] == 2023)
@@ -1169,7 +1254,7 @@ class YearlyPlanningAreaDemandForecast:
 
         The XBRL data had duplicate primary keys, but it was easy to parse
         them by keeping rows with the most recent publication_time value.
-        The CSVs have no such distinguishing column, dispite having some
+        The CSVs have no such distinguishing column, despite having some
         duplicate primary keys.
 
         This function takes the average of the forecast values for rows
@@ -1237,67 +1322,3 @@ def core_ferc714__yearly_planning_area_demand_forecast(
     a class.
     """
     return YearlyPlanningAreaDemandForecast.run(raw_csv, raw_xbrl_duration)
-
-
-@dataclass
-class Ferc714CheckSpec:
-    """Define some simple checks that can run on FERC 714 assets."""
-
-    name: str
-    asset: str
-    num_rows_by_report_year: dict[int, int]
-
-
-check_specs = [
-    Ferc714CheckSpec(
-        name="yearly_planning_area_demand_forecast_check_spec",
-        asset="core_ferc714__yearly_planning_area_demand_forecast",
-        num_rows_by_report_year={
-            2006: 1819,
-            2007: 1570,
-            2008: 1540,
-            2009: 1269,
-            2010: 1259,
-            2011: 1210,
-            2012: 1210,
-            2013: 1192,
-            2014: 1000,
-            2015: 990,
-            2016: 990,
-            2017: 980,
-            2018: 961,
-            2019: 950,
-            2020: 950,
-            2021: 905,
-            2022: 904,
-            2023: 904,
-        },
-    )
-]
-
-
-def make_row_num_check(spec: Ferc714CheckSpec) -> AssetChecksDefinition:
-    """Turn the Ferc714CheckSpec into an actual Dagster asset check."""
-
-    @asset_check(
-        asset=spec.asset, required_resource_keys={"dataset_settings"}, blocking=True
-    )
-    def _row_num_check(context, df):
-        errors = []
-        for year in context.resources.dataset_settings.ferc714.years:
-            expected_rows = spec.num_rows_by_report_year[year]
-            if (num_rows := len(df.loc[df.report_year == year])) != expected_rows:
-                errors.append(
-                    f"Expected {expected_rows} for report year {year}, found {num_rows}"
-                )
-        logger.warning(errors)
-
-        if errors:
-            return AssetCheckResult(passed=False, metadata={"errors": errors})
-
-        return AssetCheckResult(passed=True)
-
-    return _row_num_check
-
-
-_checks = [make_row_num_check(spec) for spec in check_specs]

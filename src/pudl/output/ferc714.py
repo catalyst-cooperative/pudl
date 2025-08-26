@@ -1,4 +1,8 @@
-"""Functions & classes for compiling derived aspects of the FERC Form 714 data."""
+"""Functions & classes for compiling derived aspects of the FERC Form 714 data.
+
+For a narrative overview of the timeseries imputation process, see the documentation
+at :doc:`/methodology/timeseries_imputation`
+"""
 
 from typing import Any
 
@@ -352,7 +356,7 @@ def _out_ferc714__annualized_respondents(
     """Broadcast respondent data across all years with reported demand.
 
     The FERC 714 Respondent IDs and names are reported in their own table, without any
-    refence to individual years, but much of the information we are associating with
+    reference to individual years, but much of the information we are associating with
     them varies annually. This method creates an annualized version of the respondent
     table, with each respondent having an entry corresponding to every year for which
     FERC 714 has been processed. This means that many of the respondents will end up
@@ -429,7 +433,7 @@ def _out_ferc714__categorized_respondents(
     # after it changed hands. However, not merging on report_date in
     # addition to the balancing_authority_id_eia / eia_code fields ensures
     # that all years are populated for all BAs, which keeps them analogous
-    # to the Utiliies in structure. Sooo.... it's fine for now.
+    # to the Utilities in structure. Sooo.... it's fine for now.
     logger.info("Selecting FERC-714 Balancing Authority respondents.")
     ba_respondents = categorized.query("respondent_type=='balancing_authority'")
     logger.info(
@@ -576,7 +580,7 @@ def out_ferc714__respondents_with_fips(
 )
 def _out_ferc714__georeferenced_counties(
     out_ferc714__respondents_with_fips: pd.DataFrame,
-    _core_censusdp1tract__counties: gpd.GeoDataFrame,
+    out_censusdp1tract__counties: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with all associated county-level geometries.
 
@@ -588,16 +592,19 @@ def _out_ferc714__georeferenced_counties(
     """
     counties_gdf = pudl.analysis.service_territory.add_geometries(
         out_ferc714__respondents_with_fips,
-        census_gdf=_core_censusdp1tract__counties,
+        census_gdf=out_censusdp1tract__counties,
     ).pipe(apply_pudl_dtypes)
     return counties_gdf
 
 
-@asset(compute_kind="pandas")
-def _out_ferc714__georeferenced_respondents(
+@asset(
+    compute_kind="pandas",
+    io_manager_key="geoparquet_io_manager",
+)
+def out_ferc714__georeferenced_respondents(
     out_ferc714__respondents_with_fips: pd.DataFrame,
     out_ferc714__summarized_demand: pd.DataFrame,
-    _core_censusdp1tract__counties: gpd.GeoDataFrame,
+    out_censusdp1tract__counties: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """Annual respondents with a single all-encompassing geometry for each year.
 
@@ -612,7 +619,7 @@ def _out_ferc714__georeferenced_respondents(
     respondents_gdf = (
         pudl.analysis.service_territory.add_geometries(
             out_ferc714__respondents_with_fips,
-            census_gdf=_core_censusdp1tract__counties,
+            census_gdf=out_censusdp1tract__counties,
             dissolve=True,
             dissolve_by=["report_date", "respondent_id_ferc714"],
         )
@@ -689,5 +696,5 @@ imputed_hourly_planning_area_demand_assets = impute_timeseries_asset_factory(
     value_col="demand_mwh",
     imputed_value_col="demand_imputed_pudl_mwh",
     id_col="respondent_id_ferc714",
-    settings=ImputeTimeseriesSettings(min_data_fraction=0.9),
+    settings=ImputeTimeseriesSettings(min_data_fraction=0.7),
 )

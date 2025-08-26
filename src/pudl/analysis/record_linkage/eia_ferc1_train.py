@@ -149,16 +149,20 @@ def _is_best_match(
     return df
 
 
-def _prep_eia_ferc1(eia_ferc1, utils_eia860) -> pd.DataFrame:
+def _prep_eia_ferc1(
+    eia_ferc1: pd.DataFrame,
+    utils_eia860: pd.DataFrame,
+) -> pd.DataFrame:
     """Prep FERC-EIA for use in override output sheet pre-utility subgroups.
 
     Args:
-        eia_ferc1 (pd.DataFrame): The dataframe resulting from pudl_out.ferc1_eia().
-        utils_eia860 (pd.DataFrame): The dataframe resulting from pudl_out.utils_eia860.
+        eia_ferc1: The :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` table,
+            associating EIA and FERC Form 1 plant records.
+        utils_eia860: The :ref:`out_eia__yearly_utilities` table.
 
     Returns:
-        pd.DataFrame: A version of the eia_ferc1 table that's been modified for
-            the purposes of creating an manual mapping spreadsheet.
+        A version of the EIA-FERC1 plant association table that's been modified for the
+        purposes of creating an manual mapping spreadsheet.
     """
     logger.debug("Prepping FERC-EIA table")
     # Only want to keep the plant_name_ppe field which replaces plant_name_eia
@@ -213,37 +217,6 @@ def _prep_eia_ferc1(eia_ferc1, utils_eia860) -> pd.DataFrame:
     return eia_ferc1_prep
 
 
-def _prep_ppe(ppe, utils_eia860) -> pd.DataFrame:
-    """Prep PPE table for use in override output sheet pre-utility subgroups.
-
-    Args:
-        ppe (pd.DataFrame): The dataframe resulting from pudl_out.plant_parts_eia
-        utils_eia860 (pd.DataFrame): The dataframe resulting from pudl_out.utils_eia860.
-
-    Returns:
-        pd.DataFrame: A version of the plant_parts_eia table that's been modified for
-            the purposes of creating an manual mapping spreadsheet.
-    """
-    logger.debug("Prepping Plant Parts Table")
-
-    # Add utilty name eia and only take relevant columns
-    """
-    ppe_out = (
-        ppe.reset_index()
-        .merge(
-            utils_eia860[["utility_id_eia", "utility_name_eia", "report_date"]].copy(),
-            on=["utility_id_eia", "report_date"],
-            how="left",
-            validate="m:1",
-        )[RELEVANT_COLS_PPE]
-        .copy()
-    )
-    """
-    ppe_out = ppe.reset_index()[RELEVANT_COLS_PPE].copy()
-
-    return ppe_out
-
-
 def _prep_deprish(deprish, utils_eia860) -> pd.DataFrame:
     """Prep depreciation data for use in override output sheet pre-utility subgroups."""
     # Not using this function ATM.
@@ -275,7 +248,7 @@ def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
 
     Returns:
         dict: A subset of the inputs_dict that contains versions of the value dfs that
-            pertain only to the utilites and years specified in util_id_eia_list and
+            pertain only to the utilities and years specified in util_id_eia_list and
             years.
     """
     util_year_subset_dict = {}
@@ -294,7 +267,7 @@ def _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict:
 
         if df_name == "eia_ferc1":
             # Add column with excel formula to check if the override record id is the
-            # same as the AI assigend id. Doing this here instead of prep_eia_ferc1
+            # same as the AI assigned id. Doing this here instead of prep_eia_ferc1
             # because it is based on row index number which is changes when you take a
             # subset of the data.
             subset_df = subset_df.reset_index(drop=True)
@@ -331,7 +304,7 @@ def _output_override_spreadsheet(
     # Enable unique file names and put all files in directory called overrides
     new_output_path = f"{output_dir_path}/{util_name}_fix_FERC-EIA_overrides.xlsx"
     # Output file to a folder called overrides
-    logger.info(f"Outputing {util_name} subsets to tabs\n")
+    logger.info(f"Outputting {util_name} subsets to tabs\n")
     with pd.ExcelWriter(new_output_path) as writer:
         # writer = pd.ExcelWriter(new_output_path, engine="xlsxwriter")
         for df_name, df in util_year_subset_dict.items():
@@ -339,7 +312,12 @@ def _output_override_spreadsheet(
 
 
 def generate_all_override_spreadsheets(
-    eia_ferc1, ppe, utils_eia860, util_dict, years, output_dir_path
+    eia_ferc1: pd.DataFrame,
+    ppe: pd.DataFrame,
+    utils_eia860: pd.DataFrame,
+    util_dict: dict[str, list[int]],
+    years: list[int],
+    output_dir_path: str,
 ) -> None:
     """Output override spreadsheets for all specified utilities and years.
 
@@ -347,22 +325,21 @@ def generate_all_override_spreadsheets(
     output directory.
 
     Args:
-        eia_ferc1 (pd.DataFrame): The dataframe resulting from pudl_out.ferc1_eia().
-        ppe (pd.DataFrame): The dataframe resulting from pudl_out.plant_parts_eia
-        utils_eia860 (pd.DataFrame): The dataframe resulting from pudl_out.utils_eia860.
-        util_dict (dict): A dictionary with keys that are the names of utility
+        eia_ferc1: The :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` table as a
+            dataframe, associating EIA and FERC Form 1 plant records.
+        ppe: The :ref:`out_eia__yearly_plant_parts` table as a dataframe.
+        utils_eia860: The :ref:`out_eia__yearly_utilities` table as a dataframe.
+        util_dict: A dictionary with keys that are the names of utility
             parent companies and values that are lists of subsidiary utility_id_eia
             values. EIA values are used instead of PUDL in this case because PUDL values
             are subject to change.
-        years (list): A list of the years you'd like to add to the override sheets.
-        output_dir_path (str): The relative path to the folder where you'd like to
-            output the override spreadsheets that this function creates.
+        years: A list of the years you'd like to add to the override sheets.
+        output_dir_path: The relative path to the folder where you'd like to output the
+            override spreadsheets that this function creates.
     """
-    # Generate full input tables
-    # inputs_dict = _generate_input_dfs(pudl_out)
     inputs_dict = {
         "eia_ferc1": _prep_eia_ferc1(eia_ferc1, utils_eia860),
-        "ppe": _prep_ppe(ppe, utils_eia860),
+        "ppe": ppe.reset_index()[RELEVANT_COLS_PPE],
     }
 
     # For each utility, make an override sheet with the correct input table slices
@@ -426,25 +403,25 @@ def check_if_already_in_training(training_data, validated_connections):
 
 
 def validate_override_fixes(
-    validated_connections,
-    ppe,
-    eia_ferc1,
-    training_data,
-    expect_override_overrides=False,
-    allow_mismatched_utilities=True,
+    validated_connections: pd.DataFrame,
+    ppe: pd.DataFrame,
+    eia_ferc1: pd.DataFrame,
+    training_data: pd.DataFrame,
+    expect_override_overrides: bool = False,
+    allow_mismatched_utilities: bool = True,
 ) -> pd.DataFrame:
     """Process the verified and/or fixed matches and look for human error.
 
     Args:
-        validated_connections (pd.DataFrame): A dataframe in the add_to_training
-            directory that is ready to be added to be validated and subsumed into the
-            training data.
-        ppe (pd.DataFrame): The dataframe resulting from pudl_out.plant_parts_eia
-        eia_ferc1 (pd.DataFrame): The dataframe resulting from pudl_out.ferc1_eia
-        training_data (pd.DataFrame): The current FERC-EIA training data
-        expect_override_overrides (boolean): Whether you expect the tables to have
+        validated_connections: A dataframe in the add_to_training directory that is
+            ready to be added to be validated and subsumed into the training data.
+        ppe: The :ref:`out_eia__yearly_plant_parts` table as a dataframe.
+        eia_ferc1: The :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` table as a
+            dataframe, associating EIA and FERC Form 1 plant records.
+        training_data: The current FERC-EIA training data
+        expect_override_overrides: Whether you expect the tables to have
             overridden matches already in the training data.
-        allow_mismatched_utilities (boolean): Whether you want to allow FERC and EIA
+        allow_mismatched_utilities: Whether you want to allow FERC and EIA
             record ids to come from different utilities.
 
     Raises:
@@ -462,8 +439,7 @@ def validate_override_fixes(
             data implies an override to the existing training data.
 
     Returns:
-        pd.DataFrame: The validated FERC-EIA dataframe you're trying to add to the
-            training data.
+        The validated FERC-EIA dataframe you're trying to add to the training data.
     """
     logger.info("Validating overrides")
     # When there are NA values in the verified column in the excel doc, it seems that
@@ -516,6 +492,20 @@ def validate_override_fixes(
     {override_dups.record_id_eia_override_1.unique()}"
     )
 
+    # Make sure there are no duplicate FERC1 id overrides
+    logger.debug("Checking for duplicate FERC1 override ids")
+    assert (
+        len(
+            ferc_override_dups := only_overrides[
+                only_overrides["record_id_ferc1"].duplicated(keep=False)
+            ]
+        )
+        == 0
+    ), (
+        f"Found record_id_ferc1 duplicates: \
+    {ferc_override_dups.record_id_ferc1.unique()}"
+    )
+
     if not allow_mismatched_utilities:
         # Make sure the EIA utility id from the override matches the PUDL id from the
         # FERC record. Start by mapping utility_id_pudl from PPE onto each
@@ -528,7 +518,7 @@ def validate_override_fixes(
             right_on="record_id_eia",
             how="left",
         )
-        # Now we compare the two utlity_id_pudl columns
+        # Now we compare the two utility_id_pudl columns
         if (
             len(
                 bad_utils := only_overrides["utility_id_pudl"].compare(
@@ -572,8 +562,7 @@ def validate_override_fixes(
             x for x in new_training_eia_ids if x in existing_training_eia_ids
         ]:
             raise AssertionError(
-                f"""
-The following EIA records area already in the training data: {eia_overrides}"""
+                f"""The following EIA records are already in the training data: {eia_overrides}"""
             )
         existing_training_ferc1_ids = training_data.record_id_ferc1.dropna().unique()
         new_training_ferc1_ids = only_overrides["record_id_ferc1"].unique()
@@ -581,8 +570,7 @@ The following EIA records area already in the training data: {eia_overrides}"""
             x for x in new_training_ferc1_ids if x in existing_training_ferc1_ids
         ]:
             raise AssertionError(
-                f"""
-The following FERC 1 records area already in the training data: {ferc_overrides}"""
+                f"""The following FERC 1 records are already in the training data: {ferc_overrides}"""
             )
 
     # Only return the results that have been verified
@@ -593,20 +581,20 @@ The following FERC 1 records area already in the training data: {ferc_overrides}
     return verified_connections
 
 
-def get_multi_match_df(training_data) -> pd.DataFrame:
+def get_multi_match_df(training_data: pd.DataFrame) -> pd.DataFrame:
     """Process the verified and/or fixed matches and generate a list of 1:m matches.
 
     Filter the dataframe to only include FERC records with more than one EIA match.
     Melt this dataframe to report all matched EIA records in the
-    `record_id_eia_override_1` column.
+    ``record_id_eia_override_1`` column.
 
     Args:
-        training_data (pd.DataFrame): A dataframe in the add_to_training directory that
-            is ready to be validated and subsumed into the training data.
+        training_data: A dataframe in the add_to_training directory that is ready to be
+            validated and subsumed into the training data.
 
     Returns:
-        pd.DataFrame: A dataframe of 1:m matches formatted to fit into the existing
-            validation framework.
+        A dataframe of one_to_many matches formatted to fit into the existing validation
+        framework.
     """
     match_cols = [
         col for col in training_data.columns if "record_id_eia_override_" in col
@@ -687,32 +675,26 @@ def _add_to_one_to_many_overrides(one_to_many, current_one_to_many_path) -> None
 
 
 def validate_and_add_to_training(
-    utils_eia860,
-    ppe,
-    eia_ferc1,
-    input_dir_path,
-    expect_override_overrides=False,
-    allow_mismatched_utilities=True,
-    one_to_many=True,
+    ppe: pd.DataFrame,
+    eia_ferc1: pd.DataFrame,
+    input_dir_path: str,
+    expect_override_overrides: bool = False,
+    allow_mismatched_utilities: bool = True,
+    one_to_many: bool = True,
 ) -> None:
     """Validate, combine, and add overrides to the training data.
 
     Validating and combinging the records so you only have to loop through the files
-    once. Runs the validate_override_fixes() function and add_to_training.
+    once. Runs :func:`validate_override_fixes` and :func:`_add_to_training`.
 
     Args:
-        pudl_out (PudlTabl): the pudl_out object generated in a notebook and passed in.
-        rmi_out (Output): the rmi_out object generated in a notebook and passed in.
-        input_dir_path (str): The path to the place where the matched files that you
-            want to validate or integrate are.
-        expect_override_overrides (bool): This value is explicitly assigned at the top
-            of the notebook.
-        allow_mismatched_utilities (bool): Whether you are allowed to have FERC-EIA
-            matches from different utilities.
-        one_to_many (bool): If True, will also validate and save csv of 1:m matches.
-
-    Returns:
-        pandas.DataFrame: A DataFrame with all of the new overrides combined.
+        input_dir_path: The path to the place where the matched files that you want to
+            validate or integrate are.
+        expect_override_overrides: This value is explicitly assigned at the top of the
+            notebook.
+        allow_mismatched_utilities: Whether you are allowed to have FERC-EIA matches
+            from different utilities.
+        one_to_many: If True, will also validate and save a CSV of one_to_many matches.
     """
     glue_resource_path = importlib.resources.files("pudl.package_data.glue")
     path_to_current_training = glue_resource_path / "eia_ferc1_train.csv"

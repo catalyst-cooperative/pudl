@@ -4,9 +4,16 @@ sources:
     tables:
       - name: core_eia860__assn_boiler_stack_flue
         data_tests:
+          - expect_columns_not_all_null:
+              arguments:
+                row_conditions:
+                  stack_id_eia: EXTRACT(year FROM report_date) <= 2012
+                  flue_id_eia: EXTRACT(year FROM report_date) <= 2012
+                  stack_flue_id_eia: EXTRACT(year FROM report_date) >= 2013
           - check_row_counts_per_partition:
-              table_name: core_eia860__assn_boiler_stack_flue
-              partition_column: report_date
+              arguments:
+                table_name: core_eia860__assn_boiler_stack_flue
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: plant_id_eia

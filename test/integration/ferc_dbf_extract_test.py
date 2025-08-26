@@ -1,6 +1,6 @@
 """PyTest based testing of the FERC DBF Extraction logic."""
 
-import logging
+import os
 
 import pytest
 import sqlalchemy as sa
@@ -10,12 +10,21 @@ from pudl.extract.ferc1 import Ferc1DbfExtractor
 from pudl.extract.ferc2 import Ferc2DbfExtractor
 from pudl.extract.ferc6 import Ferc6DbfExtractor
 from pudl.extract.ferc60 import Ferc60DbfExtractor
+from pudl.logging_helpers import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
+@pytest.mark.order(1)
 def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
-    """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
+    """Attempt to access the DBF based FERC 1 SQLite DB fixture.
+
+    This test is marked with order(1) to ensure that it is explicitly run before the
+    main PUDL ETL test, and is the first attempt to make use of the conceptually related
+    FERC Form 1 DBF DB engine & taxonomy fixtures. This means that if they fail, the
+    failure will be more clearly associated with the fixture, and not some random
+    downstream test that just happened to run first.
+    """
     assert isinstance(ferc1_engine_dbf, sa.Engine)
     assert "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
 
@@ -34,10 +43,14 @@ def test_ferc_schema(ferc_to_sqlite_settings, pudl_datastore_fixture, extractor_
 
     Exhaustively enumerate all historical sets of FERC Form N database tables and their
     constituent fields. Check to make sure that the current database definition, based
-    on the given reference year and our compilation of the DBF filename to table name
-    mapping from 2015, includes every single table and field that appears in the
-    historical FERC Form 1 data.
+    on the given reference year includes every single table and field that appears in the
+    historical FERC Form N data.
     """
+    if os.getenv("GITHUB_ACTIONS", False):
+        pytest.skip(
+            reason="Downloading these datasets exceeds free GHA runner disk space."
+        )
+
     dataset = extractor_class.DATASET
     dbf_settings = getattr(ferc_to_sqlite_settings, f"{dataset}_dbf_to_sqlite_settings")
     refyear = dbf_settings.refyear

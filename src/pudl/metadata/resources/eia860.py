@@ -4,9 +4,12 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860__scd_boilers": {
-        "description": (
-            "Annually varying boiler attributes, compiled from across all EIA-860 data."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "boilers which may vary from year to year. Compiled from across all "
+                "EIA-860 data."
+            ),
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -121,10 +124,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "core_eia860__assn_boiler_generator": {
-        "description": (
-            "Associations between boilers and generators as reported in EIA-860 "
-            "Schedule 6, Part A. Augmented with various heuristics within PUDL."
-        ),
+        "description": {
+            "additional_summary_text": "boilers and generators.",
+            "additional_source_text": "(Schedule 6, Part A)",
+            "additional_details_text": "Augmented with various heuristics within PUDL.",
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -145,10 +149,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "core_eia860__scd_generators": {
-        "description": (
-            "Annually varying generator attributes compiled from across EIA-860 and "
-            "EIA-923 data."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "generators which may vary from year to year. Compiled from across "
+                "EIA-860 and EIA-923 data."
+            ),
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -182,7 +188,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "can_burn_multiple_fuels",
                 "deliver_power_transgrid",
                 "distributed_generation",
-                "syncronized_transmission_grid",
+                "synchronized_transmission_grid",
                 "turbines_num",
                 "planned_modifications",
                 "planned_net_summer_capacity_uprate_mw",
@@ -230,17 +236,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
                     "core_eia923__monthly_boiler_fuel",
-                    "_out_eia__monthly_capacity_factor_by_generator",
                     "out_eia923__generation",
                     "out_eia923__monthly_generation",
-                    "_out_eia__monthly_fuel_cost_by_generator",
                     "core_eia923__monthly_fuel_receipts_costs",
                     "core_eia923__monthly_generation",
                     "out_eia923__monthly_generation_fuel_by_generator_energy_source",
                     "out_eia923__monthly_generation_fuel_by_generator",
                     "core_eia923__monthly_generation_fuel",
-                    "_out_eia__monthly_heat_rate_by_generator",
-                    "_out_eia__monthly_derived_generator_attributes",
                     "out_eia__monthly_generators",
                     "core_eia860m__changelog_generators",
                     "core_eia923__monthly_energy_storage",
@@ -252,10 +254,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "core_eia860__scd_ownership": {
-        "description": (
-            "Generator Ownership, reported in EIA-860 Schedule 4. Includes only "
-            "jointly or third-party owned generators."
-        ),
+        "description": {
+            "additional_summary_text": "generator ownership. Includes only jointly or third-party owned generators.",
+            "additional_source_text": "(Schedule 4)",
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -284,11 +286,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "out_eia860__yearly_ownership": {
-        "description": (
-            "Generator Ownership, reported in EIA-860 Schedule 4. Includes only "
-            "jointly or third-party owned generators. Denormalized to include plant "
-            "and utility names and other associated IDs."
-        ),
+        "description": {
+            "additional_summary_text": "generator ownership. Includes only jointly or third-party owned generators.",
+            "additional_source_text": "(Schedule 4)",
+            "additional_details_text": "Denormalized to include plant and utility names and other associated IDs.",
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -320,10 +322,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "core_eia860__scd_plants": {
-        "description": (
-            "Annually varying plant attributes, compiled from across all EIA-860 and "
-            "EIA-923 data."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "plants which may vary from year to year. Compiled from across all "
+                "EIA-860 and EIA-923 data."
+            ),
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -376,8 +380,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 # non-january records fail.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
                 "exclude": [
-                    "_core_eia923__cooling_system_information",
-                    "_core_eia923__fgd_operation_maintenance",
+                    "_core_eia923__monthly_cooling_system_information",
+                    "_core_eia923__yearly_fgd_operation_maintenance",
                     "core_eia923__monthly_boiler_fuel",
                     "out_eia923__boiler_fuel",
                     "out_eia923__monthly_boiler_fuel",
@@ -393,11 +397,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia923__monthly_generation",
                     "core_eia923__monthly_generation_fuel",
                     "core_eia923__monthly_generation_fuel_nuclear",
-                    "_out_eia__monthly_heat_rate_by_unit",
-                    "_out_eia__monthly_heat_rate_by_generator",
-                    "_out_eia__monthly_fuel_cost_by_generator",
-                    "_out_eia__monthly_capacity_factor_by_generator",
-                    "_out_eia__monthly_derived_generator_attributes",
                     "out_eia__monthly_generators",
                     "core_eia860m__changelog_generators",
                     "core_eia923__monthly_energy_storage",
@@ -409,9 +408,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "core_eia860__scd_utilities": {
-        "description": (
-            "Annually varying utility attributes, compiled from all EIA data."
-        ),
+        "description": {
+            "additional_summary_text": (
+                "utilities which may vary from year to year. Compiled from all EIA data."
+            ),
+        },
         "schema": {
             "fields": [
                 "utility_id_eia",
@@ -468,7 +469,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "out_eia923__monthly_generation",
                     "out_eia923__generation_fuel_combined",
                     "out_eia923__monthly_generation_fuel_combined",
-                    "_out_eia__monthly_fuel_cost_by_generator",
                     "out_eia923__monthly_generation_fuel_by_generator_energy_source",
                     "out_eia923__monthly_generation_fuel_by_generator",
                     "core_eia860m__changelog_generators",
@@ -484,7 +484,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_energy_efficiency",
                     "out_ferc714__respondents_with_fips",
                     "core_eia861__yearly_green_pricing",
-                    "_out_eia__monthly_derived_generator_attributes",
                     "out_eia__monthly_generators",
                     "core_eia861__yearly_mergers",
                     "core_eia861__yearly_net_metering_customer_fuel_class",
@@ -502,7 +501,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_utility_data_misc",
                     "core_eia861__yearly_utility_data_nerc",
                     "core_eia861__yearly_utility_data_rto",
-                    "core_sec10k__parents_and_subsidiaries",
                     "out_sec10k__quarterly_company_information",
                 ],
             },
@@ -512,12 +510,17 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia860",
     },
     "core_eia860__scd_emissions_control_equipment": {
-        "description": (
-            """The cost, type, operating status, retirement date, and install year of
-emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
+        "description": {
+            "additional_summary_text": (
+                "emissions control equipment reported to EIA, including cost, type, "
+                "operating status, retirement date, and install year."
+            ),
+            "additional_details_text": (
+                """Includes control ids for sulfur dioxide
 (SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas
 monitoring."""
-        ),
+            ),
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -542,13 +545,14 @@ monitoring."""
         "etl_group": "eia860",
     },
     "out_eia860__yearly_emissions_control_equipment": {
-        "description": (
-            """The cost, type, operating status, retirement date, and install year of
-emissions control equipment reported to EIA. Includes control ids for sulfur dioxide
+        "description": {
+            "additional_summary_text": "the cost, type, operating status, retirement date, and install year of emissions control equipment reported to EIA.",
+            "additional_details_text": """Includes control ids for sulfur dioxide
 (SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas monitoring.
-The denormalized version contains plant name, utility id, pudl id, and utility name
-columns."""
-        ),
+
+This denormalized version includes plant name, utility id, pudl id, and utility name
+columns.""",
+        },
         "schema": {
             "fields": [
                 "report_year",
@@ -579,11 +583,18 @@ columns."""
         "etl_group": "eia860",
     },
     "core_eia860__assn_yearly_boiler_emissions_control_equipment": {
-        "description": (
-            """A table that links EIA boiler IDs to emissions control IDs for NOx, SO2,
-mercury, and particulate monitoring. The relationship between the IDs is sometimes many
-to many."""
-        ),
+        "description": {
+            "additional_summary_text": (
+                "EIA boiler IDs and emissions control IDs for NOx, SO2, "
+                "mercury, and particulate monitoring."
+            ),
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": "The relationship between the IDs is sometimes many to many.",
+                },
+            ],
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -606,7 +617,9 @@ to many."""
         "etl_group": "eia860",
     },
     "core_eia860__assn_boiler_cooling": {
-        "description": "A table that links EIA boiler IDs to EIA cooling system IDs.",
+        "description": {
+            "additional_summary_text": "EIA boiler IDs and EIA cooling system IDs.",
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -627,10 +640,9 @@ to many."""
         "etl_group": "eia860",
     },
     "core_eia860__assn_boiler_stack_flue": {
-        "description": (
-            """A table that links EIA boiler IDs to EIA stack and/or flue
-system IDs."""
-        ),
+        "description": {
+            "additional_summary_text": "EIA boiler IDs and EIA stack and/or flue system IDs.",
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -653,14 +665,20 @@ system IDs."""
         "etl_group": "eia860",
     },
     "_core_eia860__cooling_equipment": {
-        "description": (
-            "Information about cooling equipment at generation facilities, "
-            "from EIA-860 Schedule 6D.\n\n"
-            "Note: This table has been cleaned, but not harvested with other "
-            "EIA 923 or 860 data. The same variables present in this table "
-            "may show up in other _core tables in other years. Once this table "
-            "has been harvested, it will be removed from the PUDL database."
-        ),
+        "description": {
+            "additional_summary_text": "Information about cooling equipment at generation facilities.",
+            "additional_source_text": "(Schedule 6D)",
+            "usage_warnings": [
+                {
+                    "type": "unharvested",
+                    "description": (
+                        "This table has not been harvested with other "
+                        "EIA 923 or 860 data. The same variables present in this table "
+                        "may show up in other _core tables in other years."
+                    ),
+                },
+            ],
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -718,13 +736,20 @@ system IDs."""
         "etl_group": "eia860",
     },
     "_core_eia860__fgd_equipment": {
-        "description": (
-            "Information about flue gas desulfurization equipment at generation facilities, "
-            "from EIA-860 Schedule 6E. Note: This table has been cleaned, but not "
-            "harvested with other EIA 923 or 860 data. The same variables present in "
-            "this table may show up in other _core tables in other years. Once this "
-            "table has been harvested, it will be removed from the PUDL database."
-        ),
+        "description": {
+            "additional_summary_text": "Information about flue gas desulfurization equipment at generation facilities.",
+            "additional_source_text": "(Schedule 6E)",
+            "usage_warnings": [
+                {
+                    "type": "unharvested",
+                    "description": (
+                        "This table has not been harvested with other "
+                        "EIA 923 or 860 data. The same variables present in this table "
+                        "may show up in other _core tables in other years."
+                    ),
+                },
+            ],
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -782,12 +807,15 @@ system IDs."""
         "etl_group": "eia860",
     },
     "core_eia860__scd_generators_wind": {
-        "description": (
-            "Annually reported information about wind generators from EIA-860 Schedule 3.2."
-            " This table includes only those values that are unique to wind generators. "
-            "The rest of the columns that are reported in the EIA-860 Wind tabs are "
-            "included in core_eia860__scd_generators and core_eia__entity_generators."
-        ),
+        "description": {
+            "additional_summary_text": "wind generators that may vary from year to year.",
+            "additional_source_text": "(Schedule 3.2)",
+            "additional_details_text": (
+                "This table includes only those values that are unique to wind generators. "
+                "The rest of the columns that are reported in the EIA-860 Wind tabs are "
+                "included in :ref:`core_eia860__scd_generators` and :ref:`core_eia__entity_generators`."
+            ),
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -811,12 +839,15 @@ system IDs."""
         "etl_group": "eia860",
     },
     "core_eia860__scd_generators_solar": {
-        "description": (
-            "Annually reported information about solar generators from EIA-860 Schedule 3.3."
-            " This table includes only those values that are unique to solar generators. "
-            "The rest of the columns that are reported in the EIA-860 Solar tabs are "
-            "included in core_eia860__scd_generators and core_eia__entity_generators."
-        ),
+        "description": {
+            "additional_summary_text": "solar generators that may vary from year to year.",
+            "additional_source_text": "(Schedule 3.3)",
+            "additional_details_text": (
+                "This table includes only those values that are unique to solar generators. "
+                "The rest of the columns that are reported in the EIA-860 Solar tabs are "
+                "included in :ref:`core_eia860__scd_generators` and :ref:`core_eia__entity_generators`."
+            ),
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -858,12 +889,15 @@ system IDs."""
         "etl_group": "eia860",
     },
     "core_eia860__scd_generators_energy_storage": {
-        "description": (
-            "Annually reported information about energy storage from EIA-860 Schedule 3."
-            " This table includes only those values that are unique to energy storage. "
-            "The rest of the columns that are reported in the EIA-860 Energy Storage tabs are "
-            "included in core_eia860__scd_generators and core_eia__entity_generators."
-        ),
+        "description": {
+            "additional_summary_text": "energy storage which may vary from year to year.",
+            "additional_source_text": "(Schedule 3)",
+            "additional_details_text": (
+                "This table includes only those values that are unique to energy storage. "
+                "The rest of the columns that are reported in the EIA-860 Energy Storage tabs are "
+                "included in :ref:`core_eia860__scd_generators` and :ref:`core_eia__entity_generators`."
+            ),
+        },
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -889,7 +923,7 @@ system IDs."""
                 "stored_excess_wind_and_solar_generation",
                 "is_ac_coupled",
                 "is_dc_coupled",
-                "id_dc_coupled_tightly",
+                "is_dc_coupled_tightly",
                 "is_independent",
                 "is_transmission_and_distribution_asset_support",
                 "is_direct_support",
@@ -911,10 +945,10 @@ system IDs."""
         "etl_group": "eia860",
     },
     "core_eia860__scd_generators_multifuel": {
-        "description": (
-            "Annually reported information from EIA-860 Schedule 3 that contains information about "
-            "fuel-switching and the use of multiple fuels by surveyed generators."
-        ),
+        "description": {
+            "additional_summary_text": "generators that may vary from year to year, pertaining to fuel-switching and the use of multiple fuels.",
+            "additional_source_text": "(Schedule 3)",
+        },
         "schema": {
             "fields": [
                 "report_date",

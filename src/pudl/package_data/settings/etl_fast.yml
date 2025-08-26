@@ -7,21 +7,21 @@ ferc_to_sqlite_settings:
     # What years of original FERC data should be cloned into the SQLite DB?
     years: [2019, 2020]
   ferc1_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
   ferc2_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc2_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
   ferc6_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc6_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
   ferc60_dbf_to_sqlite_settings:
     years: [2019, 2020]
   ferc60_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
   ferc714_xbrl_to_sqlite_settings:
-    years: [2021, 2023]
+    years: [2021, 2024]
 
 ###########################################################################
 # Settings for pudl_etl script
@@ -35,9 +35,9 @@ description: >
 version: 0.1.0
 datasets:
   ferc1:
-    years: [2020, 2021, 2023]
+    years: [2020, 2021, 2024]
   ferc714:
-    years: [2020, 2023]
+    years: [2020, 2024]
   eia:
     eia176:
       years: [2020, 2023]
@@ -46,12 +46,12 @@ datasets:
     eia757a:
       years: [2014, 2017]
     eia923:
-      years: [2020, 2024]
+      years: [2020, 2025]
     eia860:
-      years: [2020, 2023]
+      years: [2020, 2024]
       eia860m: true
     eia860m:
-      year_months: ["2024-11", "2024-12"]
+      year_months: ["2025-05", "2025-06"]
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
       # This is a temporary hack to make the tests pass!
@@ -88,10 +88,12 @@ datasets:
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
-    # also load the EIA 860 data for that year if possible
+    # also load the EIA 860 data for that year if possible.
+    #
+    # We only use q1 for epacems etl_fast even if later quarters are available.
     year_quarters: ["2023q1"]
   phmsagas:
-    years: [2022]
+    years: [2024]
   nrelatb:
     years: [2024]
   gridpathratoolkit:

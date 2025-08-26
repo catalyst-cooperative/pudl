@@ -667,7 +667,7 @@ def _tidy_class_dfs(
         idx_cols: The index (primary key) columns of the input dataframe. They must
             identify unique records in the input data.
         class_list: List of values which will ultimately be found in the ``class_type``
-            column, and which should initally be found as suffixes on the names of the
+            column, and which should initially be found as suffixes on the names of the
             columns to be reshaped.
         class_type: The name of the categorical column produced by the reshaping.
         keep_totals: If True, retain total values which are the sum of all the
@@ -1415,14 +1415,14 @@ def core_demand_side_management_eia861(
 
     In 2013, the EIA changed the contents of the 861 form so that information pertaining
     to demand side management was no longer housed in a single table, but rather two
-    seperate ones pertaining to energy efficiency and demand response. While the pre and
+    separate ones pertaining to energy efficiency and demand response. While the pre and
     post 2013 tables contain similar information, one column in the pre-2013 demand side
     management table may not have an obvious column equivalent in the post-2013 energy
     efficiency or demand response data. We've addressed this by keeping the demand side
-    management and energy efficiency and demand response tables seperate. Use the DSM
+    management and energy efficiency and demand response tables separate. Use the DSM
     table for pre 2013 data and the EE / DR tables for post 2013 data. Despite the
     uncertainty of comparing across these years, the data are similar and we hope to
-    provide a cohesive dataset in the future with all years and comprable columns
+    provide a cohesive dataset in the future with all years and comparable columns
     combined.
 
     Transformations include:
@@ -1639,7 +1639,7 @@ def core_distributed_generation_eia861(
         "data_maturity",
     ]
 
-    # Pre-tidy transform: set estimated or actual A/E values to 'Acutal'/'Estimated'
+    # Pre-tidy transform: set estimated or actual A/E values to 'Actual'/'Estimated'
     raw_dg = _pre_process(raw_eia861__distributed_generation).assign(
         estimated_or_actual_capacity_data=lambda x: (
             x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
@@ -2202,7 +2202,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     #    * Fix puncuation/case
     #    * Replace na with 'UNK'
     #    * Make sure NERC regions are a verified NERC region
-    #    * Add underscore between double entires (SPP_ERCOT)
+    #    * Add underscore between double entries (SPP_ERCOT)
     # * Re-code data_observed to boolean:
     #   * O="observed" => True
     #   * I="imputed" => False

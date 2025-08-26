@@ -5,7 +5,6 @@ import importlib.metadata
 from . import (
     analysis,
     convert,
-    etl,
     extract,
     ferc_to_sqlite,
     glue,
@@ -18,8 +17,6 @@ from . import (
     validate,
     workspace,
 )
-
-logging_helpers.configure_root_logger()
 
 __author__ = "Catalyst Cooperative"
 __contact__ = "pudl@catalyst.coop"

@@ -51,9 +51,7 @@ def core_eia930__hourly_operations_assets(
                 f"net_generation_{fuel}_{status}_mwh"
                 for fuel in GENERATION_ENERGY_SOURCES_EIA930
                 for status in ["reported", "adjusted", "imputed"]
-                if fuel != "unknown"
             ]
-            + ["net_generation_unknown_reported_mwh"]
         ]
         .rename(
             # Rename columns so that they contain only the energy source and the level
