@@ -47,17 +47,17 @@ ASSOCIATIONS: list[dict[str, Any]] = [
 
 The changes are applied locally to EIA 861 tables.
 
-* `id` (int): EIA balancing authority identifier (`balancing_authority_id_eia`).
-* `from` (int): Reference year, to use as a template for target years.
-* `to` (List[int]): Target years, in the closed interval format [minimum, maximum].
-  Rows in `core_eia861__yearly_balancing_authority` are added (if missing) for every target year
+* ``id`` (int): EIA balancing authority identifier (``balancing_authority_id_eia``).
+* ``from`` (int): Reference year, to use as a template for target years.
+* ``to`` (List[int]): Target years, in the closed interval format [minimum, maximum].
+  Rows in ``core_eia861__yearly_balancing_authority`` are added (if missing) for every target year
   with the attributes from the reference year.
-  Rows in `core_eia861__assn_balancing_authority` are added (or replaced, if existing)
+  Rows in ``core_eia861__assn_balancing_authority`` are added (or replaced, if existing)
   for every target year with the utility associations from the reference year.
-  Rows in `core_eia861__yearly_service_territory` are added (if missing) for every target year
+  Rows in ``core_eia861__yearly_service_territory`` are added (if missing) for every target year
   with the nearest year's associated utilities' counties.
-* `exclude` (Optional[List[str]]): Utilities to exclude, by state (two-letter code).
-  Rows are excluded from `core_eia861__assn_balancing_authority` with target year and state.
+* ``exclude`` (Optional[List[str]]): Utilities to exclude, by state (two-letter code).
+  Rows are excluded from ``core_eia861__assn_balancing_authority`` with target year and state.
 """
 
 UTILITIES: list[dict[str, Any]] = [
@@ -76,14 +76,14 @@ UTILITIES: list[dict[str, Any]] = [
 
 The changes are applied locally to EIA 861 tables.
 
-* `id` (int): EIA balancing authority (BA) identifier (`balancing_authority_id_eia`).
-  Rows for `id` are removed from `core_eia861__yearly_balancing_authority`.
-* `reassign` (Optional[bool]): Whether to reassign utilities to parent BAs.
-  Rows for `id` as BA in `core_eia861__assn_balancing_authority` are removed.
-  Utilities assigned to `id` for a given year are reassigned
-  to the BAs for which `id` is an associated utility.
-* `replace` (Optional[bool]): Whether to remove rows where `id` is a utility in
-  `core_eia861__assn_balancing_authority`. Applies only if `reassign=True`.
+* ``id`` (int): EIA balancing authority (BA) identifier (``balancing_authority_id_eia``).
+  Rows for ``id`` are removed from ``core_eia861__yearly_balancing_authority``.
+* ``reassign`` (Optional[bool]): Whether to reassign utilities to parent BAs.
+  Rows for ``id`` as BA in ``core_eia861__assn_balancing_authority`` are removed.
+  Utilities assigned to ``id`` for a given year are reassigned
+  to the BAs for which ``id`` is an associated utility.
+* ``replace`` (Optional[bool]): Whether to remove rows where ``id`` is a utility in
+  ``core_eia861__assn_balancing_authority``. Applies only if ``reassign=True``.
 """
 
 ################################################################################
@@ -186,28 +186,35 @@ def filled_core_eia861__yearly_balancing_authority(
     """Modified core_eia861__yearly_balancing_authority table.
 
     This function adds rows for each balancing authority-year pair missing from the
-    cleaned core_eia861__yearly_balancing_authority table, using a dictionary of manual fixes. It
-    uses the reference year as a template. The function also removes balancing
-    authorities that are manually categorized as utilities.
+    cleaned :ref:`core_eia861__yearly_balancing_authority` table, using a dictionary
+    of manual fixes. It uses the reference year as a template. The function also removes
+    balancing authorities that are manually categorized as utilities.
     """
     df = core_eia861__yearly_balancing_authority
     index = ["balancing_authority_id_eia", "report_date"]
     dfi = df.set_index(index)
     # Prepare reference rows
-    keys = [(fix["id"], pd.Timestamp(fix["from"], 1, 1)) for fix in ASSOCIATIONS]
+    eia861_years = df["report_date"].dt.year.unique()
+    keys = [
+        (fix["id"], pd.Timestamp(fix["from"], 1, 1))
+        for fix in ASSOCIATIONS
+        if fix["from"] in eia861_years
+    ]
     refs = dfi.loc[keys].reset_index().to_dict("records")
     # Build table of new rows
     # Insert row for each target balancing authority-year pair
     # missing from the original table, using the reference year as a template.
     rows: list[dict[str, Any]] = []
-    for ref, fix in zip(refs, ASSOCIATIONS, strict=True):
+    for ref, fix in zip(
+        refs, [fx for fx in ASSOCIATIONS if fx["from"] in eia861_years], strict=True
+    ):
         for year in range(fix["to"][0], fix["to"][1] + 1):
             key = (fix["id"], pd.Timestamp(year, 1, 1))
             if key not in dfi.index:
                 rows.append({**ref, "report_date": key[1]})
-    df = pd.concat(
-        [df, apply_pudl_dtypes(pd.DataFrame(rows), group="eia")], axis="index"
-    )
+    new_rows = apply_pudl_dtypes(pd.DataFrame(rows), group="eia")
+    new_rows = new_rows[new_rows["report_date"].dt.year.isin(eia861_years)]
+    df = pd.concat([df, new_rows], axis="index")
     # Remove balancing authorities treated as utilities
     mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
     return apply_pudl_dtypes(df[~mask], group="eia")
@@ -219,10 +226,10 @@ def filled_core_eia861__assn_balancing_authority(
     """Modified core_eia861__assn_balancing_authority table.
 
     This function adds rows for each balancing authority-year pair missing from the
-    cleaned core_eia861__assn_balancing_authority table, using a dictionary of manual fixes.
-    It uses the reference year as a template. The function also reassigns balancing
-    authorities that are manually categorized as utilities to their parent balancing
-    authorities.
+    cleaned :ref:`core_eia861__assn_balancing_authority` table, using a dictionary of
+    manual fixes.  It uses the reference year as a template. The function also reassigns
+    balancing authorities that are manually categorized as utilities to their parent
+    balancing authorities.
     """
     df = core_eia861__assn_balancing_authority
     # Prepare reference rows
@@ -249,7 +256,10 @@ def filled_core_eia861__assn_balancing_authority(
             tables.append(ref.assign(report_date=key[1]))
             replaced |= mask
     # Append to original table with matching rows removed
-    df = pd.concat([df[~replaced], apply_pudl_dtypes(pd.concat(tables), group="eia")])
+    new_rows = apply_pudl_dtypes(pd.concat(tables), group="eia")
+    eia861_years = df["report_date"].dt.year.unique()
+    new_rows = new_rows[new_rows["report_date"].dt.year.isin(eia861_years)]
+    df = pd.concat([df[~replaced], new_rows], axis="index")
     # Remove balancing authorities treated as utilities
     mask = np.zeros(df.shape[0], dtype=bool)
     tables = []
@@ -300,20 +310,22 @@ def filled_service_territory_eia861(
     """Modified core_eia861__yearly_service_territory table.
 
     This function adds rows for each balancing authority-year pair missing from the
-    cleaned core_eia861__yearly_service_territory table, using a dictionary of manual fixes. It also
-    drops utility-state combinations which are missing counties across all years of
-    data, fills records missing counties with the nearest year of county data for the
-    same utility and state.
+    cleaned :ref:`core_eia861__yearly_service_territory` table, using a dictionary of
+    manual fixes. It also drops utility-state combinations which are missing counties
+    across all years of data, fills records missing counties with the nearest year of
+    county data for the same utility and state.
+
     """
     index = ["utility_id_eia", "state", "report_date"]
     # Select relevant balancing authority-utility associations
     assn = filled_core_eia861__assn_balancing_authority(
         core_eia861__assn_balancing_authority
     )
+    eia861_years = core_eia861__yearly_service_territory["report_date"].dt.year.unique()
     selected = np.zeros(assn.shape[0], dtype=bool)
     for fix in ASSOCIATIONS:
         years = [fix["from"], *range(fix["to"][0], fix["to"][1] + 1)]
-        dates = [pd.Timestamp(year, 1, 1) for year in years]
+        dates = [pd.Timestamp(year, 1, 1) for year in years if year in eia861_years]
         mask = assn["balancing_authority_id_eia"].eq(fix["id"]).to_numpy(bool)
         mask[mask] = assn["report_date"][mask].isin(dates)
         selected |= mask
