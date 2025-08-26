@@ -53,16 +53,16 @@ but only integrates one table of Electricity timeseries.
 
 {% block respondents %}
 Respondents within the API are wide ranging because the API pulls from many different
-EIA forms. The electricity data in sourced from respondents of many of the EIA forms
+EIA forms. The electricity data is sourced from respondents of many of the EIA forms
 that are processed in PUDL. See the other EIA data source pages for more details.
 {% endblock %}
 
 {% block original_data %}
 EIA's bulk electricity data contains >750,00 JSON objects, most of which are timeseries.
-These timeseries contain a variety of measures (fuel amount and cost are just two)
+These timeseries contain a number of variables (fuel amount and cost are just two)
 across multiple levels of aggregation from individual plants to national averages.
 
-The data is formatted as a single +1B text file of line-delimited JSON with one line
+The data is formatted as a single >1GB text file of line-delimited JSON with one line
 per object. Each JSON structure has two nested levels: the top level contains metadata
 describing the series and the second level (under the "data" heading) contains an array
 of timestamp/value pairs. This structure leads to a natural normalization into two
@@ -86,20 +86,22 @@ The state-level fuel data that PUDL uses is compiled from published and redacted
 plant-level fuel deliveries. This fills in about 71% of all of the missing monthly
 fuel cost records in :ref:`out_eia923__fuel_receipts_costs`. Another missing ~6% is
 filled in using rolling averages, but 23% of the originally missing records aren't
-able to be filled in with these two methods. Why? It turns out that the original
+able to be filled in with these two methods. Why?
+
+It turns out that the original
 data is not missing at random and the EIA redacts enough records to leave large gaps.
 In general IPPs (merchant generators) redact all their fuel prices, and these
 generators are concentrated in competitive wholesale markets, especially the
 Northeastern US, where there are essentially no reported fuel prices. In addition,
 the Northeast has a unique seasonality in its natural gas prices, which would be
-impossible to infer by sampling data elsewhere in the country. Also, major
+impossible to infer by sampling data elsewhere in the country. Finally, there are major
 discontinuities in data collection and processing methodology. The most severe (and
 most recent) was in 2013, when the temporal resolution changed from annual to monthly.
 Prior to 2013, monthly resolution data was collected for a sample of plants and the
 rest calculated via a regression model. Also, the reporting threshold for oil and
 gas fueled plants changed from 50MW to 200MW.
 
-Some of the most granular data about electric power plants are not published in EIA's
-API - specifically the generator-level data. This is the main reason why PUDL does not
+Some of the most granular data about electric power plants - most notably the generator-level data - are not published in EIA's
+API. This is the main reason why PUDL does not
 rely on the API data for all of its data from the various EIA forms.
 {% endblock %}
