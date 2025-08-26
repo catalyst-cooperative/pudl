@@ -1,9 +1,9 @@
 {% extends "data_source_parent.rst.jinja" %}
 
 {% block background %}
-EIA's API makes much of its data available through an Application Programming Interface (API)
-to better serve our customers. EIA's API is multi-facetted and contains the time-series data
-sets organized by the main energy categories:
+EIA's API makes much of its data available through an Application Programming Interface (API).
+EIA's API is multi-facetted and contains the time-series data sets organized by the main
+energy categories:
 
 * Electricity
 * Natural gas
@@ -14,7 +14,7 @@ sets organized by the main energy categories:
 * Nuclear plant generation outages
 * Outlook of energy market/projections
 * Total energy
-* State energy data system (SEDS)
+* State energy data system
 * CO2 emissions
 * International energy
 {% endblock %}
@@ -23,17 +23,16 @@ sets organized by the main energy categories:
 {% block availability %}
 PUDL archives all the data available within the API through the EIA's bulk API download,
 but only integrates one table of Electricity timeseries.
-
 {% endblock %}
 
 
 {% block respondents %}
 Respondents within the API are wide ranging because the API pulls from many different
-EIA forms.
+EIA forms. The electricity data in sourced from respondents of many of the EIA forms
+that are processed in PUDL. See the other EIA data source pages for more details.
 {% endblock %}
 
 {% block original_data %}
-
 EIA's bulk electricity data contains +750,000 objects, most of which are timeseries.
 These timeseries contain a variety of measures (fuel amount and cost are just two)
 across multiple levels of aggregation from individual plants to national averages.
@@ -58,7 +57,6 @@ table.
 {% endblock %}
 
 {% block notable_irregularities %}
-
 The state-level fuel data that PUDL uses is compiled from published and redacted
 plant-level fuel deliveries. This fills in about 71% of all of the missing monthly
 fuel cost records in :ref:`out_eia923__fuel_receipts_costs`. Another missing ~6% is
@@ -75,4 +73,8 @@ most recent) was in 2013, when the temporal resolution changed from annual to mo
 Prior to 2013, monthly resolution data was collected for a sample of plants and the
 rest calculated via a regression model. Also, the reporting threshold for oil and
 gas fueled plants changed from 50MW to 200MW.
+
+Some of the most granular data about electric power plants are not published in EIA's
+API - specifically the generator-level data. This is the main reason why PUDL does not
+rely on the API data for all of its data from the various EIA forms.
 {% endblock %}
