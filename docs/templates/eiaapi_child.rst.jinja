@@ -1,7 +1,7 @@
 {% extends "data_source_parent.rst.jinja" %}
 
 {% block background %}
-EIA's makes much of its data available through an Application Programming Interface (API).
+EIA makes much of its data available through an Application Programming Interface (API).
 EIA's API is multi-faceted and contains time-series data sets organized by the main
 energy categories:
 
@@ -35,14 +35,14 @@ energy categories:
   production, reserves, consumption, capacity, storage, imports, exports, and emissions
   time series by country for electricity, petroleum, natural gas, coal, nuclear, and
   renewable energy.
-
-See EIA's `full API documentation here <https://www.eia.gov/opendata/>`__.
 {% endblock %}
 
 {% block download_docs %}
 {% for filename in download_paths %}
 * :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
 {% endfor %}
+
+See EIA's `current API documentation here <https://www.eia.gov/opendata/>`__.
 {% endblock %}
 
 {% block availability %}
@@ -65,7 +65,11 @@ across multiple levels of aggregation from individual plants to national average
 The data is formatted as a single >1GB text file of line-delimited JSON with one line
 per object. Each JSON structure has two nested levels: the top level contains metadata
 describing the series and the second level (under the "data" heading) contains an array
-of timestamp/value pairs. This structure leads to a natural normalization into two
+of timestamp/value pairs.
+{% endblock %}
+
+{% block extra_pudl_transform_text %}
+The EIA API's data structure leads to a natural normalization into two
 tables - one of metadata and one of timeseries. That is the format delivered by PUDL's
 extract module. PUDL's transform module parses a compound primary key out of long string
 IDs ("series_id") which is published as :ref:`core_eia__yearly_fuel_receipts_costs_aggs`.
