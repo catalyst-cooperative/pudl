@@ -38,6 +38,11 @@ energy categories:
 See EIA's `full API documentation here <https://www.eia.gov/opendata/>`__.
 {% endblock %}
 
+{% block download_docs %}
+{% for filename in download_paths %}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
 
 {% block availability %}
 PUDL archives all the data available within the API through the EIA's bulk API download,
