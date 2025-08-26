@@ -192,11 +192,10 @@ def core_phmsagas__yearly_distribution_operators(
     df = df.drop(columns=["percent_unaccounted_for_gas"])
 
     # Streamline the initial and supplementary report columns
-    df["report_submission_type"].mask(
-        df["original_report"] == "Y", "Initial", inplace=True
-    )
-    df["report_submission_type"].mask(
-        df["supplementary_report"] == "Y", "Supplemental", inplace=True
+    df["report_submission_type"] = (
+        df["report_submission_type"]
+        .mask(df["original_report"] == "Y", "Initial")
+        .mask(df["supplementary_report"] == "Y", "Supplemental")
     )
     df = df.drop(columns=["original_report", "supplementary_report"])
 
@@ -305,6 +304,7 @@ def combined_filter(group: pd.DataFrame) -> pd.DataFrame:
 @asset_check(asset=core_phmsagas__yearly_distribution_operators, blocking=True)
 def _check_unaccounted_for_gas_fraction(df):
     """Check what percentage of unaccounted gas values are reported as a negative number.
+
     This is technically impossible but allowed by PHMSA.
     """
     # Count the rows where unaccounted gas is negative.

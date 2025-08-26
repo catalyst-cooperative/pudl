@@ -35,7 +35,7 @@ sources:
           - name: services_shutoff_valve_in_system
           - name: services_shutoff_valve_installed
           - name: federal_land_leaks_repaired_or_scheduled
-          - name: percent_unaccounted_for_gas
+          - name: unaccounted_for_gas_fraction
           - name: additional_information
           - name: preparer_email
           - name: preparer_fax
