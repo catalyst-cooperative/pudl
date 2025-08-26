@@ -92,20 +92,19 @@ fuel cost records in :ref:`out_eia923__fuel_receipts_costs`. Another missing ~6%
 filled in using rolling averages, but 23% of the originally missing records aren't
 able to be filled in with these two methods. Why?
 
-It turns out that the original
-data is not missing at random and the EIA redacts enough records to leave large gaps.
-In general IPPs (merchant generators) redact all their fuel prices, and these
-generators are concentrated in competitive wholesale markets, especially the
-Northeastern US, where there are essentially no reported fuel prices. In addition,
-the Northeast has a unique seasonality in its natural gas prices, which would be
-impossible to infer by sampling data elsewhere in the country. Finally, there are major
-discontinuities in data collection and processing methodology. The most severe (and
-most recent) was in 2013, when the temporal resolution changed from annual to monthly.
-Prior to 2013, monthly resolution data was collected for a sample of plants and the
-rest calculated via a regression model. Also, the reporting threshold for oil and
-gas fueled plants changed from 50MW to 200MW.
+It turns out that the original data is not missing at random and the EIA redacts enough
+records to leave large gaps. In general IPPs (merchant generators) redact all their
+fuel prices, and these generators are concentrated in competitive wholesale markets,
+especially the Northeastern US, where there are essentially no reported fuel prices. In
+addition, the Northeast has a unique seasonality in its natural gas prices, which would
+be impossible to infer by sampling data elsewhere in the country. Finally, there are
+major discontinuities in data collection and processing methodology. The most severe
+(and most recent) was in 2013, when the temporal resolution changed from annual to
+monthly. Prior to 2013, monthly resolution data was collected for a sample of plants
+and the rest was calculated via a regression model. Also, the reporting threshold for
+oil and gas fueled plants changed from 50MW to 200MW.
 
-Some of the most granular data about electric power plants - most notably the generator-level data - are not published in EIA's
-API. This is the main reason why PUDL does not
-rely on the API data for all of its data from the various EIA forms.
+Some of the most granular data about electric power plants - most notably the
+generator-level data - are not published in EIA's API. This is the main reason why PUDL
+does not rely on the API data for all of its data from the various EIA forms.
 {% endblock %}
