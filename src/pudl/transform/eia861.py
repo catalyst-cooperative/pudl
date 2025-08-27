@@ -1054,8 +1054,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
         ):
             # Special case: if there are NA values in the index columns we can't
             # combine two dfs with the same index without creating two rows.
-            # This messes up the results
-            # , so we drop the NA values from the index
+            # This messes up the results, so we drop the NA values from the index
             # when combining the newly aggregated groups. This does not affect the
             # actual primary key, it's just a slightly hacky way to combine the rows correctly.
             idx_has_na = group[idx_cols].isna().any()
