@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: a71bb6b1d5c92e6ec9f58298e7505f91b95d0bece409f081bd269df703640875
-    osx-64: 51ba056fd7917b404c1b3ef6852b3ea8528f85eddbaafba035df7a1a0aff93da
-    osx-arm64: dc3ac5a60633c33438f7a8ca4dfcf493e65683ce6abd3855623ad2318de6f0e6
+    linux-64: a7f24e3a070cdf2033537f2ca7520f1cafaccd31e62635d639ab4624a6457825
+    osx-64: b30776543ab22b6756cdd41af3e11cbdca3a968c3ca8ff527f19a4774cec285f
+    osx-arm64: 5985cea95d8d623eec39a3847c0512666844c8aac8532eaeb234d156e0afcbf2
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -13912,10 +13912,10 @@ package:
     platform: osx-64
     dependencies:
       libgfortran5: 15.1.0
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran-15.1.0-h5f6db21_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran-15.1.0-h5f6db21_1.conda
     hash:
-      md5: bca8f1344f0b6e3002a600f4379f8f2f
-      sha256: 10efd2a1e18641dfcb57bdc14aaebabe9b24020cf1a5d9d2ec8d7cd9b2352583
+      md5: 07cfad6b37da6e79349c6e3a0316a83b
+      sha256: 844500c9372d455f6ae538ffd3cdd7fda5f53d25a2a6b3ba33060a302c37bc3e
     category: main
     optional: false
   - name: libgfortran
@@ -13924,10 +13924,10 @@ package:
     platform: osx-arm64
     dependencies:
       libgfortran5: 15.1.0
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran-15.1.0-hfdf1602_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran-15.1.0-hfdf1602_1.conda
     hash:
-      md5: e3b7dca2c631782ca1317a994dfe19ec
-      sha256: 9620b4ac9d32fe7eade02081cd60d6a359a927d42bb8e121bd16489acd3c4d8c
+      md5: c98207b6e2b1a309abab696d229f163e
+      sha256: 981e3fac416e80b007a2798d6c1d4357ebebeb72a039aca1fb3a7effe9dcae86
     category: main
     optional: false
   - name: libgfortran5
@@ -13949,10 +13949,10 @@ package:
     platform: osx-64
     dependencies:
       llvm-openmp: ">=8.0.0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran5-15.1.0-hfa3c126_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran5-15.1.0-hfa3c126_1.conda
     hash:
-      md5: c97d2a80518051c0e88089c51405906b
-      sha256: b8e892f5b96d839f7bf6de267329c145160b1f33d399b053d8602085fdbf26b2
+      md5: 696e408f36a5a25afdb23e862053ca82
+      sha256: c4bb79d9e9be3e3a335282b50d18a7965e2a972b95508ea47e4086f1fd699342
     category: main
     optional: false
   - name: libgfortran5
@@ -13961,10 +13961,10 @@ package:
     platform: osx-arm64
     dependencies:
       llvm-openmp: ">=8.0.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran5-15.1.0-hb74de2c_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran5-15.1.0-hb74de2c_1.conda
     hash:
-      md5: 8b158ccccd67a40218e12626a39065a1
-      sha256: 44b8ce4536cc9a0e59c09ff404ef1b0120d6a91afc32799331d85268cbe42438
+      md5: 4281bd1c654cb4f5cab6392b3330451f
+      sha256: 1f8f5b2fdd0d2559d0f3bade8da8f57e9ee9b54685bd6081c6d6d9a2b0239b41
     category: main
     optional: false
   - name: libglib
@@ -18387,7 +18387,7 @@ package:
     category: main
     optional: false
   - name: orjson
-    version: 3.11.2
+    version: 3.11.3
     manager: conda
     platform: linux-64
     dependencies:
@@ -18395,38 +18395,38 @@ package:
       libgcc: ">=14"
       python: ""
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/orjson-3.11.2-py313h843e2db_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/orjson-3.11.3-py313h843e2db_0.conda
     hash:
-      md5: 6f206cffc21e0aad71012a6d1719a71d
-      sha256: d946fdd8af3fd399dc6f490113cd0e68741a98f3dd865c583729b9c346418b3c
+      md5: 9c55fc00f821b6859842e60f63a43de8
+      sha256: 51621dae5391cd18e7b8c0b2acb694cd895d5e05302a9b9daec6c63a643857de
     category: main
     optional: false
   - name: orjson
-    version: 3.11.2
+    version: 3.11.3
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
       python: ""
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/orjson-3.11.2-py313h66e1e84_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/orjson-3.11.3-py313h66e1e84_0.conda
     hash:
-      md5: fc6d488eaf7165d174244b89d616dfb3
-      sha256: 80049202455942998bf0cbef6d2375c32e75ed9e63d45d9ce1fa9545a5260d7f
+      md5: b1db69546e8a7abe2f4c0909f1d863fa
+      sha256: ddc98a396fd5b085c5f8750bfd0badb6bbe24baf27cabe00abbed787cdc6cc53
     category: main
     optional: false
   - name: orjson
-    version: 3.11.2
+    version: 3.11.3
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
       python: 3.13.*
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/orjson-3.11.2-py313h80e0809_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/orjson-3.11.3-py313h80e0809_0.conda
     hash:
-      md5: 05d6581b5a35c889060839fd44bbc2fd
-      sha256: 1e0ee976cf4c47942e380cdb6be8feec28739e645669f21c39fb65eaa1242909
+      md5: ab56c5acdd56a77f6447142396805beb
+      sha256: dea361e1612d7b048753dd6332c0976044722c6c4ed34f93d6fdf518ee68cec9
     category: main
     optional: false
   - name: overrides
@@ -19338,39 +19338,39 @@ package:
     category: main
     optional: false
   - name: platformdirs
-    version: 4.3.8
+    version: 4.4.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.3.8-pyhe01879c_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.4.0-pyhcf101f3_0.conda
     hash:
-      md5: 424844562f5d337077b445ec6b1398a7
-      sha256: 0f48999a28019c329cd3f6fd2f01f09fc32cc832f7d6bbe38087ddac858feaa3
+      md5: cc9d9a3929503785403dbfad9f707145
+      sha256: dfe0fa6e351d2b0cef95ac1a1533d4f960d3992f9e0f82aeb5ec3623a699896b
     category: main
     optional: false
   - name: platformdirs
-    version: 4.3.8
+    version: 4.4.0
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.3.8-pyhe01879c_0.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.4.0-pyhcf101f3_0.conda
     hash:
-      md5: 424844562f5d337077b445ec6b1398a7
-      sha256: 0f48999a28019c329cd3f6fd2f01f09fc32cc832f7d6bbe38087ddac858feaa3
+      md5: cc9d9a3929503785403dbfad9f707145
+      sha256: dfe0fa6e351d2b0cef95ac1a1533d4f960d3992f9e0f82aeb5ec3623a699896b
     category: main
     optional: false
   - name: platformdirs
-    version: 4.3.8
+    version: 4.4.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.3.8-pyhe01879c_0.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.4.0-pyhcf101f3_0.conda
     hash:
-      md5: 424844562f5d337077b445ec6b1398a7
-      sha256: 0f48999a28019c329cd3f6fd2f01f09fc32cc832f7d6bbe38087ddac858feaa3
+      md5: cc9d9a3929503785403dbfad9f707145
+      sha256: dfe0fa6e351d2b0cef95ac1a1533d4f960d3992f9e0f82aeb5ec3623a699896b
     category: main
     optional: false
   - name: pluggy
@@ -24449,6 +24449,51 @@ package:
     hash:
       md5: 38f2e4c88b88a2a636fd72184a3ca8d8
       sha256: 960b4459f898fb3115099b89be53dfd5903d4a7572ca0cc4dd8fafdd966b5bf9
+    category: main
+    optional: false
+  - name: sphinx-tabs
+    version: 3.4.1
+    manager: conda
+    platform: linux-64
+    dependencies:
+      docutils: ">=0.18.0"
+      pygments: ""
+      python: ">=3.6"
+      sphinx: ">=2"
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinx-tabs-3.4.1-pyhd8ed1ab_1.conda
+    hash:
+      md5: 8b8362d876396fd967cbb5f404def907
+      sha256: 43c343edc9ea11ffd947d97fa60bf6347a404700e2cde81fb954e60b7e6a42c1
+    category: main
+    optional: false
+  - name: sphinx-tabs
+    version: 3.4.1
+    manager: conda
+    platform: osx-64
+    dependencies:
+      docutils: ">=0.18.0"
+      pygments: ""
+      python: ">=3.6"
+      sphinx: ">=2"
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinx-tabs-3.4.1-pyhd8ed1ab_1.conda
+    hash:
+      md5: 8b8362d876396fd967cbb5f404def907
+      sha256: 43c343edc9ea11ffd947d97fa60bf6347a404700e2cde81fb954e60b7e6a42c1
+    category: main
+    optional: false
+  - name: sphinx-tabs
+    version: 3.4.1
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      docutils: ">=0.18.0"
+      pygments: ""
+      python: ">=3.6"
+      sphinx: ">=2"
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinx-tabs-3.4.1-pyhd8ed1ab_1.conda
+    hash:
+      md5: 8b8362d876396fd967cbb5f404def907
+      sha256: 43c343edc9ea11ffd947d97fa60bf6347a404700e2cde81fb954e60b7e6a42c1
     category: main
     optional: false
   - name: sphinxcontrib-applehelp
