@@ -1167,8 +1167,7 @@ def _core_eia861__balancing_authority(
     * Fix BA code and ID typos.
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
-      non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      non-consolidateable qualitative information. See _combine_88888_values and
       _pre_process for details.
     """
     # No data tidying required
@@ -1232,8 +1231,7 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
     * Map full spelling onto code values.
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
-      non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      non-consolidateable qualitative information. See _combine_88888_values and
       _pre_process for details.
     """
     idx_cols = [
@@ -1880,8 +1878,7 @@ def core_eia861__yearly_dynamic_pricing(
     * Convert Y/N columns to booleans.
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
-      non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      non-consolidateable qualitative information. See _combine_88888_values and
       _pre_process for details.
     """
     idx_cols = [
@@ -2282,8 +2279,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     * Convert 1000s of dollars into dollars.
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
-      non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      non-consolidateable qualitative information. See _combine_88888_values and
       _pre_process for details.
     """
     idx_cols = [
@@ -2440,8 +2436,7 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     * Convert Y/N columns to booleans.
     * Combine 88888 utility ID EIA rows with duplicate primary keys.
     * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
-      non-consolidateable qualitative information. This is a small number of records and
-      represents less than a 0.001 decrease in rows. See _combine_88888_values and
+      non-consolidateable qualitative information. See _combine_88888_values and
       _pre_process for details.
     """
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
