@@ -7,12 +7,32 @@
 Access methods
 ^^^^^^^^^^^^^^^
 
-{% if resource.create_database_schema -%}
-* `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
-{% else -%}
-* This table is not published to Datasette.
-{%- endif %}
-* `Download this table as a Parquet file. <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ resource.name }}.parquet>`__
+* `Browse and query this table online <https: //viewer.catalyst.coop/search?&q=name:{{ resource.name }}>`__
+* `Download the entire table as a Parquet file. <https: //s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ resource.name }}.parquet>`__
+
+Programmatic Access
+^^^^^^^^^^^^^^^^^^^
+
+.. tabs::
+
+   .. code-tab:: python pandas
+
+      import pandas as pd
+      df = pd.read_parquet(
+          "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+          dtype_backend="pyarrow",
+      )
+
+   .. code-tab:: python polars
+
+      import polars as pl
+      df = pl.read_parquet(
+          "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+      )
+
+   .. code-tab:: sql SQL (DuckDB)
+
+      SELECT * FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet';
 
 Columns
 ^^^^^^^
