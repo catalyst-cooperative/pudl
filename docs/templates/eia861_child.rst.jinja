@@ -72,7 +72,7 @@ These entries appear under the utility id ``88888`` in the data. Having multiple
 same ``utility_id_eia`` breaks the primary key rules for several tables. We handle this by summing
 values with the same primary key and non-numeric column values. When there are two rows with the
 same primary key and different non-numeric column values, we keep one and drop the other. This results
-in a slight loss of data (on the order of a few rows) but preserves the primary key structure of the
+in a slight loss of data (less than one row in a thousand) but preserves the primary key structure of the
 tables.
 
 The EIA also performs state-level imputations and adjustments for more accurate state-level analysis.
