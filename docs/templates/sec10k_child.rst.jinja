@@ -168,6 +168,24 @@ that the current linkage is incomplete.
 
 * What fraction of all EIA Utility IDs in EIA-923 get linked to an SEC 10-K filer?
 
+What can this data be used for?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Linking companies that file SEC 10-K to EIA Utilities. 50-60% of SEC 10-K filers
+  that identify primarily as providing electricity services are matched to an EIA
+  Utility ID.
+* Tracking SEC 10-K company name and address changes over time to aid in entity
+  matching in other datasets.
+* In cases where subsidiary companies have been successfully associated with SEC 10-K
+  filers
+
+What can't this data be used for?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Tracking how ownership of subsidiary companies has changed over time. This is not
+  possible because subsidiary company IDs are dependent on their parent company, and may
+  also change over time. In addition, ownership percentages are only rarely reported.
+
 {% endblock %}
 
 {% block download_docs %}
