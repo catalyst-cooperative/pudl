@@ -1076,7 +1076,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
         # This is a bit of a hack, but it ensures that we don't end up with multiple rows
         # with the same primary key, which would cause problems later on.
         # There are very few instances of this anyways. On the order of 1-2 per idx group.
-        # Right now there the following tables have the following dupes. Note that most of
+        # As of August 2025 there are the following dupes. Note that most of
         # the dupes are the same utility in different years.
         # - BA table: 1
         # - OD table: 16
