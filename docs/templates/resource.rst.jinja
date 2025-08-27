@@ -34,6 +34,13 @@ Programmatic Access
 
       SELECT * FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet';
 
+   .. code-tab:: r R
+
+      library(arrow)
+      df <- read_parquet(
+          "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet"
+      )
+
 Columns
 ^^^^^^^
 
