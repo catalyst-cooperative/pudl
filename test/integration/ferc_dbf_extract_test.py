@@ -17,7 +17,14 @@ logger = get_logger(__name__)
 
 @pytest.mark.order(1)
 def test_ferc1_dbf2sqlite(ferc1_engine_dbf):
-    """Attempt to access the DBF based FERC 1 SQLite DB fixture."""
+    """Attempt to access the DBF based FERC 1 SQLite DB fixture.
+
+    This test is marked with order(1) to ensure that it is explicitly run before the
+    main PUDL ETL test, and is the first attempt to make use of the conceptually related
+    FERC Form 1 DBF DB engine & taxonomy fixtures. This means that if they fail, the
+    failure will be more clearly associated with the fixture, and not some random
+    downstream test that just happened to run first.
+    """
     assert isinstance(ferc1_engine_dbf, sa.Engine)
     assert "f1_respondent_id" in sa.inspect(ferc1_engine_dbf).get_table_names()
 

@@ -31,17 +31,6 @@ major overhaul in 2024, but we've integrated a few key tables from the earlier d
 These are just a small subset of the dozens of tables that have historically been part
 of the AEO. Look for ``eiaaeo`` in the table name to find this data.
 
-.. _data-nrelatb:
-
-NREL Annual Technology Baseline (ATB)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-NREL publishes `Annual Technology Baseline (ATB) <https://atb.nrel.gov>`__ data for the
-`Electricity <https://atb.nrel.gov/electricity>`__ and
-`Transportation <https://atb.nrel.gov/transportation>`__ sectors. We have integrated the
-Electricity sector data into the PUDL DB, but haven't yet fully documented the data
-source. Look for ``nrelatb`` in the table name.
-
 FERC DBF & XBRL Data
 ^^^^^^^^^^^^^^^^^^^^
 FERC publishes Forms 1, 2, 6, and 60 data as VisualFoxPro DBF files (2020 and earlier)

@@ -585,7 +585,6 @@ class FercDbfExtractor:
                 continue
             new_df = self.transform_table(table, new_df)
 
-            logger.debug(f"    {table}: N = {len(new_df)}")
             if len(new_df) <= 0:
                 continue
 
