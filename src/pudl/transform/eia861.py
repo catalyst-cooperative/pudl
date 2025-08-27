@@ -1066,9 +1066,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
             group = group.set_index(mod_idx_cols)
             non_num_group = group[non_num_cols + na_cols].iloc[[0]]
             num_group = (
-                group.drop(
-                    columns=non_num_cols + na_cols
-                )  # STATE is not part of non_num cols so it is getting blanked instead of NA-ed
+                group.drop(columns=non_num_cols + na_cols)
                 .groupby(mod_idx_cols, dropna=False)
                 .sum()
             )
