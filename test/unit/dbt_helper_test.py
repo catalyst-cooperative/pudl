@@ -21,7 +21,6 @@ from pudl.scripts.dbt_helper import (
     _get_model_path,
     _schema_diff_summary,
     get_data_source,
-    get_row_count_test_dict,
     schema_has_removals_or_modifications,
     update_row_counts,
     update_table_schema,
@@ -52,8 +51,10 @@ def schema_factory():
             data_tests = [
                 {
                     "check_row_counts_per_partition": {
-                        "table_name": table_name,
-                        "partition_expr": partition_expr,
+                        "arguments": {
+                            "table_name": table_name,
+                            "partition_expr": partition_expr,
+                        }
                     }
                 }
             ]
@@ -141,17 +142,6 @@ my_table,2023,100
     assert result["partition"].apply(type).eq(str).all()
 
 
-def test_get_row_count_test_dict():
-    result = get_row_count_test_dict("plants", "report_year")
-    expected = {
-        "check_row_counts_per_partition": {
-            "table_name": "plants",
-            "partition_expr": "report_year",
-        }
-    }
-    assert result == expected
-
-
 @pytest.mark.parametrize(
     "data_tests, expected",
     [
@@ -159,8 +149,10 @@ def test_get_row_count_test_dict():
             [
                 {
                     "check_row_counts_per_partition": {
-                        "table_name": "plants",
-                        "partition_expr": "report_year",
+                        "arguments": {
+                            "table_name": "plants",
+                            "partition_expr": "report_year",
+                        }
                     }
                 }
             ],
@@ -170,8 +162,10 @@ def test_get_row_count_test_dict():
             [
                 {
                     "check_row_counts_per_partition": {
-                        "table_name": "plants",
-                        "partition_expr": None,
+                        "arguments": {
+                            "table_name": "plants",
+                            "partition_expr": None,
+                        }
                     }
                 },
             ],
@@ -628,8 +622,10 @@ def dbt_schema_mocks(request, mocker):
         [
             {
                 "check_row_counts_per_partition": {
-                    "table_name": table_name,
-                    "partition_expr": partition_expr,
+                    "arguments": {
+                        "table_name": table_name,
+                        "partition_expr": partition_expr,
+                    }
                 }
             }
         ]
@@ -662,8 +658,9 @@ def dbt_schema_mocks(request, mocker):
         f"""\
         data_tests:
           - check_row_counts_per_partition:
-              table_name: {table_name}
-              partition_expr: {partition_expr}
+              arguments:
+                table_name: {table_name}
+                partition_expr: {partition_expr}
         """
         if has_row_count_test
         else ""
@@ -963,8 +960,10 @@ MERGE_METADATA_TEST_CASES = [
             "data_tests": [
                 {
                     "check_row_counts_per_partition": {
-                        "table_name": "test_table",
-                        "partition_expr": "year",
+                        "arguments": {
+                            "table_name": "test_table",
+                            "partition_expr": "year",
+                        }
                     }
                 }
             ],
@@ -990,8 +989,10 @@ MERGE_METADATA_TEST_CASES = [
             "data_tests": [
                 {
                     "check_row_counts_per_partition": {
-                        "table_name": "test_table",
-                        "partition_expr": "new_expr",
+                        "arguments": {
+                            "table_name": "test_table",
+                            "partition_expr": "new_expr",
+                        }
                     }
                 }
             ],
@@ -1421,8 +1422,9 @@ sources:
       - name: test_source__table_name
         data_tests:
           - check_row_counts_per_partition:
-              table_name: test_source__table_name
-              {partition_definition}
+              arguments:
+                table_name: test_source__table_name
+                {partition_definition}
         columns:
           - name: year
           - name: state
