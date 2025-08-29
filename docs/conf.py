@@ -57,6 +57,7 @@ extensions = [
     "autoapi.extension",
     "sphinx_issues",
     "sphinx_reredirects",
+    "sphinx_tabs.tabs",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
 ]
