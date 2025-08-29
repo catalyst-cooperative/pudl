@@ -528,13 +528,14 @@ NERC_SPELLCHECK: dict[str, str] = {
     "NY": "NPCC",
     "NEW": "NPCC",
     "YORK": "NPCC",
+    "MISE": "MISO",
 }
 
 
 ###############################################################################
 # EIA Form 861 Transform Helper functions
 ###############################################################################
-def _pre_process(df: pd.DataFrame) -> pd.DataFrame:
+def _pre_process(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     """Pre-processing applied to all EIA-861 dataframes.
 
     * Standardize common NA values found in EIA spreadsheets.
@@ -542,12 +543,16 @@ def _pre_process(df: pd.DataFrame) -> pd.DataFrame:
       data is an early release, and we extract this information from the filenames, as
       it's uniform across the whole dataset.
     * Convert report_year column to report_date.
+    * Aggregate values for rows with utility id 88888 (anonymized) - see _combine_88888_values
+      for details.
     """
-    return (
+    prep_df = (
         fix_eia_na(df)
         .drop(columns=["early_release"], errors="ignore")
         .pipe(convert_to_date)
+        .pipe(_combine_88888_values, idx_cols)
     )
+    return prep_df
 
 
 def _post_process(df: pd.DataFrame) -> pd.DataFrame:
@@ -661,6 +666,9 @@ def _tidy_class_dfs(
     reshaped data after the fact, broadcasting their values across all of the records
     that they pertain to.
 
+    This function also checks for duplicate primary key values in the reshaped data, and
+    consolidates them by summing the data values.
+
     Args:
         df: The dataframe containing the data to be reshaped.
         df_name: A string describing the dataframe, for logging.
@@ -717,7 +725,6 @@ def _tidy_class_dfs(
     # Now stack the customer classes into their own categorical column,
     data_cols = data_cols.stack(level=0, dropna=False).reset_index()
     denorm_cols = _filter_non_class_cols(raw_df, class_list).reset_index()
-
     # Check to make sure that the idx_cols are actually valid primary key cols:
     # This is tricky, because NA values in the BA Code column creates actual duplicate
     # values. These NA values are filled with UNK and the duplicates are later dropped,
@@ -749,7 +756,6 @@ def _tidy_class_dfs(
         denorm_cols = denorm_cols.drop_duplicates(subset=idx_cols)
     else:
         raise AssertionError(err_msg)
-
     # Merge the index, data, and denormalized columns back together
     tidy_df = pd.merge(denorm_cols, data_cols, on=idx_cols, validate="1:m")
 
@@ -839,7 +845,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
             logger.debug(f"{df_name}: for column {col} all total values are NaN")
 
 
-def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
+def clean_nerc(nerc_df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     """Clean NERC region entries.
 
     This function examines reported NERC regions and makes sure the output column of the
@@ -850,20 +856,12 @@ def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     to 'UNK'.
 
     Args:
-        df: A DataFrame with the column 'nerc_region' to be cleaned.
+        nerc_df: A DataFrame with the column 'nerc_region' to be cleaned.
         idx_cols: A list of the primary keys and `nerc_region`.
 
     Returns:
         A DataFrame with correct and clean NERC regions.
     """
-    idx_no_nerc = idx_cols.copy()
-    if "nerc_region" in idx_no_nerc:
-        idx_no_nerc.remove("nerc_region")
-
-    # Split raw df into primary keys plus nerc region and other value cols
-    nerc_df = df[idx_cols].copy()
-    other_df = df.drop(columns="nerc_region").set_index(idx_no_nerc)
-
     # Make all values upper-case
     # Replace all NA values with UNK
     # Make nerc values into lists to see how many separate values are stuffed into one row (ex: 'SPP & ERCOT' --> ['SPP', 'ERCOT'])
@@ -906,11 +904,7 @@ def clean_nerc(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
         .apply(lambda x: _remove_nerc_duplicates(x))
         .str.join("_")
     )
-
-    # Merge all data back together
-    full_df = pd.merge(nerc_df, other_df, on=idx_no_nerc)
-
-    return full_df
+    return nerc_df
 
 
 def _compare_nerc_physical_w_nerc_operational(df: pd.DataFrame) -> pd.DataFrame:
@@ -1020,6 +1014,96 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
     return assn
 
 
+def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
+    """Combine 88888 utility_id_values.
+
+    This function sums rows with a utility_id_eia of 88888 into a single row by
+    primary key. It drops rows with a utility_id_eia of 88888 if there are non-numeric
+    columns with different values that are impossible to combine. E.g.: boolean
+    columns where one value is Y and the other is N. This results in a small loss of
+    data, but is necessary to ensure that the primary key remains unique.
+
+    There's a similar de-duplication process happening in the ``_tidy_class_dfs`` function,
+    but the procedure for 88888 has been abstracted out here to avoid confusion and the
+    ability to treat these cases differently as we see fit. The 88888 utility_id_eia
+    values are known withholdings whereas the duplicate primary key rows are unknown data
+    quality issues.
+
+    Args:
+        df: The dataframe to process.
+        idx_cols: The index (primary key) columns of the input dataframe. They must
+            identify unique records in the input data.
+
+    Returns:
+        A dataframe with the combined or dropped 88888 utility_id_eia values and unique pks.
+    """
+    if 88888 not in df.utility_id_eia.unique():
+        return df
+    non_num_cols = (
+        df.set_index(idx_cols).select_dtypes(exclude="number").columns.tolist()
+    )
+
+    def sum_numeric_values_when_strings_match(group):
+        if len(group) <= 1:
+            return group
+        # If there are no non-numeric columns, or all non-numeric columns have the same value,
+        # Sum the numeric columns and return the result.
+        if (
+            len(non_num_cols) == 0
+            or (group[non_num_cols] == group[non_num_cols].iloc[0]).all().all()
+        ):
+            # Special case: if there are NA values in the index columns we can't
+            # combine two dfs with the same index without creating two rows.
+            # This messes up the results, so we drop the NA values from the index
+            # when combining the newly aggregated groups. This does not affect the
+            # actual primary key, it's just a slightly hacky way to combine the rows correctly.
+            idx_has_na = group[idx_cols].isna().any()
+            na_cols = idx_has_na[idx_has_na].index.tolist()
+            mod_idx_cols = [x for x in idx_cols if x not in na_cols]
+            # Now we can safely sum the numeric columns, recombine with the non-numeric
+            # columns, and return the result.
+            group = group.set_index(mod_idx_cols)
+            non_num_group = group[non_num_cols + na_cols].iloc[[0]]
+            num_group = (
+                group.drop(columns=non_num_cols + na_cols)
+                .groupby(mod_idx_cols, dropna=False)
+                .sum()
+            )
+            return pd.concat([non_num_group, num_group], axis="columns").reset_index()
+        # When there are rows that can't be combined due to discrepancies in the non-numeric
+        # columns, we drop the duplicates and return the first row.
+        # This is a bit of a hack, but it ensures that we don't end up with multiple rows
+        # with the same primary key, which would cause problems later on.
+        # There are very few instances of this anyways. On the order of 1-2 per idx group.
+        # As of August 2025 there are the following dupes. Note that most of
+        # the dupes are the same utility in different years.
+        # - BA table: 1
+        # - OD table: 16
+        # - Sales table: 32
+        # - UD table: 15
+        # - DP table: 8
+        no_dupes = group.drop_duplicates(subset=idx_cols)
+        return no_dupes
+
+    utils_88888 = df[df["utility_id_eia"] == 88888]
+    agg_utils_88888 = utils_88888.groupby(
+        idx_cols, group_keys=False, dropna=False
+    ).apply(sum_numeric_values_when_strings_match)
+    recombined_df = pd.concat(
+        [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
+    )
+    # We don't expect there to be a lot of dropped or combined 88888 rows so we'll
+    # monitor the percent decrease in rows. Need the len_diff < -1 because the unit
+    # tests only test a few rows and therefore the difference in rows is a
+    # much higher percentage than 0.001.
+    len_diff = len(recombined_df) - len(df)
+    if (len_diff < -1) and (len_diff / len(df) < -0.001):
+        raise AssertionError(
+            f"Expected reduction in 88888 rows less than {len(df) * 0.001} but found: {-len_diff}!"
+        )
+    return recombined_df
+
+
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
@@ -1041,7 +1125,8 @@ def core_eia861__yearly_service_territory(
     Returns:
         The cleaned utility service territory dataframe.
     """
-    df = _pre_process(raw_eia861__service_territory)
+    idx_cols = ["report_date", "utility_id_eia", "state", "county"]
+    df = _pre_process(raw_eia861__service_territory, idx_cols)
     # A little WV county sandwiched between OH & PA, got miscategorized a few times:
     df.loc[(df.state == "OH") & (df.county == "Brooke"), "state"] = "WV"
     df = (
@@ -1079,14 +1164,19 @@ def _core_eia861__balancing_authority(
     * Fill in balancing authrority IDs based on date, utility ID, and BA Name.
     * Backfill balancing authority codes based on BA ID.
     * Fix BA code and ID typos.
+    * Combine 88888 utility ID EIA rows with duplicate primary keys.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. See _combine_88888_values and
+      _pre_process for details.
     """
     # No data tidying required
     # All columns are already type compatible.
     # Value transformations:
     # * Backfill BA codes on a per BA ID basis
     # * Fix data entry errors
+    idx_cols = ["report_date", "balancing_authority_id_eia", "utility_id_eia", "state"]
     df = (
-        _pre_process(raw_eia861__balancing_authority)
+        _pre_process(raw_eia861__balancing_authority, idx_cols)
         .pipe(apply_pudl_dtypes, "eia")
         .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
@@ -1133,12 +1223,15 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
 
     Transformations include:
 
-    * Remove rows with utility ids 88888 and 99999.
     * Tidy data by customer class.
     * Drop primary key duplicates.
     * Convert 1000s of dollars into dollars.
     * Convert data_observed field I/O into boolean.
     * Map full spelling onto code values.
+    * Combine 88888 utility ID EIA rows with duplicate primary keys.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. See _combine_88888_values and
+      _pre_process for details.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1150,9 +1243,7 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
     ]
 
     # Pre-tidy clean specific to sales table
-    raw_sales = _pre_process(raw_eia861__sales).query(
-        "utility_id_eia not in (88888, 99999)"
-    )
+    raw_sales = _pre_process(raw_eia861__sales, idx_cols)
 
     ###########################################################################
     # Tidy Data:
@@ -1236,7 +1327,7 @@ def core_eia861__yearly_short_form(
         "has_green_pricing",
     ]
 
-    raw_sf = _pre_process(raw_eia861__short_form)
+    raw_sf = _pre_process(raw_eia861__short_form, idx_cols)
     # * fill NA BA values with 'UNK'
     raw_sf["balancing_authority_code_eia"] = raw_sf[
         "balancing_authority_code_eia"
@@ -1286,7 +1377,7 @@ def core_eia861__yearly_advanced_metering_infrastructure(
     ###########################################################################
     logger.info("Tidying the EIA 861 Advanced Metering Infrastructure table.")
     tidy_ami, idx_cols = _tidy_class_dfs(
-        _pre_process(raw_eia861__advanced_metering_infrastructure),
+        _pre_process(raw_eia861__advanced_metering_infrastructure, idx_cols),
         df_name="Advanced Metering Infrastructure",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1336,7 +1427,7 @@ def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFram
         "report_date",
     ]
 
-    raw_dr = _pre_process(raw_eia861__demand_response)
+    raw_dr = _pre_process(raw_eia861__demand_response, idx_cols)
     # fill na BA values with 'UNK'
     raw_dr["balancing_authority_code_eia"] = raw_dr[
         "balancing_authority_code_eia"
@@ -1470,11 +1561,9 @@ def core_demand_side_management_eia861(
     # * Clean NERC region col
     # * Drop data_status and has_demand_side_management cols (they don't contain anything)
     ###########################################################################
-    transformed_dsm1 = (
-        clean_nerc(_pre_process(raw_eia861__demand_side_management), idx_cols)
-        .drop(columns=["has_demand_side_management", "data_status"])
-        .query("utility_id_eia not in [88888]")
-    )
+    transformed_dsm1 = clean_nerc(
+        _pre_process(raw_eia861__demand_side_management, idx_cols), idx_cols
+    ).drop(columns=["has_demand_side_management", "data_status"])
 
     # Separate dsm data into sales vs. other table (the latter of which can be tidied)
     dsm_sales = transformed_dsm1[idx_cols + sales_cols].copy()
@@ -1640,7 +1729,7 @@ def core_distributed_generation_eia861(
     ]
 
     # Pre-tidy transform: set estimated or actual A/E values to 'Actual'/'Estimated'
-    raw_dg = _pre_process(raw_eia861__distributed_generation).assign(
+    raw_dg = _pre_process(raw_eia861__distributed_generation, idx_cols).assign(
         estimated_or_actual_capacity_data=lambda x: (
             x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
         ),
@@ -1760,8 +1849,9 @@ def core_eia861__yearly_distribution_systems(
 
     * No additional transformations.
     """
+    raw_eia861__distribution_systems = raw_eia861__distribution_systems.reset_index()
     df = (
-        _pre_process(raw_eia861__distribution_systems)
+        _pre_process(raw_eia861__distribution_systems, ["index"])
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
         # No duplicates to speak of but take measures to check just in case
         .pipe(
@@ -1769,6 +1859,7 @@ def core_eia861__yearly_distribution_systems(
             df_name="Distribution Systems",
             subset=["utility_id_eia", "state", "report_date"],
         )
+        .drop(columns=["index"])
         .pipe(_post_process)
     )
     return df
@@ -1784,6 +1875,10 @@ def core_eia861__yearly_dynamic_pricing(
 
     * Tidy subset of the data by customer class.
     * Convert Y/N columns to booleans.
+    * Combine 88888 utility ID EIA rows with duplicate primary keys.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. See _combine_88888_values and
+      _pre_process for details.
     """
     idx_cols = [
         "utility_id_eia",
@@ -1801,9 +1896,10 @@ def core_eia861__yearly_dynamic_pricing(
     ]
 
     raw_dp = _pre_process(
-        raw_eia861__dynamic_pricing.query("utility_id_eia not in [88888]").assign(
+        raw_eia861__dynamic_pricing.assign(
             short_form=lambda x: _make_yn_bool(x.short_form)
-        )
+        ),
+        idx_cols,
     )
 
     ###########################################################################
@@ -1858,7 +1954,7 @@ def core_eia861__yearly_energy_efficiency(
     ]
 
     raw_ee = (
-        _pre_process(raw_eia861__energy_efficiency)
+        _pre_process(raw_eia861__energy_efficiency, idx_cols)
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
         # No duplicates to speak of but take measures to check just in case
         .pipe(_check_for_dupes, df_name="Energy Efficiency", subset=idx_cols)
@@ -1927,7 +2023,7 @@ def core_eia861__yearly_green_pricing(
     ###########################################################################
     logger.info("Tidying the EIA 861 Green Pricing table.")
     tidy_gp, idx_cols = _tidy_class_dfs(
-        _pre_process(raw_eia861__green_pricing),
+        _pre_process(raw_eia861__green_pricing, idx_cols),
         df_name="Green Pricing",
         idx_cols=idx_cols,
         class_list=CUSTOMER_CLASSES,
@@ -1953,13 +2049,15 @@ def core_eia861__yearly_green_pricing(
 def core_eia861__yearly_mergers(raw_eia861__mergers: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Mergers table."""
     # No duplicates to speak of but take measures to check just in case
+    raw_eia861__mergers = raw_eia861__mergers.reset_index()
     df = (
-        _pre_process(raw_eia861__mergers)
+        _pre_process(raw_eia861__mergers, ["index"])
         .pipe(
             _check_for_dupes,
             df_name="Mergers",
             subset=["utility_id_eia", "state", "report_date"],
         )
+        .drop(columns=["index"])
         .pipe(_post_process)
     )
     return df
@@ -1980,7 +2078,6 @@ def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
 
     Transformations include:
 
-    * Remove rows with utility ids 99999.
     * Tidy subset of the data by customer class.
     * Tidy subset of the data by tech class.
     """
@@ -1994,10 +2091,11 @@ def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
     misc_cols = ["pv_current_flow_type"]
 
     # Pre-tidy clean specific to net_metering table
-    raw_nm = (
-        _pre_process(raw_eia861__net_metering)
-        .query("utility_id_eia not in [99999]")
-        .assign(short_form=lambda x: _make_yn_bool(x.short_form))
+    raw_nm = _pre_process(
+        raw_eia861__net_metering.assign(
+            short_form=lambda x: _make_yn_bool(x.short_form)
+        ),
+        idx_cols,
     )
 
     # Separate customer class data from misc data (in this case just one col: current flow)
@@ -2066,7 +2164,6 @@ def core_non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
 
     Transformations include:
 
-    * Remove rows with utility ids 99999.
     * Drop duplicate rows.
     * Tidy subset of the data by customer class.
     * Tidy subset of the data by tech class.
@@ -2086,9 +2183,7 @@ def core_non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
     ]
 
     # Pre-tidy clean specific to non_net_metering table
-    raw_nnm = _pre_process(raw_eia861__non_net_metering).query(
-        "utility_id_eia not in '99999'"
-    )
+    raw_nnm = _pre_process(raw_eia861__non_net_metering, idx_cols)
 
     # there are ~80 fully duplicate records in the 2018 table. We need to
     # remove those duplicates
@@ -2176,12 +2271,15 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
 
     Transformations include:
 
-    * Remove rows with utility ids 88888.
     * Remove rows with NA utility id.
     * Clean up NERC codes and ensure one per row.
     * Convert data_observed field I/O into boolean.
     * Tidy subset of the data by revenue class.
     * Convert 1000s of dollars into dollars.
+    * Combine 88888 utility ID EIA rows with duplicate primary keys.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. See _combine_88888_values and
+      _pre_process for details.
     """
     idx_cols = [
         "utility_id_eia",
@@ -2191,10 +2289,8 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     ]
 
     # Pre-tidy clean specific to operational data table
-    raw_od = _pre_process(raw_eia861__operational_data)
-    raw_od = raw_od[
-        (raw_od["utility_id_eia"] != 88888) & (raw_od["utility_id_eia"].notnull())
-    ]
+    raw_od = _pre_process(raw_eia861__operational_data, idx_cols)
+    raw_od = raw_od[raw_od["utility_id_eia"].notnull()]
 
     ###########################################################################
     # Transform Data Round 1:
@@ -2276,7 +2372,7 @@ def core_eia861__yearly_reliability(
 
     # wide-to-tall by standards
     tidy_r, idx_cols = _tidy_class_dfs(
-        df=_pre_process(raw_eia861__reliability),
+        df=_pre_process(raw_eia861__reliability, idx_cols),
         df_name="Reliability",
         idx_cols=idx_cols,
         class_list=RELIABILITY_STANDARDS,
@@ -2333,25 +2429,24 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
 
     Transformations include:
 
-    * Remove rows with utility ids 88888.
     * Clean up NERC codes and ensure one per row.
     * Tidy subset of the data by NERC region.
     * Tidy subset of the data by RTO.
     * Convert Y/N columns to booleans.
+    * Combine 88888 utility ID EIA rows with duplicate primary keys.
+    * Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+      non-consolidateable qualitative information. See _combine_88888_values and
+      _pre_process for details.
     """
     idx_cols = ["utility_id_eia", "state", "report_date", "nerc_region"]
 
     # Pre-tidy clean specific to operational data table
-    raw_ud = _pre_process(raw_eia861__utility_data).query(
-        "utility_id_eia not in [88888]"
-    )
-
+    raw_ud = _pre_process(raw_eia861__utility_data, idx_cols)
     ##############################################################################
     # Transform Data Round 1 (must be done to avoid issues with nerc_region col in
     # _tidy_class_dfs())
     # * Clean NERC region col
     ##############################################################################
-
     transformed_ud = clean_nerc(raw_ud, idx_cols).assign(
         short_form=lambda x: _make_yn_bool(x.short_form)
     )
@@ -2387,7 +2482,6 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
         class_list=[x.lower() for x in NERC_REGIONS],
         class_type="nerc_regions_of_operation",
     )
-
     tidy_ud_rto, _ = _tidy_class_dfs(
         df=raw_ud_rto,
         df_name="Utility Data RTOs",
@@ -2395,7 +2489,6 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
         class_list=RTO_CLASSES,
         class_type="rtos_of_operation",
     )
-
     ###########################################################################
     # Transform Data Round 2:
     # * Re-code operating_in_XX to boolean:
@@ -2420,9 +2513,7 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
 
     # Transform RTO table
     transformed_ud_rto = tidy_ud_rto.assign(
-        rto_operation=lambda x: (
-            x.rto_operation.fillna(False).replace({"N": False, "Y": True})
-        ),
+        rto_operation=lambda x: (_make_yn_bool(x.rto_operation.fillna(False))),
     )
 
     # Only keep true values and drop bool col
