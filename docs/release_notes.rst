@@ -65,8 +65,17 @@ Quality of Life Improvements
 Bug Fixes
 ^^^^^^^^^
 
+* Stopped nulling values in columns with ENUM constraints when the value was not found
+  in the ENUM. Previously we logged a warning, and now it will raise an error. There
+  were a couple of trivial cases in which we were losing values that violated the
+  constraints, but nothing serious. See PR :pr:`4548`.
+
 Documentation
 ^^^^^^^^^^^^^
+
+* Added data source pages for:
+
+  * :doc:`data_sources/eiaapi`; see issue :issue:`4372` and PR :pr:`4567`.
 
 Deprecations
 ^^^^^^^^^^^^
