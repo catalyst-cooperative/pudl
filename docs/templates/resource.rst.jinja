@@ -12,31 +12,39 @@ Access methods
 
 .. tabs::
 
-   .. code-tab:: python pandas
+   .. tab:: pandas
 
-      import pandas as pd
-      df = pd.read_parquet(
-          "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
-          dtype_backend="pyarrow",
-      )
+      .. code-block:: python
 
-   .. code-tab:: python polars
+         import pandas as pd
+         df = pd.read_parquet(
+             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+             dtype_backend="pyarrow",
+         )
 
-      import polars as pl
-      df = pl.read_parquet(
-          "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
-      )
+   .. tab:: polars
 
-   .. code-tab:: sql SQL (DuckDB)
+      .. code-block:: python
 
-      SELECT * FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet';
+         import polars as pl
+         df = pl.read_parquet(
+             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+         )
 
-   .. code-tab:: r R
+   .. tab:: SQL (DuckDB)
 
-      library(arrow)
-      df <- read_parquet(
-          "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet"
-      )
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet';
+
+   .. tab:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet"
+         )
 
 Columns
 ^^^^^^^
