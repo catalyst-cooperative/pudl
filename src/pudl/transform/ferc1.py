@@ -5132,6 +5132,60 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
         raw_dbf = super().process_dbf(raw_dbf)
         return raw_dbf
 
+    def remove_rare_utility_type_subdimensions_rows(
+        self: Self, df: pd.DataFrame
+    ) -> pd.DataFrame:
+        """Remove the rare, non-total utility types when all values are duplicated.
+
+        This data isn't incorrect, it just interferes with how we process the calculations
+        embedded within these tables.
+
+        """
+        xbrl_factoid = "income_type"
+        dimension_col = "utility_type"
+        idx = ["utility_id_ferc1", "report_year", xbrl_factoid]
+
+        # first we need to find the utility_types where there are mostly
+        # only totals. Which is to say there are a few rare non-total
+        # utility_type's.
+        tot_mask = df[dimension_col] == "total"
+        util_type_count = pd.merge(
+            pd.DataFrame(df.loc[tot_mask, xbrl_factoid].value_counts()),
+            pd.DataFrame(df.loc[~tot_mask, xbrl_factoid].value_counts()),
+            on=xbrl_factoid,
+            how="outer",
+            suffixes=("_total", "_other"),
+        )
+        mostly_totals = util_type_count[
+            util_type_count.count_other.notnull()
+            & ((util_type_count.count_other / util_type_count.count_total) < 0.80)
+        ].index
+
+        # add a utility type count column. Because we only care about this when there
+        # are more than one util type
+        df.loc[:, "util_type_count"] = df.groupby(idx)[["dollar_value"]].transform(
+            "count"
+        )
+        mostly_totals_mask = df[xbrl_factoid].isin(
+            [fact for fact in mostly_totals if fact != "net_utility_operating_income"]
+        ) & (df.util_type_count > 1)
+
+        elec_utils = df[mostly_totals_mask][idx].drop_duplicates().set_index(idx)
+        mixed_typed_income = df.set_index(idx).loc[elec_utils.index]
+        if not (
+            actual_dupes := mixed_typed_income[
+                ~mixed_typed_income.duplicated(keep=False, subset=["dollar_value"])
+            ]
+        ).empty:
+            raise AssertionError(f"Ah we found dupes:\n{actual_dupes}")
+
+        return pd.concat(
+            [
+                df[~mostly_totals_mask],
+                mixed_typed_income[mixed_typed_income[dimension_col] == "total"],
+            ]
+        )
+
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop duplicate records from f1_income_stmnt.
 
@@ -5147,7 +5201,9 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
                 & (df.income_type == "net_utility_operating_income")
             )
         ]
-        return apply_pudl_dtypes(df, group="ferc1")
+        return apply_pudl_dtypes(df, group="ferc1").pipe(
+            self.remove_rare_utility_type_subdimensions_rows
+        )
 
 
 class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
