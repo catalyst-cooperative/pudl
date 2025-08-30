@@ -57,6 +57,7 @@ extensions = [
     "autoapi.extension",
     "sphinx_issues",
     "sphinx_reredirects",
+    "sphinx_tabs.tabs",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
 ]
@@ -174,6 +175,7 @@ INCLUDED_SOURCES = [
     "epacems",
     "epacamd_eia",
     "phmsagas",
+    "sec10k",
     "gridpathratoolkit",
     "nrelatb",
     "vcerare",

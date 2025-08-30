@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 242360f6635b736387b6b94eecc0a85d1bed1f04aff4777fb568778d6fe28a4e
-    osx-64: 1c9ba32dc5e28d226f6a479d523780343e793cb310a430087d6d7c1ca259f261
-    osx-arm64: 2bf0005dff2401ca0f78db94dae62d533b5542bb93342c3cd4135dea201a62df
+    linux-64: d1231c444c46ae446b2e93ee636f3e95a081e802d369a04cc5d9687c306e8cc3
+    osx-64: 4bc20df38721f2a52717be1b9d2fb15e7b2fd5922fccb820faf942d4a15a6729
+    osx-arm64: 56b0fc58874250071bf44d5d2d736d61e118f939c66dcbf637cbf5a75573e3fe
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -5605,13 +5605,13 @@ package:
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      libgcc: ">=13"
+      libgcc: ">=14"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/dbt-extractor-0.6.0-py313h920b4c0_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/dbt-extractor-0.6.0-py313h5c7d99a_1.conda
     hash:
-      md5: 346521bbf5f3baa8489924783bc9e768
-      sha256: ed127d13697d48fdc9e357f5915390a0358a91cfb0b2c86d69a4ca61aaba93f8
+      md5: cd827d745a3e0a31edd7cd042f69ce30
+      sha256: 76dfa337f5e0a8fe9a4b14dcd37110264d0f2b9504aaabb5f66fca24e67a3452
     category: main
     optional: false
   - name: dbt-extractor
@@ -5622,10 +5622,10 @@ package:
       __osx: ">=10.13"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/dbt-extractor-0.6.0-py313h3c055b9_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/dbt-extractor-0.6.0-py313h35a1e28_1.conda
     hash:
-      md5: caa3f3201fa6cf8b50a865b01a736fd1
-      sha256: 9663a3d188856b56ee868588829339c4663ff442aab087fd59d0520227c1fa07
+      md5: 5dce3d08d4330f5d06aa6994643b74a8
+      sha256: 8cf20c8523a00d79b98af58b4460050b5e151b81635aa1c4bc6b45e50da52a28
     category: main
     optional: false
   - name: dbt-extractor
@@ -5636,10 +5636,10 @@ package:
       __osx: ">=11.0"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/dbt-extractor-0.6.0-py313hdde674f_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/dbt-extractor-0.6.0-py313h6e3aefc_1.conda
     hash:
-      md5: 07727be00afe0f2b4684060ccc9ac26c
-      sha256: 06a2b283ecff2bebf9cd562c72de4036c0dc4e1d1814dab22a30257a081887ed
+      md5: a7d27b7abff7ab4f3addc7e7c43993dd
+      sha256: 60b0ffc25c8542dc944e8bc98f70ba8e6b113bc4f9955b50812e2a9d192c4eca
     category: main
     optional: false
   - name: dbt-protos
@@ -12383,10 +12383,10 @@ package:
       libstdcxx: ">=14"
       python: ""
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/kiwisolver-1.4.9-py313hc8edb43_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/kiwisolver-1.4.9-py313hc8edb43_1.conda
     hash:
-      md5: 62736c3dc8dd7e76bb4d79532a9ab262
-      sha256: 0d04eac5aad3dce0684889535ce8908ec6206cc7ba6dfbe4548ced1fe66f8ea2
+      md5: 87215c60837a8494bf3453d08b404eed
+      sha256: 1a046c37e54239efc2768ce4a2fbaf721314cda3ef8358e85c8e544b5e4b133a
     category: main
     optional: false
   - name: kiwisolver
@@ -12398,10 +12398,10 @@ package:
       libcxx: ">=19"
       python: ""
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/kiwisolver-1.4.9-py313hb91e98b_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/kiwisolver-1.4.9-py313hb91e98b_1.conda
     hash:
-      md5: 394079d0497d6d3eaf401d8a361f9adc
-      sha256: d7c4b9940e985adbc209b12931d216bfe35ed6b426608d5992e7bd674ab39bac
+      md5: 641919ea862da8b06555e24ac7187923
+      sha256: 9a52ac90574d99286059e82ecf357e978f6e0d1163d7a8439e31582a4c585a2f
     category: main
     optional: false
   - name: kiwisolver
@@ -12413,10 +12413,10 @@ package:
       libcxx: ">=19"
       python: 3.13.*
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/kiwisolver-1.4.9-py313hf88c9ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/kiwisolver-1.4.9-py313hf88c9ab_1.conda
     hash:
-      md5: 3f25f6999e0911b4d95ca8122f551670
-      sha256: 1eafa7da582cdfef476bdaff6b39630d4ad3278c4da9e8954a76280481da850d
+      md5: 109f613ee5f40f67e379e3fd17e97c19
+      sha256: 18e99c68458ddb014eb37b959a61be5c3a3a802534e5c33b14130e7ec0c18481
     category: main
     optional: false
   - name: krb5
@@ -24528,6 +24528,51 @@ package:
     hash:
       md5: 38f2e4c88b88a2a636fd72184a3ca8d8
       sha256: 960b4459f898fb3115099b89be53dfd5903d4a7572ca0cc4dd8fafdd966b5bf9
+    category: main
+    optional: false
+  - name: sphinx-tabs
+    version: 3.4.1
+    manager: conda
+    platform: linux-64
+    dependencies:
+      docutils: ">=0.18.0"
+      pygments: ""
+      python: ">=3.6"
+      sphinx: ">=2"
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinx-tabs-3.4.1-pyhd8ed1ab_1.conda
+    hash:
+      md5: 8b8362d876396fd967cbb5f404def907
+      sha256: 43c343edc9ea11ffd947d97fa60bf6347a404700e2cde81fb954e60b7e6a42c1
+    category: main
+    optional: false
+  - name: sphinx-tabs
+    version: 3.4.1
+    manager: conda
+    platform: osx-64
+    dependencies:
+      docutils: ">=0.18.0"
+      pygments: ""
+      python: ">=3.6"
+      sphinx: ">=2"
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinx-tabs-3.4.1-pyhd8ed1ab_1.conda
+    hash:
+      md5: 8b8362d876396fd967cbb5f404def907
+      sha256: 43c343edc9ea11ffd947d97fa60bf6347a404700e2cde81fb954e60b7e6a42c1
+    category: main
+    optional: false
+  - name: sphinx-tabs
+    version: 3.4.1
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      docutils: ">=0.18.0"
+      pygments: ""
+      python: ">=3.6"
+      sphinx: ">=2"
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinx-tabs-3.4.1-pyhd8ed1ab_1.conda
+    hash:
+      md5: 8b8362d876396fd967cbb5f404def907
+      sha256: 43c343edc9ea11ffd947d97fa60bf6347a404700e2cde81fb954e60b7e6a42c1
     category: main
     optional: false
   - name: sphinxcontrib-applehelp
