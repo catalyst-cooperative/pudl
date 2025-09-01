@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 242360f6635b736387b6b94eecc0a85d1bed1f04aff4777fb568778d6fe28a4e
-    osx-64: 1c9ba32dc5e28d226f6a479d523780343e793cb310a430087d6d7c1ca259f261
-    osx-arm64: 2bf0005dff2401ca0f78db94dae62d533b5542bb93342c3cd4135dea201a62df
+    linux-64: e8c533a405cf894625981413cecbebaf5e176ca714284f0b2e20107740eccd8c
+    osx-64: 1241bfd3d79e051f07c63506e33c40c67dd4dd55f5c389cbae01c76faada992a
+    osx-arm64: 2d25cce1c5d5f4d5031af6ac8b5ce27511c6971076ab8032cf925933d70c6e52
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -6710,51 +6710,48 @@ package:
     category: main
     optional: false
   - name: fastapi-cli
-    version: 0.0.8
+    version: 0.0.10
     manager: conda
     platform: linux-64
     dependencies:
-      python: ">=3.9"
+      python: ""
       rich-toolkit: ">=0.14.8"
       typer: ">=0.15.1"
-      uvicorn: ">=0.15.0"
       uvicorn-standard: ">=0.15.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-cli-0.0.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-cli-0.0.10-pyhcf101f3_0.conda
     hash:
-      md5: 7b4fa933822891d1ce36e3dda98e0e38
-      sha256: 71bfe707fa15af98e62d1023a6f3a670b006cf22ee970f227478ebd2cccca092
+      md5: b4e61a53fb527e0d6fa5aac57f16abf6
+      sha256: 960791b2d8c27cea9b79c03bb2751f5c7ac61ae297a3757b0191ae0a6b85de3c
     category: main
     optional: false
   - name: fastapi-cli
-    version: 0.0.8
+    version: 0.0.10
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.9"
+      python: ">=3.10"
       rich-toolkit: ">=0.14.8"
       typer: ">=0.15.1"
-      uvicorn: ">=0.15.0"
       uvicorn-standard: ">=0.15.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-cli-0.0.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-cli-0.0.10-pyhcf101f3_0.conda
     hash:
-      md5: 7b4fa933822891d1ce36e3dda98e0e38
-      sha256: 71bfe707fa15af98e62d1023a6f3a670b006cf22ee970f227478ebd2cccca092
+      md5: b4e61a53fb527e0d6fa5aac57f16abf6
+      sha256: 960791b2d8c27cea9b79c03bb2751f5c7ac61ae297a3757b0191ae0a6b85de3c
     category: main
     optional: false
   - name: fastapi-cli
-    version: 0.0.8
+    version: 0.0.10
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.9"
+      python: ">=3.10"
       rich-toolkit: ">=0.14.8"
       typer: ">=0.15.1"
-      uvicorn: ">=0.15.0"
       uvicorn-standard: ">=0.15.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-cli-0.0.8-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/fastapi-cli-0.0.10-pyhcf101f3_0.conda
     hash:
-      md5: 7b4fa933822891d1ce36e3dda98e0e38
-      sha256: 71bfe707fa15af98e62d1023a6f3a670b006cf22ee970f227478ebd2cccca092
+      md5: b4e61a53fb527e0d6fa5aac57f16abf6
+      sha256: 960791b2d8c27cea9b79c03bb2751f5c7ac61ae297a3757b0191ae0a6b85de3c
     category: main
     optional: false
   - name: fastapi-core
@@ -15839,27 +15836,27 @@ package:
     category: main
     optional: false
   - name: llvm-openmp
-    version: 20.1.8
+    version: 21.1.0
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/llvm-openmp-20.1.8-hf4e0ed4_2.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/llvm-openmp-21.1.0-hf4e0ed4_0.conda
     hash:
-      md5: ffb5c09a0f4576942082a3a8fc37c4a0
-      sha256: e91aab8de03406a3c7798d939997eeea021de7c3da263869ded0b980ce74b756
+      md5: 5acc6c266fd33166fa3b33e48665ae0d
+      sha256: 78336131a08990390003ef05d14ecb49f3a47e4dac60b1bcebeccd87fa402925
     category: main
     optional: false
   - name: llvm-openmp
-    version: 20.1.8
+    version: 21.1.0
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-20.1.8-hbb9b287_2.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-21.1.0-hbb9b287_0.conda
     hash:
-      md5: 725044ef08febdc554bbf2a895ef798f
-      sha256: a5bf3712542ad6c37f5a091174f65fa221197547f6f2e90f227476d90ed8b901
+      md5: e57d95fec6eaa747e583323cba6cfe5c
+      sha256: c6750073a128376a14bedacfa90caab4c17025c9687fcf6f96e863b28d543af4
     category: main
     optional: false
   - name: llvmlite
@@ -17022,14 +17019,14 @@ package:
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      libgcc: ">=13"
-      libstdcxx: ">=13"
+      libgcc: ">=14"
+      libstdcxx: ">=14"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/msgpack-python-1.1.1-py313h33d0bda_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/msgpack-python-1.1.1-py313h7037e92_1.conda
     hash:
-      md5: 009fb5ad03d4506be5f1e5c2f875f1c2
-      sha256: b0e1b68a6e74d77986190f7296187c799a3f56119cb06663f7a57b15a7b1bd98
+      md5: cc41d40a7ec345da56c496767d4bb61b
+      sha256: e4a1237c5d42a8ee7c31cd0a3881eda4d6ee7d729cd05e07cd639fa6796f8924
     category: main
     optional: false
   - name: msgpack-python
@@ -17038,13 +17035,13 @@ package:
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-      libcxx: ">=18"
+      libcxx: ">=19"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/msgpack-python-1.1.1-py313ha0b1807_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/msgpack-python-1.1.1-py313hc551f4f_1.conda
     hash:
-      md5: 65f4f9271a4e0f6049ee6b1ac4d9cf21
-      sha256: a32167b77f2d18add251db808979c2918f3d4e59b97c66f4a982ad235528217e
+      md5: 66792228c990a970389e6f608bda5286
+      sha256: c402271be1efed0bb00425a84e57c7ddff9a18ed3b7a927147578dd40936d915
     category: main
     optional: false
   - name: msgpack-python
@@ -17053,13 +17050,13 @@ package:
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
-      libcxx: ">=18"
+      libcxx: ">=19"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/msgpack-python-1.1.1-py313h0ebd0e5_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/msgpack-python-1.1.1-py313hc50a443_1.conda
     hash:
-      md5: b9bcc8ff2ab0cdc05229ad67146814f1
-      sha256: 183ebd9dcfc5c5f2833ff61e9a12e3b6b4e454a1222d0629d2dc7046cfe68c52
+      md5: 81156f314cb9ea43d408033183118fbb
+      sha256: 744a0f66c4cab6f74f8d723cd9434ce33a25c439976fe7fc46133ebb8668fd06
     category: main
     optional: false
   - name: multidict
@@ -24528,6 +24525,51 @@ package:
     hash:
       md5: 38f2e4c88b88a2a636fd72184a3ca8d8
       sha256: 960b4459f898fb3115099b89be53dfd5903d4a7572ca0cc4dd8fafdd966b5bf9
+    category: main
+    optional: false
+  - name: sphinx-tabs
+    version: 3.4.1
+    manager: conda
+    platform: linux-64
+    dependencies:
+      docutils: ">=0.18.0"
+      pygments: ""
+      python: ">=3.6"
+      sphinx: ">=2"
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinx-tabs-3.4.1-pyhd8ed1ab_1.conda
+    hash:
+      md5: 8b8362d876396fd967cbb5f404def907
+      sha256: 43c343edc9ea11ffd947d97fa60bf6347a404700e2cde81fb954e60b7e6a42c1
+    category: main
+    optional: false
+  - name: sphinx-tabs
+    version: 3.4.1
+    manager: conda
+    platform: osx-64
+    dependencies:
+      docutils: ">=0.18.0"
+      pygments: ""
+      python: ">=3.6"
+      sphinx: ">=2"
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinx-tabs-3.4.1-pyhd8ed1ab_1.conda
+    hash:
+      md5: 8b8362d876396fd967cbb5f404def907
+      sha256: 43c343edc9ea11ffd947d97fa60bf6347a404700e2cde81fb954e60b7e6a42c1
+    category: main
+    optional: false
+  - name: sphinx-tabs
+    version: 3.4.1
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      docutils: ">=0.18.0"
+      pygments: ""
+      python: ">=3.6"
+      sphinx: ">=2"
+    url: https://conda.anaconda.org/conda-forge/noarch/sphinx-tabs-3.4.1-pyhd8ed1ab_1.conda
+    hash:
+      md5: 8b8362d876396fd967cbb5f404def907
+      sha256: 43c343edc9ea11ffd947d97fa60bf6347a404700e2cde81fb954e60b7e6a42c1
     category: main
     optional: false
   - name: sphinxcontrib-applehelp
