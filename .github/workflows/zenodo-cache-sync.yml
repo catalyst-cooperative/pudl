@@ -58,7 +58,7 @@ jobs:
           service_account: "zenodo-cache-manager@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
 
       - name: Update GCS cache with any new Zenodo archives
         run: |
