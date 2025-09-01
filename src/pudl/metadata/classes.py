@@ -1598,10 +1598,14 @@ class Resource(PudlMeta):
             del schema["foreign_key_rules"]
 
         # overwrite description components with rendered text block
-        obj["description"] = descriptions.ResourceDescriptionBuilder(
-            resource_id,
-            obj,
-        ).build(_get_jinja_environment())
+        obj["description"] = (
+            descriptions.ResourceDescriptionBuilder(
+                resource_id,
+                obj,
+            )
+            .build()
+            .jinja_render(_get_jinja_environment())
+        )
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
