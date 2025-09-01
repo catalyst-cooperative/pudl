@@ -154,6 +154,7 @@ class ResolvedResourceDescription:
     There are six description components:
 
     * summary
+    * availability [under development]
     * layer
     * source
     * primary_key
@@ -169,6 +170,7 @@ class ResolvedResourceDescription:
 
     resource_id: str
     summary: ResourceTrait
+    availability: ResourceTrait
     layer: ResourceTrait
     source: ResourceTrait
     primary_key: ResourceTrait
@@ -182,12 +184,13 @@ class ResolvedResourceDescription:
         """
         return f"""
 {self.resource_id}
-   Summary [{self.summary.type}]: {self.summary.description}
-     Layer [{self.layer.type}]: {self.layer.description}
-    Source [{self.source.type}]: {self.source.description}
-        PK [{self.primary_key.type}]: {self.primary_key.description}
-  Warnings [{len(self.usage_warnings)}]:{"\n\t".join([""] + [f"{uw.type} - {uw.description}" for uw in self.usage_warnings])}
-   Details [{self.details.type}]:
+     Summary [{self.summary.type}]: {self.summary.description}
+Availability [{self.availability.type}]: {self.availability.description}
+       Layer [{self.layer.type}]: {self.layer.description}
+      Source [{self.source.type}]: {self.source.description}
+          PK [{self.primary_key.type}]: {self.primary_key.description}
+    Warnings [{len(self.usage_warnings)}]:{"\n\t".join([""] + [f"{uw.type} - {uw.description}" for uw in self.usage_warnings])}
+     Details [{self.details.type}]:
 {self.details.description}
 """
 
@@ -302,6 +305,11 @@ class ResourceDescriptionBuilder:
             # glue all the component parts into a single string, skipping any missing bits.
             description=" ".join(c for c in components if c is not None),
         )
+
+    @component
+    def availability(self, settings, defaults) -> ResourceTrait:
+        """Compute the availability component of the resource description."""
+        return ResourceTrait(type="NA", description="Not yet implemented")
 
     def _generic_component(
         self,
