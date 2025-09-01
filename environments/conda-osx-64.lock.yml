@@ -62,16 +62,16 @@ dependencies:
   - bleach-with-css=6.2.0=h82add2a_4
   - blinker=1.9.0=pyhff2d567_0
   - blosc=1.21.6=hd145fbb_1
-  - bokeh=3.7.3=pyhd8ed1ab_0
+  - bokeh=3.8.0=pyhd8ed1ab_0
   - boltons=25.0.0=pyhd8ed1ab_0
   - boto3=1.39.11=pyhd8ed1ab_0
   - botocore=1.39.11=pyge310_1234567_0
   - bottle=0.13.4=pyhe01879c_0
   - bottleneck=1.5.0=py313h1492807_0
   - branca=0.8.1=pyhd8ed1ab_0
-  - brotli=1.1.0=h6e16a3a_3
-  - brotli-bin=1.1.0=h6e16a3a_3
-  - brotli-python=1.1.0=py313h14b76d3_3
+  - brotli=1.1.0=h1c43f85_4
+  - brotli-bin=1.1.0=h1c43f85_4
+  - brotli-python=1.1.0=py313h253db18_4
   - bzip2=1.0.8=hfdf4475_7
   - c-ares=1.34.5=hf13058a_0
   - ca-certificates=2025.8.3=hbd8a1cb_0
@@ -96,8 +96,8 @@ dependencies:
   - coloredlogs=14.0=pyhd8ed1ab_3
   - comm=0.2.3=pyhe01879c_0
   - conda-lock=3.0.4=pyhb3ed7dc_1
-  - contourpy=1.3.3=py313hc551f4f_1
-  - coverage=7.10.5=py313h4db2fa4_0
+  - contourpy=1.3.3=py313hc551f4f_2
+  - coverage=7.10.6=py313h4db2fa4_0
   - cpython=3.13.5=py313hd8ed1ab_102
   - crashtest=0.4.1=pyhd8ed1ab_1
   - cryptography=45.0.6=py313h2686292_0
@@ -122,7 +122,7 @@ dependencies:
   - dbt-common=1.28.0=pyhd8ed1ab_0
   - dbt-core=1.10.10=pyhd8ed1ab_0
   - dbt-duckdb=1.9.4=pyhd8ed1ab_0
-  - dbt-extractor=0.6.0=py313h3c055b9_0
+  - dbt-extractor=0.6.0=py313h35a1e28_1
   - dbt-protos=1.0.348=pyhe01879c_0
   - dbt-semantic-interfaces=0.9.0=pyh3cfb1c2_0
   - debugpy=1.8.16=py313h03db916_0
@@ -225,7 +225,7 @@ dependencies:
   - humanize=4.13.0=pyhd8ed1ab_0
   - hupper=1.12.1=pyhd8ed1ab_1
   - hyperframe=6.1.0=pyhd8ed1ab_0
-  - hypothesis=6.138.7=pyha770c72_0
+  - hypothesis=6.138.8=pyha770c72_0
   - icu=75.1=h120a0e1_0
   - identify=2.6.13=pyhd8ed1ab_0
   - idna=3.10=pyhd8ed1ab_1
@@ -235,7 +235,7 @@ dependencies:
   - iniconfig=2.0.0=pyhd8ed1ab_1
   - invoke=2.2.0=pyhd8ed1ab_1
   - ipykernel=6.30.1=pyh92f572d_0
-  - ipython=9.4.0=pyhfa0c392_0
+  - ipython=9.5.0=pyhfa0c392_0
   - ipython_pygments_lexers=1.1.1=pyhd8ed1ab_0
   - ipywidgets=8.1.7=pyhd8ed1ab_0
   - isodate=0.6.1=pyhd8ed1ab_0
@@ -271,7 +271,7 @@ dependencies:
   - jupyterlab_server=2.27.3=pyhd8ed1ab_1
   - jupyterlab_widgets=3.0.15=pyhd8ed1ab_0
   - keyring=25.6.0=pyh534df25_0
-  - kiwisolver=1.4.9=py313hb91e98b_0
+  - kiwisolver=1.4.9=py313hb91e98b_1
   - krb5=1.21.3=h37d8d59_0
   - lark=1.2.2=pyhd8ed1ab_1
   - latexcodec=2.0.1=pyh9f0ad1d_0
@@ -286,13 +286,13 @@ dependencies:
   - libarrow-dataset=21.0.0=hdc277a7_1_cpu
   - libarrow-substrait=21.0.0=h80f2954_1_cpu
   - libblas=3.9.0=34_h7f60823_openblas
-  - libbrotlicommon=1.1.0=h6e16a3a_3
-  - libbrotlidec=1.1.0=h6e16a3a_3
-  - libbrotlienc=1.1.0=h6e16a3a_3
+  - libbrotlicommon=1.1.0=h1c43f85_4
+  - libbrotlidec=1.1.0=h1c43f85_4
+  - libbrotlienc=1.1.0=h1c43f85_4
   - libcblas=3.9.0=34_hff6cab4_openblas
   - libcrc32c=1.1.2=he49afe7_0
   - libcurl=8.14.1=h5dec5d8_0
-  - libcxx=20.1.8=h3d58e20_1
+  - libcxx=21.1.0=h3d58e20_0
   - libdeflate=1.24=hcc1b750_0
   - libedit=3.1.20250104=pl5321ha958ccf_0
   - libev=4.33=h10d778d_2
@@ -363,7 +363,7 @@ dependencies:
   - mdurl=0.1.2=pyhd8ed1ab_1
   - mergedeep=1.3.4=pyhd8ed1ab_1
   - minizip=4.0.10=hfb7a1ec_0
-  - mistune=3.1.3=pyh29332c3_0
+  - mistune=3.1.4=pyhcf101f3_0
   - mlflow=3.2.0=habf4b1d_1
   - mlflow-skinny=3.2.0=habf4b1d_1
   - mlflow-ui=3.2.0=py313habf4b1d_1
@@ -462,7 +462,7 @@ dependencies:
   - pyogrio=0.11.1=py313h515dd1c_0
   - pyopenssl=25.1.0=pyhd8ed1ab_0
   - pyparsing=3.2.3=pyhe01879c_2
-  - pyproj=3.7.2=py313hab9ce45_0
+  - pyproj=3.7.2=py313hab9ce45_1
   - pyproject_hooks=1.2.0=pyhd8ed1ab_1
   - pysocks=1.7.1=pyha55dd90_7
   - pytest=8.4.1=pyhd8ed1ab_0
@@ -521,11 +521,11 @@ dependencies:
   - s3fs=2025.7.0=pyhd8ed1ab_0
   - s3transfer=0.13.1=pyhd8ed1ab_0
   - scikit-learn=1.7.1=py313hbe0a5c7_0
-  - scipy=1.16.1=py313hada7951_0
+  - scipy=1.16.1=py313hf2e9e4d_1
   - semver=3.0.4=pyhd8ed1ab_0
   - send2trash=1.8.3=pyh31c8845_1
   - setuptools=80.9.0=pyhff2d567_0
-  - shapely=2.1.1=py313h11e92a8_0
+  - shapely=2.1.1=py313h294d5b0_1
   - shellingham=1.5.4=pyhd8ed1ab_1
   - simpleeval=1.0.3=pyhd8ed1ab_0
   - six=1.17.0=pyhe01879c_1
@@ -594,7 +594,7 @@ dependencies:
   - typing_extensions=4.15.0=pyhcf101f3_0
   - typing_inspect=0.9.0=pyhd8ed1ab_1
   - typing_utils=0.1.0=pyhd8ed1ab_1
-  - typos=1.35.6=hb440939_0
+  - typos=1.35.7=hb440939_0
   - tzdata=2025b=h78e105d_0
   - ukkonen=1.0.1=py313h0c4e38b_5
   - universal-pathlib=0.2.6=hd8ed1ab_1
