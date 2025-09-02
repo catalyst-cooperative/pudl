@@ -5132,60 +5132,6 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
         raw_dbf = super().process_dbf(raw_dbf)
         return raw_dbf
 
-    def remove_rare_utility_type_subdimensions_rows(
-        self: Self, df: pd.DataFrame
-    ) -> pd.DataFrame:
-        """Remove the rare, non-total utility types when all values are duplicated.
-
-        This data isn't incorrect, it just interferes with how we process the calculations
-        embedded within these tables.
-
-        """
-        xbrl_factoid = "income_type"
-        dimension_col = "utility_type"
-        idx = ["utility_id_ferc1", "report_year", xbrl_factoid]
-
-        # first we need to find the utility_types where there are mostly
-        # only totals. Which is to say there are a few rare non-total
-        # utility_type's.
-        tot_mask = df[dimension_col] == "total"
-        util_type_count = pd.merge(
-            pd.DataFrame(df.loc[tot_mask, xbrl_factoid].value_counts()),
-            pd.DataFrame(df.loc[~tot_mask, xbrl_factoid].value_counts()),
-            on=xbrl_factoid,
-            how="outer",
-            suffixes=("_total", "_other"),
-        )
-        mostly_totals = util_type_count[
-            util_type_count.count_other.notnull()
-            & ((util_type_count.count_other / util_type_count.count_total) < 0.80)
-        ].index
-
-        # add a utility type count column. Because we only care about this when there
-        # are more than one util type
-        df.loc[:, "util_type_count"] = df.groupby(idx)[["dollar_value"]].transform(
-            "count"
-        )
-        mostly_totals_mask = df[xbrl_factoid].isin(
-            [fact for fact in mostly_totals if fact != "net_utility_operating_income"]
-        ) & (df.util_type_count > 1)
-
-        elec_utils = df[mostly_totals_mask][idx].drop_duplicates().set_index(idx)
-        mixed_typed_income = df.set_index(idx).loc[elec_utils.index]
-        if not (
-            actual_dupes := mixed_typed_income[
-                ~mixed_typed_income.duplicated(keep=False, subset=["dollar_value"])
-            ]
-        ).empty:
-            raise AssertionError(f"Ah we found dupes:\n{actual_dupes}")
-
-        return pd.concat(
-            [
-                df[~mostly_totals_mask],
-                mixed_typed_income[mixed_typed_income[dimension_col] == "total"],
-            ]
-        )
-
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop duplicate records from f1_income_stmnt.
 
@@ -5201,9 +5147,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
                 & (df.income_type == "net_utility_operating_income")
             )
         ]
-        return apply_pudl_dtypes(df, group="ferc1").pipe(
-            self.remove_rare_utility_type_subdimensions_rows
-        )
+        return apply_pudl_dtypes(df, group="ferc1")
 
 
 class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
@@ -6322,6 +6266,77 @@ def table_to_column_to_check() -> dict[str, list[str]]:
     }
 
 
+def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove the rare, non-total utility types when all values are duplicated.
+
+    We remove the records of non-total utility_type's for xbrl_factoid's when almost
+    all instances of that xbrl_factoid show up with just a utility_type of total. We
+    can only do this confidently because we also check that all of the dollar_value in
+    those records are exactly the same.
+
+    This data isn't incorrect, it just interferes with how we process the calculations
+    embedded within these tables. This is why we are applying this within
+    :func:`_core_ferc1__table_dimensions` because that is what we use to build the
+    calculation components table.
+
+    """
+    xbrl_factoid = "xbrl_factoid"
+    dimension_col = "utility_type"
+    idx = ["utility_id_ferc1", "report_year", xbrl_factoid]
+
+    # first we need to find the xbrl_factoid's where there are mostly only totals
+    # within the dimension_col. Which is to say there are a few rare non-total
+    # utility_type's.
+    tot_mask = df[dimension_col] == "total"
+    # build a dataframe of xbrl_factoid's with a column for the count of the records
+    # with utility_type total and another column with the count for all the other
+    # utility_type's
+    util_type_count = pd.merge(
+        pd.DataFrame(df.loc[tot_mask, xbrl_factoid].value_counts()),
+        pd.DataFrame(df.loc[~tot_mask, xbrl_factoid].value_counts()),
+        on=xbrl_factoid,
+        how="outer",
+        suffixes=("_total", "_other"),
+    )
+    # With that little xbrl_factoid count dataframe we can check to see which
+    # xbrl_factoid's are almost entriely total. In order to id these "rare"
+    # non-totals we use a threshold of 10% here. meaning only 10% of the instances
+    # of the utility_type for a particular xbrl_factoid were non-totals.
+    # that's a little bit arbitrary... This was tested up to 80% but that seems
+    # too aggressive.
+    mostly_total_xbrl_factoids = util_type_count[
+        util_type_count.count_other.notnull()
+        & ((util_type_count.count_other / util_type_count.count_total) < 0.10)
+    ].index
+    logger.info(
+        f"{len(mostly_total_xbrl_factoids) / len(df[xbrl_factoid].unique()):.1%} of the "
+        f"xbrl_factoid's in this table have {dimension_col} values that are mostly total, "
+        "but have some rare instances of non-total values."
+    )
+    # add a utility type count column. Because we only care about this when there
+    # are more than one util type
+    df.loc[:, "util_type_count"] = df.groupby(idx)[[dimension_col]].transform("count")
+    mostly_totals_mask = df[xbrl_factoid].isin(
+        [fact for fact in mostly_total_xbrl_factoids if "correction" not in fact]
+    ) & (df.util_type_count > 1)
+
+    mostly_totals = df.loc[mostly_totals_mask, idx].set_index(idx)
+    mixed_typed_income = df.set_index(idx).loc[mostly_totals.index]
+    if not (
+        actual_dupes := mixed_typed_income[
+            ~mixed_typed_income.duplicated(keep=False, subset=["dollar_value"])
+        ]
+    ).empty:
+        raise AssertionError(f"Ah we found duplicate records with :\n{actual_dupes}")
+
+    return pd.concat(
+        [
+            df[~mostly_totals_mask],
+            mixed_typed_income[mixed_typed_income[dimension_col] == "total"],
+        ]
+    )
+
+
 @asset(
     ins={
         table_name: AssetIn(table_name)
@@ -6353,6 +6368,11 @@ def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
         )
         for (name, df) in kwargs.items()
     }
+    tbls["core_ferc1__yearly_income_statements_sched114"] = (
+        remove_rare_utility_type_subdimensions_rows(
+            tbls["core_ferc1__yearly_income_statements_sched114"]
+        )
+    )
     dimensions = (
         pd.concat(tbls.values())[
             ["table_name", "xbrl_factoid"]
