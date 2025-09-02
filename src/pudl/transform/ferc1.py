@@ -6273,7 +6273,7 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
     all instances of that xbrl_factoid show up with just a utility_type of "total". We
     can only do this confidently because we also check that all of the dollar_value in
     those records are exactly the same as the corresponding records with utility_type
-    of "total".
+    of "total" or the non-total utility_type's have null dollar_value's.
 
     This data isn't incorrect, it just interferes with how we process the calculations
     embedded within these tables. This is why we are applying this within
@@ -6327,14 +6327,30 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
         [fact for fact in mostly_total_xbrl_factoids if "correction" not in fact]
     ) & (df.util_type_count > 1)
 
-    mostly_totals = df.loc[mostly_totals_mask, idx].set_index(idx)
-    mixed_typed_income = df.set_index(idx).loc[mostly_totals.index]
+    mostly_totals_idx = (
+        df.loc[mostly_totals_mask, idx].drop_duplicates().set_index(idx).index
+    )
+    mixed_typed_income = df.set_index(idx).loc[mostly_totals_idx].reset_index()
+    # first remove the records with null non-total records
+    maybe_unique = mixed_typed_income[
+        ~(mixed_typed_income[dimension_col] != "total")
+        & (mixed_typed_income["dollar_value"].isna())
+    ]
+
     if not (
-        actual_dupes := mixed_typed_income[
-            ~mixed_typed_income.duplicated(keep=False, subset=["dollar_value"])
+        actually_unique := maybe_unique[
+            ~maybe_unique.duplicated(keep=False, subset=idx + ["dollar_value"])
+            # bc we removed some of the null non-totals we've gotta leave out the
+            # total's here
+            & (maybe_unique[dimension_col] != "total")
         ]
     ).empty:
-        raise AssertionError(f"Ah we found duplicate records with :\n{actual_dupes}")
+        raise AssertionError(
+            "Ah we found actually unique values within the records with xbrl_factoid's "
+            f"that have rare non-total {dimension_col} when we expected none"
+            f":\n{actually_unique}\nThis breaks out logic we use to feel confident about "
+            "removing these records in favor of keeping only the utility_type == total records."
+        )
 
     return pd.concat(
         [
