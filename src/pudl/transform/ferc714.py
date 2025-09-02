@@ -1205,9 +1205,12 @@ class YearlyPlanningAreaDemandForecast:
         # [2025-aug kmm]
         # there was some mixup and C004245 (Salt River Project) put text in their
         # forecast year fields in the 2024 report. they submitted a new filing with
-        # correct data, but filter_for_freshest_data isn't able to detect a match
+        # correct data, but because the correction makes a change to a primary
+        # key column, filter_for_freshest_data isn't able to detect a match
         # between the two sets of entries to be able to override the bad data, and
-        # keeps both sets of entries. we drop the bad entries manually here.
+        # keeps both sets of entries. we drop the bad entries (which match this
+        # respondent for this report year, and start with something other than "2")
+        # manually here.
         text_in_year_mask = (
             (df.respondent_id_ferc714_xbrl == "C004245")
             & (df.report_year == 2024)
