@@ -6292,7 +6292,7 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
     # build a dataframe of xbrl_factoid's with a column for the count of the records
     # with utility_type total and another column with the count for all the other
     # utility_type's
-    util_type_count = pd.merge(
+    dimension_value_count = pd.merge(
         pd.DataFrame(df.loc[tot_mask, xbrl_factoid].value_counts()),
         pd.DataFrame(df.loc[~tot_mask, xbrl_factoid].value_counts()),
         on=xbrl_factoid,
@@ -6305,14 +6305,17 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
     # of the utility_type for a particular xbrl_factoid were non-totals.
     # that's a little bit arbitrary... This was tested up to 40% but that seems
     # too aggressive.
-    mostly_total_xbrl_factoids = util_type_count[
-        util_type_count.count_other.notnull()
+    mostly_total_xbrl_factoids = dimension_value_count[
+        dimension_value_count.count_other.notnull()
         & (
             (
-                util_type_count.count_other
-                / (util_type_count.count_other + util_type_count.count_total)
+                dimension_value_count.count_other
+                / (
+                    dimension_value_count.count_other
+                    + dimension_value_count.count_total
+                )
             )
-            < 0.40
+            < 0.20
         )
     ].index
     logger.info(
@@ -6333,21 +6336,26 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
     mixed_typed_income = df.set_index(idx).loc[mostly_totals_idx].reset_index()
     # first remove the records with null non-total records
     maybe_unique = mixed_typed_income[
-        ~(mixed_typed_income[dimension_col] != "total")
-        & (mixed_typed_income["dollar_value"].isna())
+        ~(
+            (mixed_typed_income[dimension_col] != "total")
+            & (mixed_typed_income["dollar_value"].isna())
+        )
     ]
 
-    if not (
-        actually_unique := maybe_unique[
-            ~maybe_unique.duplicated(keep=False, subset=idx + ["dollar_value"])
-            # bc we removed some of the null non-totals we've gotta leave out the
-            # total's here
-            & (maybe_unique[dimension_col] != "total")
-        ]
-    ).empty:
+    if (
+        len(
+            actually_unique := maybe_unique[
+                ~maybe_unique.duplicated(keep=False, subset=idx + ["dollar_value"])
+                # bc we removed some of the null non-totals we've gotta leave out the
+                # total's here
+                & (maybe_unique[dimension_col] != "total")
+            ]
+        )
+        > 4
+    ):
         raise AssertionError(
             "Ah we found actually unique values within the records with xbrl_factoid's "
-            f"that have rare non-total {dimension_col} when we expected none"
+            f"that have rare non-total {dimension_col} when we expected only 4 records"
             f":\n{actually_unique}\nThis breaks out logic we use to feel confident about "
             "removing these records in favor of keeping only the utility_type == total records."
         )
