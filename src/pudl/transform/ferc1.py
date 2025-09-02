@@ -6270,16 +6270,17 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
     """Remove the rare, non-total utility types when all values are duplicated.
 
     We remove the records of non-total utility_type's for xbrl_factoid's when almost
-    all instances of that xbrl_factoid show up with just a utility_type of total. We
+    all instances of that xbrl_factoid show up with just a utility_type of "total". We
     can only do this confidently because we also check that all of the dollar_value in
-    those records are exactly the same.
+    those records are exactly the same as the corresponding records with utility_type
+    of "total".
 
     This data isn't incorrect, it just interferes with how we process the calculations
     embedded within these tables. This is why we are applying this within
     :func:`_core_ferc1__table_dimensions` because that is what we use to build the
     calculation components table.
-
     """
+    # made these variables so we could generalize to other tables if we desired that.
     xbrl_factoid = "xbrl_factoid"
     dimension_col = "utility_type"
     idx = ["utility_id_ferc1", "report_year", xbrl_factoid]
@@ -6300,13 +6301,19 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
     )
     # With that little xbrl_factoid count dataframe we can check to see which
     # xbrl_factoid's are almost entriely total. In order to id these "rare"
-    # non-totals we use a threshold of 10% here. meaning only 10% of the instances
+    # non-totals we use a threshold of 20% here. meaning only 20% of the instances
     # of the utility_type for a particular xbrl_factoid were non-totals.
-    # that's a little bit arbitrary... This was tested up to 80% but that seems
+    # that's a little bit arbitrary... This was tested up to 40% but that seems
     # too aggressive.
     mostly_total_xbrl_factoids = util_type_count[
         util_type_count.count_other.notnull()
-        & ((util_type_count.count_other / util_type_count.count_total) < 0.10)
+        & (
+            (
+                util_type_count.count_other
+                / (util_type_count.count_other + util_type_count.count_total)
+            )
+            < 0.40
+        )
     ].index
     logger.info(
         f"{len(mostly_total_xbrl_factoids) / len(df[xbrl_factoid].unique()):.1%} of the "
