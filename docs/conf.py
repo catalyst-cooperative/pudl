@@ -57,6 +57,7 @@ extensions = [
     "autoapi.extension",
     "sphinx_issues",
     "sphinx_reredirects",
+    "sphinx_tabs.tabs",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
 ]
@@ -164,6 +165,7 @@ def data_dictionary_metadata_to_rst(app):
 
 INCLUDED_SOURCES = [
     "censusdp1tract",
+    "eiaapi",
     "eia860",
     "eia861",
     "eia923",
