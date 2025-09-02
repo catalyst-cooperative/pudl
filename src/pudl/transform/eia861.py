@@ -542,7 +542,12 @@ def _pre_process(df: pd.DataFrame) -> pd.DataFrame:
       data is an early release, and we extract this information from the filenames, as
       it's uniform across the whole dataset.
     * Convert report_year column to report_date.
+    * If we've gotten an empty dataframe, make sure it has a data_maturity column.
     """
+    # If we're only processing some years of data, we may have entirely empty dataframes
+    # in the extraction phase, in which case the data_maturity field doesn't get added.
+    if df.empty:
+        df["data_maturity"] = pd.NA
     return (
         fix_eia_na(df)
         .drop(columns=["early_release"], errors="ignore")
@@ -552,10 +557,6 @@ def _pre_process(df: pd.DataFrame) -> pd.DataFrame:
 
 def _post_process(df: pd.DataFrame) -> pd.DataFrame:
     """Post-processing applied to all EIA-861 dataframes."""
-    # If we're only processing some years of data, we may have entirely empty dataframes
-    # in the extraction phase, in which case the data_maturity field doesn't get added.
-    if "data_maturity" not in df.columns and len(df) == 0:
-        df["data_maturity"] = pd.NA
     return convert_cols_dtypes(df, data_source="eia")
 
 
@@ -1484,9 +1485,6 @@ def core_demand_side_management_eia861(
         .query("utility_id_eia not in [88888]")
     )
 
-    # This happens if the extracted dataframe was empty, as is the case in the fast ETL.
-    if "data_maturity" not in transformed_dsm1.columns:
-        transformed_dsm1["data_maturity"] = pd.NA
     # Separate dsm data into sales vs. other table (the latter of which can be tidied)
     dsm_sales = transformed_dsm1[idx_cols + sales_cols].copy()
     dsm_ee_dr = transformed_dsm1.drop(
@@ -1663,9 +1661,6 @@ def core_distributed_generation_eia861(
         ),
     )
 
-    # This happens if the extracted dataframe was empty, as is the case in the fast ETL.
-    if "data_maturity" not in raw_dg.columns:
-        raw_dg["data_maturity"] = pd.NA
     # Split into three tables: Capacity/tech-related, fuel-related, and misc.
     raw_dg_tech = raw_dg[idx_cols + tech_cols].copy()
     raw_dg_fuel = raw_dg[idx_cols + fuel_cols].copy()
