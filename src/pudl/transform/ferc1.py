@@ -6283,6 +6283,7 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
     # made these variables so we could generalize to other tables if we desired that.
     xbrl_factoid = "xbrl_factoid"
     dimension_col = "utility_type"
+    money_col = "dollar_value"
     idx = ["utility_id_ferc1", "report_year", xbrl_factoid]
 
     # first we need to find the xbrl_factoid's where there are mostly only totals
@@ -6329,7 +6330,8 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
     mostly_totals_mask = df[xbrl_factoid].isin(
         [fact for fact in mostly_total_xbrl_factoids if "correction" not in fact]
     ) & (df.util_type_count > 1)
-
+    # Now we've ID-ed what we probably want to drop. But we have to check to see if there
+    # are records in here that contain unique values in these rare non-total columns.
     mostly_totals_idx = (
         df.loc[mostly_totals_mask, idx].drop_duplicates().set_index(idx).index
     )
@@ -6338,14 +6340,14 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
     maybe_unique = mixed_typed_income[
         ~(
             (mixed_typed_income[dimension_col] != "total")
-            & (mixed_typed_income["dollar_value"].isna())
+            & (mixed_typed_income[money_col].isna())
         )
     ]
 
     if (
         len(
             actually_unique := maybe_unique[
-                ~maybe_unique.duplicated(keep=False, subset=idx + ["dollar_value"])
+                ~maybe_unique.duplicated(keep=False, subset=idx + [money_col])
                 # bc we removed some of the null non-totals we've gotta leave out the
                 # total's here
                 & (maybe_unique[dimension_col] != "total")
@@ -6359,7 +6361,8 @@ def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFram
             f":\n{actually_unique}\nThis breaks out logic we use to feel confident about "
             "removing these records in favor of keeping only the utility_type == total records."
         )
-
+    # Now that we've affirmed that we feel confident dropping these rare non-total
+    # records... drop them!
     return pd.concat(
         [
             df[~mostly_totals_mask],
