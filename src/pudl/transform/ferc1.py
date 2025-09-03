@@ -6266,6 +6266,111 @@ def table_to_column_to_check() -> dict[str, list[str]]:
     }
 
 
+def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove the rare, non-total utility types when all values are duplicated.
+
+    We remove the records of non-total utility_type's for xbrl_factoid's when almost
+    all instances of that xbrl_factoid show up with just a utility_type of "total". We
+    can only do this confidently because we also check that all of the dollar_value in
+    those records are exactly the same as the corresponding records with utility_type
+    of "total" or the non-total utility_type's have null dollar_value's.
+
+    This data isn't incorrect, it just interferes with how we process the calculations
+    embedded within these tables. This is why we are applying this within
+    :func:`_core_ferc1__table_dimensions` because that is what we use to build the
+    calculation components table.
+    """
+    # made these variables so we could generalize to other tables if we desired that.
+    xbrl_factoid = "xbrl_factoid"
+    dimension_col = "utility_type"
+    money_col = "dollar_value"
+    idx = ["utility_id_ferc1", "report_year", xbrl_factoid]
+
+    # first we need to find the xbrl_factoid's where there are mostly only totals
+    # within the dimension_col. Which is to say there are a few rare non-total
+    # utility_type's.
+    tot_mask = df[dimension_col] == "total"
+    # build a dataframe of xbrl_factoid's with a column for the count of the records
+    # with utility_type total and another column with the count for all the other
+    # utility_type's
+    dimension_value_count = pd.merge(
+        pd.DataFrame(df.loc[tot_mask, xbrl_factoid].value_counts()),
+        pd.DataFrame(df.loc[~tot_mask, xbrl_factoid].value_counts()),
+        on=xbrl_factoid,
+        how="outer",
+        suffixes=("_total", "_other"),
+    )
+    # With that little xbrl_factoid count dataframe we can check to see which
+    # xbrl_factoid's are almost entriely total. In order to id these "rare"
+    # non-totals we use a threshold of 20% here. meaning only 20% of the instances
+    # of the utility_type for a particular xbrl_factoid were non-totals.
+    # that's a little bit arbitrary... This was tested up to 40% but that seems
+    # too aggressive.
+    mostly_total_xbrl_factoids = dimension_value_count[
+        dimension_value_count.count_other.notnull()
+        & (
+            (
+                dimension_value_count.count_other
+                / (
+                    dimension_value_count.count_other
+                    + dimension_value_count.count_total
+                )
+            )
+            < 0.20
+        )
+    ].index
+    logger.info(
+        f"{len(mostly_total_xbrl_factoids) / len(df[xbrl_factoid].unique()):.1%} of the "
+        f"xbrl_factoid's in this table have {dimension_col} values that are mostly total, "
+        "but have some rare instances of non-total values."
+    )
+    # add a utility type count column. Because we only care about this when there
+    # are more than one util type
+    df.loc[:, "util_type_count"] = df.groupby(idx)[[dimension_col]].transform("count")
+    mostly_totals_mask = df[xbrl_factoid].isin(
+        [fact for fact in mostly_total_xbrl_factoids if "correction" not in fact]
+    ) & (df.util_type_count > 1)
+    # Now we've ID-ed what we probably want to drop. But we have to check to see if there
+    # are records in here that contain unique values in these rare non-total columns.
+    mostly_totals_idx = (
+        df.loc[mostly_totals_mask, idx].drop_duplicates().set_index(idx).index
+    )
+    mixed_typed_income = df.set_index(idx).loc[mostly_totals_idx].reset_index()
+    # first remove the records with null non-total records
+    maybe_unique = mixed_typed_income[
+        ~(
+            (mixed_typed_income[dimension_col] != "total")
+            & (mixed_typed_income[money_col].isna())
+        )
+    ]
+
+    if (
+        len(
+            actually_unique := maybe_unique[
+                ~maybe_unique.duplicated(keep=False, subset=idx + [money_col])
+                # bc we removed some of the null non-totals we've gotta leave out the
+                # total's here
+                & (maybe_unique[dimension_col] != "total")
+            ]
+        )
+        > 4
+    ):
+        raise AssertionError(
+            "Ah we found actually unique values within the records with xbrl_factoid's "
+            f"that have rare non-total {dimension_col} when we expected only 4 records"
+            f":\n{actually_unique}\nThis breaks out logic we use to feel confident about "
+            "removing these records in favor of keeping only the utility_type == total records."
+        )
+    # Now that we've affirmed that we feel confident dropping these rare non-total
+    # records... drop them!
+    return pd.concat(
+        [
+            df[~mostly_totals_mask],
+            mixed_typed_income[mixed_typed_income[dimension_col] == "total"],
+        ]
+    )
+
+
 @asset(
     ins={
         table_name: AssetIn(table_name)
@@ -6297,6 +6402,11 @@ def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
         )
         for (name, df) in kwargs.items()
     }
+    tbls["core_ferc1__yearly_income_statements_sched114"] = (
+        remove_rare_utility_type_subdimensions_rows(
+            tbls["core_ferc1__yearly_income_statements_sched114"]
+        )
+    )
     dimensions = (
         pd.concat(tbls.values())[
             ["table_name", "xbrl_factoid"]
