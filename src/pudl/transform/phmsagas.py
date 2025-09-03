@@ -318,3 +318,99 @@ def _check_unaccounted_for_gas_fraction(df):
         return AssetCheckResult(passed=False, metadata={"errors": error})
 
     return AssetCheckResult(passed=True)
+
+
+YEARLY_DISTRIBUTION_IDX_ISH = [
+    "report_year",
+    "report_number",
+    "operator_id_phmsa",
+    "commodity",
+    "operating_state",
+]
+
+
+@asset
+def _core_phmsa_yearly_distribution_main_by_install_decade(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the _core table of the miles of main by decade."""
+    # hm there are 49 records that don't fit this bill... which is basically zero for the size of this table
+    assert (
+        len(
+            raw_phmsagas__yearly_distribution[
+                raw_phmsagas__yearly_distribution.duplicated(
+                    subset=YEARLY_DISTRIBUTION_IDX_ISH, keep=False
+                )
+            ]
+        )
+        < 50
+    )
+
+    decade_of_main_miles_pattern = r"main_(\d{4})s_miles"
+    df = (
+        # TODO: add a standard simple cleanup of the YEARLY_DISTRIBUTION_IDX_ISH
+        raw_phmsagas__yearly_distribution.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=decade_of_main_miles_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="install_decade", value_name="main_miles")
+        .assign(
+            install_decade=lambda x: x.install_decade.str.extract(
+                decade_of_main_miles_pattern
+            )
+        )
+    )
+    return df
+
+
+@asset
+def _core_phmsa_yearly_distribution_main_by_material_and_size(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the _core table of the miles of main by material type and size."""
+    # will probably want to pull this out into a global var for other tables
+    material_types = [
+        "steel",
+        "ductile_iron",
+        "copper",
+        "cast_iron",
+        "cast_or_wrought_iron",
+        "wrought_iron",
+        "pvc",
+        "pe",
+        "abs",
+        "other_plastic",
+        "plastic",
+        "other_alt",
+        "other_material",
+        "reconditioned_cast_iron",
+        "all_materials",
+    ]
+    # main_other_material_detail used to be main_other_material_detail_miles but
+    # its not actually miles, its a note about what the heck the other material is
+
+    main_by_material_size_miles_pattern = (
+        rf"^main_(?:{'|'.join(material_types)})_(.*)_miles$"
+    )
+    df = (
+        # TODO: add a standard simple cleanup of the YEARLY_DISTRIBUTION_IDX_ISH
+        raw_phmsagas__yearly_distribution.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=main_by_material_size_miles_pattern)
+        .melt(ignore_index=False, var_name="material_size", value_name="main_miles")
+        .dropna(subset=["main_miles"], axis="index")
+        # this step takes much longer than I'd like....
+        # I tried df.material_size.str.extract(main_by_material_size_miles_pattern) but with
+        # the material types being a capturing group and a) that also took a while and b) it
+        # resulted in a new dataframe... which is less usable bc there are some duplicates in
+        # the index
+        .assign(
+            main_size=lambda x: x.material_size.str.extract(
+                main_by_material_size_miles_pattern
+            ),
+            material=lambda x: x.material_size.str.extract(
+                rf"^main_({'|'.join(material_types)})_(?:.*)_miles$"
+            ),
+        )
+        .drop(columns=["material_size"])
+    )
+    return df
