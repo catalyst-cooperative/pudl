@@ -75,6 +75,9 @@ Bug Fixes
   in the ENUM. Previously we logged a warning, and now it will raise an error. There
   were a couple of trivial cases in which we were losing values that violated the
   constraints, but nothing serious. See PR :pr:`4548`.
+* Fixed a user identified bug within the
+  :ref:`out_ferc1__yearly_detailed_income_statements` table unnecessarily dropping
+  records. See PR :pr:`4580`.
 
 Documentation
 ^^^^^^^^^^^^^
