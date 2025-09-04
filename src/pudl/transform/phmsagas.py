@@ -329,27 +329,51 @@ YEARLY_DISTRIBUTION_IDX_ISH = [
 ]
 
 
-@asset
-def _core_phmsa_yearly_distribution_main_by_install_decade(
+def _dedupe_year_distribution_idx(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the _core table of the miles of main by decade."""
-    # hm there are 49 records that don't fit this bill... which is basically zero for the size of this table
-    assert (
-        len(
-            raw_phmsagas__yearly_distribution[
-                raw_phmsagas__yearly_distribution.duplicated(
-                    subset=YEARLY_DISTRIBUTION_IDX_ISH, keep=False
-                )
-            ]
-        )
-        < 50
+    """Remove the rare duplicates in the expected primary key.
+
+    There are 49 found records which have duplicate values for the expected
+    primary key of this table. Many manipulations are much easier when we have a
+    unique primary key - merges for instance! So we want to remove these duplicates.
+
+    On visual inspection, these duplicates either look mostly the same or have one
+    record with most or all of the non-null or non-zero values. Therefore, we sort
+    the total columns and then drop duplicates so we kept the records which have the
+    most information. This is not the most robust method of de-duplicating but there
+    are so few records compared to the >90k total records.
+
+    """
+    tot_cols = list(raw_phmsagas__yearly_distribution.filter(like="_total").columns)
+    raw_phmsagas__yearly_distribution = raw_phmsagas__yearly_distribution.sort_values(
+        by=tot_cols, ascending=False
+    )
+    dupe_mask = raw_phmsagas__yearly_distribution.duplicated(
+        subset=YEARLY_DISTRIBUTION_IDX_ISH, keep=False
+    )
+    assert len(raw_phmsagas__yearly_distribution[dupe_mask]) < 50
+    return pd.concat(
+        [
+            raw_phmsagas__yearly_distribution[~dupe_mask],
+            raw_phmsagas__yearly_distribution[dupe_mask].drop_duplicates(
+                subset=YEARLY_DISTRIBUTION_IDX_ISH, keep="first"
+            ),
+        ],
     )
 
-    decade_of_main_miles_pattern = r"main_(\d{4})s_miles"
-    df = (
-        # TODO: add a standard simple cleanup of the YEARLY_DISTRIBUTION_IDX_ISH
-        raw_phmsagas__yearly_distribution.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+
+@asset
+def _core_phmsa_yearly_distribution_by_install_decade(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the _core table of the miles of main and services by decade."""
+    decade_of_main_miles_pattern = (
+        r"main_(\d{4}s|unknown_decade|pre_1940|all_time)_miles"
+    )
+    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+    main = (
+        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
         .filter(regex=decade_of_main_miles_pattern)
         .dropna(how="all", axis="index")
         .convert_dtypes()
@@ -359,8 +383,25 @@ def _core_phmsa_yearly_distribution_main_by_install_decade(
                 decade_of_main_miles_pattern
             )
         )
+        .set_index(["install_decade"], append=True)
     )
-    return df
+    decade_of_services_pattern = r"services_(\d{4}s|unknown_decade|pre_1940|all_time)"
+    services = (
+        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=decade_of_services_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="install_decade", value_name="services")
+        .assign(
+            install_decade=lambda x: x.install_decade.str.extract(
+                decade_of_services_pattern
+            )
+        )
+        .set_index(["install_decade"], append=True)
+    )
+    return pd.merge(
+        main, services, left_index=True, right_index=True, how="outer", validate="1:1"
+    )
 
 
 @asset
