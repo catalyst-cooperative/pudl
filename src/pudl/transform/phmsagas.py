@@ -363,6 +363,47 @@ def _dedupe_year_distribution_idx(
     )
 
 
+def _melt_merge_main_services(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+    main_pattern: str,
+    services_pattern: str,
+    col_patterns: dict[str, str],
+) -> pd.DataFrame:
+    """Filter, melt, add columns then merge miles of main and service."""
+
+    def _assign_cols_from_patterns(df: pd.DataFrame, col_patterns) -> pd.DataFrame:
+        for col_name, pattern in col_patterns.items():
+            df.loc[:, col_name] = df.melt_col.str.extract(pattern)
+        return df
+
+    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+    logger.info("Melting main")
+    main = (
+        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=main_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="melt_col", value_name="main_miles")
+        .pipe(_assign_cols_from_patterns, col_patterns)
+        .drop(columns=["melt_col"])
+        .set_index(list(col_patterns.keys()), append=True)
+    )
+    logger.info("Melting service")
+    services = (
+        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=services_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="melt_col", value_name="services")
+        .pipe(_assign_cols_from_patterns, col_patterns)
+        .drop(columns=["melt_col"])
+        .set_index(list(col_patterns.keys()), append=True)
+    )
+    return pd.merge(
+        main, services, left_index=True, right_index=True, how="outer", validate="1:1"
+    )
+
+
 @asset
 def _core_phmsa_yearly_distribution_by_material(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
@@ -385,34 +426,11 @@ def _core_phmsa_yearly_distribution_by_material(
 
     main_material_pattern = rf"^main_({'|'.join(material_type)})_miles$"
     services_material_pattern = rf"^services_({'|'.join(material_type)})$"
-
-    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
-    main = (
-        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=main_material_pattern)
-        .dropna(how="all", axis="index")
-        .convert_dtypes()
-        .melt(ignore_index=False, var_name="melt_col", value_name="main_miles")
-        .assign(
-            material=lambda x: x.melt_col.str.extract(rf"({'|'.join(material_type)})")
-        )
-        .drop(columns=["melt_col"])
-        .set_index(["material"], append=True)
-    )
-    services = (
-        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=services_material_pattern)
-        .dropna(how="all", axis="index")
-        .convert_dtypes()
-        .melt(ignore_index=False, var_name="melt_col", value_name="services")
-        .assign(
-            material=lambda x: x.melt_col.str.extract(rf"({'|'.join(material_type)})")
-        )
-        .drop(columns=["melt_col"])
-        .set_index(["material"], append=True)
-    )
-    return pd.merge(
-        main, services, left_index=True, right_index=True, how="outer", validate="1:1"
+    return _melt_merge_main_services(
+        raw_phmsagas__yearly_distribution,
+        main_material_pattern,
+        services_material_pattern,
+        {"material": rf"({'|'.join(material_type)})"},
     )
 
 
@@ -424,36 +442,12 @@ def _core_phmsa_yearly_distribution_by_install_decade(
     decade_of_main_miles_pattern = (
         r"main_(\d{4}s|unknown_decade|pre_1940|all_time)_miles"
     )
-    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
-    main = (
-        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=decade_of_main_miles_pattern)
-        .dropna(how="all", axis="index")
-        .convert_dtypes()
-        .melt(ignore_index=False, var_name="install_decade", value_name="main_miles")
-        .assign(
-            install_decade=lambda x: x.install_decade.str.extract(
-                decade_of_main_miles_pattern
-            )
-        )
-        .set_index(["install_decade"], append=True)
-    )
     decade_of_services_pattern = r"services_(\d{4}s|unknown_decade|pre_1940|all_time)"
-    services = (
-        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=decade_of_services_pattern)
-        .dropna(how="all", axis="index")
-        .convert_dtypes()
-        .melt(ignore_index=False, var_name="install_decade", value_name="services")
-        .assign(
-            install_decade=lambda x: x.install_decade.str.extract(
-                decade_of_services_pattern
-            )
-        )
-        .set_index(["install_decade"], append=True)
-    )
-    return pd.merge(
-        main, services, left_index=True, right_index=True, how="outer", validate="1:1"
+    return _melt_merge_main_services(
+        raw_phmsagas__yearly_distribution,
+        decade_of_main_miles_pattern,
+        decade_of_services_pattern,
+        {"install_decade": r"(\d{4}s|unknown_decade|pre_1940|all_time)"},
     )
 
 
@@ -489,7 +483,6 @@ def _core_phmsa_yearly_distribution_by_material_and_size(
         "0.5_in_or_less",
         "0.5_to_1_in",
         "1_in_or_less",
-        "1_or_less",
         "1_to_2_in",
         "2_in_or_less",
         "2_to_4_in",
@@ -506,50 +499,15 @@ def _core_phmsa_yearly_distribution_by_material_and_size(
     main_by_material_size_miles_pattern = (
         rf"^main_(?:{'|'.join(material_types)})_({'|'.join(main_sizes)})_miles$"
     )
-    main_miles = (
-        _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
-        .set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=main_by_material_size_miles_pattern)
-        .melt(ignore_index=False, var_name="material_size", value_name="main_miles")
-        .dropna(subset=["main_miles"], axis="index")
-        .assign(
-            main_size=lambda x: x.material_size.str.extract(
-                rf"({'|'.join(main_sizes)})"
-            ),
-            material=lambda x: x.material_size.str.extract(
-                rf"({'|'.join(material_types)})"
-            ),
-        )
-        .drop(columns=["material_size"])
-        .set_index(["main_size", "material"], append=True)
-    )
-
     services_by_material_size_pattern = (
         rf"^services_(?:{'|'.join(material_types)})_(.*)$"
     )
-    services = (
-        _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
-        .set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=services_by_material_size_pattern)
-        .melt(ignore_index=False, var_name="material_size", value_name="services")
-        .dropna(subset=["services"], axis="index")
-        .assign(
-            main_size=lambda x: x.material_size.str.extract(
-                rf"({'|'.join(main_sizes)})"
-            ),
-            material=lambda x: x.material_size.str.extract(
-                rf"({'|'.join(material_types)})"
-            ),
-        )
-        .drop(columns=["material_size"])
-        .set_index(["main_size", "material"], append=True)
-    )
-    return pd.merge(
-        main_miles,
-        services,
-        left_index=True,
-        right_index=True,
-        how="outer",
-        validate="1:1",
-        sort=False,
+    return _melt_merge_main_services(
+        raw_phmsagas__yearly_distribution,
+        main_by_material_size_miles_pattern,
+        services_by_material_size_pattern,
+        {
+            "main_size": rf"({'|'.join(main_sizes)})",
+            "material": rf"({'|'.join(material_types)})",
+        },
     )
