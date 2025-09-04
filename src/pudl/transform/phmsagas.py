@@ -405,10 +405,14 @@ def _core_phmsa_yearly_distribution_by_install_decade(
 
 
 @asset
-def _core_phmsa_yearly_distribution_main_by_material_and_size(
+def _core_phmsa_yearly_distribution_by_material_and_size(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the _core table of the miles of main by material type and size."""
+    """Transform the _core table of the miles of main and services by material type and size.
+
+    This table represents the bulk of the wide raw columns, which means it ends up being
+    nearly 8 million records.
+    """
     # will probably want to pull this out into a global var for other tables
     material_types = [
         "steel",
@@ -424,34 +428,75 @@ def _core_phmsa_yearly_distribution_main_by_material_and_size(
         "plastic",
         "other_alt",
         "other_material",
+        "other",
         "reconditioned_cast_iron",
         "all_materials",
     ]
-    # main_other_material_detail used to be main_other_material_detail_miles but
-    # its not actually miles, its a note about what the heck the other material is
-
+    main_sizes = [
+        "0.5_in_or_less",
+        "0.5_to_1_in",
+        "1_in_or_less",
+        "1_or_less",
+        "1_to_2_in",
+        "2_in_or_less",
+        "2_to_4_in",
+        "4_to_6_in",
+        "4_to_8_in",
+        "8_in",
+        "8_to_12_in",
+        "10_in",
+        "12_in",
+        "over_12_in",
+        "total",
+        "unknown",
+    ]
     main_by_material_size_miles_pattern = (
-        rf"^main_(?:{'|'.join(material_types)})_(.*)_miles$"
+        rf"^main_(?:{'|'.join(material_types)})_({'|'.join(main_sizes)})_miles$"
     )
-    df = (
-        # TODO: add a standard simple cleanup of the YEARLY_DISTRIBUTION_IDX_ISH
-        raw_phmsagas__yearly_distribution.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+    main_miles = (
+        _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+        .set_index(YEARLY_DISTRIBUTION_IDX_ISH)
         .filter(regex=main_by_material_size_miles_pattern)
         .melt(ignore_index=False, var_name="material_size", value_name="main_miles")
         .dropna(subset=["main_miles"], axis="index")
-        # this step takes much longer than I'd like....
-        # I tried df.material_size.str.extract(main_by_material_size_miles_pattern) but with
-        # the material types being a capturing group and a) that also took a while and b) it
-        # resulted in a new dataframe... which is less usable bc there are some duplicates in
-        # the index
         .assign(
             main_size=lambda x: x.material_size.str.extract(
-                main_by_material_size_miles_pattern
+                rf"({'|'.join(main_sizes)})"
             ),
             material=lambda x: x.material_size.str.extract(
-                rf"^main_({'|'.join(material_types)})_(?:.*)_miles$"
+                rf"({'|'.join(material_types)})"
             ),
         )
         .drop(columns=["material_size"])
+        .set_index(["main_size", "material"], append=True)
     )
-    return df
+
+    services_by_material_size_pattern = (
+        rf"^services_(?:{'|'.join(material_types)})_(.*)$"
+    )
+    services = (
+        _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+        .set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=services_by_material_size_pattern)
+        .melt(ignore_index=False, var_name="material_size", value_name="services")
+        .dropna(subset=["services"], axis="index")
+        .assign(
+            main_size=lambda x: x.material_size.str.extract(
+                rf"({'|'.join(main_sizes)})"
+            ),
+            material=lambda x: x.material_size.str.extract(
+                rf"({'|'.join(material_types)})"
+            ),
+        )
+        .drop(columns=["material_size"])
+        .set_index(["main_size", "material"], append=True)
+    )
+    return pd.merge(
+        main_miles,
+        services,
+        left_index=True,
+        right_index=True,
+        how="outer",
+        validate="1:1",
+        sort=False,
+    )
