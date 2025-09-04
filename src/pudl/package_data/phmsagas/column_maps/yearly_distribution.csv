@@ -405,7 +405,7 @@ excavation_damage_other_issues_total,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,excav_other,ex
 excavation_damage_other_deteriorated_facility,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partdmiscdeter
 excavation_damage_other_one_call_center_error,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partdmisconecall
 excavation_damage_other_previous_damage,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partdmiscprevdamage
-excavation_damage_root_cause_not_listed,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partdmiscrootcause
+excavation_damage_other_root_cause_not_listed,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,partdmiscrootcause
 excavation_tickets,,,,,,,,,,,,,,,,,,,,,,,,,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,excav_tickets,partdtottickets
 services_efv_installed,,,,,,,,,,,,,,,,,,,,,,,,,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,efv_installed_cy,,
 services_efv_in_system,,,,,,,,,,,,,,,,,,,,,,,,,efv_in_system,efv_in_system,efv_in_system,efv_in_system,efv_in_system,efv_in_system,efv_in_system,efv_in_system,efv_in_system,efv_in_system,efv_in_system,efv_in_system,efv_in_system,,

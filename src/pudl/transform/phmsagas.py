@@ -363,6 +363,12 @@ def _dedupe_year_distribution_idx(
     )
 
 
+def _assign_cols_from_patterns(df: pd.DataFrame, col_patterns) -> pd.DataFrame:
+    for col_name, pattern in col_patterns.items():
+        df[col_name] = df.melt_col.str.extract(pattern)
+    return df
+
+
 def _melt_merge_main_services(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
     main_pattern: str,
@@ -370,15 +376,7 @@ def _melt_merge_main_services(
     col_patterns: dict[str, str],
 ) -> pd.DataFrame:
     """Filter, melt, add columns then merge miles of main and service."""
-
-    def _assign_cols_from_patterns(df: pd.DataFrame, col_patterns) -> pd.DataFrame:
-        for col_name, pattern in col_patterns.items():
-            df[col_name] = df.melt_col.str.extract(pattern)
-        return df
-
-    deduped_raw = _dedupe_year_distribution_idx(
-        raw_phmsagas__yearly_distribution
-    ).convert_dtypes()
+    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
     logger.info("Melting main")
     main = (
         deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
@@ -415,7 +413,7 @@ def _melt_merge_main_services(
 
 
 @asset
-def _core_phmsa_yearly_distribution_by_material(
+def _core_phmsa__yearly_distribution_by_material(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by material."""
@@ -445,7 +443,7 @@ def _core_phmsa_yearly_distribution_by_material(
 
 
 @asset
-def _core_phmsa_yearly_distribution_by_install_decade(
+def _core_phmsa__yearly_distribution_by_install_decade(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by decade."""
@@ -462,7 +460,7 @@ def _core_phmsa_yearly_distribution_by_install_decade(
 
 
 @asset
-def _core_phmsa_yearly_distribution_by_material_and_size(
+def _core_phmsa__yearly_distribution_by_material_and_size(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by material type and size.
@@ -527,13 +525,39 @@ def _core_phmsa__yearly_distribution_leaks(
 ) -> pd.DataFrame:
     """Transform table of leaks - broken out by source and leak severity."""
     main_leaks_repaired_pattern = r"^(all_leaks|hazardous_leaks)_(.*)_mains$"
-    services_leaks_repaied_pattern = r"^(all_leaks|hazardous_leaks)_(.*)_services$"
+    services_leaks_repaired_pattern = r"^(all_leaks|hazardous_leaks)_(.*)_services$"
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
         main_leaks_repaired_pattern,
-        services_leaks_repaied_pattern,
+        services_leaks_repaired_pattern,
         {
             "leak_severity": r"^(all_leaks|hazardous_leaks)",
             "leak_source": r"^(?:all_leaks|hazardous_leaks)_(.*)_(?:mains|services)",
         },
+    )
+
+
+@asset
+def _core_phmsa__yearly_distribution_excavation_damages(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform table of damages - broken out by type and sub-type."""
+    damage_types = ["notification", "locating", "excavation", "other", "total"]
+    damage_pattern = rf"^excavation_damage_(?:{'|'.join(damage_types)})_(.*)$"
+    col_patterns = {
+        "damage_type": rf"({'|'.join(damage_types)})",
+        "damage_sub_type": damage_pattern,
+    }
+    return (
+        _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+        .set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=damage_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        # TODO: what are damages? are they $$?
+        .melt(ignore_index=False, var_name="melt_col", value_name="damages")
+        .pipe(_assign_cols_from_patterns, col_patterns)
+        .drop(columns=["melt_col"])
+        .set_index(list(col_patterns.keys()), append=True)
+        .dropna(how="all", axis="index")
     )
