@@ -364,6 +364,59 @@ def _dedupe_year_distribution_idx(
 
 
 @asset
+def _core_phmsa_yearly_distribution_by_material(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the _core table of the miles of main and services by material."""
+    material_type = [
+        "unprotected_steel_bare",
+        "unprotected_steel_coated",
+        "cathodically_protected_steel_bare",
+        "cathodically_protected_steel_coated",
+        "plastic",
+        "cast_or_wrought_iron",
+        "ductile_iron",
+        "copper",
+        "other_alt",
+        "other",
+        "reconditioned_cast_iron",
+        "total",
+    ]
+
+    main_material_pattern = rf"^main_({'|'.join(material_type)})_miles$"
+    services_material_pattern = rf"^services_({'|'.join(material_type)})$"
+
+    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+    main = (
+        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=main_material_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="melt_col", value_name="main_miles")
+        .assign(
+            material=lambda x: x.melt_col.str.extract(rf"({'|'.join(material_type)})")
+        )
+        .drop(columns=["melt_col"])
+        .set_index(["material"], append=True)
+    )
+    services = (
+        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=services_material_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="melt_col", value_name="services")
+        .assign(
+            material=lambda x: x.melt_col.str.extract(rf"({'|'.join(material_type)})")
+        )
+        .drop(columns=["melt_col"])
+        .set_index(["material"], append=True)
+    )
+    return pd.merge(
+        main, services, left_index=True, right_index=True, how="outer", validate="1:1"
+    )
+
+
+@asset
 def _core_phmsa_yearly_distribution_by_install_decade(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
