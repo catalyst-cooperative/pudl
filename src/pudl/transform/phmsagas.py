@@ -373,10 +373,12 @@ def _melt_merge_main_services(
 
     def _assign_cols_from_patterns(df: pd.DataFrame, col_patterns) -> pd.DataFrame:
         for col_name, pattern in col_patterns.items():
-            df.loc[:, col_name] = df.melt_col.str.extract(pattern)
+            df[col_name] = df.melt_col.str.extract(pattern)
         return df
 
-    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+    deduped_raw = _dedupe_year_distribution_idx(
+        raw_phmsagas__yearly_distribution
+    ).convert_dtypes()
     logger.info("Melting main")
     main = (
         deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
@@ -387,6 +389,7 @@ def _melt_merge_main_services(
         .pipe(_assign_cols_from_patterns, col_patterns)
         .drop(columns=["melt_col"])
         .set_index(list(col_patterns.keys()), append=True)
+        .dropna(how="all", axis="index")
     )
     logger.info("Melting service")
     services = (
@@ -398,9 +401,16 @@ def _melt_merge_main_services(
         .pipe(_assign_cols_from_patterns, col_patterns)
         .drop(columns=["melt_col"])
         .set_index(list(col_patterns.keys()), append=True)
+        .dropna(how="all", axis="index")
     )
     return pd.merge(
-        main, services, left_index=True, right_index=True, how="outer", validate="1:1"
+        main,
+        services,
+        left_index=True,
+        right_index=True,
+        how="outer",
+        validate="1:1",
+        sort=False,
     )
 
 
@@ -497,11 +507,9 @@ def _core_phmsa_yearly_distribution_by_material_and_size(
         "unknown",
     ]
     main_by_material_size_miles_pattern = (
-        rf"^main_(?:{'|'.join(material_types)})_({'|'.join(main_sizes)})_miles$"
+        rf"^main_({'|'.join(material_types)})_({'|'.join(main_sizes)})_miles$"
     )
-    services_by_material_size_pattern = (
-        rf"^services_(?:{'|'.join(material_types)})_(.*)$"
-    )
+    services_by_material_size_pattern = rf"^services_({'|'.join(material_types)})_(.*)$"
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
         main_by_material_size_miles_pattern,
@@ -509,5 +517,23 @@ def _core_phmsa_yearly_distribution_by_material_and_size(
         {
             "main_size": rf"({'|'.join(main_sizes)})",
             "material": rf"({'|'.join(material_types)})",
+        },
+    )
+
+
+@asset
+def _core_phmsa__yearly_distribution_leaks(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform table of leaks - broken out by source and leak severity."""
+    main_leaks_repaired_pattern = r"^(all_leaks|hazardous_leaks)_(.*)_mains$"
+    services_leaks_repaied_pattern = r"^(all_leaks|hazardous_leaks)_(.*)_services$"
+    return _melt_merge_main_services(
+        raw_phmsagas__yearly_distribution,
+        main_leaks_repaired_pattern,
+        services_leaks_repaied_pattern,
+        {
+            "leak_severity": r"^(all_leaks|hazardous_leaks)",
+            "leak_source": r"^(?:all_leaks|hazardous_leaks)_(.*)_(?:mains|services)",
         },
     )
