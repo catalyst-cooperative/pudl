@@ -2,9 +2,25 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2025.9.0:
+
 ---------------------------------------------------------------------------------------
-v202X.XX.x (YYYY-MM-DD)
+v2025.9.0 (2025-09-05)
 ---------------------------------------------------------------------------------------
+
+This is a monthly release primarily focused on updating the EIA-860M, with other
+incremental changes coming along for the ride. A couple of things to be aware of:
+
+* :user:`mfripp` identified a bug in how we were constructing detailed utility
+  asset/liability and income/expense tables from FERC Form 1. This has been partially
+  addressed, but the fix needs to be applied to a couple of additional tables. See
+  :issue:`4593` to track our progress.
+* We are now producing GeoParquet outputs for tables that contain spatial data. This
+  is a great new feature! But also potentially a breaking change, depending on what
+  tools you've been using to read our Parquet outputs. `GeoPandas
+  <https://geopandas.org/>`__ and `DuckDB's spatial extension
+  <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__ both work
+  well.
 
 Enhancements
 ^^^^^^^^^^^^
@@ -34,9 +50,6 @@ tables with a valid ``geometry`` column are:
 * :ref:`out_censusdp1tract__counties`
 * :ref:`out_censusdp1tract__tracts`
 * :ref:`out_ferc714__georeferenced_respondents`
-
-New Data
-^^^^^^^^
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -85,12 +98,6 @@ Documentation
 * Added data source pages for:
 
   * :doc:`data_sources/eiaapi`; see issue :issue:`4372` and PR :pr:`4567`.
-
-Deprecations
-^^^^^^^^^^^^
-
-New Tests and Data Validations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _release-v2025.8.0:
 
