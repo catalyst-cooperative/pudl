@@ -11,12 +11,13 @@ unstructured PDFs or HTML.
 
 Our main interest in the SEC Form 10-K is providing better access to some of that
 unstructured data, primarily an attachment called Exhibit 21 which reports "Subsidiaries
-of the Registrant" as described in `17 CFR § 229.601 <https://www.law.cornell.edu/cfr/text/17/229.601>`__.
+of the Registrant" as described in `17 CFR § 229.601
+<https://www.law.cornell.edu/cfr/text/17/229.601>`__:
 
-List all subsidiaries of the registrant, the state or other jurisdiction of
-incorporation or organization of each, and the names under which such subsidiaries do
-business. This list may be incorporated by reference from a document which includes a
-complete and accurate list.
+    List all subsidiaries of the registrant, the state or other jurisdiction of
+    incorporation or organization of each, and the names under which such subsidiaries
+    do business. This list may be incorporated by reference from a document which
+    includes a complete and accurate list.
 
 This data is relevant to the US energy system and the transition away from fossil fuels
 because electricity and natural gas utility holding companies often have complex
@@ -25,60 +26,84 @@ nested parent and subsidiary companies. Without understanding that network of
 relationships, it is hard to understand the incentives driving the behavior of
 individual utilities.
 
-In 2024 we captured a snapshot of the raw HTML of the SEC 10-K filings, and any
-associated Exhibit 21 attachments and processed it using the machine learning pipeline
-found in `this repository <https://github.com/catalyst-cooperative/mozilla-sec-eia>`__.
+In order to link this subsidiary company information to other datasets we also need
+contextual information about the SEC 10-K filings they are part of and the companies
+submitting those filings.
 
-Metadata related to each filing was parsed out of the plaintext headers of the HTML
-documents. Some of these headers pertain to the filing as a whole and others describe
-attributes of the individual companies associated with the filing. Each filing has a
-single company that is the primary filer and the filing is associated with their
+In 2024 we captured a snapshot of the raw HTML of the SEC 10-K filings from the SEC's
+EDGAR database, including the Exhibit 21 attachments. We extract two kinds of data from
+this raw data source using different methods.
+
+First, metadata related to each filing was parsed out of the plaintext headers of the
+HTML documents. Some of these headers pertain to the filing as a whole and others
+describe attributes of the individual companies associated with the filing. Each filing
+has a single company that is the primary filer, and the filing is associated with their
 `Central Index Key <https://www.sec.gov/search-filings/cik-lookup>`__ (CIK) -- a
 persistent company identifier assigned by the SEC that is more durable and standardized
 than the company name.
 
-These plaintext headers are not necessarily intended to be machine readable, but they
+The plaintext headers are not necessarily intended to be machine readable, but they
 are highly structured and allow us to compile a database of all SEC 10-K filings and the
-companies involved. They are the source material for most of the ``core_sec10k`` tables
-found in PUDL, with the exception of the data extracted from the unstructured Exhibit 21
-itself.
+companies involved. The ``core_sec10k`` tables derived from the headers provide the
+context that's necessary to link the subsidiary company information extracted from
+Exhibit 21 to other sets of companies, including the SEC 10-K filers themselves, as well
+as companies that file the EIA Form 860.
 
-Three Sets of Companies and Two Record Linkages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Second, we wrote `a machine learning pipeline
+<https://github.com/catalyst-cooperative/mozilla-sec-eia>`__. to extract structured
+tabular data form the unstructured Exhibit 21 attachments. This includes an ID
+indicating what filing the attachment was part of, the subisdiary company name and
+location, and in some cases, the fraction of the subsidiary that is owned by the parent
+company making the filing.
 
-There are three sets of companies referenced in the SEC 10-K data in PUDL:
+Three Types of Companies and Three Record Linkages
+--------------------------------------------------
 
-* SEC 10-K Filers: any company associated with a ``central_index_key``. These
+There are three sets of companies referenced in the SEC 10-K tables in PUDL. These
+categories are not exclusive.
+
+* **SEC 10-K Filers:** any company associated with a ``central_index_key``. These
   companies appear both as the primary filers of a filing, and in the list of
   additional filers found in the filing headers.
-* Exhibit 21 Subsidiaries: identified by name and location in the Exhibit 21
+* **Exhibit 21 Subsidiaries:** identified by name and location in the Exhibit 21
   attachment.
-* EIA Utiliites: Companies that report the :doc:`EIA Form 860 </data_sources/eia860>`
-  and are identified by ``utility_id_eia`` in the PUDL database.
+* **EIA Utiliites:** Companies that report the :doc:`EIA Form 860
+  </data_sources/eia860>` and which are identified by ``utility_id_eia`` in the PUDL
+  database.
 
-These categories are not exclusive. The same company can file its own SEC 10-K, appear
-as a subsidiary company in another company's SEC 10-K Exhibit 21, and be a utility that
-reports its generation to EIA. The challenge of integrating the SEC 10-K into PUDL is
-linking these three different types of entities together when they refer to the same
-company. We attempt to make two linkages:
+The same company can file its own SEC 10-K, appear as a subsidiary company in another
+company's SEC 10-K Exhibit 21, and be a utility that reports its generation to EIA. The
+challenge of integrating the SEC 10-K into PUDL is linking these three types of entities
+to each other when they refer to the same company. We attempt to make all three possible
+linkages among these entities.
 
 * Based on company names, addresses, and other information we use
   `Splink <https://github.com/moj-analytical-services/splink>`__ to do a statistical
-  record linkage between the universe of SEC 10-K Filers and EIA Utilities.
-* Based just on standardized company names and locations, we try to link Exhibit 21
-  Subsidiaries to SEC 10-K Filers. In cases where the SEC 10-K filer has been linked
-  to an EIA utility, this also results in a link between the subsidiary and the EIA
-  utility.
+  record linkage between the universe of SEC 10-K Filers and EIA Utilities. This is
+  the most robust potential linkage, because both the SEC 10-K and EIA datasets are
+  relatively rich in details about the companies.
+* Based on standardized company names and incorporation locations, we try to link
+  each Exhibit 21 Subsidiary to a corresponding SEC 10-K Filer. This linkage is tenuous
+  because we have so little information about the subsidiary.
+* Similarly, we try to link individual subsidiaries to corresponding EIA utilities
+  based on company name. In cases where the SEC 10-K filer has been linked
+  to both an EIA utility and a subsidiary, we can also indirectly infer a link between
+  the subsidiary and the EIA utility.
 
-For more details on how these record linkages are done, and how the Exhibit 21 data
-was extracted see :doc:`/methodology/sec10k_modeling`
+For more details on how these record linkages are done and how the Exhibit 21 data is
+extracted, see :doc:`/methodology/sec10k_modeling`.
 
 Linkage Completeness & Quality
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Here we look at Xcel Energy, a multi-state utility holding company with several major
+To understand what these linkages can be used for, we need to look at the ways in which
+they are incomplete and imperfect. Spot checking a couple of well known utilities can
+help highlight the strengths and weaknesses of the dataset.
+
+As an example, Xcel Energy is a multi-state utility holding company with several major
 subsidiary utilities operating in in Colorado, Minnesota, New Mexico, and Wisconsin. We
-include data from 2001 and 2023 for comparison.
+can select some of its parent-subsidiary relationships from 2001, 2012 and 2023 from the
+PUDL outputs using the following query:
 
 .. tabs::
 
@@ -100,7 +125,7 @@ include data from 2001 and 2023 for comparison.
       ],
       dtype_backend="pyarrow"
       ).query("parent_company_central_index_key == '0000072903'")
-      ).query("report_date.dt.year.isin([2001, 2023]")
+      ).query("report_date.dt.year.isin([2001, 2012, 2023])")
 
    .. code-tab:: sql DuckDB
 
@@ -118,7 +143,7 @@ include data from 2001 and 2023 for comparison.
           's3://pudl.catalyst.coop/nightly/out_sec10k__parents_and_subsidiaries.parquet'
       WHERE
           parent_company_central_index_key = '0000072903' AND
-          EXTRACT(YEAR FROM report_date) in (2001,2023);
+          EXTRACT(YEAR FROM report_date) in (2001,2012,2023);
 
    .. code-tab:: python polars
 
@@ -137,22 +162,16 @@ include data from 2001 and 2023 for comparison.
               "fraction_owned",
           ]
       ).filter(
-          pl.col("report_date").dt.year().is_in([2001, 2023]),
+          pl.col("report_date").dt.year().is_in([2001, 2012, 2023]),
           pl.col("parent_company_central_index_key").eq("0000072903")
       )
 
-   .. csv-table::
-      :file: sec10k/xcel_sec10k_example.csv
-      :header-rows: 1
-      :widths: auto
-
-* The parent company we've selected, Xcel Energy, is linked to a corresponding EIA
-  Utility ID.
-* In 2023, 4 of 18 listed Xcel subsidiaries are associated with their own SEC 10-K
-  filer CIK. In 2001, it was 3 out of 23.
-* Across both years, only 1 subsidiary company was linked to an EIA Utility ID.
+* We can see that Xcel has successfully been linked to a corresponding EIA Utility ID.
+* In 2023, 4 of 18 listed Xcel subsidiaries have been associated with their own SEC
+  10-K filer CIK. In 2001, it was 3 out of 23.
+* Across both years, only 1 subsidiary company was linked to its own EIA Utility ID.
 * 2 subsidiaries that were linked to CIKs in 2023 also appear in 2001, but they were
-  not linked to EIA Utilities, apparently due differences in how their names are
+  not linked to EIA Utilities, apparently due to differences in how their names are
   spelled.
 * No ownership fraction information was captured for any of the subsidiaries.
 
@@ -193,10 +212,9 @@ What can't this data be used for?
 
 {% endblock %}
 
+{% block download_title %}
+{% endblock %}
 {% block download_docs %}
-{% for filename in download_paths -%}
-* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
-{% endfor %}
 {% endblock %}
 
 {% block availability %}
@@ -204,7 +222,8 @@ What can't this data be used for?
 The SEC filing database is called EDGAR. The agency provides an `online search interface
 <https://www.sec.gov/search-filings>`__ for all filings as well as `a REST API
 <https://www.sec.gov/search-filings/edgar-application-programming-interfaces>`__ and
-`several RSS feeds <https://www.sec.gov/about/rss-feeds>`__.
+`several RSS feeds <https://www.sec.gov/about/rss-feeds>`__. EDGAR is the original
+source of all of the SEC 10-K data in PUDL.
 
 {% endblock %}
 
@@ -230,14 +249,14 @@ documents as plain text on the SEC website. `See this filing as an example
 {% block notable_irregularities %}
 
 SEC 10-K Filer to EIA Utility Linkage Based On 2023 Data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------------------
 
 Due to memory constraints, the statistical record linkage used to associate the SEC's
 ``central_index_key`` with the EIA's ``utility_id_eia`` was only run on 2023 data.
 This means companies that do not appear in the 2023 data have not been linked.
 
 Missing Exhibit 21 Subsidiaries for 2018-2022
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------
 
 Due to an error while running the Exhibit 21 extraction pipeline, no subsidiaries were
 captured from the Q1 filings for 2018-2022. Approximately 80% of companies make their
@@ -246,7 +265,7 @@ which may also affect the quality of the record linkage. See issue :issue:`4165`
 :pr:`4134`.
 
 Loss of Company Addresses
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 A bug in our extraction of company information from the plaintext headers of the SEC
 10-K filings meant that we were unable to associate about 5% of the reported company
@@ -256,7 +275,7 @@ values in those fields than would be observed in the source data. See issue
 :issue:`4165` and PR :pr:`4134`.
 
 Lack of Subsidiary ID Continuity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 No meaningful company ID is reported for subsidiaries that appear in the Exhibit 21
 attachments. We construct an ad-hoc ID by concatenating the Central Index Key (CIK) of
@@ -267,18 +286,31 @@ Exhibit 21 attachment. However:
 * locations are reported in a variety of formats, and
 * subsidiary names do not always use the same spelling or abbreviations.
 
-This means that there is no authoritative ID that can be used to link individual
-subsidiary companies across different filings, either within the same reporting period
-or across different reporting periods. Parent companies often report their subsidiaries
-with the same names and locations across many years, but there is definitely variation.
+This means that if a subsidiary is reported under more than one parent company, it is
+guaranteed to be assigned a different ID in each of them. Unless a subsidiary has also
+been associated with its own EIA CIK or EIA utility ID, we can't see how the same
+company is connected to multiple parents.
+
+Because subsidiary names and locations may be reported differently from year to year
+even within the same parent company's filings, we can't authoritatively track changes
+in those parent-subsidiary relationships through time.
 
 Fraction Owned is Rarely Reported
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
 
 In most cases, no ownership fraction is reported in the Exhibit 21, so we cannot state
 confidently how much of each subsidiary the parent company owns. Anecdotally, based on
 outside information, many of the subsidiaries that do not report an ownership fraction
 seem to be entirely owned by a single parent company, but we don't know how common that
 really is.
+
+Messy Industry Classifications
+------------------------------
+
+A couple of the most useful fields in the SEC 10-K company information are
+``industry_id_sic`` and ``industry_name_sic`` which indicates what sector the coompany
+is part of. However, both columns contain significant numbers of null values and the
+name field is not entirely standardized. Further cleaning of these columns would make it
+easier to select companies most likely to be relevant to energy system analyses.
 
 {% endblock %}
