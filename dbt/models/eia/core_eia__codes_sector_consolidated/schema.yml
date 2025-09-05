@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia__codes_sector_consolidated
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia__codes_sector_consolidated
+                partition_expr:
+        columns:
+          - name: code
+          - name: label
+          - name: description

@@ -26,7 +26,10 @@ described here.
 {% block download_docs %}
 This block iterates through any downloadable PDFs for the data source that might provide
 extra context.  These might be a diagram of the database or a blank form for the data
-source for a certain time frame.
+source for a certain time frame. Place documents in ``docs/data_sources/{{ resource.name }}/`` and they will show up here automatically.
+{% for filename in download_paths %}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`__
+{% endfor %}
 {% endblock %}
 
 {% block availability_title %}
@@ -56,17 +59,6 @@ This block discusses any irregularities about the dataset that could be helpful 
 user to know about.
 {% endblock %}
 
-{% for filename in download_paths %}
-    * :download:`{{ filename.split("/")[-1].replace("_", " ")[:-4].title() }} (PDF) <{{ filename }}>`
-{% endfor %}
-
-As of 2019, the EIA-860 Form is organized into the following schedules:
-
-    * **Schedule 1:** Identification
-    * **Schedule 2:** Power plant data
-    * **Schedule 3:** Generator information
-    * **Schedule 4:** Ownership of generators
-    * **Schedule 6:** Boiler information
-
-(Schedule 5 contained generator construction cost information)
+{% block extra_pudl_transform_text %}
+This block adds any extra information about how PUDL transforms the original data.
 {% endblock %}

@@ -169,7 +169,7 @@ class RenameColumnsFerc1(TransformParams):
     """Dictionaries for renaming either XBRL or DBF derived FERC 1 columns.
 
     This is FERC 1 specific, because we need to store both DBF and XBRL rename
-    dictionaires separately. Note that this parameter model does not have its own unique
+    dictionaries separately. Note that this parameter model does not have its own unique
     transform function. Like the generic :class:`pudl.transform.classes.RenameColumns`
     it depends on the build in :meth:`pd.rename` method, which is called with the values
     DBF or XBRL parameters depending on the context.
@@ -357,7 +357,7 @@ def drop_duplicate_rows_dbf(
     params: DropDuplicateRowsDbf,
     return_dupes_w_unique_data: bool = False,
 ) -> pd.DataFrame:
-    """Drop duplicate DBF rows if duplicates have indentical data or one row has nulls.
+    """Drop duplicate DBF rows if duplicates have identical data or one row has nulls.
 
     There are several instances of the DBF data reporting the same value on multiple
     rows. This function checks to see if all of the duplicate values that have the same
@@ -369,7 +369,7 @@ def drop_duplicate_rows_dbf(
     Args:
         df: DBF table containing PUDL primary key columns
         params: an instance of :class:`DropDuplicateRowsDbf`
-        return_dupes_w_unique_data: Boolean flag used for debuging only which returns
+        return_dupes_w_unique_data: Boolean flag used for debugging only which returns
             the duplicates which contain actually unique data instead of raising
             assertion. Default is False.
     """
@@ -429,7 +429,7 @@ def drop_duplicate_rows_dbf(
 
 
 class AlignRowNumbersDbf(TransformParams):
-    """Parameters for aligning DBF row numbers with metadata from mannual maps."""
+    """Parameters for aligning DBF row numbers with metadata from manual maps."""
 
     dbf_table_names: list[str] | None = None
     """DBF table to use to grab the row map in :func:`align_row_numbers_dbf`.
@@ -489,7 +489,7 @@ class SelectDbfRowsByCategory(TransformParams):
     len_expected_categories_to_drop: int = 0
     """Number of categories that are expected to be dropped from the DBF data.
 
-    This is here to ensure no unexpected manipulations to the categories have occured. A
+    This is here to ensure no unexpected manipulations to the categories have occurred. A
     warning will be flagged if this number is different than the number of categories
     that are being dropped.
     """
@@ -579,7 +579,7 @@ def unstack_balances_to_report_year_instant_xbrl(
     There are two checks in place:
 
     First, it will make sure that there are not duplicate entries for a single year +
-    other primary key fields. Ex: a row for 2020-12-31 and 2020-06-30 for entitiy_id X
+    other primary key fields. Ex: a row for 2020-12-31 and 2020-06-30 for entity_id X
     means that the data isn't annually unique. We could just drop these mid-year
     values, but we might want to keep them or at least check that there is no funny
     business with the data.
@@ -664,7 +664,7 @@ def combine_axis_columns_xbrl(
     axis columns.
 
     We use the axis columns (the primary key for the raw XBRL tables) in the creation
-    of ``record_id``s for each of the rows. If each of the concatinated XBRL tables has
+    of ``record_id``s for each of the rows. If each of the concatenated XBRL tables has
     the same axis column name then there's no need to fret. However, if the columns have
     slightly different names (ex: ``residential_sales_axis`` vs.
     ``industrial_sales_axis``), we'll need to combine them. We combine them to get rid
@@ -720,7 +720,7 @@ def combine_axis_columns_xbrl(
 
 
 class AssignQuarterlyDataToYearlyDbf(TransformParams):
-    """Parameters for transfering quarterly reported data to annual columns."""
+    """Parameters for transferring quarterly reported data to annual columns."""
 
     quarterly_to_yearly_column_map: dict[str, str] = {}
     quarterly_filed_years: list[int] = []
@@ -945,7 +945,7 @@ def reconcile_table_calculations(
 
     Note that only calculations which are off by a significant amount result in the
     creation of a correction record. Many calculations are off from the reported values
-    by exaclty one dollar, presumably due to rounding errrors. These records typically
+    by exactly one dollar, presumably due to rounding errors. These records typically
     do not fail the :func:`numpy.isclose()` test and so are not corrected.
 
     Args:
@@ -1214,8 +1214,8 @@ def calculate_values_from_components(
         )
     except pd.errors.MergeError as err:  # Make debugging easier.
         raise pd.errors.MergeError(
-            "Merge failed, duplicated merge keys in left dataset:\n"
-            f"{calculation_components[calculation_components.duplicated(calc_idx, keep=False)]}"
+            f"Merge failed, duplicated merge keys in left dataset with merge key of {calc_idx}:\n"
+            f"{calculation_components[calculation_components.duplicated(calc_idx, keep=False)].set_index(calc_idx).sort_index()}"
         ) from err
     # remove the _parent suffix so we can merge these calculated values back onto
     # the data using the original pks
@@ -1271,7 +1271,7 @@ def check_calculation_metrics_by_group(
 
     Convert all of the groups' checks into a big df. This will have two indexes: first
     for the group name (group) and one for the groups values. the columns will include
-    three for each test: the test mertic that is the same name as the test (ex:
+    three for each test: the test metric that is the same name as the test (ex:
     error_frequency), the tolerance for that group/test and a boolean indicating
     whether or not that metric failed to meet the tolerance.
     """
@@ -1702,7 +1702,7 @@ def get_ferc1_dbf_rows_to_map(ferc1_engine: sa.Engine) -> pd.DataFrame:
     """Identify DBF rows that need to be mapped to XBRL columns.
 
     Select all records in the ``f1_row_lit_tbl`` where the row literal associated with a
-    given combination of table and row number is different from the preceeding year.
+    given combination of table and row number is different from the preceding year.
     This is the smallest set of records which we can use to reproduce the whole table by
     expanding the time series to include all years, and forward filling the row
     literals.
@@ -2159,7 +2159,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> str:
         """Rename a column name from original XBRL name to the transformed PUDL name.
 
-        There are several transform params that either explicitly or implicity rename
+        There are several transform params that either explicitly or implicitly rename
         columns:
         * :class:`RenameColumnsFerc1`
         * :class:`WideToTidySourceFerc1`
@@ -2322,7 +2322,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         )
 
     def get_xbrl_calculation_fixes(self: Self) -> pd.DataFrame:
-        """Grab the XBRL calculation file."""
+        """Grab the XBRL calculations fixes for this table."""
         calc_fixes = read_xbrl_calculation_fixes()
         # grab the fixes from this table only!
         calc_fixes = calc_fixes[calc_fixes.table_name_parent == self.table_id.value]
@@ -2333,8 +2333,26 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Use the fixes we've compiled to update calculations in the XBRL metadata.
 
-        Note: Temp fix. These updates should probably be moved into the table params
-        and integrated into the calculations via TableCalcs.
+        Instructions for updating the calculation component fixes file:
+
+        * To add a calculation component that is missing from the raw metadata,
+          add a new line in the ``xbrl_calculation_component_fixes.csv`` with a
+          the parent and child portion of the calculation and a weight.
+        * To remove a calculation component that exists incorrectly in the raw
+          metadata, add a line in the ``xbrl_calculation_component_fixes.csv``
+          with the parent and child portion of the calculation without a weight.
+        * To edit the weight of a calculation component that exists in the raw
+          metadata, add a line in the ``xbrl_calculation_component_fixes.csv``
+          with the parent and child portion of the calculation with the corrected
+          weight.
+
+        Some common errors occurs when ingesting new metadata which flags the
+        AssertionError in this method. If you're trying to remove a calculation component
+        manually and it doesn't actually exist as a calculation component in the metadata,
+        an AssertionError will be raised. Similarly, if you're trying to add a
+        calculation component manually that already exists, an AssertionError will be
+        raised.
+
         """
         calc_comp_idx = [
             "table_name_parent",
@@ -2369,7 +2387,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # sometimes we add fresh calculations to parent facts that originally didn't
         # have any calculation components. So if we are adding those parent facts
         # with child facts/calc components, we need to remove the non-calc records
-        # so make fake little parent facts with null childern from all the add_mes
+        # so make fake little parent facts with null children from all the add_mes
         null_calc_versions_of_add_mes = (
             add_me.reset_index()[["table_name_parent", "xbrl_factoid_parent"]]
             .assign(table_name=pd.NA, xbrl_factoid=pd.NA)
@@ -2467,7 +2485,7 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         # this is really a xbrl_factoid-level flag, but we need it while using this
         # calc components.
         calc_comps["is_within_table_calc"] = (
-            # make a temp bool col to check if all the componets are intra table
+            # make a temp bool col to check if all the components are intra table
             # should the non-calc guys get a null or a true here? rn its true bc fillna
             calc_comps.assign(
                 intra_table_calc_comp_flag=lambda x: (
@@ -2997,12 +3015,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         """Assign the PUDL-assigned utility_id_ferc1 based on the native utility ID.
 
         We need to replace the natively reported utility ID from each of the two FERC1
-        sources with a PUDL-assigned utilty. The mapping between the native ID's and
+        sources with a PUDL-assigned utility. The mapping between the native ID's and
         these PUDL-assigned ID's can be accessed in the database tables
         ``utilities_dbf_ferc1`` and ``utilities_xbrl_ferc1``.
 
         Args:
-            df: the input table with the native utilty ID column.
+            df: the input table with the native utility ID column.
             source_ferc1: the
 
         Returns:
@@ -3439,18 +3457,18 @@ class HydroelectricPlantsTableTransformer(Ferc1AbstractTableTransformer):
             & (df.utility_id_ferc1 == 200)
             & (df.plant_name_ferc1 == "marmet")
         )
-        null_maks = df[null_columns].isnull().all(axis="columns")
+        null_masks = df[null_columns].isnull().all(axis="columns")
 
         possible_dupes = df.loc[dupe_mask]
         if (len(possible_dupes) != 2) & (2019 in df.report_year.unique()):
             raise AssertionError(
                 f"{self.table_id}: Expected 2 records for found: {possible_dupes}"
             )
-        dropping = df.loc[(dupe_mask & null_maks)]
+        dropping = df.loc[(dupe_mask & null_masks)]
         logger.debug(
             f"Dropping {len(dropping)} duplicate record with null data in {null_columns}"
         )
-        df = df.loc[~(dupe_mask & null_maks)].copy()
+        df = df.loc[~(dupe_mask & null_masks)].copy()
         return df
 
 
@@ -3464,7 +3482,7 @@ class PurchasedPowerAndExchangesTableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`core_ferc1__yearly_purchased_power_and_exchanges_sched326`.
 
     This table has data about inter-utility power purchases into the PUDL DB. This
-    includes how much electricty was purchased, how much it cost, and who it was
+    includes how much electricity was purchased, how much it cost, and who it was
     purchased from. Unfortunately the field describing which other utility the power was
     being bought from is poorly standardized, making it difficult to correlate with
     other data. It will need to be categorized by hand or with some fuzzy matching
@@ -3524,7 +3542,7 @@ class PlantInServiceTableTransformer(Ferc1AbstractTableTransformer):
         We deduplicate the metadata on the basis of the ``xbrl_factoid`` name.
         This table in particular has multiple ``wide_to_tidy`` ``value_types`` because
         there are multiple dollar columns embedded (it has both the standard start/end
-        balances as well as modifcations like transfers/retirements). In the XBRL
+        balances as well as modifications like transfers/retirements). In the XBRL
         metadata, each xbrl_fact has its own set of metadata and possibly its own set of
         calculations. Which means that one ``xbrl_factoid`` for this table natively
         could have multiple calculations or other metadata.
@@ -3727,7 +3745,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
 
         Returns:
             The same input DataFrame but with a new column called ``license_id_ferc1``
-            that contains FERC 1 license infromation extracted from
+            that contains FERC 1 license information extracted from
             ``plant_name_ferc1``.
         """
         logger.info(f"{self.table_id.value}: Extracting FERC license from plant name")
@@ -3814,13 +3832,13 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         """Find groups of rows likely to be notes.
 
         Once the :func:`_find_possible_header_or_note_rows` function identifies rows
-        that are either headers or notes, we must deterine which one they are. As
+        that are either headers or notes, we must determine which one they are. As
         described in the :func:`_label_note_rows` function, notes rows are usually
-        adjecent rows with no content.
+        adjacent rows with no content.
 
-        This function itentifies instances of two or more adjecent rows where
+        This function itentifies instances of two or more adjacent rows where
         ``possible_header_or_note`` = True. It takes individual utility-year groups as a
-        parameter as opposed to the entire dataset because adjecent rows are only
+        parameter as opposed to the entire dataset because adjacent rows are only
         meaningful if they are from the same reporting entity in the same year. If we
         were to run this on the whole dataframe, we would see "note clumps" that are
         actually notes from the end of one utility's report and headers from the
@@ -3831,7 +3849,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         utility-year group, rather, it is a DataFrame containing information about the
         nature of the ``possible_header_or_note`` = True rows that is used to determine
         if that row is a note or not. It also returns the original utility-year-group as
-        groupby objects seperated by each time ``possible_header_or_note`` changes from
+        groupby objects separated by each time ``possible_header_or_note`` changes from
         True to False or vice versa.
 
         If you pass in the following df:
@@ -3867,7 +3885,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         | True           | 3              |
         +----------------+----------------+
 
-        This shows each clump of adjecent records where ``possible_header_or_note`` is
+        This shows each clump of adjacent records where ``possible_header_or_note`` is
         True or False and how many records are in each clump.
 
         Params:
@@ -3910,7 +3928,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         found in the ``plant_name_ferc1`` column, indicate that the row is or is not a
         header.
 
-        Sometimes this function identifies a header that is acutally a note. For this
+        Sometimes this function identifies a header that is actually a note. For this
         reason, it's important that the function be called before
         :func:`_label_note_rows` so that the bad header values get overridden by the
         ``note`` designation.
@@ -3988,13 +4006,13 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
     ) -> DataFrameGroupBy:
         """Label note rows by adding ``note`` to ``row_type`` column.
 
-        Called within the wraper function :func:`_label_note_rows`
+        Called within the wrapper function :func:`_label_note_rows`
 
         This function breaks the data down by reporting unit (utility and year) and
         determines whether a ``possible_header_note`` = True row is a note based on two
         criteria:
 
-        - Clumps of 2 or more adjecent rows where ``possible_header_or_note`` is True.
+        - Clumps of 2 or more adjacent rows where ``possible_header_or_note`` is True.
         - Instances where the last row in a utility-year group has
           ``possible_header_or_note`` as True.
 
@@ -4003,7 +4021,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         grouping. You might see something like: ``pd.Series([header, plant1, plant2,
         note, header, plant3, plant4])``. In this case, a note clump is actually
         comprised of a note followed by a header. This function will not override the
-        header as a note. Unfortunately, there is always the possability that a header
+        header as a note. Unfortunately, there is always the possibility that a header
         row is followed by a plant that had no values reported. This would look like,
         and therefore be categorized as a note clump. I haven't built a work around, but
         hopefully there aren't very many of these.
@@ -4095,7 +4113,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
     def _label_total_rows(self, df: pd.DataFrame) -> pd.DataFrame:
         """Label total rows by adding ``total`` to ``row_type`` column.
 
-        Called within the wraper function :func:`_label_note_rows`
+        Called within the wrapper function :func:`_label_note_rows`
 
         For the most part, when ``plant_name_ferc1`` contains the string ``total``, the
         values therein are duplicates of what is already reported, i.e.: a total value.
@@ -4158,7 +4176,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         | (c) project #2852 | NA         | NA              |
         +-------------------+------------+-----------------+
 
-        Notice how misleading it is to have all this infomration in one column. The
+        Notice how misleading it is to have all this information in one column. The
         goal of this function is to coordinate labeling functions so that we can
         identify which rows contain specific plant information and which rows are
         headers, notes, or totals.
@@ -4176,7 +4194,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
             column ``possible_header_or_note``.
 
         Returns:
-            The same input DataFrame but with a column called ``row_type`` containg the
+            The same input DataFrame but with a column called ``row_type`` containing the
             strings ``header``, ``note``, ``total``, or NA to indicate what type of row
             it is.
         """
@@ -4192,7 +4210,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
             .drop(columns=["possible_header_or_note"])
         )
 
-        # Move total lables to a different column
+        # Move total labels to a different column
         df_labeled.loc[df_labeled["row_type"] == "total", "is_total"] = True
         df_labeled["is_total"] = df_labeled.filter(["row_type"]).isin(["total"]).all(1)
 
@@ -4224,7 +4242,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         want to replace ``fuel_type`` and ``plant_type`` values that are labeled as
         ``pd.NA`` or ``other``. The values reported to those columns are extremely messy
         and must be cleaned via :func:`pudl.transform.classes.categorize_strings` in
-        order for us to know which are truely ``pd.NA`` or ``other``. Because we also
+        order for us to know which are truly ``pd.NA`` or ``other``. Because we also
         use :func:`pudl.transform.classes.categorize_strings` to map the headers to fuel
         and plant types, it makes sense to clean all four columns at once and then
         combine them.
@@ -4271,7 +4289,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         +-------------------+---------+---------+----------------+--------------------+
 
         NOTE: If a utility's ``plant_name_ferc1`` values look like this: ``["STEAM",
-        "coal_plant1", "coal_plant2", "wind_turbine1"]``, then this algorythem will
+        "coal_plant1", "coal_plant2", "wind_turbine1"]``, then this algorithm will
         think that last wind turbine is a steam plant. Luckily, when a utility embeds
         headers in the data it usually includes them for all plant types: ``["STEAM",
         "coal_plant1", "coal_plant2", "WIND", "wind_turbine"]``.
@@ -4383,7 +4401,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
         return df
 
     def map_plant_name_fuel_types(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Suppliment ``fuel_type`` with information in ``plant_name_ferc1``.
+        """Supplement ``fuel_type`` with information in ``plant_name_ferc1``.
 
         Sometimes fuel type is embedded in a plant name (not just headers). In this case
         we can identify that what that fuel is from the name and fill in empty
@@ -4496,7 +4514,7 @@ class SmallPlantsTableTransformer(Ferc1AbstractTableTransformer):
             regular_row = group["row_type"].isna()
             has_note = group["row_type"] == "note"
 
-            # Shorten execution time by only looking at groups with discernable
+            # Shorten execution time by only looking at groups with discernible
             # footnotes
             if group.footnote.any():
                 # Make a df that combines notes and ferc license with the same footnote
@@ -4668,7 +4686,7 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
         new_factoid_name = (
             "utility_plant_in_service_classified_and_property_under_capital_leases"
         )
-        # point this new aggregated factiod to the PIS table's equivilant when the
+        # point this new aggregated factiod to the PIS table's equivalent when the
         # subdimensions line up
         calc = [
             {
@@ -4709,7 +4727,7 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
     def aggregated_xbrl_factoids(self: Self, df: pd.DataFrame) -> pd.DataFrame:
         """Aggregate xbrl_factoids records for linking to :ref:`core_ferc1__yearly_plant_in_service_sched204`.
 
-        This table has two ``xbrl_factoid`` which can be linked via calcuations to one
+        This table has two ``xbrl_factoid`` which can be linked via calculations to one
         ``xbrl_factoid`` in the :ref:`core_ferc1__yearly_plant_in_service_sched204`.
         Doing this 2:1 linkage would be fine in theory. But the
         :ref:`core_ferc1__yearly_plant_in_service_sched204` is in most senses
@@ -4729,7 +4747,7 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
             "utility_plant_in_service_classified_and_property_under_capital_leases"
         )
         cols_to_agg = ["ending_balance"]
-        # grab some key infor for the actual aggregation
+        # grab some key info for the actual aggregation
         xbrl_factoid_name = self.params.xbrl_factoid_name
         pks = pudl.metadata.classes.Resource.from_id(
             self.table_id.value
@@ -5085,7 +5103,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
 
         In 2003, two rows were added to the ``f1_income_stmnt`` dbf table, which bumped
         the starting ``row_number`` of ``f1_incm_stmnt_2`` from 25 to 27. A small
-        handfull of respondents seem to have not gotten the memo about this this in
+        handful of respondents seem to have not gotten the memo about this in
         2003 and have information on these row numbers that shouldn't exist at all for
         this table.
 
@@ -5337,7 +5355,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Reconcile current and past year data reported in 1 report_year.
 
-        The DBF table includes two different earnings types that have: "Begining of
+        The DBF table includes two different earnings types that have: "Beginning of
         Period" and "End of Period" rows. But the table has both an amount column that
         corresponds to a balance and a starting balance column. For these two earnings
         types, this means that there is in effect two years of data in this table for
@@ -5568,7 +5586,7 @@ class DepreciationChangesTableTransformer(Ferc1AbstractTableTransformer):
         # Get instant metadata
         instant = pd.json_normalize(new_xbrl_metadata_json["instant"])
         # Duplicate instant metadata, and add starting/ending suffix
-        # should just be balance begining of year
+        # should just be balance beginning of year
         instant = pd.concat([instant] * 2).reset_index(drop=True)
         instant["name"] = instant["name"] + ["_starting_balance", "_ending_balance"]
         # Return to JSON format in order to continue processing
@@ -5603,7 +5621,7 @@ class DepreciationChangesTableTransformer(Ferc1AbstractTableTransformer):
         This table has a rename that needs to take place in an unusual spot -- after the
         starting / ending balances have been usntacked, but before the instant &
         duration tables are merged. This method just reversed the order in which these
-        operations happen, comapared to the inherited method.
+        operations happen, compared to the inherited method.
         """
         df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
             self.rename_columns, rename_stage="instant_xbrl"
@@ -5623,7 +5641,7 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
     ) -> pd.DataFrame:
         """Create a metadata table with the one factoid we've assigned to this table.
 
-        Instead of adding facts to the metdata like a lot of the other table-specific
+        Instead of adding facts to the metadata like a lot of the other table-specific
         :meth:`convert_xbrl_metadata_json_to_df`, this method creates a metadata table
         with one singular ``xbrl_factoid``. We assign that factoid to the table in
         :meth:`transform_main`.
@@ -5674,7 +5692,7 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         This table has a rename that needs to take place in an unusual spot -- after the
         starting / ending balances have been usntacked, but before the instant &
         duration tables are merged. This method reverses the order in which these
-        operations happen comapared to the inherited method. We also want to strip the
+        operations happen compared to the inherited method. We also want to strip the
         ``accumulated_depreciation`` that appears on every plant functional class.
         """
         df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
@@ -5692,7 +5710,7 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         ``plant_function`` which differentiate what slice of a utility's assets each
         record pertains to. We added this new column as the ``xbrl_factoid`` of the
         table instead of using one of the dimensions of the table so that the table can
-        conform to the same patern of treatment for these dimension columns.
+        conform to the same pattern of treatment for these dimension columns.
         """
         df = df.assign(depreciation_type="accumulated_depreciation").pipe(
             super().transform_main
@@ -5701,10 +5719,10 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
         # this was found through checking the inter-table calculations in the explosion
         # process. The one factoid in this table is linked with
         # depreciation_utility_plant_in_service in the utility_plant_summary_ferc1 table.
-        # the values in both tables are almost always postive. Not always & there are
+        # the values in both tables are almost always positive. Not always & there are
         # some logical reasons why depreciation can sometimes be negative. Nonetheless,
         # for this one utility, all of its values in utility_plant_summary_ferc1 are
-        # postive while nearly all of the $s over here are negative. No other utility
+        # positive while nearly all of the $s over here are negative. No other utility
         # has as many -$ which tells me this is a data entry error.
         # see https://github.com/catalyst-cooperative/pudl/issues/2703 for more details
         negative_util_mask = df.utility_id_ferc1 == 211
@@ -5841,8 +5859,8 @@ class OperatingRevenuesTableTransformer(Ferc1AbstractTableTransformer):
 
         Employ the standard process for processing metadata. Then remove duplication on
         the basis of the ``xbrl_factoid``. This table used :meth:`wide_to_tidy` with three
-        seperate value columns. Which results in one ``xbrl_factoid`` referencing three
-        seperate data columns. This method grabs only one piece of metadata for each
+        separate value columns. Which results in one ``xbrl_factoid`` referencing three
+        separate data columns. This method grabs only one piece of metadata for each
         renamed ``xbrl_factoid``, preferring the calculated value or the factoid
         referencing the dollar columns.
 
@@ -5912,7 +5930,7 @@ class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
         This table has a rename that needs to take place in an unusual spot -- after the
         starting / ending balances have been unstacked, but before the instant &
         duration tables are merged. This method just reversed the order in which these
-        operations happen, comapared to the inherited method.
+        operations happen, compared to the inherited method.
         """
         df = self.unstack_balances_to_report_year_instant_xbrl(df).pipe(
             self.rename_columns, rename_stage="instant_xbrl"
@@ -6018,7 +6036,7 @@ class SalesByRateSchedulesTableTransformer(Ferc1AbstractTableTransformer):
         sales_of_electricity_by_rate_schedules_account_totals_304 table into the mix,
         we have a bunch of total values that get mixed in with all the _billed columns
         from the individual tables. If left alone, these totals aren't labeled in any
-        way becuse they don't have the same _axis columns explaining what each of the
+        way because they don't have the same _axis columns explaining what each of the
         values are. In order to distinguish them from the rest of the sub-total data we
         use this function to create an _axis value for them noting that they are totals.
 
@@ -6248,6 +6266,111 @@ def table_to_column_to_check() -> dict[str, list[str]]:
     }
 
 
+def remove_rare_utility_type_subdimensions_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove the rare, non-total utility types when all values are duplicated.
+
+    We remove the records of non-total utility_type's for xbrl_factoid's when almost
+    all instances of that xbrl_factoid show up with just a utility_type of "total". We
+    can only do this confidently because we also check that all of the dollar_value in
+    those records are exactly the same as the corresponding records with utility_type
+    of "total" or the non-total utility_type's have null dollar_value's.
+
+    This data isn't incorrect, it just interferes with how we process the calculations
+    embedded within these tables. This is why we are applying this within
+    :func:`_core_ferc1__table_dimensions` because that is what we use to build the
+    calculation components table.
+    """
+    # made these variables so we could generalize to other tables if we desired that.
+    xbrl_factoid = "xbrl_factoid"
+    dimension_col = "utility_type"
+    money_col = "dollar_value"
+    idx = ["utility_id_ferc1", "report_year", xbrl_factoid]
+
+    # first we need to find the xbrl_factoid's where there are mostly only totals
+    # within the dimension_col. Which is to say there are a few rare non-total
+    # utility_type's.
+    tot_mask = df[dimension_col] == "total"
+    # build a dataframe of xbrl_factoid's with a column for the count of the records
+    # with utility_type total and another column with the count for all the other
+    # utility_type's
+    dimension_value_count = pd.merge(
+        pd.DataFrame(df.loc[tot_mask, xbrl_factoid].value_counts()),
+        pd.DataFrame(df.loc[~tot_mask, xbrl_factoid].value_counts()),
+        on=xbrl_factoid,
+        how="outer",
+        suffixes=("_total", "_other"),
+    )
+    # With that little xbrl_factoid count dataframe we can check to see which
+    # xbrl_factoid's are almost entriely total. In order to id these "rare"
+    # non-totals we use a threshold of 20% here. meaning only 20% of the instances
+    # of the utility_type for a particular xbrl_factoid were non-totals.
+    # that's a little bit arbitrary... This was tested up to 40% but that seems
+    # too aggressive.
+    mostly_total_xbrl_factoids = dimension_value_count[
+        dimension_value_count.count_other.notnull()
+        & (
+            (
+                dimension_value_count.count_other
+                / (
+                    dimension_value_count.count_other
+                    + dimension_value_count.count_total
+                )
+            )
+            < 0.20
+        )
+    ].index
+    logger.info(
+        f"{len(mostly_total_xbrl_factoids) / len(df[xbrl_factoid].unique()):.1%} of the "
+        f"xbrl_factoid's in this table have {dimension_col} values that are mostly total, "
+        "but have some rare instances of non-total values."
+    )
+    # add a utility type count column. Because we only care about this when there
+    # are more than one util type
+    df.loc[:, "util_type_count"] = df.groupby(idx)[[dimension_col]].transform("count")
+    mostly_totals_mask = df[xbrl_factoid].isin(
+        [fact for fact in mostly_total_xbrl_factoids if "correction" not in fact]
+    ) & (df.util_type_count > 1)
+    # Now we've ID-ed what we probably want to drop. But we have to check to see if there
+    # are records in here that contain unique values in these rare non-total columns.
+    mostly_totals_idx = (
+        df.loc[mostly_totals_mask, idx].drop_duplicates().set_index(idx).index
+    )
+    mixed_typed_income = df.set_index(idx).loc[mostly_totals_idx].reset_index()
+    # first remove the records with null non-total records
+    maybe_unique = mixed_typed_income[
+        ~(
+            (mixed_typed_income[dimension_col] != "total")
+            & (mixed_typed_income[money_col].isna())
+        )
+    ]
+
+    if (
+        len(
+            actually_unique := maybe_unique[
+                ~maybe_unique.duplicated(keep=False, subset=idx + [money_col])
+                # bc we removed some of the null non-totals we've gotta leave out the
+                # total's here
+                & (maybe_unique[dimension_col] != "total")
+            ]
+        )
+        > 4
+    ):
+        raise AssertionError(
+            "Ah we found actually unique values within the records with xbrl_factoid's "
+            f"that have rare non-total {dimension_col} when we expected only 4 records"
+            f":\n{actually_unique}\nThis breaks out logic we use to feel confident about "
+            "removing these records in favor of keeping only the utility_type == total records."
+        )
+    # Now that we've affirmed that we feel confident dropping these rare non-total
+    # records... drop them!
+    return pd.concat(
+        [
+            df[~mostly_totals_mask],
+            mixed_typed_income[mixed_typed_income[dimension_col] == "total"],
+        ]
+    )
+
+
 @asset(
     ins={
         table_name: AssetIn(table_name)
@@ -6279,6 +6402,11 @@ def _core_ferc1__table_dimensions(**kwargs) -> pd.DataFrame:
         )
         for (name, df) in kwargs.items()
     }
+    tbls["core_ferc1__yearly_income_statements_sched114"] = (
+        remove_rare_utility_type_subdimensions_rows(
+            tbls["core_ferc1__yearly_income_statements_sched114"]
+        )
+    )
     dimensions = (
         pd.concat(tbls.values())[
             ["table_name", "xbrl_factoid"]
@@ -6424,7 +6552,7 @@ def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
             "_core_ferc1_xbrl__metadata table."
         )
         # which of these missing calculations actually show up in the transformed tables?
-        # This handles dbf-only calculation components, whic are added to the
+        # This handles dbf-only calculation components, which are added to the
         # _core_ferc1_xbrl__metadata table as part of each table's transformations but aren't
         # observed (or therefore present in _core_ferc1__table_dimensions) in the fast ETL or
         # in all subsets of years. We only want to flag calculation components as
@@ -6461,7 +6589,7 @@ def _core_ferc1_xbrl__calculation_components(**kwargs) -> pd.DataFrame:
     )
     if not (parent_child_dupes := calc_components.loc[self_refs_mask]).empty:
         raise AssertionError(
-            f"Found {len(parent_child_dupes)} calcuations where the parent and child "
+            f"Found {len(parent_child_dupes)} calculations where the parent and child "
             f"columns are identical and expected 0.\n{parent_child_dupes=}"
         )
 
@@ -6563,7 +6691,7 @@ def make_xbrl_factoid_dimensions_explicit(
     specified for different values within a given dimension. For example, the
     :ref:`core_ferc1__yearly_utility_plant_summary_sched200` table contains records with a variety of
     different ``utility_type`` values (gas, electric, etc.). For many combinations of
-    fact and ``utility_type``, no more detailed information about the soruce of the data
+    fact and ``utility_type``, no more detailed information about the source of the data
     is available, but for some, and only in the case of electric utilities, much more
     detail can be found in the :ref:`core_ferc1__yearly_plant_in_service_sched204` table.
     In order to use this additional information when it is available, we sometimes
@@ -6604,7 +6732,7 @@ def make_xbrl_factoid_dimensions_explicit(
         )
         on_cols = [f"{col}_parent" for col in on_cols]
         dimensions = [f"{dim}_parent" for dim in dimensions]
-    # for each dimension, use split/apply/combine. when there are no dims explict in
+    # for each dimension, use split/apply/combine. when there are no dims explicit in
     # the calc components, merge in all of the dims.
     for dim_col in dimensions:
         # extract the unique observed instances of this one dimension column & add the
@@ -6836,7 +6964,7 @@ def add_calculation_component_corrections(
     total-to-subdimension
 
     All calculaitons will get a correction record in the calculation components table
-    wether or not there is ever a correction record in the data.
+    whether or not there is ever a correction record in the data.
     """
 
     def assign_child_cols(df, is_subdimension_correction):

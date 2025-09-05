@@ -112,7 +112,7 @@ def core_epa__assn_eia_epacamd(
     In terms of cleaning, we implement the standard column name changes: lower-case, no
     special characters, and underscores instead of spaces. We also rename some of the
     columns for clarity and to match how they appear in the tables you will merge with.
-    Besides standardizing datatypes (again for merge compatability) the only meaningful
+    Besides standardizing datatypes (again for merge compatibility) the only meaningful
     data alteration we employ here is removing leading zeros from numeric strings on
     the ``generator_id`` and ``emissions_unit_id_epa`` fields. This is because the same
     function is used to clean those same fields in all the other tables in which they
@@ -121,7 +121,7 @@ def core_epa__assn_eia_epacamd(
     values because that means that they are unmatched and do not provide any useful
     information to users.
 
-    It's important to note that the crosswalk is kept intact (and not seperated into
+    It's important to note that the crosswalk is kept intact (and not separated into
     smaller reference tables) because the relationship between the ids is not 1:1. For
     example, you can't isolate the plant_id fields, drop duplicates, and call it a day.
     The plant discrepancies depend on which generator ids it's referring to. This goes
@@ -138,7 +138,7 @@ def core_epa__assn_eia_epacamd(
     values from various years. To keep the crosswalk in alignment with the available eia
     data, we'll restrict it based on the generator entity table which has
     ``plant_id_eia`` and ``generator_id`` so long as it's not using the full suite of
-    avilable years. If it is, we don't want to restrict the crosswalk so we can get
+    available years. If it is, we don't want to restrict the crosswalk so we can get
     warnings and errors from any foreign key discrepancies. This isn't an ideal
     solution, but it works for now.
 
@@ -195,7 +195,7 @@ def core_epa__assn_eia_epacamd(
     # Restrict crosswalk for tests if running fast etl
     if not processing_all_eia_years:
         logger.info(
-            "Selected subset of avilable EIA years--restricting EPACAMD-EIA Crosswalk \
+            "Selected subset of available EIA years--restricting EPACAMD-EIA Crosswalk \
             to chosen subset of EIA years"
         )
         crosswalk_clean = pd.merge(
@@ -269,7 +269,7 @@ def _core_epa__assn_eia_epacamd_unique(
 
 
 def correct_epa_eia_plant_id_mapping(df: pd.DataFrame) -> pd.DataFrame:
-    """Mannually correct one plant ID.
+    """Manually correct one plant ID.
 
     The EPA's power sector data crosswalk incorrectly maps plant_id_epa 55248 to
     plant_id_eia 55248, when it should be mapped to id 2847.
@@ -348,7 +348,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
         "Edited subplant_ids after update_subplant_ids: "
         f"{len(subplant_id_diff) / len(subplant_ids_updated):.1}%"
     )
-    # overwrite the subplant ids and apply mannual update
+    # overwrite the subplant ids and apply manual update
     subplant_ids_updated = (
         subplant_ids_updated.assign(subplant_id=lambda x: x.subplant_id_updated)
         .reset_index(drop=True)
@@ -435,11 +435,11 @@ def _prep_for_networkx(crosswalk: pd.DataFrame) -> pd.DataFrame:
     """Make surrogate keys for combustors and generators.
 
     Args:
-        crosswalk: The ``core_epa__assn_eia_epacamd`` crosswalk
+        crosswalk: The :ref:`core_epa__assn_eia_epacamd` crosswalk
 
     Returns:
-        A copy of ``core_epa__assn_eia_epacamd`` crosswalk with new surrogate ID columns
-            'combustor_id' and 'generator_id'
+        A copy of :ref:`core_epa__assn_eia_epacamd` crosswalk with new surrogate ID
+        columns `combustor_id` and `generator_id`.
     """
     prepped = crosswalk.copy()
     # networkx can't handle composite keys, so make surrogates
@@ -556,21 +556,23 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
 
     Usage Example:
 
-    epacems = pudl.output.epacems.epacems(states=['ID']) # small subset for quick test
-    core_epa__assn_eia_epacamd = pudl_out.epacamd_eia()
-    filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
-    crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
+    .. code-block:: python
 
-    Note that sub-plant ids should be used in conjunction with `plant_id_eia` vs.
-    `plant_id_epa` because the former is more granular and integrated into CEMS during
+       epacems = pudl.output.epacems.epacems(states=['ID'])
+       core_epa__assn_eia_epacamd = pudl.helpers.get_parquet_table("core_epa__assn_eia_epacamd")
+       filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
+       crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
+
+    Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` vs.
+    ``plant_id_epa`` because the former is more granular and integrated into CEMS during
     the transform process.
 
     Args:
-        crosswalk (pd.DataFrame): The core_epa__assn_eia_epacamd crosswalk
+        crosswalk: The core_epa__assn_eia_epacamd crosswalk
 
     Returns:
-        pd.DataFrame: An edge list connecting EPA units to EIA generators, with
-            connected pieces issued a subplant_id
+        An edge list connecting EPA units to EIA generators, with connected pieces
+        issued a subplant_id
     """
     edge_list = _prep_for_networkx(crosswalk)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
@@ -599,7 +601,9 @@ def update_subplant_ids(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
     #.  All of the new unique ids are renumbered in consecutive ascending order
 
     Args:
-        subplant_crosswalk: a dataframe containing the output of :func:`make_subplant_ids`
+        subplant_crosswalk: a dataframe containing the output of
+            :func:`make_subplant_ids`
+
     """
     # Step 1: Create corrected versions of subplant_id and unit_id_pudl
     # if multiple unit_id_pudl are connected by a single subplant_id,
@@ -641,27 +645,31 @@ def connect_ids(
 ) -> pd.DataFrame:
     """Corrects an id value if it is connected by an id value in another column.
 
-    If multiple subplant_id are connected by a single unit_id_pudl, this groups these
-    subplant_id together. If multiple unit_id_pudl are connected by a single subplant_id,
-    this groups these unit_id_pudl together.
+    If multiple ``subplant_id`` are connected by a single ``unit_id_pudl``, this groups
+    these ``subplant_id`` together. If multiple ``unit_id_pudl`` are connected by a
+    single ``subplant_id``, this groups these ``unit_id_pudl`` together.
 
     Args:
-        subplant_crosswalk: dataframe containing columns of id_to_update andconnecting_id
+        subplant_crosswalk: dataframe containing columns of id_to_update
+            andconnecting_id
         id_to_update: List of ID columns
         connecting_id: ID column
+
     """
     # get a table with all unique subplant to unit pairs
     subplant_unit_pairs = subplant_crosswalk[
         ["plant_id_eia", "subplant_id", "unit_id_pudl"]
     ].drop_duplicates()
 
-    # identify if any non-NA id_to_update are duplicated, indicated that it is associated with multiple connecting_id
+    # identify if any non-NA id_to_update are duplicated, indicated that it is
+    # associated with multiple connecting_id
     duplicates = subplant_unit_pairs[
         (subplant_unit_pairs.duplicated(subset=id_to_update, keep=False))
         & (~subplant_unit_pairs[id_to_update].isna())
     ].copy()
 
-    # if there are any duplicate units, indicating an incorrect id_to_update, fix the id_to_update
+    # if there are any duplicate units, indicating an incorrect id_to_update, fix the
+    # id_to_update
     subplant_crosswalk[f"{connecting_id}_connected"] = subplant_crosswalk[connecting_id]
     if len(duplicates) > 0:
         # find the lowest number subplant id associated with each duplicated unit_id_pudl
@@ -670,7 +678,8 @@ def connect_ids(
             .min()
             .iloc[0]
         )
-        # merge this replacement subplant_id into the dataframe and use it to update the existing subplant id
+        # merge this replacement subplant_id into the dataframe and use it to update the
+        # existing subplant id
         subplant_crosswalk = subplant_crosswalk.merge(
             duplicates,
             how="left",
@@ -684,11 +693,11 @@ def connect_ids(
 
 
 def manually_update_subplant_id(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
-    """Mannually update the subplant_id for ``plant_id_eia`` 1391.
+    """Manually update the subplant_id for ``plant_id_eia`` 1391.
 
     This function lumps all records within ``plant_id_eia`` 1391 into the same
-    ``subplant_id`` group. See `comment<https://github.com/singularity-energy/open-grid-emissions/pull/142#issuecomment-1186579260>_`
-    for expanation of why.
+    ``subplant_id`` group. See `comment <https://github.com/singularity-energy/open-grid-emissions/pull/142#issuecomment-1186579260>_`
+    for explanation of why.
     """
     # set all generators in plant 1391 to the same subplant
     subplant_crosswalk.loc[

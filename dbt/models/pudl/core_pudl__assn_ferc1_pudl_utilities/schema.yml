@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_pudl__assn_ferc1_pudl_utilities
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_pudl__assn_ferc1_pudl_utilities
+                partition_expr:
+        columns:
+          - name: utility_id_ferc1
+          - name: utility_name_ferc1
+          - name: utility_id_pudl

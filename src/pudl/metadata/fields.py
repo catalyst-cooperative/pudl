@@ -3,6 +3,7 @@
 from copy import deepcopy
 from typing import Any
 
+import geopandas as gpd
 import pandas as pd
 from pytz import all_timezones
 
@@ -17,10 +18,12 @@ from pudl.metadata.enums import (
     ELECTRICITY_MARKET_MODULE_REGIONS,
     ENERGY_DISPOSITION_TYPES_FERC1,
     ENERGY_SOURCE_TYPES_FERC1,
+    ENERGY_USE_TYPES_EIAAEO,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
     FUEL_CLASSES,
     FUEL_TYPES_EIAAEO,
+    FUNCTIONAL_STATUS_CODES_CENSUS,
     GENERATION_ENERGY_SOURCES_EIA930,
     IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
@@ -267,7 +270,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "balancing_authority_code_adjacent_eia": {
         "type": "string",
-        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occuring. Includes Canadian and Mexican BAs.",
+        "description": "EIA short code for the other adjacent balancing authority, with which interchange is occurring. Includes Canadian and Mexican BAs.",
     },
     "balancing_authority_code_eia": {
         "type": "string",
@@ -429,9 +432,41 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?",
     },
+    "byproduct_description": {
+        "type": "string",
+        "description": "Description of combustion by-product.",
+        "constraints": {
+            "enum": [
+                "Ash from coal gasification (IGCC) units",
+                "Bottom ash from standard boiler units",
+                "Bottom (bed) ash from FBC units",
+                "FGD Gypsum",
+                "Fly ash from FBC units",
+                "Fly ash from standard boiler/PCD units",
+                "Fly ash from units with dry FGD",
+                "Other FGD byproducts",
+                "Other (specify via footnote on Schedule 9)",
+                "Steam Sales (MMBtu)",
+            ],
+        },
+    },
     "byproduct_recovery": {
         "type": "boolean",
-        "description": "Is salable byproduct is recovered by the unit?",
+        "description": "Is saleable byproduct recovered by the unit?",
+    },
+    "byproduct_units": {
+        "type": "string",
+        "description": "Reported unit of measure for combustion byproduct. MMBtu for steam, tons for all other byproducts.",
+        "constraints": {"enum": ["mmbtu", "tons"]},
+    },
+    "no_byproducts_to_report": {
+        "type": "string",
+        "description": (
+            "Whether any combustion by-products were produced by a plant. 'Y' "
+            "indicates no byproducts to report. The 'Y' and 'N' values do not align "
+            "with expected values of reported byproducts. This column is messy and "
+            "requires standardization."
+        ),
     },
     "caidi_w_major_event_days_minutes": {
         "type": "number",
@@ -471,7 +506,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "can_switch_when_operating": {
         "type": "boolean",
-        "description": "Whether the generator can switch fuel while operating.",
+        "description": "Indicates whether a fuel switching generator can switch fuels while operating.",
     },
     "capacity_eoy_mw": {
         "type": "number",
@@ -790,13 +825,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Average monthly coincident peak (CP) demand (for requirements purchases, and any transactions involving demand charges). Monthly CP demand is the metered demand during the hour (60-minute integration) in which the supplier's system reaches its monthly peak. In megawatts.",
         "unit": "MW",
     },
-    "company_id_sec10k": {
-        "type": "string",
-        "description": (
-            "PUDL-assigned ID for companies that file SEC Form 10-K or are referenced "
-            "in exhibit 21 attachments to Form 10-K. May not be stable over time."
-        ),
-    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -808,10 +836,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "company_name_old": {
         "type": "string",
         "description": "Name of company prior to name change.",
-    },
-    "company_name_raw": {
-        "type": "string",
-        "description": "Uncleaned name of company.",
     },
     "compliance_year_nox": {
         "type": "integer",
@@ -961,13 +985,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "County name as specified in Census DP1 Data.",
     },
-    "county_or_lake_name": {
-        "type": "string",
-        "description": (
-            "County or lake name. Lake names may also appear several times--once for "
-            "each state it touches. FIPS ID values for lakes have been nulled."
-        ),
-    },
     "country_code": {
         "type": "string",
         "description": "Three letter ISO-3166 country code (e.g. USA or CAN).",
@@ -1066,7 +1083,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "data_maturity": {
         "type": "string",
-        "description": "Level of maturity of the data record. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.",
+        "description": (
+            "Maturity of the source data published by EIA that is reflected in this "
+            "record. EIA releases data incrementally over time, including monthly "
+            "updates, annual year-to-date updates, provisional early releases of "
+            "annual data, and final annual release data that is not expected to change "
+            "further. Records sourced from multiple upstream EIA datasets may have "
+            "no well defined data maturity. Records whose values have been inferred "
+            "within PUDL will also have no data maturity."
+        ),
     },
     "datasource": {
         "type": "string",
@@ -1201,6 +1226,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "short notice."
         ),
     },
+    "disposal_landfill_units": {
+        "type": "number",
+        "description": "Disposed by-products in landfill, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "disposal_offsite_units": {
+        "type": "number",
+        "description": "Disposed by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "disposal_ponds_units": {
+        "type": "number",
+        "description": "Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
     "distributed_generation": {
         "type": "boolean",
         "description": "Whether the generator is considered distributed generation",
@@ -1240,12 +1277,777 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "doi": {
         "type": "string",
-        "description": "Unique digitial object identifier of Zenodo archive.",
+        "description": "Unique digital object identifier of Zenodo archive.",
     },
     "dollar_value": {
         "type": "number",
         "description": "Dollar value of reported income, expense, asset, or liability.",
         "unit": "USD",
+    },
+    # Census DP1 specific field definitions
+    "geometry": {
+        "type": "geometry",
+        "description": "Geospatial representation of the feature.",
+    },
+    "tract_id_fips": {
+        "type": "string",
+        "description": "Census tract 10-digit FIPS code",
+    },
+    "tract_name": {
+        "type": "string",
+        "description": "Census tract legal/statistical area description",
+    },
+    "functional_status_code_census": {
+        "type": "string",
+        "description": (
+            "The functional status (FUNCSTAT) code defines the current functional "
+            "status of a geographic entity. These codes can be found in the TIGER/Line "
+            "products, gazetteer files, and other products."
+        ),
+        "constraints": {"enum": FUNCTIONAL_STATUS_CODES_CENSUS},
+    },
+    "land_area": {
+        "type": "number",
+        "description": "Land area in square meters.",
+        "unit": "square meters",
+    },
+    "water_area": {
+        "type": "number",
+        "description": "Water area in square meters.",
+        "unit": "square meters",
+    },
+    "internal_point_latitude": {
+        "type": "number",
+        "description": "Internal point latitude in decimal degrees.",
+        "unit": "degrees",
+    },
+    "internal_point_longitude": {
+        "type": "number",
+        "description": "Internal point longitude in decimal degrees.",
+        "unit": "degrees",
+    },
+    "shape_length": {
+        "type": "number",
+        "description": "Length of the feature's perimeter in degrees.",
+        "unit": "degrees",
+    },
+    "shape_area": {
+        "type": "number",
+        "description": "Area of the feature in square degrees.",
+        "unit": "square degrees",
+    },
+    # DPSF1. Sex and age - Universe: Total population
+    "dp0010001": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population",
+    },
+    "dp0010002": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population under 5 years",
+    },
+    "dp0010003": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 5 to 9 years",
+    },
+    "dp0010004": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 10 to 14 years",
+    },
+    "dp0010005": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 15 to 19 years",
+    },
+    "dp0010006": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 20 to 24 years",
+    },
+    "dp0010007": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 25 to 29 years",
+    },
+    "dp0010008": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 30 to 34 years",
+    },
+    "dp0010009": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 35 to 39 years",
+    },
+    "dp0010010": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 40 to 44 years",
+    },
+    "dp0010011": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 45 to 49 years",
+    },
+    "dp0010012": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 50 to 54 years",
+    },
+    "dp0010013": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 55 to 59 years",
+    },
+    "dp0010014": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 60 to 64 years",
+    },
+    "dp0010015": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 65 to 69 years",
+    },
+    "dp0010016": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 70 to 74 years",
+    },
+    "dp0010017": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 75 to 79 years",
+    },
+    "dp0010018": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 80 to 84 years",
+    },
+    "dp0010019": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 85 years and over",
+    },
+    "dp0010020": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population total",
+    },
+    "dp0010021": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population under 5 years",
+    },
+    "dp0010022": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 5 to 9 years",
+    },
+    "dp0010023": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 10 to 14 years",
+    },
+    "dp0010024": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 15 to 19 years",
+    },
+    "dp0010025": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 20 to 24 years",
+    },
+    "dp0010026": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 25 to 29 years",
+    },
+    "dp0010027": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 30 to 34 years",
+    },
+    "dp0010028": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 35 to 39 years",
+    },
+    "dp0010029": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 40 to 44 years",
+    },
+    "dp0010030": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 45 to 49 years",
+    },
+    "dp0010031": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 50 to 54 years",
+    },
+    "dp0010032": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 55 to 59 years",
+    },
+    "dp0010033": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 60 to 64 years",
+    },
+    "dp0010034": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 65 to 69 years",
+    },
+    "dp0010035": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 70 to 74 years",
+    },
+    "dp0010036": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 75 to 79 years",
+    },
+    "dp0010037": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 80 to 84 years",
+    },
+    "dp0010038": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 85 years and over",
+    },
+    "dp0010039": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population total",
+    },
+    "dp0010040": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population under 5 years",
+    },
+    "dp0010041": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 5 to 9 years",
+    },
+    "dp0010042": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 10 to 14 years",
+    },
+    "dp0010043": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 15 to 19 years",
+    },
+    "dp0010044": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 20 to 24 years",
+    },
+    "dp0010045": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 25 to 29 years",
+    },
+    "dp0010046": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 30 to 34 years",
+    },
+    "dp0010047": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 35 to 39 years",
+    },
+    "dp0010048": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 40 to 44 years",
+    },
+    "dp0010049": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 45 to 49 years",
+    },
+    "dp0010050": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 50 to 54 years",
+    },
+    "dp0010051": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 55 to 59 years",
+    },
+    "dp0010052": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 60 to 64 years",
+    },
+    "dp0010053": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 65 to 69 years",
+    },
+    "dp0010054": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 70 to 74 years",
+    },
+    "dp0010055": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 75 to 79 years",
+    },
+    "dp0010056": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 80 to 84 years",
+    },
+    "dp0010057": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 85 years and over",
+    },
+    # DPSF2. Median age by sex - Universe: Total population (1 expressed decimal)
+    "dp0020001": {
+        "type": "number",
+        "description": "DPSF2. Median age by sex - Both sexes",
+    },
+    "dp0020002": {"type": "number", "description": "DPSF2. Median age by sex - Male"},
+    "dp0020003": {"type": "number", "description": "DPSF2. Median age by sex - Female"},
+    # DPSF3. Sex for the population 16 years and over - Universe: Population 16 years and over
+    "dp0030001": {
+        "type": "integer",
+        "description": "DPSF3. Sex for population 16 years and over - Total",
+    },
+    "dp0030002": {
+        "type": "integer",
+        "description": "DPSF3. Sex for population 16 years and over - Male",
+    },
+    "dp0030003": {
+        "type": "integer",
+        "description": "DPSF3. Sex for population 16 years and over - Female",
+    },
+    # DPSF4. Sex for the population 18 years and over - Universe: Population 18 years and over
+    "dp0040001": {
+        "type": "integer",
+        "description": "DPSF4. Sex for population 18 years and over - Total",
+    },
+    "dp0040002": {
+        "type": "integer",
+        "description": "DPSF4. Sex for population 18 years and over - Male",
+    },
+    "dp0040003": {
+        "type": "integer",
+        "description": "DPSF4. Sex for population 18 years and over - Female",
+    },
+    # DPSF5. Sex for the population 21 years and over - Universe: Population 21 years and over
+    "dp0050001": {
+        "type": "integer",
+        "description": "DPSF5. Sex for population 21 years and over - Total",
+    },
+    "dp0050002": {
+        "type": "integer",
+        "description": "DPSF5. Sex for population 21 years and over - Male",
+    },
+    "dp0050003": {
+        "type": "integer",
+        "description": "DPSF5. Sex for population 21 years and over - Female",
+    },
+    # DPSF6. Sex for the population 62 years and over - Universe: Population 62 years and over
+    "dp0060001": {
+        "type": "integer",
+        "description": "DPSF6. Sex for population 62 years and over - Total",
+    },
+    "dp0060002": {
+        "type": "integer",
+        "description": "DPSF6. Sex for population 62 years and over - Male",
+    },
+    "dp0060003": {
+        "type": "integer",
+        "description": "DPSF6. Sex for population 62 years and over - Female",
+    },
+    # DPSF7. Sex for the population 65 years and over - Universe: Population 65 years and over
+    "dp0070001": {
+        "type": "integer",
+        "description": "DPSF7. Sex for population 65 years and over - Total",
+    },
+    "dp0070002": {
+        "type": "integer",
+        "description": "DPSF7. Sex for population 65 years and over - Male",
+    },
+    "dp0070003": {
+        "type": "integer",
+        "description": "DPSF7. Sex for population 65 years and over - Female",
+    },
+    # DPSF8. Race - Universe: Total population
+    "dp0080001": {"type": "integer", "description": "DPSF8. Race - Total population"},
+    "dp0080002": {
+        "type": "integer",
+        "description": "DPSF8. Race - Population of one race",
+    },
+    "dp0080003": {"type": "integer", "description": "DPSF8. Race - White"},
+    "dp0080004": {
+        "type": "integer",
+        "description": "DPSF8. Race - Black or African American",
+    },
+    "dp0080005": {
+        "type": "integer",
+        "description": "DPSF8. Race - American Indian and Alaska Native",
+    },
+    "dp0080006": {"type": "integer", "description": "DPSF8. Race - Asian total"},
+    "dp0080007": {"type": "integer", "description": "DPSF8. Race - Asian Indian"},
+    "dp0080008": {"type": "integer", "description": "DPSF8. Race - Chinese"},
+    "dp0080009": {"type": "integer", "description": "DPSF8. Race - Filipino"},
+    "dp0080010": {"type": "integer", "description": "DPSF8. Race - Japanese"},
+    "dp0080011": {"type": "integer", "description": "DPSF8. Race - Korean"},
+    "dp0080012": {"type": "integer", "description": "DPSF8. Race - Vietnamese"},
+    "dp0080013": {"type": "integer", "description": "DPSF8. Race - Other Asian"},
+    "dp0080014": {
+        "type": "integer",
+        "description": "DPSF8. Race - Native Hawaiian and Other Pacific Islander total",
+    },
+    "dp0080015": {"type": "integer", "description": "DPSF8. Race - Native Hawaiian"},
+    "dp0080016": {
+        "type": "integer",
+        "description": "DPSF8. Race - Guamanian or Chamorro",
+    },
+    "dp0080017": {"type": "integer", "description": "DPSF8. Race - Samoan"},
+    "dp0080018": {
+        "type": "integer",
+        "description": "DPSF8. Race - Other Pacific Islander",
+    },
+    "dp0080019": {"type": "integer", "description": "DPSF8. Race - Some Other Race"},
+    "dp0080020": {
+        "type": "integer",
+        "description": "DPSF8. Race - Population of Two or More Races",
+    },
+    "dp0080021": {
+        "type": "integer",
+        "description": "DPSF8. Race - White; American Indian and Alaska Native",
+    },
+    "dp0080022": {"type": "integer", "description": "DPSF8. Race - White; Asian"},
+    "dp0080023": {
+        "type": "integer",
+        "description": "DPSF8. Race - White; Black or African American",
+    },
+    "dp0080024": {
+        "type": "integer",
+        "description": "DPSF8. Race - White; Some Other Race",
+    },
+    # DPSF9. Race (total races tallied) - Universe: Total races tallied
+    "dp0090001": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - White alone or in combination with one or more other races",
+    },
+    "dp0090002": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - Black or African American alone or in combination with one or more other races",
+    },
+    "dp0090003": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - American Indian and Alaska Native alone or in combination with one or more other races",
+    },
+    "dp0090004": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - Asian alone or in combination with one or more other races",
+    },
+    "dp0090005": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - Native Hawaiian and Other Pacific Islander alone or in combination with one or more other races",
+    },
+    "dp0090006": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - Some Other Race alone or in combination with one or more other races",
+    },
+    # DPSF10. Hispanic or Latino by specific origin - Universe: Total population
+    "dp0100001": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Total population",
+    },
+    "dp0100002": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Hispanic or Latino (of any race)",
+    },
+    "dp0100003": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Mexican",
+    },
+    "dp0100004": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Puerto Rican",
+    },
+    "dp0100005": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Cuban",
+    },
+    "dp0100006": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Other Hispanic or Latino",
+    },
+    "dp0100007": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Not Hispanic or Latino",
+    },
+    # DPSF11. Hispanic or Latino and race - Universe: Total population
+    "dp0110001": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Total population",
+    },
+    "dp0110002": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino total",
+    },
+    "dp0110003": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: White alone",
+    },
+    "dp0110004": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Black or African American alone",
+    },
+    "dp0110005": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: American Indian and Alaska Native alone",
+    },
+    "dp0110006": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Asian alone",
+    },
+    "dp0110007": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone",
+    },
+    "dp0110008": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Some Other Race alone",
+    },
+    "dp0110009": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Two or More Races",
+    },
+    "dp0110010": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino total",
+    },
+    "dp0110011": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: White alone",
+    },
+    "dp0110012": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Black or African American alone",
+    },
+    "dp0110013": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: American Indian and Alaska Native alone",
+    },
+    "dp0110014": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Asian alone",
+    },
+    "dp0110015": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone",
+    },
+    "dp0110016": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Some Other Race alone",
+    },
+    "dp0110017": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Two or More Races",
+    },
+    # DPSF12. Relationship - Universe: Total population
+    "dp0120001": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Total population",
+    },
+    "dp0120002": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - In households",
+    },
+    "dp0120003": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Householder",
+    },
+    "dp0120004": {"type": "integer", "description": "DPSF12. Relationship - Spouse"},
+    "dp0120005": {"type": "integer", "description": "DPSF12. Relationship - Child"},
+    "dp0120006": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Own child under 18 years",
+    },
+    "dp0120007": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Other relatives",
+    },
+    "dp0120008": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Other relatives under 18 years",
+    },
+    "dp0120009": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Other relatives 65 years and over",
+    },
+    "dp0120010": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Nonrelatives",
+    },
+    "dp0120011": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Nonrelatives under 18 years",
+    },
+    "dp0120012": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Nonrelatives 65 years and over",
+    },
+    "dp0120013": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Unmarried partner",
+    },
+    "dp0120014": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - In group quarters",
+    },
+    "dp0120015": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Institutionalized population",
+    },
+    "dp0120016": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Institutionalized population: Male",
+    },
+    "dp0120017": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Institutionalized population: Female",
+    },
+    "dp0120018": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Noninstitutionalized population",
+    },
+    "dp0120019": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Noninstitutionalized population: Male",
+    },
+    "dp0120020": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Noninstitutionalized population: Female",
+    },
+    # DPSF13. Households by type - Universe: Households
+    "dp0130001": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Total households",
+    },
+    "dp0130002": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Family households (families)",
+    },
+    "dp0130003": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Family households with own children under 18 years",
+    },
+    "dp0130004": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Husband-wife family",
+    },
+    "dp0130005": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Husband-wife family with own children under 18 years",
+    },
+    "dp0130006": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Male householder, no wife present",
+    },
+    "dp0130007": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Male householder, no wife present, with own children under 18 years",
+    },
+    "dp0130008": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Female householder, no husband present",
+    },
+    "dp0130009": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Female householder, no husband present, with own children under 18 years",
+    },
+    "dp0130010": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Nonfamily households",
+    },
+    "dp0130011": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone",
+    },
+    "dp0130012": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone: Male",
+    },
+    "dp0130013": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone: Male 65 years and over",
+    },
+    "dp0130014": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone: Female",
+    },
+    "dp0130015": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone: Female 65 years and over",
+    },
+    # DPSF14. Households with individuals under 18 years - Universe: Households with individuals under 18 years
+    "dp0140001": {
+        "type": "integer",
+        "description": "DPSF14. Households with individuals under 18 years - Total",
+    },
+    # DPSF15. Households with individuals 65 years and over - Universe: Households with individuals 65 years and over
+    "dp0150001": {
+        "type": "integer",
+        "description": "DPSF15. Households with individuals 65 years and over - Total",
+    },
+    # DPSF16. Average household size - Universe: Households (2 expressed decimals)
+    "dp0160001": {
+        "type": "number",
+        "description": "DPSF16. Average household size - Average household size",
+    },
+    # DPSF17. Average family size - Universe: Families (2 expressed decimals)
+    "dp0170001": {
+        "type": "number",
+        "description": "DPSF17. Average family size - Average family size",
+    },
+    # DPSF18. Housing occupancy - Universe: Total housing units
+    "dp0180001": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Total housing units",
+    },
+    "dp0180002": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Occupied housing units",
+    },
+    "dp0180003": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units",
+    },
+    "dp0180004": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units for rent",
+    },
+    "dp0180005": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units rented, not occupied",
+    },
+    "dp0180006": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units for sale only",
+    },
+    "dp0180007": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units sold, not occupied",
+    },
+    "dp0180008": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units for seasonal, recreational, or occasional use",
+    },
+    "dp0180009": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - All other vacant housing units",
+    },
+    # DPSF19. Homeowner vacancy rate - Universe: Owner-occupied, vacant for sale only, and vacant sold but not occupied housing units (1 expressed decimal)
+    "dp0190001": {
+        "type": "number",
+        "description": "DPSF19. Homeowner vacancy rate - Homeowner vacancy rate (percent)",
+    },
+    # DPSF20. Rental vacancy rate - Universe: Renter-occupied, vacant for rent, and vacant rented but not occupied housing units (1 expressed decimal)
+    "dp0200001": {
+        "type": "number",
+        "description": "DPSF20. Rental vacancy rate - Rental vacancy rate (percent)",
+    },
+    # DPSF21. Housing tenure - Universe: Occupied housing units
+    "dp0210001": {
+        "type": "integer",
+        "description": "DPSF21. Housing tenure - Total occupied housing units",
+    },
+    "dp0210002": {
+        "type": "integer",
+        "description": "DPSF21. Housing tenure - Owner-occupied housing units",
+    },
+    "dp0210003": {
+        "type": "integer",
+        "description": "DPSF21. Housing tenure - Renter-occupied housing units",
+    },
+    # DPSF22. Population in occupied housing units by tenure - Universe: Population in occupied housing units
+    "dp0220001": {
+        "type": "integer",
+        "description": "DPSF22. Population in occupied housing units by tenure - Owner-occupied housing units",
+    },
+    "dp0220002": {
+        "type": "integer",
+        "description": "DPSF22. Population in occupied housing units by tenure - Renter-occupied housing units",
+    },
+    # DPSF23. Average household size of occupied housing units by tenure - Universe: Occupied housing units (2 expressed decimals)
+    "dp0230001": {
+        "type": "number",
+        "description": "DPSF23. Average household size by tenure - Owner occupied",
+    },
+    "dp0230002": {
+        "type": "number",
+        "description": "DPSF23. Average household size by tenure - Renter occupied",
     },
     "duct_burners": {
         "type": "boolean",
@@ -1460,7 +2262,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "reported in for the generator referenced in the same record."
         ),
         "constraints": {
-            "enum": sorted({f"energy_source_code_{n}" for n in range(1, 9)})
+            "enum": sorted({f"energy_source_code_{n}" for n in range(1, 13)})
         },
     },
     "energy_source_1_transport_1": {
@@ -1542,6 +2344,24 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Energy storage capacity in MWh (e.g. for batteries).",
         "unit": "MWh",
     },
+    "energy_use_type": {
+        "type": "string",
+        "description": "Type of energy use, indicating the name of the series from AEO Table 2. Includes fuels, electricity, losses, and various subtotals; consult table documentation for aggregation guidelines.",
+        "constraints": {"enum": ENERGY_USE_TYPES_EIAAEO},
+    },
+    "energy_use_mmbtu": {
+        "type": "number",
+        "description": "Energy use, in MMBtu; also referred to as energy consumption, energy demand, or delivered energy, depending on type.",
+        "unit": "MMBtu",
+    },
+    "energy_use_sector": {
+        "type": "string",
+        "description": "Sector for energy use figures in AEO Table 2. Similar to customer class, but with some missing and some extra values.",
+        "constraints": {
+            "enum": set(CUSTOMER_CLASSES) - {"direct_connection"}
+            | {"electric_power", "unspecified"}
+        },
+    },
     "energy_used_for_pumping_mwh": {
         "type": "number",
         "description": "Energy used for pumping, in megawatt-hours.",
@@ -1592,11 +2412,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "expense_type": {"type": "string", "description": "The type of expense."},
     "ferc1_generator_agg_id": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. "
+            "The ID is manually assigned and has not been updated since 2020, but "
+            "only affects a couple hundred records total across all years."
+        ),
     },
     "ferc1_generator_agg_id_plant_gen": {
         "type": "integer",
-        "description": "ID dynamically assigned by PUDL to EIA records with multiple matches to a single FERC ID in the FERC-EIA manual matching process. This ID is associated with the record_id_eia_plant_gen record.",
+        "description": (
+            "ID dynamically assigned by PUDL to EIA records with multiple "
+            "matches to a single FERC ID in the FERC-EIA manual matching process. This "
+            "ID is associated with the record_id_eia_plant_gen record. It depends on "
+            "ferc1_generator_agg_id, which has not been updated since 2020, but only "
+            "affects a couple hundred records total across all years."
+        ),
     },
     "ferc_account": {
         "type": "string",
@@ -1728,13 +2559,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "extension."
         ),
     },
-    "files_sec10k": {
-        "type": "boolean",
-        "description": "Indicates whether the company files an SEC 10-K.",
-    },
     "filing_date": {
         "type": "date",
-        "description": "Date filing was submitted, reported at a daily frequency.",
+        "description": "Date of the day on which the filing was submitted.",
     },
     "film_number": {
         "type": "string",
@@ -1995,7 +2822,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_received_units": {
         "type": "number",
-        "description": "Quanity of fuel received in tons, barrel, or Mcf.",
+        "description": "Quantity of fuel received in tons, barrel, or Mcf.",
     },
     "fuel_switch_energy_source_1": {
         "type": "string",
@@ -2166,17 +2993,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "grid_voltage_1_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distribution facilities",
         "unit": "kV",
     },
     "grid_voltage_2_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distribution facilities",
         "unit": "kV",
     },
     "grid_voltage_3_kv": {
         "type": "number",
-        "description": "Plant's grid voltage at point of interconnection to transmission or distibution facilities",
+        "description": "Plant's grid voltage at point of interconnection to transmission or distribution facilities",
         "unit": "kV",
     },
     "gross_generation_mwh": {
@@ -2244,7 +3071,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether or not a record from the detailed FERC1 accounting tables should "
             "be considered allowable in a utility's rate base based on utility "
             "accounting standards. "
-            "This flag was mannually compiled by RMI utility accounting experts "
+            "This flag was manually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes varies based on the utility_type, "
             "plant_status or plant_function."
         ),
@@ -2253,7 +3080,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": (
             "Whether or not a record from the detailed income statement data is typically "
-            "included in a utility's revenue requirement. This flag was mannually "
+            "included in a utility's revenue requirement. This flag was manually "
             "compiled by RMI utility accounting experts based on the xbrl_factoid and "
             "sometimes varies based on the utility_type or plant_function."
         ),
@@ -2653,7 +3480,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The change in energy use incurred in a given reporting year by "
             "new participants in existing load management programs and all "
-            "participants in new load managment programs."
+            "participants in new load management programs."
         ),
         "unit": "MWh",
     },
@@ -2665,14 +3492,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and all participants in new load management programs."
         ),
         "unit": "MW",
-    },
-    "location_of_incorporation": {
-        "type": "string",
-        "description": (
-            "Location of the company's incorporation. This can be a full US state "
-            "name, a state abbreviation, the name of a foreign country, etc. Not yet "
-            "standardized / cleaned."
-        ),
     },
     "longitude": {
         "type": "number",
@@ -2926,7 +3745,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "natural_gas_delivery_contract_type_code": {
         "type": "string",
-        "description": "Contract type for natrual gas delivery service:",
+        "description": "Contract type for natural gas delivery service:",
         "constraints": {"enum": ["firm", "interruptible"]},
     },
     "natural_gas_local_distribution_company": {
@@ -3074,7 +3893,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The difference between the amount of energy entering the respondent's "
             "system (wheeled received) for transmission through the respondent's "
             "system and the amount of energy leaving the respondent's system (wheeled "
-            "delievered). Wheeled net represents the energy losses on the respondent's "
+            "delivered). Wheeled net represents the energy losses on the respondent's "
             "system associated with the wheeling of energy for other systems."
         ),
         "unit": "MWh",
@@ -3235,10 +4054,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operating_datetime_utc": {
         "type": "datetime",
         "description": "Date and time measurement began (UTC).",
-    },
-    "operating_switch": {
-        "type": "string",
-        "description": "Indicates whether the fuel switching generator can switch when operating",
     },
     "operating_time_hours": {
         "type": "number",
@@ -3555,7 +4370,105 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "parent_company_central_index_key": {
         "type": "string",
-        "description": "Central index key (CIK) of the company's parent company.",
+        "description": "Central index key (CIK) of the parent company.",
+    },
+    "parent_company_business_city": {
+        "type": "string",
+        "description": "City where the parent company's place of business is located.",
+    },
+    "parent_company_business_state": {
+        "type": "string",
+        "description": "State where the parent company's place of business is located.",
+    },
+    "parent_company_business_street_address": {
+        "type": "string",
+        "description": "Street address of the parent company's place of business.",
+    },
+    "parent_company_business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the parent company's place of business.",
+    },
+    "parent_company_business_zip_code": {
+        "type": "string",
+        "description": "Zip code of the parent company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "parent_company_business_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "parent_company_incorporation_state": {
+        "type": "string",
+        "description": "Two letter state code where parent company is incorporated.",
+    },
+    "parent_company_industry_name_sic": {
+        "type": "string",
+        "description": "Text description of the parent company's Standard Industrial Classification (SIC)",
+    },
+    "parent_company_industry_id_sic": {
+        "type": "string",
+        "description": "Four-digit Standard Industrial Classification (SIC) code identifying "
+        "the parent company's primary industry. SIC codes have been replaced by NAICS "
+        "codes in many applications, but are still used by the SEC. See e.g. "
+        "https://www.osha.gov/data/sic-manual for code definitions.",
+    },
+    "parent_company_mail_city": {
+        "type": "string",
+        "description": "City of the parent company's mailing address.",
+    },
+    "parent_company_mail_state": {
+        "type": "string",
+        "description": "State of the parent company's mailing address.",
+    },
+    "parent_company_mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the parent company's mailing address.",
+    },
+    "parent_company_mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the parent company's mailing address.",
+    },
+    "parent_company_mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the parent company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "parent_company_mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the parent company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "parent_company_name": {
+        "type": "string",
+        "description": "Name of the parent company.",
+    },
+    "parent_company_phone_number": {
+        "type": "string",
+        "description": "Phone number of the parent company.",
+    },
+    "parent_company_taxpayer_id_irs": {
+        "type": "string",
+        "description": "Taxpayer ID of the parent company with the IRS.",
+        "constraints": {
+            "pattern": r"^\d{2}-\d{7}$",
+        },
+    },
+    "parent_company_utility_id_eia": {
+        "type": "integer",
+        "description": "The EIA utility ID of the parent company.",
+    },
+    "parent_company_utility_name_eia": {
+        "type": "string",
+        "description": "The EIA reported utility name of the parent company.",
     },
     "particulate_control_id_eia": {
         "type": "string",
@@ -3575,7 +4488,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "partitions": {
         "type": "string",
-        "description": "The data parititions used to generate this instance of the database.",
+        "description": "The data partitions used to generate this instance of the database.",
     },
     "peak_demand_mw": {
         "type": "number",
@@ -3607,6 +4520,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "pipeline_notes": {
         "type": "string",
         "description": "Additional owner or operator of natural gas pipeline.",
+    },
+    "place_name": {
+        "type": "string",
+        "description": (
+            "County or lake name, sourced from the latest Census PEP vintage based on "
+            "county FIPS ID. Lake names originate from VCE RARE directly, and may also "
+            "appear several times--once for each state it touches. FIPS ID values for "
+            "lakes have been nulled."
+        ),
     },
     "planned_derate_date": {
         "type": "date",
@@ -3940,9 +4862,43 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped.",
     },
+    "region_name_eiaaeo": {
+        "type": "string",
+        "description": (
+            "EIA AEO region for energy consumption. Includes US Census Divisions plus United States."
+        ),
+        "constraints": {
+            "enum": [
+                # 2025-05 kmm: we can't use POLITICAL_SUBDIVISIONS here because
+                # it splits Pacific into Contiguous and Noncontiguous.
+                "east_north_central",
+                "east_south_central",
+                "middle_atlantic",
+                "mountain",
+                "new_england",
+                "pacific",
+                "south_atlantic",
+                "west_north_central",
+                "west_south_central",
+                "united_states",
+            ],
+        },
+    },
     "region_name_us_census": {
         "type": "string",
         "description": "Human-readable name of a US Census region.",
+    },
+    "region_type_eiaaeo": {
+        "type": "string",
+        "description": (
+            "Region type for EIA AEO energy consumption, indicating whether region_name_eiaaeo is a US Census Division or country (United States)"
+        ),
+        "constraints": {
+            "enum": [
+                "us_census_division",
+                "country",
+            ],
+        },
     },
     "has_regulatory_limits": {
         "type": "boolean",
@@ -4000,7 +4956,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": (
             "PUDL-assigned identifying a respondent to FERC Form 714. This ID associates "
-            "natively reported respondent IDs from the orignal CSV and XBRL data sources."
+            "natively reported respondent IDs from the original CSV and XBRL data sources."
         ),
     },
     "respondent_id_ferc714_csv": {
@@ -4062,7 +5018,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "revenue_per_kwh": {
         "type": "number",
         "description": (
-            "The amount of revenue per kWh by rate schedule aquired in the given "
+            "The amount of revenue per kWh by rate schedule acquired in the given "
             "report year."
         ),
         "unit": "USD",
@@ -4076,7 +5032,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The category of revenue requirement associated with each component of utility's"
             "income statements. "
-            "These categories were mannually compiled by RMI utility accounting experts "
+            "These categories were manually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes vary based on the utility_type or "
             "plant_function. This column is intended to be used to aggregate this "
             "table."
@@ -4101,7 +5057,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The technology type associated with components of a utility's "
             "revenue requirement. "
-            "These categories were mannually compiled by RMI utility accounting experts "
+            "These categories were manually compiled by RMI utility accounting experts "
             "based on the xbrl_factoid and sometimes vary based on the utility_type or "
             "plant_function as well. This column is intended to be used to aggregate this "
             "table."
@@ -4149,7 +5105,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "rto_iso_location_wholesale_reporting_id": {
         "type": "string",
-        "description": "The designation used to report ths specific location of the wholesale sales transactions to FERC for the Electric Quarterly Report",
+        "description": "The designation used to report the specific location of the wholesale sales transactions to FERC for the Electric Quarterly Report",
     },
     "rtos_of_operation": {
         "type": "string",
@@ -4483,6 +5439,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
+    "sold_units": {
+        "type": "number",
+        "description": "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBtu.",
+    },
     "sold_to_utility_mwh": {
         "type": "number",
         "description": (
@@ -4536,7 +5496,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "The stack or flue identification value reported to EIA. This denotes the "
-            "place where emissions from the combusion process are released into the "
+            "place where emissions from the combustion process are released into the "
             "atmosphere. Prior to 2013, this was reported as `stack_id_eia` and "
             "`flue_id_eia`."
         ),
@@ -4548,7 +5508,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "of the primary key for the stack flue equipment and boiler association "
             "tables. For 2013 and onward, this value is equal to the value for "
             "stack_flue_id_eia. Prior to 2013, this value is equal to the value for "
-            "stack_id_eia and the value for flue_id_eia seperated by an underscore or "
+            "stack_id_eia and the value for flue_id_eia separated by an underscore or "
             "just the stack_flue_eia in cases where flue_id_eia is NA."
         ),
     },
@@ -4625,6 +5585,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{2}$",
         },
     },
+    "state_name": {
+        "type": "string",
+        "description": "Full name of the state.",
+    },
     "incorporation_state": {
         "type": "string",
         "description": "Two letter state code where company is incorporated.",
@@ -4666,6 +5630,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
     },
+    "stored_offsite_units": {
+        "type": "number",
+        "unit": "tons or MMBtu",
+        "description": "Stored by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "stored_onsite_units": {
+        "type": "number",
+        "unit": "tons or MMBtu",
+        "description": "Stored by-products onsite, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
     "street_address": {
         "type": "string",
         # TODO: Disambiguate as this means different things in different tables.
@@ -4679,7 +5653,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "Two-letter ISO-3166 political subdivision code (e.g. US state "
-            "or Canadian provice abbreviations like CA or AB)."
+            "or Canadian province abbreviations like CA or AB)."
         ),
         "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
     },
@@ -4700,13 +5674,124 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Sub-plant ID links EPA CEMS emissions units to EIA units.",
     },
+    "subsidiary_company_central_index_key": {
+        "type": "string",
+        "description": "Central index key (CIK) of the subsidiary company.",
+    },
+    "subsidiary_company_business_city": {
+        "type": "string",
+        "description": "City where the subsidiary company's place of business is located.",
+    },
+    "subsidiary_company_business_state": {
+        "type": "string",
+        "description": "State where the subsidiary company's place of business is located.",
+    },
+    "subsidiary_company_business_street_address": {
+        "type": "string",
+        "description": "Street address of the subsidiary company's place of business.",
+    },
+    "subsidiary_company_business_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street address of the subsidiary company's place of business.",
+    },
+    "subsidiary_company_business_zip_code": {
+        "type": "string",
+        "description": "Zip code of the subsidiary company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "subsidiary_company_business_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the subsidiary company's place of business.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
+    "subsidiary_company_incorporation_state": {
+        "type": "string",
+        "description": "Two letter state code where subisidary company is incorporated.",
+    },
+    "subsidiary_company_id_sec10k": {
+        "type": "string",
+        "description": (
+            "PUDL-assigned ID for subsidiaries found in SEC 10-K Exhibit 21. "
+            "The ID is created by concatenating the CIK of the company whose filing the subsidiary "
+            "was found in, the subsidiary company's name, and location of incorporation. It is not "
+            "guaranteed to be stable across different releases of PUDL and so should never be "
+            "hard-coded in analyses."
+        ),
+    },
+    "subsidiary_company_industry_name_sic": {
+        "type": "string",
+        "description": "Text description of the subsidiary company's Standard Industrial Classification (SIC)",
+    },
+    "subsidiary_company_industry_id_sic": {
+        "type": "string",
+        "description": "Four-digit Standard Industrial Classification (SIC) code identifying "
+        "the subsidiary company's primary industry. SIC codes have been replaced by NAICS "
+        "codes in many applications, but are still used by the SEC. See e.g. "
+        "https://www.osha.gov/data/sic-manual for code definitions.",
+    },
+    "subsidiary_company_location": {
+        "type": "string",
+        "description": (
+            "Location of subsidiary company. This is the full US state name or country name "
+            "and occasionally a two digit code that was not mapped to a full name during cleaning."
+        ),
+    },
+    "subsidiary_company_mail_city": {
+        "type": "string",
+        "description": "City of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_state": {
+        "type": "string",
+        "description": "State of the parent company's mailing address.",
+    },
+    "subsidiary_company_mail_street_address": {
+        "type": "string",
+        "description": "Street portion of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_street_address_2": {
+        "type": "string",
+        "description": "Second line of the street portion of the subsidiary company's mailing address.",
+    },
+    "subsidiary_company_mail_zip_code": {
+        "type": "string",
+        "description": "Zip code of the subsidiary company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{5}$",
+        },
+    },
+    "subsidiary_company_mail_zip_code_4": {
+        "type": "string",
+        "description": "Zip code suffix of the subsidiary company's mailing address.",
+        "constraints": {
+            "pattern": r"^\d{4}$",
+        },
+    },
     "subsidiary_company_name": {
         "type": "string",
         "description": "Name of subsidiary company.",
     },
-    "subsidiary_company_location": {
+    "subsidiary_company_phone_number": {
         "type": "string",
-        "description": "Location of subsidiary company.",
+        "description": "Phone number of the subsidiary company.",
+    },
+    "subsidiary_company_taxpayer_id_irs": {
+        "type": "string",
+        "description": "Taxpayer ID of the subsidiary company with the IRS.",
+        "constraints": {
+            "pattern": r"^\d{2}-\d{7}$",
+        },
+    },
+    "subsidiary_company_utility_id_eia": {
+        "type": "integer",
+        "description": "The EIA utility ID of the subsidiary company.",
+    },
+    "subsidiary_company_utility_name_eia": {
+        "type": "string",
+        "description": "The EIA reported utility name of the subsidiary company.",
     },
     "sulfur_content_pct": {
         "type": "number",
@@ -4772,7 +5857,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "supplier_name": {
         "type": "string",
-        "description": "Company that sold the fuel to the plant or, in the case of Natural Gas, pipline owner.",
+        "description": "Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner.",
     },
     "supporting_structure_type": {
         "type": "string",
@@ -4782,7 +5867,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether the generator can switch between oil and natural gas.",
     },
-    "syncronized_transmission_grid": {
+    "synchronized_transmission_grid": {
         "type": "boolean",
         "description": "Indicates whether standby generators (SB status) can be synchronized to the grid.",
     },
@@ -4890,6 +5975,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "nameplate capacity."
         ),
         "unit": "MW",
+    },
+    "total_disposal_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Total by-product disposal, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "total_disposition_mwh": {
         "type": "number",
@@ -5081,6 +6171,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "uprate_derate_during_year": {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
+    },
+    "used_offsite_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Used offsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "used_onsite_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Used onsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "utility_id_eia": {
         "type": "integer",
@@ -5497,7 +6597,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "model_case_nrelatb": {
         "type": "string",
         "description": (
-            "NREL's financial assumption cases. There are two cases which effect project finanical "
+            "NREL's financial assumption cases. There are two cases which effect project financial "
             "assumptions: R&D Only Case and Market + Policies Case. R&D Only includes only projected "
             "R&D improvements while Market + Policy case includes policy and tax incentives. "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
@@ -5511,7 +6611,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "production tax credit (PTC) and investment tax credit (ITC). For more detail, see: "
             "https://atb.nrel.gov/electricity/2024/financial_cases_&_methods"
         ),
-        "constraints": {"enum": ["Market", "R&D"]},
+        "constraints": {"enum": ["ITC", "PTC + ITC", "PTC"]},
     },
     "projection_year": {
         "type": "integer",
@@ -5684,7 +6784,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "still charge from the grid)."
         ),
     },
-    "id_dc_coupled_tightly": {
+    "is_dc_coupled_tightly": {
         "type": "boolean",
         "description": (
             "Indicates if this energy storage device is DC tightly coupled (means the energy "
@@ -5796,13 +6896,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "A counter indicating which observation of company data within an SEC 10-K filing header the record pertains to.",
     },
-    # "fraction_owned": {
-    #    "type": "number",
-    #    "description": "Fraction of subsidiary company owned by parent.",
-    # },
     "mail_street_address": {
         "type": "string",
-        "description": "Street portion of the company's for mailing address.",
+        "description": "Street portion of the company's mailing address.",
     },
     "mail_street_address_2": {
         "type": "string",
@@ -5876,6 +6972,20 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
     },
     "nrelatb": {
         "technology_description": {"constraints": {"enum": TECH_DESCRIPTIONS_NRELATB}}
+    },
+    "sec10k": {
+        "fraction_owned": {
+            "type": "number",
+            "description": "Fraction of a subsidiary company owned by the parent.",
+        },
+    },
+    "vcerare": {
+        "latitude": {
+            "description": "Latitude of the place centroid (e.g., county centroid)."
+        },
+        "longitude": {
+            "description": "Longitude of the place centroid (e.g., county centroid)."
+        },
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
@@ -6639,9 +7749,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
 
 def get_pudl_dtypes(
     group: str | None = None,
-    field_meta: dict[str, Any] | None = FIELD_METADATA,
-    field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
-    dtype_map: dict[str, Any] | None = FIELD_DTYPES_PANDAS,
+    field_meta: dict[str, Any] = FIELD_METADATA,
+    field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    dtype_map: dict[str, Any] = FIELD_DTYPES_PANDAS,
 ) -> dict[str, Any]:
     """Compile a dictionary of field dtypes, applying group overrides.
 
@@ -6669,12 +7779,12 @@ def get_pudl_dtypes(
 
 
 def apply_pudl_dtypes(
-    df: pd.DataFrame,
+    df: pd.DataFrame | gpd.GeoDataFrame,
     group: str | None = None,
-    field_meta: dict[str, Any] | None = FIELD_METADATA,
-    field_meta_by_group: dict[str, Any] | None = FIELD_METADATA_BY_GROUP,
+    field_meta: dict[str, Any] = FIELD_METADATA,
+    field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
     strict: bool = False,
-) -> pd.DataFrame:
+) -> pd.DataFrame | gpd.GeoDataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
     Note that ad-hoc column dtypes can be defined and merged with default PUDL field
@@ -6709,5 +7819,4 @@ def apply_pudl_dtypes(
         field_meta_by_group=field_meta_by_group,
         dtype_map=FIELD_DTYPES_PANDAS,
     )
-
     return df.astype({col: dtypes[col] for col in df.columns if col in dtypes})

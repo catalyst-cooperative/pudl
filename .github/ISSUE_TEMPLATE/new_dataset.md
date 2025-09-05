@@ -16,7 +16,7 @@ Is it already partially in PUDL, or do we need to start from scratch?
 
 ### Logistics
 
-Is this dataset publically available?
+Is this dataset publicly available?
 
 Where can one download the actual data?
 

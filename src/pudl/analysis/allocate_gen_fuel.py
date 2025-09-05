@@ -70,7 +70,7 @@ There are six main stages of the allocation process in this module:
    the generator level, going from having primary keys of :py:const:`IDX_GENS_PM_ESC` to
    :py:const:`IDX_GENS` (see :func:`aggregate_gen_fuel_by_generator`).
 
-**High-level description about the allocaiton step**:
+**High-level description about the allocation step**:
 
 We allocate the data columns reported in the :ref:`core_eia923__monthly_generation_fuel`
 table on the basis of plant, prime mover, and energy source among the generators in each
@@ -115,7 +115,7 @@ described above.
 
 **Known Drawbacks of this methodology**:
 
-Note that this methology does not distinguish between primary and secondary
+Note that this methodology does not distinguish between primary and secondary
 energy_sources for generators. It associates portions of net generation to each
 generators in the same plant do not report detailed generation, have the same
 prime_mover_code, and use the same fuels, but have very different capacity factors in
@@ -191,14 +191,14 @@ MISSING_SENTINEL = 0.00001
    data that are now associated with generators, prime mover codes and energy source
    codes.
 #. All of the nulls in the relevant data columns are filled with the sentinel value in
-   :func:`prep_alloction_fraction`. (Could this also be done in
+   :func:`prep_allocation_fraction`. (Could this also be done in
    :func:`associate_generator_tables`?)
 #. After the allocation of net generation (within :func:`allocate_gen_fuel_by_gen_esc`
    and :func:`allocate_fuel_by_gen_esc` via :func:`remove_aggregated_sentinel_value`),
    convert all of the aggregated values that are between 0 and twenty times this
    sentinel value back to zero's. This is meant to find all instances of aggregated
    sentinel values. We avoid any negative values because there are instances of
-   negative orignal values - especially negative net generation.
+   negative original values - especially negative net generation.
 """
 
 
@@ -372,7 +372,7 @@ def allocate_gen_fuel_by_generator_energy_source(
     # Generate a fraction to use to allocate net generation and fuel consumption by.
     # These two methods create a column called `frac`, which will be a fraction
     # to allocate net generation from the gf table for each `IDX_PM_ESC` group
-    gen_pm_fuel = prep_alloction_fraction(gen_assoc)
+    gen_pm_fuel = prep_allocation_fraction(gen_assoc)
     # Net gen allocation
     net_gen_alloc = allocate_gen_fuel_by_gen_esc(gen_pm_fuel).pipe(
         _test_gen_pm_fuel_output, gf=gf, gen=gen
@@ -591,7 +591,7 @@ def agg_by_generator(
     by_cols: list[str] = IDX_GENS,
     sum_cols: list[str] = DATA_COLUMNS,
 ) -> pd.DataFrame:
-    """Aggreate the allocated gen fuel data to the generator level.
+    """Aggregate the allocated gen fuel data to the generator level.
 
     Args:
         net_gen_fuel_alloc: result of :func:`allocate_gen_fuel_by_generator_energy_source()`
@@ -1077,7 +1077,7 @@ def _allocate_unassociated_pm_records(
     return eia_generators
 
 
-def prep_alloction_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
+def prep_allocation_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Prepare the associated generators for allocation.
 
     Make flags and aggregations to prepare for the :func:`allocate_gen_fuel_by_gen_esc`
@@ -1232,7 +1232,7 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     the ``net_generation_mwh_gf_tbl``.
 
     Args:
-        gen_pm_fuel: output of :func:``prep_alloction_fraction()``.
+        gen_pm_fuel: output of :func:``prep_allocation_fraction()``.
     """
     # break out the table into these four different generator types and assign a category
     all_mask = gen_pm_fuel.in_g_tbl_all | gen_pm_fuel.more_mwh_in_g_than_gf_tbl_any
@@ -1256,7 +1256,7 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
             "partially, or not at all in the generation table."
         )
 
-    # In the case where we have all of teh generation from the generation
+    # In the case where we have all of the generation from the generation
     # table, we still allocate, because the generation reported in these two
     # tables don't always match perfectly
     all_gen = all_gen.assign(
@@ -1266,7 +1266,7 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     )
     # _ = _test_frac(all_gen)
 
-    # a brief explaination of the equations below
+    # a brief explanation of the equations below
     # input definitions:
     #   ng == net generation from the generation table (by generator)
     #   ngf == net generation from the generation fuel table (summed by PM/Fuel)
@@ -1295,7 +1295,7 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         frac_cap=lambda x: x.frac_missing_from_g_tbl
         * (x.capacity_mw_missing_from_g_tbl / x.capacity_mw_in_g_tbl_group),
         # the real deal
-        # this could aslo be `x.frac_gen + x.frac_cap` because the frac_gen
+        # this could also be `x.frac_gen + x.frac_cap` because the frac_gen
         # should be 0 for any generator that does not have net gen in the g_tbl
         # and frac_cap should be 0 for any generator that has net gen in the
         # g_tbl.
@@ -1352,7 +1352,7 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     the ``fuel_consumed_mmbtu_gf_tbl``.
 
     Args:
-        gen_pm_fuel: output of :func:`prep_alloction_fraction`.
+        gen_pm_fuel: output of :func:`prep_allocation_fraction`.
     """
     # break out the table into these four different generator types.
     all_bf = gen_pm_fuel.loc[gen_pm_fuel.in_bf_tbl_all]
@@ -1405,7 +1405,7 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         frac_cap=lambda x: x.frac_missing_from_bf_tbl
         * (x.capacity_mw_missing_from_bf_tbl / x.capacity_mw_fuel_in_bf_tbl_group),
         # the real deal
-        # this could aslo be `x.frac_bf + x.frac_cap` because the frac_bf
+        # this could also be `x.frac_bf + x.frac_cap` because the frac_bf
         # should be 0 for any generator that does not have fuel in the bf_tbl
         # and frac_cap should be 0 for any generator that has fuel in the
         # bf_tbl.
@@ -1518,8 +1518,11 @@ def distribute_annually_reported_data_to_months_if_annual(
     ``core_eia860__scd_plants`` table). See Issue #1933.
 
     Args:
-        df: a pandas dataframe, either loaded from pudl_out.gen_original_eia923() or
-            pudl_out.bf_eia923()
+        df: A dataframe of either generation or boiler-fuel data, loaded from
+            :ref:`out_eia923__monthly_generation` or
+            :ref:`out_eia923__yearly_generation` and
+            :ref:`out_eia923__monthly_boiler_fuel` or
+            :ref:`out_eia923__yearly_boiler_fuel` or respectively.
         key_columns: a list of the primary key column names, either
             ``["plant_id_eia","boiler_id","energy_source_code"]`` or
             ``["plant_id_eia","generator_id"]``
@@ -1528,7 +1531,8 @@ def distribute_annually_reported_data_to_months_if_annual(
         freq: frequency of input df. Must be either ``YS`` or ``MS``.
 
     Returns:
-        df with the annually reported values allocated to each month
+        Dataframe with the annually reported generation or fuel consumption values
+        allocated to each month.
     """
     if freq == "MS":
 
@@ -1553,7 +1557,7 @@ def distribute_annually_reported_data_to_months_if_annual(
             .transform("sum")
         )
 
-        # seperate annual and monthly reporters
+        # separate annual and monthly reporters
         once_a_year_reporters = reporters[
             (
                 reporters[data_column_name].notnull()
@@ -1947,7 +1951,7 @@ def _test_gen_pm_fuel_output(
         )
         return gen_pm_fuel_test
 
-    # make different totals and calc differences for two different indexs
+    # make different totals and calc differences for two different indexes
     gen_pm_fuel_test = calc_net_gen_diff(gen_pm_fuel, idx=IDX_PM_ESC)
     gen_fuel_test = calc_net_gen_diff(gen_pm_fuel, idx=IDX_ESC)
 
@@ -2087,7 +2091,7 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
         max_diff = round(gf_test[f"{data_col}_diff"].max(), 2)
         min_diff = round(gf_test[f"{data_col}_diff"].min(), 2)
         logger.info(
-            f"{data_col}: Min and max differnce are x{min_diff} and x{max_diff}"
+            f"{data_col}: Min and max difference are x{min_diff} and x{max_diff}"
         )
         if max_diff > 10 or min_diff < -5:
             raise AssertionError(

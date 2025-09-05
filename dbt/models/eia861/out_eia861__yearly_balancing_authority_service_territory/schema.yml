@@ -4,9 +4,11 @@ sources:
     tables:
       - name: out_eia861__yearly_balancing_authority_service_territory
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: out_eia861__yearly_balancing_authority_service_territory
-              partition_column: report_date
+              arguments:
+                table_name: out_eia861__yearly_balancing_authority_service_territory
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: county_id_fips
           - name: county_name_census

@@ -4,9 +4,22 @@ sources:
     tables:
       - name: core_eia923__entity_coalmine
         data_tests:
+          - expect_columns_not_all_null:
+              description: >
+                Because this is an entity table, it only describes attributes that are
+                constant across time. However, the county FIPS code is only available in
+                some reporting years. If one of those years is processed, then it is
+                non-null in this table. If none of those years are processed, then it
+                will be entirely null here, and there is no column that we can
+                aggregate across to identify when it should be null or non-null, so it
+                is excluded from the test.
+              arguments:
+                exclude_columns:
+                  - county_id_fips
           - check_row_counts_per_partition:
-              table_name: core_eia923__entity_coalmine
-              partition_column: null
+              arguments:
+                table_name: core_eia923__entity_coalmine
+                partition_expr:
         columns:
           - name: mine_id_pudl
           - name: mine_name

@@ -13,10 +13,11 @@ from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
 import frictionless
+import geopandas as gpd
 import jinja2
 import numpy as np
 import pandas as pd
-import pandera as pr
+import pandera.pandas as pr
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
@@ -33,11 +34,13 @@ from pydantic import (
     StrictStr,
     StringConstraints,
     ValidationInfo,
+    field_serializer,
     field_validator,
     model_validator,
 )
 
 import pudl.logging_helpers
+from pudl.metadata import descriptions
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
@@ -60,7 +63,7 @@ from pudl.metadata.helpers import (
     most_and_more_frequent,
     split_period,
 )
-from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA, eia861
+from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
@@ -384,7 +387,7 @@ class Encoder(PudlMeta):
 
     The intended meanings of some non-standard codes are clear, and therefore they can
     be mapped to the standardized, canonical codes with confidence. Sometimes these are
-    the result of data entry errors or changes in the stanard codes over time.
+    the result of data entry errors or changes in the standard codes over time.
     """
 
     name: String | None = None
@@ -513,7 +516,7 @@ class Encoder(PudlMeta):
     def to_rst(
         self, top_dir: DirectoryPath, csv_subdir: DirectoryPath, is_header: StrictBool
     ) -> String:
-        """Ouput dataframe to a csv for use in jinja template.
+        """Output dataframe to a csv for use in jinja template.
 
         Then output to an RST file.
         """
@@ -564,7 +567,9 @@ class Field(PudlMeta):
 
     name: SnakeCase
     # Shadows built-in type.
-    type: Literal["string", "number", "integer", "boolean", "date", "datetime", "year"]
+    type: Literal[
+        "string", "number", "integer", "boolean", "date", "datetime", "year", "geometry"
+    ]
     title: String | None = None
     # Alias required to avoid shadowing Python built-in format()
     format_: Literal["default"] = pydantic.Field(alias="format", default="default")
@@ -645,7 +650,7 @@ class Field(PudlMeta):
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQL[self.type]
 
-    def to_pyarrow_dtype(self) -> pa.lib.DataType:
+    def to_pyarrow_dtype(self) -> pa.DataType:
         """Return PyArrow data type."""
         if self.constraints.enum and self.type == "string":
             return pa.dictionary(pa.int32(), pa.string(), ordered=False)
@@ -733,7 +738,12 @@ class Field(PudlMeta):
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
         checks = constraints.to_pandera_checks()
-        column_type = "category" if constraints.enum else FIELD_DTYPES_PANDAS[self.type]
+        if constraints.enum:
+            column_type = "category"
+        elif self.type == "geometry":
+            column_type = gpd.array.GeometryDtype()
+        else:
+            column_type = FIELD_DTYPES_PANDAS[self.type]
 
         return pr.Column(
             column_type,
@@ -958,11 +968,7 @@ class DataSource(PudlMeta):
 
     def get_resource_ids(self) -> list[str]:
         """Compile list of resource IDs associated with this data source."""
-        # Temporary check to use eia861.RESOURCE_METADATA directly
-        # eia861 is not currently included in the general RESOURCE_METADATA dict
         resources = RESOURCE_METADATA
-        if self.name == "eia861":
-            resources = eia861.RESOURCE_METADATA
 
         return sorted(
             name
@@ -1078,7 +1084,7 @@ class ResourceHarvest(PudlMeta):
     """
 
     tolerance: PositiveFloat = 0.0
-    """Fraction of invalid fields above which result is considerd invalid."""
+    """Fraction of invalid fields above which result is considered invalid."""
 
 
 class PudlResourceDescriptor(PudlMeta):
@@ -1129,11 +1135,162 @@ class PudlResourceDescriptor(PudlMeta):
         )
         code_fixes: dict = {}
         ignored_codes: list = []
+        model_config = ConfigDict(arbitrary_types_allowed=True)
+
+        @field_serializer("df")
+        def serialize_df(
+            self, df: pr.typing.DataFrame[CodeDataFrame], _info
+        ) -> pd.DataFrame:
+            """Return DataFrame to avoid warnings from default serializer."""
+            return df
+
+    class PudlDescriptionComponents(PudlMeta):
+        """Container to hold description configuration information.
+
+        All of these parameters have reasonable defaults for most resources if left
+        unset.  You must specify :attr:`PudlResourceDescriptor.description` as a
+        dictionary, but you do not have to put anything in it so long as the resource id
+        follows the standard pattern.
+        """
+
+        table_type_code: (
+            Literal["assn", "codes", "entity", "scd", "timeseries"] | None
+        ) = None
+        """Indicates the type of asset stored in this resource.
+
+        If None or otherwise left unset, will be filled in with a default type parsed
+        from the resource id string."""
+
+        timeseries_resolution_code: (
+            Literal[
+                "quarterly",
+                "yearly",
+                "monthly",
+                "hourly",
+            ]
+            | None
+        ) = None
+        """If this resource has
+        :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+        timeseries, indicates the temporal resolution, otherwise None.  If
+        :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` is
+        timeseries and this value is None or otherwise left unset, will be filled in
+        with a default resolution parsed from the resource id string."""
+
+        layer_code: Literal["raw", "_core", "core", "out", "test"] | None = None
+        """Indicates the degree of processing applied to the data in this resource.  If
+        None or otherwise left unset, will be filled in with a default layer parsed from
+        the resource id string."""
+
+        source_code: str | None = None
+        """Indicates the source we wish to display for this resource; distinct from
+        :attr:`PudlResourceDescriptor.source_ids` because here we want the majority
+        source (or grouped source if truly mixed) and not a complete list of all sources
+        used for this resource.  If set, should be a known data source shortcode like
+        "eia923" or one of the grouped shortcodes from
+        :data:`~pudl.metadata.descriptions.source_descriptions`.  If None or otherwise
+        left unset, will be filled in with a default source parsed from the resource id
+        string."""
+
+        usage_warnings: list[str | dict] | None = None
+        """List of string keys (for common warnings; see :mod:`warnings`) and dicts (for
+        custom warnings) stating necessary precautions for using this resource.
+
+        Usage Warnings are a way for us to quickly and skim-ably tell users about
+        analysis hazards when using a particular table.  It has two goals:
+
+        1. help users quickly reach a point of success in their use of our data, and
+        2. reduce the incidence of repeated questions and bug-like reports due to these
+           inescapable hazards.
+
+        Reserve this field for severe and/or frequent problems an unfamiliar user may
+        encounter, and list lighter or edge-case problems in
+        :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_details_text`.
+
+        The list can contain two kinds of entries:
+
+        * a string, which should match one of the keys in
+          :data:`~pudl.metadata.warnings.USAGE_WARNINGS`
+        * a dict, which should contain two keys:
+
+          * "type" - a short code for the warning, which doesn't need to be unique and
+            will only appear in preview & debugging tooling, not to users
+          * "description" - the one-to-two-sentence summary of a warning used only on
+            this particular resource
+
+        The system will automatically detect and include the following warnings based on
+        the resource id string and schema information (see
+        :meth:`~pudl.metadata.descriptions.ResourceDescriptionBuilder._assemble_usage_warnings`):
+
+        * multiple_inputs
+        * ferc_is_hard
+
+        Any items provided here will be listed before the automatically detected
+        warnings.
+
+        If None or otherwise left unset, will be filled in with auto warnings only. If
+        no auto warnings apply, hides the Usage Warnings section entirely."""
+
+        additional_summary_text: str | None = None
+        """A brief (~one-line) description of the contents of this resource.
+        If None or otherwise left unset, will be left blank.
+
+        If filled, should support whichever of the following scenarios is most
+        appropriate for this resource:
+
+        * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+          is set or can be automatically detected: this value should complete the
+          sentence corresponding to
+          :data:`~pudl.metadata.descriptions.table_type_fragments` for this resource's
+          :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+        * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+          is None/unset *and* the resource is not named according to a standard table
+          type listed in :data:`~pudl.metadata.descriptions.table_type_fragments`: this
+          value should be a complete sentence summarizing the contents of this resource
+          at a similar level of detail.
+
+        """
+        additional_layer_text: str | None = None
+        """Unusual details about this resource's level of processing that don't fall
+        into the normal definition of raw/core/_core/out/etc.  If None or otherwise left
+        unset, will be left blank.  This should only be set in truly obscure situations.
+        If set, should be a complete sentence."""
+
+        additional_source_text: str | None = None
+        """A brief refinement on the source data for this table, such as indicating the
+        Schedule or other section number.  If None or otherwise left unset, will be left
+        blank.  If set, should make sense when displayed directly after the title of a
+        datasource (see :data:`~pudl.metadata.descriptions.source_descriptions`);
+        parentheticals work best here."""
+
+        additional_primary_key_text: str | None = None
+        """For resources with no primary key, a brief summary of what each row contains,
+        and perhaps why a primary key doesn't make sense for this table.  If None or
+        otherwise left unset, will be left blank.  If set, should be a complete sentence
+        or two.
+
+        This is generally not set when there is a primary key for the table.  If a
+        primary key is available,
+        :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text`
+        will appear after the comma-delimited list of primary key columns."""
+
+        additional_details_text: str | None = None
+        """All other information about this resource's construction and intended use,
+        including guidelines and recommendations for best results.  If None or otherwise
+        left unset, will be left blank; hides the Additional Details section entirely.
+
+        Q3 2025 Migration Mode variance: if :attr:`PudlResourceDescriptor.description`
+        is a string, it gets moved here so you can see the old description content in
+        the Additional Details section of the preview.
+
+        May also include more-detailed explanations of listed usage warnings."""
+        # TODO: drop migration mode variance after migration is complete
 
     # TODO (daz) 2024-02-09: with a name like "title" you might imagine all
     # resources would have one...
     title: str | None = None
-    description: str
+    # TODO: the str type is legacy support and should be removed once we get all the metadata migrated
+    description: PudlDescriptionComponents | str
     schema_: PudlSchemaDescriptor = pydantic.Field(alias="schema")
     encoder: PudlCodeMetadata | None = None
     source_ids: list[str] = pydantic.Field(alias="sources")
@@ -1284,6 +1441,7 @@ class Resource(PudlMeta):
     encoder: Encoder | None = None
     field_namespace: (
         Literal[
+            "censusdp1tract",
             "eia",
             "eiaaeo",
             "eiaapi",
@@ -1302,6 +1460,7 @@ class Resource(PudlMeta):
     ) = None
     etl_group: (
         Literal[
+            "censusdp1tract",
             "eia860",
             "eia861",
             "eia861_disabled",
@@ -1342,9 +1501,9 @@ class Resource(PudlMeta):
         Sphinx throws an error when creating a cross ref target for
         a resource that has a preceding underscore. It is
         also possible for resources to have identical names
-        when the preceeding underscore is removed. This function
-        adds a preceeding 'i' to cross ref targets for resources
-        with preceeding underscores. The 'i' will not be rendered
+        when the preceding underscore is removed. This function
+        adds a preceding 'i' to cross ref targets for resources
+        with preceding underscores. The 'i' will not be rendered
         in the docs, only in the .rst files the hyperlinks.
         """
         if self.name.startswith("_"):
@@ -1368,7 +1527,8 @@ class Resource(PudlMeta):
 
     @staticmethod
     def dict_from_resource_descriptor(  # noqa: C901
-        resource_id: str, descriptor: PudlResourceDescriptor
+        resource_id: str,
+        descriptor: PudlResourceDescriptor,
     ) -> dict:
         """Get a Resource-shaped dict from a PudlResourceDescriptor.
 
@@ -1384,6 +1544,7 @@ class Resource(PudlMeta):
           then expanded (:meth:`Contributor.from_id`).
         * `keywords`: Keywords are fetched by source ids.
         * `schema.foreign_keys`: Foreign keys are fetched by resource name.
+        * `description`: Full description text block is rendered from its component parts.
         """
         obj = descriptor.model_dump(by_alias=True)
         obj["name"] = resource_id
@@ -1432,6 +1593,12 @@ class Resource(PudlMeta):
         # Delete foreign key rules
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
+
+        # overwrite description components with rendered text block
+        obj["description"] = descriptions.ResourceDescriptionBuilder(
+            resource_id,
+            obj,
+        ).build(_get_jinja_environment())
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -1601,7 +1768,9 @@ class Resource(PudlMeta):
             matches = {key: key for key in keys if key in names}
         return matches if len(matches) == len(keys) else None
 
-    def format_df(self, df: pd.DataFrame | None = None, **kwargs: Any) -> pd.DataFrame:
+    def format_df(
+        self, df: pd.DataFrame | gpd.GeoDataFrame | None = None, **kwargs: Any
+    ) -> pd.DataFrame | gpd.GeoDataFrame:
         """Format a dataframe according to the resources's table schema.
 
         * DataFrame columns not in the schema are dropped.
@@ -1645,7 +1814,7 @@ class Resource(PudlMeta):
                     if value not in dtypes[field.name].categories
                 ]
                 if uncategorized:
-                    logger.warning(
+                    raise ValueError(
                         f"Values in {field.name} column are not included in "
                         "categorical values in field enum constraint "
                         f"and will be converted to nulls ({uncategorized})."
@@ -1663,7 +1832,9 @@ class Resource(PudlMeta):
                 df[key] = PERIODS[period](df[key])
         return df
 
-    def enforce_schema(self, df: pd.DataFrame) -> pd.DataFrame:
+    def enforce_schema(
+        self, df: pd.DataFrame | gpd.GeoDataFrame
+    ) -> pd.DataFrame | gpd.GeoDataFrame:
         """Drop columns not in the DB schema and enforce specified types."""
         expected_cols = pd.Index(self.get_field_names())
         missing_cols = list(expected_cols.difference(df.columns))
@@ -1685,9 +1856,11 @@ class Resource(PudlMeta):
 
         df = self.format_df(df)
         pk = self.schema.primary_key
-        if pk and not (dupes := df[df.duplicated(subset=pk)]).empty:
+        if pk and not (dupes := df[df.duplicated(subset=pk, keep=False)]).empty:
             raise ValueError(
-                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) when enforcing schema."
+                f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) "
+                "when enforcing schema:\n"
+                f"{dupes.head()}{'\n...' if len(dupes) > 5 else ''}"
             )
         if pk and not (nulls := df[df[pk].isna().any(axis=1)]).empty:
             raise ValueError(
@@ -1706,7 +1879,7 @@ class Resource(PudlMeta):
 
         The report is formatted as follows:
 
-        * `valid` (bool): Whether resouce is valid.
+        * `valid` (bool): Whether resource is valid.
         * `stats` (dict): Error statistics for resource fields.
         * `fields` (dict):
 
@@ -1976,7 +2149,7 @@ class Package(PudlMeta):
         coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
         coding table's encoder with those columns for later use cleaning them up.
 
-        The result is cached, since we so often need to generate the metdata for
+        The result is cached, since we so often need to generate the metadata for
         the full collection of PUDL tables.
 
         Args:
@@ -2145,7 +2318,7 @@ class Package(PudlMeta):
 
 
 PUDL_PACKAGE = Package.from_resource_ids()
-"""Define a gobal PUDL package object for use across the entire codebase.
+"""Define a global PUDL package object for use across the entire codebase.
 
 This needs to happen after the definition of the Package class above, and it is used in
 some of the class definitions below, but having it defined in the middle of this module

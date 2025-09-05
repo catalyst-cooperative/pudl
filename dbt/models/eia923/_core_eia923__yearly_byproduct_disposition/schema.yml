@@ -1,0 +1,42 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia923__yearly_byproduct_disposition
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_eia923__yearly_byproduct_disposition
+                partition_expr: report_year
+          - expect_sum_close_to_total_column:
+              name: total_disposal_units_discrepancy_rate
+              arguments:
+                sum_columns:
+                  - disposal_landfill_units
+                  - disposal_offsite_units
+                  - disposal_ponds_units
+                  - sold_units
+                  - stored_offsite_units
+                  - stored_onsite_units
+                  - used_offsite_units
+                  - used_onsite_units
+                total_column: total_disposal_units
+                discrepancy_threshold: 0.01
+                max_discrepancy_rate: 0.01
+        columns:
+          - name: report_year
+          - name: plant_id_eia
+          - name: byproduct_description
+          - name: byproduct_units
+          - name: disposal_landfill_units
+          - name: disposal_offsite_units
+          - name: disposal_ponds_units
+          - name: sold_units
+          - name: stored_offsite_units
+          - name: stored_onsite_units
+          - name: used_offsite_units
+          - name: used_onsite_units
+          - name: total_disposal_units
+          - name: no_byproducts_to_report
+          - name: data_maturity

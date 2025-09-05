@@ -2,25 +2,52 @@
 {{ resource.name }}
 -------------------------------------------------------------------------------
 
-{{ resource.description | wordwrap(78) if resource.description else 'No table description available.' }}
+{{ resource.description|safe if resource.description else 'No table description available.' }}
 
-{% if resource.schema.primary_key -%}
-**The table has the following primary key columns:**
-{% for key in resource.schema.primary_key %}
-* {{ key }}
-{% endfor %}
-{% else -%}
-**This table has no primary key.**
-{%- endif %}
+Access methods
+^^^^^^^^^^^^^^^
 
-**Access methods:**
+* `Browse and query this table online <https: //viewer.catalyst.coop/search?&q=name:{{ resource.name }}>`__
+* `Download this table as a Parquet file <https: //s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ resource.name }}.parquet>`__
 
-{% if resource.create_database_schema -%}
-* `Browse or query this table in Datasette. <https://data.catalyst.coop/pudl/{{ resource.name }}>`__
-{% else -%}
-* This table is not published to Datasette.
-{%- endif %}
-* `Download this table as a Parquet file. <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ resource.name }}.parquet>`__
+.. tabs::
+
+   .. tab:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+             dtype_backend="pyarrow",
+         )
+
+   .. tab:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+         )
+
+   .. tab:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet';
+
+   .. tab:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet"
+         )
+
+Columns
+^^^^^^^
 
 .. list-table::
   :widths: auto
@@ -32,5 +59,5 @@
 {%- for field in resource.schema.fields %}
   * - {{ field.name }}
     - {{ field.type }}
-    - {{ field.description if field.description else "N/A" }}
+    - {{ field.description|safe if field.description else "N/A" }}
 {%- endfor %}

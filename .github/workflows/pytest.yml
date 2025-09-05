@@ -14,6 +14,41 @@ env:
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
 
 jobs:
+  change_filter:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      # 2025-07-17: because merge_group is an Object and run_code_checks is not a conditional, need to explicitly check for null-ness instead of relying on truthiness.
+      run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && (github.event.merge_group != null)) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          # this will raise a warning, but it works:  https://github.com/dorny/paths-filter/issues/225
+          predicate-quantifier: "every"
+          filters: |
+            code:
+              - '!docs/**.rst'
+              - '!docs/**.md'
+              - '!docs/**.pdf'
+              - '!docs/**.html'
+              - '!docs/**.rst.jinja'
+              - '!docs/**.bib'
+              - '!README.rst'
+              - '!CONTRIBUTING.rst'
+              - '!LICENSE.txt'
+              - '!CITATION.cff'
+              - '!.zenodo.json'
+      - name: print out components
+        run: |
+          echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
+          echo "found code changes: ${{ steps.filter.outputs.code }}"
+          echo "merge_group ${{ github.event.merge_group }} is not null: ${{ github.event.merge_group != null }}"
+
   ci-docs:
     runs-on: ubuntu-latest
     strategy:
@@ -23,7 +58,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
@@ -73,7 +108,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
@@ -120,8 +155,9 @@ jobs:
           path: .coverage
 
   ci-integration:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.merge_group
+    runs-on: ubuntu-latest-8core
+    needs: change_filter
+    if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     permissions:
       contents: read
       id-token: write
@@ -132,7 +168,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
@@ -177,7 +213,7 @@ jobs:
       - name: Set default GCP credentials
         id: gcloud-auth
         continue-on-error: true
-        uses: "google-github-actions/auth@v2"
+        uses: "google-github-actions/auth@v3"
         with:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
@@ -185,7 +221,7 @@ jobs:
       - name: Run integration tests, trying to use GCS cache if possible
         run: |
           pip install --no-deps --editable .
-          pudl_datastore --dataset epacems --partition year_quarter=2022q1
+          pudl_datastore --dataset epacems --partition year_quarter=2023q1
           make pytest-integration
 
       - name: Coverage debugging output
@@ -218,11 +254,13 @@ jobs:
       - ci-docs
       - ci-unit
       - ci-integration
+      - change_filter
+    if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Download coverage
         id: download-coverage
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: coverage
       - name: List downloaded files
@@ -234,12 +272,13 @@ jobs:
           init-shell: bash
           environment-name: coverage
           create-args: >-
-            python=3.12
+            python=3.13
             coverage>=7.6.1
-      - name: Combine coverage data and output XML report
+      - name: Combine coverage data, output XML, and report
         run: |
           micromamba run -n coverage coverage combine coverage/*/.coverage
           micromamba run -n coverage coverage xml --fail-under=0
+          micromamba run -n coverage coverage report --fail-under=0
       - name: Upload XML coverage report to CodeCov
         uses: codecov/codecov-action@v5
         with:
@@ -249,7 +288,6 @@ jobs:
           fail_ci_if_error: true # optional (default = false)
           plugins: noop
           verbose: true
-      - name: Display coverage report and ensure it meets required minimum
-        # Required coverage is set in pyproject.toml section [tool.coverage.report]
+      - name: Run coverage report again but fail if we're under the minimum
         run: |
           micromamba run -n coverage coverage report

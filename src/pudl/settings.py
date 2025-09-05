@@ -175,6 +175,24 @@ class PhmsaGasSettings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
+    @property
+    def extraction_years(self) -> list[int]:
+        """The list of years to extract.
+
+        These are different from the standard :attr:`years` because
+        the oldest years (1970 - 1989) are published with multiple years
+        in each tab. Instead of running the extraction step on each year
+        and filtering on the year from each tab, we extract the whole tab
+        all at once using the first year in the tab as the partition.
+        """
+        old_years = range(1970, 1990)
+        first_year_tabs = [1970, 1980, 1982, 1984]
+        return [
+            year
+            for year in self.years
+            if (year not in old_years) or (year in first_year_tabs)
+        ]
+
 
 class Sec10kSettings(GenericDatasetSettings):
     """An immutable Pydantic model to validate SEC 10-K settings."""
@@ -609,7 +627,7 @@ class DatasetsSettings(FrozenBaseModel):
         eia860m is a monthly update of a few tables in the larger eia860 dataset.
 
         Args:
-            ds: An initalized PUDL Datastore from which the DOI's for each raw input
+            ds: An initialized PUDL Datastore from which the DOI's for each raw input
                 dataset can be obtained.
 
         Returns:
@@ -873,7 +891,8 @@ class EtlSettings(BaseSettings):
             ) and not set(pudl_ferc.xbrl_years).issubset(set(sqlite_ferc.years)):
                 raise AssertionError(
                     "You are trying to build a PUDL database with different XBRL years "
-                    f"than the ferc_to_sqlite_settings years for {which_ferc}."
+                    f"than the ferc_to_sqlite_settings years for {which_ferc}.\nPUDL years: {pudl_ferc.xbrl_years}\n"
+                    f"SQLite Years: {sqlite_ferc.years}"
                 )
         return self
 
@@ -883,7 +902,7 @@ def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:
 
     For each partition parameter in a :class:`GenericDatasetSettings` subclass, create a
     corresponding :class:`DagsterField`. By default the :class:`GenericDatasetSettings`
-    subclasses will default to include all working paritions if the partition value is
+    subclasses will default to include all working partitions if the partition value is
     None. Get the value type so dagster can do some basic type checking in the UI.
 
     Args:

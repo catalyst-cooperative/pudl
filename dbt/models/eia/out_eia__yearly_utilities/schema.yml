@@ -1,0 +1,65 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia__yearly_utilities
+        data_tests:
+          - expect_columns_not_all_null:
+              arguments:
+                ignore_eia860m_nulls: true
+                row_conditions:
+                  plants_reported_owner: EXTRACT(year FROM report_date) >= 2013
+                  plants_reported_operator: EXTRACT(year FROM report_date) >= 2013
+                  plants_reported_asset_manager: EXTRACT(year FROM report_date) >= 2013
+                  plants_reported_other_relationship: EXTRACT(year FROM report_date) >= 2013
+                  entity_type: EXTRACT(year FROM report_date) NOT IN (2007, 2008, 2009, 2010, 2011, 2012)
+                  attention_line: EXTRACT(year FROM report_date) <= 2009
+                  address_2: EXTRACT(year FROM report_date) <= 2010
+                  zip_code_4: EXTRACT(year FROM report_date) <= 2010
+                  contact_firstname: EXTRACT(year FROM report_date) IN (2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009)
+                  contact_lastname: EXTRACT(year FROM report_date) IN (2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009)
+                  contact_title: EXTRACT(year FROM report_date) IN (2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009)
+                  phone_number: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                  phone_extension: EXTRACT(year FROM report_date) <= 2006
+                  contact_firstname_2: EXTRACT(year FROM report_date) IN (2003, 2004, 2005, 2006, 2007, 2009)
+                  contact_lastname_2: EXTRACT(year FROM report_date) IN (2003, 2004, 2005, 2006, 2007, 2009)
+                  contact_title_2: EXTRACT(year FROM report_date) IN (2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009)
+                  phone_number_2: EXTRACT(year FROM report_date) BETWEEN 2004 AND 2006
+                  phone_extension_2: EXTRACT(year FROM report_date) <= 2006
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_eia__yearly_utilities
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - expect_date_frequency_ratio:
+              arguments:
+                compare_model: source("pudl", "out_eia__yearly_generators")
+                multiplier: 1
+                date_column: report_date
+        columns:
+          - name: utility_id_eia
+          - name: utility_id_pudl
+          - name: utility_name_eia
+          - name: report_date
+          - name: street_address
+          - name: city
+          - name: state
+          - name: zip_code
+          - name: plants_reported_owner
+          - name: plants_reported_operator
+          - name: plants_reported_asset_manager
+          - name: plants_reported_other_relationship
+          - name: entity_type
+          - name: attention_line
+          - name: address_2
+          - name: zip_code_4
+          - name: contact_firstname
+          - name: contact_lastname
+          - name: contact_title
+          - name: phone_number
+          - name: phone_extension
+          - name: contact_firstname_2
+          - name: contact_lastname_2
+          - name: contact_title_2
+          - name: phone_number_2
+          - name: phone_extension_2
+          - name: data_maturity

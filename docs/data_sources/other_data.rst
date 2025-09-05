@@ -22,32 +22,6 @@ utility and balancing authority service territories based on FERC 714 and EIA 86
 Currently, we are distributing the Census DP1 data as a standalone SQLite DB which is
 converted directly from the original geodatabase distributed by the US Census Bureau.
 
-.. _data-epacamd_eia:
-
-EPA CAMD to EIA Power Sector Data Crosswalk
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The `original EPA CAMD to EIA crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__
-was published by the US Environmental Protection Agency on GitHub and connects EPA CAMD
-emissions units (smokestacks) which appear in :doc:`epacems` with corresponding EIA
-plant components reported in EIA Forms 860 and 923 (``plant_id_eia``, ``boiler_id``,
-``generator_id``). This many-to-many connection is necessary because pollutants from
-various plant parts are collecitvely emitted and measured from one point-source.
-
-The original crosswalk was generated using only 2018 data. However, there is useful
-information in all years of data, and we augment the crosswalk that they publish on
-GitHub by running their code against all available later years of data.
-
-Re-running the crosswalk pulls the latest data from the
-`CAMD FACT API <https://www.epa.gov/power-sector/field-audit-checklist-tool-fact-api>`__
-which results in some changes to the generator and unit IDs reported on the EPA side of
-the crosswalk. The changes only result in the addition of new units and generators in
-the EPA data, with no changes to matches at the plant level (other than identification
-of new plant-plant matches). We derive sub-plant IDs (``subplant_id``) from the
-crosswalk in the table :ref:`core_epa__assn_eia_epacamd_subplant_ids`. Note that these
-IDs are not necessarily stable across multiple releases of this data, and should not be
-hard-coded into analyses.
-
 .. _data-eiaaeo:
 
 EIA Annual Energy Outlook (AEO)
@@ -56,17 +30,6 @@ The `EIA's Annual Energy Outlook <https://www.eia.gov/outlooks/aeo/>`__ underwen
 major overhaul in 2024, but we've integrated a few key tables from the earlier data.
 These are just a small subset of the dozens of tables that have historically been part
 of the AEO. Look for ``eiaaeo`` in the table name to find this data.
-
-.. _data-nrelatb:
-
-NREL Annual Technology Baseline (ATB)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-NREL publishes `Annual Technology Baseline (ATB) <https://atb.nrel.gov>`__ data for the
-`Electricity <https://atb.nrel.gov/electricity>`__ and
-`Transportation <https://atb.nrel.gov/transportation>`__ sectors. We have integrated the
-Electricity sector data into the PUDL DB, but haven't yet fully documented the data
-source. Look for ``nrelatb`` in the table name.
 
 FERC DBF & XBRL Data
 ^^^^^^^^^^^^^^^^^^^^

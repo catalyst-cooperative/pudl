@@ -40,11 +40,8 @@ the names and descriptions of each of its fields.
    {%- for resource in source_resources %}
    * - :ref:`{{ resource.sphinx_ref_name }}`
    {%- block browse_online scoped %}
-   {%- if resource.create_database_schema %}
-     - https://data.catalyst.coop/pudl/{{ resource.name }}
-   {%- else %}
-     - Table not published to Datasette.
-   {%- endif %}{% endblock %}
+     - https://viewer.catalyst.coop/search?q=name:{{ resource.name }}
+   {% endblock %}
    {%- endfor %}
 
 {%- endif %}
@@ -63,22 +60,20 @@ existing tables.
      - Browse Online
    {%- for resource in extra_resources %}
    * - :ref:`{{ resource.sphinx_ref_name }}`
-   {%- block browse_extra_online scoped -%}
-   {%- if resource.create_database_schema %}
-     - https://data.catalyst.coop/pudl/{{ resource.name }}
-   {%- else %}
-     - Table not published to Datasette.
-   {%- endif %}
-   {%- endblock %}
-   {%- endfor -%}
+   {%- block browse_extra_online scoped %}
+     - https://viewer.catalyst.coop/search?q=name:{{ resource.name }}
+   {% endblock %}
+   {%- endfor %}
 {%- endif %}
 
 Background
 ^^^^^^^^^^
 {% block background %}{% endblock %}
 
+{% block download_title %}
 Download additional documentation
 ---------------------------------
+{% endblock %}
 {% block download_docs %}{% endblock %}
 
 {% block availability_title %}
@@ -109,3 +104,4 @@ PUDL Data Transformations
 To see the transformations applied to the data in each table, you can read the
 docstrings for :mod:`pudl.transform.{{ source.name }}` created for each table's
 respective transform function.
+{% block extra_pudl_transform_text %}{% endblock %}

@@ -2,9 +2,387 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2025.9.0:
+
 ---------------------------------------------------------------------------------------
-v2025.XX.x (2025-MM-DD)
+v2025.9.0 (2025-09-05)
 ---------------------------------------------------------------------------------------
+
+This is a monthly release primarily focused on updating the EIA-860M, with other
+incremental changes coming along for the ride. A couple of things to be aware of:
+
+* :user:`mfripp` identified a bug in how we were constructing detailed utility
+  asset/liability and income/expense tables from FERC Form 1. This has been partially
+  addressed, but the fix needs to be applied to a couple of additional tables. See
+  :issue:`4593` to track our progress.
+* We are now producing GeoParquet outputs for tables that contain spatial data. This
+  is a great new feature! But also potentially a breaking change, depending on what
+  tools you've been using to read our Parquet outputs. `GeoPandas
+  <https://geopandas.org/>`__ and `DuckDB's spatial extension
+  <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__ both work
+  well.
+
+Enhancements
+^^^^^^^^^^^^
+
+Geospatial outputs with GeoParquet
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We've started producing `GeoParquet <https://geoparquet.org/>`__ outputs that include
+explicit geometries for use with `GeoPandas <https://geopandas.org/>`__ and other
+mapping and geospatial analysis packages. See :func:`geopandas.read_parquet` for
+dcoumentation on how to read them. We've also tested it with the `DuckDB Spatial
+extension <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__.
+This is still experimental and there are only a handful of tables that currently include
+geometries, but we hope to apply it more widely in the future for any tables with
+geospatial information. See PR :pr:`4546`.
+
+We've started by writing the :doc:`data_sources/censusdp1tract` state, county, and tract
+level data out as GeoParquet files, so they can be used alongside the other Parquet data
+without needing to read the Census DP1 SQLite DB.  This will allow us to point our
+`Kaggle (and other) notebooks <https://www.kaggle.com/catalystcooperative/code>`__ that
+make maps directly at the Parquet files in S3 rather than depending on the (somewhat
+chonky) `Kaggle PUDL dataset
+<https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__. For now the only
+tables with a valid ``geometry`` column are:
+
+* :ref:`out_censusdp1tract__states`
+* :ref:`out_censusdp1tract__counties`
+* :ref:`out_censusdp1tract__tracts`
+* :ref:`out_ferc714__georeferenced_respondents`
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for July
+  of 2025. See issue :issue:`4590` and PR :pr:`4594`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* We updated `our Kaggle notebooks <https://www.kaggle.com/catalystcooperative/code>`__
+  to read PUDL data from our `AWS Open Data Registry
+  <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__ S3 bucket instead of
+  relying on the `PUDL Kaggle Dataset
+  <https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__, since copying
+  all of the PUDL data into the notebook workspace was taking more than 5 minutes, which
+  made it frustrating for users to get started working with the data. This also means it
+  should be easier to run the notebooks locally (in an appropriate Python environment)
+  since the data doesn't need to be present locally. The notebooks are also pushed to
+  our `PUDL Examples GitHub repo
+  <https://github.com/catalyst-cooperative/pudl-examples/>`__. See issue :issue:`4381`.
+* When running ``dbt_helper update-tables`` without the ``--clobber`` flag, existing
+  schema tests, descriptions and other metadata are now preserved. Furthermore, the
+  ``--update`` flag has been removed, with the default schema update logic behaving
+  as follows: if columns are added or removed, updates are allowed to pass. However, if
+  any metadata is removed, such as tests or descriptions, the update fails unless
+  ``--clobber`` is used. See issue :issue:`4466` and PR :pr:`4525`.
+
+Bug Fixes
+^^^^^^^^^
+
+* Stopped nulling values in columns with ENUM constraints when the value was not found
+  in the ENUM. Previously we logged a warning, and now it will raise an error. There
+  were a couple of trivial cases in which we were losing values that violated the
+  constraints, but nothing serious. See PR :pr:`4548`.
+* Fixed a user identified bug within the
+  :ref:`out_ferc1__yearly_detailed_income_statements` table unnecessarily dropping
+  records. See PR :pr:`4580`.
+
+Documentation
+^^^^^^^^^^^^^
+
+* Added data source pages for:
+
+  * :doc:`data_sources/eiaapi`; see issue :issue:`4372` and PR :pr:`4567`.
+
+.. _release-v2025.8.0:
+
+---------------------------------------------------------------------------------------
+v2025.8.0 (2025-08-14)
+---------------------------------------------------------------------------------------
+
+This is a regular quarterly release of PUDL. It includes new 2024 annual updates for a
+number of datasets (FERC Forms 2, 6, 60, & 714), and a minor update to the 2024 FERC
+Form 1 data that includes late filings & revisions. It also includes year-to-date
+updates for the monthly and quarterly datasets, including EIA-860M, EIA-923, EIA-930,
+and the EPA CEMS hourly emissions. There were also a number of data processing bug fixes
+and data usability improvements. See the full notes below for details.
+
+New Data
+^^^^^^^^
+
+* Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
+  Schedule 8A Byproduct Disposition to the PUDL database as
+  :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, this table will
+  be replaced with a well-normalized version of the same data, but it is being published
+  in this form until then. See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for May and June
+  of 2025. See issue :issue:`4379` and PR :pr:`4536`.
+
+EIA-923
+~~~~~~~
+
+* Added EIA-923 data through May 2025. See :issue:`4516` and :pr:`4538`.
+
+EIA 930
+~~~~~~~
+
+* Updated EIA 930 data published up through the beginning of August 2025. See
+  :issue:`4517` and PR :pr:`4523`.
+
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data to include data published up through
+  the beginning of August 2025. See :issue:`4519` and PR :pr:`4523`.
+
+EPA CEMS
+~~~~~~~~
+
+* Added EPA CEMS data through June 2025. See :issue:`4518` and :pr:`4531`.
+
+FERC Form 1
+~~~~~~~~~~~
+
+* Updated FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+  :pr:`4507`.
+
+FERC Forms 2, 6 and 60
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
+  2024 data. See :issue:`4418` and :pr:`4433`.
+
+FERC Form 714
+~~~~~~~~~~~~~
+
+* Integrated 2024 data for FERC Form 714. See issue :issue:`4409` and PR :pr:`4530`.
+
+PHMSA Gas Data
+~~~~~~~~~~~~~~
+
+* Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
+  data is not currently published to the PUDL database. See :issue:`4449` and
+  :pr:`4470`.
+* Extracted 1970 through 1989 PHMSA transmission data to raw assets.  This data is not
+  currently published to the PUDL database. See :issue:`3290` and :pr:`4500`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* The output of ``dbt_helper update-tables`` now conforms to the format that
+  our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
+  :issue:`4119` and :pr:`4401`.
+* Improved behavior of ``dbt_helper`` when interacting with row count test definitions
+  as well as updating the row counts stored in dbt seed tables: the logic for writing
+  a new table dbt schema no longer includes automatically adding a row count test. Also,
+  the logic for updating row counts now depends on whether a test has been defined in
+  the dbt schema, whether any existing row counts for that table are present in the seed
+  table, as well as user provided settings such as ``--clobber``.
+* Stopped running code checks in CI when only the documentation has changed.
+  See issue :issue:`4410` and PR :pr:`4429`.
+* Added ``utility_id_ferc1_dbf`` and ``utility_id_ferc1_xbrl`` columns into all ferc1
+  output tables. See :issue:`4365` and PR :pr:`4528`.
+
+Bug Fixes
+^^^^^^^^^
+
+* Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
+  :issue:`4328` and PR :pr:`4392`.
+* Fixed bug in how we were repairing a misfiled EIA code in
+  :ref:`core_ferc714__respondent_id`. See issue :issue:`4439` and PR :pr:`4497`.
+* Fixed bug in how we were removing duplicates in :ref:`core_eia923__monthly_generation`
+  resulting in ~400 more records in this table over several years. See details in PR
+  :pr:`4538`
+
+Documentation
+^^^^^^^^^^^^^
+
+* Migrated table description metadata into new format; see epic :issue:`4358` for
+  issues & PRs for all source groups.
+
+  * This included renaming two of the preliminarily published ``_core`` tables to better
+    conform with our table naming conventions. Table
+    ``_core_eia923__cooling_system_information`` is now
+    :ref:`i_core_eia923__monthly_cooling_system_information` and
+    ``_core_eia923__fgd_operation_maintenance`` is now
+    :ref:`i_core_eia923__yearly_fgd_operation_maintenance`. See :pr:`4422`.
+
+* Added data source pages for:
+
+  * :doc:`data_sources/epacamd_eia`; see issue :issue:`4376` and PR :pr:`4403`
+
+New Tests and Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-930 and FERC-714 Hourly Imputed Demand
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Added checks which ensure that *only* hourly electricity demand values which are flagged
+for imputation change significantly from their reported values before and after the
+imputation. Check that the missingness of various columns in the hourly reported demand
+and imputed demand are within expected ranges. Explicitly flag years of which are
+dropped due to insufficient data for meaningful imputation with ``BAD_YEAR``. Affected
+tables include :ref:`out_eia930__hourly_operations`,
+:ref:`out_eia930__hourly_subregion_demand`, and
+:ref:`out_ferc714__hourly_planning_area_demand`. See PR :pr:`4334`.
+
+Check for entirely null column-years
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously we had a data validation check that ensured there were no entirely null
+columns applied to a handful of tables. Such columns were typically the result of typos
+or failures to update column names, or application of an incompatible dtype, e.g.
+casting an uncleaned column containing Y or N to ``boolean``. A similar check has been
+implemented in our dbt data validation checks and is now applied to all tables. See
+issue :issue:`4105` and PR :pr:`4382`. As a result of more broadly applying this check,
+we found and fixed a few data quality and column naming issues resulting in minor
+changes to the database schema:
+
+* ``id_dc_coupled_tightly`` was renamed to ``is_dc_coupled_tightly`` (typo).
+* ``switch_operating`` was consolidated with the existing
+  ``can_switch_when_operating`` column found in the multi-fuel generator tables.
+* The ``model_tax_credit_case_nrelatb`` column had its allowable enumerated values
+  corrected, resulting in real non-null contents. See PR :pr:`4384`.
+* Three previously entirely null ``boolean`` columns in the multifuel generator table
+  now contain real values, they are: ``can_fuel_switch``, ``has_regulatory_limits``,
+  and ``can_cofire_oil_and_gas``.
+
+Unusual patterns of null values were identified and investigated in issue :issue:`4407`
+with some additional explanations added in PR :pr:`4442`.
+
+.. _release-v2025.7.0:
+
+---------------------------------------------------------------------------------------
+v2025.7.0 (2025-07-03)
+---------------------------------------------------------------------------------------
+
+This release integrates early release annual 2024 data for the EIA Forms 860 and 923,
+as well as fresh EIA 860M monthly data. It also includes a few small bug-fixes, some of
+which result in minor changes to the database schema. It also removes the deprecated
+``PudlTabl`` output management class.
+
+We are experimenting a new **monthly** release schedule for PUDL, to keep the EIA 860M
+data as fresh as possible. This is the first of those monthly releases.
+
+New Data
+^^^^^^^^
+
+EIA AEO
+~~~~~~~
+
+* Extracted table 2 from the EIA Annual Energy Outlook 2023, which includes future
+  projections for energy use through the year 2050 across a variety of scenarios.
+  Integrated a subset of available table 2 series as a new core table:
+
+  * ``core_eiaaeo__yearly_projected_energy_use_by_sector_and_type`` contains
+    projected energy use for the commercial, electric power, industrial,
+    residential, and transportation sectors across different fuels and electricity
+    modes. See :issue:`4228` and :pr:`4273`.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA 860
+~~~~~~~
+* Added EIA 860 early release data from 2024. See :issue:`4323` and PR :pr:`4332`.
+
+EIA 860M
+~~~~~~~~
+* Added EIA 860M data from April 2025. See :issue:`4324` and PR :pr:`4332`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 early release data from 2024 and monthly data from March 2025. See
+  :issue:`4325` and PR :pr:`4332`.
+
+Bug Fixes
+^^^^^^^^^
+
+* Fixed a number of typos in our documentation and codebase, which resulted in
+  renaming ``synchronized_transmission_grid`` in :ref:`core_eia860__scd_generators`,
+  :ref:`out_eia__monthly_generators`, and :ref:`out_eia__yearly_generators`.
+  See issue :issue:`3783` and :pr:`4355`.
+
+VCE RARE
+~~~~~~~~
+* Standardized ``place_name`` using data from the latest Census PEP vintage,
+  found in ``_core_censuspep__yearly_geocodes``. See issue :issue:`3914` and PR
+  :pr:`4319`.
+
+Deprecations
+^^^^^^^^^^^^
+
+* After more than a year of deprecation warnings, we've removed the ``PudlTabl``
+  output management class, and have stopped distributing a handful of tables that were
+  only around to allow the behavior of that class to be maintained. See issues
+  :issue:`3215,2911` and PR :pr:`4316`.
+* Undeploy superset, given that we are going with Marimo for our usage metrics
+  dashboards, and the Eel Hole for publicly facing data access. See PR :pr:`4353`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* We've added a new sub-command to ``dbt_helper`` - ``dbt_helper validate``.
+  This lets you run validation tests for a selection of DBT models and also
+  see what the failing outputs are, instead of doing a bunch of digging after
+  the fact.
+* We've added a new devtool in ``devtools/materialize_to_parquet.py`` - this
+  lets you export and share assets that were previously not persisted to Parquet,
+  such as ``raw`` assets that have been extracted but not cleaned. Run
+  ``./materialize_to_parquet --help`` from within the ``devtools`` directory for
+  details. See :pr:`4320`.
+
+New Tests
+^^^^^^^^^
+* Added a validation pipeline for our EIA 930 hourly demand imputation. This
+  pipeline will perform imputation on a set of values which did not require imputation,
+  so there is ground truth data to compare against. It will then compute the percent
+  error for all of these imputed values against the reported data. This metric is
+  checked during nightly builds and will result in an error if it ever drifts too high.
+
+.. _release-v2025.5.0:
+
+---------------------------------------------------------------------------------------
+v2025.5.0 (2025-05-20)
+---------------------------------------------------------------------------------------
+
+This is our regular quarterly PUDL data release for 2025Q2. It includes sub-annual
+updates to the EIA-860M, EIA-923, EIA-930, EIA bulk electricity API, and EPA CEMS
+datasets. It also includes preliminary 2024 data for FERC Form 1 (integrated into PUDL)
+and FERC Forms 2, 6, and 60 (as stand-alone SQLite databases). The VCE RARE hourly
+county-level renewable energy generation curves have been extended back to cover
+2014-2018.
+
+This release also includes new imputed versions of the FERC-714 and EIA-930 hourly
+demand curves with missing values filled in and a better organized version of the SEC
+10-K company ownership data. Note that work on the demand imputations and SEC 10-K data
+is ongoing.
+
+All federal data was archived from the publishing agencies on May 1st, 2025.
+
+Upcoming Deprecations
+^^^^^^^^^^^^^^^^^^^^^
+
+* Due to the growing size of PUDL database, we are no longer updating our `Datasette
+  deployment <https://data.catalyst.coop>`__ and that URL will soon begin redirecting
+  users to the `PUDL Data Viewer <https://viewer.catalyst.coop>`__. You can track our
+  progress toward feature parity with the old Datasette deployment in
+  `this issue <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__.
+* When we complete the migration of our data validation tests to the ``dbt`` framework,
+  we will remove the deprecated :class:`pudl.output.pudltabl.PudlTabl` output class.
+  This will also happen before our next quarterly release.
 
 New Data
 ^^^^^^^^
@@ -34,7 +412,7 @@ is being done in collaboration with :user:`awongel` at
   :pr:`4162`
 
 SEC 10-K
-^^^^^^^^
+~~~~~~~~
 * Reorganized the preliminary SEC 10-K data that was integrated into our last release.
   See issue :issue:`4078` and PR :pr:`4134`. The SEC 10-K tables are now more fully
   normalized and better conform to existing PUDL naming conventions. Overall revision of
@@ -50,22 +428,73 @@ SEC 10-K
   * :ref:`core_sec10k__quarterly_company_information`
   * :ref:`core_sec10k__changelog_company_name`
   * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
-  * :ref:`core_sec10k__parents_and_subsidiaries`
   * :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`
   * :ref:`out_sec10k__quarterly_filings`
-  * :ref:`out_sec10k__changelog_company_name`
   * :ref:`out_sec10k__changelog_company_name`
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+FERC Form 1
+~~~~~~~~~~~
+* Integrated FERC Form 1 data from 2024 into the main PUDL SQLite DB. See issue
+  :issue:`4207` and PR :pr:`4215`. FERC Form 1 has a filing deadline of
+  `April 18th <https://www.ferc.gov/general-information-0/electric-industry-forms>`__
+  for utility respondents, but late filings may come throughout the year. This update
+  includes ~95% of the expected utility responses for 2024.
+
+FERC Forms 2, 6, & 60
+~~~~~~~~~~~~~~~~~~~~~
+* Updated the FERC archive DOIs and ``ferc_to_sqlite`` settings to extract 2024 XBRL
+  data for FERC Forms 2, 6, and 60 and add them to their respective SQLite databases.
+  Note that this data is not yet being processed beyond the conversion from XBRL to
+  SQLite. See PR :pr:`4250`. The reporting deadline for these forms was April 18th, 2025
+  so they should include the vast bulk of the expected data, however there may be some
+  late filings which will be added in the next quarterly release.
+
+EIA Bulk Electricity
+~~~~~~~~~~~~~~~~~~~~
+* Updated the EIA Bulk Electricity data to include data published up through
+  2025-05-01. Also adapted the extractor to handle changes in formatting for the
+  EIA Bulk API archive. See :issue:`4237` and PR :pr:`4246`.
+
+EPA CEMS
+~~~~~~~~
+* Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
+
+EIA 930
+~~~~~~~~
+* Updated EIA 930 to include data published up through the beginning of May 2025.
+  See :issue:`4235` and :pr:`4242`. Raw data now includes adjusted and imputed
+  values for the ``unknown`` fuel source, making it behave like other fuel sources;
+  see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
+  more information.
+
+EIA 860M
+~~~~~~~~
+* Added EIA 860M data from January, February, and March 2025. See :issue:`4233` and
+  PR :pr:`4242`.
+
+EIA 923
+~~~~~~~
+* Added EIA 923 from January and February 2025. See :issue:`4234` and PR :pr:`4242`.
+
+VCE RARE
+~~~~~~~~
+* Integrated 2014-2018 RARE data into PUDL. Also fixed misleading latitude and longitude
+  field descriptions, and renamed the field ``county_or_lake_name`` to ``place_name``.
+  See issue :issue:`4226` and PR :pr:`4239`.
+
 Bug Fixes
 ^^^^^^^^^
-* Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
-  that didn't conform to expected format.
 
-Major Dependency Updates
-^^^^^^^^^^^^^^^^^^^^^^^^
+* Fixed a bug in FERC XBRL extraction that led to quietly skipping tables with names
+  that didn't conform to expected format. The only known table affected was in the FERC
+  Form 6. See issue :issue:`4203` and PRs :pr:`4224` and
+  `catalyst-cooperative/ferc-xbrl-extractor #320 <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/pull/320>`__.
+* As part of :pr:`4215` we fixed a bug introduced in the last release that was causing
+  most values in the ``out_ferc1__yearly_rate_base`` table to be dropped. See
+  `this commit <https://github.com/catalyst-cooperative/pudl/pull/4215/commits/65b36e3121bdfb792ae59c0b94b0ed473307bd78>`__.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -78,12 +507,22 @@ Quality of Life Improvements
   published through the EIA API, not just the bulk electricity data. See `this PUDL
   archiver issue <https://github.com/catalyst-cooperative/pudl-archiver/issues/628>`__
   and PR :pr:`4212`.
+* To improve human readability, we added ``utility_id_pudl`` and ``utility_name_ferc1``
+  columns to a number of derived FERC 1 output tables including:
+
+  * :ref:`out_ferc1__yearly_rate_base`
+  * :ref:`out_ferc1__yearly_detailed_income_statements`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_assets`
+  * :ref:`out_ferc1__yearly_detailed_balance_sheet_liabilities`
+
+  See PR :pr:`4260`.
 
 New Tests
 ^^^^^^^^^
-We're in the process of migrating our tests to use the
-`dbt <https://docs.getdbt.com/docs/introduction>`__ framework.
-So far we have converted the following tests:
+
+We're in the process of migrating hundrds of data validation tests to use the `dbt
+<https://docs.getdbt.com/docs/introduction>`__ framework. We have converted at least the
+following classes of tests:
 
 * ``check_column_correlation`` – a more generic replacement for the old
   ``test_fbp_ferc1_mmbtu_cost_correlation`` pytest.
@@ -95,6 +534,10 @@ So far we have converted the following tests:
   can find the implementation in the `expect_includes_all_value_combinations_from.sql
   <../../dbt/tests/data_tests/generic_tests/expect_includes_all_value_combinations_from.sql>`__
   file.
+* ``expect_quantile_constraints`` - a more generic replacement for the old
+  ``vs_bounds`` pytest. See :issue:`4106`, :pr:`4090`, and :pr:`4171`. You can find the
+  implementation in the `expect_quantile_constraints.sql
+  <../../dbt/tests/data_tests/generic_tests/expect_quantile_constraints.sql>`__ file.
 * 19 tests which required special handling; see :issue:`4093`, :pr:`4114`, :pr:`4151`.
 
 .. _release-v2025.2.0:
@@ -104,7 +547,7 @@ v2025.2.0 (2025-02-13)
 ---------------------------------------------------------------------------------------
 
 This is our regular quarterly release for 2025Q1. It includes updates to all the
-datasets that are published with quarterly or higher frequency, plus initial verisons
+datasets that are published with quarterly or higher frequency, plus initial versions
 of a few new data sources that have been in the works for a while.
 
 One major change this quarter is that we are now publishing all processed PUDL data as
@@ -170,11 +613,10 @@ SEC Form 10-K Parent-Subsidiary Ownership
   off as nearly finished products to the PUDL ETL pipeline. **Note that these are
   preliminary, experimental data products and are known to be incomplete and to contain
   errors.** Extracting data tables from unstructured PDFs and the SEC to EIA record
-  linkage are necessarily probabalistic processes.
+  linkage are necessarily probabilistic processes.
 * See PRs :pr:`4026,4031,4035,4046,4048,4050,4079` and check out the table descriptions
   in the PUDL data dictionary:
 
-  * :ref:`core_sec10k__parents_and_subsidiaries`
   * :ref:`core_sec10k__quarterly_filings`
   * :ref:`core_sec10k__quarterly_exhibit_21_company_ownership`
   * :ref:`core_sec10k__quarterly_company_information`
@@ -364,7 +806,7 @@ Schema Changes
 Bug Fixes
 ^^^^^^^^^
 * Included more retiring generators in the net generation and fuel consumption
-  allocation. Thanks to :user:`grgmiller` for this contirbution :pr:`3690`.
+  allocation. Thanks to :user:`grgmiller` for this contribution :pr:`3690`.
 * Fixed a bug found in the rolling averages used to impute missing values in
   ``fuel_cost_per_mmbtu`` and to calculate ``capex_annual_addition_rolling``. Thanks
   to RMI for identifying this bug! See issue :issue:`3889` and PR :pr:`3892`.
@@ -522,7 +964,7 @@ EIA-860 & EIA-923
 
 * Added cleaned EIA860 Schedule 8E FGD Equipment and EIA923 Schedule 8C FGD Operation
   and Maintenance data to the PUDL database as
-  :ref:`i_core_eia923__fgd_operation_maintenance` and
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance` and
   :ref:`i_core_eia860__fgd_equipment`. Once harvested, these tables will eventually be
   removed from the database, but they are being published until then. See :issue:`3394`
   and :issue:`3392`, and :pr:`3403`.
@@ -542,7 +984,7 @@ GridPath RA Toolkit
 ~~~~~~~~~~~~~~~~~~~
 
 * Added a new ``gridpathratoolkit`` data source containing hourly wind and solar
-  generation profiles from the `GridPath Resoure Adequacy Toolkit
+  generation profiles from the `GridPath Resource Adequacy Toolkit
   <https://gridlab.org/gridpathratoolkit>`__. See :doc:`data_sources/gridpathratoolkit`
   and the `new Zenodo archive <https://zenodo.org/records/10844662>`__, PR :pr:`3489`
   and `this PUDL archiver issue
@@ -882,7 +1324,7 @@ New Data Coverage
   written to the database as they are still raw. See epic :issue:`2848`, and constituent
   PRs: :pr:`2932,3242,3254,3260,3262, 3266,3267,3269,3270,3279,3280`.
 * We began integration of data from EIA Forms 176, 191, and 757, describing natural gas
-  sources, storage, transporation, and disposition. Note this data is still in its raw
+  sources, storage, transportation, and disposition. Note this data is still in its raw
   extracted form and is not yet being written to the PUDL DB. See :pr:`3304,3227`
 * Updated the EIA Bulk Electricity data archive so that the available data now to runs
   through 2023-10-01. See :pr:`3252`.  Also added this dataset to the set of data that
@@ -921,9 +1363,9 @@ v2023.12.01
 Dagster Adoption
 ^^^^^^^^^^^^^^^^
 * After comparing comparing python orchestration tools :issue:`1487`, we decided to
-  adopt `Dagster <https://dagster.io/>`__. Dagster will allow us to parallize the ETL,
+  adopt `Dagster <https://dagster.io/>`__. Dagster will allow us to parallelize the ETL,
   persist datafarmes at any step in the data cleaning process, visualize data
-  depedencies and run subsets of the ETL from upstream caches.
+  dependencies and run subsets of the ETL from upstream caches.
 * We are converting PUDL code to use dagster concepts in two phases. The first phase
   converts the ETL portion of the code base to use
   `software defined assets <https://docs.dagster.io/concepts/assets/software-defined-assets>`__
@@ -993,7 +1435,7 @@ that maps the old table names and ``PudlTabl`` methods to the new table names.
 
 We've added deprecation warnings to the ``PudlTabl`` class. We plan to remove
 ``PudlTabl`` from the ``pudl`` package once our known users have
-succesfully migrated to pulling data directly from ``pudl.sqlite``.
+successfully migrated to pulling data directly from ``pudl.sqlite``.
 
 Data Coverage
 ^^^^^^^^^^^^^
@@ -1119,7 +1561,7 @@ Data Coverage
   * :ref:`out_ferc714__respondents_with_fips` (annual respondents with county FIPS IDs)
   * :ref:`out_ferc714__summarized_demand` (annual demand for FERC-714 respondents)
 
-* Added new table :ref:`core_epa__assn_eia_epacamd_subplant_ids`, which aguments the
+* Added new table :ref:`core_epa__assn_eia_epacamd_subplant_ids`, which arguments the
   :ref:`core_epa__assn_eia_epacamd` glue table. This table incorporates all
   :ref:`core_eia__entity_generators` and all :ref:`core_epacems__hourly_emissions` ID's
   and uses these complete IDs to develop a full-coverage ``subplant_id`` column which
@@ -1243,7 +1685,7 @@ Deprecations
   run subsets of the tables.
 * The ``--clobber`` argument has been removed from the ``pudl_etl`` command.
 * ``pudl.transform.eia860.transform()`` and ``pudl.transform.eia923.transform()``
-  functions have been deprecated. The table level EIA cleaning funtions are now
+  functions have been deprecated. The table level EIA cleaning functions are now
   coordinated using dagster.
 * ``pudl.transform.ferc1.transform()`` has been removed. The ferc1 table
     transformations are now being orchestrated with Dagster.
@@ -1369,7 +1811,7 @@ Nightly Data Builds
   to automatically update the `PUDL Intake data catalogs <https://github.com/catalyst-cooperative/pudl-catalog>`__
   when there are new code releases. See :issue:`1177` for more details.
 * Created a `docker image <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
-  that installs PUDL and it's depedencies. The ``build-deploy-pudl.yaml`` GitHub
+  that installs PUDL and its dependencies. The ``build-deploy-pudl.yaml`` GitHub
   Action builds and pushes the image to Docker Hub and deploys the image on
   a Google Compute Engine instance. The ETL outputs are then loaded to Google
   Cloud buckets for the data catalogs to access.
@@ -1454,11 +1896,11 @@ Helper Function Updates
   The coordinating function :mod:`pudl.helpers.full_timeseries_date_merge` first calls
   :mod:`pudl.helpers.date_merge` to merge two dataframes of different temporal
   granularities, and then calls :mod:`pudl.helpers.expand_timeseries` to expand the
-  merged dataframe to a full timeseries. The added ``timeseries_fillin`` argument,
+  merged dataframe to a full timeseries. The added ``timeseries_filling`` argument,
   makes this function optionally used to generate the MCOE table that includes a full
   monthly timeseries even in years when annually reported generators don't have
   matching monthly data. See :pr:`1550`
-* Updated the ``fix_leading_zero_gen_ids`` fuction by changing the name to
+* Updated the ``fix_leading_zero_gen_ids`` function by changing the name to
   ``remove_leading_zeros_from_numeric_strings`` because it's used to fix more than just
   the ``generator_id`` column. Included a new argument to specify which column you'd
   like to fix.
@@ -1539,7 +1981,7 @@ Dependencies / Environment
   dependencies, instead focusing on a single reproducible environment that is associated
   with each release, using lockfiles, etc. See :issue:`1669`
 * As an "application" PUDL is now only supporting the most recent major version of
-  Python (curently 3.10). We used
+  Python (currently 3.10). We used
   `pyupgrade <https://github.com/asottile/pyupgrade>`__ and
   `pep585-upgrade <https://github.com/snok/pep585-upgrade>`__ to update the syntax of
   to use Python 3.10 norms, and are now using those packages as pre-commit hooks as
@@ -1580,7 +2022,7 @@ Metadata
   Pydantic to store information and procedures specific to each data source (e.g.
   :doc:`data_sources/ferc1`, :doc:`data_sources/eia923`). :pr:`1446`
 * Use the data source metadata classes to automatically export rich metadata for use
-  with our Datasette deployement. :pr:`1479`
+  with our Datasette deployment. :pr:`1479`
 * Use the data source metadata classes to store rich metadata for use with our
   `Zenodo raw data archives <https://github.com/catalyst-cooperative/pudl-zenodo-storage/>`__
   so that information is no longer duplicated and liable to get out of sync.
@@ -1722,7 +2164,7 @@ edit them to reflect your needs.
 
 Database Schema Changes
 ^^^^^^^^^^^^^^^^^^^^^^^
-With the direct database output and the new metadata system, it's much eaiser for us
+With the direct database output and the new metadata system, it's much easier for us
 to create foreign key relationships automatically. Updates that are in progress to
 the database normalization and entity resolution process also benefit from using
 natural primary keys when possible. As a result we've made some changes to the PUDL
@@ -1929,7 +2371,7 @@ Known Issues
   but which haven't yet been assigned PUDL IDs and associated with the
   corresponding utilities and plants reported in the FERC Form 1. These entities
   show up in the 2001-2008 EIA 923 data that was just integrated. These older
-  plants and utilities can't yet be used in conjuction with FERC data. When the
+  plants and utilities can't yet be used in conjunction with FERC data. When the
   EIA 860 data for 2001-2003 has been integrated, we will finish this manual
   ID assignment process. See :issue:`848,1069`
 * 52 of the algorithmically assigned ``plant_id_ferc1`` values found in the

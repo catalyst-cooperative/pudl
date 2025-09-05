@@ -86,7 +86,7 @@ When choosing an access method you'll want to consider:
 Data Platform
 ^^^^^^^^^^^^^
 
-PUDL data is distributed on a number of different platforms to acommodate a variety of
+PUDL data is distributed on a number of different platforms to accommodate a variety of
 different use cases. These include :ref:`access-viewer`,
 :ref:`access-datasette`, :ref:`access-kaggle`,
 :ref:`access-cloud`, and :ref:`access-zenodo`.
@@ -198,12 +198,18 @@ Kaggle
 ---------------------------------------------------------------------------------------
 
 Are you comfortable with Jupyter Notebooks? Want to explore a fresh version of all
-available PUDL data without needing to do any environment setup? Our nightly build
-outputs automatically update `the PUDL Project Dataset on Kaggle
-<https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__ once a week. There
-are `several notebooks
-<https://www.kaggle.com/datasets/catalystcooperative/pudl-project/code>`__ associated
-with the dataset, both curated by Catalyst and contributed by other Kaggle users.
+available PUDL data without needing to do any environment setup?  We provide several
+`example notebooks on Kaggle <https://www.kaggle.com/catalystcooperative/code>`__.
+(they are also pushed to our `PUDL Examples Repo on GitHub
+<https://github.com/catalyst-cooperative/pudl-examples>`__). These notebooks pull data
+directly from the Parquet outputs in S3 (see below) and so can also be used locally if
+you're familiar with setting up a Python environment and running Jupyter.
+
+Our nightly build outputs also automatically update the `PUDL Kaggle dataset
+<https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__ once a week. This
+dataset contains all the PUDL outputs, so it's quite large and can take a few minutes
+to copy into your Kaggle notebook's private workspace, but once it's copied, access will
+be fast.
 
 .. _access-cloud:
 
@@ -315,30 +321,30 @@ Raw FERC DBF & XBRL data converted to SQLite
 * FERC Form 1:
 
   * `FERC-1 SQLite derived from DBF (1994-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_dbf.sqlite.zip>`__
-  * `FERC-1 SQLite derived from XBRL (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.zip>`__
+  * `FERC-1 SQLite derived from XBRL (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.zip>`__
   * `FERC-1 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl_datapackage.json>`__
-  * `FERC-1 XBRL Taxonomy Metadata as JSON (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl_taxonomy_metadata.json>`__
+  * `FERC-1 XBRL Taxonomy Metadata as JSON (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl_taxonomy_metadata.json>`__
 
 * FERC Form 2:
 
   * `FERC-2 SQLite derived from DBF (1996-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_dbf.sqlite.zip>`__
-  * `FERC-2 SQLite derived from XBRL (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl.sqlite.zip>`__
+  * `FERC-2 SQLite derived from XBRL (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl.sqlite.zip>`__
   * `FERC-2 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl_datapackage.json>`__
-  * `FERC-2 XBRL Taxonomy Metadata as JSON (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl_taxonomy_metadata.json>`__
+  * `FERC-2 XBRL Taxonomy Metadata as JSON (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl_taxonomy_metadata.json>`__
 
 * FERC Form 6:
 
   * `FERC-6 SQLite derived from DBF (2000-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_dbf.sqlite.zip>`__
-  * `FERC-6 SQLite derived from XBRL (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl.sqlite.zip>`__
+  * `FERC-6 SQLite derived from XBRL (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl.sqlite.zip>`__
   * `FERC-6 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl_datapackage.json>`__
-  * `FERC-6 XBRL Taxonomy Metadata as JSON (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl_taxonomy_metadata.json>`__
+  * `FERC-6 XBRL Taxonomy Metadata as JSON (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl_taxonomy_metadata.json>`__
 
 * FERC Form 60:
 
   * `FERC-60 SQLite derived from DBF (2006-2020) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_dbf.sqlite.zip>`__
-  * `FERC-60 SQLite derived from XBRL (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.sqlite.zip>`__
+  * `FERC-60 SQLite derived from XBRL (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.sqlite.zip>`__
   * `FERC-60 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl_datapackage.json>`__
-  * `FERC-60 XBRL Taxonomy Metadata as JSON (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl_taxonomy_metadata.json>`__
+  * `FERC-60 XBRL Taxonomy Metadata as JSON (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl_taxonomy_metadata.json>`__
 
 * FERC Form 714:
 

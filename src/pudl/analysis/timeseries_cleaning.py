@@ -1,14 +1,18 @@
 """Screen timeseries for anomalies and impute missing and anomalous values.
 
+For a narrative discussion of these methods aimed at data users, see
+:doc:`/methodology/timeseries_imputation`.
+
 The screening methods were originally designed to identify unrealistic data in the
-electricity demand timeseries reported to EIA on Form 930, and have also been
-applied to the FERC Form 714, and various historical demand timeseries
-published by regional grid operators like MISO, PJM, ERCOT, and SPP.
+electricity demand timeseries reported in :doc:`/data_sources/eia930`, and we have also
+applied them to demand data from :doc:`/data_sources/ferc714`.
 
-They are adapted from code published and modified by:
+Screening methods are adapted from code written and maintained by:
 
-* Tyler Ruggles <truggles@carnegiescience.edu>
-* Greg Schivley <greg.schivley@princeton.edu>
+* `Tyler Ruggles <https://github.com/truggles>`__
+* `Alicia Wongel <https://github.com/awongel>`__
+* `Greg Schivley <https://github.com/gschivley>`__
+* `David Farnham <https://github.com/d-farnham>`__
 
 And described at:
 
@@ -16,13 +20,9 @@ And described at:
 * https://zenodo.org/record/3737085
 * https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
 
-The imputation methods were designed for multivariate time series forecasting.
-
-They are adapted from code published by:
-
-* Xinyu Chen <chenxy346@gmail.com>
-
-And described at:
+The imputation methods were designed for multivariate time series forecasting. They are
+adapted from code published by `Xinyu Chen <https://xinychen.github.io/>`__ and
+described at:
 
 * https://arxiv.org/abs/2006.10436
 * https://arxiv.org/abs/2008.03194
@@ -30,23 +30,33 @@ And described at:
 """
 
 import functools
+import re
 import uuid
 import warnings
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
-import pandera as pa
+import pandera.pandas as pa
 import scipy.stats
-from dagster import AssetIn, AssetOut, asset, multi_asset
+from dagster import (
+    AssetCheckResult,
+    AssetIn,
+    AssetOut,
+    Output,
+    asset,
+    asset_check,
+    multi_asset,
+)
 from pandera.typing import DataFrame, Index, Series
+from sklearn.metrics import mean_absolute_percentage_error
 
 from pudl.logging_helpers import get_logger
 from pudl.metadata.dfs import ImputationReasonCodes
 
-logger = get_logger(__file__)
+logger = get_logger(__name__)
 
 # --- Constants --- #
 
@@ -76,14 +86,14 @@ class UTCTimeseriesDataFrame(pa.DataFrameModel):
 
     This model defines the expected structure of an input dataframe to the timeseries
     imputation process. It will be be immediately converted to a
-    ``AlignedTimeseriesDataFrame``, then pivoted to a ``TimeseriesMatrix``.
+    :class:`AlignedTimeseriesDataFrame`, then pivoted to a :class:`TimeseriesMatrix`.
     """
 
     id_col: Series[Any]
     """Entity ID column(s). Used to group timeseries by entity."""
     datetime_utc: Series[pa.dtypes.DateTime]
     """Datetimes in UTC timezone."""
-    timezone: Optional[Series[str]]
+    timezone: Series[str] | None
     """Local timezone of entity."""
     value_col: Series[pd.Float64Dtype] = pa.Field(nullable=True)
     """Column containing actual values to impute."""
@@ -103,7 +113,7 @@ class AlignedTimeseriesDataFrame(pa.DataFrameModel):
     """Datetimes shifted by UTC offset to align all timeseries'."""
     value_col: Series[pd.Float64Dtype] = pa.Field(nullable=True)
     """Column containing actual values to impute."""
-    flags: Optional[Series[str]] = pa.Field(nullable=True)
+    flags: Series[str] | None = pa.Field(nullable=True)
     """Column indicating why value was flagged for imputation."""
 
 
@@ -162,7 +172,7 @@ def utc_dataframe_to_aligned(
 @pa.check_types
 def pivot_aligned_timeseries_dataframe(
     aligned_df: DataFrame[AlignedTimeseriesDataFrame],
-    periods: int,
+    value_col: str = "value_col",
 ) -> DataFrame[TimeseriesMatrix]:
     """Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.
 
@@ -170,12 +180,14 @@ def pivot_aligned_timeseries_dataframe(
     present in the timeseries to the end of the last, and then fills any missing hours
     with NULLs.
     """
-    matrix = aligned_df.pivot(index="datetime", columns="id_col", values="value_col")
+    matrix = aligned_df.pivot(index="datetime", columns="id_col", values=value_col)
 
-    # Pad matrix with any missing hours from timeseries
+    # Get the full set of hours from the start of the first day in the series to the end of the last
     start = matrix.index.min().replace(hour=0)
     end = matrix.index.max().replace(hour=23)
     all_hours = pd.date_range(start=start, end=end, freq="h", name="datetime")
+
+    # Reindex matrix with all hours. This will fill in any missing hours with NULLS
     return matrix.reindex(all_hours)
 
 
@@ -188,7 +200,7 @@ def melt_imputed_timeseries_matrix(
     df = imputed_matrix.melt(value_name="value_col", ignore_index=False).reset_index()
     flags = flag_matrix.melt(value_name="flags", ignore_index=False).reset_index()
 
-    df = df.merge(flags, on=["id_col", "datetime"])
+    df = df.merge(flags, on=["id_col", "datetime"], validate="one_to_one", how="left")
     return df
 
 
@@ -207,14 +219,20 @@ class FlaggedTimeseries:
         return hash(self.uuid)
 
     @classmethod
-    def from_dataframe(cls, df: pd.DataFrame) -> "FlaggedTimeseries":
+    def from_timeseries_matrix(
+        cls,
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame | None = None,
+    ) -> "FlaggedTimeseries":
         """Create a timeseries object from a dataframe."""
-        x = df.to_numpy()
+        x = matrix.to_numpy()
+        flags = np.empty(x.shape, dtype=object) if flags is None else flags.to_numpy()
+
         return cls(
             x=x,
-            index=df.index,
-            columns=df.columns,
-            flags=np.empty(x.shape, dtype=object),
+            index=matrix.index,
+            columns=matrix.columns,
+            flags=flags,
             uuid=uuid.uuid4(),
         )
 
@@ -375,7 +393,7 @@ def insert_run_length(  # noqa: C901
     Raises:
         ValueError: Padding must zero or greater.
         ValueError: Run length must be greater than zero.
-        ValueError: Cound not find space for run of length {length}.
+        ValueError: Could not find space for run of length {length}.
 
     Returns:
         Copy of array `x` with values inserted.
@@ -673,6 +691,10 @@ def impute_latc_tubal(  # noqa: C901
     rng = np.random.default_rng()
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
+    # [2025-08 kmm] Not sure how an empty tensor makes it this far,
+    # but one found a way
+    if np.prod(dim) == 0:
+        return tensor
     dim_time = int(np.prod(dim) / dim[0])
     d = len(lags)
     max_lag = np.max(lags)
@@ -797,7 +819,7 @@ def flag_global_outlier_neighbor(
     for shift in range(1, neighbors + 1):
         # Neighbors before
         mask[:-shift][outliers[shift:]] = True
-        # Neighors after
+        # Neighbors after
         mask[shift:][outliers[:-shift]] = True
     return ts.flag(mask, ImputationReasonCodes.GLOBAL_OUTLIER_NEIGHBOR)
 
@@ -1205,9 +1227,74 @@ def flag_anomalous_region(
     return ts.flag(mask, ImputationReasonCodes.ANOMALOUS_REGION)
 
 
+def flag_bad_years(
+    ts: FlaggedTimeseries,
+    min_data: int = 100,
+    min_data_fraction: float = 0.9,
+) -> FlaggedTimeseries:
+    """Flag entire years, which are missing a large portion of values (BAD_YEAR).
+
+    This method checks two separate thresholds to determine whether a year is "bad".
+    First, it finds the range from the first non-null hour to the last non-null hour
+    for each respondent-year. If that total range is less than ``min_data``, then the
+    year is dropped. Next, it checks if the ratio of values within that range which are
+    non-null is greater than ``min_data_fraction``. If not, then the year will also be
+    dropped. This ensures that if there is a section of the year that is mostly complete,
+    even if the rest of the year is NULL, then it will still be included for imputation.
+
+    Args:
+        ts: Timeseries matrix as described in :class:`FlaggedTimeseries`.
+        min_data: Minimum number of non-null hours in a year.
+        min_data_fraction: Minimum fraction of non-null hours between the first and last
+          non-null hour in a year.
+    """
+    # Identify respondent-years where data coverage is below thresholds
+    df, flags = ts.to_dataframes()
+    has_data = ~df.isnull()
+    coverage = (
+        # Last timestamp with demand in year
+        has_data.iloc[::-1].groupby(df.index.year[::-1]).idxmax()
+        -
+        # First timestamp with demand in year
+        has_data.groupby(df.index.year).idxmax()
+    ).apply(lambda x: 1 + x.dt.days * 24 + x.dt.seconds / 3600, axis=1)
+
+    fraction = has_data.groupby(df.index.year).sum() / coverage
+    has_flags = (flags.notnull() & (flags != "missing_value")).groupby(
+        flags.index.year
+    ).sum() > 0
+
+    # Get mask of respondent-years for which there are fewer than min_data non-null hours
+    short = coverage.lt(min_data)
+
+    # Get mask of respondent-years for which the ratio of non-null values is below min_data_fraction
+    bad = fraction.lt(min_data_fraction) & has_flags
+
+    # Report bad respondent-years
+    for bad_year_idx, bad_id_idx in zip(*bad.to_numpy().nonzero(), strict=False):
+        logger.info(
+            f"{100 * (1 - (fraction.to_numpy())[bad_year_idx, bad_id_idx]):.2f}% of values are NULL"
+            f" for respondent-year {bad.columns[bad_id_idx]}-{bad.index[bad_year_idx]}. Flagging as BAD_YEAR."
+        )
+
+    # Report short respondent-years
+    for short_year_idx, short_id_idx in zip(*short.to_numpy().nonzero(), strict=False):
+        logger.info(
+            f"Respondent-year {short.columns[short_id_idx]}-{short.index[short_year_idx]}"
+            f" only has data for {int(coverage.to_numpy()[short_year_idx, short_id_idx])}"
+            " hours of the year. Flagging as BAD_YEAR"
+        )
+
+    # Set all values in short or bad respondent-years to null
+    mask = (short | bad).loc[df.index.year].to_numpy()
+    return ts.flag(mask, ImputationReasonCodes.BAD_YEAR)
+
+
 @pa.check_types
 def flag_ruggles(
     timeseries_matrix: DataFrame[TimeseriesMatrix],
+    min_data: int = 100,
+    min_data_fraction: float = 0.9,
 ) -> tuple[DataFrame[TimeseriesMatrix], DataFrame[TimeseriesMatrix]]:
     """Flag values following the method of Ruggles and others (2020).
 
@@ -1216,12 +1303,17 @@ def flag_ruggles(
     * description: https://doi.org/10.1038/s41597-020-0483-x
     * code: https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
 
+    Args:
+        ts: Aligned timeseries matrix for imputation.
+        min_data: Minimum number of non-null hours in a year.
+        min_data_fraction: Minimum fraction of non-null hours between the first and last
+
     Returns:
         Two ``TimeseriesMatrix`` dataframes with the same shape. The first contains
         the input timeseries with flagged values Nulled out in preparation for
         imputation. The second contains the actual flags for reference.
     """
-    ts = FlaggedTimeseries.from_dataframe(timeseries_matrix)
+    ts = FlaggedTimeseries.from_timeseries_matrix(timeseries_matrix)
 
     # Step 1
     ts = flag_null(ts)
@@ -1255,6 +1347,7 @@ def flag_ruggles(
         rel_multiplier=15,
     )
     ts = flag_anomalous_region(ts, window=window + 1, threshold=0.15)
+    ts = flag_bad_years(ts, min_data, min_data_fraction)
     return ts.to_dataframes()
 
 
@@ -1285,20 +1378,21 @@ def simulate_nulls(
     """Find non-null values to null to match a run-length distribution.
 
     Args:
-        x: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`.
+        x: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`
+            defined within :func:`impute_timeseries_asset_factory`.
         length: Length of null runs to simulate for each series.
             By default, uses the run lengths of null values in each series.
         padding: Minimum number of non-null values between simulated null runs
             and between simulated and existing null runs.
         intersect: Whether simulated null runs can intersect each other.
-        overlap: Whether simulated null runs can overlap existing null runs.
-            If `True`, `padding` is ignored.
+        overlap: Whether simulated null runs can overlap existing null runs. If
+            ``True``, ``padding`` is ignored.
 
     Returns:
         Boolean mask of current non-null values to set to null.
 
     Raises:
-        ValueError: Cound not find space for run of length {length}.
+        ValueError: Could not find space for run of length {length}.
 
     Examples:
         >>> x = np.column_stack([[1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]])
@@ -1374,8 +1468,8 @@ def impute(
     """Impute null values.
 
     .. note::
-        The imputation method requires that nulls be replaced by zeros,
-        so the series cannot already contain zeros.
+       The imputation method requires that nulls be replaced by zeros,
+       so the series cannot already contain zeros.
 
     Args:
         mask: Boolean mask of values to impute in addition to
@@ -1459,30 +1553,33 @@ def summarize_imputed(
 def impute_flagged_values(
     df: DataFrame[TimeseriesMatrix],
     years: list[int],
-    method: dict[int, str],
+    method: dict[int, Literal["tubal", "tnn"]],
     periods: int = 24,
     blocks: int = 1,
 ) -> DataFrame[TimeseriesMatrix]:
     """Impute null values in input timeseries matrix.
 
-    Imputation is performed separately for each year,
-    with only the respondents reporting data in that year.
+    Imputation is performed separately for each year, with only the respondents
+    reporting data in that year.
 
     .. note::
-        Takes about 15 minutes.
+       The imputation is parallelized internally, and by default will use all available
+       CPU cores. If you want to limit the number of cores used, you can set the
+       ``OPM_NUM_THREADS`` environment variable to the desired number of threads.
 
     Args:
-        df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`.
+        df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`
+            defined within :func:`impute_timeseries_asset_factory`.
         years: list of years to input
-        periods: Number of consecutive values in each series to fold into a group.
-            See :meth:`fold_tensor`.
+        periods: Number of consecutive values in each series to fold into a group. See
+            :meth:`fold_tensor`.
         blocks: Number of blocks into which to split the series for imputation.
-            This has been found to reduce processing time for `method='tnn'`.
-        method: Map year to imputation method, which must be one of the following
-            ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`).
+            This has been found to reduce processing time for the tnn method.
+        method: Maps each year to the appropriate imputation method. "tubal" uses
+            :func:`impute_latc_tubal` and  "tnn" uses :func:`impute_latc_tnn`.
 
     Returns:
-        Copy of `df` with imputed values.
+        Copy of ``df`` with imputed values.
     """
     results = []
     # sort here and then don't sort in the groupby so we can process
@@ -1497,67 +1594,240 @@ def impute_flagged_values(
         # and having only one record
         if year in years:
             logger.info(f"Imputing year {year}")
-            keep = df.columns[~gdf.isnull().all()]
-            result = impute(gdf[keep], method=method[year])
+
+            # Drop completely empty columns and impute
+            blank = df.columns[gdf.isnull().all()]
+            result = impute(
+                gdf.drop(columns=blank),
+                method=method[year],
+                periods=periods,
+                blocks=blocks,
+            )
+
+            # Add empty columns back and save result
+            result[blank] = np.nan
             results.append(result)
     return pd.concat(results)
 
 
-@pa.check_types
-def filter_missing_values(
-    df: DataFrame[TimeseriesMatrix],
-    min_data: int = 100,
-    min_data_fraction: float = 0.9,
-) -> DataFrame[TimeseriesMatrix]:
-    """Filter incomplete years from timseries matrix.
+@dataclass
+class SimulateFlagsSettings:
+    """Define settings used to simulate flagged values for scoring imputation."""
 
-    Nulls respondent-years with too few data and
-    drops respondents with no data across all years.
+    num_months: int = 30
+    """The number of months of data to simulate."""
+    min_flag_rate: float = 0.1
+    """Min ratio of bad points in a section of data to be used for reference."""
+    max_flag_rate: float = 0.5
+    """Max ratio of bad points in a section of data to be used for reference."""
+    output_io_manager_key: str = "io_manager"
+    """Specify io-manager for final simulated asset.
+
+    In some cases we use the parquet IO-manager so we can build notebooks/visualizations
+    on simulated data.
+    """
+    mape_threshold: float = 0.05
+    """Maximum allowable mean absolute percent error computed on simulated values. Will be checked in an asset check."""
+
+
+class SimulationDataFrame(pa.DataFrameModel):
+    """Collection of months of data which will be used to simulate flagged values.
+
+    Each row in this dataframe identifies a pairing of two entity IDs and two months
+    that can be used to evaluate the performance of the imputation. The "reference"
+    is a month in which a high proportion of reported values were flagged for
+    imputation, and the "simulation" is a month in which there were no values flagged
+    for imputation. The pattern of flagged (null) values in the reference month will be
+    used to mask the reported values found in the simulation month so they can be
+    imputed, and then the imputed values will be compared to the originally reported
+    data to evaluate the imputation's performance.
+    """
+
+    reference_id_col: Series[Any]
+    reference_month: Series[pa.dtypes.DateTime]
+    simulation_id_col: Series[Any]
+    simulation_month: Series[pa.dtypes.DateTime]
+
+
+@pa.check_types
+def _merge_imputed(
+    aligned_df: DataFrame[AlignedTimeseriesDataFrame],
+    matrix: DataFrame[TimeseriesMatrix],
+    flags: DataFrame[TimeseriesMatrix],
+) -> pd.DataFrame:
+    """Helper function to melt imputed timeseries matrix and merge back on input asset."""
+    # Melt imputed matrix/flag matrix to long format
+    imputed_df = melt_imputed_timeseries_matrix(matrix, flags)
+
+    # Merge back on core table
+    return aligned_df.merge(
+        imputed_df.rename(columns={"value_col": "imputed_value_col"}),
+        on=["id_col", "datetime"],
+        how="left",
+        validate="one_to_one",
+    )
+
+
+@pa.check_types
+def _add_simulated_flag_col(
+    imputed_df: DataFrame[AlignedTimeseriesDataFrame],
+    simulation_df: DataFrame[SimulationDataFrame],
+) -> DataFrame[AlignedTimeseriesDataFrame]:
+    """Return a modified ``imputed_df`` with a column indicating which rows should be flagged for simulation.
+
+    This will find all flagged values from a reference month and apply the flag
+    pattern to a simulation month. The flag pattern is determined by calculating the
+    hour of the month for each flagged (how many hours is this after the start of the
+    month), and flagging the corresponding hour in the simulation month. Reference
+    months are chosen by finding months with a relatively high rate of imputation,
+    while simulation months have no values which were flagged for imputation.
 
     Args:
-        df: Timeseries matrix as described in :class:`TimeseriesMatrix`.
-        min_data: Minimum number of non-null hours in a year.
-        min_data_fraction: Minimum fraction of non-null hours between the first and last
-          non-null hour in a year.
+        imputed_df: Production DataFrame with imputed values, which is used to find
+            sections with high rates of imputation.
+        simulation_df: DataFrame with reference and simulation months.
 
     Returns:
-        :class:`TimeseriesMatrix` with nulled values.
+        DataFrame which contains all ID/datetime pairs that should be flagged for
+        simulated imputation.
     """
-    # Identify respondent-years where data coverage is below thresholds
-    has_data = ~df.isnull()
-    coverage = (
-        # Last timestamp with demand in year
-        has_data.iloc[::-1].groupby(df.index.year[::-1]).idxmax()
-        -
-        # First timestamp with demand in year
-        has_data.groupby(df.index.year).idxmax()
-    ).apply(lambda x: 1 + x.dt.days * 24 + x.dt.seconds / 3600, axis=1)
-    fraction = has_data.groupby(df.index.year).sum() / coverage
-    short = coverage.lt(min_data)
-    bad = fraction.gt(0) & fraction.lt(min_data_fraction)
-    # Set all values in short or bad respondent-years to null
-    mask = (short | bad).loc[df.index.year]
-    mask.index = df.index
-    df[mask] = np.nan
-    # Report nulled respondent-years
-    for mask, msg in [
-        (short, "Nulled short respondent-years (below min_data)"),
-        (bad, "Nulled bad respondent-years (below min_data_fraction)"),
-    ]:
-        row, col = mask.to_numpy().nonzero()
-        report = (
-            pd.DataFrame({"id": mask.columns[col], "year": mask.index[row]})
-            .groupby("id")["year"]
-            .apply(lambda x: np.sort(x))
+    # Add a column to both dataframes, which contains the start date of the month
+    # In the ``datetime`` column.
+    simulation_df["period"] = simulation_df["reference_month"].dt.to_period("M")
+    imputed_df["period"] = imputed_df["datetime"].dt.to_period("M")
+
+    # Merge on month and ID to get a DataFrame with all hours in the reference months
+    simulation_df = imputed_df.merge(
+        simulation_df,
+        left_on=["id_col", "period"],
+        right_on=["reference_id_col", "period"],
+        how="inner",
+        validate="many_to_one",
+    )
+
+    # Filter to hours where values were flagged (NULL) in reference month
+    flagged = simulation_df[simulation_df["flags"].notnull()]
+
+    # For each flagged value in a reference month, get the number of hours after midnight
+    # of the first day of the month for this value. Then, use this timedelta to find
+    # the corresponding hour in the simulation month. These hours will then be flagged
+    # for imputation during the simulated imputation.
+    flagged["simulation_datetime"] = (
+        flagged["datetime"] - flagged["reference_month"] + flagged["simulation_month"]
+    )
+
+    # Drop hours that crossed over into the next month
+    flagged = flagged[
+        flagged["simulation_datetime"].dt.to_period("M")
+        == flagged["simulation_month"].dt.to_period("M")
+    ]
+
+    # Append column with simulated flags to imputed dataframe
+    imputed_df["simulated_flags"] = False
+    imputed_df = imputed_df.set_index(["datetime", "id_col"])
+    imputed_df.loc[
+        (flagged["simulation_datetime"], flagged["simulation_id_col"]),
+        "simulated_flags",
+    ] = True
+
+    return imputed_df.reset_index()
+
+
+@pa.check_types
+def get_simulated_flag_mask(
+    settings: SimulateFlagsSettings,
+    imputed_df: DataFrame[AlignedTimeseriesDataFrame],
+    simulation_group: str,
+) -> tuple[DataFrame[TimeseriesMatrix], set[int]]:
+    """Return a flag mask to flag values for simulated imputation.
+
+    Find months of data with high rate of flagged values, and use these sections as a
+    reference to flag values in otherwise good sections of data. This allows us to
+    impute data in a realistic scenario where we have good reported data, which we can
+    compare to in order to compute quantitative metrics to validate the quality of our
+    imputation.
+
+    Args:
+        settings: Settings object, which contains all configurable settings for
+            simulation.
+        imputed_df: Production DataFrame with imputed values, which is used to find
+            sections with high rates of imputation.
+        simulation_group: Allows testing imputation performance on different groups of
+            data like BA/subregion demand, which can be combined into a single
+            imputation.
+
+    Returns:
+        Tuple of ``timeseries_matrix``, and ``flag_matrix`` modified with simulation
+        data.
+    """
+    # Get rows in specified simulation_group, and filter any cases where an ID/month
+    # Combo have very few values. This is important because we are going to compute
+    # the rate of values imputed per month, and should make sure we're using complete months
+    imputation_group_df = (
+        imputed_df[imputed_df["simulation_group"] == simulation_group]
+        .groupby(["id_col", pd.Grouper(key="datetime", freq="MS")], observed=True)
+        .filter(lambda group: len(group) > 1)
+    )
+
+    # Calculate the rate of imputation per month/ID
+    monthly_imputation_rate = (
+        (
+            imputation_group_df.groupby(
+                ["id_col", pd.Grouper(key="datetime", freq="MS")], observed=True
+            )["flags"].apply(lambda x: x.notnull().mean())
         )
-        with pd.option_context("display.max_colwidth", None):
-            logger.info(f"{msg}:\n{report}")
-    # Drop respondents with no data
-    blank = df.columns[df.isnull().all()].tolist()
-    df = df.drop(columns=blank)
-    # Report dropped respondents (with no data)
-    logger.info(f"Dropped blank respondents: {blank}")
-    return df
+        .reset_index()
+        .rename(columns={"flags": "imputation_rate", "datetime": "month"})
+    )
+
+    # Find a set of months with a high level of imputation to use as reference to simulate flagged data
+    bad_months = monthly_imputation_rate[
+        (monthly_imputation_rate.imputation_rate >= settings.min_flag_rate)
+        & (monthly_imputation_rate.imputation_rate <= settings.max_flag_rate)
+    ]
+    # Find months which didn't have any values flagged to drop data from
+    good_months = monthly_imputation_rate[
+        monthly_imputation_rate.imputation_rate == 0.0
+    ]
+
+    # Select num_months for simulation if there are enough months to choose from
+    num_months = min(len(bad_months), len(good_months), settings.num_months)
+
+    # Take good months and bad months, and combine into a single dataframe
+    # It doesn't matter which months in particular get matched up
+    simulation_df = pd.concat(
+        [
+            bad_months.sample(num_months)
+            .rename(
+                columns={
+                    "id_col": "reference_id_col",
+                    "month": "reference_month",
+                }
+            )[["reference_id_col", "reference_month"]]
+            .reset_index(),
+            good_months.sample(num_months)
+            .rename(
+                columns={
+                    "id_col": "simulation_id_col",
+                    "month": "simulation_month",
+                }
+            )[["simulation_id_col", "simulation_month"]]
+            .reset_index(),
+        ],
+        axis="columns",
+    )
+
+    # Use reference month to get hours which should be flagged in simulation month
+    imputed_df = _add_simulated_flag_col(
+        imputed_df,
+        simulation_df,
+    )
+
+    # Pivot simulated flag column to get mask which can be used to flag a timeseries matrix
+    flags = pivot_aligned_timeseries_dataframe(imputed_df, value_col="simulated_flags")
+    flags[flags.isna()] = False
+
+    return flags, set(simulation_df["simulation_month"].dt.year.unique())
 
 
 @dataclass
@@ -1569,19 +1839,29 @@ class ImputeTimeseriesSettings:
     min_data: int = 100
     """Minimum number of values which must be non-null to do imputation on year."""
     periods: int = 24
-    """Number of consecutive values in each series to fold into a group. See :meth:`fold_tensor`
+    """Number of consecutive values in each series to fold into a group.
 
-Default of 24 is meant for hourly data with a diurnal periodicity.
+    See :meth:`fold_tensor`. The default of 24 is meant for hourly data with a diurnal
+    periodicity.
     """
     blocks: int = 1
     """Split timeseries matrix into equal sized blocks before running imputation."""
-    method: str = "tubal"
-    """Imputation method to use ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
-    method_overrides: dict[int, str] = field(default_factory=dict)
-    """Override imputation method for specific years ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`)."""
+    method: Literal["tubal", "tnn"] = "tubal"
+    """Imputation method to use.
+
+    * tubal indicates :func:`impute_latc_tubal`
+    * tnn indicates :func:`impute_latc_tnn`
+    """
+    method_overrides: dict[int, Literal["tubal", "tnn"]] = field(default_factory=dict)
+    """Override stated imputation method for specific years."""
+    simulate_flags_settings: SimulateFlagsSettings | None = None
+    """Settings to simulate flagged values and score imputation.
+
+    Defaults to None which will not do any simulation/scoring.
+    """
 
 
-def impute_timeseries_asset_factory(
+def impute_timeseries_asset_factory(  # noqa: C901
     input_asset_name: str,
     output_asset_name: str,
     years_from_context: Callable,
@@ -1589,6 +1869,7 @@ def impute_timeseries_asset_factory(
     value_col: str = "demand_mwh",
     imputed_value_col: str = "demand_imputed_mwh",
     reported_value_col: str = "demand_reported_mwh",
+    simulation_group_col: str | None = None,
     output_io_manager_key: str = "parquet_io_manager",
     settings: ImputeTimeseriesSettings = ImputeTimeseriesSettings(),
 ) -> pd.DataFrame:
@@ -1604,21 +1885,50 @@ def impute_timeseries_asset_factory(
     2. Flag anomalous and missing values in timeseries
     3. Perform imputation and melt back to expected output table structure
 
+    This factory also has the ability to produce a set of simulation assets. These
+    assets mirror the production assets, but they will impute a selection of values
+    which were not actually flagged for imputation. This means we can impute data
+    where the reported data is actually deemed "good", allowing us to compare the
+    imputed values to the reported. We then compute Mean Absolute Percentage Error
+    to score the imputation. We can produce these simulated assets during our nightly
+    builds for ongoing monitoring of the imputation, or just as one off way to validate
+    or compare imputation methods.
+
     Args:
         input_asset_name: Name of upstream asset to perform imputation on.
         output_asset_name: Name of final output asset with imputed column.
-        years: List of years to perform imputation on.
+        years_from_context: Function to generate the list of years on which to perform
+            imputation on.
+        id_col: Name of column identifying entities to group timeseries by.
         value_col: Column imputation will be performed on.
         imputed_value_col: Name of column in output asset with imputed values.
-        reported_value_col: Name of column in output asset with original reported values.
-        id_col: Name of column identifying entities to group timeseries by.
+        reported_value_col: Name of column in output asset with original reported
+            values.
         output_io_manager_key: IO-manager to use for final output asset.
+        simulation_group_col: In cases where we are combining multiple datasets into
+            a single imputation run (like BA/subregion demand), this column is used
+            to compute simulation results for each set independently. This should
+            point to a categorical column which defines which group a row belongs to.
+        settings: Configurable options for imputation
+            (see :class:`ImputeTimeseriesSettings`).
     """
-    timeseries_matrix_asset = f"_{output_asset_name}_timeseries_matrix"
-    aligned_input_asset = f"_{input_asset_name}_aligned"
-    cleaned_timeseries_matrix_asset = f"_{output_asset_name}_cleaned_timeseries_matrix"
-    flags_asset = f"_{output_asset_name}_timeseries_matrix_flags"
-    imputed_asset = f"_{output_asset_name}_imputed_matrix"
+    # Create an asset prefix from `output_asset_name` so we can create unique asset
+    # Names for all intermediate assets in the imputation.
+    # Uses regex substitution so prefix starts with exactly one underscore even
+    # if `output_asset_name` starts with an underscore
+    asset_prefix = re.sub(r"^__", "_", f"_{output_asset_name}")
+
+    # Asset names
+    timeseries_matrix_asset = f"{asset_prefix}_timeseries_matrix"
+    aligned_input_asset = f"{asset_prefix}_aligned"
+    cleaned_timeseries_matrix_asset = f"{asset_prefix}_cleaned_timeseries_matrix"
+    flags_asset = f"{asset_prefix}_timeseries_matrix_flags"
+    imputed_asset = f"{asset_prefix}_imputed"
+    simulated_timeseries_matrix_asset = f"{asset_prefix}_simulated_timeseries_matrix"
+    simulated_flags_asset = f"{asset_prefix}_timeseries_matrix_simulated_flags"
+    imputed_simulated_asset = f"{asset_prefix}_imputed_simulated_matrix"
+    imputation_score_asset = f"{asset_prefix}_score"
+    simulated_output_asset = f"{asset_prefix}_simulated"
 
     @multi_asset(
         ins={"input_df": AssetIn(input_asset_name)},
@@ -1626,27 +1936,46 @@ def impute_timeseries_asset_factory(
             timeseries_matrix_asset: AssetOut(key=timeseries_matrix_asset),
             aligned_input_asset: AssetOut(key=aligned_input_asset),
         },
-        name=f"_{output_asset_name}_prepare_timeseries_matrix",
+        name=f"{asset_prefix}_prepare_timeseries_matrix",
     )
     def _prepare_timeseries_matrix(
         input_df: pd.DataFrame,
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    ):
         """Take input timeseries table and convert to timeseries matrix for imputation.
 
         Returns:
-            Input table as a matrix with a `datetime` row index
+            Input table as a matrix with a ``datetime`` row index
             (e.g. '2006-01-01 00:00:00', ..., '2019-12-31 23:00:00')
             in local time ignoring daylight-savings,
-            and a `id_col` column index (e.g. 101, ..., 329).
+            and a ``id_col`` column index (e.g. 101, ..., 329).
         """
         # Convert from datetime_utc to local datetime
         aligned_df = utc_dataframe_to_aligned(
-            input_df.rename(columns={value_col: "value_col", id_col: "id_col"})
+            input_df.rename(
+                columns={
+                    value_col: "value_col",
+                    id_col: "id_col",
+                    simulation_group_col: "simulation_group",
+                }
+            )
         )
 
+        # If no simulation group column is specified, create one with a monolithic group
+        if simulation_group_col is None:
+            aligned_df["simulation_group"] = "monolithic"
+
         # Pivot to timeseries matrix
-        matrix = pivot_aligned_timeseries_dataframe(aligned_df, settings.periods)
-        return matrix, aligned_df
+        matrix = pivot_aligned_timeseries_dataframe(aligned_df)
+        return (
+            Output(
+                output_name=timeseries_matrix_asset,
+                value=matrix,
+            ),
+            Output(
+                output_name=aligned_input_asset,
+                value=aligned_df,
+            ),
+        )
 
     @multi_asset(
         ins={"matrix": AssetIn(timeseries_matrix_asset)},
@@ -1657,33 +1986,49 @@ def impute_timeseries_asset_factory(
             flags_asset: AssetOut(key=flags_asset),
         },
         op_tags={"memory-use": "high"},
-        name=f"_{output_asset_name}_flag_timeseries_matrix",
+        name=f"{asset_prefix}_flag_timeseries_matrix",
     )
     def _flag_timeseries_matrix(
         matrix: pd.DataFrame,
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    ):
         """Flag/Null anomalous and missing values."""
-        matrix, flags = flag_ruggles(matrix)
-        matrix = filter_missing_values(
+        matrix, flags = flag_ruggles(
             matrix,
             min_data=settings.min_data,
             min_data_fraction=settings.min_data_fraction,
         )
-        return matrix, flags
+
+        return (
+            Output(
+                output_name=cleaned_timeseries_matrix_asset,
+                value=matrix,
+            ),
+            Output(
+                output_name=flags_asset,
+                value=flags,
+            ),
+        )
 
     @asset(
         required_resource_keys={"dataset_settings"},
         ins={
             "matrix": AssetIn(cleaned_timeseries_matrix_asset),
+            "flags": AssetIn(flags_asset),
+            "aligned_df": AssetIn(aligned_input_asset),
         },
         name=imputed_asset,
     )
-    def _impute_timeseries(context, matrix: pd.DataFrame) -> pd.DataFrame:
+    def _impute_timeseries(
+        context,
+        aligned_df: pd.DataFrame,
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame,
+    ) -> pd.DataFrame:
         """Perform imputation and return TimeseriesMatrix with imputed values."""
         # Impute flagged/missing values
         years = years_from_context(context)
         method = dict.fromkeys(years, settings.method) | settings.method_overrides
-        return impute_flagged_values(
+        imputed_matrix = impute_flagged_values(
             matrix,
             years=years,
             periods=settings.periods,
@@ -1691,39 +2036,207 @@ def impute_timeseries_asset_factory(
             method=method,
         )
 
+        return _merge_imputed(aligned_df, imputed_matrix, flags)
+
     @asset(
         ins={
-            "matrix": AssetIn(imputed_asset),
-            "flags": AssetIn(flags_asset),
-            "aligned_df": AssetIn(aligned_input_asset),
+            "imputed_df": AssetIn(imputed_asset),
         },
         name=output_asset_name,
         io_manager_key=output_io_manager_key,
     )
     def _create_output_asset(
+        imputed_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Rename columns back to original names and output to desired IO-manager."""
+        return imputed_df.rename(
+            columns={
+                "id_col": id_col,
+                "imputed_value_col": imputed_value_col,
+                "flags": f"{imputed_value_col}_imputation_code",
+                "value_col": reported_value_col,
+                "simulation_group": simulation_group_col,
+            }
+        )
+
+    @multi_asset(
+        ins={
+            "imputed_df": AssetIn(imputed_asset),
+            "matrix": AssetIn(cleaned_timeseries_matrix_asset),
+            "flags": AssetIn(flags_asset),
+        },
+        outs={
+            simulated_timeseries_matrix_asset: AssetOut(
+                key=simulated_timeseries_matrix_asset
+            ),
+            simulated_flags_asset: AssetOut(key=simulated_flags_asset),
+        },
+        name=f"{asset_prefix}_simulate_flag_timeseries_matrix",
+    )
+    def _simulate_flags(
+        imputed_df: pd.DataFrame,
+        matrix: pd.DataFrame,
+        flags: pd.DataFrame,
+    ):
+        """Flag values to impute for simulation purposes.
+
+        This method will flag a set of otherwise 'good' reported values, so they
+        can be imputed and compared back to the 'good' values for scoring/validation
+        of the imputation performance. After creating the simulation data, only return
+        years that contain simulated flags, as we do imputation 1 year at a time, so
+        including years without simulated data would have no impact on the results.
+        """
+        simulated_years = set()
+        ts = FlaggedTimeseries.from_timeseries_matrix(matrix, flags=flags)
+        for simulation_group in imputed_df["simulation_group"].unique():
+            # Get simulated flag mask for simulation group and set of years with simulated flags
+            mask, years = get_simulated_flag_mask(
+                settings.simulate_flags_settings, imputed_df, simulation_group
+            )
+            simulated_years |= years
+
+            # Drop columns that were filtered out by ``filter_missing_values`` in original imputation
+            mask = mask.drop(columns=mask.columns.difference(matrix.columns))
+
+            # Flag simulated values
+            ts = ts.flag(mask.to_numpy(dtype=bool), ImputationReasonCodes.SIMULATED)
+
+        # Get flag/timeseries matrices and filter to only years with simulated data
+        # Given that we only impute 1 year at a time, removing years without any simulated
+        # flags will not impact results
+        matrix, flags = ts.to_dataframes()
+        return (
+            Output(
+                output_name=simulated_timeseries_matrix_asset,
+                value=matrix[matrix.index.year.isin(simulated_years)],
+            ),
+            Output(
+                output_name=simulated_flags_asset,
+                value=flags[flags.index.year.isin(simulated_years)],
+            ),
+        )
+
+    @asset(
+        required_resource_keys={"dataset_settings"},
+        ins={
+            "aligned_df": AssetIn(aligned_input_asset),
+            "matrix": AssetIn(simulated_timeseries_matrix_asset),
+            "flags": AssetIn(simulated_flags_asset),
+        },
+        name=imputed_simulated_asset,
+    )
+    def _impute_simulated_timeseries(
+        context,
         aligned_df: pd.DataFrame,
         matrix: pd.DataFrame,
         flags: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Perform imputation and prepare output asset."""
-        # Melt imputed matrix/flag matrix to long format
-        imputed_df = melt_imputed_timeseries_matrix(matrix, flags)
+        """Perform imputation on asset with simulated flags and return :class:TimeseriesMatrix with imputed values."""
+        # Impute flagged/missing values
+        years = years_from_context(context)
+        method = dict.fromkeys(years, settings.method) | settings.method_overrides
+        imputed_matrix = impute_flagged_values(
+            matrix,
+            years=years,
+            periods=settings.periods,
+            blocks=settings.blocks,
+            method=method,
+        )
+        return _merge_imputed(aligned_df, imputed_matrix, flags)
 
-        # Merge back on core table
-        df = aligned_df.merge(imputed_df, on=["id_col", "datetime"], how="left")
-
-        return df.rename(
+    @asset(
+        ins={
+            "imputed_df": AssetIn(imputed_simulated_asset),
+        },
+        name=simulated_output_asset,
+        io_manager_key=settings.simulate_flags_settings.output_io_manager_key
+        if settings.simulate_flags_settings
+        else "io_manager",
+    )
+    def _create_simulated_output_asset(
+        imputed_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Rename columns back to original names and output to desired IO-manager."""
+        return imputed_df.rename(
             columns={
                 "id_col": id_col,
-                "value_col_y": imputed_value_col,
+                "imputed_value_col": imputed_value_col,
                 "flags": f"{imputed_value_col}_imputation_code",
-                "value_col_x": reported_value_col,
+                "value_col": reported_value_col,
             }
         )
 
-    return [
+    @asset(
+        ins={
+            "imputed_df": AssetIn(imputed_asset),
+            "simulated_df": AssetIn(imputed_simulated_asset),
+        },
+        name=imputation_score_asset,
+    )
+    def _score_imputation(
+        imputed_df: pd.DataFrame,
+        simulated_df: pd.DataFrame,
+    ) -> dict[str, float]:
+        """Compute a performance metric on imputed simulated data.
+
+        This takes the real output asset and the simulated output asset, and will
+        compute a metric comparing the imputed simulated data to the real data. The
+        metric used is ``mean_absolute_percentage_error`` as percent error is more
+        robust to magnitude changes in the underlying data than total error.
+        """
+        mape_dict = {}
+        for group_name, gdf in simulated_df.groupby("simulation_group"):
+            # Get just rows where we simultated NULLS
+            simulated_gdf = gdf[gdf["flags"] == "simulated"]
+
+            # Combine with real data
+            combined_df = simulated_gdf.merge(
+                imputed_df,
+                how="inner",
+                on=["datetime_utc", "id_col"],
+                validate="one_to_one",
+            )
+
+            # Compute metric
+            mape_dict[group_name] = mean_absolute_percentage_error(
+                combined_df["imputed_value_col_x"],
+                combined_df["imputed_value_col_y"],
+            )
+            logger.info(
+                f"Imputed simulated NULLS for group {group_name} with mean percent error: {mape_dict[group_name]}"
+            )
+
+        return mape_dict
+
+    @asset_check(
+        asset=imputation_score_asset,
+        name=f"{imputation_score_asset}_asset_check",
+        blocking=True,
+    )
+    def _check_score(mape_dict: dict[str, float]):
+        return AssetCheckResult(
+            passed=all(
+                mape < settings.simulate_flags_settings.mape_threshold
+                for mape in mape_dict.values()
+            ),
+            metadata=mape_dict,
+            description="Checks mean absolute percent error computed on simulated imputed data, and compared to a configurable threshold.",
+        )
+
+    production_assets = [
         _prepare_timeseries_matrix,
         _flag_timeseries_matrix,
         _impute_timeseries,
         _create_output_asset,
     ]
+    simulation_assets = [
+        _simulate_flags,
+        _impute_simulated_timeseries,
+        _score_imputation,
+        _create_simulated_output_asset,
+    ]
+
+    # Only return simulation assets if passed simulation settings
+    if settings.simulate_flags_settings is not None:
+        return (production_assets + simulation_assets, _check_score)
+    return production_assets

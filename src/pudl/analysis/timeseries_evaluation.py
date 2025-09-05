@@ -220,13 +220,14 @@ def plot_imputation(
         alpha=0.5,
     )
     plt.plot(filtered.index, filtered[imputed_col], lw=1, label="imputed")
-    for code in IMPUTATION_CODES:
+    for code in IMPUTATION_CODES | {"simulated"}:
         mask = filtered[imputed_col + "_imputation_code"] == code
         plt.scatter(
             filtered.index[mask],
             filtered[imputed_col][mask],
             label=code,
             s=3,
+            alpha=0.9,
         )
     plt.title(f"Reported vs Imputed Values for {idx_vals}")
     plt.ylabel(ylabel)
@@ -343,7 +344,7 @@ def insert_run_length(  # noqa: C901
     Raises:
         ValueError: Padding must zero or greater.
         ValueError: Run length must be greater than zero.
-        ValueError: Cound not find space for run of length {length}.
+        ValueError: Could not find space for run of length {length}.
 
     Returns:
         Copy of array `x` with values inserted.
@@ -530,7 +531,7 @@ def simulate_nulls(  # pragma: no cover
         Boolean mask of current non-null values to set to null.
 
     Raises:
-        ValueError: Cound not find space for run of length {length}.
+        ValueError: Could not find space for run of length {length}.
     """
     new_nulls = np.zeros(self.x.shape, dtype=bool)
     for col in range(self.x.shape[1]):

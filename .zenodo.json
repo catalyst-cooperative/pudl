@@ -16,10 +16,6 @@
     },
     {
       "affiliation": "Catalyst Cooperative",
-      "name": "Norman, Bennett"
-    },
-    {
-      "affiliation": "Catalyst Cooperative",
       "name": "Schira, Zachary"
     },
     {
@@ -31,8 +27,14 @@
       "name": "Xia, Dazhong"
     },
     {
+      "orcid": "0000-0001-9784-8531",
       "affiliation": "Catalyst Cooperative",
       "name": "Belfer, Ella"
+    },
+    {
+      "orcid": "0009-0009-9063-080X",
+      "affiliation": "Catalyst Cooperative",
+      "name": "Mazaitis, Kathryn"
     }
   ],
   "language": "eng",

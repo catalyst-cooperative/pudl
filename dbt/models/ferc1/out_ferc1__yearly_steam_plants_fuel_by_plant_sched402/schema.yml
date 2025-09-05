@@ -4,25 +4,33 @@ sources:
     tables:
       - name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
-              partition_column: report_year
+              arguments:
+                table_name: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
+                partition_expr: report_year
           - expect_matching_primary_fuel_by_cost_and_mmbtu
           - check_column_correlation:
-              column1: gas_fraction_mmbtu
-              column2: gas_fraction_cost
-              correlation_coef: 0.8
+              arguments:
+                column1: gas_fraction_mmbtu
+                column2: gas_fraction_cost
+                correlation_coef: 0.8
           - check_column_correlation:
-              column1: oil_fraction_mmbtu
-              column2: oil_fraction_cost
-              correlation_coef: 0.8
+              arguments:
+                column1: oil_fraction_mmbtu
+                column2: oil_fraction_cost
+                correlation_coef: 0.8
           - check_column_correlation:
-              column1: coal_fraction_mmbtu
-              column2: coal_fraction_cost
-              correlation_coef: 0.76 # full etl passes 0.8, fast-etl fails
+              description: Reduced from 0.8 to 0.76 in March 2025 to pass etl-fast. Keep an eye on it, and investigate if it gets worse.
+              arguments:
+                column1: coal_fraction_mmbtu
+                column2: coal_fraction_cost
+                correlation_coef: 0.76
         columns:
           - name: report_year
           - name: utility_id_ferc1
+          - name: utility_id_ferc1_dbf
+          - name: utility_id_ferc1_xbrl
           - name: utility_id_pudl
           - name: utility_name_ferc1
           - name: plant_id_pudl
@@ -52,44 +60,50 @@ models:
     columns:
       - name: gas_cost_per_mmbtu
         data_tests:
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.05
-              min_value: 1.5
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.9
-              max_value: 15.0
-          - dbt_expectations.expect_column_median_to_be_between:
-              min_value: 2.0
-              max_value: 10.0
+          - expect_quantile_constraints:
+              arguments:
+                constraints:
+                  - quantile: 0.05
+                    min_value: 1.5
+                  - quantile: 0.9
+                    max_value: 15.0
+                  - quantile: 0.5
+                    min_value: 2.0
+                    max_value: 10.0
       - name: oil_cost_per_mmbtu
         data_tests:
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.1
-              min_value: 3.5
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.9
-              max_value: 26.1
-          - dbt_expectations.expect_column_median_to_be_between:
-              min_value: 6.5
-              max_value: 17.0
+          - expect_quantile_constraints:
+              description: Quantile 0.9 raised from 25.0 to 26.1 April 2025 to pass etl-fast. Keep an eye on it, and investigate if it gets worse.
+              arguments:
+                constraints:
+                  - quantile: 0.1
+                    min_value: 3.5
+                  - quantile: 0.9
+                    max_value: 26.1
+                  - quantile: 0.5
+                    min_value: 6.5
+                    max_value: 17.0
       - name: coal_cost_per_mmbtu
         data_tests:
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.1
-              min_value: 0.75
-          - dbt_expectations.expect_column_quantile_values_to_be_between:
-              quantile: 0.9
-              max_value: 4.0
-          - dbt_expectations.expect_column_median_to_be_between:
-              min_value: 1.0
-              max_value: 2.5
+          - expect_quantile_constraints:
+              arguments:
+                constraints:
+                  - quantile: 0.1
+                    min_value: 0.75
+                  - quantile: 0.95
+                    max_value: 4.5
+                  - quantile: 0.5
+                    min_value: 1.0
+                    max_value: 2.5
       - name: total_cost_fraction
         data_tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0.999999
-              max_value: 1.000001
+              arguments:
+                min_value: 0.999999
+                max_value: 1.000001
       - name: total_mmbtu_fraction
         data_tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0.999999
-              max_value: 1.000001
+              arguments:
+                min_value: 0.999999
+                max_value: 1.000001

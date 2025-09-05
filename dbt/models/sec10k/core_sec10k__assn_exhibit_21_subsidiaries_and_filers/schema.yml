@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_sec10k__assn_exhibit_21_subsidiaries_and_filers
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_sec10k__assn_exhibit_21_subsidiaries_and_filers
+                partition_expr:
+        columns:
+          - name: subsidiary_company_id_sec10k
+            data_tests:
+              - unique
+          - name: central_index_key
