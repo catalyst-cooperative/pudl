@@ -10,6 +10,12 @@ from pudl.helpers import (
     zero_pad_numeric_string,
 )
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
+from pudl.metadata.enums import (
+    DAMAGE_TYPES_PHMSAGAS,
+    INSTALL_DECADE_PATTERN_PHMSAGAS,
+    MAIN_PIPE_SIZES_PHMSAGAS,
+    MATERIAL_TYPES_PHMSAGAS,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -40,16 +46,15 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "office_state",
         "office_zip",
         "office_county",
+        "office_city_fips",
+        "office_county_fips",
+        "office_state_fips",
+        "operating_state_fips",
         "headquarters_street_address",
         "headquarters_city",
         "headquarters_county",
         "headquarters_state",
         "headquarters_zip",
-        "excavation_damage_excavation_practices",
-        "excavation_damage_locating_practices",
-        "excavation_damage_one_call_notification",
-        "excavation_damage_other",
-        "excavation_damage_total",
         "excavation_tickets",
         "services_efv_in_system",
         "services_efv_installed",
@@ -64,16 +69,19 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "preparer_phone",
         "preparer_title",
         "form_revision",
+        "data_maturity",
+        # These are numeric columns that didn't fit into the melted
+        # numeric tables.
+        "all_known_leaks_scheduled_for_repair",
+        "all_known_leaks_scheduled_for_repair_main",
+        "average_service_length_feet",
+        "hazardous_leaks_mechanical_joint_failure",
+        "main_other_material_detail",
     ],
     "columns_to_convert_to_ints": [
         "report_year",
         "report_number",
         "operator_id_phmsa",
-        "excavation_damage_excavation_practices",
-        "excavation_damage_locating_practices",
-        "excavation_damage_one_call_notification",
-        "excavation_damage_other",
-        "excavation_damage_total",
         "excavation_tickets",
         "services_efv_in_system",
         "services_efv_installed",
@@ -89,6 +97,61 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "additional_information",
     ],
 }
+
+YEARLY_DISTRIBUTION_IDX_ISH = [
+    "report_year",
+    "report_number",
+    "operator_id_phmsa",
+    "commodity",
+    "operating_state",
+]
+
+
+MELT_PATTERNS = {
+    "_core_phmsagas__yearly_distribution_by_material": {
+        "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_miles$",
+        "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})$",
+    },
+    "_core_phmsagas__yearly_distribution_by_install_decade": {
+        "main_pattern": "main_" + INSTALL_DECADE_PATTERN_PHMSAGAS + "_miles",
+        "services_pattern": "services_" + INSTALL_DECADE_PATTERN_PHMSAGAS,
+    },
+    "_core_phmsagas__yearly_distribution_leaks": {
+        "main_pattern": r"^(all_leaks|hazardous_leaks)_(.*)_mains$",
+        "services_pattern": r"^(all_leaks|hazardous_leaks)_(.*)_services$",
+    },
+    "_core_phmsagas__yearly_distribution_by_material_and_size": {
+        "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_({'|'.join(MAIN_PIPE_SIZES_PHMSAGAS)})_miles$",
+        "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_(.*)$",
+    },
+    "_core_phmsagas__yearly_distribution_excavation_damages": {
+        "damage_pattern": rf"^excavation_damage_(?:{'|'.join(DAMAGE_TYPES_PHMSAGAS)})_(.*)$"
+    },
+}
+
+
+@asset_check(asset="raw_phmsagas__yearly_distribution", blocking=True)
+def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
+    """Check to ensure that we are transforming all of the raw columns.
+
+    Because we are using a lot of regex patterns to identify the columns
+    to transform into various tables, we run this check to make sure the
+    we are actually finding all of the raw columns. If a column is flagged
+    here, check the column mapping and the patterns in MELT_PATTERNS.1
+    """
+    pattern_cols = []
+    for patterns in MELT_PATTERNS.values():
+        for pattern in patterns.values():
+            pattern_cols = pattern_cols + (list(raw_df.filter(regex=pattern)))
+    transformed_cols = set(
+        YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"] + pattern_cols
+    )
+    untransformed_columns = set(raw_df.columns).difference(transformed_cols)
+    if untransformed_columns:
+        raise AssertionError(
+            f"Found {len(untransformed_columns)} columns that are not incorporated into the transform, but expected none: {untransformed_columns}"
+        )
+
 
 ##############################################################################
 # PHMSAGAS transformation logic
@@ -318,3 +381,187 @@ def _check_unaccounted_for_gas_fraction(df):
         return AssetCheckResult(passed=False, metadata={"errors": error})
 
     return AssetCheckResult(passed=True)
+
+
+def _dedupe_year_distribution_idx(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Remove the rare duplicates in the expected primary key.
+
+    There are 49 found records which have duplicate values for the expected
+    primary key of this table. Many manipulations are much easier when we have a
+    unique primary key - merges for instance! So we want to remove these duplicates.
+
+    On visual inspection, these duplicates either look mostly the same or have one
+    record with most or all of the non-null or non-zero values. Therefore, we sort
+    the total columns and then drop duplicates so we kept the records which have the
+    most information. This is not the most robust method of de-duplicating but there
+    are so few records compared to the >90k total records.
+
+    """
+    tot_cols = list(raw_phmsagas__yearly_distribution.filter(like="_total").columns)
+    raw_phmsagas__yearly_distribution = raw_phmsagas__yearly_distribution.sort_values(
+        by=tot_cols, ascending=False
+    )
+    dupe_mask = raw_phmsagas__yearly_distribution.duplicated(
+        subset=YEARLY_DISTRIBUTION_IDX_ISH, keep=False
+    )
+    assert len(raw_phmsagas__yearly_distribution[dupe_mask]) < 50
+    return pd.concat(
+        [
+            raw_phmsagas__yearly_distribution[~dupe_mask],
+            raw_phmsagas__yearly_distribution[dupe_mask].drop_duplicates(
+                subset=YEARLY_DISTRIBUTION_IDX_ISH, keep="first"
+            ),
+        ],
+    )
+
+
+def _assign_cols_from_patterns(df: pd.DataFrame, col_patterns) -> pd.DataFrame:
+    for col_name, pattern in col_patterns.items():
+        df[col_name] = df.melt_col.str.extract(pattern)
+    return df
+
+
+def _melt_merge_main_services(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+    main_pattern: str,
+    services_pattern: str,
+    col_patterns: dict[str, str],
+) -> pd.DataFrame:
+    """Filter, melt, add columns then merge miles of main and service."""
+    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+    logger.info("Melting main")
+    main = (
+        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=main_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="melt_col", value_name="mains_miles")
+        .pipe(_assign_cols_from_patterns, col_patterns)
+        .drop(columns=["melt_col"])
+        .set_index(list(col_patterns.keys()), append=True)
+        .dropna(how="all", axis="index")
+    )
+    logger.info("Melting service")
+    services = (
+        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=services_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="melt_col", value_name="services")
+        .pipe(_assign_cols_from_patterns, col_patterns)
+        .drop(columns=["melt_col"])
+        .set_index(list(col_patterns.keys()), append=True)
+        .dropna(how="all", axis="index")
+    )
+    return pd.merge(
+        main,
+        services,
+        left_index=True,
+        right_index=True,
+        how="outer",
+        validate="1:1",
+        sort=False,
+    )
+
+
+@asset
+def _core_phmsagas__yearly_distribution_by_material(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the _core table of the miles of main and services by material."""
+    return _melt_merge_main_services(
+        raw_phmsagas__yearly_distribution,
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material"][
+            "main_pattern"
+        ],
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material"][
+            "services_pattern"
+        ],
+        {"material": rf"({'|'.join(MATERIAL_TYPES_PHMSAGAS)})"},
+    )
+
+
+@asset
+def _core_phmsagas__yearly_distribution_by_install_decade(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the _core table of the miles of main and services by decade."""
+    return _melt_merge_main_services(
+        raw_phmsagas__yearly_distribution,
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
+            "main_pattern"
+        ],
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
+            "services_pattern"
+        ],
+        {"install_decade": INSTALL_DECADE_PATTERN_PHMSAGAS},
+    )
+
+
+@asset
+def _core_phmsagas__yearly_distribution_by_material_and_size(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the _core table of the miles of main and services by material type and size.
+
+    This table represents the bulk of the wide raw columns, which means it ends up being
+    nearly 8 million records.
+    """
+    return _melt_merge_main_services(
+        raw_phmsagas__yearly_distribution,
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material_and_size"][
+            "main_pattern"
+        ],
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material_and_size"][
+            "services_pattern"
+        ],
+        {
+            "main_size": rf"({'|'.join(MAIN_PIPE_SIZES_PHMSAGAS)})",
+            "material": rf"({'|'.join(MATERIAL_TYPES_PHMSAGAS)})",
+        },
+    )
+
+
+@asset
+def _core_phmsagas__yearly_distribution_leaks(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform table of leaks - broken out by source and leak severity."""
+    return _melt_merge_main_services(
+        raw_phmsagas__yearly_distribution,
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_leaks"]["main_pattern"],
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_leaks"]["services_pattern"],
+        {
+            "leak_severity": r"^(all_leaks|hazardous_leaks)",
+            "leak_source": r"^(?:all_leaks|hazardous_leaks)_(.*)_(?:mains|services)",
+        },
+    )
+
+
+@asset
+def _core_phmsagas__yearly_distribution_excavation_damages(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform table of damages - broken out by type and sub-type."""
+    damage_pattern = MELT_PATTERNS[
+        "_core_phmsagas__yearly_distribution_excavation_damages"
+    ]["damage_pattern"]
+    col_patterns = {
+        "damage_type": rf"({'|'.join(DAMAGE_TYPES_PHMSAGAS)})",
+        "damage_sub_type": damage_pattern,
+    }
+    return (
+        _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+        .set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=damage_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        # TODO: what are damages? are they $$?
+        .melt(ignore_index=False, var_name="melt_col", value_name="damages")
+        .pipe(_assign_cols_from_patterns, col_patterns)
+        .drop(columns=["melt_col"])
+        .set_index(list(col_patterns.keys()), append=True)
+        .dropna(how="all", axis="index")
+    )
