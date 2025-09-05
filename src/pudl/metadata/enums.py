@@ -716,3 +716,50 @@ FUNCTIONAL_STATUS_CODES_CENSUS: list[str] = [
 
 https://www.census.gov/library/reference/code-lists/functional-status-codes.html
 """
+
+
+MATERIAL_TYPES_PHMSAGAS = [
+    "unprotected_steel_bare",
+    "unprotected_steel_coated",
+    "cathodically_protected_steel_bare",
+    "cathodically_protected_steel_coated",
+    # we have to put steel below *steel* bc the pattern will grab the
+    # bare one first from the longer options if its listed first
+    "steel",
+    "pvc",
+    "pe",
+    "abs",
+    "other_plastic",
+    "plastic",
+    "cast_or_wrought_iron",
+    "wrought_iron",
+    "ductile_iron",
+    "copper",
+    "other_alt",
+    "other_material",
+    "other",
+    "reconditioned_cast_iron",
+    "cast_iron",
+    "all_materials",
+    "total",
+]
+
+MAIN_PIPE_SIZES_PHMSAGAS = [
+    "0.5_in_or_less",
+    "0.5_to_1_in",
+    "1_in_or_less",
+    "1_to_2_in",
+    "2_in_or_less",
+    "2_to_4_in",
+    "4_to_6_in",
+    "4_to_8_in",
+    "8_in",
+    "8_to_12_in",
+    "10_in",
+    "12_in",
+    "over_12_in",
+    "total",
+    "unknown",
+]
+DAMAGE_TYPES_PHMSAGAS = ["notification", "locating", "excavation", "other", "total"]
+INSTALL_DECADE_PATTERN_PHMSAGAS = r"(\d{4}s|unknown_decade|pre_1940|all_time)"

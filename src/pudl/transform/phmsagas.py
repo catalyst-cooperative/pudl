@@ -10,6 +10,12 @@ from pudl.helpers import (
     zero_pad_numeric_string,
 )
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
+from pudl.metadata.enums import (
+    DAMAGE_TYPES_PHMSAGAS,
+    INSTALL_DECADE_PATTERN_PHMSAGAS,
+    MAIN_PIPE_SIZES_PHMSAGAS,
+    MATERIAL_TYPES_PHMSAGAS,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -100,70 +106,26 @@ YEARLY_DISTRIBUTION_IDX_ISH = [
     "operating_state",
 ]
 
-MATERIAL_TYPES = [
-    "unprotected_steel_bare",
-    "unprotected_steel_coated",
-    "cathodically_protected_steel_bare",
-    "cathodically_protected_steel_coated",
-    # we have to put steel below *steel* bc the pattern will grab the
-    # bare one first from the longer options if its listed first
-    "steel",
-    "pvc",
-    "pe",
-    "abs",
-    "other_plastic",
-    "plastic",
-    "cast_or_wrought_iron",
-    "wrought_iron",
-    "ductile_iron",
-    "copper",
-    "other_alt",
-    "other_material",
-    "other",
-    "reconditioned_cast_iron",
-    "cast_iron",
-    "all_materials",
-    "total",
-]
-
-MAIN_PIPE_SIZES = [
-    "0.5_in_or_less",
-    "0.5_to_1_in",
-    "1_in_or_less",
-    "1_to_2_in",
-    "2_in_or_less",
-    "2_to_4_in",
-    "4_to_6_in",
-    "4_to_8_in",
-    "8_in",
-    "8_to_12_in",
-    "10_in",
-    "12_in",
-    "over_12_in",
-    "total",
-    "unknown",
-]
-DAMAGE_TYPES = ["notification", "locating", "excavation", "other", "total"]
 
 MELT_PATTERNS = {
-    "_core_phmsa__yearly_distribution_by_material": {
-        "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES)})_miles$",
-        "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES)})$",
+    "_core_phmsagas__yearly_distribution_by_material": {
+        "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_miles$",
+        "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})$",
     },
-    "_core_phmsa__yearly_distribution_by_install_decade": {
-        "main_pattern": r"main_(\d{4}s|unknown_decade|pre_1940|all_time)_miles",
-        "services_pattern": r"services_(\d{4}s|unknown_decade|pre_1940|all_time)",
+    "_core_phmsagas__yearly_distribution_by_install_decade": {
+        "main_pattern": "main_" + INSTALL_DECADE_PATTERN_PHMSAGAS + "_miles",
+        "services_pattern": "services_" + INSTALL_DECADE_PATTERN_PHMSAGAS,
     },
-    "_core_phmsa__yearly_distribution_leaks": {
+    "_core_phmsagas__yearly_distribution_leaks": {
         "main_pattern": r"^(all_leaks|hazardous_leaks)_(.*)_mains$",
         "services_pattern": r"^(all_leaks|hazardous_leaks)_(.*)_services$",
     },
-    "_core_phmsa__yearly_distribution_by_material_and_size": {
-        "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES)})_({'|'.join(MAIN_PIPE_SIZES)})_miles$",
-        "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES)})_(.*)$",
+    "_core_phmsagas__yearly_distribution_by_material_and_size": {
+        "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_({'|'.join(MAIN_PIPE_SIZES_PHMSAGAS)})_miles$",
+        "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_(.*)$",
     },
-    "_core_phmsa__yearly_distribution_excavation_damages": {
-        "damage_pattern": rf"^excavation_damage_(?:{'|'.join(DAMAGE_TYPES)})_(.*)$"
+    "_core_phmsagas__yearly_distribution_excavation_damages": {
+        "damage_pattern": rf"^excavation_damage_(?:{'|'.join(DAMAGE_TYPES_PHMSAGAS)})_(.*)$"
     },
 }
 
@@ -475,7 +437,7 @@ def _melt_merge_main_services(
         .filter(regex=main_pattern)
         .dropna(how="all", axis="index")
         .convert_dtypes()
-        .melt(ignore_index=False, var_name="melt_col", value_name="main_miles")
+        .melt(ignore_index=False, var_name="melt_col", value_name="mains_miles")
         .pipe(_assign_cols_from_patterns, col_patterns)
         .drop(columns=["melt_col"])
         .set_index(list(col_patterns.keys()), append=True)
@@ -505,39 +467,41 @@ def _melt_merge_main_services(
 
 
 @asset
-def _core_phmsa__yearly_distribution_by_material(
+def _core_phmsagas__yearly_distribution_by_material(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by material."""
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
-        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_material"]["main_pattern"],
-        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_material"][
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material"][
+            "main_pattern"
+        ],
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material"][
             "services_pattern"
         ],
-        {"material": rf"({'|'.join(MATERIAL_TYPES)})"},
+        {"material": rf"({'|'.join(MATERIAL_TYPES_PHMSAGAS)})"},
     )
 
 
 @asset
-def _core_phmsa__yearly_distribution_by_install_decade(
+def _core_phmsagas__yearly_distribution_by_install_decade(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by decade."""
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
-        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_install_decade"][
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
             "main_pattern"
         ],
-        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_install_decade"][
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
             "services_pattern"
         ],
-        {"install_decade": r"(\d{4}s|unknown_decade|pre_1940|all_time)"},
+        {"install_decade": INSTALL_DECADE_PATTERN_PHMSAGAS},
     )
 
 
 @asset
-def _core_phmsa__yearly_distribution_by_material_and_size(
+def _core_phmsagas__yearly_distribution_by_material_and_size(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by material type and size.
@@ -547,28 +511,28 @@ def _core_phmsa__yearly_distribution_by_material_and_size(
     """
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
-        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_material_and_size"][
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material_and_size"][
             "main_pattern"
         ],
-        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_material_and_size"][
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material_and_size"][
             "services_pattern"
         ],
         {
-            "main_size": rf"({'|'.join(MAIN_PIPE_SIZES)})",
-            "material": rf"({'|'.join(MATERIAL_TYPES)})",
+            "main_size": rf"({'|'.join(MAIN_PIPE_SIZES_PHMSAGAS)})",
+            "material": rf"({'|'.join(MATERIAL_TYPES_PHMSAGAS)})",
         },
     )
 
 
 @asset
-def _core_phmsa__yearly_distribution_leaks(
+def _core_phmsagas__yearly_distribution_leaks(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform table of leaks - broken out by source and leak severity."""
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
-        MELT_PATTERNS["_core_phmsa__yearly_distribution_leaks"]["main_pattern"],
-        MELT_PATTERNS["_core_phmsa__yearly_distribution_leaks"]["services_pattern"],
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_leaks"]["main_pattern"],
+        MELT_PATTERNS["_core_phmsagas__yearly_distribution_leaks"]["services_pattern"],
         {
             "leak_severity": r"^(all_leaks|hazardous_leaks)",
             "leak_source": r"^(?:all_leaks|hazardous_leaks)_(.*)_(?:mains|services)",
@@ -577,15 +541,15 @@ def _core_phmsa__yearly_distribution_leaks(
 
 
 @asset
-def _core_phmsa__yearly_distribution_excavation_damages(
+def _core_phmsagas__yearly_distribution_excavation_damages(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform table of damages - broken out by type and sub-type."""
     damage_pattern = MELT_PATTERNS[
-        "_core_phmsa__yearly_distribution_excavation_damages"
+        "_core_phmsagas__yearly_distribution_excavation_damages"
     ]["damage_pattern"]
     col_patterns = {
-        "damage_type": rf"({'|'.join(DAMAGE_TYPES)})",
+        "damage_type": rf"({'|'.join(DAMAGE_TYPES_PHMSAGAS)})",
         "damage_sub_type": damage_pattern,
     }
     return (
