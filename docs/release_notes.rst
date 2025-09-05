@@ -41,6 +41,12 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for July
+  of 2025. See issue :issue:`4590` and PR :pr:`4594`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
