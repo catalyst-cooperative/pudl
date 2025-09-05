@@ -40,16 +40,15 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "office_state",
         "office_zip",
         "office_county",
+        "office_city_fips",
+        "office_county_fips",
+        "office_state_fips",
+        "operating_state_fips",
         "headquarters_street_address",
         "headquarters_city",
         "headquarters_county",
         "headquarters_state",
         "headquarters_zip",
-        "excavation_damage_excavation_practices",
-        "excavation_damage_locating_practices",
-        "excavation_damage_one_call_notification",
-        "excavation_damage_other",
-        "excavation_damage_total",
         "excavation_tickets",
         "services_efv_in_system",
         "services_efv_installed",
@@ -64,16 +63,19 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "preparer_phone",
         "preparer_title",
         "form_revision",
+        "data_maturity",
+        # These are numeric columns that didn't fit into the melted
+        # numeric tables.
+        "all_known_leaks_scheduled_for_repair",
+        "all_known_leaks_scheduled_for_repair_main",
+        "average_service_length_feet",
+        "hazardous_leaks_mechanical_joint_failure",
+        "main_other_material_detail",
     ],
     "columns_to_convert_to_ints": [
         "report_year",
         "report_number",
         "operator_id_phmsa",
-        "excavation_damage_excavation_practices",
-        "excavation_damage_locating_practices",
-        "excavation_damage_one_call_notification",
-        "excavation_damage_other",
-        "excavation_damage_total",
         "excavation_tickets",
         "services_efv_in_system",
         "services_efv_installed",
@@ -89,6 +91,105 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "additional_information",
     ],
 }
+
+YEARLY_DISTRIBUTION_IDX_ISH = [
+    "report_year",
+    "report_number",
+    "operator_id_phmsa",
+    "commodity",
+    "operating_state",
+]
+
+MATERIAL_TYPES = [
+    "unprotected_steel_bare",
+    "unprotected_steel_coated",
+    "cathodically_protected_steel_bare",
+    "cathodically_protected_steel_coated",
+    # we have to put steel below *steel* bc the pattern will grab the
+    # bare one first from the longer options if its listed first
+    "steel",
+    "pvc",
+    "pe",
+    "abs",
+    "other_plastic",
+    "plastic",
+    "cast_or_wrought_iron",
+    "wrought_iron",
+    "ductile_iron",
+    "copper",
+    "other_alt",
+    "other_material",
+    "other",
+    "reconditioned_cast_iron",
+    "cast_iron",
+    "all_materials",
+    "total",
+]
+
+MAIN_PIPE_SIZES = [
+    "0.5_in_or_less",
+    "0.5_to_1_in",
+    "1_in_or_less",
+    "1_to_2_in",
+    "2_in_or_less",
+    "2_to_4_in",
+    "4_to_6_in",
+    "4_to_8_in",
+    "8_in",
+    "8_to_12_in",
+    "10_in",
+    "12_in",
+    "over_12_in",
+    "total",
+    "unknown",
+]
+DAMAGE_TYPES = ["notification", "locating", "excavation", "other", "total"]
+
+MELT_PATTERNS = {
+    "_core_phmsa__yearly_distribution_by_material": {
+        "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES)})_miles$",
+        "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES)})$",
+    },
+    "_core_phmsa__yearly_distribution_by_install_decade": {
+        "main_pattern": r"main_(\d{4}s|unknown_decade|pre_1940|all_time)_miles",
+        "services_pattern": r"services_(\d{4}s|unknown_decade|pre_1940|all_time)",
+    },
+    "_core_phmsa__yearly_distribution_leaks": {
+        "main_pattern": r"^(all_leaks|hazardous_leaks)_(.*)_mains$",
+        "services_pattern": r"^(all_leaks|hazardous_leaks)_(.*)_services$",
+    },
+    "_core_phmsa__yearly_distribution_by_material_and_size": {
+        "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES)})_({'|'.join(MAIN_PIPE_SIZES)})_miles$",
+        "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES)})_(.*)$",
+    },
+    "_core_phmsa__yearly_distribution_excavation_damages": {
+        "damage_pattern": rf"^excavation_damage_(?:{'|'.join(DAMAGE_TYPES)})_(.*)$"
+    },
+}
+
+
+@asset_check(asset="raw_phmsagas__yearly_distribution", blocking=True)
+def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
+    """Check to ensure that we are transforming all of the raw columns.
+
+    Because we are using a lot of regex patterns to identify the columns
+    to transform into various tables, we run this check to make sure the
+    we are actually finding all of the raw columns. If a column is flagged
+    here, check the column mapping and the patterns in MELT_PATTERNS.1
+    """
+    pattern_cols = []
+    for patterns in MELT_PATTERNS.values():
+        for pattern in patterns.values():
+            pattern_cols = pattern_cols + (list(raw_df.filter(regex=pattern)))
+    transformed_cols = set(
+        YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"] + pattern_cols
+    )
+    untransformed_columns = set(raw_df.columns).difference(transformed_cols)
+    if untransformed_columns:
+        raise AssertionError(
+            f"Found {len(untransformed_columns)} columns that are not incorporated into the transform, but expected none: {untransformed_columns}"
+        )
+
 
 ##############################################################################
 # PHMSAGAS transformation logic
@@ -320,15 +421,6 @@ def _check_unaccounted_for_gas_fraction(df):
     return AssetCheckResult(passed=True)
 
 
-YEARLY_DISTRIBUTION_IDX_ISH = [
-    "report_year",
-    "report_number",
-    "operator_id_phmsa",
-    "commodity",
-    "operating_state",
-]
-
-
 def _dedupe_year_distribution_idx(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -417,28 +509,13 @@ def _core_phmsa__yearly_distribution_by_material(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by material."""
-    material_type = [
-        "unprotected_steel_bare",
-        "unprotected_steel_coated",
-        "cathodically_protected_steel_bare",
-        "cathodically_protected_steel_coated",
-        "plastic",
-        "cast_or_wrought_iron",
-        "ductile_iron",
-        "copper",
-        "other_alt",
-        "other",
-        "reconditioned_cast_iron",
-        "total",
-    ]
-
-    main_material_pattern = rf"^main_({'|'.join(material_type)})_miles$"
-    services_material_pattern = rf"^services_({'|'.join(material_type)})$"
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
-        main_material_pattern,
-        services_material_pattern,
-        {"material": rf"({'|'.join(material_type)})"},
+        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_material"]["main_pattern"],
+        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_material"][
+            "services_pattern"
+        ],
+        {"material": rf"({'|'.join(MATERIAL_TYPES)})"},
     )
 
 
@@ -447,14 +524,14 @@ def _core_phmsa__yearly_distribution_by_install_decade(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by decade."""
-    decade_of_main_miles_pattern = (
-        r"main_(\d{4}s|unknown_decade|pre_1940|all_time)_miles"
-    )
-    decade_of_services_pattern = r"services_(\d{4}s|unknown_decade|pre_1940|all_time)"
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
-        decade_of_main_miles_pattern,
-        decade_of_services_pattern,
+        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_install_decade"][
+            "main_pattern"
+        ],
+        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_install_decade"][
+            "services_pattern"
+        ],
         {"install_decade": r"(\d{4}s|unknown_decade|pre_1940|all_time)"},
     )
 
@@ -468,53 +545,17 @@ def _core_phmsa__yearly_distribution_by_material_and_size(
     This table represents the bulk of the wide raw columns, which means it ends up being
     nearly 8 million records.
     """
-    # will probably want to pull this out into a global var for other tables
-    material_types = [
-        "steel",
-        "ductile_iron",
-        "copper",
-        "cast_iron",
-        "cast_or_wrought_iron",
-        "wrought_iron",
-        "pvc",
-        "pe",
-        "abs",
-        "other_plastic",
-        "plastic",
-        "other_alt",
-        "other_material",
-        "other",
-        "reconditioned_cast_iron",
-        "all_materials",
-    ]
-    main_sizes = [
-        "0.5_in_or_less",
-        "0.5_to_1_in",
-        "1_in_or_less",
-        "1_to_2_in",
-        "2_in_or_less",
-        "2_to_4_in",
-        "4_to_6_in",
-        "4_to_8_in",
-        "8_in",
-        "8_to_12_in",
-        "10_in",
-        "12_in",
-        "over_12_in",
-        "total",
-        "unknown",
-    ]
-    main_by_material_size_miles_pattern = (
-        rf"^main_({'|'.join(material_types)})_({'|'.join(main_sizes)})_miles$"
-    )
-    services_by_material_size_pattern = rf"^services_({'|'.join(material_types)})_(.*)$"
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
-        main_by_material_size_miles_pattern,
-        services_by_material_size_pattern,
+        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_material_and_size"][
+            "main_pattern"
+        ],
+        MELT_PATTERNS["_core_phmsa__yearly_distribution_by_material_and_size"][
+            "services_pattern"
+        ],
         {
-            "main_size": rf"({'|'.join(main_sizes)})",
-            "material": rf"({'|'.join(material_types)})",
+            "main_size": rf"({'|'.join(MAIN_PIPE_SIZES)})",
+            "material": rf"({'|'.join(MATERIAL_TYPES)})",
         },
     )
 
@@ -524,12 +565,10 @@ def _core_phmsa__yearly_distribution_leaks(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform table of leaks - broken out by source and leak severity."""
-    main_leaks_repaired_pattern = r"^(all_leaks|hazardous_leaks)_(.*)_mains$"
-    services_leaks_repaired_pattern = r"^(all_leaks|hazardous_leaks)_(.*)_services$"
     return _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
-        main_leaks_repaired_pattern,
-        services_leaks_repaired_pattern,
+        MELT_PATTERNS["_core_phmsa__yearly_distribution_leaks"]["main_pattern"],
+        MELT_PATTERNS["_core_phmsa__yearly_distribution_leaks"]["services_pattern"],
         {
             "leak_severity": r"^(all_leaks|hazardous_leaks)",
             "leak_source": r"^(?:all_leaks|hazardous_leaks)_(.*)_(?:mains|services)",
@@ -542,10 +581,11 @@ def _core_phmsa__yearly_distribution_excavation_damages(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform table of damages - broken out by type and sub-type."""
-    damage_types = ["notification", "locating", "excavation", "other", "total"]
-    damage_pattern = rf"^excavation_damage_(?:{'|'.join(damage_types)})_(.*)$"
+    damage_pattern = MELT_PATTERNS[
+        "_core_phmsa__yearly_distribution_excavation_damages"
+    ]["damage_pattern"]
     col_patterns = {
-        "damage_type": rf"({'|'.join(damage_types)})",
+        "damage_type": rf"({'|'.join(DAMAGE_TYPES)})",
         "damage_sub_type": damage_pattern,
     }
     return (
