@@ -2,11 +2,15 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2025.9.0:
+.. _release-v2025.9.1:
 
 ---------------------------------------------------------------------------------------
-v2025.9.0 (2025-09-05)
+v2025.9.1 (2025-09-05)
 ---------------------------------------------------------------------------------------
+
+.. note::
+
+   There was an issue with the ``v2025.9.0`` release process and that tag was deleted.
 
 This is a monthly release primarily focused on updating the EIA-860M, with other
 incremental changes coming along for the ride. A couple of things to be aware of:
