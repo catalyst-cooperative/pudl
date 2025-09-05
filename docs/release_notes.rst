@@ -48,6 +48,12 @@ intentionally dropped from eia923 and eia861 due to primary key and
 data inconsistency issues. We're adding them back in! See :issue:`808`
 and PR :pr:`4291`.
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for July
+  of 2025. See issue :issue:`4590` and PR :pr:`4594`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -76,6 +82,9 @@ Bug Fixes
   in the ENUM. Previously we logged a warning, and now it will raise an error. There
   were a couple of trivial cases in which we were losing values that violated the
   constraints, but nothing serious. See PR :pr:`4548`.
+* Fixed a user identified bug within the
+  :ref:`out_ferc1__yearly_detailed_income_statements` table unnecessarily dropping
+  records. See PR :pr:`4580`.
 
 Documentation
 ^^^^^^^^^^^^^
