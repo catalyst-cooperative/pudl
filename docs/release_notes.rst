@@ -2,11 +2,15 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2025.9.0:
+.. _release-v2025.9.1:
 
 ---------------------------------------------------------------------------------------
-v2025.9.0 (2025-09-05)
+v2025.9.1 (2025-09-05)
 ---------------------------------------------------------------------------------------
+
+.. note::
+
+   There was an issue with the ``v2025.9.0`` release process and that tag was deleted.
 
 This is a monthly release primarily focused on updating the EIA-860M, with other
 incremental changes coming along for the ride. A couple of things to be aware of:
@@ -1865,7 +1869,7 @@ Database Schema Changes
   started being reported, but only in the output tables. See: :pr:`1906,1911`
 * Renamed and removed some columns in the :doc:`data_sources/epacems` dataset.
   ``unitid`` was changed to ``emissions_unit_id_epa`` to clarify the type of unit it
-  represents. ``unit_id_epa`` was removed because it is a unique identifyer for
+  represents. ``unit_id_epa`` was removed because it is a unique identifier for
   ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
   ``facility_id`` was removed because it is specific to EPA's internal database and does
   not aid in connection with other data. :pr:`1692`
