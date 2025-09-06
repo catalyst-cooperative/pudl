@@ -1869,7 +1869,7 @@ Database Schema Changes
   started being reported, but only in the output tables. See: :pr:`1906,1911`
 * Renamed and removed some columns in the :doc:`data_sources/epacems` dataset.
   ``unitid`` was changed to ``emissions_unit_id_epa`` to clarify the type of unit it
-  represents. ``unit_id_epa`` was removed because it is a unique identifyer for
+  represents. ``unit_id_epa`` was removed because it is a unique identifier for
   ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
   ``facility_id`` was removed because it is specific to EPA's internal database and does
   not aid in connection with other data. :pr:`1692`
