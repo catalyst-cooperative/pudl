@@ -551,9 +551,9 @@ dependencies:
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_1
   - splink=4.0.8=pyhd8ed1ab_0
   - sqlalchemy=2.0.43=py313hcdf3177_0
-  - sqlglot=27.10.0=pyhcf101f3_0
-  - sqlglot-rs=27.10.0=h9a12684_0
-  - sqlglotrs=0.6.1=py313hdde674f_0
+  - sqlglot=27.12.0=pyhcf101f3_0
+  - sqlglot-rs=27.12.0=hdea08bc_0
+  - sqlglotrs=0.6.2=py313h0b74987_0
   - sqlite=3.50.4=hb5dd463_0
   - sqlparse=0.5.3=pyhd8ed1ab_0
   - stack_data=0.6.3=pyhd8ed1ab_1
@@ -583,9 +583,9 @@ dependencies:
   - trove-classifiers=2025.8.26.11=pyhd8ed1ab_0
   - truststore=0.10.3=pyhe01879c_0
   - typeguard=4.4.4=pyhd8ed1ab_0
-  - typer=0.17.3=pyhc883fe7_0
-  - typer-slim=0.17.3=pyhcf101f3_0
-  - typer-slim-standard=0.17.3=h9d53799_0
+  - typer=0.17.4=pyh66367de_0
+  - typer-slim=0.17.4=pyhcf101f3_0
+  - typer-slim-standard=0.17.4=h5a5fed6_0
   - types-python-dateutil=2.9.0.20250822=pyhd8ed1ab_0
   - types-pyyaml=6.0.12.20250822=pyhd8ed1ab_0
   - types-requests=2.32.4.20250809=pyhd8ed1ab_0
