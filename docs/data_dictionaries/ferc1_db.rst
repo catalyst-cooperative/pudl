@@ -7,9 +7,6 @@ database tables and provided a short description of the contents of each table h
 
 .. note::
 
-   * The Table Names link to the contents of the database table on our `FERC Form 1
-     Datasette deployment <https://data.catalyst.coop/ferc1_dbf>`__ where you can browse
-     and query the raw data yourself or download the SQLite DB in its entirety.
    * The mapping of File Name to Table Name is consistent across all years of data.
    * Page numbers correspond to the pages of the FERC Form 1 PDF as it appeared in
      2015 and may not be valid for other years.
