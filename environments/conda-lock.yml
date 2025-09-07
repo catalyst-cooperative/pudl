@@ -10315,42 +10315,42 @@ package:
     category: main
     optional: false
   - name: identify
-    version: 2.6.13
+    version: 2.6.14
     manager: conda
     platform: linux-64
     dependencies:
-      python: ">=3.9"
+      python: ">=3.10"
       ukkonen: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/identify-2.6.13-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/identify-2.6.14-pyhd8ed1ab_0.conda
     hash:
-      md5: 52083ce9103ec11c8130ce18517d3e83
-      sha256: 7183512c24050c541d332016c1dd0f2337288faf30afc42d60981a49966059f7
+      md5: 34a8172d191193030438d7b30bcdeaf5
+      sha256: b7fc614777da38244ff36da51f9417822d6507a7b6a8da27aba579490941d160
     category: main
     optional: false
   - name: identify
-    version: 2.6.13
+    version: 2.6.14
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.9"
+      python: ">=3.10"
       ukkonen: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/identify-2.6.13-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/identify-2.6.14-pyhd8ed1ab_0.conda
     hash:
-      md5: 52083ce9103ec11c8130ce18517d3e83
-      sha256: 7183512c24050c541d332016c1dd0f2337288faf30afc42d60981a49966059f7
+      md5: 34a8172d191193030438d7b30bcdeaf5
+      sha256: b7fc614777da38244ff36da51f9417822d6507a7b6a8da27aba579490941d160
     category: main
     optional: false
   - name: identify
-    version: 2.6.13
+    version: 2.6.14
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.9"
+      python: ">=3.10"
       ukkonen: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/identify-2.6.13-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/identify-2.6.14-pyhd8ed1ab_0.conda
     hash:
-      md5: 52083ce9103ec11c8130ce18517d3e83
-      sha256: 7183512c24050c541d332016c1dd0f2337288faf30afc42d60981a49966059f7
+      md5: 34a8172d191193030438d7b30bcdeaf5
+      sha256: b7fc614777da38244ff36da51f9417822d6507a7b6a8da27aba579490941d160
     category: main
     optional: false
   - name: idna
@@ -21287,48 +21287,51 @@ package:
     category: main
     optional: false
   - name: pytest-cov
-    version: 6.2.1
+    version: 6.3.0
     manager: conda
     platform: linux-64
     dependencies:
       coverage: ">=7.5"
-      pytest: ">=4.6"
-      python: ">=3.9"
+      pluggy: ">=1.2"
+      pytest: ">=6.2.5"
+      python: ">=3.10"
       toml: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/pytest-cov-6.2.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pytest-cov-6.3.0-pyhd8ed1ab_0.conda
     hash:
-      md5: ce978e1b9ed8b8d49164e90a5cdc94cd
-      sha256: 3a9fc07be76bc67aef355b78816b5117bfe686e7d8c6f28b45a1f89afe104761
+      md5: 50d191b852fccb4bf9ab7b59b030c99d
+      sha256: 5ba3e0955e473234fcc38cb4f0d893135710ec85ccb1dffdd73d9b213e99e8fb
     category: main
     optional: false
   - name: pytest-cov
-    version: 6.2.1
+    version: 6.3.0
     manager: conda
     platform: osx-64
     dependencies:
       coverage: ">=7.5"
-      pytest: ">=4.6"
-      python: ">=3.9"
+      pluggy: ">=1.2"
+      pytest: ">=6.2.5"
+      python: ">=3.10"
       toml: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/pytest-cov-6.2.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pytest-cov-6.3.0-pyhd8ed1ab_0.conda
     hash:
-      md5: ce978e1b9ed8b8d49164e90a5cdc94cd
-      sha256: 3a9fc07be76bc67aef355b78816b5117bfe686e7d8c6f28b45a1f89afe104761
+      md5: 50d191b852fccb4bf9ab7b59b030c99d
+      sha256: 5ba3e0955e473234fcc38cb4f0d893135710ec85ccb1dffdd73d9b213e99e8fb
     category: main
     optional: false
   - name: pytest-cov
-    version: 6.2.1
+    version: 6.3.0
     manager: conda
     platform: osx-arm64
     dependencies:
       coverage: ">=7.5"
-      pytest: ">=4.6"
-      python: ">=3.9"
+      pluggy: ">=1.2"
+      pytest: ">=6.2.5"
+      python: ">=3.10"
       toml: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/pytest-cov-6.2.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pytest-cov-6.3.0-pyhd8ed1ab_0.conda
     hash:
-      md5: ce978e1b9ed8b8d49164e90a5cdc94cd
-      sha256: 3a9fc07be76bc67aef355b78816b5117bfe686e7d8c6f28b45a1f89afe104761
+      md5: 50d191b852fccb4bf9ab7b59b030c99d
+      sha256: 5ba3e0955e473234fcc38cb4f0d893135710ec85ccb1dffdd73d9b213e99e8fb
     category: main
     optional: false
   - name: pytest-mock
