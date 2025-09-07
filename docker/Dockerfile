@@ -64,11 +64,6 @@ COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${PUDL_REPO}
 ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 RUN ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable ${PUDL_REPO}
 
-# Install flyctl
-# hadolint ignore=DL3059
-RUN ${CONDA_RUN} bash -c 'curl -L https://fly.io/install.sh | sh'
-ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
-
 WORKDIR ${PUDL_REPO}
 # Run the unit tests:
 CMD ["micromamba", "run", "--prefix", "${CONDA_PREFIX}", "--attach", "''", "pytest", "test/unit"]
