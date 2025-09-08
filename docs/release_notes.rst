@@ -2,6 +2,41 @@
 PUDL Release Notes
 =======================================================================================
 
+---------------------------------------------------------------------------------------
+v2025.XX.x (2025-MM-DD)
+---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+Deprecations
+^^^^^^^^^^^^
+
+* We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
+  deployment, but are still working on achieiving feature parity in the new `PUDL Data
+  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
+  <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
+  :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
+  main PUDL repo.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
 .. _release-v2025.9.1:
 
 ---------------------------------------------------------------------------------------
