@@ -246,3 +246,11 @@ resource "google_storage_bucket_iam_member" "pudl_viewer_log_writer" {
 
   member = google_logging_project_sink.pudl_viewer_log_sink.writer_identity
 }
+
+resource "google_storage_bucket_iam_member" "usage_metrics_etl_pudl_viewer" {
+  for_each = toset(["roles/storage.legacyBucketReader", "roles/storage.objectViewer"])
+
+  bucket = google_storage_bucket.pudl_viewer_logs.name
+  role   = each.key
+  member = "serviceAccount:pudl-usage-metrics-etl@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+}
