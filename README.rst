@@ -181,10 +181,7 @@ summary:
 
 * `PUDL Viewer <https://viewer.catalyst.coop>`__ provides search, live preview,
   and CSV export for our processed data. Currently it doesn't provide access to
-  the *raw* FERC data - you'll still have to go to Datasette for that.
-* `Datasette <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#-access-datasette>`__
-  provides browsable and queryable data from our nightly builds on the web:
-  https://data.catalyst.coop
+  the *raw* FERC data, but we are working on adding the FERC databases ASAP.
 * `Kaggle <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#access-kaggle>`__
   provides easy Jupyter notebook access to the PUDL data, updated weekly:
   https://www.kaggle.com/datasets/catalystcooperative/pudl-project
