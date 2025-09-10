@@ -12,4 +12,3 @@ resource "google_project_iam_member" "nightly_build_cloud_run" {
   role    = "roles/run.developer"
   member  = google_service_account.nightly_build.member
 }
-
