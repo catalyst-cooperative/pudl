@@ -19,6 +19,29 @@ resource "google_secret_manager_secret" "pudl_viewer_secrets" {
   }
 }
 
+// GHA service account & permissions
+resource "google_service_account" "pudl_viewer_gha" {
+  account_id   = "pudl-viewer-gha"
+  display_name = "PUDL Viewer GitHub Actions Service Account"
+}
+resource "google_project_iam_member" "pudl_viewer_gha_artifact_registry" {
+  project = var.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = google_service_account.pudl_viewer_gha.member
+}
+
+resource "google_project_iam_member" "pudl_viewer_gha_deploy" {
+  project = var.project_id
+  role    = "roles/run.developer"
+  member  = google_service_account.pudl_viewer_gha.member
+}
+
+resource "google_project_iam_member" "pudl_viewer_gha_use_cloud_run" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountUser"
+  member  = google_service_account.pudl_viewer_gha.member
+}
+
 // cloud run service account & permissions
 resource "google_service_account" "pudl_viewer_sa" {
   account_id   = "pudl-viewer-cloud-run"
