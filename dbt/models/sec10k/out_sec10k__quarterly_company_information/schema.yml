@@ -11,8 +11,8 @@ sources:
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: filename_sec10k
-          - name: filer_count
           - name: central_index_key
+          - name: filer_count
           - name: utility_id_eia
           - name: utility_name_eia
           - name: report_date
@@ -27,6 +27,7 @@ sources:
           - name: taxpayer_id_irs
           - name: incorporation_state
           - name: industry_name_sic
+          - name: industry_group_sic
           - name: industry_id_sic
           - name: film_number
           - name: sec10k_type
