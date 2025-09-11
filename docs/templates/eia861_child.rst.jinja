@@ -68,7 +68,12 @@ The Freedom of Information Act (FOIA), 5 U.S.C. §552, the Department of Energy 
 10 C.F.R. §1004.11, implementing the FOIA, and the Trade ﻿Secrets Act, 18 U.S.C. §1905 allows
 qualifying respondents to restrict access to their data. According to sources at the EIA,
 approximately 3 respondents have used this as a means to keep their utility-level data proprietary.
-These entries appear under the utility id ``88888`` in the data.
+These entries appear under the utility id ``88888`` in the data. Having multiple utilities with the
+same ``utility_id_eia`` breaks the primary key rules for several tables. We handle this by summing
+values with the same primary key and non-numeric column values. When there are two rows with the
+same primary key and different non-numeric column values, we keep one and drop the other. This results
+in a slight loss of data (less than one row in a thousand) but preserves the primary key structure of the
+tables.
 
 The EIA also performs state-level imputations and adjustments for more accurate state-level analysis.
 These entries appear under the utility id ``99999`` and are not intended for use in utility-level
