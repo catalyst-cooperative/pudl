@@ -32,6 +32,7 @@ jobs:
           predicate-quantifier: "every"
           filters: |
             code:
+              - '!docker/*'
               - '!docs/**.rst'
               - '!docs/**.md'
               - '!docs/**.pdf'
