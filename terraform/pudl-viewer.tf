@@ -19,6 +19,24 @@ resource "google_secret_manager_secret" "pudl_viewer_secrets" {
   }
 }
 
+// GHA service account & permissions
+resource "google_service_account" "pudl_viewer_gha" {
+  account_id   = "pudl-viewer-gha"
+  display_name = "PUDL Viewer GitHub Actions Service Account"
+}
+
+
+resource "google_project_iam_member" "pudl_viewer_gha" {
+  for_each = toset([
+    "roles/artifactregistry.writer", // push docker image to artifact registry
+    "roles/run.developer", // update cloud run service
+    "roles/iam.serviceAccountUser", // cloud run service can use a different service account from this one
+  ])
+  project = var.project_id
+  role    = each.key
+  member  = google_service_account.pudl_viewer_gha.member
+}
+
 // cloud run service account & permissions
 resource "google_service_account" "pudl_viewer_sa" {
   account_id   = "pudl-viewer-cloud-run"

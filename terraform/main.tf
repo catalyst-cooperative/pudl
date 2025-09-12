@@ -71,16 +71,20 @@ module "gh_oidc" {
       attribute = "attribute.repository/catalyst-cooperative/mozilla-sec-eia"
     }
     "nrel-finito-inputs-gha" = {
-      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.nrel_finito_inputs_gha.email}"
+      sa_name   = google_service_account.nrel_finito_inputs_gha.id
       attribute = "attribute.repository/catalyst-cooperative/nrel-fuel-and-industry-inputs"
     }
     "pudl-usage-metrics-dashboard-deploy-gha" = {
-      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.pudl_usage_metrics_dashboard_deploy_gha.email}"
+      sa_name   = google_service_account.pudl_usage_metrics_dashboard_deploy_gha.id
       attribute = "attribute.repository/catalyst-cooperative/pudl-usage-metrics-dashboard"
     }
     "pudl-archiver-gha" = {
-      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.pudl_archiver_gha.email}"
+      sa_name   = google_service_account.pudl_archiver_gha.id
       attribute = "attribute.repository/catalyst-cooperative/pudl-archiver"
+    }
+    "pudl-viewer-gha" = {
+      sa_name   = google_service_account.pudl_viewer_gha.id
+      attribute = "attribute.repository/catalyst-cooperative/eel-hole"
     }
   }
 }
