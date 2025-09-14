@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: f8e29c556eacb421777997cff8a4735cd77104cf4adfb55b3cdacdb6f3d4a824
-    osx-64: dd7639f1595ca82055d5cb8b37c016746b62e0bc295dd16e999ed6a490d4c3c1
-    osx-arm64: 39d99fe172db7072fb9a0b5e9dc04d515610175bf8712ed777453ad2521f2cce
+    linux-64: 128cf2dae83ba19e367a8ae7b06da969a580678b298e91ddc4f0cd7b2fc71bbe
+    osx-64: b6651eb3c6cf771a0fa52bd9887b72eeb2d9daf2663735f460e13fa2aaef316d
+    osx-arm64: 6c712e4165928d8e4aec5b9a28cab5a761e667a3d18a7c76d6f241fd8eca9060
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -9902,7 +9902,7 @@ package:
     category: main
     optional: false
   - name: hypothesis
-    version: 6.138.15
+    version: 6.138.16
     manager: conda
     platform: linux-64
     dependencies:
@@ -9912,14 +9912,14 @@ package:
       python: ">=3.10"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.15-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.16-pyha770c72_0.conda
     hash:
-      md5: ea0b6fac22b954644123f80163871d6f
-      sha256: f5dae3728085968adb13ad819286e444e449bdd721471b1e8be69fca1e0ff205
+      md5: 14d02b9df4bffdf8db833bf870162072
+      sha256: 3dea2528604b9bd5a0892d1194a3c1bc1894871f95b5e3944beacddae50e9335
     category: main
     optional: false
   - name: hypothesis
-    version: 6.138.15
+    version: 6.138.16
     manager: conda
     platform: osx-64
     dependencies:
@@ -9929,14 +9929,14 @@ package:
       python: ">=3.10"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.15-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.16-pyha770c72_0.conda
     hash:
-      md5: ea0b6fac22b954644123f80163871d6f
-      sha256: f5dae3728085968adb13ad819286e444e449bdd721471b1e8be69fca1e0ff205
+      md5: 14d02b9df4bffdf8db833bf870162072
+      sha256: 3dea2528604b9bd5a0892d1194a3c1bc1894871f95b5e3944beacddae50e9335
     category: main
     optional: false
   - name: hypothesis
-    version: 6.138.15
+    version: 6.138.16
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -9946,10 +9946,10 @@ package:
       python: ">=3.10"
       setuptools: ""
       sortedcontainers: ">=2.1.0,<3.0.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.15-pyha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/hypothesis-6.138.16-pyha770c72_0.conda
     hash:
-      md5: ea0b6fac22b954644123f80163871d6f
-      sha256: f5dae3728085968adb13ad819286e444e449bdd721471b1e8be69fca1e0ff205
+      md5: 14d02b9df4bffdf8db833bf870162072
+      sha256: 3dea2528604b9bd5a0892d1194a3c1bc1894871f95b5e3944beacddae50e9335
     category: main
     optional: false
   - name: icu
@@ -12474,17 +12474,17 @@ package:
       libopentelemetry-cpp: ">=1.21.0,<1.22.0a0"
       libprotobuf: ">=6.31.1,<6.31.2.0a0"
       libre2-11: ">=2025.8.12"
-      libutf8proc: ">=2.10.0,<2.11.0a0"
+      libutf8proc: ">=2.11.0,<2.12.0a0"
       libzlib: ">=1.3.1,<2.0a0"
       lz4-c: ">=1.10.0,<1.11.0a0"
       orc: ">=2.2.0,<2.2.1.0a0"
       re2: ""
       snappy: ">=1.2.2,<1.3.0a0"
       zstd: ">=1.5.7,<1.6.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libarrow-20.0.0-h95d91e2_20_cpu.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libarrow-20.0.0-h7a067bb_21_cpu.conda
     hash:
-      md5: a1397572bbf4325d1374b7910b6297b0
-      sha256: 166147ee44bc6fcae5460016276c36c4d3a84d9c018b2681b099ecf001bffe88
+      md5: 27654d38a6bdc2a91ec5bb26a90e66c4
+      sha256: f76aa4df014c8c3376df2df1865efdff17bf3d22f5b1befdd0e306bb30f5e657
     category: main
     optional: false
   - name: libarrow
@@ -12549,10 +12549,10 @@ package:
       libcxx: ">=19"
       libopentelemetry-cpp: ">=1.21.0,<1.22.0a0"
       libprotobuf: ">=6.31.1,<6.31.2.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libarrow-acero-20.0.0-h2db2d7d_20_cpu.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libarrow-acero-20.0.0-h2db2d7d_21_cpu.conda
     hash:
-      md5: e23b92f2f41d08965b698ab92f71a122
-      sha256: ca32fcaa844349646895a1aa68e2cf18ed4048382a9836d9774b29398fc0e1a3
+      md5: 83599870043a3c586d6504ef84d16c21
+      sha256: d5667c3341b62c65c91709585d51fb9cac03e05001b3f7b7b0effaec0df13178
     category: main
     optional: false
   - name: libarrow-acero
@@ -12602,10 +12602,10 @@ package:
       libopentelemetry-cpp: ">=1.21.0,<1.22.0a0"
       libparquet: 20.0.0
       libprotobuf: ">=6.31.1,<6.31.2.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libarrow-dataset-20.0.0-h2db2d7d_20_cpu.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libarrow-dataset-20.0.0-h2db2d7d_21_cpu.conda
     hash:
-      md5: 5fc8b4f581268bc0f53d0dd977f0a9fb
-      sha256: 5ded11f32de2a47dffca2fc7b0fc4f8d433645c076365395b1d64ffba6d71d33
+      md5: d65d44cbe798cea9586de682712a475f
+      sha256: 432f4c07498351288b7081637084ccec8749e8e3c7ca5d1861a50780945e60fb
     category: main
     optional: false
   - name: libarrow-dataset
@@ -12658,10 +12658,10 @@ package:
       libarrow-dataset: 20.0.0
       libcxx: ">=19"
       libprotobuf: ">=6.31.1,<6.31.2.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libarrow-substrait-20.0.0-h4653b8a_20_cpu.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libarrow-substrait-20.0.0-h4653b8a_21_cpu.conda
     hash:
-      md5: f7ecf2538143382c14a3984b63403398
-      sha256: fd2861c2679b1d0ab2e6a3754c95b1c9d10f53192767a7c0ad23bedf4e7cc1f6
+      md5: f2ae9fbc2d550b54dc2beee77833be72
+      sha256: 3ecdb96235dc01ce78dcc9113f7e9fcca775b3051dfe31f34d926b537b3b5622
     category: main
     optional: false
   - name: libarrow-substrait
@@ -14471,10 +14471,10 @@ package:
       libprotobuf: ">=6.31.1,<6.31.2.0a0"
       libthrift: ">=0.22.0,<0.22.1.0a0"
       openssl: ">=3.5.2,<4.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libparquet-20.0.0-ha67a804_20_cpu.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libparquet-20.0.0-ha67a804_21_cpu.conda
     hash:
-      md5: 9e251beb27d6f4c1b73b7e316089974b
-      sha256: c60cabb8685c76b3d4f21b0a02bd43c3950a0c695bd94ee422431c071f59a4c5
+      md5: 429de4927d11b69c8dfe26a736b46242
+      sha256: a96af6e675c4a5c56bdf52d3c23997ed8736c1599a6be6589b547c48d70784b1
     category: main
     optional: false
   - name: libparquet
@@ -15109,15 +15109,15 @@ package:
     category: main
     optional: false
   - name: libutf8proc
-    version: 2.10.0
+    version: 2.11.0
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libutf8proc-2.10.0-h5b79583_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libutf8proc-2.11.0-h64b4c5c_0.conda
     hash:
-      md5: 9959d0d69e3b42a127e3c9d32f21ca16
-      sha256: da7f0f9efd5f41cebf53a08fe80c573aeed835b26dabf48c9e3fe0401940becb
+      md5: 71bcdd36cc29097151a0ad8e5fecb537
+      sha256: e6f51b766003b8b17de2f58748ab861b7926530ada2ad5240f036765cbc99f49
     category: main
     optional: false
   - name: libutf8proc
