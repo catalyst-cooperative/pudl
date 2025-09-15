@@ -6,9 +6,12 @@ resource "google_service_account" "nightly_build" {
   description = "This service account is used by the nightly and branch PUDL builds."
 }
 
-// allow nightly builds to deploy cloud run service (for pudl viewer)
-resource "google_project_iam_member" "nightly_build_cloud_run" {
+resource "google_project_iam_member" "nightly_build" {
+  for_each = toset([
+    "roles/run.developer", // update cloud run services
+    "roles/iam.serviceAccountUser", // the cloud run service can use a service account that is different from the nightly build one
+  ])
   project = var.project_id
-  role    = "roles/run.developer"
+  role    = each.key
   member  = google_service_account.nightly_build.member
 }
