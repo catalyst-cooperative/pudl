@@ -78,6 +78,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
                 },
             ],
+            "additional_primary_key_text": "We expect the primary key for this table should be report_number and material - but there are duplicates and we have not fully cleaned this table.",
         },
         "schema": {
             "fields": [
@@ -90,7 +91,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "mains_miles",
                 "services",
             ],
-            "primary_key": ["report_number", "material"],
+            # "primary_key": ["report_number", "material"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -108,19 +109,20 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "The records with an install decade of all_time are a total - "
                 "beware of aggregating these values."
             ),
+            "additional_primary_key_text": "We expect the primary key for this table should be report_number and install_decade - but there are duplicates and we have not fully cleaned this table.",
         },
         "schema": {
             "fields": [
-                "report_date",
-                "report_number",
-                "report_submission_type",
                 "report_year",
+                "report_number",
                 "operator_id_phmsa",
+                "commodity",
+                "operating_state",
                 "install_decade",
                 "mains_miles",
                 "services",
             ],
-            "primary_key": ["report_number", "install_decade"],
+            # "primary_key": ["report_number", "install_decade"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -133,6 +135,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ),
             "additional_source_text": "(Part C)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
+            "additional_primary_key_text": "We expect the primary key for this table should be report_number, leak_severity and leak_source - but there are duplicates and we have not fully cleaned this table.",
         },
         "schema": {
             "fields": [
@@ -146,7 +149,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "mains_miles",  # TODO: make into number of instances not miles. and check all instances of this column
                 "services",
             ],
-            "primary_key": ["report_number", "leak_severity", "leak_source"],
+            # "primary_key": ["report_number", "leak_severity", "leak_source"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -171,6 +174,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
                 },
             ],
+            "additional_primary_key_text": "We expect the primary key for this table should be report_number, main_size and material - but there are duplicates and we have not fully cleaned this table.",
         },
         "schema": {
             "fields": [
@@ -185,7 +189,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "services",
                 "main_other_material_detail",
             ],
-            "primary_key": ["report_number", "main_size", "material"],
+            # "primary_key": ["report_number", "main_size", "material"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -196,6 +200,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_summary_text": ("excavation damages from various sources."),
             "additional_source_text": "(Part D - Excavation Damage)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
+            "additional_primary_key_text": "We expect the primary key for this table should be report_number, damage_type and damage_sub_type - but there are duplicates and we have not fully cleaned this table.",
         },
         "schema": {
             "fields": [
@@ -208,7 +213,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "damage_sub_type",
                 "damages",
             ],
-            "primary_key": ["report_number", "damage_type", "damage_sub_type"],
+            # "primary_key": ["report_number", "damage_type", "damage_sub_type"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -219,6 +224,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_summary_text": ("miscellaneous distribution information."),
             "additional_source_text": "(Part B & C)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING],
+            "additional_primary_key_text": "We expect the primary key for this table should be report_number - but there are duplicates and we have not fully cleaned this table.",
         },
         "schema": {
             "fields": [
@@ -231,7 +237,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "federal_land_leaks_repaired_or_scheduled",
                 "average_service_length_feet",
             ],
-            "primary_key": ["report_number"],
+            # "primary_key": ["report_number"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",

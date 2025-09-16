@@ -1,5 +1,6 @@
 """Classes & functions to process PHMSA natural gas data before loading into the PUDL DB."""
 
+import numpy as np
 import pandas as pd
 from dagster import AssetCheckResult, asset, asset_check
 
@@ -441,6 +442,18 @@ def _assign_cols_from_patterns(
     return df
 
 
+def clean_raw_phmsagas__yearly_distribution(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Clean up the raw yearly distribution table for future transforms."""
+    cleaned_raw = _dedupe_year_distribution_idx(
+        raw_phmsagas__yearly_distribution
+    ).replace(
+        to_replace={r"^( {1,})$": pd.NA, "NONE": pd.NA, "none": pd.NA}, regex=True
+    )
+    return cleaned_raw
+
+
 def _melt_merge_main_services(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
     main_pattern: str,
@@ -448,10 +461,12 @@ def _melt_merge_main_services(
     col_patterns: dict[str, str],
 ) -> pd.DataFrame:
     """Filter, melt, add columns then merge miles of main and service."""
-    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+    cleaned_raw = clean_raw_phmsagas__yearly_distribution(
+        raw_phmsagas__yearly_distribution
+    )
     logger.info("Melting main")
     main = (
-        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        cleaned_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
         .filter(regex=main_pattern)
         .dropna(how="all", axis="index")
         .convert_dtypes()
@@ -463,7 +478,7 @@ def _melt_merge_main_services(
     )
     logger.info("Melting service")
     services = (
-        deduped_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        cleaned_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
         .filter(regex=services_pattern)
         .dropna(how="all", axis="index")
         .convert_dtypes()
@@ -473,15 +488,19 @@ def _melt_merge_main_services(
         .set_index(list(col_patterns.keys()), append=True)
         .dropna(how="all", axis="index")
     )
-    return pd.merge(
-        main,
-        services,
-        left_index=True,
-        right_index=True,
-        how="outer",
-        validate="1:1",
-        sort=False,
-    ).reset_index()
+    return (
+        pd.merge(
+            main,
+            services,
+            left_index=True,
+            right_index=True,
+            how="outer",
+            validate="1:1",
+            sort=False,
+        )
+        .reset_index()
+        .convert_dtypes()
+    )
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
@@ -546,12 +565,31 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
     other_material_detail = raw_phmsagas__yearly_distribution.assign(material="other")[
         YEARLY_DISTRIBUTION_IDX_ISH + ["material", "main_other_material_detail"]
     ].dropna(subset=["main_other_material_detail"])
-    return df.merge(
+    df = df.merge(
         other_material_detail,
         on=YEARLY_DISTRIBUTION_IDX_ISH + ["material"],
-        how="outer",
+        how="left",
         validate="m:1",
     )
+    # okay so an annoying number of stringy info about the material type ended up in the
+    # services column across a handful of years. luckily they are easy to ID and move
+    # into the right detail description column
+    not_float_values = df[pd.to_numeric(df["services"], errors="coerce").isnull()][
+        "services"
+    ].unique()
+    material_detail_wrong_place_mask = (
+        df.services.isin(not_float_values) & df.services.notnull()
+    )
+    # we are about to move these strings into the right place so we wanna make sure we
+    # are not replacing info
+    assert (
+        df[material_detail_wrong_place_mask].main_other_material_detail.isnull().all()
+    )
+    df.loc[material_detail_wrong_place_mask, "main_other_material_detail"] = df.loc[
+        material_detail_wrong_place_mask, "services"
+    ]
+    df.loc[material_detail_wrong_place_mask, "services"] = np.nan
+    return df
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
@@ -583,17 +621,17 @@ def _core_phmsagas__yearly_distribution_excavation_damages(
         "damage_sub_type": damage_pattern,
     }
     return (
-        _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
         .set_index(YEARLY_DISTRIBUTION_IDX_ISH)
         .filter(regex=damage_pattern)
         .dropna(how="all", axis="index")
         .convert_dtypes()
-        # TODO: what are damages? are they $$?
         .melt(ignore_index=False, var_name="melt_col", value_name="damages")
         .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
         .drop(columns=["melt_col"])
         .set_index(list(col_patterns.keys()), append=True)
         .dropna(how="all", axis="index")
+        .reset_index()
     )
 
 
@@ -602,12 +640,10 @@ def _core_phmsagas__yearly_distribution_misc(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform this distribution table of miscellaneous numeric values."""
-    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
     idx = ["report_year", "report_number", "operator_id_phmsa"]
     df = (
-        deduped_raw.loc[:, idx + YEARLY_DISTRIBUTION_MISC_COLUMNS]
-        # there are some big space values we wanna null out
-        .replace({"     ": pd.NA})
+        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
+        .loc[:, idx + YEARLY_DISTRIBUTION_MISC_COLUMNS]
         .sort_values(YEARLY_DISTRIBUTION_MISC_COLUMNS, ascending=False)
     )
     # there are 6 dupes in this paired down PK. they all have an operator id of 0
@@ -620,4 +656,4 @@ def _core_phmsagas__yearly_distribution_misc(
         assert all(dupes.report_year.isin([1980, 1981]))
         assert len(dupes) <= 6
     df = df.drop_duplicates(subset=idx, keep="first")
-    return df
+    return df.convert_dtypes()
