@@ -62,7 +62,6 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "services_efv_installed",
         "services_shutoff_valve_in_system",
         "services_shutoff_valve_installed",
-        "federal_land_leaks_repaired_or_scheduled",
         "percent_unaccounted_for_gas",
         "additional_information",
         "preparer_email",
@@ -72,13 +71,6 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "preparer_title",
         "form_revision",
         "data_maturity",
-        # These are numeric columns that didn't fit into the melted
-        # numeric tables.
-        "all_known_leaks_scheduled_for_repair",
-        "all_known_leaks_scheduled_for_repair_main",
-        "average_service_length_feet",
-        "hazardous_leaks_mechanical_joint_failure",
-        "main_other_material_detail",
     ],
     "columns_to_convert_to_ints": [
         "report_year",
@@ -89,7 +81,6 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "services_efv_installed",
         "services_shutoff_valve_in_system",
         "services_shutoff_valve_installed",
-        "federal_land_leaks_repaired_or_scheduled",
     ],
     "capitalization_exclusion": [
         "operating_state",
@@ -99,6 +90,16 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "additional_information",
     ],
 }
+
+YEARLY_DISTRIBUTION_MISC_COLUMNS = [
+    # These are numeric columns that didn't fit into the melted
+    # numeric tables.
+    "all_known_leaks_scheduled_for_repair_main",
+    "all_known_leaks_scheduled_for_repair",
+    "hazardous_leaks_mechanical_joint_failure",
+    "federal_land_leaks_repaired_or_scheduled",
+    "average_service_length_feet",
+]
 
 YEARLY_DISTRIBUTION_IDX_ISH = [
     "report_year",
@@ -146,7 +147,11 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
         for pattern in patterns.values():
             pattern_cols = pattern_cols + (list(raw_df.filter(regex=pattern)))
     transformed_cols = set(
-        YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"] + pattern_cols
+        YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]
+        + YEARLY_DISTRIBUTION_MISC_COLUMNS
+        + pattern_cols
+        # This one gets pulled in into _core_phmsagas__yearly_distribution_by_material_and_size
+        + ["main_other_material_detail"]
     )
     untransformed_columns = set(raw_df.columns).difference(transformed_cols)
     if untransformed_columns:
@@ -590,3 +595,29 @@ def _core_phmsagas__yearly_distribution_excavation_damages(
         .set_index(list(col_patterns.keys()), append=True)
         .dropna(how="all", axis="index")
     )
+
+
+@asset
+def _core_phmsagas__yearly_distribution_misc(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform this distribution table of miscellaneous numeric values."""
+    deduped_raw = _dedupe_year_distribution_idx(raw_phmsagas__yearly_distribution)
+    idx = ["report_year", "report_number", "operator_id_phmsa"]
+    df = (
+        deduped_raw.loc[:, idx + YEARLY_DISTRIBUTION_MISC_COLUMNS]
+        # there are some big space values we wanna null out
+        .replace({"     ": pd.NA})
+        .sort_values(YEARLY_DISTRIBUTION_MISC_COLUMNS, ascending=False)
+    )
+    # there are 6 dupes in this paired down PK. they all have an operator id of 0
+    # and are from 1980 or 1981. only one of these records have non-zero or non-null
+    # data in them at all. We sort right b4 this to get that one record in our drop
+    # dupes/first after some checks
+    dupes = df[df.duplicated(subset=idx, keep=False)]
+    if not dupes.empty:
+        assert all(dupes.operator_id_phmsa == 0)
+        assert all(dupes.report_year.isin([1980, 1981]))
+        assert len(dupes) <= 6
+    df = df.drop_duplicates(subset=idx, keep="first")
+    return df

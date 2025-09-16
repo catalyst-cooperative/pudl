@@ -108,6 +108,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "cfm",
         "description": "Total air flow including excess air at 100 percent load, reported at standard temperature and pressure (i.e. 68 F and one atmosphere pressure).",
     },
+    "all_known_leaks_scheduled_for_repair": {
+        "type": "number",
+        "description": "The number of known system leaks at the end of the report year scheduled for repair.",
+    },
+    "all_known_leaks_scheduled_for_repair_main": {
+        "type": "number",
+        "description": "The number of known leaks on main at the end of the report year scheduled for repair.",
+    },
+    "hazardous_leaks_mechanical_joint_failure": {
+        "type": "number",
+        "description": "The total number of hazardous leaks caused by a mechanical joint failure.",
+    },
+    "average_service_length_feet": {
+        "type": "number",
+        "description": "The average system service length in feet.",
+        "unit": "feet",
+    },
     "alternative_fuel_vehicle_2_activity": {
         "type": "boolean",
         "description": "Whether the utility plants to operate alternative-fueled vehicles this coming year.",
