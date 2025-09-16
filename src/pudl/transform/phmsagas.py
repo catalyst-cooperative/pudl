@@ -166,7 +166,7 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
 
 
 @asset(
-    # io_manager_key="pudl_io_manager",
+    io_manager_key="pudl_io_manager",
     compute_kind="pandas",
 )
 def core_phmsagas__yearly_distribution_operators(
@@ -484,7 +484,7 @@ def _melt_merge_main_services(
     ).reset_index()
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_material(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -501,7 +501,7 @@ def _core_phmsagas__yearly_distribution_by_material(
     )
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_install_decade(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -518,7 +518,7 @@ def _core_phmsagas__yearly_distribution_by_install_decade(
     )
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_material_and_size(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -526,7 +526,7 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
 
     This table represents the bulk of the wide raw columns, which means it ends up being
     nearly 8 million records. This transform includes the standard
-    :ref:`_melt_merge_main_services` as well as adding in a column describing the "other"
+    ``_melt_merge_main_services`` as well as adding in a column describing the "other"
     material type (``main_other_material_detail``).
     """
     df = _melt_merge_main_services(
@@ -554,7 +554,7 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
     )
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_leaks(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -570,7 +570,7 @@ def _core_phmsagas__yearly_distribution_leaks(
     )
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_excavation_damages(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -597,7 +597,7 @@ def _core_phmsagas__yearly_distribution_excavation_damages(
     )
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_misc(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
