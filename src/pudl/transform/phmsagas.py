@@ -11,8 +11,10 @@ from pudl.helpers import (
 )
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.enums import (
+    DAMAGE_SUB_TYPES_PHMSAGAS,
     DAMAGE_TYPES_PHMSAGAS,
     INSTALL_DECADE_PATTERN_PHMSAGAS,
+    LEAK_SOURCE_PHMSAGAS,
     MAIN_PIPE_SIZES_PHMSAGAS,
     MATERIAL_TYPES_PHMSAGAS,
 )
@@ -117,15 +119,15 @@ MELT_PATTERNS = {
         "services_pattern": "services_" + INSTALL_DECADE_PATTERN_PHMSAGAS,
     },
     "_core_phmsagas__yearly_distribution_leaks": {
-        "main_pattern": r"^(all_leaks|hazardous_leaks)_(.*)_mains$",
-        "services_pattern": r"^(all_leaks|hazardous_leaks)_(.*)_services$",
+        "main_pattern": rf"^(all_leaks|hazardous_leaks)_({'|'.join(LEAK_SOURCE_PHMSAGAS)})_mains$",
+        "services_pattern": rf"^(all_leaks|hazardous_leaks)_({'|'.join(LEAK_SOURCE_PHMSAGAS)})_services$",
     },
     "_core_phmsagas__yearly_distribution_by_material_and_size": {
         "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_({'|'.join(MAIN_PIPE_SIZES_PHMSAGAS)})_miles$",
         "services_pattern": rf"^services_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_(.*)$",
     },
     "_core_phmsagas__yearly_distribution_excavation_damages": {
-        "damage_pattern": rf"^excavation_damage_(?:{'|'.join(DAMAGE_TYPES_PHMSAGAS)})_(.*)$"
+        "damage_pattern": rf"^excavation_damage_(?:{'|'.join(DAMAGE_TYPES_PHMSAGAS)})_({'|'.join(DAMAGE_SUB_TYPES_PHMSAGAS)})$"
     },
 }
 
@@ -417,9 +419,20 @@ def _dedupe_year_distribution_idx(
     )
 
 
-def _assign_cols_from_patterns(df: pd.DataFrame, col_patterns) -> pd.DataFrame:
+def _assign_cols_from_patterns(
+    df: pd.DataFrame, col_patterns: dict, pattern_col: str
+) -> pd.DataFrame:
+    """Add new columns based on regex patterns within an existing column.
+
+    Args:
+        df: the dataframe with ``pattern_col``
+        col_patterns: dictionary with new column name (keys) and the regex
+            pattern found within ``pattern_col`` to extract into the new
+            column (values)
+        pattern_col: name of column to extract the patterns from.
+    """
     for col_name, pattern in col_patterns.items():
-        df[col_name] = df.melt_col.str.extract(pattern)
+        df[col_name] = df[pattern_col].str.extract(pattern)
     return df
 
 
@@ -438,7 +451,7 @@ def _melt_merge_main_services(
         .dropna(how="all", axis="index")
         .convert_dtypes()
         .melt(ignore_index=False, var_name="melt_col", value_name="mains_miles")
-        .pipe(_assign_cols_from_patterns, col_patterns)
+        .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
         .drop(columns=["melt_col"])
         .set_index(list(col_patterns.keys()), append=True)
         .dropna(how="all", axis="index")
@@ -450,7 +463,7 @@ def _melt_merge_main_services(
         .dropna(how="all", axis="index")
         .convert_dtypes()
         .melt(ignore_index=False, var_name="melt_col", value_name="services")
-        .pipe(_assign_cols_from_patterns, col_patterns)
+        .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
         .drop(columns=["melt_col"])
         .set_index(list(col_patterns.keys()), append=True)
         .dropna(how="all", axis="index")
@@ -463,7 +476,7 @@ def _melt_merge_main_services(
         how="outer",
         validate="1:1",
         sort=False,
-    )
+    ).reset_index()
 
 
 @asset
@@ -507,9 +520,11 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
     """Transform the _core table of the miles of main and services by material type and size.
 
     This table represents the bulk of the wide raw columns, which means it ends up being
-    nearly 8 million records.
+    nearly 8 million records. This transform includes the standard
+    :ref:`_melt_merge_main_services` as well as adding in a column describing the "other"
+    material type (``main_other_material_detail``).
     """
-    return _melt_merge_main_services(
+    df = _melt_merge_main_services(
         raw_phmsagas__yearly_distribution,
         MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material_and_size"][
             "main_pattern"
@@ -521,6 +536,16 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
             "main_size": rf"({'|'.join(MAIN_PIPE_SIZES_PHMSAGAS)})",
             "material": rf"({'|'.join(MATERIAL_TYPES_PHMSAGAS)})",
         },
+    )
+    # Add in the other_material_detail column
+    other_material_detail = raw_phmsagas__yearly_distribution.assign(material="other")[
+        YEARLY_DISTRIBUTION_IDX_ISH + ["material", "main_other_material_detail"]
+    ].dropna(subset=["main_other_material_detail"])
+    return df.merge(
+        other_material_detail,
+        on=YEARLY_DISTRIBUTION_IDX_ISH + ["material"],
+        how="outer",
+        validate="m:1",
     )
 
 
@@ -560,7 +585,7 @@ def _core_phmsagas__yearly_distribution_excavation_damages(
         .convert_dtypes()
         # TODO: what are damages? are they $$?
         .melt(ignore_index=False, var_name="melt_col", value_name="damages")
-        .pipe(_assign_cols_from_patterns, col_patterns)
+        .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
         .drop(columns=["melt_col"])
         .set_index(list(col_patterns.keys()), append=True)
         .dropna(how="all", axis="index")

@@ -14,6 +14,7 @@ from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
+    DAMAGE_SUB_TYPES_PHMSAGAS,
     DAMAGE_TYPES_PHMSAGAS,
     DIVISION_CODES_US_CENSUS,
     ELECTRICITY_MARKET_MODULE_REGIONS,
@@ -29,6 +30,7 @@ from pudl.metadata.enums import (
     IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
     INSTALL_DECADE_PATTERN_PHMSAGAS,
+    LEAK_SOURCE_PHMSAGAS,
     LIABILITY_TYPES_FERC1,
     MAIN_PIPE_SIZES_PHMSAGAS,
     MATERIAL_TYPES_PHMSAGAS,
@@ -1127,42 +1129,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "damage_sub_type": {
         "type": "string",
         "description": "A sub-category of damage_type of excavation damage causes.",
-        "constraints": {
-            "enum": [
-                "deteriorated_facility",
-                "dug_after_expiry",
-                "failed_clearance",
-                "failed_to_protect_facilities",
-                "improper_backfilling",
-                "inaccurate_mark_abandoned_facility",
-                "inaccurate_mark_incorrect_records",
-                "inaccurate_mark_locator_error",
-                "inaccurate_mark_tracer_wire",
-                "incorrect_information",
-                "issues_total",
-                "marks_faded",
-                "no_one_call_made",
-                "not_marked_abandoned_facility",
-                "not_marked_incomplete_marks",
-                "not_marked_incorrect_records",
-                "not_marked_locator_error",
-                "not_marked_no_response",
-                "not_marked_tracer_wire",
-                "not_marked_unlocatable_facility",
-                "one_call_center_error",
-                "other_issues",
-                "outside_ticket_area",
-                "previous_damage",
-                "prior_to_test_hole_verification",
-                "prior_to_valid_start_time",
-                "root_cause_not_listed",
-                "total",
-            ]
-        },
+        "constraints": {"enum": DAMAGE_SUB_TYPES_PHMSAGAS},
     },
     "damages": {
         "type": "number",
-        "description": "Excavation damages.",  # TODO: is this $? or # of instances..?? I cannot tell
+        "description": "Number of instances of excavation damage.",
     },
     "account_detail": {
         "type": "string",
@@ -3539,23 +3510,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "leak_source": {
         "type": "string",
         "description": "The cause of the leaks.",
-        "constraints": {
-            "enum": {  # We could make this is list like the other enums for PHMSA
-                "construction_defect",
-                "corrosion_failure",
-                "equipment_failure",
-                "excavation_damage",
-                "incorrect_operation",
-                "material_defect",
-                "natural_force_damage",
-                "other",
-                "other_outside_force",
-                "outside_force",
-                "pipe_weld_joint_failure",
-                "third_party",
-                "total",
-            }
-        },
+        "constraints": {"enum": LEAK_SOURCE_PHMSAGAS},
     },
     "levelized_cost_of_energy_per_mwh": {
         "type": "number",
@@ -3673,6 +3628,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Size range of mains. The size ranges have changed slightly over the years (ex: before 1984 they reported 0.5_in_or_less whereas after they reported 1_in_or_less).",
         "constraints": {"enum": MAIN_PIPE_SIZES_PHMSAGAS},
+    },
+    "main_other_material_detail": {
+        "type": "string",
+        "description": "A free-form text field containing notes about the other material type. This column should only contain values in it for rows with other as the material type listed.",
     },
     "major_program_changes": {
         "type": "boolean",
@@ -5591,7 +5550,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "services": {
         "type": "number",
-        "description": "Number of services in system at end of year.",
+        "description": "Number of end in system at end of year.",
     },
     "short_form": {
         "type": "boolean",

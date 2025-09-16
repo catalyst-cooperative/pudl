@@ -2,6 +2,11 @@
 
 from typing import Any
 
+GENERIC_CLEANING_STATE_WARNING = {
+    "type": "custom",
+    "description": "We have not fully cleaned these tables. Except some inconsistent units, data types and values over the years of reported data.",
+}
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_phmsagas__yearly_distribution_operators": {
         "description": (
@@ -66,7 +71,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operator."
             ),
             "additional_source_text": "(Part B - System Description / Section 1 - General)",
-            "usage_warnings": ["aggregation_hazard"],
+            "usage_warnings": [
+                GENERIC_CLEANING_STATE_WARNING,
+                "aggregation_hazard",
+                {
+                    "type": "custom",
+                    "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
+                },
+            ],
         },
         "schema": {
             "fields": [
@@ -92,7 +104,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "the end of the year by install decade."
             ),
             "additional_source_text": "(Part B - System Description / Section 4)",
-            "usage_warnings": ["aggregation_hazard"],
+            "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
             "additional_details_text": (
                 "The records with an install decade of all_time are a total - "
                 "beware of aggregating these values."
@@ -121,7 +133,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "total and hazardous leaks eliminated or repaired during the report year."
             ),
             "additional_source_text": "(Part C)",
-            "usage_warnings": ["aggregation_hazard"],
+            "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
         },
         "schema": {
             "fields": [
@@ -132,7 +144,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operating_state",
                 "leak_severity",
                 "leak_source",
-                "mains_miles",
+                "mains_miles",  # TODO: make into number of instances not miles. and check all instances of this column
                 "services",
             ],
             "primary_key": ["report_number", "leak_severity", "leak_source"],
@@ -148,13 +160,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "the end of the year by material and size of pipe."
             ),
             "additional_source_text": "(Part B - System Description / Section 3)",
-            "usage_warnings": ["aggregation_hazard"],
-            "additional_details_text": (
-                "There is a column called main_other_material_detail which contains "
-                "notes about the other material types "
-                "that is reported in core_phmsagas__yearly_distribution_operators. See "
-                "that table for further details."
-            ),
+            "usage_warnings": [
+                GENERIC_CLEANING_STATE_WARNING,
+                "aggregation_hazard",
+                {
+                    "type": "custom",
+                    "description": "The size ranges in main_size have changed slightly over the years (ex: before 1984 they reported 0.5_in_or_less whereas after they reported 1_in_or_less)",
+                },
+                {
+                    "type": "custom",
+                    "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
+                },
+            ],
         },
         "schema": {
             "fields": [
@@ -167,6 +184,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "material",
                 "mains_miles",
                 "services",
+                "main_other_material_detail",
             ],
             "primary_key": ["report_number", "main_size", "material"],
         },
@@ -178,7 +196,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": {
             "additional_summary_text": ("excavation damages from various sources."),
             "additional_source_text": "(Part D - Excavation Damage)",
-            "usage_warnings": ["aggregation_hazard"],
+            "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
         },
         "schema": {
             "fields": [
