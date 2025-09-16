@@ -4262,7 +4262,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operating_state": {
         "type": "string",
-        "description": "State that the PHMSA Gas reproting distribution utility is operating.",
+        "description": "State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.",
     },
     "operating_time_hours": {
         "type": "number",
