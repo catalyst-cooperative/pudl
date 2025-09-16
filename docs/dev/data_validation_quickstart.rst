@@ -14,7 +14,7 @@ The ``dbt/`` directory contains the PUDL dbt project which manages our `data tes
 The data validation tests run on the Parquet outputs that are in your
 ``$PUDL_OUTPUT/parquet/`` directory. It's important that you ensure the outputs you're
 testing are actually the result of the code on your current branch, otherwise you may
-be surprised when the data test fails in CI or the nightly builds.
+be surprised when the data test passes locally but fails in CI or the nightly builds.
 
 We have a script, :mod:`pudl.scripts.dbt_helper`, to help with some common workflows.
 
@@ -51,6 +51,7 @@ See ``dbt_helper validate --help`` for usage details.
 
    1. Download the Parquet files to ``<any_directory_you_want>/parquet/``.
    2. Set the ``PUDL_OUTPUT`` environment variable to ``<any_directory_you_want>``.
+      (*note* use an absolute path!)
    3. Run any of the ``dbt_helper`` commands you need.
 
    Some examples of useful Parquet outputs and where to find them:

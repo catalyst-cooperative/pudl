@@ -205,7 +205,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-06", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-07", freq="M")
             ],
         },
         "keywords": sorted(
@@ -390,33 +390,7 @@ SOURCES: dict[str, Any] = {
         "title": "EIA Bulk API Data",
         "path": "https://www.eia.gov/opendata/bulkfiles.php",
         "description": (
-            "All data made available in bulk through the EIA Open Data API, "
-            "including:\n"
-            "* the Annual Energy Outlook, the International Energy Outlook and the Short "
-            "Term Energy Outlook;\n"
-            "* aggregate national, state, and mine-level coal production statistics, "
-            "including imports and exports, receipts of coal at electric power plants, "
-            "consumption and quality, market sales, reserves, and productive capacity; "
-            "* U.S. electric system operating data;\n"
-            "* aggregate national, state, and plant-level electricity generation "
-            "statistics, including fuel quality and consumption, for grid-connected"
-            "plants with nameplate capacity of 1 megawatt or greater;\n"
-            "* CO2 emissions aggregates, CO2 emissions and carbon coefficients by fuel, "
-            "state, and sector;\n"
-            "* International Energy System (IES) data containing production, reserves, "
-            "consumption, capacity, storage, imports, exports, and emissions time "
-            "series by country for electricity, petroleum, natural gas, coal, nuclear, "
-            "and renewable energy;\n"
-            "* statistics of U.S. natural gas production, imports, exploration, pipelines, "
-            "exports, prices, consumption, stocks, and reserves;\n"
-            "* statistics of U.S. petroleum and other liquid fuel production, imports, "
-            "refining, exports, prices, consumption, stocks, and reserves;\n"
-            "* aggregate national, PADD, state, city, port, and refinery petroleum imports "
-            "data for various grades of crude oil and country of origin;\n"
-            "* state and national energy production and consumption, using survey and "
-            "estimates to create comprehensive state energy statistics and flows;\n"
-            "* U.S. total energy production, prices, carbon dioxide emissions, and "
-            "consumption of energy from all sources by sector.\n\n"
+            "All data made available in bulk through the EIA Open Data API. "
             "At present, PUDL integrates only a few specific data series related to "
             "fuel receipts and costs figures from the Bulk Electricity API."
         ),
