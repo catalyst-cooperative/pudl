@@ -14,6 +14,8 @@ from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
+    DAMAGE_SUB_TYPES_PHMSAGAS,
+    DAMAGE_TYPES_PHMSAGAS,
     DIVISION_CODES_US_CENSUS,
     ELECTRICITY_MARKET_MODULE_REGIONS,
     ENERGY_DISPOSITION_TYPES_FERC1,
@@ -27,7 +29,11 @@ from pudl.metadata.enums import (
     GENERATION_ENERGY_SOURCES_EIA930,
     IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
+    INSTALL_DECADE_PATTERN_PHMSAGAS,
+    LEAK_SOURCE_PHMSAGAS,
     LIABILITY_TYPES_FERC1,
+    MAIN_PIPE_SIZES_PHMSAGAS,
+    MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
     PLANT_PARTS,
@@ -101,6 +107,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "cfm",
         "description": "Total air flow including excess air at 100 percent load, reported at standard temperature and pressure (i.e. 68 F and one atmosphere pressure).",
+    },
+    "all_known_leaks_scheduled_for_repair": {
+        "type": "number",
+        "description": "The number of known system leaks at the end of the report year scheduled for repair.",
+    },
+    "all_known_leaks_scheduled_for_repair_main": {
+        "type": "number",
+        "description": "The number of known leaks on main at the end of the report year scheduled for repair.",
+    },
+    "hazardous_leaks_mechanical_joint_failure": {
+        "type": "number",
+        "description": "The total number of hazardous leaks caused by a mechanical joint failure.",
+    },
+    "average_service_length_feet": {
+        "type": "number",
+        "description": "The average system service length in feet.",
+        "unit": "feet",
     },
     "alternative_fuel_vehicle_2_activity": {
         "type": "boolean",
@@ -792,6 +815,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{5}$",
         },
     },
+    "commodity": {
+        # Could be enum-ed with a little clean up.
+        "type": "string",
+        "description": "The type of gas delivered by the distribution pipeline.",
+    },
     "code": {
         "type": "string",
         "description": "Originally reported short code.",
@@ -1109,6 +1137,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "datum": {
         "type": "string",
         "description": "Geodetic coordinate system identifier (e.g. NAD27, NAD83, or WGS84).",
+    },
+    "damage_type": {
+        "type": "string",
+        "description": "A high level category of excavation damage causes.",
+        "constraints": {"enum": DAMAGE_TYPES_PHMSAGAS},
+    },
+    "damage_sub_type": {
+        "type": "string",
+        "description": "A sub-category of damage_type of excavation damage causes.",
+        "constraints": {"enum": DAMAGE_SUB_TYPES_PHMSAGAS},
+    },
+    "damages": {
+        "type": "number",
+        "description": "Number of instances of excavation damage.",
     },
     "account_detail": {
         "type": "string",
@@ -3392,6 +3434,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{4}$",
         },
     },
+    "install_decade": {
+        "type": "string",
+        "description": "The decade the distribution pipeline was installed.",
+        "constraints": {"pattern": INSTALL_DECADE_PATTERN_PHMSAGAS},
+    },
     "installation_year": {
         "type": "integer",
         "description": "Year the plant's most recently built unit was installed.",
@@ -3471,6 +3518,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "latitude": {
         "type": "number",
         "description": "Latitude of the plant's location, in degrees.",
+    },
+    "leak_severity": {
+        "type": "string",
+        "description": "Whether or not the leak described in this record are all leaks or hazardous leaks.",
+        "constraints": {"enum": ["all_leaks", "hazardous_leaks"]},
+    },
+    "leak_source": {
+        "type": "string",
+        "description": "The cause of the leaks.",
+        "constraints": {"enum": LEAK_SOURCE_PHMSAGAS},
     },
     "levelized_cost_of_energy_per_mwh": {
         "type": "number",
@@ -3579,6 +3636,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
     },
+    "mains_miles": {
+        "type": "number",
+        "description": "The miles of mains distribution pipeline.",
+        "unit": "miles",
+    },
+    "main_size": {
+        "type": "string",
+        "description": "Size range of mains. The size ranges have changed slightly over the years (ex: before 1984 they reported 0.5_in_or_less whereas after they reported 1_in_or_less).",
+        "constraints": {"enum": MAIN_PIPE_SIZES_PHMSAGAS},
+    },
+    "main_other_material_detail": {
+        "type": "string",
+        "description": "A free-form text field containing notes about the other material type. This column should only contain values in it for rows with other as the material type listed.",
+    },
     "major_program_changes": {
         "type": "boolean",
         "description": (
@@ -3594,6 +3665,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "match_type": {
         "type": "string",
         "description": "Indicates the source and validation of the match between EIA and FERC. Match types include matches was generated from the model, verified by the training data, overridden by the training data, etc.",
+    },
+    "material": {
+        "type": "string",
+        "description": "The material of the gas distribution pipe. The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
+        "constraints": {"enum": MATERIAL_TYPES_PHMSAGAS},
     },
     "max_charge_rate_mw": {
         "type": "number",
@@ -4159,6 +4235,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operating_datetime_utc": {
         "type": "datetime",
         "description": "Date and time measurement began (UTC).",
+    },
+    "operating_state": {
+        "type": "string",
+        "description": "State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.",
     },
     "operating_time_hours": {
         "type": "number",
@@ -5076,7 +5156,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "report_number": {
         "type": "integer",
-        "description": "Report number.",
+        "description": "Report number of the PHMSA Gas utility submission.",
     },
     "report_submission_type": {
         "type": "string",
@@ -5484,6 +5564,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "delivery: just the billing and energy delivery services."
         ),
         "constraints": {"enum": ["bundled", "energy", "delivery"]},
+    },
+    "services": {
+        "type": "number",
+        "description": "Number of end in system at end of year.",
     },
     "short_form": {
         "type": "boolean",

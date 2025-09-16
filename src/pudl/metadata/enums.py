@@ -716,3 +716,95 @@ FUNCTIONAL_STATUS_CODES_CENSUS: list[str] = [
 
 https://www.census.gov/library/reference/code-lists/functional-status-codes.html
 """
+
+
+MATERIAL_TYPES_PHMSAGAS = [
+    "unprotected_steel_bare",
+    "unprotected_steel_coated",
+    "cathodically_protected_steel_bare",
+    "cathodically_protected_steel_coated",
+    # we have to put steel below *steel* bc the pattern will grab the
+    # bare one first from the longer options if its listed first
+    "steel",
+    "pvc",
+    "pe",
+    "abs",
+    "other_plastic",
+    "plastic",
+    "cast_or_wrought_iron",
+    "wrought_iron",
+    "ductile_iron",
+    "copper",
+    "other_alt",
+    "other_material",
+    "other",
+    "reconditioned_cast_iron",
+    "cast_iron",
+    "all_materials",
+    "total",
+]
+
+MAIN_PIPE_SIZES_PHMSAGAS = [
+    "0.5_in_or_less",
+    "0.5_to_1_in",
+    "1_in_or_less",
+    "1_to_2_in",
+    "2_in_or_less",
+    "2_to_4_in",
+    "4_to_6_in",
+    "4_to_8_in",
+    "8_in",
+    "8_to_12_in",
+    "10_in",
+    "12_in",
+    "over_12_in",
+    "total",
+    "unknown",
+]
+LEAK_SOURCE_PHMSAGAS = [
+    "construction_defect",
+    "corrosion_failure",
+    "equipment_failure",
+    "excavation_damage",
+    "incorrect_operation",
+    "material_defect",
+    "natural_force_damage",
+    "other",
+    "other_outside_force",
+    "outside_force",
+    "pipe_weld_joint_failure",
+    "third_party",
+    "total",
+]
+DAMAGE_TYPES_PHMSAGAS = ["notification", "locating", "excavation", "other", "total"]
+DAMAGE_SUB_TYPES_PHMSAGAS = [
+    "deteriorated_facility",
+    "dug_after_expiry",
+    "failed_clearance",
+    "failed_to_protect_facilities",
+    "improper_backfilling",
+    "inaccurate_mark_abandoned_facility",
+    "inaccurate_mark_incorrect_records",
+    "inaccurate_mark_locator_error",
+    "inaccurate_mark_tracer_wire",
+    "incorrect_information",
+    "issues_total",
+    "marks_faded",
+    "no_one_call_made",
+    "not_marked_abandoned_facility",
+    "not_marked_incomplete_marks",
+    "not_marked_incorrect_records",
+    "not_marked_locator_error",
+    "not_marked_no_response",
+    "not_marked_tracer_wire",
+    "not_marked_unlocatable_facility",
+    "one_call_center_error",
+    "other_issues",
+    "outside_ticket_area",
+    "previous_damage",
+    "prior_to_test_hole_verification",
+    "prior_to_valid_start_time",
+    "root_cause_not_listed",
+    "total",
+]
+INSTALL_DECADE_PATTERN_PHMSAGAS = r"(\d{4}s|unknown_decade|pre_1940|total_decades)"
