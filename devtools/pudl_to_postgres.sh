@@ -13,7 +13,7 @@ pgloader \
     --with "create tables" \
     --with "create indexes" \
     --with "reset sequences" \
-    $PUDL_SQLITE $PUDL_POSTGRES
+    "$PUDL_SQLITE" $PUDL_POSTGRES
 
 # Generate an SQL dumpfile compatible with PostgreSQL:
 # pg_dump -U zane --format=plain --no-owner --no-acl -p 5434 -h localhost -d pudl \

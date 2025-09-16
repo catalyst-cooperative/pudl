@@ -551,19 +551,9 @@ def _extract_row_count_partitions(table: DbtTable) -> list[str | None]:
                 raise ValueError(f"Row counts test expected to be a dictionary: {test}")
             test_def = test.get("check_row_counts_per_partition")
             if isinstance(test_def, dict):
-                partitions.append(test_def.get("partition_expr"))
+                partitions.append(test_def.get("arguments", {}).get("partition_expr"))
 
     return partitions
-
-
-def get_row_count_test_dict(table_name: str, partition_expr: str):
-    """Return a dictionary with a dbt row count data test encoded in a dict."""
-    return {
-        "check_row_counts_per_partition": {
-            "table_name": table_name,
-            "partition_expr": partition_expr,
-        }
-    }
 
 
 @dataclass

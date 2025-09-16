@@ -2,7 +2,6 @@
 
 import copy
 import datetime
-import json
 import re
 import sys
 import warnings
@@ -2362,93 +2361,3 @@ class CodeMetadata(PudlMeta):
                     top_dir=top_dir, csv_subdir=csv_subdir, is_header=header
                 )
                 f.write(rendered)
-
-
-class DatasetteMetadata(PudlMeta):
-    """A collection of Data Sources and Resources for metadata export.
-
-    Used to create metadata YAML file to accompany Datasette.
-    """
-
-    data_sources: list[DataSource]
-    resources: list[Resource] = PUDL_PACKAGE.resources
-    xbrl_resources: dict[str, list[Resource]] = {}
-    label_columns: dict[str, str] = {
-        "core_eia__entity_plants": "plant_name_eia",
-        "core_pudl__assn_ferc1_pudl_plants": "plant_name_ferc1",
-        "core_pudl__entity_plants_pudl": "plant_name_pudl",
-        "core_eia__entity_utilities": "utility_name_eia",
-        "core_pudl__assn_ferc1_pudl_utilities": "utility_name_ferc1",
-        "core_pudl__entity_utilities_pudl": "utility_name_pudl",
-    }
-
-    @classmethod
-    def from_data_source_ids(
-        cls,
-        output_path: Path,
-        data_source_ids: list[str] = [
-            "pudl",
-            "eia860",
-            "eia860m",
-            "eia861",
-            "eia923",
-            "ferc1",
-            "ferc2",
-            "ferc6",
-            "ferc60",
-            "ferc714",
-        ],
-        xbrl_ids: list[str] = [
-            "ferc1_xbrl",
-            "ferc2_xbrl",
-            "ferc6_xbrl",
-            "ferc60_xbrl",
-            "ferc714_xbrl",
-        ],
-    ) -> "DatasetteMetadata":
-        """Construct a dictionary of DataSources from data source names.
-
-        Create dictionary of first and last year or year-month for each source.
-
-        Args:
-            output_path: PUDL_OUTPUT path.
-            data_source_ids: ids of data sources currently included in Datasette
-            xbrl_ids: ids of data converted XBRL data to be included in Datasette
-        """
-        # Compile a list of DataSource objects for use in the template
-        data_sources = [DataSource.from_id(ds_id) for ds_id in data_source_ids]
-
-        # Instantiate all possible resources in a Package:
-        resources = PUDL_PACKAGE.resources
-
-        # Get XBRL based resources
-        xbrl_resources = {}
-        for xbrl_id in xbrl_ids:
-            # Read JSON Package descriptor from file
-            with Path.open(Path(output_path) / f"{xbrl_id}_datapackage.json") as f:
-                descriptor = json.load(f)
-
-            # Use descriptor to create Package object
-            xbrl_package = Package(**descriptor)
-
-            # Add list of resources to dict
-            xbrl_resources[xbrl_id] = xbrl_package.resources
-
-        return cls(
-            data_sources=data_sources,
-            resources=resources,
-            xbrl_resources=xbrl_resources,
-        )
-
-    def to_yaml(self) -> str:
-        """Output database, table, and column metadata to YAML file."""
-        template = _get_jinja_environment().get_template("datasette-metadata.yml.jinja")
-
-        rendered = template.render(
-            license=LICENSES["cc-by-4.0"],
-            data_sources=self.data_sources,
-            resources=self.resources,
-            xbrl_resources=self.xbrl_resources,
-            label_columns=self.label_columns,
-        )
-        return rendered

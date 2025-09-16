@@ -3,8 +3,63 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v202X.XX.x (YYYY-MM-DD)
+v2025.XX.x (2025-MM-DD)
 ---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+Deprecations
+^^^^^^^^^^^^
+
+* We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
+  deployment, but are still working on achieiving feature parity in the new `PUDL Data
+  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
+  <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
+  :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
+  main PUDL repo.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+.. _release-v2025.9.1:
+
+---------------------------------------------------------------------------------------
+v2025.9.1 (2025-09-05)
+---------------------------------------------------------------------------------------
+
+.. note::
+
+   There was an issue with the ``v2025.9.0`` release process and that tag was deleted.
+
+This is a monthly release primarily focused on updating the EIA-860M, with other
+incremental changes coming along for the ride. A couple of things to be aware of:
+
+* :user:`mfripp` identified a bug in how we were constructing detailed utility
+  asset/liability and income/expense tables from FERC Form 1. This has been partially
+  addressed, but the fix needs to be applied to a couple of additional tables. See
+  :issue:`4593` to track our progress.
+* We are now producing GeoParquet outputs for tables that contain spatial data. This
+  is a great new feature! But also potentially a breaking change, depending on what
+  tools you've been using to read our Parquet outputs. `GeoPandas
+  <https://geopandas.org/>`__ and `DuckDB's spatial extension
+  <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__ both work
+  well.
 
 Enhancements
 ^^^^^^^^^^^^
@@ -35,11 +90,14 @@ tables with a valid ``geometry`` column are:
 * :ref:`out_censusdp1tract__tracts`
 * :ref:`out_ferc714__georeferenced_respondents`
 
-New Data
-^^^^^^^^
-
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for July
+  of 2025. See issue :issue:`4590` and PR :pr:`4594`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -69,15 +127,16 @@ Bug Fixes
   in the ENUM. Previously we logged a warning, and now it will raise an error. There
   were a couple of trivial cases in which we were losing values that violated the
   constraints, but nothing serious. See PR :pr:`4548`.
+* Fixed a user identified bug within the
+  :ref:`out_ferc1__yearly_detailed_income_statements` table unnecessarily dropping
+  records. See PR :pr:`4580`.
 
 Documentation
 ^^^^^^^^^^^^^
 
-Deprecations
-^^^^^^^^^^^^
+* Added data source pages for:
 
-New Tests and Data Validations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  * :doc:`data_sources/eiaapi`; see issue :issue:`4372` and PR :pr:`4567`.
 
 .. _release-v2025.8.0:
 
@@ -1852,7 +1911,7 @@ Database Schema Changes
   started being reported, but only in the output tables. See: :pr:`1906,1911`
 * Renamed and removed some columns in the :doc:`data_sources/epacems` dataset.
   ``unitid`` was changed to ``emissions_unit_id_epa`` to clarify the type of unit it
-  represents. ``unit_id_epa`` was removed because it is a unique identifyer for
+  represents. ``unit_id_epa`` was removed because it is a unique identifier for
   ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
   ``facility_id`` was removed because it is specific to EPA's internal database and does
   not aid in connection with other data. :pr:`1692`

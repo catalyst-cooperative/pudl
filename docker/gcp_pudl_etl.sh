@@ -140,6 +140,7 @@ function notify_slack() {
     message+="UPDATE_STABLE_SUCCESS: $UPDATE_STABLE_SUCCESS\n"
     message+="CLEAN_UP_OUTPUTS_SUCCESS: $CLEAN_UP_OUTPUTS_SUCCESS\n"
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
+    message+="DEPLOY_EEL_HOLE_SUCCESS: $DEPLOY_EEL_HOLE_SUCCESS\n"
     message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
     message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
@@ -212,6 +213,7 @@ UPDATE_STABLE_SUCCESS=0
 WRITE_DATAPACKAGE_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
+DEPLOY_EEL_HOLE_SUCCESS=0
 ZENODO_SUCCESS=0
 GCS_TEMPORARY_HOLD_SUCCESS=0
 
@@ -275,6 +277,8 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
     upload_to_dist_path "nightly" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1  | tee -a "$LOGFILE"
+    DEPLOY_EEL_HOLE_SUCCESS=${PIPESTATUS[0]}
     # Remove individual parquet outputs and distribute just the zipped parquet
     # archives on Zenodo, due to their number of files limit
     rm -f "$PUDL_OUTPUT"/*.parquet
@@ -340,6 +344,7 @@ if [[ $ETL_SUCCESS == 0 &&
     $UPDATE_STABLE_SUCCESS == 0 &&
     $CLEAN_UP_OUTPUTS_SUCCESS == 0 &&
     $DISTRIBUTION_BUCKET_SUCCESS == 0 &&
+    $DEPLOY_EEL_HOLE_SUCCESS == 0 &&
     $GCS_TEMPORARY_HOLD_SUCCESS == 0 &&
     $ZENODO_SUCCESS == 0 ]] \
     ; then
