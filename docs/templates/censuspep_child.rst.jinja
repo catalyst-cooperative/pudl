@@ -1,7 +1,8 @@
 {% extends "data_source_parent.rst.jinja" %}
 
 {% block background %}
-The Census Bureau's Population Estimates Program (PEP) produces estimates of the population for the United States, its states, counties, cities, and towns, as well as for the Commonwealth of Puerto Rico and its municipios. Demographic components of population change (births, deaths, and migration) are produced at the national, state, and county levels of geography.
+The Census Bureau's Population Estimates Program (PEP) produces estimates of the population for the United States, its states, counties, cities, and towns, as well as for the Commonwealth of Puerto Rico and its municipios.
+Demographic components of population change (births, deaths, and migration) are produced at the national, state, and county levels of geography.
 
 PUDL uses Census PEP as a source of geographic identifiers only, and does not currently make use of any population information.
 {% endblock %}
@@ -17,7 +18,8 @@ What data is available through PUDL?
 {% endblock %}
 
 {% block availability %}
-While there are no tables published in PUDL whose sole source is ``censuspep``, many tables include geographic identifiers drawn from this source. When, e.g., EIA or FERC materials differ in the name or spelling of a region, we use the name or spelling from ``censuspep``.
+While there are no tables published in PUDL whose sole source is ``censuspep``, many tables include geographic identifiers drawn from this source.
+When, e.g., EIA or FERC materials differ in the name or spelling of a region, we use the name or spelling from ``censuspep``.
 
 Geographic identifiers include:
 
@@ -34,7 +36,8 @@ What parts of the United States are included?
 ---------------------------------------------
 {% endblock %}
 {% block respondents %}
-Census PEP covers the 50 US states, the District of Columbia, and Puerto Rico. The remaining US territories are not included.
+Census PEP covers the 50 US states, the District of Columbia, and Puerto Rico.
+The remaining US territories are not included.
 {% endblock %}
 
 {% block original_data_title %}
@@ -46,6 +49,12 @@ The original data takes the form of a spreadsheet with a column for each type of
 {% endblock %}
 
 {% block notable_irregularities %}
-* Raw data on US territories other than Puerto Rico is not included in Census PEP. PUDL uses other US Census sources to fill in the geographic identifiers for the remaining territories. See :mod:`pudl.transform.censuspep._core_censuspep__yearly_geocodes` for details.
-* We use the most recent name from Census PEP when denormalizing tables, and this may not always match the name used in the original filing. From time to time, counties change names, split, or merge. A geographic region which is valid in 2009 may not be valid in 2024. Some filings may spell out the word "Saint" and some may abbreviate it. We have found it is more important to use consistent geographic names across all our data outputs than to preserve the diversity of names and spellings from source filings.
+* Raw data on US territories other than Puerto Rico is not included in Census PEP.
+  PUDL uses other US Census sources to fill in the geographic identifiers for the remaining territories.
+  See :mod:`pudl.transform.censuspep._core_censuspep__yearly_geocodes` for details.
+* We use the most recent name from Census PEP when denormalizing tables, and this may not always match the name used in the original filing.
+  From time to time, counties change names, split, or merge.
+  A geographic region which is valid in 2009 may not be valid in 2024.
+  Some filings may spell out the word "Saint" and some may abbreviate it.
+  We have found it is more important to use consistent geographic names across all our data outputs than to preserve the diversity of names and spellings from source filings.
 {% endblock %}
