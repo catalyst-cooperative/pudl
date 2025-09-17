@@ -34,6 +34,19 @@ Documentation
 New Data Tests & Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* After investigating some modest discrepancies between our imputed hourly electricity
+  demand and prior work by :user:`truggles` & :user:`awongel`, we're removing the
+  "EXPERIMENTAL" warning label that we had on those tables. See `our discussion
+  about the imputation results in the PUDL Examples repo
+  <https://github.com/catalyst-cooperative/pudl-examples/pull/10>`__, and `the resulting
+  notebook <https://github.com/catalyst-cooperative/pudl-examples/blob/main/06-pudl-imputed-demand.ipynb>`__
+
+  This relates to the PUDL imputed demand values in following tables:
+
+  * :ref:`out_eia930__hourly_operations`
+  * :ref:`out_eia930__hourly_subregion_demand`
+  * :ref:`out_eia930__hourly_aggregated_demand`
+
 Bug Fixes
 ^^^^^^^^^
 
