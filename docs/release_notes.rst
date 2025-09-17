@@ -33,7 +33,7 @@ Documentation
 
 * Added data source pages for:
 
-  * :doc:`data_sources/censupep`; see issue :issue:`4375` and PR :pr:`4622`.
+  * :doc:`data_sources/censuspep`; see issue :issue:`4375` and PR :pr:`4622`.
 
 New Data Tests & Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
