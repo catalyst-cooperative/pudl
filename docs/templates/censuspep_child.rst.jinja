@@ -5,6 +5,7 @@ The Census Bureau's Population Estimates Program (PEP) produces estimates of the
 Demographic components of population change (births, deaths, and migration) are produced at the national, state, and county levels of geography.
 
 PUDL uses Census PEP as a source of geographic identifiers only, and does not currently make use of any population information.
+The primary method though which Census PEP geographic identifiers are added to PUDL data is string matching on county and state names.
 {% endblock %}
 
 {% block download_title %}
@@ -36,8 +37,8 @@ What parts of the United States are included?
 ---------------------------------------------
 {% endblock %}
 {% block respondents %}
-Census PEP covers the 50 US states, the District of Columbia, and Puerto Rico.
-The remaining US territories are not included.
+Census PEP covers the 50 U.S. states, the District of Columbia, and Puerto Rico.
+The remaining U.S. territories are not included.
 {% endblock %}
 
 {% block original_data_title %}
@@ -49,8 +50,8 @@ The original data takes the form of a spreadsheet with a column for each type of
 {% endblock %}
 
 {% block notable_irregularities %}
-* Raw data on US territories other than Puerto Rico is not included in Census PEP.
-  PUDL uses other US Census sources to fill in the geographic identifiers for the remaining territories.
+* Raw data on U.S. territories other than Puerto Rico is not included in Census PEP.
+  PUDL uses other U.S. Census sources to fill in the geographic identifiers for the remaining territories.
   See :mod:`pudl.transform.censuspep._core_censuspep__yearly_geocodes` for details.
 * We use the most recent name from Census PEP when denormalizing tables, and this may not always match the name used in the original filing.
   From time to time, counties change names, split, or merge.
