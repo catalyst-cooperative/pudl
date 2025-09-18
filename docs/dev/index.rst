@@ -12,6 +12,7 @@ Development
   testing
   data_validation_quickstart
   data_validation_reference
+  metadata
   build_docs
   datastore
   clone_ferc1
