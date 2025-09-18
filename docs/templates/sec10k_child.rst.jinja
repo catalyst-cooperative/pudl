@@ -75,16 +75,18 @@ The same company can file its own SEC 10-K, appear as a subsidiary company in an
 company's SEC 10-K Exhibit 21, and be a utility that reports its generation to EIA. The
 challenge of integrating the SEC 10-K into PUDL is linking these three types of entities
 to each other when they refer to the same company. We attempt to make all three possible
-linkages among these entities.
+linkages among these entities, prioritizing precision over recall: we only include
+high-confidence links.
 
 * Based on company names, addresses, and other information we use
   `Splink <https://github.com/moj-analytical-services/splink>`__ to do a statistical
   record linkage between the universe of SEC 10-K Filers and EIA Utilities. This is
-  the most robust potential linkage, because both the SEC 10-K and EIA datasets are
+  the most complete linkage, because both the SEC 10-K and EIA datasets are
   relatively rich in details about the companies.
 * Based on standardized company names and incorporation locations, we try to link
-  each Exhibit 21 Subsidiary to a corresponding SEC 10-K Filer. This linkage is tenuous
-  because we have so little information about the subsidiary.
+  each Exhibit 21 Subsidiary to a corresponding SEC 10-K Filer. This linkage is sparse
+  because we have so little information about the subsidiary. It is likely that additional
+  links exist, but we do not have enough evidence to confirm them.
 * Similarly, we try to link individual subsidiaries to corresponding EIA utilities
   based on company name. In cases where the SEC 10-K filer has been linked
   to both an EIA utility and a subsidiary, we can also indirectly infer a link between
@@ -93,104 +95,8 @@ linkages among these entities.
 For more details on how these record linkages are done and how the Exhibit 21 data is
 extracted, see :doc:`/methodology/sec10k_modeling`.
 
-Linkage Completeness & Quality
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To understand what these linkages can be used for, we need to look at the ways in which
-they are incomplete and imperfect. Spot checking a couple of well known utilities can
-help highlight the strengths and weaknesses of the dataset.
-
-As an example, Xcel Energy is a multi-state utility holding company with several major
-subsidiary utilities operating in in Colorado, Minnesota, New Mexico, and Wisconsin. We
-can select some of its parent-subsidiary relationships from 2001, 2012 and 2023 from the
-PUDL outputs using the following query:
-
-.. tabs::
-
-   .. code-tab:: python pandas
-
-      import pandas as pd
-      xcel_subs = pd.read_parquet(
-          "s3://pudl.catalyst.coop/nightly/out_sec10k__parents_and_subsidiaries.parquet",
-      columns=[
-          "report_date",
-          "parent_company_central_index_key",
-          "parent_company_utility_id_eia",
-          "parent_company_name",
-          "subsidiary_company_id_sec10k",
-          "subsidiary_company_central_index_key",
-          "subsidiary_company_utility_id_eia",
-          "subsidiary_company_name",
-          "fraction_owned",
-      ],
-      dtype_backend="pyarrow"
-      ).query("parent_company_central_index_key == '0000072903'")
-      ).query("report_date.dt.year.isin([2001, 2012, 2023])")
-
-   .. code-tab:: sql DuckDB
-
-      SELECT
-          report_date,
-          parent_company_central_index_key,
-          parent_company_utility_id_eia,
-          parent_company_name,
-          subsidiary_company_id_sec10k,
-          subsidiary_company_central_index_key,
-          subsidiary_company_utility_id_eia,
-          subsidiary_company_name
-          fraction_owned
-      FROM
-          's3://pudl.catalyst.coop/nightly/out_sec10k__parents_and_subsidiaries.parquet'
-      WHERE
-          parent_company_central_index_key = '0000072903' AND
-          EXTRACT(YEAR FROM report_date) in (2001,2012,2023);
-
-   .. code-tab:: python polars
-
-      import polars as pl
-      xcel_subs = pl.read_parquet(
-          "s3://pudl.catalyst.coop/nightly/out_sec10k__parents_and_subsidiaries.parquet",
-          columns=[
-              "report_date",
-              "parent_company_central_index_key",
-              "parent_company_utility_id_eia",
-              "parent_company_name",
-              "subsidiary_company_id_sec10k",
-              "subsidiary_company_central_index_key",
-              "subsidiary_company_utility_id_eia",
-              "subsidiary_company_name",
-              "fraction_owned",
-          ]
-      ).filter(
-          pl.col("report_date").dt.year().is_in([2001, 2012, 2023]),
-          pl.col("parent_company_central_index_key").eq("0000072903")
-      )
-
-Looking at this sample of the data:
-
-* We can see that Xcel has successfully been linked to a corresponding EIA Utility ID.
-* In 2023, 4 of 18 listed Xcel subsidiaries have been associated with their own SEC
-  10-K filer CIK. In 2001, it was 3 out of 23.
-* Across both years, only 1 subsidiary company was linked to its own EIA Utility ID.
-* 2 subsidiaries that were linked to CIKs in 2023 also appear in 2001, but they were
-  not linked to EIA Utilities, apparently due to differences in how their names are
-  spelled.
-* No ownership fraction information was captured for any of the subsidiaries.
-
-Now, looking across the whole set of parent and subsidiary companies and selecting just
-companies with industry codes that suggest involvement in electricity generation
-("electric services" and "electric & other services combined") we find that 50-60% of
-companies have been consistently associated with EIA Utility IDs across the full range
-of years. "cogeneration services & small power producers" and "paperboard mills" (which
-frequently engage in cogeneration) also average more than 50% linkage to EIA. Inspecting
-the electric services companies that have not been linked to an EIA Utility ID, we find
-many familiar utilities that ideally would be matched, so be aware that the current
-linkage is incomplete.
-
-* What fraction of all EIA Utility IDs in EIA-923 get linked to an SEC 10-K filer?
-
 What can this data be used for?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 * Linking companies that file SEC 10-K to EIA Utilities. 50-60% of SEC 10-K filers
   that identify primarily as providing electric services are matched to an EIA
@@ -202,7 +108,11 @@ What can this data be used for?
   filers, those subsidiaries may also be linked to EIA Utilities.
 
 What can't this data be used for?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
+
+We encountered substantial challenges in working with this dataset, and many use cases
+we had hoped to support are not possible or severely limited. See the Irregularities
+section below for a full listing, but notably, this dataset is not appropriate for:
 
 * Quantitatively tracking how ownership of subsidiary companies has changed over time.
   This is not possible because subsidiary company IDs are specific to each parent
@@ -259,7 +169,7 @@ Our SEC 10-K dataset is not currently being updated
 ---------------------------------------------------
 
 Unlike almost all of the the other datasets that feed into PUDL, we are not currently
-updating the underlying SEC 10-K data and generating new ouutputs on a regular basis. We
+updating the underlying SEC 10-K data and generating new outputs on a regular basis. We
 do not currently have any dedicated funding for its ongoing maintenance, and the ML
 pipeline that extracts the Exhibit 21 attachment data is outside the scope of the main
 PUDL data processing pipeline.
@@ -283,17 +193,148 @@ which may also affect the quality of the record linkage. See issue :issue:`4165`
 :pr:`4134`. We should be able to fill in these gaps by re-running the extraction
 pipeline.
 
-Only half of SEC filers providing electric services are linked to EIA
----------------------------------------------------------------------
+Matches between EIA utility ids and SEC 10-K energy companies are sparse
+------------------------------------------------------------------------
 
-Inspection of the SEC 10-K filers with industry codes "electric services" or "electric &
-other services combined" (often joint electricity & natural gas utilities) suggests that
-substantially all of them ought to also be EIA 860/923 respondents, but only about half
-of them are successfully being linked to EIA utility IDs. With further refinement this
-fraction can likely be improved, given the richeness of both the EIA and SEC filer
-datasets. Manually labeled training data, use of year-specific company names, and
-enrichment of both datasets with additional company addresses or other attributes may
-all help.
+Only 14% of EIA utilities are linked to an SEC filer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Ideally, we would be able to link most companies with EIA ids to either a parent or a
+subsidiary company listed in the SEC 10-K.
+
+As of PUDL release v2025.9.1, only 2,309 out of 16,636 utilities with EIA ids have been
+identified in the SEC data; just under 14%. While these are all high-confidence matches,
+the link rate may not be enough for many desired use cases.
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - EIA utility IDs
+     - Count
+   * - All
+     - 16,636
+   * - Mapped to an SEC 10-K filer central index key
+     - 529
+   * - Mapped to an SEC 10-K subsidiary
+     - 1,941
+
+Maps to an SEC 10-K filer central index key are superior, since the data we have about filers
+is significantly richer than the data we have about subsidiaries.
+
+
+Only half of SEC filers providing electric services are linked to EIA utilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Ideally, we would be able to link most SEC companies that are clearly utilities to their
+associated EIA utility id.
+
+This is a little trickier to evaluate. SEC filers use a four-digit Standard Industrial
+Classification (SIC) code to identify the company's primary industry, but not all utilities
+file under the SICs for electric services (4911 and 4931), and not all companies that
+file as electric services are utilities. We see SICs as unexpected as computer storage
+devices, nursing facilities, and real estate among our -- high-confidence -- matches to EIA
+utilities.
+
+If we want to know how many utility-like SEC companies have a match, we can approach it from
+two angles:
+
+* Do most matches occur in utility-like industries? --> What are the most common SIC codes among matches?
+* Do most utility-like industries have good match coverage? --> What SIC codes have the highest match rates?
+
+As of PUDL release v2025.9.1, only 8,993 out of the 15,178 SEC filers we can match to EIA
+utility ids list themselves as electric services under SIC 4911 or 4931; just under 60%.
+A very long tail of low-incidence SIC codes covers the remaining 40% of the matches; see
+some of the more common ones in the table below.
+
+.. list-table:: Top 10 SICs by frequency within EIA-matched SEC filers
+   :header-rows: 1
+   :widths: auto
+
+   * - Percent of EIA-matched SEC filers
+     - Standard Industrial Code (SIC)
+     - Percent of SIC filers with an EIA match
+   * - 46%
+     - 4911
+     - 58%
+   * - 14%
+     - 4931
+     - 52%
+   * - 2.7%
+     - 6798
+     - 4%
+   * - 2.5%
+     - 6189
+     - 1.3%
+   * - 1.5%
+     - 1311
+     - 2.6%
+   * - 1.2%
+     - 2621
+     - 41%
+   * - 1.2%
+     - 2834
+     - 1.7%
+   * - 0.86%
+     - 4991
+     - 54%
+   * - 0.82%
+     - 4922
+     - 10%
+   * - 0.82%
+     - 4961
+     - 7.9%
+
+As of PUDL release v2025.9.1, only 8,993 out of the 15,845 SEC filers who file as
+electric services under SIC 4911 ("electric services") or 4931 ("electric & other
+services combined"; often joint electricity & natural gas utilities) have matches to EIA
+utilities; just under 57%. Inspection of the other SEC 10-K filers with these SIC codes
+suggests that the vast majority of them ought to be EIA 860/923 respondents, but the
+system was not able to find enough evidence to make a link. With further refinement the
+match rate in these SIC codes can likely be improved, given the richeness of both the
+EIA and SEC filer datasets. Manually labeled training data, use of year-specific company
+names, and enrichment of both datasets with additional company addresses or other
+attributes may all help.
+
+Other SIC categories where we have relatively high match rates are in the table below.
+
+.. list-table:: Top 10 SICs by match rate
+   :header-rows: 1
+   :widths: auto
+
+   * - Percent of EIA-matched SEC filers
+     - Standard Industrial Code (SIC)
+     - Percent of SIC filers with an EIA match
+   * - 46%
+     - 4911
+     - 58%
+   * - 0.8%
+     - 2631
+     - 54%
+   * - 0.86%
+     - 4991
+     - 54%
+   * - 14%
+     - 4931
+     - 52%
+   * - 1.2%
+     - 2621
+     - 41%
+   * - 0.11%
+     - 2600
+     - 40%
+   * - 0.66%
+     - 2650
+     - 34%
+   * - 0.21%
+     - 3011
+     - 27%
+   * - 0.28%
+     - 3760
+     - 27%
+   * - 0.23%
+     - 2511
+     - 23%
 
 About 5% of company addresses are being lost
 --------------------------------------------
@@ -305,6 +346,23 @@ impacted the quality of the record linkage to EIA Utilities and leads to more nu
 values in those fields than would be observed in the source data. See issue
 :issue:`4165` and PR :pr:`4134`. This bug has been fixed, and the lost addresses can
 be recovered by re-running the upstream extraction.
+
+Identification of subsidiary companies is extremely sparse
+----------------------------------------------------------
+
+As of PUDL release v2025.9.1, less than 2% of all subsidiary companies have a match to
+an SEC 10-K filer. The match rate varies by year, and stabilizes after 2012 at around
+1%. This is not necessarily bad -- many subsidiary companies may not be large enough to
+be required to file a 10-K -- but spot checks have shown many instances where a match
+missed by the system can easily be found by hand. Again, the system retains only
+high-confidence matches, so minor variations can cause a match to be excluded from the
+results. This is particularly visible in cases where a match is missing from one or more
+years in an otherwise-contiguous span; see "Subsidiary company IDs lack continuity
+between filings" below.
+
+The match rate is significantly better, but still low, within the electricity services
+Standard Industrial Classification (SIC) codes 4911 and 4931: 12% overall, and steadily
+increasing from under 4% in 1994 to nearly 20% in 2023.
 
 Subsidiary company IDs lack continuity between filings
 -------------------------------------------------------
@@ -346,7 +404,7 @@ Industry classifications applied to companies are not fully standardized
 A couple of the most useful fields in the SEC 10-K company information are
 ``industry_id_sic`` and ``industry_name_sic`` which indicates what sector the company
 is part of. However, both columns contain significant numbers of null values and the
-name field is not entirely standardized. Further cleaning of these columns would make it
-easier to select companies most likely to be relevant to energy system analyses.
+name field is not entirely standardized. Further cleaning of these columns is needed to
+make it easier to select companies most likely to be relevant to energy system analyses.
 
 {% endblock %}
