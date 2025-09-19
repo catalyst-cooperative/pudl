@@ -48,8 +48,8 @@ New Data Tests & Data Validations
   demand and prior work by :user:`truggles` & :user:`awongel`, we're removing the
   "EXPERIMENTAL" warning label that we had on those tables. See `our discussion
   about the imputation results in the PUDL Examples repo
-  <https://github.com/catalyst-cooperative/pudl-examples/pull/10>`__, and `the resulting
-  notebook <https://github.com/catalyst-cooperative/pudl-examples/blob/main/06-pudl-imputed-demand.ipynb>`__
+  <https://github.com/catalyst-cooperative/pudl-examples/pull/10>`__. The `associated
+  notebook is available on Kaggle <https://www.kaggle.com/code/catalystcooperative/06-pudl-imputed-electricity-demand>`__
 
   This relates to the PUDL imputed demand values in following tables:
 
