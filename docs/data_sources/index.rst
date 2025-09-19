@@ -10,6 +10,7 @@ The following data sources serve as the foundation for our data pipeline.
    :maxdepth: 1
 
    censusdp1tract
+   censuspep
    eiaapi
    eia860
    eia861
