@@ -22,7 +22,7 @@ dependencies:
   - antlr-python-runtime=4.13.2=pyhd8ed1ab_1
   - anyio=4.10.0=pyhe01879c_0
   - appdirs=1.4.4=pyhd8ed1ab_1
-  - arelle-release=2.37.57=pyhd8ed1ab_0
+  - arelle-release=2.37.58=pyhd8ed1ab_0
   - argon2-cffi=25.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=25.1.0=py313h07c4f96_0
   - arpack=3.9.1=nompi_hf03ea27_102
@@ -106,13 +106,13 @@ dependencies:
   - cyrus-sasl=2.1.28=hd9c7081_0
   - cytoolz=1.0.1=py313h536fd9c_0
   - daff=1.4.2=pyhd8ed1ab_0
-  - dagster=1.11.10=pyh742d864_0
-  - dagster-dbt=1!0.27.10=pyhcf101f3_0
-  - dagster-graphql=1.11.10=pyh742d864_0
-  - dagster-pipes=1.11.10=pyh742d864_0
-  - dagster-postgres=1!0.27.10=pyhcf101f3_0
-  - dagster-shared=1.11.10=pyh742d864_0
-  - dagster-webserver=1.11.10=pyh742d864_0
+  - dagster=1.11.11=pyh742d864_0
+  - dagster-dbt=1!0.27.11=pyhcf101f3_0
+  - dagster-graphql=1.11.11=pyh742d864_0
+  - dagster-pipes=1.11.11=pyh742d864_0
+  - dagster-postgres=1!0.27.11=pyhcf101f3_0
+  - dagster-shared=1.11.11=pyh742d864_0
+  - dagster-webserver=1.11.11=pyh742d864_0
   - dask=2025.9.1=pyhcf101f3_0
   - dask-core=2025.9.1=pyhcf101f3_0
   - dask-expr=2.0.0=pyhd8ed1ab_0
@@ -340,7 +340,7 @@ dependencies:
   - libstdcxx=15.1.0=h8f9b012_5
   - libstdcxx-ng=15.1.0=h4852527_5
   - libthrift=0.22.0=h454ac66_1
-  - libtiff=4.7.0=h8261f1e_6
+  - libtiff=4.7.1=h8261f1e_0
   - libutf8proc=2.11.0=hb04c3b8_0
   - libuuid=2.41.1=he9a06e4_0
   - libuv=1.51.0=hb03c661_1
@@ -435,7 +435,7 @@ dependencies:
   - prettier=3.6.2=h7e4c9f4_1
   - proj=9.6.2=h18fbb6c_2
   - prometheus-cpp=1.3.0=ha5d0236_0
-  - prometheus_client=0.22.1=pyhd8ed1ab_0
+  - prometheus_client=0.23.1=pyhd8ed1ab_0
   - prometheus_flask_exporter=0.23.2=pyhd8ed1ab_0
   - prompt-toolkit=3.0.52=pyha770c72_0
   - prompt_toolkit=3.0.52=hd8ed1ab_0
