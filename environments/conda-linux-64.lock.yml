@@ -34,19 +34,19 @@ dependencies:
   - at-spi2-core=2.40.3=h0630a04_0
   - atk-1.0=2.38.0=h04ea711_2
   - attrs=25.3.0=pyh71513ae_0
-  - aws-c-auth=0.9.0=h0fbd49f_19
+  - aws-c-auth=0.9.1=h4168de2_1
   - aws-c-cal=0.9.2=he7b75e1_1
   - aws-c-common=0.12.4=hb03c661_0
   - aws-c-compression=0.3.1=h92c474e_6
-  - aws-c-event-stream=0.5.5=h149bd38_3
-  - aws-c-http=0.10.4=h37a7233_0
-  - aws-c-io=0.21.2=h6252d9a_1
-  - aws-c-mqtt=0.13.3=h19deb91_3
-  - aws-c-s3=0.8.6=h800fcd2_2
+  - aws-c-event-stream=0.5.6=h4d13e43_1
+  - aws-c-http=0.10.4=hbd4fbc6_1
+  - aws-c-io=0.21.4=h88603f0_1
+  - aws-c-mqtt=0.13.3=h680d5b3_4
+  - aws-c-s3=0.8.6=h2635518_3
   - aws-c-sdkutils=0.2.4=h92c474e_1
   - aws-checksums=0.2.7=h92c474e_2
-  - aws-crt-cpp=0.33.1=hb4fd278_2
-  - aws-sdk-cpp=1.11.606=h31ade35_1
+  - aws-crt-cpp=0.34.1=h317f721_1
+  - aws-sdk-cpp=1.11.606=hb61a61c_2
   - azure-core-cpp=1.16.0=h3a458e0_1
   - azure-identity-cpp=1.12.0=ha729027_0
   - azure-storage-blobs-cpp=12.14.0=hb1c9500_1
@@ -279,10 +279,10 @@ dependencies:
   - lerc=4.0.0=h0aef613_1
   - libabseil=20250512.1=cxx17_hba17884_0
   - libarchive=3.8.1=gpl_h98cc613_100
-  - libarrow=20.0.0=he33ec85_21_cpu
-  - libarrow-acero=20.0.0=h635bf11_21_cpu
-  - libarrow-dataset=20.0.0=h635bf11_21_cpu
-  - libarrow-substrait=20.0.0=h3f74fd7_21_cpu
+  - libarrow=20.0.0=h412fed0_22_cpu
+  - libarrow-acero=20.0.0=h635bf11_22_cpu
+  - libarrow-dataset=20.0.0=h635bf11_22_cpu
+  - libarrow-substrait=20.0.0=h3f74fd7_22_cpu
   - libblas=3.9.0=35_h4a7cf45_openblas
   - libbrotlicommon=1.1.0=hb03c661_4
   - libbrotlidec=1.1.0=hb03c661_4
@@ -326,7 +326,7 @@ dependencies:
   - libopenblas=0.3.30=pthreads_h94d23a6_2
   - libopentelemetry-cpp=1.21.0=hb9b0907_1
   - libopentelemetry-cpp-headers=1.21.0=ha770c72_1
-  - libparquet=20.0.0=h790f06f_21_cpu
+  - libparquet=20.0.0=h790f06f_22_cpu
   - libpng=1.6.50=h421ea60_1
   - libpq=17.6=h3675c94_2
   - libprotobuf=6.31.1=h9ef548d_1
@@ -504,7 +504,7 @@ dependencies:
   - readline=8.2=h8c095d6_2
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_1
   - referencing=0.36.2=pyh29332c3_0
-  - regex=2025.9.1=py313h07c4f96_0
+  - regex=2025.9.18=py313h07c4f96_0
   - requests=2.32.5=pyhd8ed1ab_0
   - requests-oauthlib=2.0.0=pyhd8ed1ab_1
   - requests-toolbelt=1.0.0=pyhd8ed1ab_1
@@ -521,9 +521,9 @@ dependencies:
   - rsa=4.9.1=pyhd8ed1ab_0
   - ruamel.yaml=0.18.15=py313h07c4f96_1
   - ruamel.yaml.clib=0.2.12=py313h07c4f96_1
-  - ruff=0.13.0=ha3a3aed_1
+  - ruff=0.13.1=ha3a3aed_0
   - ruff-lsp=0.0.62=pyhd8ed1ab_0
-  - s2n=1.5.23=h8e187f5_0
+  - s2n=1.5.25=h5ac9029_1
   - s3fs=2025.9.0=pyhd8ed1ab_0
   - s3transfer=0.13.1=pyhd8ed1ab_0
   - scikit-learn=1.7.2=py313h06d4379_0
