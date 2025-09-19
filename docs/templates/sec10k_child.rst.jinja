@@ -306,7 +306,7 @@ values in those fields than would be observed in the source data. See issue
 :issue:`4165` and PR :pr:`4134`. This bug has been fixed, and the lost addresses can
 be recovered by re-running the upstream extraction.
 
-Subisidiary company IDs lack continuity between filings
+Subsidiary company IDs lack continuity between filings
 -------------------------------------------------------
 
 No meaningful company ID is reported for subsidiaries that appear in the Exhibit 21
@@ -328,10 +328,10 @@ across filings from different parent companies.
 Because subsidiary names and locations may be reported differently from year to year
 even within the same parent company's filings, we can't authoritatively track changes
 in those parent-subsidiary relationships through time. By analyzing the set of
-subisidiaries that appear under a given filer each year we can probably better
+subsidiaries that appear under a given filer each year we can probably better
 standardize their names and improve the temporal continuity of these IDs.
 
-The fraction of a subisidiary owned by its parent is rarely reported
+The fraction of a subsidiary owned by its parent is rarely reported
 --------------------------------------------------------------------
 
 In most cases, no ownership fraction is reported in the Exhibit 21, so we cannot state
