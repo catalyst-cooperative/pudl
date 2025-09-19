@@ -1964,7 +1964,7 @@ class Resource(PudlMeta):
             freports[field.name] = {
                 "valid": stats["actual"] <= stats["tolerance"],
                 "stats": stats,
-                "errors": errors.get(field.name, None),
+                "errors": errors.get(field.name),
             }
         nerrors = sum(not f["valid"] for f in freports.values())
         stats = {
