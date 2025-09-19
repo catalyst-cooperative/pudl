@@ -22,6 +22,12 @@ Deprecations
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860
+~~~~~~~~
+
+* Updated EIA-860 with final release data from 2024. See issue :issue:`4616` and
+  PR :pr:`4617`.
+
 New Data
 ^^^^^^^^
 
@@ -30,6 +36,10 @@ Quality of Life Improvements
 
 Documentation
 ^^^^^^^^^^^^^
+
+* Added data source pages for:
+
+  * :doc:`data_sources/censuspep`; see issue :issue:`4375` and PR :pr:`4622`.
 
 New Data Tests & Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
