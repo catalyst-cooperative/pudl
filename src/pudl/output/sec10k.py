@@ -63,7 +63,7 @@ def _fill_sics(df: pd.DataFrame) -> pd.DataFrame:
         "industry_id_sic"
     ].to_list()
     assert set(non_unique_sics) == known_nonunique_sics, (
-        f"Found non-unique mapping of SIC ID to industry name! {non_unique_sics-known_nonunique_sics}"
+        f"Found non-unique mapping of SIC ID to industry name! {non_unique_sics - known_nonunique_sics}"
     )
 
     # Forward and backward fill SIC codes within each company
