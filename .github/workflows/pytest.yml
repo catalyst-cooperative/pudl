@@ -32,12 +32,18 @@ jobs:
           predicate-quantifier: "every"
           filters: |
             code:
+              - '!docker/*'
               - '!docs/**.rst'
               - '!docs/**.md'
               - '!docs/**.pdf'
               - '!docs/**.html'
               - '!docs/**.rst.jinja'
               - '!docs/**.bib'
+              - '!.github/**.md'
+              - '!.github/FUNDING.yml'
+              - '!.github/actionlint.yml'
+              - '!.github/dependabot.yml'
+              - '!.github/release.yml'
               - '!README.rst'
               - '!CONTRIBUTING.rst'
               - '!LICENSE.txt'
