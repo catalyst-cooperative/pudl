@@ -8,36 +8,18 @@ sources:
               table_name: core_phmsagas__yearly_distribution_operators
               partition_column: report_year
         columns:
-          - name: report_date
           - name: report_number
-          - name: report_submission_type
           - name: report_year
           - name: operator_id_phmsa
           - name: operator_name_phmsa
           - name: office_street_address
           - name: office_city
           - name: office_county
-          - name: office_state
           - name: office_zip
+          - name: office_state
           - name: headquarters_street_address
           - name: headquarters_city
           - name: headquarters_county
           - name: headquarters_state
           - name: headquarters_zip
-          - name: excavation_damage_excavation_practices
-          - name: excavation_damage_locating_practices
-          - name: excavation_damage_one_call_notification
-          - name: excavation_damage_other
-          - name: excavation_damage_total
-          - name: excavation_tickets
-          - name: services_efv_in_system
-          - name: services_efv_installed
-          - name: services_shutoff_valve_in_system
-          - name: services_shutoff_valve_installed
-          - name: unaccounted_for_gas_fraction
           - name: additional_information
-          - name: preparer_email
-          - name: preparer_fax
-          - name: preparer_name
-          - name: preparer_phone
-          - name: preparer_title

@@ -8,6 +8,49 @@ GENERIC_CLEANING_STATE_WARNING = {
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "_core_phmsagas__yearly_distribution_filings": {
+        "description": {
+            "additional_summary_text": (
+                "miles of mains and the number of services in operation at "
+                "the end of the year by material for each gas distribution "
+                "operator."
+            ),
+            "additional_source_text": "(Part B - System Description / Section 1 - General)",
+            "usage_warnings": [
+                GENERIC_CLEANING_STATE_WARNING,
+                "aggregation_hazard",
+                {
+                    "type": "custom",
+                    "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
+                },
+            ],
+            "additional_primary_key_text": "We expect the primary key for this table should be report_number and material - but there are duplicates and we have not fully cleaned this table.",
+        },
+        "schema": {
+            "fields": [
+                "report_number",  # PK hopefully
+                "operator_id_phmsa",
+                "report_year",
+                "filing_date",
+                "initial_filing_date",
+                "filing_correction_date",
+                "report_filing_type",
+                "is_original_filing",  # TODO: convert to bool
+                "is_correction_filing",  # TODO: convert to bool
+                "data_date",
+                "form_revision_id",
+                "preparer_name",
+                "preparer_title",
+                "preparer_phone",
+                "preparer_fax",
+                "preparer_email",
+            ],
+            # "primary_key": ["report_number"],
+        },
+        "sources": ["phmsagas"],
+        "field_namespace": "phmsagas",
+        "etl_group": "phmsagas",
+    },
     "core_phmsagas__yearly_distribution_operators": {
         "description": (
             "This table contains operator-level natural gas distribution"
@@ -22,9 +65,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         ),
         "schema": {
             "fields": [
-                "report_date",
                 "report_number",
-                "report_submission_type",
                 "report_year",
                 "operator_id_phmsa",
                 "operator_name_phmsa",
@@ -38,23 +79,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "headquarters_county",
                 "headquarters_state",
                 "headquarters_zip",
-                "excavation_damage_excavation_practices",
-                "excavation_damage_locating_practices",
-                "excavation_damage_one_call_notification",
-                "excavation_damage_other",
-                "excavation_damage_total",
-                "excavation_tickets",
-                "services_efv_in_system",
-                "services_efv_installed",
-                "services_shutoff_valve_in_system",
-                "services_shutoff_valve_installed",
-                "unaccounted_for_gas_fraction",
                 "additional_information",
-                "preparer_email",
-                "preparer_fax",
-                "preparer_name",
-                "preparer_phone",
-                "preparer_title",
             ],
             "primary_key": ["report_number"],
         },
@@ -236,6 +261,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "hazardous_leaks_mechanical_joint_failure",
                 "federal_land_leaks_repaired_or_scheduled",
                 "average_service_length_feet",
+                "services_efv_in_system",
+                "services_efv_installed",
+                "services_shutoff_valve_in_system",
+                "services_shutoff_valve_installed",
+                "unaccounted_for_gas_fraction",
+                "excavation_tickets",
             ],
             # "primary_key": ["report_number"],
         },

@@ -25,20 +25,33 @@ logger = pudl.logging_helpers.get_logger(__name__)
 ##############################################################################
 # Constants required for transforming PHMSAGAS
 ##############################################################################
+YEARLY_DISTRIBUTION_FILING_COLUMNS = [
+    "report_number",  # PK hopefully
+    "log_number",  # we drop this after a check
+    "operator_id_phmsa",
+    "report_year",
+    "filing_date",
+    "initial_filing_date",
+    "filing_correction_date",
+    "report_filing_type",
+    "data_date",
+    "is_original_filing",  # TODO: convert to bool
+    "is_correction_filing",  # TODO: convert to bool
+    "form_revision_id",
+    "preparer_name",
+    "preparer_title",
+    "preparer_phone",
+    "preparer_fax",
+    "preparer_email",
+]
 
 YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
     "columns_to_keep": [
-        "report_date",
         "filing_date",
-        "correction_date",
         "data_date",
         "report_number",
         "supplemental_report_number",
-        "report_submission_type",
-        "original_report",
-        "supplementary_report",
         "report_year",
-        "log",
         "operator_id_phmsa",
         "operator_name_phmsa",
         "operating_state",
@@ -58,30 +71,13 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "headquarters_county",
         "headquarters_state",
         "headquarters_zip",
-        "excavation_tickets",
-        "services_efv_in_system",
-        "services_efv_installed",
-        "services_shutoff_valve_in_system",
-        "services_shutoff_valve_installed",
-        "percent_unaccounted_for_gas",
         "additional_information",
-        "preparer_email",
-        "preparer_fax",
-        "preparer_name",
-        "preparer_phone",
-        "preparer_title",
-        "form_revision",
         "data_maturity",
     ],
     "columns_to_convert_to_ints": [
         "report_year",
         "report_number",
         "operator_id_phmsa",
-        "excavation_tickets",
-        "services_efv_in_system",
-        "services_efv_installed",
-        "services_shutoff_valve_in_system",
-        "services_shutoff_valve_installed",
     ],
     "capitalization_exclusion": [
         "operating_state",
@@ -100,6 +96,12 @@ YEARLY_DISTRIBUTION_MISC_COLUMNS = [
     "hazardous_leaks_mechanical_joint_failure",
     "federal_land_leaks_repaired_or_scheduled",
     "average_service_length_feet",
+    "excavation_tickets",
+    "services_efv_in_system",
+    "services_efv_installed",
+    "services_shutoff_valve_in_system",
+    "services_shutoff_valve_installed",
+    "unaccounted_for_gas_percent",
 ]
 
 YEARLY_DISTRIBUTION_IDX_ISH = [
@@ -150,6 +152,7 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
     transformed_cols = set(
         YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]
         + YEARLY_DISTRIBUTION_MISC_COLUMNS
+        + YEARLY_DISTRIBUTION_FILING_COLUMNS
         + pattern_cols
         # This one gets pulled in into _core_phmsagas__yearly_distribution_by_material_and_size
         + ["main_other_material_detail"]
@@ -166,10 +169,54 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
 ##############################################################################
 
 
-@asset(
-    io_manager_key="pudl_io_manager",
-    compute_kind="pandas",
-)
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distribution):
+    """Transform information about filings (with PK report_number)."""
+    df = raw_phmsagas__yearly_distribution.loc[
+        :, YEARLY_DISTRIBUTION_FILING_COLUMNS
+    ].copy()
+
+    # Standardize NAs
+    df = standardize_na_values(df).pipe(pudl.helpers.convert_cols_dtypes)
+
+    # This is just the suffix of the report_number for only a few years.
+    # lets check that assumption and then delete it.
+    test_log = (
+        df.loc[df.log_number.notnull(), ["report_number", "log_number"]]
+        .astype(pd.Int64Dtype())
+        .astype(str)
+    )
+    # there was only one that didn't meet this expectation.
+    # the log # was 1064 but the report number ended in 1063
+    # CG checked and there is another seemingly fully different
+    # report_number ended in 1064 so this one seems like the log is wrong
+    # so its seems chill to delete this column
+    log_not_report_suffix = test_log[
+        (~test_log.apply(lambda x: x.report_number.endswith(x.log_number), axis=1))
+        & (test_log.report_number != "19951063")
+    ]
+    if not log_not_report_suffix.empty:
+        raise AssertionError(
+            f"We expect the log_number is almost always the suffix of the report_number but we found:\n{log_not_report_suffix}"
+        )
+    df = df.drop(columns=["log_number"])
+
+    df["report_filing_type"] = df["report_filing_type"].str.title()
+
+    # Streamline the initial and supplementary report columns
+    df["report_filing_type"] = (
+        df["report_filing_type"]
+        .mask(df["is_original_filing"], "Initial")
+        .mask(df["is_correction_filing"], "Supplemental")
+    )
+    # TODO: should we drop these?
+    # df = df.drop(columns=["is_original_filing", ""])
+    # Standardize telephone and fax number format and drop (000)-000-0000
+    df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
+    return df
+
+
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def core_phmsagas__yearly_distribution_operators(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -180,7 +227,6 @@ def core_phmsagas__yearly_distribution_operators(
     * Standardize NAs.
     * Strip blank spaces around string values.
     * Convert specific columns to integers.
-    * Standardize report_year values.
     * Standardize address columns.
     * Standardize phone and fax numbers.
 
@@ -195,11 +241,13 @@ def core_phmsagas__yearly_distribution_operators(
         :, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]
     ].copy()
 
+    df = clean_raw_phmsagas__yearly_distribution(df)
+
     # Standardize NAs
     df = standardize_na_values(df)
 
     # Convert date columns to datetime
-    for col in ["report_date", "filing_date", "correction_date", "data_date"]:
+    for col in df.filter(like="date").columns:
         df[col] = pd.to_datetime(df[col])
 
     # Initial string cleaning
@@ -213,13 +261,6 @@ def core_phmsagas__yearly_distribution_operators(
 
     # Use convert_dtypes() to convert columns to the most appropriate nullable types
     df[cols_to_convert] = df[cols_to_convert].convert_dtypes()
-
-    # Ensure all "report_year" values have four digits
-    # We expect these to all be years prior to 2000, and reporting starts in 1970
-    mask = (df["report_year"] < 100) & (df["report_year"] >= 70)
-
-    # Convert 2-digit years to appropriate 4-digit format
-    df.loc[mask, "report_year"] = 1900 + df.loc[mask, "report_year"]
 
     # Standardize case for city, county, operator name, etc.
     # Capitalize the first letter of each word in a list of columns
@@ -255,21 +296,6 @@ def core_phmsagas__yearly_distribution_operators(
     df["office_zip"] = zero_pad_numeric_string(df["office_zip"], n_digits=5)
     df["headquarters_zip"] = zero_pad_numeric_string(df["headquarters_zip"], n_digits=5)
 
-    # Standardize telephone and fax number format and drop (000)-000-0000
-    df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
-
-    # Convert percent unaccounted for gas to a fraction
-    df["unaccounted_for_gas_fraction"] = df["percent_unaccounted_for_gas"] / 100
-    df = df.drop(columns=["percent_unaccounted_for_gas"])
-
-    # Streamline the initial and supplementary report columns
-    df["report_submission_type"] = (
-        df["report_submission_type"]
-        .mask(df["original_report"] == "Y", "Initial")
-        .mask(df["supplementary_report"] == "Y", "Supplemental")
-    )
-    df = df.drop(columns=["original_report", "supplementary_report"])
-
     # Drop duplicates
     df = df.drop_duplicates()
 
@@ -285,8 +311,8 @@ def core_phmsagas__yearly_distribution_operators(
     ).apply(combined_filter)
 
     # There are ten values that we expect to be duplicated.
-    assert len(filtered_non_unique_rows) <= 10, (
-        f"Found {len(filtered_non_unique_rows)} records with duplicates, expected ten or less."
+    assert len(filtered_non_unique_rows) <= 113, (
+        f"Found {len(filtered_non_unique_rows)} records with duplicates, expected 113 or less."
     )
 
     # Combine filtered non-unique rows with untouched unique rows
@@ -339,22 +365,31 @@ def filter_by_city_in_name(group: pd.DataFrame) -> pd.DataFrame:
     Returns:
         The filtered group of rows.
     """
+    # print(group)
+    city_to_return = group
     # Check if any row has "office_city" contained in "operator_name_phmsa" (case insensitive)
-    city_in_name = (
-        group["office_city"]
-        .str.lower()
-        .apply(
-            lambda city: any(
-                city in name.lower() for name in group["operator_name_phmsa"]
+    if pd.NA in group["operator_name_phmsa"] or pd.NA in group["office_city"]:
+        city_to_return = group
+    else:
+        try:
+            city_in_name = (
+                group["office_city"]
+                .str.lower()
+                .apply(
+                    lambda city: any(
+                        city in str(name).lower()
+                        for name in group["operator_name_phmsa"]
+                    )
+                )
             )
-        )
-    )
-
-    if city_in_name.any():
-        # If any city is contained in the operator name, keep only those rows
-        return group[city_in_name]
+            if city_in_name.any():
+                # If any city is contained in the operator name, keep only those rows
+                city_to_return = group[city_in_name]
+        except TypeError:
+            print(group[["report_number", "operator_name_phmsa", "office_city"]])
+            city_to_return = group
     # If no city is contained in the operator name, return the group as-is
-    return group
+    return city_to_return
 
 
 def combined_filter(group: pd.DataFrame) -> pd.DataFrame:
@@ -370,25 +405,6 @@ def combined_filter(group: pd.DataFrame) -> pd.DataFrame:
     group = filter_by_city_in_name(group)
     group = filter_if_test_in_address(group)
     return group
-
-
-@asset_check(asset=core_phmsagas__yearly_distribution_operators, blocking=True)
-def _check_unaccounted_for_gas_fraction(df):
-    """Check what percentage of unaccounted gas values are reported as a negative number.
-
-    This is technically impossible but allowed by PHMSA.
-    """
-    # Count the rows where unaccounted gas is negative.
-    negative_count = (df["unaccounted_for_gas_fraction"] < 0).sum()
-
-    # Calculate the percentage
-    negative_percentage = negative_count / len(df)
-    if negative_percentage > 0.15:
-        error = f"Percentage of rows with negative unaccounted_for_gas_fraction values: {negative_percentage:.2f}"
-        logger.info(error)
-        return AssetCheckResult(passed=False, metadata={"errors": error})
-
-    return AssetCheckResult(passed=True)
 
 
 def _dedupe_year_distribution_idx(
@@ -639,7 +655,10 @@ def _core_phmsagas__yearly_distribution_excavation_damages(
 def _core_phmsagas__yearly_distribution_misc(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform this distribution table of miscellaneous numeric values."""
+    """Transform this distribution table of miscellaneous numeric values.
+
+    TODO: ADD summary information about incidents (also conceptually reported on the basis of report year, state, and operator ID)
+    """
     idx = ["report_year", "report_number", "operator_id_phmsa"]
     df = (
         clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
@@ -656,4 +675,28 @@ def _core_phmsagas__yearly_distribution_misc(
         assert all(dupes.report_year.isin([1980, 1981]))
         assert len(dupes) <= 6
     df = df.drop_duplicates(subset=idx, keep="first")
+
+    # Convert percent unaccounted for gas to a fraction
+    df["unaccounted_for_gas_fraction"] = df["unaccounted_for_gas_percent"] / 100
+    df = df.drop(columns=["unaccounted_for_gas_percent"])
+
     return df.convert_dtypes()
+
+
+@asset_check(asset=_core_phmsagas__yearly_distribution_misc, blocking=True)
+def _check_unaccounted_for_gas_fraction(df):
+    """Check what percentage of unaccounted gas values are reported as a negative number.
+
+    This is technically impossible but allowed by PHMSA.
+    """
+    # Count the rows where unaccounted gas is negative.
+    negative_count = (df["unaccounted_for_gas_fraction"] < 0).sum()
+
+    # Calculate the percentage
+    negative_percentage = negative_count / len(df)
+    if negative_percentage > 0.15:
+        error = f"Percentage of rows with negative unaccounted_for_gas_fraction values: {negative_percentage:.2f}"
+        logger.info(error)
+        return AssetCheckResult(passed=False, metadata={"errors": error})
+
+    return AssetCheckResult(passed=True)

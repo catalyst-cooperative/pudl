@@ -1109,6 +1109,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "or other electronic means."
         ),
     },
+    "data_date": {
+        "type": "date",
+        # this is how PHMSA describes this... which is terse at best.
+        "description": "Data as of date.",
+    },
     "data_observed": {
         "type": "boolean",
         "description": "Is the value observed (True) or imputed (False).",
@@ -2432,46 +2437,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Whether the reported technology data is estimated or actual.",
         "constraints": {"enum": list(ESTIMATED_OR_ACTUAL.values())},
     },
-    "excavation_damage_excavation_practices": {
-        "type": "integer",
-        "description": (
-            "Number of incidents in which damages resulted from failure to maintain "
-            "marks; or failure to support exposed facilities; or failure to use hand "
-            "tools where required; or failure to test-hole (pot-hole); or improper "
-            "backfilling practices; or failure to maintain clearance; or other "
-            "insufficient excavation practices."
-        ),
-    },
-    "excavation_damage_locating_practices": {
-        "type": "integer",
-        "description": (
-            "Number of incidents in which damages resulted from facility could not be "
-            "found or located; or facility marking or location not sufficient; or "
-            "facility was not located or marked; or incorrect facility records/maps."
-        ),
-    },
-    "excavation_damage_one_call_notification": {
-        "type": "integer",
-        "description": (
-            "Number of incidents in which damages resulted from no notification made "
-            "to the One-Call Center; or notification to one-call center made, but not "
-            "sufficient; or wrong information provided to One Call Center"
-        ),
-    },
-    "excavation_damage_other": {
-        "type": "integer",
-        "description": (
-            "Number of incidents in which damages resulted from from One-Call Center "
-            "error; or abandoned facility; or deteriorated facility; or previous "
-            "damage or data not collected; or other."
-        ),
-    },
-    "excavation_damage_total": {
-        "type": "integer",
-        "description": (
-            "Total number of incidents resulting in damage resulting from any cause."
-        ),
-    },
     "excavation_tickets": {
         "type": "integer",
         "description": (
@@ -2660,9 +2625,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "extension."
         ),
     },
+    "filing_correction_date": {
+        "type": "date",
+        "description": "Date when a correction filing was submitted.",
+    },
     "filing_date": {
         "type": "date",
-        "description": "Date of the day on which the filing was submitted.",
+        "description": "Date on which the filing was submitted.",
     },
     "film_number": {
         "type": "string",
@@ -2752,6 +2721,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "forecast_year": {
         "type": "integer",
         "description": "Four-digit year that applies to a particular forecasted value.",
+    },
+    "form_revision_id": {
+        "type": "string",
+        "description": "PHMSA form revision identifier.",
     },
     "fraction_owned": {
         "type": "number",
@@ -3433,6 +3406,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "pattern": r"^\d{4}$",
         },
+    },
+    "initial_filing_date": {
+        "type": "date",
+        "description": "Initial date when filing was originally submitted.",
     },
     "install_decade": {
         "type": "string",
@@ -5158,7 +5135,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Report number of the PHMSA Gas utility submission.",
     },
-    "report_submission_type": {
+    "report_filing_type": {
         "type": "string",
         "description": "Type of report submitted, either Initial or Supplemental.",
         "constraints": {"enum": ["Initial", "Supplemental"]},
@@ -6894,9 +6871,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Technology innovation scenarios. https://atb.nrel.gov/electricity/2023/definitions#scenarios",
         "constraints": {"enum": ["Advanced", "Moderate", "Conservative"]},
     },
+    "is_correction_filing": {
+        "type": "boolean",
+        "description": "Indicator of whether the filing is a correction filing or not. This is only reported from 2004-2009",
+    },
     "is_default": {
         "type": "boolean",
         "description": "Indicator of whether the technology is default.",
+    },
+    "is_original_filing": {
+        "type": "boolean",
+        "description": "Indicator of whether the filing is an original filing or not. This is only reported from 2004-2009",
     },
     "is_technology_mature": {
         "type": "boolean",

@@ -12,3 +12,9 @@ sources:
           - name: hazardous_leaks_mechanical_joint_failure
           - name: federal_land_leaks_repaired_or_scheduled
           - name: average_service_length_feet
+          - name: unaccounted_for_gas_fraction
+          - name: services_shutoff_valve_installed
+          - name: services_efv_installed
+          - name: services_shutoff_valve_in_system
+          - name: services_efv_in_system
+          - name: excavation_tickets

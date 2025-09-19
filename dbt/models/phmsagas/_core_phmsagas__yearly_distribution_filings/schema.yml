@@ -1,0 +1,22 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_phmsagas__yearly_distribution_filings
+        columns:
+          - name: report_number
+          - name: operator_id_phmsa
+          - name: report_year
+          - name: filing_date
+          - name: initial_filing_date
+          - name: filing_correction_date
+          - name: report_filing_type
+          - name: is_original_filing
+          - name: is_correction_filing
+          - name: data_date
+          - name: form_revision_id
+          - name: preparer_name
+          - name: preparer_title
+          - name: preparer_phone
+          - name: preparer_fax
+          - name: preparer_email

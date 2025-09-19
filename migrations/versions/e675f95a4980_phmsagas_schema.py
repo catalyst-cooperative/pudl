@@ -1,8 +1,8 @@
-"""add first draft of phmsagas schema
+"""phmsagas schema
 
-Revision ID: 6de52eea80d1
+Revision ID: e675f95a4980
 Revises: 76397c4db652
-Create Date: 2025-09-16 17:42:08.267996
+Create Date: 2025-09-19 17:41:37.036749
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6de52eea80d1'
+revision = 'e675f95a4980'
 down_revision = '76397c4db652'
 branch_labels = None
 depends_on = None
@@ -60,6 +60,24 @@ def upgrade() -> None:
     sa.Column('damage_sub_type', sa.Enum('deteriorated_facility', 'dug_after_expiry', 'failed_clearance', 'failed_to_protect_facilities', 'improper_backfilling', 'inaccurate_mark_abandoned_facility', 'inaccurate_mark_incorrect_records', 'inaccurate_mark_locator_error', 'inaccurate_mark_tracer_wire', 'incorrect_information', 'issues_total', 'marks_faded', 'no_one_call_made', 'not_marked_abandoned_facility', 'not_marked_incomplete_marks', 'not_marked_incorrect_records', 'not_marked_locator_error', 'not_marked_no_response', 'not_marked_tracer_wire', 'not_marked_unlocatable_facility', 'one_call_center_error', 'other_issues', 'outside_ticket_area', 'previous_damage', 'prior_to_test_hole_verification', 'prior_to_valid_start_time', 'root_cause_not_listed', 'total'), nullable=True, comment='A sub-category of damage_type of excavation damage causes.'),
     sa.Column('damages', sa.Float(), nullable=True, comment='Number of instances of excavation damage.')
     )
+    op.create_table('_core_phmsagas__yearly_distribution_filings',
+    sa.Column('report_number', sa.Integer(), nullable=True, comment='Report number of the PHMSA Gas utility submission.'),
+    sa.Column('operator_id_phmsa', sa.Integer(), nullable=True, comment='PHMSA unique operator ID.'),
+    sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
+    sa.Column('filing_date', sa.Date(), nullable=True, comment='Date on which the filing was submitted.'),
+    sa.Column('initial_filing_date', sa.Date(), nullable=True, comment='Initial date when filing was originally submitted.'),
+    sa.Column('filing_correction_date', sa.Date(), nullable=True, comment='Date when a correction filing was submitted.'),
+    sa.Column('report_filing_type', sa.Enum('Initial', 'Supplemental'), nullable=True, comment='Type of report submitted, either Initial or Supplemental.'),
+    sa.Column('is_original_filing', sa.Boolean(), nullable=True, comment='Indicator of whether the filing is an original filing or not. This is only reported from 2004-2009'),
+    sa.Column('is_correction_filing', sa.Boolean(), nullable=True, comment='Indicator of whether the filing is a correction filing or not. This is only reported from 2004-2009'),
+    sa.Column('data_date', sa.Date(), nullable=True, comment='Data as of date.'),
+    sa.Column('form_revision_id', sa.Text(), nullable=True, comment='PHMSA form revision identifier.'),
+    sa.Column('preparer_name', sa.Text(), nullable=True, comment='Name of representative who filed report.'),
+    sa.Column('preparer_title', sa.Text(), nullable=True, comment='Title of representative who filed report.'),
+    sa.Column('preparer_phone', sa.Text(), nullable=True, comment='Phone number of representative who filed report.'),
+    sa.Column('preparer_fax', sa.Text(), nullable=True, comment='Fax number of representative who filed report.'),
+    sa.Column('preparer_email', sa.Text(), nullable=True, comment='Email address of representative who filed report.')
+    )
     op.create_table('_core_phmsagas__yearly_distribution_leaks',
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('report_number', sa.Integer(), nullable=True, comment='Report number of the PHMSA Gas utility submission.'),
@@ -79,12 +97,16 @@ def upgrade() -> None:
     sa.Column('all_known_leaks_scheduled_for_repair_main', sa.Float(), nullable=True, comment='The number of known leaks on main at the end of the report year scheduled for repair.'),
     sa.Column('hazardous_leaks_mechanical_joint_failure', sa.Float(), nullable=True, comment='The total number of hazardous leaks caused by a mechanical joint failure.'),
     sa.Column('federal_land_leaks_repaired_or_scheduled', sa.Integer(), nullable=True, comment='Total number of leaks repaired, eliminated, or scheduled for repair on federal land during the reporting year.'),
-    sa.Column('average_service_length_feet', sa.Float(), nullable=True, comment='The average system service length in feet.')
+    sa.Column('average_service_length_feet', sa.Float(), nullable=True, comment='The average system service length in feet.'),
+    sa.Column('services_efv_in_system', sa.Integer(), nullable=True, comment='Estimated number of services with Excess Flow Valve in the system at end of reported year related to natural gas distribution.'),
+    sa.Column('services_efv_installed', sa.Integer(), nullable=True, comment='Total number of services with Excess Flow Valve installed during reported year related to natural gas distribution.'),
+    sa.Column('services_shutoff_valve_in_system', sa.Integer(), nullable=True, comment='Estimated number of services with manual service line shut-off valves installed in the system at end of report year related to natural gas distribution.'),
+    sa.Column('services_shutoff_valve_installed', sa.Integer(), nullable=True, comment='Total number of manual service line shut-off valves installed during reported year related to natural gas distribution.'),
+    sa.Column('unaccounted_for_gas_fraction', sa.Float(), nullable=True, comment='Unaccounted for gas as a fraction of total consumption for the 12 months ending June 30 of the reporting year. Calculated as follows: Take the sum of: purchased gas + produced gas minus customer use + company use + appropriate adjustments. Then divide by the sum of customer use + company use + appropriate adjustments.'),
+    sa.Column('excavation_tickets', sa.Integer(), nullable=True, comment='Number of Excavation Tickets received by the operator during the year, (i.e., receipt of information by the operator from the notification center).')
     )
     op.create_table('core_phmsagas__yearly_distribution_operators',
-    sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
     sa.Column('report_number', sa.Integer(), nullable=False, comment='Report number of the PHMSA Gas utility submission.'),
-    sa.Column('report_submission_type', sa.Enum('Initial', 'Supplemental'), nullable=True, comment='Type of report submitted, either Initial or Supplemental.'),
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
     sa.Column('operator_id_phmsa', sa.Integer(), nullable=True, comment='PHMSA unique operator ID.'),
     sa.Column('operator_name_phmsa', sa.Text(), nullable=True, comment='PHMSA operator name.'),
@@ -98,23 +120,7 @@ def upgrade() -> None:
     sa.Column('headquarters_county', sa.Text(), nullable=True, comment="County where an operator's headquarters are located."),
     sa.Column('headquarters_state', sa.Text(), nullable=True, comment="State where an operator's headquarters are located."),
     sa.Column('headquarters_zip', sa.Text(), nullable=True, comment="Zipcode where an operator's headquarters are located."),
-    sa.Column('excavation_damage_excavation_practices', sa.Integer(), nullable=True, comment='Number of incidents in which damages resulted from failure to maintain marks; or failure to support exposed facilities; or failure to use hand tools where required; or failure to test-hole (pot-hole); or improper backfilling practices; or failure to maintain clearance; or other insufficient excavation practices.'),
-    sa.Column('excavation_damage_locating_practices', sa.Integer(), nullable=True, comment='Number of incidents in which damages resulted from facility could not be found or located; or facility marking or location not sufficient; or facility was not located or marked; or incorrect facility records/maps.'),
-    sa.Column('excavation_damage_one_call_notification', sa.Integer(), nullable=True, comment='Number of incidents in which damages resulted from no notification made to the One-Call Center; or notification to one-call center made, but not sufficient; or wrong information provided to One Call Center'),
-    sa.Column('excavation_damage_other', sa.Integer(), nullable=True, comment='Number of incidents in which damages resulted from from One-Call Center error; or abandoned facility; or deteriorated facility; or previous damage or data not collected; or other.'),
-    sa.Column('excavation_damage_total', sa.Integer(), nullable=True, comment='Total number of incidents resulting in damage resulting from any cause.'),
-    sa.Column('excavation_tickets', sa.Integer(), nullable=True, comment='Number of Excavation Tickets received by the operator during the year, (i.e., receipt of information by the operator from the notification center).'),
-    sa.Column('services_efv_in_system', sa.Integer(), nullable=True, comment='Estimated number of services with Excess Flow Valve in the system at end of reported year related to natural gas distribution.'),
-    sa.Column('services_efv_installed', sa.Integer(), nullable=True, comment='Total number of services with Excess Flow Valve installed during reported year related to natural gas distribution.'),
-    sa.Column('services_shutoff_valve_in_system', sa.Integer(), nullable=True, comment='Estimated number of services with manual service line shut-off valves installed in the system at end of report year related to natural gas distribution.'),
-    sa.Column('services_shutoff_valve_installed', sa.Integer(), nullable=True, comment='Total number of manual service line shut-off valves installed during reported year related to natural gas distribution.'),
-    sa.Column('unaccounted_for_gas_fraction', sa.Float(), nullable=True, comment='Unaccounted for gas as a fraction of total consumption for the 12 months ending June 30 of the reporting year. Calculated as follows: Take the sum of: purchased gas + produced gas minus customer use + company use + appropriate adjustments. Then divide by the sum of customer use + company use + appropriate adjustments.'),
     sa.Column('additional_information', sa.Text(), nullable=True, comment='Any additional information which will assist in clarifying or classifying the reported data.'),
-    sa.Column('preparer_email', sa.Text(), nullable=True, comment='Email address of representative who filed report.'),
-    sa.Column('preparer_fax', sa.Text(), nullable=True, comment='Fax number of representative who filed report.'),
-    sa.Column('preparer_name', sa.Text(), nullable=True, comment='Name of representative who filed report.'),
-    sa.Column('preparer_phone', sa.Text(), nullable=True, comment='Phone number of representative who filed report.'),
-    sa.Column('preparer_title', sa.Text(), nullable=True, comment='Title of representative who filed report.'),
     sa.PrimaryKeyConstraint('report_number', name=op.f('pk_core_phmsagas__yearly_distribution_operators'))
     )
     # ### end Alembic commands ###
@@ -125,6 +131,7 @@ def downgrade() -> None:
     op.drop_table('core_phmsagas__yearly_distribution_operators')
     op.drop_table('_core_phmsagas__yearly_distribution_misc')
     op.drop_table('_core_phmsagas__yearly_distribution_leaks')
+    op.drop_table('_core_phmsagas__yearly_distribution_filings')
     op.drop_table('_core_phmsagas__yearly_distribution_excavation_damages')
     op.drop_table('_core_phmsagas__yearly_distribution_by_material_and_size')
     op.drop_table('_core_phmsagas__yearly_distribution_by_material')
