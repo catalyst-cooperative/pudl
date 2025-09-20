@@ -177,9 +177,21 @@ jobs:
       - name: Collect Workflow Telemetry
         uses: catchpoint/workflow-telemetry-action@v2
 
+      - name: Show disk space usage 1
+        run: |
+          df -h
+          du -sh /*
+          du -sh /home/runner/*
+
       - uses: actions/checkout@v5
         with:
           fetch-depth: 2
+
+      - name: Show disk space usage 2
+        run: |
+          df -h
+          du -sh /*
+          du -sh /home/runner/*
 
       - name: Install Conda environment using mamba
         uses: mamba-org/setup-micromamba@v2
@@ -187,6 +199,12 @@ jobs:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
           cache-environment: true
+
+      - name: Show disk space usage 3
+        run: |
+          df -h
+          du -sh /*
+          du -sh /home/runner/*
 
       - name: Log environment details
         run: |
@@ -206,6 +224,12 @@ jobs:
           grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
           | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
+      - name: Show disk space usage 4
+        run: |
+          df -h
+          du -sh /*
+          du -sh /home/runner/*
+
       - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v4
         id: cache-zenodo-datastore
@@ -216,8 +240,12 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: List workspace contents
-        run: find /home/runner/pudl-work
+      - name: Show disk space usage 5
+        run: |
+          df -h
+          du -sh /*
+          du -sh /home/runner/*
+          du -sh /home/runner/pudl-work/*
 
       - name: Set default GCP credentials
         id: gcloud-auth
@@ -232,6 +260,13 @@ jobs:
           pip install --no-deps --editable .
           pudl_datastore --dataset epacems --partition year_quarter=2023q1
           make pytest-integration
+
+      - name: Show disk space usage 6
+        run: |
+          df -h
+          du -sh /*
+          du -sh /home/runner/*
+          du -sh /home/runner/pudl-work/*
 
       - name: Coverage debugging output
         run: |
