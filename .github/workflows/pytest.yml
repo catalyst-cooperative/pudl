@@ -171,8 +171,8 @@ jobs:
           path: .coverage
 
   ci-integration:
-    # runs-on: ubuntu-latest-8core
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest-4core
+    # runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: change_filter
     if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     permissions:
