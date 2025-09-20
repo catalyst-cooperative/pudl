@@ -180,7 +180,6 @@ jobs:
       - name: Show disk space usage 1
         run: |
           df -h
-          du -sh /*
           du -sh /home/runner/*
 
       - uses: actions/checkout@v5
@@ -190,7 +189,6 @@ jobs:
       - name: Show disk space usage 2
         run: |
           df -h
-          du -sh /*
           du -sh /home/runner/*
 
       - name: Install Conda environment using mamba
@@ -203,7 +201,6 @@ jobs:
       - name: Show disk space usage 3
         run: |
           df -h
-          du -sh /*
           du -sh /home/runner/*
 
       - name: Log environment details
@@ -227,7 +224,6 @@ jobs:
       - name: Show disk space usage 4
         run: |
           df -h
-          du -sh /*
           du -sh /home/runner/*
 
       - name: Restore Zenodo datastore from cache if possible
@@ -243,7 +239,6 @@ jobs:
       - name: Show disk space usage 5
         run: |
           df -h
-          du -sh /*
           du -sh /home/runner/*
           du -sh /home/runner/pudl-work/*
 
@@ -264,7 +259,6 @@ jobs:
       - name: Show disk space usage 6
         run: |
           df -h
-          du -sh /*
           du -sh /home/runner/*
           du -sh /home/runner/pudl-work/*
 
