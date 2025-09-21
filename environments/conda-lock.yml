@@ -20630,39 +20630,39 @@ package:
     category: main
     optional: false
   - name: pyparsing
-    version: 3.2.4
+    version: 3.2.5
     manager: conda
     platform: linux-64
     dependencies:
       python: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.4-pyhcf101f3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.5-pyhcf101f3_0.conda
     hash:
-      md5: bf1f1292fc78307956289707e85cb1bf
-      sha256: c3260cf948da6345770d75ae559d716e557580eddcd19623676931d172346969
+      md5: 6c8979be6d7a17692793114fa26916e8
+      sha256: 6814b61b94e95ffc45ec539a6424d8447895fef75b0fec7e1be31f5beee883fb
     category: main
     optional: false
   - name: pyparsing
-    version: 3.2.4
+    version: 3.2.5
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.10"
-    url: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.4-pyhcf101f3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.5-pyhcf101f3_0.conda
     hash:
-      md5: bf1f1292fc78307956289707e85cb1bf
-      sha256: c3260cf948da6345770d75ae559d716e557580eddcd19623676931d172346969
+      md5: 6c8979be6d7a17692793114fa26916e8
+      sha256: 6814b61b94e95ffc45ec539a6424d8447895fef75b0fec7e1be31f5beee883fb
     category: main
     optional: false
   - name: pyparsing
-    version: 3.2.4
+    version: 3.2.5
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.10"
-    url: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.4-pyhcf101f3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.5-pyhcf101f3_0.conda
     hash:
-      md5: bf1f1292fc78307956289707e85cb1bf
-      sha256: c3260cf948da6345770d75ae559d716e557580eddcd19623676931d172346969
+      md5: 6c8979be6d7a17692793114fa26916e8
+      sha256: 6814b61b94e95ffc45ec539a6424d8447895fef75b0fec7e1be31f5beee883fb
     category: main
     optional: false
   - name: pyproj

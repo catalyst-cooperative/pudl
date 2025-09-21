@@ -466,7 +466,7 @@ dependencies:
   - pynacl=1.6.0=py313h07c4f96_0
   - pyogrio=0.11.1=py313h8b61037_1
   - pyopenssl=25.1.0=pyhd8ed1ab_0
-  - pyparsing=3.2.4=pyhcf101f3_0
+  - pyparsing=3.2.5=pyhcf101f3_0
   - pyproj=3.7.2=py313hcfca4fd_1
   - pyproject_hooks=1.2.0=pyhd8ed1ab_1
   - pysocks=1.7.1=pyha55dd90_7
