@@ -161,8 +161,8 @@ jobs:
           path: .coverage
 
   ci-integration:
-    runs-on: ubuntu-latest-8core
-    # runs-on: blacksmith-4vcpu-ubuntu-2404
+    # runs-on: ubuntu-latest-8core
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: change_filter
     if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     permissions:
@@ -225,6 +225,7 @@ jobs:
         run: |
           df -h
           du -sh /home/runner/*
+          ls -l /home/runner/
 
       - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v4
@@ -240,7 +241,9 @@ jobs:
         run: |
           df -h
           du -sh /home/runner/*
+          ls -l /home/runner/
           du -sh /home/runner/pudl-work/*
+          find /home/runner -type f -exec ls -lSh {} +
 
       - name: Set default GCP credentials
         id: gcloud-auth
@@ -260,7 +263,9 @@ jobs:
         run: |
           df -h
           du -sh /home/runner/*
+          ls -l /home/runner/
           du -sh /home/runner/pudl-work/*
+          find /home/runner -type f -exec ls -lSh {} +
 
       - name: Coverage debugging output
         run: |
