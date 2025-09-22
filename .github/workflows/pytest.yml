@@ -177,19 +177,9 @@ jobs:
       - name: Collect Workflow Telemetry
         uses: catchpoint/workflow-telemetry-action@v2
 
-      - name: Show disk space usage 1
-        run: |
-          df -h
-          du -sh /home/runner/*
-
       - uses: actions/checkout@v5
         with:
           fetch-depth: 2
-
-      - name: Show disk space usage 2
-        run: |
-          df -h
-          du -sh /home/runner/*
 
       - name: Install Conda environment using mamba
         uses: mamba-org/setup-micromamba@v2
@@ -198,9 +188,8 @@ jobs:
           environment-name: pudl-dev
           cache-environment: true
 
-      - name: Show disk space usage 3
+      - name: Show disk space usage 1
         run: |
-          df -h
           du -sh /home/runner/*
 
       - name: Log environment details
@@ -221,12 +210,6 @@ jobs:
           grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
           | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
-      - name: Show disk space usage 4
-        run: |
-          df -h
-          du -sh /home/runner/*
-          ls -l /home/runner/
-
       - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v4
         id: cache-zenodo-datastore
@@ -237,14 +220,11 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: Show disk space usage 5
+      - name: Show disk space usage 2
         run: |
-          df -h
           du -sh /home/runner/*
-          ls -l /home/runner/
           du -sh /home/runner/pudl-work/*
-          find /home/runner/_work -type f -exec ls -lSh {} +
-          find /home/runner/pudl-work -type f -exec ls -lSh {} +
+          du -sh /home/runner/_work/*
 
       - name: Set default GCP credentials
         id: gcloud-auth
@@ -260,16 +240,12 @@ jobs:
           pudl_datastore --dataset epacems --partition year_quarter=2023q1
           make pytest-integration
 
-      - name: Show disk space usage 6
+      - name: Show disk space usage 3
         run: |
-          df -h
           du -sh /home/runner/*
-          ls -l /home/runner/
-          du -sh /tmp/pytest-of-runner/
-          find /tmp/pytest-of-runner/ -type f -exec ls -lSh {} +
           du -sh /home/runner/pudl-work/*
-          find /home/runner/_work -type f -exec ls -lSh {} +
-          find /home/runner/pudl-work -type f -exec ls -lSh {} +
+          du -sh /home/runner/_work/*
+          du -sh /tmp/pytest-of-runner/
 
       - name: Coverage debugging output
         run: |
