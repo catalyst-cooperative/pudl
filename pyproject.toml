@@ -26,7 +26,7 @@ dependencies = [
     "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
     "dask>=2025",
     "dask-expr>=2", # Required for dask[dataframe]
-    "dbt-core>=1.10.12",
+    "dbt-core>=1.10.11,!=1.10.12",
     "dbt-duckdb>=1.9.4",
     "deepdiff>=7.0.1",
     "doc8>=1.1",
