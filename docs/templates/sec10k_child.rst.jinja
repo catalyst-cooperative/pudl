@@ -196,13 +196,15 @@ pipeline.
 Matches between EIA utility ids and SEC 10-K energy companies are sparse
 ------------------------------------------------------------------------
 
+.. figures in this section derived in notebooks/work-in-progress/sec10k_irregularities_figures.ipynb
+
 Only 14% of EIA utilities are linked to an SEC filer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Ideally, we would be able to link most companies with EIA ids to either a parent or a
 subsidiary company listed in the SEC 10-K.
 
-As of PUDL release v2025.9.1, only 2,309 out of 16,636 utilities with EIA ids have been
+As of PUDL release v2025.9.1, only 2,308 out of 16,636 utilities with EIA ids have been
 identified in the SEC data; just under 14%. While these are all high-confidence matches,
 the link rate may not be enough for many desired use cases.
 
@@ -217,7 +219,7 @@ the link rate may not be enough for many desired use cases.
    * - Mapped to an SEC 10-K filer central index key
      - 529
    * - Mapped to an SEC 10-K subsidiary
-     - 1,941
+     - 1,940
 
 Maps to an SEC 10-K filer central index key are superior, since the data we have about filers
 is significantly richer than the data we have about subsidiaries.
