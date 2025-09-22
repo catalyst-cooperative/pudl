@@ -362,6 +362,7 @@ zip = ">=3.0"
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
+relative_files = true
 
 [tool.coverage.report]
 precision = 2
