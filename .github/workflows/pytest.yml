@@ -161,6 +161,11 @@ jobs:
           path: .coverage
 
   ci-integration:
+    # The blacksmith-4vcpu-ubuntu-2404 runner has 4vCPUs, 16GB RAM, 80 GB disk.
+    # It's much cheaper and a little faster than the 8vCPU GitHub runner, which
+    # is the smallest GitHub runner we seemt to be able to run our integration
+    # tests on.
+    # Dashboard at https://app.blacksmith.sh/catalyst-cooperative/
     # runs-on: ubuntu-latest-8core
     runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: change_filter
