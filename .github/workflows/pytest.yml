@@ -243,7 +243,8 @@ jobs:
           du -sh /home/runner/*
           ls -l /home/runner/
           du -sh /home/runner/pudl-work/*
-          find /home/runner -type f -exec ls -lSh {} +
+          find /home/runner/_work -type f -exec ls -lSh {} +
+          find /home/runner/pudl-work -type f -exec ls -lSh {} +
 
       - name: Set default GCP credentials
         id: gcloud-auth
@@ -264,8 +265,11 @@ jobs:
           df -h
           du -sh /home/runner/*
           ls -l /home/runner/
+          du -sh /tmp/pytest-of-runner/
+          find /tmp/pytest-of-runner/ -type f -exec ls -lSh {} +
           du -sh /home/runner/pudl-work/*
-          find /home/runner -type f -exec ls -lSh {} +
+          find /home/runner/_work -type f -exec ls -lSh {} +
+          find /home/runner/pudl-work -type f -exec ls -lSh {} +
 
       - name: Coverage debugging output
         run: |
