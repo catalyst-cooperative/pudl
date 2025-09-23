@@ -7,7 +7,7 @@ name = "catalystcoop.pudl"
 description = "An open data processing pipeline for US energy data"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
-requires-python = ">=3.13,<3.14"
+requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
 license = { file = "LICENSE.txt" }
 dependencies = [
@@ -21,13 +21,12 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=3",
     "coverage>=7.10",
-    "dagster>=1.11.8",
-    "dagster-dbt", # Automatically follows dagster version
-    "dagster-postgres", # Automatically follows dagster version
+    "dagster>=1.11.10",
+    "dagster-dbt", # Needs to follow dagster, but RTD can't deal with epochs
+    "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
     "dask>=2025",
     "dask-expr>=2", # Required for dask[dataframe]
-    "datasette>=0.65",
-    "dbt-core>=1.10.10",
+    "dbt-core>=1.10.11,!=1.10.12",
     "dbt-duckdb>=1.9.4",
     "deepdiff>=7.0.1",
     "doc8>=1.1",
@@ -37,7 +36,7 @@ dependencies = [
     "fsspec>=2025",
     "furo>=2024",
     "gcsfs>=2025",
-    "gdal==3.11.3", # pinned, because we need it to work with pudl-archiver
+    "gdal==3.11.4", # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.1",
     "geoarrow-pyarrow>=0.2",
     "grpcio==1.73.1", # Required by dagster, binary dependencies are flaky
@@ -59,23 +58,23 @@ dependencies = [
     "pandas>=2.3",
     "pandera>=0.26",
     "pre-commit>=4",
-    "pyarrow>=20,<21", # pandas[parquet]
+    "pyarrow>=20,<21", # pandas[parquet]; <21 for Kaggle geopandas compatibility
     "pydantic>=2.11",
     "pydantic-settings>=2.10",
     "pytest>=8.4",
     "pytest-console-scripts>=1.4",
-    "pytest-cov>=6.2",
-    "pytest-mock>=3.14",
+    "pytest-cov>=7",
+    "pytest-mock>=3.15",
     "pytest-order>=1.3",
     "pytest-xdist>=3.8",
-    "python-calamine>=0.4", # pandas[excel]
+    "python-calamine>=0.5.2", # pandas[excel]
     "python-dotenv>=1",
     "pytz>=2025",
     "pyyaml>=6",
     "readthedocs-sphinx-ext>=2",
     "requests>=2.32",
     "responses>=0.25",
-    "ruff>=0.12",
+    "ruff>=0.13",
     "s3fs>=2025",
     "scikit-learn>=1.7",
     "scipy>=1.16",
@@ -85,13 +84,13 @@ dependencies = [
     "sphinx-autoapi>=3",
     "sphinx-issues>=5",
     "sphinx-reredirects>=1",
-    "sphinx-tabs>=1.3",
+    "sphinx-tabs>=3.4",
     "sphinxcontrib_bibtex>=2.6",
     "sphinxcontrib_googleanalytics>=0.4",
     "sqlalchemy>=2",
-    "sqlglot>=27",
+    "sqlglot==27.14.0",  # See: https://github.com/moj-analytical-services/splink/issues/2773
     "timezonefinder>=8",
-    "typos>=1.35", # Spell-checker
+    "typos>=1.36", # Spell-checker
     "universal_pathlib>=0.2",
     "urllib3>=2.4",
     "xlsxwriter>=3.2", # pandas[excel]
@@ -158,7 +157,7 @@ resource_description = "pudl.scripts.resource_description:main"
 
 [project.optional-dependencies]
 dev = [
-    "dagster-webserver>=1.11.8",
+    "dagster-webserver>=1.11.10",
     "jupyterlab>4.4",
     "jupyter-lsp",
     "jupyterlab-lsp",
@@ -357,12 +356,13 @@ nodejs = ">=24"
 pandoc = ">=3.7"
 pip = ">=25"
 prettier = ">=3.6,<4"
-python = ">=3.13,<3.14"
+python = ">=3.13,<3.14.0a0"
 sqlite = ">=3.50"
 zip = ">=3.0"
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
+relative_files = true
 
 [tool.coverage.report]
 precision = 2

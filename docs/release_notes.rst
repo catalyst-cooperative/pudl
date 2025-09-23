@@ -2,11 +2,73 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2025.9.0:
+---------------------------------------------------------------------------------------
+v2025.XX.x (2025-MM-DD)
+---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+Deprecations
+^^^^^^^^^^^^
+
+* We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
+  deployment, but are still working on achieiving feature parity in the new `PUDL Data
+  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
+  <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
+  :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
+  main PUDL repo.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860
+~~~~~~~~
+
+* Updated EIA-860 with final release data from 2024. See issue :issue:`4616` and
+  PR :pr:`4617`.
+
+New Data
+^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+* Added data source pages for:
+
+  * :doc:`data_sources/censuspep`; see issue :issue:`4375` and PR :pr:`4622`.
+
+New Data Tests & Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* After investigating some modest discrepancies between our imputed hourly electricity
+  demand and prior work by :user:`truggles` & :user:`awongel`, we're removing the
+  "EXPERIMENTAL" warning label that we had on those tables. See `our discussion
+  about the imputation results in the PUDL Examples repo
+  <https://github.com/catalyst-cooperative/pudl-examples/pull/10>`__. The `associated
+  notebook is available on Kaggle <https://www.kaggle.com/code/catalystcooperative/06-pudl-imputed-electricity-demand>`__
+
+  This relates to the PUDL imputed demand values in following tables:
+
+  * :ref:`out_eia930__hourly_operations`
+  * :ref:`out_eia930__hourly_subregion_demand`
+  * :ref:`out_eia930__hourly_aggregated_demand`
+
+Bug Fixes
+^^^^^^^^^
+
+.. _release-v2025.9.1:
 
 ---------------------------------------------------------------------------------------
-v2025.9.0 (2025-09-05)
+v2025.9.1 (2025-09-05)
 ---------------------------------------------------------------------------------------
+
+.. note::
+
+   There was an issue with the ``v2025.9.0`` release process and that tag was deleted.
 
 This is a monthly release primarily focused on updating the EIA-860M, with other
 incremental changes coming along for the ride. A couple of things to be aware of:
@@ -1865,7 +1927,7 @@ Database Schema Changes
   started being reported, but only in the output tables. See: :pr:`1906,1911`
 * Renamed and removed some columns in the :doc:`data_sources/epacems` dataset.
   ``unitid`` was changed to ``emissions_unit_id_epa`` to clarify the type of unit it
-  represents. ``unit_id_epa`` was removed because it is a unique identifyer for
+  represents. ``unit_id_epa`` was removed because it is a unique identifier for
   ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
   ``facility_id`` was removed because it is specific to EPA's internal database and does
   not aid in connection with other data. :pr:`1692`
