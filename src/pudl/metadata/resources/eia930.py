@@ -131,12 +131,11 @@ Negative interchange values indicate net inflows, and positive interchange value
     "out_eia930__hourly_operations": {
         "description": {
             "additional_summary_text": "balancing authority net generation, interchange, and demand with imputed demand.",
-            "additional_details_text": """(EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04.)
-
-This table is based on ``core_eia930__hourly_operations``, but adds imputed demand where the original data was missing or anomalous. Codes explaining why values have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.
-
-This table is available in the nightly builds during development, but has not been fully
-vetted yet.""",
+            "additional_details_text": """This table is based on ``core_eia930__hourly_operations``,
+but adds imputed demand where the original data was missing or anomalous. Codes
+explaining why values have been imputed can be found in the
+``core_pudl__codes_imputation_reasons`` table.
+""",
             "usage_warnings": ["imputed_values", "experimental_wip"],
         },
         "schema": {
@@ -169,9 +168,7 @@ vetted yet.""",
     "out_eia930__hourly_aggregated_demand": {
         "description": {
             "additional_summary_text": "aggregated balancing authority demand by EIA region, interconnect, and continental US.",
-            "additional_details_text": """(EXPERIMENTAL / WORK-IN-PROGRESS, 2025-04-04)
-
-The spatial granularity of each record is indicated by `aggregation_level`.""",
+            "additional_details_text": """The spatial granularity of each record is indicated by `aggregation_level`.""",
             "usage_warnings": ["aggregation_hazard", "experimental_wip"],
         },
         "schema": {
@@ -195,9 +192,7 @@ The spatial granularity of each record is indicated by `aggregation_level`.""",
     "out_eia930__hourly_subregion_demand": {
         "description": {
             "additional_summary_text": "balancing authority subregion demand with imputed demand.",
-            "additional_details_text": """(EXPERIMENTAL / WORK-IN-PROGRESS, 2025-03-31)
-
-This table is based on ``core_eia930__hourly_subregion_demand``, but adds imputed demand where the original data was missing or anomalous. Codes explaining why values have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.""",
+            "additional_details_text": """This table is based on ``core_eia930__hourly_subregion_demand``, but adds imputed demand where the original data was missing or anomalous. Codes explaining why values have been imputed can be found in the ``core_pudl__codes_imputation_reasons`` table.""",
             "usage_warnings": ["imputed_values", "experimental_wip"],
         },
         "schema": {
