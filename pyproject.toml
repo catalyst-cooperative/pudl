@@ -26,7 +26,7 @@ dependencies = [
     "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
     "dask>=2025",
     "dask-expr>=2", # Required for dask[dataframe]
-    "dbt-core>=1.10.12",
+    "dbt-core>=1.10.11,!=1.10.12",
     "dbt-duckdb>=1.9.4",
     "deepdiff>=7.0.1",
     "doc8>=1.1",
@@ -88,7 +88,7 @@ dependencies = [
     "sphinxcontrib_bibtex>=2.6",
     "sphinxcontrib_googleanalytics>=0.4",
     "sqlalchemy>=2",
-    "sqlglot>=27",
+    "sqlglot==27.14.0",  # See: https://github.com/moj-analytical-services/splink/issues/2773
     "timezonefinder>=8",
     "typos>=1.36", # Spell-checker
     "universal_pathlib>=0.2",
@@ -362,6 +362,7 @@ zip = ">=3.0"
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
+relative_files = true
 
 [tool.coverage.report]
 precision = 2

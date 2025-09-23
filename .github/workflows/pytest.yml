@@ -161,7 +161,13 @@ jobs:
           path: .coverage
 
   ci-integration:
-    runs-on: ubuntu-latest-8core
+    # The blacksmith-4vcpu-ubuntu-2404 runner has 4vCPUs, 16GB RAM, 80 GB disk.
+    # It's much cheaper and a little faster than the 8vCPU GitHub runner, which
+    # is the smallest GitHub runner we seemt to be able to run our integration
+    # tests on.
+    # Dashboard at https://app.blacksmith.sh/catalyst-cooperative/
+    # runs-on: ubuntu-latest-8core
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: change_filter
     if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     permissions:
@@ -172,8 +178,10 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-
     steps:
+      - name: Collect Workflow Telemetry
+        uses: catchpoint/workflow-telemetry-action@v2
+
       - uses: actions/checkout@v5
         with:
           fetch-depth: 2
@@ -184,6 +192,10 @@ jobs:
           environment-file: environments/conda-lock.yml
           environment-name: pudl-dev
           cache-environment: true
+
+      - name: Show disk space usage 1
+        run: |
+          du -sh /home/runner/*
 
       - name: Log environment details
         run: |
@@ -213,8 +225,11 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: List workspace contents
-        run: find /home/runner/pudl-work
+      - name: Show disk space usage 2
+        run: |
+          du -sh /home/runner/*
+          du -sh /home/runner/pudl-work/*
+          du -sh /home/runner/_work/*
 
       - name: Set default GCP credentials
         id: gcloud-auth
@@ -229,6 +244,13 @@ jobs:
           pip install --no-deps --editable .
           pudl_datastore --dataset epacems --partition year_quarter=2023q1
           make pytest-integration
+
+      - name: Show disk space usage 3
+        run: |
+          du -sh /home/runner/*
+          du -sh /home/runner/pudl-work/*
+          du -sh /home/runner/_work/*
+          du -sh /tmp/pytest-of-runner/
 
       - name: Coverage debugging output
         run: |
