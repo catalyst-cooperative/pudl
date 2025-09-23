@@ -50,8 +50,8 @@ Exhibit 21 to other sets of companies, including the SEC 10-K filers themselves,
 as companies that file the EIA Form 860.
 
 Second, we wrote `a machine learning pipeline
-<https://github.com/catalyst-cooperative/mozilla-sec-eia>`__. to extract structured
-tabular data form the unstructured Exhibit 21 attachments. This includes an ID
+<https://github.com/catalyst-cooperative/mozilla-sec-eia>`__ to extract structured
+tabular data from the unstructured Exhibit 21 attachments. This includes an ID
 indicating what filing the attachment was part of, the subisdiary company name and
 location, and in some cases, the fraction of the subsidiary that is owned by the parent
 company making the filing.
@@ -155,10 +155,10 @@ required to file their own SEC 10-K.
 {% block original_data %}
 
 The SEC filing database is called EDGAR. The agency provides an `online search interface
-<https://www.sec.gov/search-filings>`__ for all filings as well as `a REST API
-<https://www.sec.gov/search-filings/edgar-application-programming-interfaces>`__ and
-`several RSS feeds <https://www.sec.gov/about/rss-feeds>`__. EDGAR is the original
-source of all of the SEC 10-K data in PUDL.
+<https://www.sec.gov/search-filings>`__ for all filings back to 2001 as well as `a REST
+API <https://www.sec.gov/search-filings/edgar-application-programming-interfaces>`__ and
+`several RSS feeds <https://www.sec.gov/about/rss-feeds>`__ that can go back a bit
+farther. EDGAR is the original source of all of the SEC 10-K data in PUDL.
 
 The original data is a collection of HTML documents with custom plaintext SEC headers.
 The PUDL output tables contain a field ``source_url`` which points to these original
@@ -206,8 +206,8 @@ Matches between EIA utility ids and SEC 10-K energy companies are sparse
 
 .. figures in this section derived in notebooks/work-in-progress/sec10k_irregularities_figures.ipynb
 
-Only 14% of EIA utilities are linked to an SEC filer
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Only 14% of EIA utilities are linked to an SEC filer or subsidiary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Ideally, we would be able to link most companies with EIA ids to either a parent or a
 subsidiary company listed in the SEC 10-K.
@@ -388,16 +388,16 @@ Exhibit 21 attachment. However:
 
 This means that if a subsidiary is reported under more than one parent company, it is
 guaranteed to be assigned a different ID in each of them. Unless a subsidiary has also
-been associated with its own EIA CIK or EIA utility ID, we can't see how the same
+been associated with its own SEC CIK or EIA utility ID, we can't see how the same
 company is connected to multiple parents. Given how little information we have about
 each subsidiary, it will be difficult to generate authoritiative IDs that can be applied
 across filings from different parent companies.
 
 Because subsidiary names and locations may be reported differently from year to year
-even within the same parent company's filings, we can't authoritatively track changes
-in those parent-subsidiary relationships through time. By analyzing the set of
-subsidiaries that appear under a given filer each year we can probably better
-standardize their names and improve the temporal continuity of these IDs.
+even within the same parent company's filings, we can't authoritatively track changes in
+those parent-subsidiary relationships through time. It is likely however that we can
+better standardize names and improve the temporal continuity of these IDs by analyzing
+the set of subsidiaries that appear under a given filer each year.
 
 The fraction of a subsidiary owned by its parent is rarely reported
 --------------------------------------------------------------------
