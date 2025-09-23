@@ -30,6 +30,8 @@ YEARLY_DISTRIBUTION_FILING_COLUMNS = [
     "log_number",  # we drop this after a check
     "operator_id_phmsa",
     "report_year",
+    "commodity",  # these two need to be in here for clean_raw_phmsagas__yearly_distribution
+    "operating_state",
     "filing_date",
     "initial_filing_date",
     "filing_correction_date",
@@ -176,8 +178,11 @@ def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distributio
         :, YEARLY_DISTRIBUTION_FILING_COLUMNS
     ].copy()
 
-    # Standardize NAs
-    df = standardize_na_values(df).pipe(pudl.helpers.convert_cols_dtypes)
+    df = (
+        clean_raw_phmsagas__yearly_distribution(df)
+        .pipe(standardize_na_values)
+        .pipe(pudl.helpers.convert_cols_dtypes)
+    )
 
     # This is just the suffix of the report_number for only a few years.
     # lets check that assumption and then delete it.
@@ -210,10 +215,10 @@ def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distributio
         .mask(df["is_correction_filing"], "Supplemental")
     )
     # TODO: should we drop these?
-    # df = df.drop(columns=["is_original_filing", ""])
+    # df = df.drop(columns=["is_original_filing", "is_correction_filing"])
     # Standardize telephone and fax number format and drop (000)-000-0000
     df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
-    return df
+    return df.drop_duplicates()
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
@@ -296,115 +301,7 @@ def core_phmsagas__yearly_distribution_operators(
     df["office_zip"] = zero_pad_numeric_string(df["office_zip"], n_digits=5)
     df["headquarters_zip"] = zero_pad_numeric_string(df["headquarters_zip"], n_digits=5)
 
-    # Drop duplicates
-    df = df.drop_duplicates()
-
-    # Identify non-unique groups based on our PK
-    # There are a small number of records with duplicate report numbers
-    # and either duplicate or "test" data in the rows. Remove the 'bad data'
-    # to ensure a unique primary key.
-    non_unique_groups = df[df.duplicated(["report_number"], keep=False)]
-
-    # Apply some custom filtering logic to non-unique groups
-    filtered_non_unique_rows = non_unique_groups.groupby(
-        ["report_number"], group_keys=False
-    ).apply(combined_filter)
-
-    # There are ten values that we expect to be duplicated.
-    assert len(filtered_non_unique_rows) <= 113, (
-        f"Found {len(filtered_non_unique_rows)} records with duplicates, expected 113 or less."
-    )
-
-    # Combine filtered non-unique rows with untouched unique rows
-    unique_rows = df.drop(non_unique_groups.index)
-    df = pd.concat([unique_rows, filtered_non_unique_rows], ignore_index=True)
-
     return df
-
-
-def filter_if_test_in_address(group: pd.DataFrame) -> pd.DataFrame:
-    """Filters out rows with "test" in address columns.
-
-    For any group of rows with the same combination of "operator_id_phmsa"
-    and "report_number", if at least one row in the group does not contain the string
-    "test" (case-insensitive) in either "office_street_address" or
-    "headquarters_street_address", keep only the rows in the group that do not contain
-    "test" in these columns. If all rows in the group contain "test" in either of the
-    columns, leave the group unchanged.
-
-    Args:
-        group: A grouped subset of the DataFrame.
-
-    Returns:
-        The filtered group of rows.
-    """
-    # Check if at least one row in the group does NOT contain "test" in both of the specified columns
-    contains_test = group.apply(
-        lambda row: "test" in str(row["office_street_address"]).lower()
-        or "test" in str(row["headquarters_street_address"]).lower(),
-        axis=1,
-    )
-    has_non_test = not contains_test.all()
-
-    if has_non_test:
-        # Keep rows where "test" does NOT appear in either column
-        return group[~contains_test]
-    # If all rows have "test", keep the group as is
-    return group
-
-
-def filter_by_city_in_name(group: pd.DataFrame) -> pd.DataFrame:
-    """Deduplication to keep duplicated rows where city and operator name overlap.
-
-    Filter to only keep rows where "office_city" value is contained in the
-    "operator_name_phmsa" value (case insensitive).
-
-    Args:
-        group: A grouped subset of the DataFrame.
-
-    Returns:
-        The filtered group of rows.
-    """
-    # print(group)
-    city_to_return = group
-    # Check if any row has "office_city" contained in "operator_name_phmsa" (case insensitive)
-    if pd.NA in group["operator_name_phmsa"] or pd.NA in group["office_city"]:
-        city_to_return = group
-    else:
-        try:
-            city_in_name = (
-                group["office_city"]
-                .str.lower()
-                .apply(
-                    lambda city: any(
-                        city in str(name).lower()
-                        for name in group["operator_name_phmsa"]
-                    )
-                )
-            )
-            if city_in_name.any():
-                # If any city is contained in the operator name, keep only those rows
-                city_to_return = group[city_in_name]
-        except TypeError:
-            print(group[["report_number", "operator_name_phmsa", "office_city"]])
-            city_to_return = group
-    # If no city is contained in the operator name, return the group as-is
-    return city_to_return
-
-
-def combined_filter(group: pd.DataFrame) -> pd.DataFrame:
-    """Apply all required filters to DataFrame.
-
-    Args:
-        group: A grouped subset of the DataFrame.
-
-    Returns:
-        The filtered group of rows.
-    """
-    # Apply filters
-    group = filter_by_city_in_name(group)
-    group = filter_if_test_in_address(group)
-    return group
 
 
 def _dedupe_year_distribution_idx(
@@ -467,7 +364,44 @@ def clean_raw_phmsagas__yearly_distribution(
     ).replace(
         to_replace={r"^( {1,})$": pd.NA, "NONE": pd.NA, "none": pd.NA}, regex=True
     )
+    # there are a small number of records in the older years with a null operator id...
+    # sigh. there are already a bunch of records with a placeholder id of 0. so we
+    # are setting these null ones to zero.
+    assert len(cleaned_raw[cleaned_raw.operator_id_phmsa.isnull()]) >= 20
+    cleaned_raw.operator_id_phmsa = cleaned_raw.operator_id_phmsa.fillna(0)
+
+    # Identify non-unique groups based on our core PK. These all have a 0 for
+    # the operator_id_phmsa. We check that those are the only ones and
+    # then drop them
+    non_unique_groups = cleaned_raw[
+        cleaned_raw.duplicated(["report_number", "operator_id_phmsa"], keep=False)
+    ]
+    # There are 6 values that we expect to be duplicated.
+    assert len(non_unique_groups) <= 6, (
+        f"Found {len(non_unique_groups)} records with duplicates, expected 6 or less."
+    )
+    assert all(non_unique_groups.operator_id_phmsa == 0), (
+        "We expect all of the non-unique rows to have the operator_id_phmsa of 0, but found "
+        f"{non_unique_groups.operator_id_phmsa.to_numpy()}"
+    )
+    # drop the duplicates.
+    cleaned_raw = cleaned_raw.drop(non_unique_groups.index)
     return cleaned_raw
+
+
+def _melt_col_pattern(df, filter_pattern, value_name, col_patterns):
+    """Melt a dataframe based on a filter regex pattern and assign pattern columns."""
+    return (
+        df.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=filter_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="melt_col", value_name=value_name)
+        .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
+        .drop(columns=["melt_col"])
+        .set_index(list(col_patterns.keys()), append=True)
+        .dropna(how="all", axis="index")
+    )
 
 
 def _melt_merge_main_services(
@@ -481,28 +415,12 @@ def _melt_merge_main_services(
         raw_phmsagas__yearly_distribution
     )
     logger.info("Melting main")
-    main = (
-        cleaned_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=main_pattern)
-        .dropna(how="all", axis="index")
-        .convert_dtypes()
-        .melt(ignore_index=False, var_name="melt_col", value_name="mains_miles")
-        .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
-        .drop(columns=["melt_col"])
-        .set_index(list(col_patterns.keys()), append=True)
-        .dropna(how="all", axis="index")
+    main = _melt_col_pattern(
+        cleaned_raw, main_pattern, value_name="mains_miles", col_patterns=col_patterns
     )
     logger.info("Melting service")
-    services = (
-        cleaned_raw.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=services_pattern)
-        .dropna(how="all", axis="index")
-        .convert_dtypes()
-        .melt(ignore_index=False, var_name="melt_col", value_name="services")
-        .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
-        .drop(columns=["melt_col"])
-        .set_index(list(col_patterns.keys()), append=True)
-        .dropna(how="all", axis="index")
+    services = _melt_col_pattern(
+        cleaned_raw, services_pattern, value_name="services", col_patterns=col_patterns
     )
     return (
         pd.merge(
@@ -605,6 +523,7 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
         material_detail_wrong_place_mask, "services"
     ]
     df.loc[material_detail_wrong_place_mask, "services"] = np.nan
+    df.services = df.services.astype(pd.Float64Dtype())
     return df
 
 
@@ -633,20 +552,17 @@ def _core_phmsagas__yearly_distribution_excavation_damages(
         "_core_phmsagas__yearly_distribution_excavation_damages"
     ]["damage_pattern"]
     col_patterns = {
-        "damage_type": rf"({'|'.join(DAMAGE_TYPES_PHMSAGAS)})",
+        "damage_type": rf"excavation_damage_({'|'.join(DAMAGE_TYPES_PHMSAGAS)})",
         "damage_sub_type": damage_pattern,
     }
     return (
         clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
-        .set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=damage_pattern)
-        .dropna(how="all", axis="index")
-        .convert_dtypes()
-        .melt(ignore_index=False, var_name="melt_col", value_name="damages")
-        .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
-        .drop(columns=["melt_col"])
-        .set_index(list(col_patterns.keys()), append=True)
-        .dropna(how="all", axis="index")
+        .pipe(
+            _melt_col_pattern,
+            damage_pattern,
+            value_name="damages",
+            col_patterns=col_patterns,
+        )
         .reset_index()
     )
 
@@ -659,7 +575,7 @@ def _core_phmsagas__yearly_distribution_misc(
 
     TODO: ADD summary information about incidents (also conceptually reported on the basis of report year, state, and operator ID)
     """
-    idx = ["report_year", "report_number", "operator_id_phmsa"]
+    idx = ["report_year", "report_number", "operator_id_phmsa", "operating_state"]
     df = (
         clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
         .loc[:, idx + YEARLY_DISTRIBUTION_MISC_COLUMNS]

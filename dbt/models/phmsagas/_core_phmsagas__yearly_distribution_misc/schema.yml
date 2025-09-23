@@ -7,6 +7,7 @@ sources:
           - name: report_year
           - name: report_number
           - name: operator_id_phmsa
+          - name: operating_state
           - name: all_known_leaks_scheduled_for_repair
           - name: all_known_leaks_scheduled_for_repair_main
           - name: hazardous_leaks_mechanical_joint_failure

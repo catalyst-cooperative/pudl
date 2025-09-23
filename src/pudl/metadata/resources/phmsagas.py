@@ -11,24 +11,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "_core_phmsagas__yearly_distribution_filings": {
         "description": {
             "additional_summary_text": (
-                "miles of mains and the number of services in operation at "
-                "the end of the year by material for each gas distribution "
-                "operator."
+                "filings (aka submissions) from gas distribution system operators."
             ),
-            "additional_source_text": "(Part B - System Description / Section 1 - General)",
-            "usage_warnings": [
-                GENERIC_CLEANING_STATE_WARNING,
-                "aggregation_hazard",
-                {
-                    "type": "custom",
-                    "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
-                },
-            ],
-            "additional_primary_key_text": "We expect the primary key for this table should be report_number and material - but there are duplicates and we have not fully cleaned this table.",
+            "usage_warnings": [GENERIC_CLEANING_STATE_WARNING],
         },
         "schema": {
             "fields": [
-                "report_number",  # PK hopefully
+                "report_number",
                 "operator_id_phmsa",
                 "report_year",
                 "filing_date",
@@ -45,7 +34,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "preparer_fax",
                 "preparer_email",
             ],
-            # "primary_key": ["report_number"],
+            "primary_key": ["report_number", "operator_id_phmsa"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -81,7 +70,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "headquarters_zip",
                 "additional_information",
             ],
-            "primary_key": ["report_number"],
+            "primary_key": ["report_number", "operator_id_phmsa"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -103,7 +92,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
                 },
             ],
-            "additional_primary_key_text": "We expect the primary key for this table should be report_number and material - but there are duplicates and we have not fully cleaned this table.",
+            "additional_primary_key_text": (
+                "We expect the primary key for this table should be report_number, "
+                "operator_id_phmsa, operating_state and material. There are nulls in "
+                "the operating_state across several years of reporting."
+            ),
         },
         "schema": {
             "fields": [
@@ -116,7 +109,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "mains_miles",
                 "services",
             ],
-            # "primary_key": ["report_number", "material"],
+            # "primary_key": [
+            #     "report_number",
+            #     "operator_id_phmsa",
+            #     "operating_state",
+            #     "material",
+            # ],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -134,7 +132,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "The records with an install decade of all_time are a total - "
                 "beware of aggregating these values."
             ),
-            "additional_primary_key_text": "We expect the primary key for this table should be report_number and install_decade - but there are duplicates and we have not fully cleaned this table.",
+            "additional_primary_key_text": (
+                "We expect the primary key for this table should be report_number, "
+                "operator_id_phmsa, operating_state and install_decade. There are "
+                "nulls in the operating_state across several years of reporting."
+            ),
         },
         "schema": {
             "fields": [
@@ -147,7 +149,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "mains_miles",
                 "services",
             ],
-            # "primary_key": ["report_number", "install_decade"],
+            "primary_key": [
+                "report_number",
+                "operator_id_phmsa",
+                "operating_state",
+                "install_decade",
+            ],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -160,7 +167,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ),
             "additional_source_text": "(Part C)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
-            "additional_primary_key_text": "We expect the primary key for this table should be report_number, leak_severity and leak_source - but there are duplicates and we have not fully cleaned this table.",
+            "additional_primary_key_text": (
+                "We expect the primary key for this table should be report_number, "
+                "operator_id_phmsa, operating_state, leak_severity and leak_source. "
+                "There are nulls in the operating_state across several years of "
+                "reporting."
+            ),
         },
         "schema": {
             "fields": [
@@ -174,7 +186,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "mains_miles",  # TODO: make into number of instances not miles. and check all instances of this column
                 "services",
             ],
-            # "primary_key": ["report_number", "leak_severity", "leak_source"],
+            # "primary_key": [
+            #     "report_number",
+            #     "operator_id_phmsa",
+            #     "operating_state",
+            #     "leak_severity",
+            #     "leak_source",
+            # ],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -199,7 +217,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
                 },
             ],
-            "additional_primary_key_text": "We expect the primary key for this table should be report_number, main_size and material - but there are duplicates and we have not fully cleaned this table.",
+            "additional_primary_key_text": (
+                "We expect the primary key for this table should be report_number, "
+                "operator_id_phmsa, operating_state, main_size and material. "
+                "There are nulls in the operating_state across several years of "
+                "reporting."
+            ),
         },
         "schema": {
             "fields": [
@@ -214,7 +237,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "services",
                 "main_other_material_detail",
             ],
-            # "primary_key": ["report_number", "main_size", "material"],
+            # "primary_key": [
+            #     "report_number",
+            #     "operator_id_phmsa",
+            #     "operating_state",
+            #     "main_size",
+            #     "material",
+            # ],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -238,7 +267,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "damage_sub_type",
                 "damages",
             ],
-            # "primary_key": ["report_number", "damage_type", "damage_sub_type"],
+            "primary_key": [
+                "report_number",
+                "operator_id_phmsa",
+                "operating_state",
+                "damage_type",
+                "damage_sub_type",
+            ],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -249,13 +284,19 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_summary_text": ("miscellaneous distribution information."),
             "additional_source_text": "(Part B & C)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING],
-            "additional_primary_key_text": "We expect the primary key for this table should be report_number - but there are duplicates and we have not fully cleaned this table.",
+            "additional_primary_key_text": (
+                "We expect the primary key for this table should be report_number, "
+                "operator_id_phmsa, and operating_state. "
+                "There are nulls in the operating_state across several years of "
+                "reporting."
+            ),
         },
         "schema": {
             "fields": [
                 "report_year",
                 "report_number",
                 "operator_id_phmsa",
+                "operating_state",
                 "all_known_leaks_scheduled_for_repair",
                 "all_known_leaks_scheduled_for_repair_main",
                 "hazardous_leaks_mechanical_joint_failure",
@@ -268,7 +309,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "unaccounted_for_gas_fraction",
                 "excavation_tickets",
             ],
-            # "primary_key": ["report_number"],
+            # "primary_key": ["report_number", "operating_state", "operator_id_phmsa"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
