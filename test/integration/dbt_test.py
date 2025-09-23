@@ -91,6 +91,8 @@ def test_update_tables(
     assert ret.success
 
 
+# Has to run after test_dbt above otherwise dbt dependencies aren't installed
+@pytest.mark.order(4)
 def test_validate_asset_selection():
     runner = CliRunner()
     result = runner.invoke(
