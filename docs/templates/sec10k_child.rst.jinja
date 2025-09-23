@@ -132,11 +132,13 @@ section below for a full listing, but notably, this dataset is not appropriate f
 
 {% block availability %}
 
-The SEC filing database is called EDGAR. The agency provides an `online search interface
-<https://www.sec.gov/search-filings>`__ for all filings as well as `a REST API
-<https://www.sec.gov/search-filings/edgar-application-programming-interfaces>`__ and
-`several RSS feeds <https://www.sec.gov/about/rss-feeds>`__. EDGAR is the original
-source of all of the SEC 10-K data in PUDL.
+PUDL includes data extracted from a 2024 snapshot of quarterly SEC 10-K filings going
+back to 1995. Exhibit 21 attachments reporting subsidiary relationships are included for
+most filings, with the exception of Q1 filings from 2018-2022 (see Irregularities
+below).
+
+If you are interested in PUDL integrating updates to this data on an ongoing basis,
+get in touch with us!
 
 {% endblock %}
 
@@ -151,6 +153,12 @@ required to file their own SEC 10-K.
 {% endblock %}
 
 {% block original_data %}
+
+The SEC filing database is called EDGAR. The agency provides an `online search interface
+<https://www.sec.gov/search-filings>`__ for all filings as well as `a REST API
+<https://www.sec.gov/search-filings/edgar-application-programming-interfaces>`__ and
+`several RSS feeds <https://www.sec.gov/about/rss-feeds>`__. EDGAR is the original
+source of all of the SEC 10-K data in PUDL.
 
 The original data is a collection of HTML documents with custom plaintext SEC headers.
 The PUDL output tables contain a field ``source_url`` which points to these original
