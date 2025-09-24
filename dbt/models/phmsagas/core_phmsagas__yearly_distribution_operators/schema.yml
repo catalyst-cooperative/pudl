@@ -8,7 +8,7 @@ sources:
               table_name: core_phmsagas__yearly_distribution_operators
               partition_column: report_year
         columns:
-          - name: report_number
+          - name: report_id
           - name: report_year
           - name: operator_id_phmsa
           - name: operator_name_phmsa

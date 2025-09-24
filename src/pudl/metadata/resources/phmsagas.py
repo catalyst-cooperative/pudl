@@ -17,7 +17,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "schema": {
             "fields": [
-                "report_number",
+                "report_id",
                 "operator_id_phmsa",
                 "report_year",
                 "filing_date",
@@ -34,7 +34,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "preparer_fax",
                 "preparer_email",
             ],
-            "primary_key": ["report_number", "operator_id_phmsa"],
+            "primary_key": ["report_id", "operator_id_phmsa"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -54,7 +54,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         ),
         "schema": {
             "fields": [
-                "report_number",
+                "report_id",
                 "report_year",
                 "operator_id_phmsa",
                 "operator_name_phmsa",
@@ -70,7 +70,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "headquarters_zip",
                 "additional_information",
             ],
-            "primary_key": ["report_number", "operator_id_phmsa"],
+            "primary_key": ["report_id", "operator_id_phmsa"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -93,7 +93,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 },
             ],
             "additional_primary_key_text": (
-                "We expect the primary key for this table should be report_number, "
+                "We expect the primary key for this table should be report_id, "
                 "operator_id_phmsa, operating_state and material. There are nulls in "
                 "the operating_state across several years of reporting."
             ),
@@ -101,7 +101,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "report_number",
+                "report_id",
                 "operator_id_phmsa",
                 "commodity",
                 "operating_state",
@@ -110,7 +110,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "services",
             ],
             # "primary_key": [
-            #     "report_number",
+            #     "report_id",
             #     "operator_id_phmsa",
             #     "operating_state",
             #     "material",
@@ -133,7 +133,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "beware of aggregating these values."
             ),
             "additional_primary_key_text": (
-                "We expect the primary key for this table should be report_number, "
+                "We expect the primary key for this table should be report_id, "
                 "operator_id_phmsa, operating_state and install_decade. There are "
                 "nulls in the operating_state across several years of reporting."
             ),
@@ -141,7 +141,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "report_number",
+                "report_id",
                 "operator_id_phmsa",
                 "commodity",
                 "operating_state",
@@ -150,7 +150,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "services",
             ],
             "primary_key": [
-                "report_number",
+                "report_id",
                 "operator_id_phmsa",
                 "operating_state",
                 "install_decade",
@@ -168,7 +168,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_source_text": "(Part C)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
             "additional_primary_key_text": (
-                "We expect the primary key for this table should be report_number, "
+                "We expect the primary key for this table should be report_id, "
                 "operator_id_phmsa, operating_state, leak_severity and leak_source. "
                 "There are nulls in the operating_state across several years of "
                 "reporting."
@@ -177,7 +177,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "report_number",
+                "report_id",
                 "operator_id_phmsa",
                 "commodity",
                 "operating_state",
@@ -187,7 +187,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "services",
             ],
             # "primary_key": [
-            #     "report_number",
+            #     "report_id",
             #     "operator_id_phmsa",
             #     "operating_state",
             #     "leak_severity",
@@ -218,7 +218,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 },
             ],
             "additional_primary_key_text": (
-                "We expect the primary key for this table should be report_number, "
+                "We expect the primary key for this table should be report_id, "
                 "operator_id_phmsa, operating_state, main_size and material. "
                 "There are nulls in the operating_state across several years of "
                 "reporting."
@@ -227,7 +227,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "report_number",
+                "report_id",
                 "operator_id_phmsa",
                 "commodity",
                 "operating_state",
@@ -238,7 +238,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "main_other_material_detail",
             ],
             # "primary_key": [
-            #     "report_number",
+            #     "report_id",
             #     "operator_id_phmsa",
             #     "operating_state",
             #     "main_size",
@@ -254,12 +254,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_summary_text": ("excavation damages from various sources."),
             "additional_source_text": "(Part D - Excavation Damage)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
-            "additional_primary_key_text": "We expect the primary key for this table should be report_number, damage_type and damage_sub_type - but there are duplicates and we have not fully cleaned this table.",
+            "additional_primary_key_text": "We expect the primary key for this table should be report_id, damage_type and damage_sub_type - but there are duplicates and we have not fully cleaned this table.",
         },
         "schema": {
             "fields": [
                 "report_year",
-                "report_number",
+                "report_id",
                 "operator_id_phmsa",
                 "commodity",
                 "operating_state",
@@ -268,7 +268,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "damages",
             ],
             "primary_key": [
-                "report_number",
+                "report_id",
                 "operator_id_phmsa",
                 "operating_state",
                 "damage_type",
@@ -285,7 +285,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_source_text": "(Part B & C)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING],
             "additional_primary_key_text": (
-                "We expect the primary key for this table should be report_number, "
+                "We expect the primary key for this table should be report_id, "
                 "operator_id_phmsa, and operating_state. "
                 "There are nulls in the operating_state across several years of "
                 "reporting."
@@ -294,7 +294,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "report_number",
+                "report_id",
                 "operator_id_phmsa",
                 "operating_state",
                 "all_known_leaks_scheduled_for_repair",
@@ -309,7 +309,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "unaccounted_for_gas_fraction",
                 "excavation_tickets",
             ],
-            # "primary_key": ["report_number", "operating_state", "operator_id_phmsa"],
+            # "primary_key": ["report_id", "operating_state", "operator_id_phmsa"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",

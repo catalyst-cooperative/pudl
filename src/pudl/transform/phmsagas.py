@@ -26,7 +26,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # Constants required for transforming PHMSAGAS
 ##############################################################################
 YEARLY_DISTRIBUTION_FILING_COLUMNS = [
-    "report_number",  # PK hopefully
+    "report_id",  # PK hopefully
     "log_number",  # we drop this after a check
     "operator_id_phmsa",
     "report_year",
@@ -51,8 +51,8 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
     "columns_to_keep": [
         "filing_date",
         "data_date",
-        "report_number",
-        "supplemental_report_number",
+        "report_id",
+        "supplemental_report_id",
         "report_year",
         "operator_id_phmsa",
         "operator_name_phmsa",
@@ -78,7 +78,7 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
     ],
     "columns_to_convert_to_ints": [
         "report_year",
-        "report_number",
+        "report_id",
         "operator_id_phmsa",
     ],
     "capitalization_exclusion": [
@@ -108,7 +108,7 @@ YEARLY_DISTRIBUTION_MISC_COLUMNS = [
 
 YEARLY_DISTRIBUTION_IDX_ISH = [
     "report_year",
-    "report_number",
+    "report_id",
     "operator_id_phmsa",
     "commodity",
     "operating_state",
@@ -173,7 +173,7 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distribution):
-    """Transform information about filings (with PK report_number)."""
+    """Transform information about filings (with PK report_id)."""
     df = raw_phmsagas__yearly_distribution.loc[
         :, YEARLY_DISTRIBUTION_FILING_COLUMNS
     ].copy()
@@ -184,25 +184,25 @@ def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distributio
         .pipe(pudl.helpers.convert_cols_dtypes)
     )
 
-    # This is just the suffix of the report_number for only a few years.
+    # This is just the suffix of the report_id for only a few years.
     # lets check that assumption and then delete it.
     test_log = (
-        df.loc[df.log_number.notnull(), ["report_number", "log_number"]]
+        df.loc[df.log_number.notnull(), ["report_id", "log_number"]]
         .astype(pd.Int64Dtype())
         .astype(str)
     )
     # there was only one that didn't meet this expectation.
     # the log # was 1064 but the report number ended in 1063
     # CG checked and there is another seemingly fully different
-    # report_number ended in 1064 so this one seems like the log is wrong
+    # report_id ended in 1064 so this one seems like the log is wrong
     # so its seems chill to delete this column
     log_not_report_suffix = test_log[
-        (~test_log.apply(lambda x: x.report_number.endswith(x.log_number), axis=1))
-        & (test_log.report_number != "19951063")
+        (~test_log.apply(lambda x: x.report_id.endswith(x.log_number), axis=1))
+        & (test_log.report_id != "19951063")
     ]
     if not log_not_report_suffix.empty:
         raise AssertionError(
-            f"We expect the log_number is almost always the suffix of the report_number but we found:\n{log_not_report_suffix}"
+            f"We expect the log_number is almost always the suffix of the report_id but we found:\n{log_not_report_suffix}"
         )
     df = df.drop(columns=["log_number"])
 
@@ -374,7 +374,7 @@ def clean_raw_phmsagas__yearly_distribution(
     # the operator_id_phmsa. We check that those are the only ones and
     # then drop them
     non_unique_groups = cleaned_raw[
-        cleaned_raw.duplicated(["report_number", "operator_id_phmsa"], keep=False)
+        cleaned_raw.duplicated(["report_id", "operator_id_phmsa"], keep=False)
     ]
     # There are 6 values that we expect to be duplicated.
     assert len(non_unique_groups) <= 6, (
@@ -575,7 +575,7 @@ def _core_phmsagas__yearly_distribution_misc(
 
     TODO: ADD summary information about incidents (also conceptually reported on the basis of report year, state, and operator ID)
     """
-    idx = ["report_year", "report_number", "operator_id_phmsa", "operating_state"]
+    idx = ["report_year", "report_id", "operator_id_phmsa", "operating_state"]
     df = (
         clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
         .loc[:, idx + YEARLY_DISTRIBUTION_MISC_COLUMNS]

@@ -5131,7 +5131,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Timezone used by the reporting entity. For use in localizing UTC times.",
         "constraints": {"enum": US_TIMEZONES},
     },
-    "report_number": {
+    "report_id": {
         "type": "integer",
         "description": "Report number of the PHMSA Gas utility submission.",
     },
