@@ -68,7 +68,7 @@ repos:
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.13.1
+    rev: v2.14.0
     hooks:
       - id: hadolint
 
