@@ -1,8 +1,8 @@
 """phmsagas schema
 
-Revision ID: 66e6d2172be7
+Revision ID: 053f6206fe23
 Revises: 76397c4db652
-Create Date: 2025-09-25 14:31:30.744357
+Create Date: 2025-09-25 17:29:50.545669
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '66e6d2172be7'
+revision = '053f6206fe23'
 down_revision = '76397c4db652'
 branch_labels = None
 depends_on = None
@@ -110,7 +110,7 @@ def upgrade() -> None:
     sa.Column('operating_state', sa.Text(), nullable=True, comment='State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.'),
     sa.Column('leak_severity', sa.Enum('all_leaks', 'hazardous_leaks'), nullable=True, comment='Whether or not the leak described in this record are all leaks or hazardous leaks.'),
     sa.Column('leak_source', sa.Enum('construction_defect', 'corrosion_failure', 'equipment_failure', 'excavation_damage', 'incorrect_operation', 'material_defect', 'natural_force_damage', 'other', 'other_outside_force', 'outside_force', 'pipe_weld_joint_failure', 'third_party', 'total'), nullable=True, comment='The cause of the leaks.'),
-    sa.Column('mains_miles', sa.Float(), nullable=True, comment='The miles of mains distribution pipeline.'),
+    sa.Column('mains', sa.Float(), nullable=True, comment='The number of mains distribution pipeline.'),
     sa.Column('services', sa.Float(), nullable=True, comment='Number of end in system at end of year.'),
     sa.ForeignKeyConstraint(['report_id', 'report_date', 'operator_id_phmsa'], ['core_phmsagas__yearly_distribution_operators.report_id', 'core_phmsagas__yearly_distribution_operators.report_date', 'core_phmsagas__yearly_distribution_operators.operator_id_phmsa'], name=op.f('fk__core_phmsagas__yearly_distribution_leaks_report_id_core_phmsagas__yearly_distribution_operators'))
     )

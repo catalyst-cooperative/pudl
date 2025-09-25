@@ -30,7 +30,7 @@ YEARLY_DISTRIBUTION_FILING_COLUMNS = [
     "log_number",  # we drop this after a check
     "operator_id_phmsa",
     "report_date",
-    "commodity",  # these two need to be in here for clean_raw_phmsagas__yearly_distribution
+    "commodity",  # these two need to be in here for _core_phmsagas__yearly_distribution
     "operating_state",
     "filing_date",
     "initial_filing_date",
@@ -114,7 +114,6 @@ YEARLY_DISTRIBUTION_IDX_ISH = [
     "operating_state",
 ]
 
-
 MELT_PATTERNS = {
     "_core_phmsagas__yearly_distribution_by_material": {
         "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_miles$",
@@ -158,7 +157,7 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
         + pattern_cols
         + [  # This one gets pulled in into _core_phmsagas__yearly_distribution_by_material_and_size
             "main_other_material_detail",
-            # we convert report_year into report_date immediately in clean_raw_phmsagas__yearly_distribution
+            # we convert report_year into report_date immediately in _core_phmsagas__yearly_distribution
             "report_year",
         ]
     )
@@ -172,6 +171,147 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
 ##############################################################################
 # PHMSAGAS transformation logic
 ##############################################################################
+
+
+def _dedupe_year_distribution_idx(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Remove the rare duplicates in the expected primary key.
+
+    There are 49 found records which have duplicate values for the expected
+    primary key of this table. Many manipulations are much easier when we have a
+    unique primary key - merges for instance! So we want to remove these duplicates.
+
+    On visual inspection, these duplicates either look mostly the same or have one
+    record with most or all of the non-null or non-zero values. Therefore, we sort
+    the total columns and then drop duplicates so we kept the records which have the
+    most information. This is not the most robust method of de-duplicating but there
+    are so few records compared to the >90k total records.
+
+    Then there are a few extra fun records that are still duplicated. These all have
+    the know null-like operator_id_phmsa of 0 so we are going to drop them.
+    """
+    tot_cols = list(raw_phmsagas__yearly_distribution.filter(like="_total").columns)
+    raw_phmsagas__yearly_distribution = raw_phmsagas__yearly_distribution.sort_values(
+        by=tot_cols, ascending=False
+    )
+    dupe_mask = raw_phmsagas__yearly_distribution.duplicated(
+        subset=YEARLY_DISTRIBUTION_IDX_ISH, keep=False
+    )
+    assert len(raw_phmsagas__yearly_distribution[dupe_mask]) < 50
+    cleaned_raw = pd.concat(
+        [
+            raw_phmsagas__yearly_distribution[~dupe_mask],
+            raw_phmsagas__yearly_distribution[dupe_mask].drop_duplicates(
+                subset=YEARLY_DISTRIBUTION_IDX_ISH, keep="first"
+            ),
+        ],
+    )
+    # Identify non-unique groups based on our core PK. These all have a 0 for
+    # the operator_id_phmsa. We check that those are the only ones and
+    # then drop them
+    non_unique_groups = cleaned_raw[
+        cleaned_raw.duplicated(["report_id", "operator_id_phmsa"], keep=False)
+    ]
+    # There are 6 values that we expect to be duplicated.
+    assert len(non_unique_groups) <= 6, (
+        f"Found {len(non_unique_groups)} records with duplicates, expected 6 or less."
+    )
+    assert all(non_unique_groups.operator_id_phmsa == 0), (
+        "We expect all of the non-unique rows to have the operator_id_phmsa of 0, but found "
+        f"{non_unique_groups.operator_id_phmsa.to_numpy()}"
+    )
+    # drop the duplicates.
+    cleaned_raw = cleaned_raw.drop(non_unique_groups.index)
+    return cleaned_raw
+
+
+def _assign_cols_from_patterns(
+    df: pd.DataFrame, col_patterns: dict, pattern_col: str
+) -> pd.DataFrame:
+    """Add new columns based on regex patterns within an existing column.
+
+    Args:
+        df: the dataframe with ``pattern_col``
+        col_patterns: dictionary with new column name (keys) and the regex
+            pattern found within ``pattern_col`` to extract into the new
+            column (values)
+        pattern_col: name of column to extract the patterns from.
+    """
+    for col_name, pattern in col_patterns.items():
+        df[col_name] = df[pattern_col].str.extract(pattern)
+    return df
+
+
+@asset
+def _core_phmsagas__yearly_distribution(
+    raw_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
+    """Clean up the raw yearly distribution table for future transforms.
+
+    This function mostly deduplicates the records on the core primary key.
+    """
+    cleaned_raw = (
+        raw_phmsagas__yearly_distribution.assign(
+            report_date=lambda x: pd.to_datetime(x["report_year"], format="%Y")
+        )
+        .drop(columns=["report_year"])
+        .pipe(_dedupe_year_distribution_idx)
+        .replace(
+            to_replace={r"^( {1,})$": pd.NA, "NONE": pd.NA, "none": pd.NA}, regex=True
+        )
+    )
+    # there are a small number of records in the older years with a null operator id...
+    # sigh. there are already a bunch of records with a placeholder id of 0. so we
+    # are setting these null ones to zero.
+    assert len(cleaned_raw[cleaned_raw.operator_id_phmsa.isnull()]) >= 20
+    cleaned_raw.operator_id_phmsa = cleaned_raw.operator_id_phmsa.fillna(0)
+    return cleaned_raw
+
+
+def _melt_col_pattern(df, filter_pattern, value_name, col_patterns):
+    """Melt a dataframe based on a filter regex pattern and assign pattern columns."""
+    return (
+        df.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
+        .filter(regex=filter_pattern)
+        .dropna(how="all", axis="index")
+        .convert_dtypes()
+        .melt(ignore_index=False, var_name="melt_col", value_name=value_name)
+        .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
+        .drop(columns=["melt_col"])
+        .set_index(list(col_patterns.keys()), append=True)
+        .dropna(how="all", axis="index")
+    )
+
+
+def _melt_merge_main_services(
+    cleaned_raw: pd.DataFrame,
+    main_pattern: str,
+    services_pattern: str,
+    col_patterns: dict[str, str],
+) -> pd.DataFrame:
+    """Filter, melt, add columns then merge miles of main and service."""
+    logger.info("Melting main")
+    main = _melt_col_pattern(
+        cleaned_raw, main_pattern, value_name="mains_miles", col_patterns=col_patterns
+    )
+    logger.info("Melting service")
+    services = _melt_col_pattern(
+        cleaned_raw, services_pattern, value_name="services", col_patterns=col_patterns
+    )
+    return (
+        pd.merge(
+            main,
+            services,
+            left_index=True,
+            right_index=True,
+            how="outer",
+            validate="1:1",
+            sort=False,
+        )
+        .reset_index()
+        .convert_dtypes()
+    )
 
 
 def _check_and_drop_log_if_always_in_report_id(df):
@@ -200,11 +340,12 @@ def _check_and_drop_log_if_always_in_report_id(df):
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
-def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distribution):
+def _core_phmsagas__yearly_distribution_filings(
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
+) -> pd.DataFrame:
     """Transform information about filings (with PK report_id)."""
     df = (
-        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
-        .loc[:, YEARLY_DISTRIBUTION_FILING_COLUMNS]
+        _core_phmsagas__yearly_distribution.loc[:, YEARLY_DISTRIBUTION_FILING_COLUMNS]
         .pipe(standardize_na_values)
         .pipe(pudl.helpers.convert_cols_dtypes)
         .pipe(_check_and_drop_log_if_always_in_report_id)
@@ -232,7 +373,7 @@ def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distributio
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def core_phmsagas__yearly_distribution_operators(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pull and transform the yearly distribution PHMSA data into operator-level data.
 
@@ -251,11 +392,9 @@ def core_phmsagas__yearly_distribution_operators(
         Transformed ``core_phmsagas__yearly_distribution_operators`` dataframe.
 
     """
-    df = (
-        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
-        .loc[:, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]]
-        .pipe(standardize_na_values)
-    )
+    df = _core_phmsagas__yearly_distribution.loc[
+        :, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]
+    ].pipe(standardize_na_values)
 
     # Convert date columns to datetime
     for col in df.filter(like="date").columns:
@@ -310,152 +449,13 @@ def core_phmsagas__yearly_distribution_operators(
     return df
 
 
-def _dedupe_year_distribution_idx(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
-) -> pd.DataFrame:
-    """Remove the rare duplicates in the expected primary key.
-
-    There are 49 found records which have duplicate values for the expected
-    primary key of this table. Many manipulations are much easier when we have a
-    unique primary key - merges for instance! So we want to remove these duplicates.
-
-    On visual inspection, these duplicates either look mostly the same or have one
-    record with most or all of the non-null or non-zero values. Therefore, we sort
-    the total columns and then drop duplicates so we kept the records which have the
-    most information. This is not the most robust method of de-duplicating but there
-    are so few records compared to the >90k total records.
-
-    """
-    tot_cols = list(raw_phmsagas__yearly_distribution.filter(like="_total").columns)
-    raw_phmsagas__yearly_distribution = raw_phmsagas__yearly_distribution.sort_values(
-        by=tot_cols, ascending=False
-    )
-    dupe_mask = raw_phmsagas__yearly_distribution.duplicated(
-        subset=YEARLY_DISTRIBUTION_IDX_ISH, keep=False
-    )
-    assert len(raw_phmsagas__yearly_distribution[dupe_mask]) < 50
-    return pd.concat(
-        [
-            raw_phmsagas__yearly_distribution[~dupe_mask],
-            raw_phmsagas__yearly_distribution[dupe_mask].drop_duplicates(
-                subset=YEARLY_DISTRIBUTION_IDX_ISH, keep="first"
-            ),
-        ],
-    )
-
-
-def _assign_cols_from_patterns(
-    df: pd.DataFrame, col_patterns: dict, pattern_col: str
-) -> pd.DataFrame:
-    """Add new columns based on regex patterns within an existing column.
-
-    Args:
-        df: the dataframe with ``pattern_col``
-        col_patterns: dictionary with new column name (keys) and the regex
-            pattern found within ``pattern_col`` to extract into the new
-            column (values)
-        pattern_col: name of column to extract the patterns from.
-    """
-    for col_name, pattern in col_patterns.items():
-        df[col_name] = df[pattern_col].str.extract(pattern)
-    return df
-
-
-def clean_raw_phmsagas__yearly_distribution(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
-) -> pd.DataFrame:
-    """Clean up the raw yearly distribution table for future transforms."""
-    cleaned_raw = (
-        raw_phmsagas__yearly_distribution.assign(
-            report_date=lambda x: pd.to_datetime(x["report_year"], format="%Y")
-        )
-        .drop(columns=["report_year"])
-        .pipe(_dedupe_year_distribution_idx)
-        .replace(
-            to_replace={r"^( {1,})$": pd.NA, "NONE": pd.NA, "none": pd.NA}, regex=True
-        )
-    )
-
-    # there are a small number of records in the older years with a null operator id...
-    # sigh. there are already a bunch of records with a placeholder id of 0. so we
-    # are setting these null ones to zero.
-    assert len(cleaned_raw[cleaned_raw.operator_id_phmsa.isnull()]) >= 20
-    cleaned_raw.operator_id_phmsa = cleaned_raw.operator_id_phmsa.fillna(0)
-
-    # Identify non-unique groups based on our core PK. These all have a 0 for
-    # the operator_id_phmsa. We check that those are the only ones and
-    # then drop them
-    non_unique_groups = cleaned_raw[
-        cleaned_raw.duplicated(["report_id", "operator_id_phmsa"], keep=False)
-    ]
-    # There are 6 values that we expect to be duplicated.
-    assert len(non_unique_groups) <= 6, (
-        f"Found {len(non_unique_groups)} records with duplicates, expected 6 or less."
-    )
-    assert all(non_unique_groups.operator_id_phmsa == 0), (
-        "We expect all of the non-unique rows to have the operator_id_phmsa of 0, but found "
-        f"{non_unique_groups.operator_id_phmsa.to_numpy()}"
-    )
-    # drop the duplicates.
-    cleaned_raw = cleaned_raw.drop(non_unique_groups.index)
-    return cleaned_raw
-
-
-def _melt_col_pattern(df, filter_pattern, value_name, col_patterns):
-    """Melt a dataframe based on a filter regex pattern and assign pattern columns."""
-    return (
-        df.set_index(YEARLY_DISTRIBUTION_IDX_ISH)
-        .filter(regex=filter_pattern)
-        .dropna(how="all", axis="index")
-        .convert_dtypes()
-        .melt(ignore_index=False, var_name="melt_col", value_name=value_name)
-        .pipe(_assign_cols_from_patterns, col_patterns, "melt_col")
-        .drop(columns=["melt_col"])
-        .set_index(list(col_patterns.keys()), append=True)
-        .dropna(how="all", axis="index")
-    )
-
-
-def _melt_merge_main_services(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
-    main_pattern: str,
-    services_pattern: str,
-    col_patterns: dict[str, str],
-) -> pd.DataFrame:
-    """Filter, melt, add columns then merge miles of main and service."""
-    cleaned_raw = clean_raw_phmsagas__yearly_distribution(
-        raw_phmsagas__yearly_distribution
-    )
-    logger.info("Melting main")
-    main = _melt_col_pattern(
-        cleaned_raw, main_pattern, value_name="mains_miles", col_patterns=col_patterns
-    )
-    logger.info("Melting service")
-    services = _melt_col_pattern(
-        cleaned_raw, services_pattern, value_name="services", col_patterns=col_patterns
-    )
-    return (
-        pd.merge(
-            main,
-            services,
-            left_index=True,
-            right_index=True,
-            how="outer",
-            validate="1:1",
-            sort=False,
-        )
-        .reset_index()
-        .convert_dtypes()
-    )
-
-
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_material(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by material."""
     return _melt_merge_main_services(
-        raw_phmsagas__yearly_distribution,
+        _core_phmsagas__yearly_distribution,
         MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material"][
             "main_pattern"
         ],
@@ -468,11 +468,11 @@ def _core_phmsagas__yearly_distribution_by_material(
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_install_decade(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by decade."""
     return _melt_merge_main_services(
-        raw_phmsagas__yearly_distribution,
+        _core_phmsagas__yearly_distribution,
         MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_install_decade"][
             "main_pattern"
         ],
@@ -485,7 +485,7 @@ def _core_phmsagas__yearly_distribution_by_install_decade(
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_by_material_and_size(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the _core table of the miles of main and services by material type and size.
 
@@ -495,7 +495,7 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
     material type (``main_other_material_detail``).
     """
     df = _melt_merge_main_services(
-        raw_phmsagas__yearly_distribution,
+        _core_phmsagas__yearly_distribution,
         MELT_PATTERNS["_core_phmsagas__yearly_distribution_by_material_and_size"][
             "main_pattern"
         ],
@@ -508,12 +508,10 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
         },
     )
     # Add in the other_material_detail column
-    other_material_detail = (
-        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
-        .assign(material="other")[
-            YEARLY_DISTRIBUTION_IDX_ISH + ["material", "main_other_material_detail"]
-        ]
-        .dropna(subset=["main_other_material_detail"])
+    other_material_detail = _core_phmsagas__yearly_distribution.assign(
+        material="other"
+    )[YEARLY_DISTRIBUTION_IDX_ISH + ["material", "main_other_material_detail"]].dropna(
+        subset=["main_other_material_detail"]
     )
     df = df.merge(
         other_material_detail,
@@ -545,23 +543,26 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_leaks(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform table of leaks - broken out by source and leak severity."""
     return _melt_merge_main_services(
-        raw_phmsagas__yearly_distribution,
+        _core_phmsagas__yearly_distribution,
         MELT_PATTERNS["_core_phmsagas__yearly_distribution_leaks"]["main_pattern"],
         MELT_PATTERNS["_core_phmsagas__yearly_distribution_leaks"]["services_pattern"],
         {
             "leak_severity": r"^(all_leaks|hazardous_leaks)",
             "leak_source": r"^(?:all_leaks|hazardous_leaks)_(.*)_(?:mains|services)",
         },
-    )
+        # All of the other tables with mains in it have the miles of main except for
+        # this one. We could totally edit _melt_merge_main_services to enable different
+        # column names instead of doing this rename
+    ).rename(columns={"mains_miles": "mains"})
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_excavation_damages(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform table of damages - broken out by type and sub-type."""
     damage_pattern = MELT_PATTERNS[
@@ -571,48 +572,33 @@ def _core_phmsagas__yearly_distribution_excavation_damages(
         "damage_type": rf"excavation_damage_({'|'.join(DAMAGE_TYPES_PHMSAGAS)})",
         "damage_sub_type": damage_pattern,
     }
-    return (
-        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
-        .pipe(
-            _melt_col_pattern,
-            damage_pattern,
-            value_name="damages",
-            col_patterns=col_patterns,
-        )
-        .reset_index()
-    )
+    return _core_phmsagas__yearly_distribution.pipe(
+        _melt_col_pattern,
+        damage_pattern,
+        value_name="damages",
+        col_patterns=col_patterns,
+    ).reset_index()
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def _core_phmsagas__yearly_distribution_misc(
-    raw_phmsagas__yearly_distribution: pd.DataFrame,
+    _core_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform this distribution table of miscellaneous numeric values.
-
-    TODO: ADD summary information about incidents (also conceptually reported on the basis of report year, state, and operator ID)
-    """
+    """Transform this distribution table of miscellaneous numeric values."""
     idx = ["report_date", "report_id", "operator_id_phmsa", "operating_state"]
     df = (
-        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
-        .loc[:, idx + YEARLY_DISTRIBUTION_MISC_COLUMNS]
+        _core_phmsagas__yearly_distribution.loc[
+            :, idx + YEARLY_DISTRIBUTION_MISC_COLUMNS
+        ]
         .sort_values(YEARLY_DISTRIBUTION_MISC_COLUMNS, ascending=False)
+        # Convert percent unaccounted for gas to a fraction
+        .assign(
+            unaccounted_for_gas_fraction=lambda x: x.unaccounted_for_gas_percent / 100
+        )
+        .drop(columns=["unaccounted_for_gas_percent"])
+        .convert_dtypes()
     )
-    # there are 6 dupes in this paired down PK. they all have an operator id of 0
-    # and are from 1980 or 1981. only one of these records have non-zero or non-null
-    # data in them at all. We sort right b4 this to get that one record in our drop
-    # dupes/first after some checks
-    dupes = df[df.duplicated(subset=idx, keep=False)]
-    if not dupes.empty:
-        assert all(dupes.operator_id_phmsa == 0)
-        assert all(dupes.report_date.isin([1980, 1981]))
-        assert len(dupes) <= 6
-    df = df.drop_duplicates(subset=idx, keep="first")
-
-    # Convert percent unaccounted for gas to a fraction
-    df["unaccounted_for_gas_fraction"] = df["unaccounted_for_gas_percent"] / 100
-    df = df.drop(columns=["unaccounted_for_gas_percent"])
-
-    return df.convert_dtypes()
+    return df
 
 
 @asset_check(asset=_core_phmsagas__yearly_distribution_misc, blocking=True)

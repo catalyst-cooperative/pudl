@@ -3618,6 +3618,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The miles of mains distribution pipeline.",
         "unit": "miles",
     },
+    "mains": {
+        "type": "number",
+        "description": "The number of mains distribution pipeline.",
+        "unit": "miles",
+    },
     "main_size": {
         "type": "string",
         "description": "Size range of mains. The size ranges have changed slightly over the years (ex: before 1984 they reported 0.5_in_or_less whereas after they reported 1_in_or_less).",

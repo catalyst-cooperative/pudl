@@ -185,7 +185,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operating_state",
                 "leak_severity",
                 "leak_source",
-                "mains_miles",  # TODO: make into number of instances not miles. and check all instances of this column
+                "mains",  # TODO: make into number of instances not miles. and check all instances of this column
                 "services",
             ],
             # "primary_key": [

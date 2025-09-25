@@ -11,5 +11,5 @@ sources:
           - name: operating_state
           - name: leak_severity
           - name: leak_source
-          - name: mains_miles
+          - name: mains
           - name: services
