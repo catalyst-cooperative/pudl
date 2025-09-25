@@ -26,19 +26,18 @@ logger = pudl.logging_helpers.get_logger(__name__)
 # Constants required for transforming PHMSAGAS
 ##############################################################################
 YEARLY_DISTRIBUTION_FILING_COLUMNS = [
-    "report_id",  # PK hopefully
+    "report_id",
     "log_number",  # we drop this after a check
     "operator_id_phmsa",
     "report_date",
-    "commodity",  # these two need to be in here for _core_phmsagas__yearly_distribution
     "operating_state",
     "filing_date",
     "initial_filing_date",
     "filing_correction_date",
     "report_filing_type",
     "data_date",
-    "is_original_filing",  # TODO: convert to bool
-    "is_correction_filing",  # TODO: convert to bool
+    "is_original_filing",  # we drop this after condensing into report_filing_type
+    "is_correction_filing",  # we drop this after condensing into report_filing_type
     "form_revision_id",
     "preparer_name",
     "preparer_title",
