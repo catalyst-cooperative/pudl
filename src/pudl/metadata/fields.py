@@ -6871,17 +6871,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Technology innovation scenarios. https://atb.nrel.gov/electricity/2023/definitions#scenarios",
         "constraints": {"enum": ["Advanced", "Moderate", "Conservative"]},
     },
-    "is_correction_filing": {
-        "type": "boolean",
-        "description": "Indicator of whether the filing is a correction filing or not. This is only reported from 2004-2009",
-    },
     "is_default": {
         "type": "boolean",
         "description": "Indicator of whether the technology is default.",
-    },
-    "is_original_filing": {
-        "type": "boolean",
-        "description": "Indicator of whether the filing is an original filing or not. This is only reported from 2004-2009",
     },
     "is_technology_mature": {
         "type": "boolean",

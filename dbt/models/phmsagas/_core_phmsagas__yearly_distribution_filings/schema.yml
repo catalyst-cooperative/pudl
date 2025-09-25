@@ -6,13 +6,11 @@ sources:
         columns:
           - name: report_id
           - name: operator_id_phmsa
-          - name: report_year
+          - name: report_date
           - name: filing_date
           - name: initial_filing_date
           - name: filing_correction_date
           - name: report_filing_type
-          - name: is_original_filing
-          - name: is_correction_filing
           - name: data_date
           - name: form_revision_id
           - name: preparer_name

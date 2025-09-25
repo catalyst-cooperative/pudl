@@ -4,7 +4,7 @@ sources:
     tables:
       - name: _core_phmsagas__yearly_distribution_by_material_and_size
         columns:
-          - name: report_year
+          - name: report_date
           - name: report_id
           - name: operator_id_phmsa
           - name: commodity

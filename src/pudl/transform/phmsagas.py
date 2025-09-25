@@ -29,7 +29,7 @@ YEARLY_DISTRIBUTION_FILING_COLUMNS = [
     "report_id",  # PK hopefully
     "log_number",  # we drop this after a check
     "operator_id_phmsa",
-    "report_year",
+    "report_date",
     "commodity",  # these two need to be in here for clean_raw_phmsagas__yearly_distribution
     "operating_state",
     "filing_date",
@@ -53,7 +53,7 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "data_date",
         "report_id",
         "supplemental_report_id",
-        "report_year",
+        "report_date",
         "operator_id_phmsa",
         "operator_name_phmsa",
         "operating_state",
@@ -77,7 +77,7 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "data_maturity",
     ],
     "columns_to_convert_to_ints": [
-        "report_year",
+        "report_date",
         "report_id",
         "operator_id_phmsa",
     ],
@@ -107,7 +107,7 @@ YEARLY_DISTRIBUTION_MISC_COLUMNS = [
 ]
 
 YEARLY_DISTRIBUTION_IDX_ISH = [
-    "report_year",
+    "report_date",
     "report_id",
     "operator_id_phmsa",
     "commodity",
@@ -156,8 +156,11 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
         + YEARLY_DISTRIBUTION_MISC_COLUMNS
         + YEARLY_DISTRIBUTION_FILING_COLUMNS
         + pattern_cols
-        # This one gets pulled in into _core_phmsagas__yearly_distribution_by_material_and_size
-        + ["main_other_material_detail"]
+        + [  # This one gets pulled in into _core_phmsagas__yearly_distribution_by_material_and_size
+            "main_other_material_detail",
+            # we convert report_year into report_date immediately in clean_raw_phmsagas__yearly_distribution
+            "report_year",
+        ]
     )
     untransformed_columns = set(raw_df.columns).difference(transformed_cols)
     if untransformed_columns:
@@ -171,19 +174,7 @@ def _check_all_raw_columns_being_transformed(raw_df: pd.DataFrame):
 ##############################################################################
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
-def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distribution):
-    """Transform information about filings (with PK report_id)."""
-    df = raw_phmsagas__yearly_distribution.loc[
-        :, YEARLY_DISTRIBUTION_FILING_COLUMNS
-    ].copy()
-
-    df = (
-        clean_raw_phmsagas__yearly_distribution(df)
-        .pipe(standardize_na_values)
-        .pipe(pudl.helpers.convert_cols_dtypes)
-    )
-
+def _check_and_drop_log_if_always_in_report_id(df):
     # This is just the suffix of the report_id for only a few years.
     # lets check that assumption and then delete it.
     test_log = (
@@ -205,20 +196,38 @@ def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distributio
             f"We expect the log_number is almost always the suffix of the report_id but we found:\n{log_not_report_suffix}"
         )
     df = df.drop(columns=["log_number"])
+    return df
 
-    df["report_filing_type"] = df["report_filing_type"].str.title()
 
-    # Streamline the initial and supplementary report columns
-    df["report_filing_type"] = (
-        df["report_filing_type"]
-        .mask(df["is_original_filing"], "Initial")
-        .mask(df["is_correction_filing"], "Supplemental")
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+def _core_phmsagas__yearly_distribution_filings(raw_phmsagas__yearly_distribution):
+    """Transform information about filings (with PK report_id)."""
+    df = (
+        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
+        .loc[:, YEARLY_DISTRIBUTION_FILING_COLUMNS]
+        .pipe(standardize_na_values)
+        .pipe(pudl.helpers.convert_cols_dtypes)
+        .pipe(_check_and_drop_log_if_always_in_report_id)
+        # Streamline the initial and supplementary report columns
+        .assign(
+            report_filing_type=lambda z: (
+                z["report_filing_type"]
+                .mask(
+                    (z.is_original_filing == "Y") & z.report_filing_type.isnull(),
+                    "Initial",
+                )
+                .mask(
+                    (z.is_correction_filing == "N") & z.report_filing_type.isnull(),
+                    "Supplemental",
+                )
+            ).str.title(),
+        )
+        .drop(columns=["is_original_filing", "is_correction_filing"])
+        # Standardize telephone and fax number format and drop (000)-000-0000
+        .pipe(standardize_phone_column, ["preparer_phone", "preparer_fax"])
+        .drop_duplicates()
     )
-    # TODO: should we drop these?
-    # df = df.drop(columns=["is_original_filing", "is_correction_filing"])
-    # Standardize telephone and fax number format and drop (000)-000-0000
-    df = standardize_phone_column(df, ["preparer_phone", "preparer_fax"])
-    return df.drop_duplicates()
+    return df
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
@@ -242,14 +251,11 @@ def core_phmsagas__yearly_distribution_operators(
         Transformed ``core_phmsagas__yearly_distribution_operators`` dataframe.
 
     """
-    df = raw_phmsagas__yearly_distribution.loc[
-        :, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]
-    ].copy()
-
-    df = clean_raw_phmsagas__yearly_distribution(df)
-
-    # Standardize NAs
-    df = standardize_na_values(df)
+    df = (
+        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
+        .loc[:, YEARLY_DISTRIBUTION_OPERATORS_COLUMNS["columns_to_keep"]]
+        .pipe(standardize_na_values)
+    )
 
     # Convert date columns to datetime
     for col in df.filter(like="date").columns:
@@ -359,11 +365,17 @@ def clean_raw_phmsagas__yearly_distribution(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
 ) -> pd.DataFrame:
     """Clean up the raw yearly distribution table for future transforms."""
-    cleaned_raw = _dedupe_year_distribution_idx(
-        raw_phmsagas__yearly_distribution
-    ).replace(
-        to_replace={r"^( {1,})$": pd.NA, "NONE": pd.NA, "none": pd.NA}, regex=True
+    cleaned_raw = (
+        raw_phmsagas__yearly_distribution.assign(
+            report_date=lambda x: pd.to_datetime(x["report_year"], format="%Y")
+        )
+        .drop(columns=["report_year"])
+        .pipe(_dedupe_year_distribution_idx)
+        .replace(
+            to_replace={r"^( {1,})$": pd.NA, "NONE": pd.NA, "none": pd.NA}, regex=True
+        )
     )
+
     # there are a small number of records in the older years with a null operator id...
     # sigh. there are already a bunch of records with a placeholder id of 0. so we
     # are setting these null ones to zero.
@@ -496,9 +508,13 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
         },
     )
     # Add in the other_material_detail column
-    other_material_detail = raw_phmsagas__yearly_distribution.assign(material="other")[
-        YEARLY_DISTRIBUTION_IDX_ISH + ["material", "main_other_material_detail"]
-    ].dropna(subset=["main_other_material_detail"])
+    other_material_detail = (
+        clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
+        .assign(material="other")[
+            YEARLY_DISTRIBUTION_IDX_ISH + ["material", "main_other_material_detail"]
+        ]
+        .dropna(subset=["main_other_material_detail"])
+    )
     df = df.merge(
         other_material_detail,
         on=YEARLY_DISTRIBUTION_IDX_ISH + ["material"],
@@ -575,7 +591,7 @@ def _core_phmsagas__yearly_distribution_misc(
 
     TODO: ADD summary information about incidents (also conceptually reported on the basis of report year, state, and operator ID)
     """
-    idx = ["report_year", "report_id", "operator_id_phmsa", "operating_state"]
+    idx = ["report_date", "report_id", "operator_id_phmsa", "operating_state"]
     df = (
         clean_raw_phmsagas__yearly_distribution(raw_phmsagas__yearly_distribution)
         .loc[:, idx + YEARLY_DISTRIBUTION_MISC_COLUMNS]
@@ -588,7 +604,7 @@ def _core_phmsagas__yearly_distribution_misc(
     dupes = df[df.duplicated(subset=idx, keep=False)]
     if not dupes.empty:
         assert all(dupes.operator_id_phmsa == 0)
-        assert all(dupes.report_year.isin([1980, 1981]))
+        assert all(dupes.report_date.isin([1980, 1981]))
         assert len(dupes) <= 6
     df = df.drop_duplicates(subset=idx, keep="first")
 

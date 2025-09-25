@@ -19,13 +19,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_id",
                 "operator_id_phmsa",
-                "report_year",
+                "report_date",
                 "filing_date",
                 "initial_filing_date",
                 "filing_correction_date",
                 "report_filing_type",
-                "is_original_filing",  # TODO: convert to bool
-                "is_correction_filing",  # TODO: convert to bool
                 "data_date",
                 "form_revision_id",
                 "preparer_name",
@@ -34,7 +32,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "preparer_fax",
                 "preparer_email",
             ],
-            "primary_key": ["report_id", "operator_id_phmsa"],
+            "primary_key": ["report_id", "report_date", "operator_id_phmsa"],
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -55,7 +53,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_id",
-                "report_year",
+                "report_date",
                 "operator_id_phmsa",
                 "operator_name_phmsa",
                 "office_street_address",
@@ -70,7 +68,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "headquarters_zip",
                 "additional_information",
             ],
-            "primary_key": ["report_id", "operator_id_phmsa"],
+            "primary_key": ["report_id", "report_date", "operator_id_phmsa"],
+            "foreign_key_rules": {
+                "fields": [
+                    ["report_id", "report_date", "operator_id_phmsa"],
+                ],
+            },
         },
         "sources": ["phmsagas"],
         "field_namespace": "phmsagas",
@@ -100,8 +103,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "schema": {
             "fields": [
-                "report_year",
                 "report_id",
+                "report_date",
                 "operator_id_phmsa",
                 "commodity",
                 "operating_state",
@@ -129,19 +132,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_source_text": "(Part B - System Description / Section 4)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
             "additional_details_text": (
-                "The records with an install decade of all_time are a total - "
+                "The records with an install decade of total_decade are a total - "
                 "beware of aggregating these values."
-            ),
-            "additional_primary_key_text": (
-                "We expect the primary key for this table should be report_id, "
-                "operator_id_phmsa, operating_state and install_decade. There are "
-                "nulls in the operating_state across several years of reporting."
             ),
         },
         "schema": {
             "fields": [
-                "report_year",
                 "report_id",
+                "report_date",
                 "operator_id_phmsa",
                 "commodity",
                 "operating_state",
@@ -151,6 +149,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_id",
+                "report_date",
                 "operator_id_phmsa",
                 "operating_state",
                 "install_decade",
@@ -176,8 +175,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "schema": {
             "fields": [
-                "report_year",
                 "report_id",
+                "report_date",
                 "operator_id_phmsa",
                 "commodity",
                 "operating_state",
@@ -226,7 +225,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "schema": {
             "fields": [
-                "report_year",
+                "report_date",
                 "report_id",
                 "operator_id_phmsa",
                 "commodity",
@@ -258,8 +257,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "schema": {
             "fields": [
-                "report_year",
                 "report_id",
+                "report_date",
                 "operator_id_phmsa",
                 "commodity",
                 "operating_state",
@@ -269,6 +268,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_id",
+                "report_date",
                 "operator_id_phmsa",
                 "operating_state",
                 "damage_type",
@@ -293,7 +293,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "schema": {
             "fields": [
-                "report_year",
+                "report_date",
                 "report_id",
                 "operator_id_phmsa",
                 "operating_state",
