@@ -201,6 +201,17 @@ which may also affect the quality of the record linkage. See issue :issue:`4165`
 :pr:`4134`. We should be able to fill in these gaps by re-running the extraction
 pipeline.
 
+We don't attempt to untangle nested subsdiary relationships
+-----------------------------------------------------------
+
+Exhibit 21 attachments often present subsidiary relationships in a nested format,
+using indentation to indicate ownership hierarchies. Our dataset does not attempt to
+capture this nested structure directly. Instead, if an Exhibit 21 lists multiple
+layers of subsidiaries, we extract all subsidiaries as direct children of the parent
+company that filed the Exhibit 21. In practice, many of the intermediate subsidiaries
+also file their own 10-K reports, where they list their own subsidiaries, and which
+can be used to infer the full ownership hierarchy.
+
 Matches between EIA utility ids and SEC 10-K energy companies are sparse
 ------------------------------------------------------------------------
 
