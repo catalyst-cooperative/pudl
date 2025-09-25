@@ -14,6 +14,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "filings (aka submissions) from gas distribution system operators."
             ),
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING],
+            "additional_details_text": (
+                "This table contains information about the filer and filing type. "
+                "This includes information about who filed but also whether this was "
+                "an original filing or a correction."
+            ),
         },
         "schema": {
             "fields": [
@@ -39,17 +44,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "phmsagas",
     },
     "core_phmsagas__yearly_distribution_operators": {
-        "description": (
-            "This table contains operator-level natural gas distribution"
-            "data, corresponding to Parts A and D-I of the 2023 PHMSA gas "
-            "distribution system annual report. That includes data on the "
-            "operator name and location, the type of operator "
-            "(e.g., investor-owned, municipally-owned), the type of gas "
-            "being transported, and information on system-wide excavation "
-            "damage, leaks, and unaccounted for gas. Each row corresponds "
-            "to one report for one operator in one state, where revisions "
-            "to the original submission have a different report ID."
-        ),
+        "description": {
+            "additional_summary_text": ("distribution operator information."),
+            "additional_source_text": "(Part A)",
+            "usage_warnings": [GENERIC_CLEANING_STATE_WARNING],
+            "additional_details_text": (
+                "This table contains operator-level information including "
+                "office and headquarter location."
+            ),
+        },
         "schema": {
             "fields": [
                 "report_id",

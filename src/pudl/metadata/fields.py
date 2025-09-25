@@ -4673,9 +4673,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Unaccounted for gas as a fraction of total consumption "
             "for the 12 months ending June 30 of the reporting year. "
             "Calculated as follows: "
-            "Take the sum of: purchased gas + produced gas minus customer use + company use "
-            "+ appropriate adjustments. Then divide by the sum of customer use + company use "
-            "+ appropriate adjustments."
+            "Take the sum of: (purchased gas + produced gas) minus (customer use + company use "
+            "+ appropriate adjustments). Then divide by the sum of (customer use + company use "
+            "+ appropriate adjustments). "
+            "Prior to 2017, this field was calculcated with a different deonominator "
+            "(purchased gas + produced gas). "
+            "The time period between 2010-2017 having this different calculation "
+            "method ensured that there was no records that had a negative "
+            "fraction. For all the other reporting years there are known and "
+            "expected negative values in this column."
         ),
     },
     "percent_dry_cooling": {

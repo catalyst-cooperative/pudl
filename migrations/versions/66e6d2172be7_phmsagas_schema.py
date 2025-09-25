@@ -1,8 +1,8 @@
 """phmsagas schema
 
-Revision ID: 377e7e72f3d2
+Revision ID: 66e6d2172be7
 Revises: 76397c4db652
-Create Date: 2025-09-25 12:35:49.486809
+Create Date: 2025-09-25 14:31:30.744357
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '377e7e72f3d2'
+revision = '66e6d2172be7'
 down_revision = '76397c4db652'
 branch_labels = None
 depends_on = None
@@ -128,7 +128,7 @@ def upgrade() -> None:
     sa.Column('services_efv_installed', sa.Integer(), nullable=True, comment='Total number of services with Excess Flow Valve installed during reported year related to natural gas distribution.'),
     sa.Column('services_shutoff_valve_in_system', sa.Integer(), nullable=True, comment='Estimated number of services with manual service line shut-off valves installed in the system at end of report year related to natural gas distribution.'),
     sa.Column('services_shutoff_valve_installed', sa.Integer(), nullable=True, comment='Total number of manual service line shut-off valves installed during reported year related to natural gas distribution.'),
-    sa.Column('unaccounted_for_gas_fraction', sa.Float(), nullable=True, comment='Unaccounted for gas as a fraction of total consumption for the 12 months ending June 30 of the reporting year. Calculated as follows: Take the sum of: purchased gas + produced gas minus customer use + company use + appropriate adjustments. Then divide by the sum of customer use + company use + appropriate adjustments.'),
+    sa.Column('unaccounted_for_gas_fraction', sa.Float(), nullable=True, comment='Unaccounted for gas as a fraction of total consumption for the 12 months ending June 30 of the reporting year. Calculated as follows: Take the sum of: (purchased gas + produced gas) minus (customer use + company use + appropriate adjustments). Then divide by the sum of (customer use + company use + appropriate adjustments). Prior to 2017, this field was calculcated with a different deonominator (purchased gas + produced gas). The time period between 2010-2017 having this different calculation method ensured that there was no records that had a negative fraction. For all the other reporting years there are known and expected negative values in this column.'),
     sa.Column('excavation_tickets', sa.Integer(), nullable=True, comment='Number of Excavation Tickets received by the operator during the year, (i.e., receipt of information by the operator from the notification center).'),
     sa.ForeignKeyConstraint(['report_id', 'report_date', 'operator_id_phmsa'], ['core_phmsagas__yearly_distribution_operators.report_id', 'core_phmsagas__yearly_distribution_operators.report_date', 'core_phmsagas__yearly_distribution_operators.operator_id_phmsa'], name=op.f('fk__core_phmsagas__yearly_distribution_misc_report_id_core_phmsagas__yearly_distribution_operators'))
     )
