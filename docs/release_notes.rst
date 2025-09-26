@@ -31,6 +31,14 @@ EIA-860
 New Data
 ^^^^^^^^
 
+PHMSA
+~~~~~
+* Added eight transformed table containing annual data from PHMSA natural gas
+  distributors. The tables containing mostly numeric values are named as ``_core`` -
+  indicating that these tables have not been fully cleaned and validated. Thanks to
+  :user:`seeess1` for all of your work on this! See :issue:`3770` and :pr:`4005`.
+
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
