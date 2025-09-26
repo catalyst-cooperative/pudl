@@ -336,6 +336,9 @@ FUEL_TYPES_EIAAEO: list[str] = [
 
 MODEL_CASES_EIAAEO: list[str] = [
     "aeo2022",
+    "aeo2023",
+    "alternative_electricity",
+    "alternative_transportation",
     "fast_builds_plus_high_lng_price",
     "high_economic_growth",
     "high_lng_price",
@@ -376,8 +379,11 @@ ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "electricity",
     "electricity_imports",
     "electricity_related_losses",
+    "ev_charging_commercial",
+    "ev_charging_residential",
     "hydrocarbon_gas_liquids",
     "hydrogen",
+    "hydrogen_related_losses",
     "jet_fuel",
     "kerosene",
     "lease_and_plant_fuel",
@@ -395,14 +401,17 @@ ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "other_industrial_coal",
     "other_petroleum",
     "other_coal",
+    "passenger_rail",
     "petrochemical_feedstocks",
     "pipeline_fuel_natural_gas",
     "pipeline_natural_gas",
     "propane",
+    "purchased_electricity",
     "renewable_energy",
     "residual_fuel_oil",
     "steam_coal",
     "total",
+    "total_energy",  # this could be the same as total?
 ]
 """Energy use types from Table 2 of EIA AEO 2023.
 

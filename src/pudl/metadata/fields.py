@@ -2359,7 +2359,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Sector for energy use figures in AEO Table 2. Similar to customer class, but with some missing and some extra values.",
         "constraints": {
             "enum": set(CUSTOMER_CLASSES) - {"direct_connection"}
-            | {"electric_power", "unspecified"}
+            | {"electric_power", "unspecified", "industrial_hydrogen_production"}
         },
     },
     "energy_used_for_pumping_mwh": {
