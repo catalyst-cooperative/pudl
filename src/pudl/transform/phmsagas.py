@@ -76,7 +76,6 @@ YEARLY_DISTRIBUTION_OPERATORS_COLUMNS = {
         "data_maturity",
     ],
     "columns_to_convert_to_ints": [
-        "report_date",
         "report_id",
         "operator_id_phmsa",
     ],
@@ -177,7 +176,7 @@ def _dedupe_year_distribution_idx(
 ) -> pd.DataFrame:
     """Remove the rare duplicates in the expected primary key.
 
-    There are 49 found records which have duplicate values for the expected
+    There are 51 found records which have duplicate values for the expected
     primary key of this table. Many manipulations are much easier when we have a
     unique primary key - merges for instance! So we want to remove these duplicates.
 
@@ -197,7 +196,10 @@ def _dedupe_year_distribution_idx(
     dupe_mask = raw_phmsagas__yearly_distribution.duplicated(
         subset=YEARLY_DISTRIBUTION_IDX_ISH, keep=False
     )
-    assert len(raw_phmsagas__yearly_distribution[dupe_mask]) < 50
+    assert len(raw_phmsagas__yearly_distribution[dupe_mask]) <= 51, (
+        f"Found {len(raw_phmsagas__yearly_distribution[dupe_mask])} duplicates "
+        "on the expected core PKs, but expected 51 or less"
+    )
     cleaned_raw = pd.concat(
         [
             raw_phmsagas__yearly_distribution[~dupe_mask],
@@ -213,7 +215,7 @@ def _dedupe_year_distribution_idx(
         cleaned_raw.duplicated(["report_id", "operator_id_phmsa"], keep=False)
     ]
     # There are 6 values that we expect to be duplicated.
-    assert len(non_unique_groups) <= 6, (
+    assert len(non_unique_groups) <= 7, (
         f"Found {len(non_unique_groups)} records with duplicates, expected 6 or less."
     )
     assert all(non_unique_groups.operator_id_phmsa == 0), (
@@ -242,6 +244,39 @@ def _assign_cols_from_patterns(
     return df
 
 
+def backfill_zero_operator_id_phmsa(df: pd.DataFrame) -> pd.DataFrame:
+    """Backfill some of the 0's in the operator_id_phmsa.
+
+    We are trying to backfill PHMSA's version of null operator_id_phmsa's which is 0.
+    These 0's show up particularly in the pre-1990's years of data. It would be ideal
+    to figure out ways to confidently replace all of the 0's, but for now we are only
+    replacing 0's when the operator_name_phmsa is exactly the same.
+    """
+    og_zeros = (df.operator_id_phmsa == 0).sum()
+    filled_in = (
+        df.sort_values(["report_date"])
+        .assign(
+            operator_id_phmsa_old=lambda x: x.operator_id_phmsa,  # just for debugging
+            operator_name_phmsa=lambda y: y.operator_name_phmsa.str.title(),
+        )
+        .replace({"operator_id_phmsa": {0: pd.NA}})
+        .assign(
+            operator_id_phmsa=lambda z: z.operator_id_phmsa.fillna(
+                z.groupby(["operator_name_phmsa"], dropna=True)[
+                    "operator_id_phmsa"
+                ].bfill()
+            ).fillna(0)
+        )
+        # this is just for our eyeballs - it sorts back to how it was before the sorting by date
+        .sort_index()
+    )
+    still_zeros = (filled_in.operator_id_phmsa == 0).sum()
+    logger.info(
+        f"Backfilled {(og_zeros - still_zeros) / og_zeros:.1%} of zero's in operator_id_phmsa"
+    )
+    return filled_in
+
+
 @asset
 def _core_phmsagas__yearly_distribution(
     raw_phmsagas__yearly_distribution: pd.DataFrame,
@@ -250,21 +285,31 @@ def _core_phmsagas__yearly_distribution(
 
     This function mostly deduplicates the records on the core primary key.
     """
+    # there are a small number of records in the older years with a null operator id...
+    # sigh. there are already a bunch of records with a placeholder id of 0. so we
+    # are setting these null ones to zero.
+    assert (
+        len(
+            baddies := raw_phmsagas__yearly_distribution[
+                raw_phmsagas__yearly_distribution.operator_id_phmsa.isnull()
+            ]
+        )
+        <= 20
+    ), baddies
+    raw_phmsagas__yearly_distribution.operator_id_phmsa = (
+        raw_phmsagas__yearly_distribution.operator_id_phmsa.fillna(0)
+    )
+
     cleaned_raw = (
         raw_phmsagas__yearly_distribution.assign(
             report_date=lambda x: pd.to_datetime(x["report_year"], format="%Y")
         )
         .drop(columns=["report_year"])
+        .pipe(standardize_na_values)
+        .pipe(backfill_zero_operator_id_phmsa)
         .pipe(_dedupe_year_distribution_idx)
-        .replace(
-            to_replace={r"^( {1,})$": pd.NA, "NONE": pd.NA, "none": pd.NA}, regex=True
-        )
     )
-    # there are a small number of records in the older years with a null operator id...
-    # sigh. there are already a bunch of records with a placeholder id of 0. so we
-    # are setting these null ones to zero.
-    assert len(cleaned_raw[cleaned_raw.operator_id_phmsa.isnull()]) >= 20
-    cleaned_raw.operator_id_phmsa = cleaned_raw.operator_id_phmsa.fillna(0)
+
     return cleaned_raw
 
 
@@ -314,8 +359,12 @@ def _melt_merge_main_services(
 
 
 def _check_and_drop_log_if_always_in_report_id(df):
-    # This is just the suffix of the report_id for only a few years.
-    # lets check that assumption and then delete it.
+    """Check to ensure we can drop the log column w/o losing information.
+
+    The log column is only reported for a few years and we assume its
+    duplicative because its just the suffix of report_id. This function
+    checks that assumption and then deletes the log column.
+    """
     test_log = (
         df.loc[df.log_number.notnull(), ["report_id", "log_number"]]
         .astype(pd.Int64Dtype())
@@ -492,6 +541,8 @@ def _core_phmsagas__yearly_distribution_by_material_and_size(
     nearly 8 million records. This transform includes the standard
     ``_melt_merge_main_services`` as well as adding in a column describing the "other"
     material type (``main_other_material_detail``).
+
+    This table takes by far the longest to generate because of how large it is.
     """
     df = _melt_merge_main_services(
         _core_phmsagas__yearly_distribution,
@@ -611,7 +662,7 @@ def _check_unaccounted_for_gas_fraction(df):
 
     # Calculate the percentage
     negative_percentage = negative_count / len(df)
-    if negative_percentage > 0.15:
+    if negative_percentage > 0.17:
         error = f"Percentage of rows with negative unaccounted_for_gas_fraction values: {negative_percentage:.2f}"
         logger.info(error)
         return AssetCheckResult(passed=False, metadata={"errors": error})

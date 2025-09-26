@@ -1530,7 +1530,7 @@ def _core_eia923__yearly_byproduct_disposition(
     Returns:
         Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
     """
-    df = pudl.helpers.fix_eia_na(raw_eia923__byproduct_disposition)
+    df = pudl.helpers.standardize_na_values(raw_eia923__byproduct_disposition)
 
     # Drops known duplicate primary keys.
     # These rows contain no meaningful data. To prevent dropping future rows unexpectedly, we

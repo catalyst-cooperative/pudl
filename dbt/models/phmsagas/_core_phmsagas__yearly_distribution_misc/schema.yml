@@ -3,6 +3,14 @@ sources:
   - name: pudl
     tables:
       - name: _core_phmsagas__yearly_distribution_misc
+        data_tests:
+          - dbt_expectations.expect_compound_columns_to_be_unique:
+              arguments:
+                column_list:
+                  - report_date
+                  - report_id
+                  - operator_id_phmsa
+                  - operating_state
         columns:
           - name: report_date
           - name: report_id
