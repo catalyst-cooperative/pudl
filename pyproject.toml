@@ -79,7 +79,7 @@ dependencies = [
     "scikit-learn>=1.7",
     "scipy>=1.16",
     "Shapely>=2.1.1",
-    "splink>=4",
+    "splink>=4.0.9",
     "sphinx>=8",
     "sphinx-autoapi>=3",
     "sphinx-issues>=5",
@@ -88,7 +88,7 @@ dependencies = [
     "sphinxcontrib_bibtex>=2.6",
     "sphinxcontrib_googleanalytics>=0.4",
     "sqlalchemy>=2",
-    "sqlglot==27.14.0",  # See: https://github.com/moj-analytical-services/splink/issues/2773
+    "sqlglot>=27",  # See: https://github.com/moj-analytical-services/splink/issues/2773
     "timezonefinder>=8",
     "typos>=1.36", # Spell-checker
     "universal_pathlib>=0.2",

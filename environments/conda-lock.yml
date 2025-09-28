@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 61dcd808ff568785451549ab4e1b7dd13169ef18c84822f7219ee0e2c8073f70
-    osx-64: 9012ba5eb1eb268c094f1a023d6b090c6f273b3d9509e61f8cc072ff45374e1c
-    osx-arm64: bdfa5bcc4f771c6e6d3d1e766bac827cd6a7225d6981d53111b415a09fa9ebf0
+    linux-64: 3dd1bcfc8bb66f1a60fe287b914cde57432a107d82b515f58e75d670cd5498a9
+    osx-64: f8c41c15dcb989726d364e60d5bd8fc8683269c82279b8302e10e8f360e25f91
+    osx-arm64: 77cd1d1ae812584e6809c8dcf01548bd430b2c49cd6ec143b01357c484f099b5
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -16097,46 +16097,46 @@ package:
     category: main
     optional: false
   - name: markupsafe
-    version: 3.0.2
+    version: 3.0.3
     manager: conda
     platform: linux-64
     dependencies:
       __glibc: ">=2.17,<3.0.a0"
-      libgcc: ">=13"
+      libgcc: ">=14"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.2-py313h8060acc_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.3-py313h3dea7bd_0.conda
     hash:
-      md5: 21b62c55924f01b6eef6827167b46acb
-      sha256: d812caf52efcea7c9fd0eafb21d45dadfd0516812f667b928bee50e87634fae5
+      md5: c14389156310b8ed3520d84f854be1ee
+      sha256: a530a411bdaaf0b1e4de8869dfaca46cb07407bc7dc0702a9e231b0e5ce7ca85
     category: main
     optional: false
   - name: markupsafe
-    version: 3.0.2
+    version: 3.0.3
     manager: conda
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/markupsafe-3.0.2-py313h717bdf5_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/markupsafe-3.0.3-py313h0f4d31d_0.conda
     hash:
-      md5: a6fbde71416d6eb9898fcabf505a85c5
-      sha256: 297242943522a907c270bc2f191d16142707d970541b9a093640801b767d7aa7
+      md5: 884a82dc80ecd251e38d647808c424b3
+      sha256: 9c698da56e3bdae80be2a7bc0d19565971b36060155374d16fce14271c8b695c
     category: main
     optional: false
   - name: markupsafe
-    version: 3.0.2
+    version: 3.0.3
     manager: conda
     platform: osx-arm64
     dependencies:
       __osx: ">=11.0"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/markupsafe-3.0.2-py313ha9b7d5b_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/markupsafe-3.0.3-py313h7d74516_0.conda
     hash:
-      md5: 3acf05d8e42ff0d99820d2d889776fff
-      sha256: 81759af8a9872c8926af3aa59dc4986eee90a0956d1ec820b42ac4f949a71211
+      md5: 3df5979cc0b761dda0053ffdb0bca3ea
+      sha256: e06902a1bf370fdd4ada0a8c81c504868fdb7e9971b72c6bd395aa4e5a497bd2
     category: main
     optional: false
   - name: mashumaro
@@ -17381,7 +17381,7 @@ package:
     category: main
     optional: false
   - name: nodejs
-    version: 24.8.0
+    version: 24.9.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -17392,14 +17392,14 @@ package:
       libuv: ">=1.51.0,<2.0a0"
       libzlib: ">=1.3.1,<2.0a0"
       openssl: ">=3.5.3,<4.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/nodejs-24.8.0-heeeca48_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/nodejs-24.9.0-heeeca48_0.conda
     hash:
-      md5: 93488770348e7958c074aa60ef274eea
-      sha256: 140316449db7d10e733896682f9630529fba4c19f9aed25d85d6ea1da7e83933
+      md5: 8a2a73951c1ea275e76fb1b92d97ff3e
+      sha256: 6abb823fd4d28e6474f40dfcf38e772e5869ee755be855cf5d2c0d49f888c75e
     category: main
     optional: false
   - name: nodejs
-    version: 24.8.0
+    version: 24.9.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -17409,10 +17409,10 @@ package:
       libuv: ">=1.51.0,<2.0a0"
       libzlib: ">=1.3.1,<2.0a0"
       openssl: ">=3.5.3,<4.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/nodejs-24.8.0-h09bb5a9_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/nodejs-24.9.0-h09bb5a9_0.conda
     hash:
-      md5: 19748b8119bd8ac2e7163796359cf33a
-      sha256: dec00c4a48a17507478b4969888565826149e807393e25109d722ee0b18f3cc1
+      md5: 6ef8bcc1b996eb3c8a23ef9a808044a3
+      sha256: 2819269de6183a7187ba8bb7b56bb3c8d0a5b68a017ba7d1f77aed88eef523f2
     category: main
     optional: false
   - name: nodejs
@@ -24692,78 +24692,78 @@ package:
     category: main
     optional: false
   - name: sqlglot
-    version: 27.14.0
+    version: 27.18.0
     manager: conda
     platform: linux-64
     dependencies:
       python: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-27.14.0-pyhcf101f3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-27.18.0-pyhcf101f3_0.conda
     hash:
-      md5: cee0dd9e54944a90be71bd121cf4e749
-      sha256: 439abe84a5265ba8634fecb735bd5303e35d15bd9c41ae1c6da3f5cf0e8aa005
+      md5: c7e6d6d751f898e4098fb6369e1add32
+      sha256: 5b1d44e699e0cfe78aacc6bbb96660dbdd5fb5300e53a038b8882d1cd4ed565c
     category: main
     optional: false
   - name: sqlglot
-    version: 27.14.0
+    version: 27.18.0
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.10"
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-27.14.0-pyhcf101f3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-27.18.0-pyhcf101f3_0.conda
     hash:
-      md5: cee0dd9e54944a90be71bd121cf4e749
-      sha256: 439abe84a5265ba8634fecb735bd5303e35d15bd9c41ae1c6da3f5cf0e8aa005
+      md5: c7e6d6d751f898e4098fb6369e1add32
+      sha256: 5b1d44e699e0cfe78aacc6bbb96660dbdd5fb5300e53a038b8882d1cd4ed565c
     category: main
     optional: false
   - name: sqlglot
-    version: 27.14.0
+    version: 27.18.0
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.10"
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-27.14.0-pyhcf101f3_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-27.18.0-pyhcf101f3_0.conda
     hash:
-      md5: cee0dd9e54944a90be71bd121cf4e749
-      sha256: 439abe84a5265ba8634fecb735bd5303e35d15bd9c41ae1c6da3f5cf0e8aa005
+      md5: c7e6d6d751f898e4098fb6369e1add32
+      sha256: 5b1d44e699e0cfe78aacc6bbb96660dbdd5fb5300e53a038b8882d1cd4ed565c
     category: main
     optional: false
   - name: sqlglot-rs
-    version: 27.14.0
+    version: 27.18.0
     manager: conda
     platform: linux-64
     dependencies:
-      sqlglot: ==27.14.0
+      sqlglot: ==27.18.0
       sqlglotrs: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-27.14.0-h1b6cc73_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-27.18.0-h1a6eef7_0.conda
     hash:
-      md5: c5d899aff20f2914dc85ac321156ea71
-      sha256: 07b776100d32c4b8df3359fa780722ad5336251dc9711485c4b59b53597ee979
+      md5: e6c10c8a95bdd792c75e0fd893643c77
+      sha256: 47e41b450469f672fb1eaed7ad902fda56b4a98c9749de0467667d7d94f51e71
     category: main
     optional: false
   - name: sqlglot-rs
-    version: 27.14.0
+    version: 27.18.0
     manager: conda
     platform: osx-64
     dependencies:
-      sqlglot: ==27.14.0
+      sqlglot: ==27.18.0
       sqlglotrs: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-27.14.0-h1b6cc73_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-27.18.0-h1a6eef7_0.conda
     hash:
-      md5: c5d899aff20f2914dc85ac321156ea71
-      sha256: 07b776100d32c4b8df3359fa780722ad5336251dc9711485c4b59b53597ee979
+      md5: e6c10c8a95bdd792c75e0fd893643c77
+      sha256: 47e41b450469f672fb1eaed7ad902fda56b4a98c9749de0467667d7d94f51e71
     category: main
     optional: false
   - name: sqlglot-rs
-    version: 27.14.0
+    version: 27.18.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      sqlglot: ==27.14.0
+      sqlglot: ==27.18.0
       sqlglotrs: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-27.14.0-h1b6cc73_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/sqlglot-rs-27.18.0-h1a6eef7_0.conda
     hash:
-      md5: c5d899aff20f2914dc85ac321156ea71
-      sha256: 07b776100d32c4b8df3359fa780722ad5336251dc9711485c4b59b53597ee979
+      md5: e6c10c8a95bdd792c75e0fd893643c77
+      sha256: 47e41b450469f672fb1eaed7ad902fda56b4a98c9749de0467667d7d94f51e71
     category: main
     optional: false
   - name: sqlglotrs
