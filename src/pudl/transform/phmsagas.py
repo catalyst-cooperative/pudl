@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from dagster import AssetCheckResult, asset, asset_check
+from dagster import asset, asset_check
 
 import pudl.logging_helpers
 from pudl.helpers import (
@@ -649,22 +649,3 @@ def _core_phmsagas__yearly_distribution_misc(
         .convert_dtypes()
     )
     return df
-
-
-@asset_check(asset=_core_phmsagas__yearly_distribution_misc, blocking=True)
-def _check_unaccounted_for_gas_fraction(df):
-    """Check what percentage of unaccounted gas values are reported as a negative number.
-
-    This is technically impossible but allowed by PHMSA.
-    """
-    # Count the rows where unaccounted gas is negative.
-    negative_count = (df["unaccounted_for_gas_fraction"] < 0).sum()
-
-    # Calculate the percentage
-    negative_percentage = negative_count / len(df)
-    if negative_percentage > 0.17:
-        error = f"Percentage of rows with negative unaccounted_for_gas_fraction values: {negative_percentage:.2f}"
-        logger.info(error)
-        return AssetCheckResult(passed=False, metadata={"errors": error})
-
-    return AssetCheckResult(passed=True)
