@@ -1472,8 +1472,8 @@ STANDARD_INDUSTRIAL_CLASSIFICATION: pd.DataFrame = pd.read_csv(
 A table of Standard Industrial Classification codes and descriptions used by SEC.
 
 These codes have mostly been supplanted by the NAICS codes, which provide more detail
-and modernized industrial categories, but are still in use be SEC. Crosswalks exist that
-can convert between SIC and NAICS codes, but the correspondents isn't perfect.
+and modernized industrial categories, but are still in use by SEC. Crosswalks exist that
+can convert between SIC and NAICS codes, but the correspondence isn't perfect.
 
 See also:
 
