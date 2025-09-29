@@ -71,12 +71,20 @@ module "gh_oidc" {
       attribute = "attribute.repository/catalyst-cooperative/mozilla-sec-eia"
     }
     "nrel-finito-inputs-gha" = {
-      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.nrel_finito_inputs_gha.email}"
+      sa_name   = google_service_account.nrel_finito_inputs_gha.id
       attribute = "attribute.repository/catalyst-cooperative/nrel-fuel-and-industry-inputs"
     }
     "pudl-usage-metrics-dashboard-deploy-gha" = {
-      sa_name   = "projects/${var.project_id}/serviceAccounts/${google_service_account.pudl_usage_metrics_dashboard_deploy_gha.email}"
+      sa_name   = google_service_account.pudl_usage_metrics_dashboard_deploy_gha.id
       attribute = "attribute.repository/catalyst-cooperative/pudl-usage-metrics-dashboard"
+    }
+    "pudl-archiver-gha" = {
+      sa_name   = google_service_account.pudl_archiver_gha.id
+      attribute = "attribute.repository/catalyst-cooperative/pudl-archiver"
+    }
+    "pudl-viewer-gha" = {
+      sa_name   = google_service_account.pudl_viewer_gha.id
+      attribute = "attribute.repository/catalyst-cooperative/eel-hole"
     }
   }
 }
@@ -218,4 +226,22 @@ resource "google_storage_bucket_iam_member" "nrel_finito_inputs_archiver_gcs_iam
   bucket = google_storage_bucket.pudl_archive_bucket.name
   role   = each.key
   member = "serviceAccount:${google_service_account.nrel_finito_inputs_gha.email}"
+}
+
+resource "google_service_account" "pudl_archiver_gha" {
+  account_id   = "pudl-archiver-gha"
+  display_name = "PUDL usage metrics archiver github action service account"
+}
+
+resource "google_storage_bucket_iam_member" "pudl_archiver_gcs_iam" {
+  for_each = toset([
+    "roles/storage.objectCreator",
+    "roles/storage.objectViewer",
+    "roles/storage.legacyBucketReader",
+    "roles/storage.objectViewer",
+  ])
+
+  bucket = google_storage_bucket.pudl_archive_bucket.name
+  role   = each.key
+  member = "serviceAccount:${google_service_account.pudl_archiver_gha.email}"
 }

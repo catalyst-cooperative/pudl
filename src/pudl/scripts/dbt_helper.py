@@ -5,7 +5,7 @@ from collections import namedtuple
 from dataclasses import dataclass
 from difflib import unified_diff
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 import click
 import duckdb
@@ -14,12 +14,11 @@ import yaml
 from deepdiff import DeepDiff
 from pydantic import BaseModel
 
-from pudl.dbt_wrapper import build_with_context, dagster_to_dbt_selection
+from pudl.dbt_wrapper import DBT_DIR, build_with_context, dagster_to_dbt_selection
 from pudl.logging_helpers import configure_root_logger, get_logger
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
-configure_root_logger()
 logger = get_logger(__name__)
 logger.parent.propagate = False
 
@@ -91,12 +90,12 @@ class DbtTable(BaseModel):
     tags: list[str] | None = None
     config: dict | None = None  # only for models
 
-    def add_source_tests(self, source_tests: list) -> "DbtSource":
+    def add_source_tests(self, source_tests: list) -> "DbtTable":
         """Add data tests to source in dbt config."""
         data_tests = self.data_tests if self.data_tests is not None else []
         return self.model_copy(update={"data_tests": data_tests + source_tests})
 
-    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
+    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtTable":
         """Add data tests to columns in dbt config."""
         columns = {column.name: column for column in self.columns}
         columns.update(
@@ -108,23 +107,10 @@ class DbtTable(BaseModel):
 
         return self.model_copy(update={"columns": list(columns.values())})
 
-    @staticmethod
-    def get_row_count_test_dict(table_name: str, partition_column: str):
-        """Return a dictionary with a dbt row count data test encoded in a dict."""
-        return [
-            {
-                "check_row_counts_per_partition": {
-                    "table_name": table_name,
-                    "partition_column": partition_column,
-                }
-            }
-        ]
-
     @classmethod
-    def from_table_name(cls, table_name: str, partition_column: str) -> "DbtSchema":
+    def from_table_name(cls, table_name: str) -> "DbtTable":
         """Construct configuration defining table from PUDL metadata."""
         return cls(
-            data_tests=cls.get_row_count_test_dict(table_name, partition_column),
             name=table_name,
             columns=[
                 DbtColumn(name=f.name)
@@ -138,7 +124,6 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable]
-    data_tests: list | None = None
     description: str | None = None
     meta: dict | None = None
 
@@ -148,7 +133,7 @@ class DbtSource(BaseModel):
             update={"tables": [self.tables[0].add_source_tests(source_tests)]}
         )
 
-    def add_column_tests(self, column_tests: dict[list]) -> "DbtSource":
+    def add_column_tests(self, column_tests: dict[str, list]) -> "DbtSource":
         """Add data tests to columns in dbt config."""
         return self.model_copy(
             update={"tables": [self.tables[0].add_column_tests(column_tests)]}
@@ -178,7 +163,7 @@ class DbtSchema(BaseModel):
         return schema
 
     def add_column_tests(
-        self, column_tests: dict[list], model_name: str | None = None
+        self, column_tests: dict[str, list], model_name: str | None = None
     ) -> "DbtSchema":
         """Add data tests to columns in dbt config."""
         if model_name is None:
@@ -193,13 +178,12 @@ class DbtSchema(BaseModel):
         return schema
 
     @classmethod
-    def from_table_name(cls, table_name: str, partition_column: str) -> "DbtSchema":
+    def from_table_name(cls, table_name: str) -> "DbtSchema":
         """Construct configuration defining table from PUDL metadata."""
         return cls(
             sources=[
                 DbtSource(
-                    version=2,
-                    tables=[DbtTable.from_table_name(table_name, partition_column)],
+                    tables=[DbtTable.from_table_name(table_name)],
                 )
             ],
         )
@@ -216,9 +200,73 @@ class DbtSchema(BaseModel):
             yaml_output = _prettier_yaml_dumps(self.model_dump(exclude_none=True))
             schema_file.write(yaml_output)
 
+    def merge_metadata_from(self, old_schema: "DbtSchema") -> "DbtSchema":
+        """Merge metadata from an old schema into this one, preferring new values where present."""
+        if self.models:
+            raise ValueError(
+                "Merging metadata is not allowed when models are defined in the schema."
+            )
 
-def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
-    """Check if the DeepDiff includes any removals or modifications."""
+        def merge_pydantic_model(
+            new_model: BaseModel, old_model: BaseModel
+        ) -> BaseModel:
+            """Recursively merge fields of two pydantic models."""
+            if not old_model:
+                return new_model
+
+            merged_data = {}
+            for field_name, _field_info in new_model.model_fields.items():
+                new_value = getattr(new_model, field_name, None)
+                old_value = getattr(old_model, field_name, None)
+
+                if isinstance(new_value, BaseModel):
+                    merged_data[field_name] = merge_pydantic_model(new_value, old_value)
+                elif (
+                    isinstance(new_value, list)
+                    and new_value
+                    and isinstance(new_value[0], BaseModel)
+                ):
+                    # Merge lists of models by matching names
+                    old_map = {m.name: m for m in old_value or []}
+                    merged_list = [
+                        merge_pydantic_model(m, old_map.get(m.name)) for m in new_value
+                    ]
+                    merged_data[field_name] = merged_list
+                else:
+                    merged_data[field_name] = (
+                        new_value if new_value is not None else old_value
+                    )
+
+            return new_model.model_copy(update=merged_data)
+
+        # Merge sources
+        old_sources_map = {s.name: s for s in old_schema.sources or []}
+        new_sources = [
+            merge_pydantic_model(src, old_sources_map.get(src.name))
+            for src in self.sources
+        ]
+
+        return self.model_copy(update={"sources": new_sources})
+
+
+def schema_has_removals_or_modifications(
+    old_schema: dict,
+    new_schema: dict,
+) -> bool:
+    """Check if schema changes include removals or modifications.
+
+    Ignores:
+    * Column removals with no metadata (only {"name"} or empty dict)
+    * Column renames (values_changed on ['name'])
+    """
+    diff = DeepDiff(
+        old_schema,
+        new_schema,
+        ignore_order=True,
+        verbose_level=2,
+        view="tree",
+    )
+
     change_keys = {
         "values_changed",
         "type_changes",
@@ -227,7 +275,30 @@ def schema_has_removals_or_modifications(diff: DeepDiff) -> bool:
         "attribute_deleted",
     }
 
-    return any(key in diff and diff[key] for key in change_keys)
+    for key in change_keys:
+        if key not in diff:
+            continue
+
+        items = diff[key]
+
+        for obj in items.values() if isinstance(items, dict) else items:
+            path_str = obj.path() if hasattr(obj, "path") else str(obj)
+            removed_val = getattr(obj, "t1", None)
+
+            if (
+                key in ("dictionary_item_removed", "iterable_item_removed")
+                and "['columns']" in path_str
+                and isinstance(removed_val, dict)
+                and (not removed_val or set(removed_val.keys()) == {"name"})
+            ):
+                continue  # ignore empty column drop
+
+            if key == "values_changed" and path_str.endswith("['name']"):
+                continue  # ignore renames
+
+            return True  # anything else is a modification/removal
+
+    return False
 
 
 def _log_schema_diff(old_schema: DbtSchema, new_schema: DbtSchema):
@@ -270,42 +341,47 @@ def _get_local_table_path(table_name):
 
 
 def _get_model_path(table_name: str, data_source: str) -> Path:
-    return Path("./dbt") / "models" / data_source / table_name
+    return DBT_DIR / "models" / data_source / table_name
 
 
-def _get_row_count_csv_path(target: str = "etl-full") -> Path:
-    if target == "etl-fast":
-        return Path("./dbt") / "seeds" / "etl_fast_row_counts.csv"
-    return Path("./dbt") / "seeds" / "etl_full_row_counts.csv"
+def _get_row_count_csv_path() -> Path:
+    return DBT_DIR / "seeds" / "etl_full_row_counts.csv"
 
 
-def _get_existing_row_counts(target: str = "etl-full") -> pd.DataFrame:
-    return pd.read_csv(_get_row_count_csv_path(target), dtype={"partition": str})
+def _get_existing_row_counts() -> pd.DataFrame:
+    return pd.read_csv(
+        _get_row_count_csv_path(),
+        dtype={"partition": "string", "table_name": "string"},
+    ).fillna(value="")
 
 
 def _calculate_row_counts(
     table_name: str,
-    partition_column: str = "report_year",
+    partition_expr: str | None = None,
 ) -> pd.DataFrame:
     table_path = _get_local_table_path(table_name)
 
-    if partition_column == "report_year":
-        row_count_query = (
-            f"SELECT {partition_column} as partition, COUNT(*) as row_count "  # noqa: S608
-            f"FROM '{table_path}' GROUP BY {partition_column}"  # noqa: S608
-        )
-    elif partition_column in ["report_date", "datetime_utc"]:
-        row_count_query = (
-            f"SELECT CAST(YEAR({partition_column}) as VARCHAR) as partition, COUNT(*) as row_count "  # noqa: S608
-            f"FROM '{table_path}' GROUP BY YEAR({partition_column})"  # noqa: S608
-        )
+    if partition_expr is None:
+        partition_expr_sql = "''"
+        group_by_clause = ""
     else:
-        row_count_query = (
-            f"SELECT '' as partition, COUNT(*) as row_count FROM '{table_path}'"  # noqa: S608
-        )
+        partition_expr_sql = partition_expr
+        group_by_clause = f"GROUP BY {partition_expr_sql}"
 
-    new_row_counts = duckdb.sql(row_count_query).df().astype({"partition": str})
-    new_row_counts["table_name"] = table_name
+    row_count_query = f"""
+SELECT
+    CAST(COALESCE(CAST({partition_expr_sql} AS VARCHAR), '') AS VARCHAR) AS partition,
+    COUNT(*) AS row_count
+FROM '{table_path}' {group_by_clause}
+    """  # noqa: S608
+
+    new_row_counts = (
+        duckdb.sql(row_count_query)
+        .df()
+        .assign(table_name=table_name)
+        .astype({"partition": "string", "table_name": "string"})
+        .loc[:, ["table_name", "partition", "row_count"]]
+    )
 
     return new_row_counts
 
@@ -318,82 +394,135 @@ def _combine_row_counts(existing: pd.DataFrame, new: pd.DataFrame) -> pd.DataFra
     )
 
 
-def _write_row_counts(row_counts: pd.DataFrame, target: str = "etl-full"):
-    csv_path = _get_row_count_csv_path(target)
+def _write_row_counts(row_counts: pd.DataFrame):
+    csv_path = _get_row_count_csv_path()
     row_counts.to_csv(csv_path, index=False)
 
 
 def update_row_counts(
     table_name: str,
-    partition_column: str = "report_year",
-    target: str = "etl-full",
+    data_source: str,
     clobber: bool = False,
-    update: bool = False,
 ) -> UpdateResult:
     """Generate updated row counts per partition and write to csv file within dbt project."""
-    existing = _get_existing_row_counts(target)
-    if table_name in existing["table_name"].to_numpy() and not (clobber or update):
-        return UpdateResult(
-            success=False,
-            message=f"Row counts for {table_name} already exist (run with clobber or update to overwrite).",
+    model_path = _get_model_path(table_name, data_source)
+    schema_path = model_path / "schema.yml"
+    schema = DbtSchema.from_yaml(schema_path)
+    table = schema.sources[0].tables[0]
+
+    partition_expressions = _extract_row_count_partitions(table)
+    if len(partition_expressions) > 1:
+        raise ValueError(
+            f"Only a single row counts test per table is supported, "
+            f"but found {len(partition_expressions)} in {table_name}."
         )
 
-    new = _calculate_row_counts(table_name, partition_column)
-    combined = _combine_row_counts(existing, new)
-    _write_row_counts(combined, target)
+    has_test = bool(partition_expressions)
+    existing = _get_existing_row_counts()
+    has_existing_row_counts = table_name in existing["table_name"].to_numpy()
+
+    if not has_test and not has_existing_row_counts:
+        return UpdateResult(
+            success=True,
+            message=f"No row count test defined for {table_name}, and no row counts found, nothing to update.",
+        )
+
+    if not has_test and not clobber:
+        return UpdateResult(
+            success=False,
+            message=f"Row counts exist for {table_name}, but no row count test is defined. Use clobber to remove.",
+        )
+
+    if has_existing_row_counts and not clobber:
+        return UpdateResult(
+            success=False,
+            message=f"Row counts for {table_name} already exist. Use clobber to overwrite.",
+        )
+
+    # At this point, we know row counts can be written: either because no row counts
+    # exist yet, or because clobber is set.
+
+    # In any case, we remove the old row counts for the table we are refreshing
+    filtered = existing[existing["table_name"] != table_name]
+    old = existing[existing["table_name"] == table_name]
+
+    # At this point, there is no test defined but there are row counts, and overwrite is allowed, so
+    # we want to remove the row counts for this table
+    if not has_test:
+        # Remove outdated entry
+        _write_row_counts(filtered)
+        return UpdateResult(
+            success=True,
+            message=f"Removed {len(existing) - len(filtered)} outdated row counts for {table_name} (no test defined).",
+        )
+
+    partition_expr = partition_expressions[0]  # TODO: support multiple partitions
+    new = _calculate_row_counts(table_name, partition_expr)
+
+    # Make old and new row counts comparable so we can detect changes
+    row_count_idx = ["table_name", "partition"]
+    if (
+        old.sort_values(by=row_count_idx)
+        .reset_index(drop=True)
+        .equals(new.sort_values(by=row_count_idx).reset_index(drop=True))
+    ):
+        return UpdateResult(
+            success=True,
+            message=f"Row counts for {table_name} are unchanged.",
+        )
+
+    # Finally, we reach the case where there are actual row counts to update:
+    combined = _combine_row_counts(filtered, new)
+    _write_row_counts(combined)
 
     return UpdateResult(
         success=True,
-        message=f"Successfully updated row count table with counts from {table_name}.",
+        message=f"Successfully updated row counts for {table_name}, partitioned by {partition_expr}.",
     )
 
 
 def update_table_schema(
     table_name: str,
     data_source: str,
-    partition_column: str = "report_year",
     clobber: bool = False,
-    update: bool = False,
 ) -> UpdateResult:
     """Generate and write out a schema.yaml file defining a new or updated table."""
     model_path = _get_model_path(table_name, data_source)
     schema_path = model_path / "schema.yml"
 
-    if model_path.exists() and not (clobber or update):
-        return UpdateResult(
-            success=False,
-            message=f"DBT configuration already exists for table {table_name} and clobber or update is not set.",
-        )
+    generated_schema = DbtSchema.from_table_name(table_name)
 
-    new_schema = DbtSchema.from_table_name(
-        table_name, partition_column=partition_column
-    )
-
-    if model_path.exists() and update:
+    # If we are updating an existing model, augment the newly generated schema with
+    # whatever additional information is available from the old dbt schema.
+    if model_path.exists() and not clobber:
         # Load existing schema
         old_schema = DbtSchema.from_yaml(schema_path)
+        # Replace new schema with the generated schema but copying missing metadata
+        # from the old schema
+        new_schema = generated_schema.merge_metadata_from(old_schema)
 
-        # Generate the diff report
-        diff = DeepDiff(
+        if schema_has_removals_or_modifications(
             old_schema.model_dump(exclude_none=True),
             new_schema.model_dump(exclude_none=True),
-            ignore_order=True,
-            verbose_level=2,
-            view="tree",
-        )
-
-        if schema_has_removals_or_modifications(diff):
+        ):
             _log_schema_diff(old_schema, new_schema)
             # TODO 2025-07-11: perhaps we can integrate this `git add -p` flow directly
             # into the --clobber command?
             return UpdateResult(
                 success=False,
-                message=f"DBT configuration for table {table_name} has "
+                message=f"dbt configuration for table {table_name} has "
                 "information that would be deleted. Update manually, or: "
                 "1) re-run with --clobber, 2) run `git add dbt/models -p` "
                 "and follow the instructions for recovering the deleted info",
             )
+    else:
+        # Either there is no existing schema, or --clobber is set. Use generated schema as is.
+        new_schema = generated_schema
 
+    # By the time we've gotten here, either:
+    # * We've merged the old and new schema (if old schema existed, and we're updating)
+    # * We're clobbering an existing schema entirely (clobber is True)
+    # * We're creating a new schema from scratch (model_path did not exist)
     model_path.mkdir(parents=True, exist_ok=True)
     new_schema.to_yaml(schema_path)
 
@@ -410,15 +539,21 @@ def _log_update_result(result: UpdateResult):
         logger.error(result.message)
 
 
-def _infer_partition_column(table_name: str) -> str:
-    all_columns = [c.name for c in PUDL_PACKAGE.get_resource(table_name).schema.fields]
-    if (
-        (partition_column := "report_year") in all_columns
-        or (partition_column := "report_date") in all_columns
-        or (partition_column := "datetime_utc") in all_columns
-    ):
-        return partition_column
-    return None
+def _extract_row_count_partitions(table: DbtTable) -> list[str | None]:
+    """Extract partition columns from check_row_counts_per_partition tests in a DbtTable."""
+    partitions: list[str | None] = []
+
+    if table.data_tests:
+        for test in table.data_tests:
+            if "check_row_counts_per_partition" not in test:
+                continue
+            if not isinstance(test, dict):
+                raise ValueError(f"Row counts test expected to be a dictionary: {test}")
+            test_def = test.get("check_row_counts_per_partition")
+            if isinstance(test_def, dict):
+                partitions.append(test_def.get("arguments", {}).get("partition_expr"))
+
+    return partitions
 
 
 @dataclass
@@ -426,24 +561,15 @@ class TableUpdateArgs:
     """Define a single class to collect the args for all table update commands."""
 
     tables: list[str]
-    target: Literal["etl-full", "etl-fast"] = "etl-full"
     schema: bool = False
     row_counts: bool = False
     clobber: bool = False
-    update: bool = False
 
 
 @click.command
 @click.argument(
     "tables",
     nargs=-1,
-)
-@click.option(
-    "--target",
-    default="etl-full",
-    type=click.Choice(["etl-full", "etl-fast"]),
-    show_default=True,
-    help="What dbt target should be used as the source of new row counts.",
 )
 @click.option(
     "--schema/--no-schema",
@@ -458,18 +584,11 @@ class TableUpdateArgs:
 @click.option(
     "--clobber/--no-clobber",
     default=False,
-    help="Overwrite existing table schema config and row counts. Otherwise, the script will fail if the table configuration already exists.",
-)
-@click.option(
-    "--update/--no-update",
-    default=False,
-    help="Allow the table schema to be updated if the new schema is a superset of the existing schema.",
+    help="Overwrite existing table schema config and row counts. Otherwise, the script will fail if destructive changes are made.",
 )
 def update_tables(
     tables: list[str],
-    target: str,
     clobber: bool,
-    update: bool,
     schema: bool,
     row_counts: bool,
 ):
@@ -479,22 +598,14 @@ def update_tables(
     'all'. If 'all' the script will update configurations for for all PUDL tables.
 
     If ``--clobber`` is set, existing configurations for tables will be overwritten.
-    If ``--update`` is set, existing configurations for tables will be updated only
     if this does not result in deletions.
     """
     args = TableUpdateArgs(
         tables=list(tables),
-        target=target,
         schema=schema,
         row_counts=row_counts,
         clobber=clobber,
-        update=update,
     )
-
-    if args.clobber and args.update:
-        raise click.UsageError(
-            "Cannot use --clobber and --update at the same time. Choose one."
-        )
 
     tables = args.tables
     if "all" in tables:
@@ -506,25 +617,20 @@ def update_tables(
 
     for table_name in tables:
         data_source = get_data_source(table_name)
-        partition_column = _infer_partition_column(table_name)
         if args.schema:
             _log_update_result(
                 update_table_schema(
-                    table_name,
-                    data_source,
-                    partition_column=partition_column,
+                    table_name=table_name,
+                    data_source=data_source,
                     clobber=args.clobber,
-                    update=args.update,
                 )
             )
         if args.row_counts:
             _log_update_result(
                 update_row_counts(
                     table_name=table_name,
-                    partition_column=partition_column,
-                    target=args.target,
+                    data_source=data_source,
                     clobber=args.clobber,
-                    update=args.update,
                 )
             )
 
@@ -532,7 +638,7 @@ def update_tables(
 @click.command()
 @click.option(
     "--select",
-    help="DBT selector for the asset(s) you want to validate. Syntax "
+    help="dbt selector for the asset(s) you want to validate. Syntax "
     "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
 )
 @click.option(
@@ -540,7 +646,7 @@ def update_tables(
     "-a",
     help=(
         "*DAGSTER* selector for the asset(s) you want to validate. "
-        "This gets translated into a DBT selection. For example, you can "
+        "This gets translated into a dbt selection. For example, you can "
         "use '+key:\"out_eia__yearly_generators\"' to validate "
         "out_eia_yearly_generators and its upstream assets. Syntax "
         "documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference "
@@ -548,14 +654,8 @@ def update_tables(
 )
 @click.option(
     "--exclude",
-    help="DBT selector for the asset(s) you want to exclude from validation. Syntax "
+    help="dbt selector for the asset(s) you want to exclude from validation. Syntax "
     "documentation at https://docs.getdbt.com/reference/node-selection/syntax",
-)
-@click.option(
-    "--target",
-    default="etl-full",
-    type=click.Choice(["etl-full", "etl-fast"]),
-    help="DBT target - etl-full (default) or etl-fast.",
 )
 @click.option(
     "--dry-run/--no-dry-run",
@@ -567,10 +667,9 @@ def validate(
     select: str | None = None,
     asset_select: str | None = None,
     exclude: str | None = None,
-    target: str = "etl-full",
     dry_run: bool = False,
 ) -> None:
-    """Validate a selection of DBT nodes.
+    """Validate a selection of dbt nodes.
 
     Wraps the ``dbt build`` command line so we can annotate the result with the
     actual data that was returned from the test query.
@@ -616,8 +715,8 @@ def validate(
 
     build_params = {
         "node_selection": node_selection,
-        "dbt_target": target,
         "node_exclusion": exclude,
+        "dbt_target": "etl-full",
     }
 
     if dry_run:
@@ -641,14 +740,13 @@ def dbt_helper():
 
     This CLI currently provides the following sub-commands:
 
-    * ``update-tables`` which can update or create a dbt table (model)
-      schema.yml file under the ``dbt/models`` repo. These configuration files
-      tell dbt about the structure of the table and what data tests are specified
-      for it. It also adds a (required) row count test by default. The script
-      can also generate or update the expected row counts for existing tables,
-      assuming they have been materialized to parquet files and are sitting in
-      your $PUDL_OUT directory.
-    * ``validate``: run validation tests for a selection of DBT nodes.
+    update-tables: which can update or create a dbt table (model) schema.yml file under
+    the ``dbt/models`` repo. These configuration files tell dbt about the structure of
+    the table and what data tests are specified for it. The script can also generate or
+    update the expected row counts for existing tables, assuming they have been
+    materialized to parquet files and are sitting in your $PUDL_OUTPUT directory.
+
+    validate: run validation tests for a selection of dbt nodes.
 
     Run ``dbt_helper {command} --help`` for detailed usage on each command.
     """
@@ -659,4 +757,5 @@ dbt_helper.add_command(validate)
 
 
 if __name__ == "__main__":
+    configure_root_logger()
     dbt_helper()

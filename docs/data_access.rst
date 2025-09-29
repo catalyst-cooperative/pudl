@@ -35,14 +35,6 @@ Quick Reference
        timeseries data. Select data to download as CSVs for local analysis in
        spreadsheets. Download full tables as Parquet files to play with
        programmatically.
-   * - :ref:`access-datasette`
-     - SQLite, CSV
-     - ``nightly``
-     - Data Explorer, Spreadsheet Analyst, SQL User
-     - **DEPRECATED - in early-to-mid-2025 we will switch to**
-       :ref:`access-viewer`. Run SQL queries on our SQLite database within your
-       browser. Select data to download as CSVs for local analysis in
-       spreadsheets. Create sharable links to a particular selection of data.
    * - :ref:`access-kaggle`
      - SQLite, Parquet
      - ``nightly``
@@ -87,8 +79,7 @@ Data Platform
 ^^^^^^^^^^^^^
 
 PUDL data is distributed on a number of different platforms to accommodate a variety of
-different use cases. These include :ref:`access-viewer`,
-:ref:`access-datasette`, :ref:`access-kaggle`,
+different use cases. These include :ref:`access-viewer`, :ref:`access-kaggle`,
 :ref:`access-cloud`, and :ref:`access-zenodo`.
 
 .. _access-format:
@@ -111,11 +102,15 @@ All data is distributed with both formats, except:
 - **SQLite Only**: The :ref:`minimally processed FERC data <access-raw-ferc>` which we
   have converted from XBRL and DBF into SQLite are only available in SQLite.
 
-All Parquet data is available through :ref:`access-viewer`, and can be
-downloaded as a CSV through that platform.
+All Parquet data is available through :ref:`access-viewer` for previewing. It can be
+downloaded as a CSV through that platform if you need to work with it in spreadsheets.
+For programmatic use we **strongly recommend** that you access the Parquet files in
+S3 directly. See :ref:`access-cloud`.
 
-All SQLite data is available through :ref:`access-datasette`,
-and can be downloaded as a CSV through that platform.
+All SQLite data can be downloaded from S3 (see :ref:`access-cloud`) or our regular
+versionsed releases (see :ref:`access-zenodo`). We are `working on integrating all
+converted FERC databases <https://github.com/catalyst-cooperative/eel-hole/issues/4>`__.
+into :ref:`access-viewer`.
 
 .. _access-version:
 
@@ -141,55 +136,10 @@ PUDL Viewer
 We recently released the `PUDL Viewer <https://viewer.catalyst.coop/>`__ in beta.
 
 It provides flexible search of table metadata, live data preview with filtering
-and sorting, and CSV export of up to 5 million rows. It also provides access to
-tables that were too large for Datasette, such as the EPA CEMS emissions data
-and the VCE RARE hourly renewable capacity factors data.
+and sorting, and CSV export of up to 5 million rows.
 
 Finally, it also has links to the Parquet downloads for each table, which you
 can view directly with tools like `Tad <https://www.tadviewer.com/>`__.
-
-Note that the raw :ref:`FERC SQLite databases <access-raw-ferc>` derived from
-the old Visual FoxPro and new XBRL data formats are not available here yet - if
-you need that, see :ref:`access-datasette`.
-
-.. _access-datasette:
-
----------------------------------------------------------------------------------------
-Datasette
----------------------------------------------------------------------------------------
-
-.. warning::
-
-  Our Datasette instance is deprecated. For performance reasons, we will be
-  moving all data access to our new :ref:`access-viewer` in early-mid 2025.
-
-We provide web-based access to the PUDL data via a
-`Datasette <https://datasette.io>`__ deployment at:
-
-  `<https://data.catalyst.coop>`__
-
-Datasette is an open source tool developed by
-`Simon Willison <https://https://simonwillison.net/>`__ that wraps SQLite databases in
-an interactive front-end. It allows users to the PUDL database and metadata, filter the
-data them using dropdown menus or SQL, and download the selected data to CSVs.  All the
-query parameters are stored in the URL so you can also share links to the data you've
-selected.
-
-.. note::
-
-   The only SQLite database containing cleaned and integrated data is `the core PUDL
-   database <https://data.catalyst.coop/pudl>`__. There are also several
-   :ref:`FERC SQLite databases <access-raw-ferc>` derived from the old Visual FoxPro
-   and new XBRL data formats, which we publish as SQLite to improve accessibility of the
-   raw inputs, but they should generally not be used directly if the data you need has
-   been integrated into the PUDL database.
-
-.. note::
-
-   Only PUDL database tables that are available in SQLite are accessible via Datasette.
-   Due to their size, we currently do not load any of the hourly tables into SQLite, and
-   distribute them only as Parquet files. For access to the hourly tables, see
-   the :ref:`access-viewer`.
 
 .. _access-kaggle:
 
@@ -198,12 +148,18 @@ Kaggle
 ---------------------------------------------------------------------------------------
 
 Are you comfortable with Jupyter Notebooks? Want to explore a fresh version of all
-available PUDL data without needing to do any environment setup? Our nightly build
-outputs automatically update `the PUDL Project Dataset on Kaggle
-<https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__ once a week. There
-are `several notebooks
-<https://www.kaggle.com/datasets/catalystcooperative/pudl-project/code>`__ associated
-with the dataset, both curated by Catalyst and contributed by other Kaggle users.
+available PUDL data without needing to do any environment setup?  We provide several
+`example notebooks on Kaggle <https://www.kaggle.com/catalystcooperative/code>`__.
+(they are also pushed to our `PUDL Examples Repo on GitHub
+<https://github.com/catalyst-cooperative/pudl-examples>`__). These notebooks pull data
+directly from the Parquet outputs in S3 (see below) and so can also be used locally if
+you're familiar with setting up a Python environment and running Jupyter.
+
+Our nightly build outputs also automatically update the `PUDL Kaggle dataset
+<https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__ once a week. This
+dataset contains all the PUDL outputs, so it's quite large and can take a few minutes
+to copy into your Kaggle notebook's private workspace, but once it's copied, access will
+be fast.
 
 .. _access-cloud:
 

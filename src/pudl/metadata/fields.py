@@ -3,6 +3,7 @@
 from copy import deepcopy
 from typing import Any
 
+import geopandas as gpd
 import pandas as pd
 from pytz import all_timezones
 
@@ -22,6 +23,7 @@ from pudl.metadata.enums import (
     EPACEMS_STATES,
     FUEL_CLASSES,
     FUEL_TYPES_EIAAEO,
+    FUNCTIONAL_STATUS_CODES_CENSUS,
     GENERATION_ENERGY_SOURCES_EIA930,
     IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
@@ -430,9 +432,41 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Can this generator operate while bypassing the heat recovery steam generator?",
     },
+    "byproduct_description": {
+        "type": "string",
+        "description": "Description of combustion by-product.",
+        "constraints": {
+            "enum": [
+                "Ash from coal gasification (IGCC) units",
+                "Bottom ash from standard boiler units",
+                "Bottom (bed) ash from FBC units",
+                "FGD Gypsum",
+                "Fly ash from FBC units",
+                "Fly ash from standard boiler/PCD units",
+                "Fly ash from units with dry FGD",
+                "Other FGD byproducts",
+                "Other (specify via footnote on Schedule 9)",
+                "Steam Sales (MMBtu)",
+            ],
+        },
+    },
     "byproduct_recovery": {
         "type": "boolean",
-        "description": "Is salable byproduct is recovered by the unit?",
+        "description": "Is saleable byproduct recovered by the unit?",
+    },
+    "byproduct_units": {
+        "type": "string",
+        "description": "Reported unit of measure for combustion byproduct. MMBtu for steam, tons for all other byproducts.",
+        "constraints": {"enum": ["mmbtu", "tons"]},
+    },
+    "no_byproducts_to_report": {
+        "type": "string",
+        "description": (
+            "Whether any combustion by-products were produced by a plant. 'Y' "
+            "indicates no byproducts to report. The 'Y' and 'N' values do not align "
+            "with expected values of reported byproducts. This column is messy and "
+            "requires standardization."
+        ),
     },
     "caidi_w_major_event_days_minutes": {
         "type": "number",
@@ -1192,6 +1226,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "short notice."
         ),
     },
+    "disposal_landfill_units": {
+        "type": "number",
+        "description": "Disposed by-products in landfill, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "disposal_offsite_units": {
+        "type": "number",
+        "description": "Disposed by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "disposal_ponds_units": {
+        "type": "number",
+        "description": "Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
     "distributed_generation": {
         "type": "boolean",
         "description": "Whether the generator is considered distributed generation",
@@ -1237,6 +1283,771 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Dollar value of reported income, expense, asset, or liability.",
         "unit": "USD",
+    },
+    # Census DP1 specific field definitions
+    "geometry": {
+        "type": "geometry",
+        "description": "Geospatial representation of the feature.",
+    },
+    "tract_id_fips": {
+        "type": "string",
+        "description": "Census tract 10-digit FIPS code",
+    },
+    "tract_name": {
+        "type": "string",
+        "description": "Census tract legal/statistical area description",
+    },
+    "functional_status_code_census": {
+        "type": "string",
+        "description": (
+            "The functional status (FUNCSTAT) code defines the current functional "
+            "status of a geographic entity. These codes can be found in the TIGER/Line "
+            "products, gazetteer files, and other products."
+        ),
+        "constraints": {"enum": FUNCTIONAL_STATUS_CODES_CENSUS},
+    },
+    "land_area": {
+        "type": "number",
+        "description": "Land area in square meters.",
+        "unit": "square meters",
+    },
+    "water_area": {
+        "type": "number",
+        "description": "Water area in square meters.",
+        "unit": "square meters",
+    },
+    "internal_point_latitude": {
+        "type": "number",
+        "description": "Internal point latitude in decimal degrees.",
+        "unit": "degrees",
+    },
+    "internal_point_longitude": {
+        "type": "number",
+        "description": "Internal point longitude in decimal degrees.",
+        "unit": "degrees",
+    },
+    "shape_length": {
+        "type": "number",
+        "description": "Length of the feature's perimeter in degrees.",
+        "unit": "degrees",
+    },
+    "shape_area": {
+        "type": "number",
+        "description": "Area of the feature in square degrees.",
+        "unit": "square degrees",
+    },
+    # DPSF1. Sex and age - Universe: Total population
+    "dp0010001": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population",
+    },
+    "dp0010002": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population under 5 years",
+    },
+    "dp0010003": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 5 to 9 years",
+    },
+    "dp0010004": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 10 to 14 years",
+    },
+    "dp0010005": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 15 to 19 years",
+    },
+    "dp0010006": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 20 to 24 years",
+    },
+    "dp0010007": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 25 to 29 years",
+    },
+    "dp0010008": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 30 to 34 years",
+    },
+    "dp0010009": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 35 to 39 years",
+    },
+    "dp0010010": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 40 to 44 years",
+    },
+    "dp0010011": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 45 to 49 years",
+    },
+    "dp0010012": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 50 to 54 years",
+    },
+    "dp0010013": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 55 to 59 years",
+    },
+    "dp0010014": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 60 to 64 years",
+    },
+    "dp0010015": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 65 to 69 years",
+    },
+    "dp0010016": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 70 to 74 years",
+    },
+    "dp0010017": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 75 to 79 years",
+    },
+    "dp0010018": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 80 to 84 years",
+    },
+    "dp0010019": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Total population 85 years and over",
+    },
+    "dp0010020": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population total",
+    },
+    "dp0010021": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population under 5 years",
+    },
+    "dp0010022": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 5 to 9 years",
+    },
+    "dp0010023": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 10 to 14 years",
+    },
+    "dp0010024": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 15 to 19 years",
+    },
+    "dp0010025": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 20 to 24 years",
+    },
+    "dp0010026": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 25 to 29 years",
+    },
+    "dp0010027": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 30 to 34 years",
+    },
+    "dp0010028": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 35 to 39 years",
+    },
+    "dp0010029": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 40 to 44 years",
+    },
+    "dp0010030": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 45 to 49 years",
+    },
+    "dp0010031": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 50 to 54 years",
+    },
+    "dp0010032": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 55 to 59 years",
+    },
+    "dp0010033": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 60 to 64 years",
+    },
+    "dp0010034": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 65 to 69 years",
+    },
+    "dp0010035": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 70 to 74 years",
+    },
+    "dp0010036": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 75 to 79 years",
+    },
+    "dp0010037": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 80 to 84 years",
+    },
+    "dp0010038": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Male population 85 years and over",
+    },
+    "dp0010039": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population total",
+    },
+    "dp0010040": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population under 5 years",
+    },
+    "dp0010041": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 5 to 9 years",
+    },
+    "dp0010042": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 10 to 14 years",
+    },
+    "dp0010043": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 15 to 19 years",
+    },
+    "dp0010044": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 20 to 24 years",
+    },
+    "dp0010045": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 25 to 29 years",
+    },
+    "dp0010046": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 30 to 34 years",
+    },
+    "dp0010047": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 35 to 39 years",
+    },
+    "dp0010048": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 40 to 44 years",
+    },
+    "dp0010049": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 45 to 49 years",
+    },
+    "dp0010050": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 50 to 54 years",
+    },
+    "dp0010051": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 55 to 59 years",
+    },
+    "dp0010052": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 60 to 64 years",
+    },
+    "dp0010053": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 65 to 69 years",
+    },
+    "dp0010054": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 70 to 74 years",
+    },
+    "dp0010055": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 75 to 79 years",
+    },
+    "dp0010056": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 80 to 84 years",
+    },
+    "dp0010057": {
+        "type": "integer",
+        "description": "DPSF1. Sex and age - Female population 85 years and over",
+    },
+    # DPSF2. Median age by sex - Universe: Total population (1 expressed decimal)
+    "dp0020001": {
+        "type": "number",
+        "description": "DPSF2. Median age by sex - Both sexes",
+    },
+    "dp0020002": {"type": "number", "description": "DPSF2. Median age by sex - Male"},
+    "dp0020003": {"type": "number", "description": "DPSF2. Median age by sex - Female"},
+    # DPSF3. Sex for the population 16 years and over - Universe: Population 16 years and over
+    "dp0030001": {
+        "type": "integer",
+        "description": "DPSF3. Sex for population 16 years and over - Total",
+    },
+    "dp0030002": {
+        "type": "integer",
+        "description": "DPSF3. Sex for population 16 years and over - Male",
+    },
+    "dp0030003": {
+        "type": "integer",
+        "description": "DPSF3. Sex for population 16 years and over - Female",
+    },
+    # DPSF4. Sex for the population 18 years and over - Universe: Population 18 years and over
+    "dp0040001": {
+        "type": "integer",
+        "description": "DPSF4. Sex for population 18 years and over - Total",
+    },
+    "dp0040002": {
+        "type": "integer",
+        "description": "DPSF4. Sex for population 18 years and over - Male",
+    },
+    "dp0040003": {
+        "type": "integer",
+        "description": "DPSF4. Sex for population 18 years and over - Female",
+    },
+    # DPSF5. Sex for the population 21 years and over - Universe: Population 21 years and over
+    "dp0050001": {
+        "type": "integer",
+        "description": "DPSF5. Sex for population 21 years and over - Total",
+    },
+    "dp0050002": {
+        "type": "integer",
+        "description": "DPSF5. Sex for population 21 years and over - Male",
+    },
+    "dp0050003": {
+        "type": "integer",
+        "description": "DPSF5. Sex for population 21 years and over - Female",
+    },
+    # DPSF6. Sex for the population 62 years and over - Universe: Population 62 years and over
+    "dp0060001": {
+        "type": "integer",
+        "description": "DPSF6. Sex for population 62 years and over - Total",
+    },
+    "dp0060002": {
+        "type": "integer",
+        "description": "DPSF6. Sex for population 62 years and over - Male",
+    },
+    "dp0060003": {
+        "type": "integer",
+        "description": "DPSF6. Sex for population 62 years and over - Female",
+    },
+    # DPSF7. Sex for the population 65 years and over - Universe: Population 65 years and over
+    "dp0070001": {
+        "type": "integer",
+        "description": "DPSF7. Sex for population 65 years and over - Total",
+    },
+    "dp0070002": {
+        "type": "integer",
+        "description": "DPSF7. Sex for population 65 years and over - Male",
+    },
+    "dp0070003": {
+        "type": "integer",
+        "description": "DPSF7. Sex for population 65 years and over - Female",
+    },
+    # DPSF8. Race - Universe: Total population
+    "dp0080001": {"type": "integer", "description": "DPSF8. Race - Total population"},
+    "dp0080002": {
+        "type": "integer",
+        "description": "DPSF8. Race - Population of one race",
+    },
+    "dp0080003": {"type": "integer", "description": "DPSF8. Race - White"},
+    "dp0080004": {
+        "type": "integer",
+        "description": "DPSF8. Race - Black or African American",
+    },
+    "dp0080005": {
+        "type": "integer",
+        "description": "DPSF8. Race - American Indian and Alaska Native",
+    },
+    "dp0080006": {"type": "integer", "description": "DPSF8. Race - Asian total"},
+    "dp0080007": {"type": "integer", "description": "DPSF8. Race - Asian Indian"},
+    "dp0080008": {"type": "integer", "description": "DPSF8. Race - Chinese"},
+    "dp0080009": {"type": "integer", "description": "DPSF8. Race - Filipino"},
+    "dp0080010": {"type": "integer", "description": "DPSF8. Race - Japanese"},
+    "dp0080011": {"type": "integer", "description": "DPSF8. Race - Korean"},
+    "dp0080012": {"type": "integer", "description": "DPSF8. Race - Vietnamese"},
+    "dp0080013": {"type": "integer", "description": "DPSF8. Race - Other Asian"},
+    "dp0080014": {
+        "type": "integer",
+        "description": "DPSF8. Race - Native Hawaiian and Other Pacific Islander total",
+    },
+    "dp0080015": {"type": "integer", "description": "DPSF8. Race - Native Hawaiian"},
+    "dp0080016": {
+        "type": "integer",
+        "description": "DPSF8. Race - Guamanian or Chamorro",
+    },
+    "dp0080017": {"type": "integer", "description": "DPSF8. Race - Samoan"},
+    "dp0080018": {
+        "type": "integer",
+        "description": "DPSF8. Race - Other Pacific Islander",
+    },
+    "dp0080019": {"type": "integer", "description": "DPSF8. Race - Some Other Race"},
+    "dp0080020": {
+        "type": "integer",
+        "description": "DPSF8. Race - Population of Two or More Races",
+    },
+    "dp0080021": {
+        "type": "integer",
+        "description": "DPSF8. Race - White; American Indian and Alaska Native",
+    },
+    "dp0080022": {"type": "integer", "description": "DPSF8. Race - White; Asian"},
+    "dp0080023": {
+        "type": "integer",
+        "description": "DPSF8. Race - White; Black or African American",
+    },
+    "dp0080024": {
+        "type": "integer",
+        "description": "DPSF8. Race - White; Some Other Race",
+    },
+    # DPSF9. Race (total races tallied) - Universe: Total races tallied
+    "dp0090001": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - White alone or in combination with one or more other races",
+    },
+    "dp0090002": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - Black or African American alone or in combination with one or more other races",
+    },
+    "dp0090003": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - American Indian and Alaska Native alone or in combination with one or more other races",
+    },
+    "dp0090004": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - Asian alone or in combination with one or more other races",
+    },
+    "dp0090005": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - Native Hawaiian and Other Pacific Islander alone or in combination with one or more other races",
+    },
+    "dp0090006": {
+        "type": "integer",
+        "description": "DPSF9. Race (total races tallied) - Some Other Race alone or in combination with one or more other races",
+    },
+    # DPSF10. Hispanic or Latino by specific origin - Universe: Total population
+    "dp0100001": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Total population",
+    },
+    "dp0100002": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Hispanic or Latino (of any race)",
+    },
+    "dp0100003": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Mexican",
+    },
+    "dp0100004": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Puerto Rican",
+    },
+    "dp0100005": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Cuban",
+    },
+    "dp0100006": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Other Hispanic or Latino",
+    },
+    "dp0100007": {
+        "type": "integer",
+        "description": "DPSF10. Hispanic or Latino by specific origin - Not Hispanic or Latino",
+    },
+    # DPSF11. Hispanic or Latino and race - Universe: Total population
+    "dp0110001": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Total population",
+    },
+    "dp0110002": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino total",
+    },
+    "dp0110003": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: White alone",
+    },
+    "dp0110004": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Black or African American alone",
+    },
+    "dp0110005": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: American Indian and Alaska Native alone",
+    },
+    "dp0110006": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Asian alone",
+    },
+    "dp0110007": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone",
+    },
+    "dp0110008": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Some Other Race alone",
+    },
+    "dp0110009": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Hispanic or Latino: Two or More Races",
+    },
+    "dp0110010": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino total",
+    },
+    "dp0110011": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: White alone",
+    },
+    "dp0110012": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Black or African American alone",
+    },
+    "dp0110013": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: American Indian and Alaska Native alone",
+    },
+    "dp0110014": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Asian alone",
+    },
+    "dp0110015": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Native Hawaiian and Other Pacific Islander alone",
+    },
+    "dp0110016": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Some Other Race alone",
+    },
+    "dp0110017": {
+        "type": "integer",
+        "description": "DPSF11. Hispanic or Latino and race - Not Hispanic or Latino: Two or More Races",
+    },
+    # DPSF12. Relationship - Universe: Total population
+    "dp0120001": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Total population",
+    },
+    "dp0120002": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - In households",
+    },
+    "dp0120003": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Householder",
+    },
+    "dp0120004": {"type": "integer", "description": "DPSF12. Relationship - Spouse"},
+    "dp0120005": {"type": "integer", "description": "DPSF12. Relationship - Child"},
+    "dp0120006": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Own child under 18 years",
+    },
+    "dp0120007": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Other relatives",
+    },
+    "dp0120008": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Other relatives under 18 years",
+    },
+    "dp0120009": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Other relatives 65 years and over",
+    },
+    "dp0120010": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Nonrelatives",
+    },
+    "dp0120011": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Nonrelatives under 18 years",
+    },
+    "dp0120012": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Nonrelatives 65 years and over",
+    },
+    "dp0120013": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Unmarried partner",
+    },
+    "dp0120014": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - In group quarters",
+    },
+    "dp0120015": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Institutionalized population",
+    },
+    "dp0120016": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Institutionalized population: Male",
+    },
+    "dp0120017": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Institutionalized population: Female",
+    },
+    "dp0120018": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Noninstitutionalized population",
+    },
+    "dp0120019": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Noninstitutionalized population: Male",
+    },
+    "dp0120020": {
+        "type": "integer",
+        "description": "DPSF12. Relationship - Noninstitutionalized population: Female",
+    },
+    # DPSF13. Households by type - Universe: Households
+    "dp0130001": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Total households",
+    },
+    "dp0130002": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Family households (families)",
+    },
+    "dp0130003": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Family households with own children under 18 years",
+    },
+    "dp0130004": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Husband-wife family",
+    },
+    "dp0130005": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Husband-wife family with own children under 18 years",
+    },
+    "dp0130006": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Male householder, no wife present",
+    },
+    "dp0130007": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Male householder, no wife present, with own children under 18 years",
+    },
+    "dp0130008": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Female householder, no husband present",
+    },
+    "dp0130009": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Female householder, no husband present, with own children under 18 years",
+    },
+    "dp0130010": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Nonfamily households",
+    },
+    "dp0130011": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone",
+    },
+    "dp0130012": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone: Male",
+    },
+    "dp0130013": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone: Male 65 years and over",
+    },
+    "dp0130014": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone: Female",
+    },
+    "dp0130015": {
+        "type": "integer",
+        "description": "DPSF13. Households by type - Householder living alone: Female 65 years and over",
+    },
+    # DPSF14. Households with individuals under 18 years - Universe: Households with individuals under 18 years
+    "dp0140001": {
+        "type": "integer",
+        "description": "DPSF14. Households with individuals under 18 years - Total",
+    },
+    # DPSF15. Households with individuals 65 years and over - Universe: Households with individuals 65 years and over
+    "dp0150001": {
+        "type": "integer",
+        "description": "DPSF15. Households with individuals 65 years and over - Total",
+    },
+    # DPSF16. Average household size - Universe: Households (2 expressed decimals)
+    "dp0160001": {
+        "type": "number",
+        "description": "DPSF16. Average household size - Average household size",
+    },
+    # DPSF17. Average family size - Universe: Families (2 expressed decimals)
+    "dp0170001": {
+        "type": "number",
+        "description": "DPSF17. Average family size - Average family size",
+    },
+    # DPSF18. Housing occupancy - Universe: Total housing units
+    "dp0180001": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Total housing units",
+    },
+    "dp0180002": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Occupied housing units",
+    },
+    "dp0180003": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units",
+    },
+    "dp0180004": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units for rent",
+    },
+    "dp0180005": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units rented, not occupied",
+    },
+    "dp0180006": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units for sale only",
+    },
+    "dp0180007": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units sold, not occupied",
+    },
+    "dp0180008": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - Vacant housing units for seasonal, recreational, or occasional use",
+    },
+    "dp0180009": {
+        "type": "integer",
+        "description": "DPSF18. Housing occupancy - All other vacant housing units",
+    },
+    # DPSF19. Homeowner vacancy rate - Universe: Owner-occupied, vacant for sale only, and vacant sold but not occupied housing units (1 expressed decimal)
+    "dp0190001": {
+        "type": "number",
+        "description": "DPSF19. Homeowner vacancy rate - Homeowner vacancy rate (percent)",
+    },
+    # DPSF20. Rental vacancy rate - Universe: Renter-occupied, vacant for rent, and vacant rented but not occupied housing units (1 expressed decimal)
+    "dp0200001": {
+        "type": "number",
+        "description": "DPSF20. Rental vacancy rate - Rental vacancy rate (percent)",
+    },
+    # DPSF21. Housing tenure - Universe: Occupied housing units
+    "dp0210001": {
+        "type": "integer",
+        "description": "DPSF21. Housing tenure - Total occupied housing units",
+    },
+    "dp0210002": {
+        "type": "integer",
+        "description": "DPSF21. Housing tenure - Owner-occupied housing units",
+    },
+    "dp0210003": {
+        "type": "integer",
+        "description": "DPSF21. Housing tenure - Renter-occupied housing units",
+    },
+    # DPSF22. Population in occupied housing units by tenure - Universe: Population in occupied housing units
+    "dp0220001": {
+        "type": "integer",
+        "description": "DPSF22. Population in occupied housing units by tenure - Owner-occupied housing units",
+    },
+    "dp0220002": {
+        "type": "integer",
+        "description": "DPSF22. Population in occupied housing units by tenure - Renter-occupied housing units",
+    },
+    # DPSF23. Average household size of occupied housing units by tenure - Universe: Occupied housing units (2 expressed decimals)
+    "dp0230001": {
+        "type": "number",
+        "description": "DPSF23. Average household size by tenure - Owner occupied",
+    },
+    "dp0230002": {
+        "type": "number",
+        "description": "DPSF23. Average household size by tenure - Renter occupied",
     },
     "duct_burners": {
         "type": "boolean",
@@ -1451,7 +2262,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "reported in for the generator referenced in the same record."
         ),
         "constraints": {
-            "enum": sorted({f"energy_source_code_{n}" for n in range(1, 9)})
+            "enum": sorted({f"energy_source_code_{n}" for n in range(1, 13)})
         },
     },
     "energy_source_1_transport_1": {
@@ -4628,6 +5439,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "Date of most recent test for sulfur dioxide removal efficiency.",
     },
+    "sold_units": {
+        "type": "number",
+        "description": "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBtu.",
+    },
     "sold_to_utility_mwh": {
         "type": "number",
         "description": (
@@ -4770,6 +5585,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "pattern": r"^\d{2}$",
         },
     },
+    "state_name": {
+        "type": "string",
+        "description": "Full name of the state.",
+    },
     "incorporation_state": {
         "type": "string",
         "description": "Two letter state code where company is incorporated.",
@@ -4810,6 +5629,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "stored_excess_wind_and_solar_generation": {
         "type": "boolean",
         "description": "Whether the energy storage device was used to store excess wind/solar generation during the reporting year.",
+    },
+    "stored_offsite_units": {
+        "type": "number",
+        "unit": "tons or MMBtu",
+        "description": "Stored by-products offsite, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "stored_onsite_units": {
+        "type": "number",
+        "unit": "tons or MMBtu",
+        "description": "Stored by-products onsite, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "street_address": {
         "type": "string",
@@ -5147,6 +5976,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "total_disposal_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Total by-product disposal, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
     "total_disposition_mwh": {
         "type": "number",
         "description": (
@@ -5337,6 +6171,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "uprate_derate_during_year": {
         "type": "boolean",
         "description": "Was an uprate or derate completed on this generator during the reporting year?",
+    },
+    "used_offsite_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Used offsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",
+    },
+    "used_onsite_units": {
+        "type": "number",
+        "unit": "tons or mmbtu",
+        "description": "Used onsite by-products, to the nearest hundred tons or in MMBtu for steam sales.",
     },
     "utility_id_eia": {
         "type": "integer",
@@ -6935,12 +7779,12 @@ def get_pudl_dtypes(
 
 
 def apply_pudl_dtypes(
-    df: pd.DataFrame,
+    df: pd.DataFrame | gpd.GeoDataFrame,
     group: str | None = None,
     field_meta: dict[str, Any] = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
     strict: bool = False,
-) -> pd.DataFrame:
+) -> pd.DataFrame | gpd.GeoDataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
 
     Note that ad-hoc column dtypes can be defined and merged with default PUDL field
@@ -6975,5 +7819,4 @@ def apply_pudl_dtypes(
         field_meta_by_group=field_meta_by_group,
         dtype_map=FIELD_DTYPES_PANDAS,
     )
-
     return df.astype({col: dtypes[col] for col in df.columns if col in dtypes})

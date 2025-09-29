@@ -18,6 +18,15 @@ SOURCES: dict[str, Any] = {
             {
                 "censusdp1tract",
                 "census",
+                "demographics",
+                "geospatial",
+                "gis",
+                "population",
+                "gender",
+                "age",
+                "race",
+                "household",
+                "spatial",
             }
         ),
         "license_raw": LICENSES["us-govt"],
@@ -196,7 +205,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-04", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-07", freq="M")
             ],
         },
         "keywords": sorted(
@@ -317,7 +326,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "half_years": [
                 f"{year}half{half}" for year in range(2015, 2026) for half in [1, 2]
-            ][1:-1]  # Begins in H2 of 2015 and currently ends in H1 of 2025
+            ][1:]  # Begins in H2 of 2015 and currently ends in H2 of 2025
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -381,33 +390,7 @@ SOURCES: dict[str, Any] = {
         "title": "EIA Bulk API Data",
         "path": "https://www.eia.gov/opendata/bulkfiles.php",
         "description": (
-            "All data made available in bulk through the EIA Open Data API, "
-            "including:\n"
-            "* the Annual Energy Outlook, the International Energy Outlook and the Short "
-            "Term Energy Outlook;\n"
-            "* aggregate national, state, and mine-level coal production statistics, "
-            "including imports and exports, receipts of coal at electric power plants, "
-            "consumption and quality, market sales, reserves, and productive capacity; "
-            "* U.S. electric system operating data;\n"
-            "* aggregate national, state, and plant-level electricity generation "
-            "statistics, including fuel quality and consumption, for grid-connected"
-            "plants with nameplate capacity of 1 megawatt or greater;\n"
-            "* CO2 emissions aggregates, CO2 emissions and carbon coefficients by fuel, "
-            "state, and sector;\n"
-            "* International Energy System (IES) data containing production, reserves, "
-            "consumption, capacity, storage, imports, exports, and emissions time "
-            "series by country for electricity, petroleum, natural gas, coal, nuclear, "
-            "and renewable energy;\n"
-            "* statistics of U.S. natural gas production, imports, exploration, pipelines, "
-            "exports, prices, consumption, stocks, and reserves;\n"
-            "* statistics of U.S. petroleum and other liquid fuel production, imports, "
-            "refining, exports, prices, consumption, stocks, and reserves;\n"
-            "* aggregate national, PADD, state, city, port, and refinery petroleum imports "
-            "data for various grades of crude oil and country of origin;\n"
-            "* state and national energy production and consumption, using survey and "
-            "estimates to create comprehensive state energy statistics and flows;\n"
-            "* U.S. total energy production, prices, carbon dioxide emissions, and "
-            "consumption of energy from all sources by sector.\n\n"
+            "All data made available in bulk through the EIA Open Data API. "
             "At present, PUDL integrates only a few specific data series related to "
             "fuel receipts and costs figures from the Bulk Electricity API."
         ),
@@ -680,7 +663,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # 2021 and later data is in XBRL.
             # 2006-2020 data is in monolithic CSV files, so any year means all years.
-            "years": sorted(set(range(2006, 2024))),
+            "years": sorted(set(range(2006, 2025))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -838,11 +821,7 @@ SOURCES: dict[str, Any] = {
             "and installation dates."
         ),
         "field_namespace": "phmsagas",
-        "working_partitions": {
-            # 1970 - 1989 are all in one CSV in multiple tabs with multi-column headers
-            # and will need to be more extensively processed, not currently integrated.
-            "years": sorted(set(range(1990, 2025))),
-        },
+        "working_partitions": {"years": sorted(set(range(1970, 2025)))},
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],

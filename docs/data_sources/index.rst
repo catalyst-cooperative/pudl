@@ -9,6 +9,9 @@ The following data sources serve as the foundation for our data pipeline.
    :caption: Currently Available Data
    :maxdepth: 1
 
+   censusdp1tract
+   censuspep
+   eiaapi
    eia860
    eia861
    eia923
@@ -17,9 +20,9 @@ The following data sources serve as the foundation for our data pipeline.
    epacems
    ferc1
    ferc714
-   phmsagas
    gridpathratoolkit
    nrelatb
+   phmsagas
    vcerare
    other_data
 

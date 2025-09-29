@@ -1,4 +1,4 @@
-FROM mambaorg/micromamba:2.3.0-ubuntu24.04
+FROM mambaorg/micromamba:2.3.2-ubuntu24.04
 
 ENV CONTAINER_HOME=/home/$MAMBA_USER
 ENV PGDATA=${CONTAINER_HOME}/pgdata
@@ -63,11 +63,6 @@ COPY --chown=${MAMBA_USER}:${MAMBA_USER} . ${PUDL_REPO}
 # can't find libraries contained within the environment. It's unclear why!
 ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib
 RUN ${CONDA_RUN} pip install --no-cache-dir --no-deps --editable ${PUDL_REPO}
-
-# Install flyctl
-# hadolint ignore=DL3059
-RUN ${CONDA_RUN} bash -c 'curl -L https://fly.io/install.sh | sh'
-ENV PATH="${CONTAINER_HOME}/.fly/bin:$PATH"
 
 WORKDIR ${PUDL_REPO}
 # Run the unit tests:

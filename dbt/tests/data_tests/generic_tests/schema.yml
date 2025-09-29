@@ -13,15 +13,17 @@ macros:
       - name: correlation_coef
         type: float
         description: The minimum correlation coefficient we expect between the two columns.
+
   - name: test_check_row_counts_per_partition
     description: Check that the number of rows in each partition is as expected
     arguments:
       - name: table_name
         type: string
         description: The name of the table to check
-      - name: partition_column
+      - name: partition_expr
         type: string
-        description: The name of the column to partition by
+        description: A SQL expression to partition by
+
   - name: test_expect_column_fraction_with_condition
     description: >
       Check whether the fraction of a column's total sum that meet a specified condition
@@ -45,6 +47,7 @@ macros:
       - name: max_fraction
         type: float
         description: Maximum acceptable fraction (between 0 and 1).
+
   - name: test_expect_includes_all_value_combinations_from
     description: >
       Check that all values in a column or set of columns are the same as the same set
@@ -64,8 +67,7 @@ macros:
           A list of column names present in both tables. The test will succeed only if
           all combinations of column values present in at least one row in the
           comparison table are present in this table.
-  - name: test_no_null_rows
-    description: Check that there are no null rows in the table
+
   - name: test_expect_columns_not_all_null
     description: >
       Check that all columns in a table are not entirely NULL. Can exclude specific
@@ -93,6 +95,7 @@ macros:
           many entirely null columns in EIA-860M-only years. NOTE: Setting this
           parameter to true requires that the table being tested contains a
           'report_date' column for year filtering.
+
   - name: test_expect_complete_valid_ownership
     description: >
       Check whether ``fraction_owned`` columns sum too high (for any individual
@@ -104,6 +107,7 @@ macros:
       - name: n_acceptable_failures
         type: integer
         description: The number of generators allowed to have sum(fraction_owned) more than 1.02; default 0.
+
   - name: test_expect_consistent_years
     description: >
       Check whether two temporal columns in a model have consistent years for the vast
@@ -122,6 +126,7 @@ macros:
       - name: max_mismatch_ratio
         type: float
         description: "Maximum allowed fraction of mismatched records (default: 0.001)."
+
   - name: test_expect_consistent_generator_ids
     description: >
       Check whether generator ids have entries that vary only in punctuation or case.
@@ -132,6 +137,7 @@ macros:
       - name: n_acceptable_failures
         type: integer
         description: The number of generators allowed to have inconsistent spellings.
+
   - name: test_expect_date_frequency_ratio
     description: >
       Check whether two models have the expected ratio of distinct dates for overlapping years.
@@ -155,6 +161,7 @@ macros:
       - name: compare_model_has_data_maturity
         type: boolean
         description: "Tell the test that the data_maturity column exists in the model (default: true). If this column is available, it will be used to filter out incomplete years of data."
+
   - name: test_expect_fgd_cost_totals_to_agree
     description: >
       Check whether the sum of itemized costs matches the total cost. Designed for use
@@ -183,14 +190,7 @@ macros:
       - name: n_acceptable
         type: integer
         description: The number of acceptable ``groupby_column`` values having more than one ``counted_column`` value associated with them.
-  - name: test_expect_unique_column_combination
-    description: >
-      Check whether the combination of values of the specified columns is unique. Fails
-      when any combination occurs more than once.
-    arguments:
-      - name: columns
-        type: list[string]
-        description: The columns in the unique combination.
+
   - name: test_expect_unique_utility_id_eia
     description: >
       Check whether each generator has exactly one operator utility on any particular
@@ -201,11 +201,13 @@ macros:
       - name: n_acceptable_failures
         type: integer
         description: The number of generators allowed to multiple operator utilities on any particular date; default 0.
+
   - name: test_expect_valid_hour_of_year
     description: >
       Check whether ``hour_of_year`` is consistent with ``datetime_utc``. Designed for
       use on ``out_vcerare__hourly_available_capacity_factor``. Fails when the hour
       computed from the datetime does not match.
+
   - name: test_expect_valid_plantparts_ownership_fraction
     description: >
       Check whether ``fraction_owned`` columns sum too high (for any individual plant
@@ -213,6 +215,7 @@ macros:
       ``out_eia__yearly_plant_parts``. Fails when any owned plant part with nonzero
       capacity has sum(fraction_owned) more than 1e-6 away from 1, or when more than
       60 plant parts have capacity 0 and fraction_owned 0.
+
   - name: test_expect_sum_close_to_total_column
     description: >
       Check whether the sum of the specified columns matches a designated total column.
@@ -236,6 +239,7 @@ macros:
       - name: max_discrepancy_rate
         type: float
         description: Maximum acceptable fraction of records which can be counted as a discrepancy before the test should fail.
+
   - name: test_expect_columns_are_close
     description: >
       Check that two float columns are close using the same criteria as
@@ -258,6 +262,7 @@ macros:
       - name: rtol
         type: float
         description: Relative tolerance for comparison.
+
   - name: test_expect_nuclear_units_are_generators
     description: >
       Check that all nuclear Unit IDs correspond to generator IDs.
@@ -267,6 +272,7 @@ macros:
         description: >
           Where to look for generator listings. This will generally be
           "source('pudl', 'out_eia__yearly_generators')".
+
   - name: test_expect_bgas_show_low_differing_primary_fuels
     description: >
       Check that units are mostly only associated with a single fuel

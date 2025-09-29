@@ -185,6 +185,7 @@ def _out_eia__yearly_generators(
             (64246, "99MTB"),
             (64436, "WLB"),
             (64876, "OHAMP"),
+            (64947, "GEN02"),
             (64966, "GEN1"),
             (64996, "ARCPV"),
             (65084, "ELDPV"),
@@ -206,6 +207,7 @@ def _out_eia__yearly_generators(
             (67744, "RS1"),
             (68239, "C234B"),
             (68609, "16501"),
+            (69056, "CBCBA"),
             (69312, "ECHEB"),
         ]
     )

@@ -9,7 +9,6 @@ with cleaning and restructuring dataframes.
 
 import importlib.resources
 import itertools
-import json
 import multiprocessing
 import pathlib
 import re
@@ -21,13 +20,11 @@ from functools import partial
 from io import BytesIO
 from typing import Any, Literal, NamedTuple
 
-import datasette
+import geopandas as gpd
 import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
-import yaml
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
 
@@ -2045,7 +2042,7 @@ def get_dagster_execution_config(
 
     start_method_config = {}
     if "forkserver" in multiprocessing.get_all_start_methods():
-        start_method_config = {"forkserver": {"preload_modules": ["pudl"]}}
+        start_method_config = {"forkserver": {"preload_modules": ["pudl.init_logging"]}}
 
     return {
         "execution": {
@@ -2137,78 +2134,6 @@ def diff_wide_tables(
     )
 
 
-def parse_datasette_metadata_yml(metadata_yml: str) -> dict:
-    """Parse a yaml file of datasette metadata as json.
-
-    Args:
-        metadata_yml: datasette metadata as yml.
-
-    Returns:
-        Parsed datasette metadata as JSON.
-    """
-    metadata_json = json.dumps(yaml.safe_load(metadata_yml))
-    return datasette.utils.parse_metadata(metadata_json)
-
-
-def check_tables_have_metadata(
-    metadata_yml: str,
-    databases: list[str],
-) -> None:
-    """Check to make sure all tables in the databases have datasette metadata.
-
-    This function fails if there are tables lacking Datasette metadata in one of the
-    databases we expect to have that kind of metadata. Note that we currently do
-    not have this kind of metadata for the FERC databases derived from DBF or the
-    Census DP1.
-
-    Args:
-        metadata_yml: The structure metadata for the datasette deployment as yaml
-        databases: The list of databases to test.
-    """
-    pudl_output = PudlPaths().pudl_output
-    database_table_exceptions = {"pudl": {"alembic_version"}}
-
-    tables_missing_metadata_results = {}
-
-    # PUDL and XBRL databases are the only databases with metadata
-    databases_with_metadata = (
-        dataset
-        for dataset in databases
-        if dataset == "pudl.sqlite" or dataset.endswith("xbrl.sqlite")
-    )
-    parsed_datasette_metadata = parse_datasette_metadata_yml(metadata_yml)["databases"]
-    for database in databases_with_metadata:
-        database_path = pudl_output / database
-        database_name = database_path.stem
-
-        # Grab all tables in the database
-        engine = sa.create_engine(f"sqlite:///{database_path!s}")
-        inspector = sa.inspect(engine)
-        tables_in_database = set(inspector.get_table_names())
-
-        # There are some tables that we don't expect to have metadata
-        # like alembic_version in pudl.sqlite.
-        table_exceptions = database_table_exceptions.get(database_name)
-
-        if table_exceptions:
-            tables_in_database = tables_in_database - table_exceptions
-
-        tables_with_metadata = set(parsed_datasette_metadata[database_name]["tables"])
-
-        # Find the tables the database that don't have metadata
-        tables_missing_metadata = tables_in_database - tables_with_metadata
-
-        tables_missing_metadata_results[database_name] = tables_missing_metadata
-
-    has_no_missing_tables_with_missing_metadata = all(
-        not bool(value) for value in tables_missing_metadata_results.values()
-    )
-
-    assert has_no_missing_tables_with_missing_metadata, (
-        f"These tables are missing datasette metadata: {tables_missing_metadata_results}"
-    )
-
-
 def retry(
     func: Callable,
     retry_on: tuple[type[BaseException], ...],
@@ -2245,7 +2170,7 @@ def get_parquet_table(
     filters: list[tuple[str, str, Any]]
     | list[list[tuple[str, str, Any]]]
     | None = None,
-) -> pd.DataFrame:
+) -> pd.DataFrame | gpd.GeoDataFrame:
     """Read a table from Parquet files with optional column selection and filtering.
 
     This function provides a general-purpose interface for reading PUDL tables from
@@ -2269,27 +2194,39 @@ def get_parquet_table(
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
 
-    paths = PudlPaths()
-
-    # Get the Parquet file path
-    parquet_path = paths.parquet_path(table_name)
-
-    # Get the schema for validation
     resource = Resource.from_id(table_name)
+    if columns is None:
+        columns = resource.get_field_names()
+    # Get the schema for validation
     pyarrow_schema = resource.to_pyarrow()
 
-    # Read the Parquet file
-    df = pq.read_table(
-        source=parquet_path,
-        schema=pyarrow_schema,
-        columns=columns,
-        filters=filters,
-        use_threads=True,
-        memory_map=True,
-    ).to_pandas()
+    # Get the Parquet file path
+    paths = PudlPaths()
+    parquet_path = paths.parquet_path(table_name)
+
+    is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
+
+    if is_geospatial:
+        df = gpd.read_parquet(
+            path=parquet_path,
+            columns=columns,
+            filters=filters,
+            schema=pyarrow_schema,
+            use_threads=True,
+            memory_map=True,
+        )
+    else:
+        df = pd.read_parquet(
+            path=parquet_path,
+            columns=columns,
+            filters=filters,
+            schema=pyarrow_schema,
+            use_threads=True,
+            memory_map=True,
+        )
 
     # Only enforce schema if we're reading all columns
-    if columns is None:
+    if set(columns) == set(resource.get_field_names()):
         return resource.enforce_schema(df)
     # For specific columns, apply PUDL dtypes for the columns we have
     return apply_pudl_dtypes(df, group=resource.field_namespace)

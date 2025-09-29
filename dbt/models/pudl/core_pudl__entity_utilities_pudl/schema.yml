@@ -6,8 +6,9 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: core_pudl__entity_utilities_pudl
-              partition_column: null
+              arguments:
+                table_name: core_pudl__entity_utilities_pudl
+                partition_expr:
         columns:
           - name: utility_id_pudl
           - name: utility_name_pudl

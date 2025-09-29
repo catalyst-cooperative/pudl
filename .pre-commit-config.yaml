@@ -11,7 +11,7 @@ repos:
 
   # Other file formatting, plus common Git mistakes & text file standardization:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files # Don't accidentally commit giant files.
       - id: check-merge-conflict # Watch for lingering merge markers.
@@ -30,7 +30,7 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.5
+    rev: v0.13.2
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -42,8 +42,8 @@ repos:
       - id: prettier
         types_or: [yaml]
 
-  - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
 
@@ -53,7 +53,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.34.0
+    rev: v1.36.3
     hooks:
       - id: typos
         exclude: |
@@ -68,7 +68,7 @@ repos:
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.12.1b3
+    rev: v2.14.0
     hooks:
       - id: hadolint
 
@@ -96,7 +96,7 @@ repos:
         language: python
         additional_dependencies: [csvkit]
         verbose: false
-        files: "^dbt/seeds/etl_(full|fast)_row_counts\\.csv$"
+        files: "^dbt/seeds/etl_full_row_counts\\.csv$"
         pass_filenames: true
         always_run: false
         entry: bash -c 'for file in "$@"; do csvsort -c "table_name,partition" "$file" > "$file.tmp" && mv "$file.tmp" "$file"; done' --

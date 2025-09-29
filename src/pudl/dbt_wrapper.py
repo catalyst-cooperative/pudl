@@ -19,6 +19,8 @@ from pudl.workspace.setup import PUDL_ROOT_PATH, PudlPaths
 
 logger = get_logger(__name__)
 
+DBT_DIR: Path = PUDL_ROOT_PATH / "dbt"
+
 
 class NodeContext(NamedTuple):
     """Associate a node's *name* with information describing what went wrong."""
@@ -100,7 +102,13 @@ def __get_compiled_sql_contexts(nodes: list[GenericTestNode]) -> list[NodeContex
         for node in nodes:
             con.execute(node.compiled_code)
             node_df = con.fetchdf()
-            contexts.append(NodeContext(name=node.name, context=str(node_df)))
+            node_str = node_df.head(20).to_markdown(maxcolwidths=40, index=False)
+            if node_str is None:
+                logger.warning(f"Couldn't format data for node {node.name}.")
+                continue
+            if node_df.shape[0] > 20:
+                node_str += f"\n(of {node_df.shape[0]})"
+            contexts.append(NodeContext(name=node.name, context=node_str))
     return contexts
 
 
@@ -122,9 +130,8 @@ def build_with_context(
     if node_exclusion is not None:
         cli_args += ["--exclude", node_exclusion]
     dbt = dbtRunner()
-    dbt_dir = PUDL_ROOT_PATH / "dbt"
 
-    with chdir(dbt_dir):
+    with chdir(DBT_DIR):
         dbt.invoke(["deps"])
         dbt.invoke(["seed"])
         build_output: dbtRunnerResult = dbt.invoke(["build"] + cli_args)
@@ -140,7 +147,7 @@ def build_with_context(
             compiled_sql_failures.append(node)
 
     weighted_quantile_contexts = __get_quantile_contexts(
-        weighted_quantile_failures, dbt=dbt, dbt_dir=dbt_dir
+        weighted_quantile_failures, dbt=dbt, dbt_dir=DBT_DIR
     )
     compiled_sql_contexts = __get_compiled_sql_contexts(compiled_sql_failures)
 

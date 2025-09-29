@@ -1,7 +1,6 @@
 // secrets
 locals {
   pudl_usage_metrics_dashboard_secret_versions = {
-    pudl_usage_metrics_dashboard_password    = 1
     pudl_usage_metrics_dashboard_db_name     = 1
     pudl_usage_metrics_dashboard_db_username = 1
     pudl_usage_metrics_dashboard_db_password = 1

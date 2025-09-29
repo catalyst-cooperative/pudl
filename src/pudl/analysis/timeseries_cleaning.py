@@ -691,6 +691,10 @@ def impute_latc_tubal(  # noqa: C901
     rng = np.random.default_rng()
     tensor = np.where(np.isnan(tensor), 0, tensor)
     dim = np.array(tensor.shape)
+    # [2025-08 kmm] Not sure how an empty tensor makes it this far,
+    # but one found a way
+    if np.prod(dim) == 0:
+        return tensor
     dim_time = int(np.prod(dim) / dim[0])
     d = len(lags)
     max_lag = np.max(lags)

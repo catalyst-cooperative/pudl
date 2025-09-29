@@ -6,32 +6,274 @@ PUDL Release Notes
 v2025.XX.x (2025-MM-DD)
 ---------------------------------------------------------------------------------------
 
-New Data
-^^^^^^^^
+Enhancements
+^^^^^^^^^^^^
+
+Deprecations
+^^^^^^^^^^^^
+
+* We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
+  deployment, but are still working on achieiving feature parity in the new `PUDL Data
+  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
+  <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
+  :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
+  main PUDL repo.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-* Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
-  2024 data. See :issue:`4418` and :pr:`4433`.
-* Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
-  data is not currently published to the PUDL database. See :issue:`4449` and
-  :pr:`4470`.
+EIA-860
+~~~~~~~~
+
+* Updated EIA-860 with final release data from 2024. See issue :issue:`4616` and
+  PR :pr:`4617`.
+
+New Data
+^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-* the output of ``dbt_helper update-tables`` now conforms to the format that
+
+Documentation
+^^^^^^^^^^^^^
+
+* Added data source pages for:
+
+  * :doc:`data_sources/censuspep`; see issue :issue:`4375` and PR :pr:`4622`.
+
+New Data Tests & Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* After investigating some modest discrepancies between our imputed hourly electricity
+  demand and prior work by :user:`truggles` & :user:`awongel`, we're removing the
+  "EXPERIMENTAL" warning label that we had on those tables. See `our discussion
+  about the imputation results in the PUDL Examples repo
+  <https://github.com/catalyst-cooperative/pudl-examples/pull/10>`__. The `associated
+  notebook is available on Kaggle <https://www.kaggle.com/code/catalystcooperative/06-pudl-imputed-electricity-demand>`__
+
+  This relates to the PUDL imputed demand values in following tables:
+
+  * :ref:`out_eia930__hourly_operations`
+  * :ref:`out_eia930__hourly_subregion_demand`
+  * :ref:`out_eia930__hourly_aggregated_demand`
+
+Bug Fixes
+^^^^^^^^^
+
+.. _release-v2025.9.1:
+
+---------------------------------------------------------------------------------------
+v2025.9.1 (2025-09-05)
+---------------------------------------------------------------------------------------
+
+.. note::
+
+   There was an issue with the ``v2025.9.0`` release process and that tag was deleted.
+
+This is a monthly release primarily focused on updating the EIA-860M, with other
+incremental changes coming along for the ride. A couple of things to be aware of:
+
+* :user:`mfripp` identified a bug in how we were constructing detailed utility
+  asset/liability and income/expense tables from FERC Form 1. This has been partially
+  addressed, but the fix needs to be applied to a couple of additional tables. See
+  :issue:`4593` to track our progress.
+* We are now producing GeoParquet outputs for tables that contain spatial data. This
+  is a great new feature! But also potentially a breaking change, depending on what
+  tools you've been using to read our Parquet outputs. `GeoPandas
+  <https://geopandas.org/>`__ and `DuckDB's spatial extension
+  <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__ both work
+  well.
+
+Enhancements
+^^^^^^^^^^^^
+
+Geospatial outputs with GeoParquet
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We've started producing `GeoParquet <https://geoparquet.org/>`__ outputs that include
+explicit geometries for use with `GeoPandas <https://geopandas.org/>`__ and other
+mapping and geospatial analysis packages. See :func:`geopandas.read_parquet` for
+dcoumentation on how to read them. We've also tested it with the `DuckDB Spatial
+extension <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__.
+This is still experimental and there are only a handful of tables that currently include
+geometries, but we hope to apply it more widely in the future for any tables with
+geospatial information. See PR :pr:`4546`.
+
+We've started by writing the :doc:`data_sources/censusdp1tract` state, county, and tract
+level data out as GeoParquet files, so they can be used alongside the other Parquet data
+without needing to read the Census DP1 SQLite DB.  This will allow us to point our
+`Kaggle (and other) notebooks <https://www.kaggle.com/catalystcooperative/code>`__ that
+make maps directly at the Parquet files in S3 rather than depending on the (somewhat
+chonky) `Kaggle PUDL dataset
+<https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__. For now the only
+tables with a valid ``geometry`` column are:
+
+* :ref:`out_censusdp1tract__states`
+* :ref:`out_censusdp1tract__counties`
+* :ref:`out_censusdp1tract__tracts`
+* :ref:`out_ferc714__georeferenced_respondents`
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Re-introduce 88888 and 99999 utility_id_eia
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These values, representing redacted values and state aggregates, were
+intentionally dropped from eia923 and eia861 due to primary key and
+data inconsistency issues. We're adding them back in! See :issue:`808`
+and PR :pr:`4291`.
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for July
+  of 2025. See issue :issue:`4590` and PR :pr:`4594`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* We updated `our Kaggle notebooks <https://www.kaggle.com/catalystcooperative/code>`__
+  to read PUDL data from our `AWS Open Data Registry
+  <https://registry.opendata.aws/catalyst-cooperative-pudl/>`__ S3 bucket instead of
+  relying on the `PUDL Kaggle Dataset
+  <https://www.kaggle.com/datasets/catalystcooperative/pudl-project>`__, since copying
+  all of the PUDL data into the notebook workspace was taking more than 5 minutes, which
+  made it frustrating for users to get started working with the data. This also means it
+  should be easier to run the notebooks locally (in an appropriate Python environment)
+  since the data doesn't need to be present locally. The notebooks are also pushed to
+  our `PUDL Examples GitHub repo
+  <https://github.com/catalyst-cooperative/pudl-examples/>`__. See issue :issue:`4381`.
+* When running ``dbt_helper update-tables`` without the ``--clobber`` flag, existing
+  schema tests, descriptions and other metadata are now preserved. Furthermore, the
+  ``--update`` flag has been removed, with the default schema update logic behaving
+  as follows: if columns are added or removed, updates are allowed to pass. However, if
+  any metadata is removed, such as tests or descriptions, the update fails unless
+  ``--clobber`` is used. See issue :issue:`4466` and PR :pr:`4525`.
+
+Bug Fixes
+^^^^^^^^^
+
+* Stopped nulling values in columns with ENUM constraints when the value was not found
+  in the ENUM. Previously we logged a warning, and now it will raise an error. There
+  were a couple of trivial cases in which we were losing values that violated the
+  constraints, but nothing serious. See PR :pr:`4548`.
+* Fixed a user identified bug within the
+  :ref:`out_ferc1__yearly_detailed_income_statements` table unnecessarily dropping
+  records. See PR :pr:`4580`.
+
+Documentation
+^^^^^^^^^^^^^
+
+* Added data source pages for:
+
+  * :doc:`data_sources/eiaapi`; see issue :issue:`4372` and PR :pr:`4567`.
+
+.. _release-v2025.8.0:
+
+---------------------------------------------------------------------------------------
+v2025.8.0 (2025-08-14)
+---------------------------------------------------------------------------------------
+
+This is a regular quarterly release of PUDL. It includes new 2024 annual updates for a
+number of datasets (FERC Forms 2, 6, 60, & 714), and a minor update to the 2024 FERC
+Form 1 data that includes late filings & revisions. It also includes year-to-date
+updates for the monthly and quarterly datasets, including EIA-860M, EIA-923, EIA-930,
+and the EPA CEMS hourly emissions. There were also a number of data processing bug fixes
+and data usability improvements. See the full notes below for details.
+
+New Data
+^^^^^^^^
+
+* Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
+  Schedule 8A Byproduct Disposition to the PUDL database as
+  :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, this table will
+  be replaced with a well-normalized version of the same data, but it is being published
+  in this form until then. See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for May and June
+  of 2025. See issue :issue:`4379` and PR :pr:`4536`.
+
+EIA-923
+~~~~~~~
+
+* Added EIA-923 data through May 2025. See :issue:`4516` and :pr:`4538`.
+
+EIA 930
+~~~~~~~
+
+* Updated EIA 930 data published up through the beginning of August 2025. See
+  :issue:`4517` and PR :pr:`4523`.
+
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data to include data published up through
+  the beginning of August 2025. See :issue:`4519` and PR :pr:`4523`.
+
+EPA CEMS
+~~~~~~~~
+
+* Added EPA CEMS data through June 2025. See :issue:`4518` and :pr:`4531`.
+
+FERC Form 1
+~~~~~~~~~~~
+
+* Updated FERC Form 1 2024 data to include late respondents. See :issue:`4493` and
+  :pr:`4507`.
+
+FERC Forms 2, 6 and 60
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
+  2024 data. See :issue:`4418` and :pr:`4433`.
+
+FERC Form 714
+~~~~~~~~~~~~~
+
+* Integrated 2024 data for FERC Form 714. See issue :issue:`4409` and PR :pr:`4530`.
+
+PHMSA Gas Data
+~~~~~~~~~~~~~~
+
+* Extracted 2023 and 2024 PHMSA distribution and transmission data to raw assets. This
+  data is not currently published to the PUDL database. See :issue:`4449` and
+  :pr:`4470`.
+* Extracted 1970 through 1989 PHMSA transmission data to raw assets.  This data is not
+  currently published to the PUDL database. See :issue:`3290` and :pr:`4500`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* The output of ``dbt_helper update-tables`` now conforms to the format that
   our pre-commit hooks expect, reducing annoying back-and-forth and diffs. See
   :issue:`4119` and :pr:`4401`.
-
+* Improved behavior of ``dbt_helper`` when interacting with row count test definitions
+  as well as updating the row counts stored in dbt seed tables: the logic for writing
+  a new table dbt schema no longer includes automatically adding a row count test. Also,
+  the logic for updating row counts now depends on whether a test has been defined in
+  the dbt schema, whether any existing row counts for that table are present in the seed
+  table, as well as user provided settings such as ``--clobber``.
 * Stopped running code checks in CI when only the documentation has changed.
   See issue :issue:`4410` and PR :pr:`4429`.
+* Added ``utility_id_ferc1_dbf`` and ``utility_id_ferc1_xbrl`` columns into all ferc1
+  output tables. See :issue:`4365` and PR :pr:`4528`.
 
 Bug Fixes
 ^^^^^^^^^
 
 * Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
   :issue:`4328` and PR :pr:`4392`.
+* Fixed bug in how we were repairing a misfiled EIA code in
+  :ref:`core_ferc714__respondent_id`. See issue :issue:`4439` and PR :pr:`4497`.
+* Fixed bug in how we were removing duplicates in :ref:`core_eia923__monthly_generation`
+  resulting in ~400 more records in this table over several years. See details in PR
+  :pr:`4538`
 
 Documentation
 ^^^^^^^^^^^^^
@@ -1692,7 +1934,7 @@ Database Schema Changes
   started being reported, but only in the output tables. See: :pr:`1906,1911`
 * Renamed and removed some columns in the :doc:`data_sources/epacems` dataset.
   ``unitid`` was changed to ``emissions_unit_id_epa`` to clarify the type of unit it
-  represents. ``unit_id_epa`` was removed because it is a unique identifyer for
+  represents. ``unit_id_epa`` was removed because it is a unique identifier for
   ``emissions_unit_id_epa`` and not otherwise useful or transferable to other datasets.
   ``facility_id`` was removed because it is specific to EPA's internal database and does
   not aid in connection with other data. :pr:`1692`

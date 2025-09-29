@@ -625,7 +625,6 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
 
     * Remove fields implicated elsewhere.
     * Replace . values with NA.
-    * Remove rows with utility ids 99999.
     * Create a fuel_type_code_pudl field that organizes fuel types into
       clean, distinguishable categories.
     * Combine year and month columns into a single date column.
@@ -668,9 +667,6 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     gen_fuel = _yearly_to_monthly_records(gen_fuel)
     # Replace the EIA923 NA value ('.') with a real NA value.
     gen_fuel = pudl.helpers.fix_eia_na(gen_fuel)
-    # Remove "State fuel-level increment" records... which don't pertain to
-    # any particular plant (they have plant_id_eia == operator_id == 99999)
-    gen_fuel = gen_fuel[gen_fuel.plant_id_eia != 99999]
 
     # conservative manual correction for bad prime mover codes
     gen_fuel["prime_mover_code"] = (
@@ -999,15 +995,63 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
         missing_data_strings
     )
     gen_df = gen_df[~row_drop_mask]
+    gen_df = _drop_duplicates__core_eia923__generation(gen_df)
+    return gen_df
 
-    # There are a few hundred (out of a few hundred thousand) records which
+
+def _drop_duplicates__core_eia923__generation(
+    gen_df: pd.DataFrame, unit_test: bool = False
+) -> pd.DataFrame:
+    # There are a several hundred (out of a few hundred thousand) records which
     # have duplicate records for a given generator/date combo. However, in all
     # cases one of them has no data (net_generation_mwh) associated with it,
     # so it's pretty clear which one to drop.
     unique_subset = ["report_date", "plant_id_eia", "generator_id"]
+    # reset the index omigosh we are using the index to drop records it needs
+    # to be actually unique
+    gen_df = gen_df.reset_index(drop=True)
     dupes = gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
-    gen_df = gen_df.drop(dupes.net_generation_mwh.isna().index)
+    drop_em = dupes[dupes.net_generation_mwh.isna() | (dupes.net_generation_mwh == 0)]
+    gen_df = gen_df.drop(index=drop_em.index)
+    # raise alarm bells if we are dropping more than we expect... but not for unit
+    # tests when we are feeding it almost all problems.
+    if not unit_test and (drop_ratio := len(drop_em) / len(gen_df)) > 0.011:
+        raise AssertionError(f"{drop_ratio} but expected ")
 
+    # BUT THERE IS MORE...
+    # truly duplicate records from one plant (id 3405) from 2012 and 2013.
+    # they are duplicate except for having different prime movers (which we
+    # very much don’t expect to be the primary key for this table)
+    # we are going to find them... make sure they are the plant we expect... then
+    # aggregate them and effectively drop their prime mover code bc that is
+    # only column that differs in these records. We don't expect this table
+    # to vary by pm code.... also generators definitionally shouldn't have
+    # two prime_mover_codes
+    still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
+    still_dupes = gen_df[still_dupe_mask]
+    if set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013}):
+        assert all(still_dupes.plant_id_eia.unique() == 3405)
+        assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013}
+        first_cols = [
+            col
+            for col in still_dupes
+            if col not in unique_subset + ["net_generation_mwh", "prime_mover_code"]
+        ]
+        deduped = (
+            still_dupes.groupby(unique_subset)
+            .agg({"net_generation_mwh": "sum", **dict.fromkeys(first_cols, "first")})
+            .reset_index()
+        )
+
+        gen_df = pd.concat([gen_df[~still_dupe_mask], deduped], ignore_index=True)
+
+    if not (
+        still_dupes := gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
+    ).empty:
+        raise AssertionError(
+            "There are still duplicates found in the table when we expect none:\n"
+            f"{still_dupes.set_index(unique_subset).sort_index()}"
+        )
     return gen_df
 
 
@@ -1463,3 +1507,87 @@ def _core_eia923__energy_storage(
     ] = "mcf"
 
     return es_df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def _core_eia923__yearly_byproduct_disposition(
+    raw_eia923__byproduct_disposition: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__byproduct_disposition table.
+
+    Transformations include:
+
+    * Replace . values with NA
+    * Drop rows with NA byproduct_description. This also removes all duplicates based on
+        report_year, plant_id_eia, and byproduct_description
+    * Convert 1000 tons to tons (avoiding steam sales, which are reported in MMBtu)
+    * Create a byproducts_unit column based on the byproduct_disposition
+
+    Args:
+        raw_eia923__byproduct_disposition: The raw ``raw_eia923__byproduct_disposition``
+        dataframe.
+
+    Returns:
+        Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
+    """
+    df = pudl.helpers.fix_eia_na(raw_eia923__byproduct_disposition)
+
+    # Drops known duplicate primary keys.
+    # These rows contain no meaningful data. To prevent dropping future rows unexpectedly, we
+    # expect a set number of rows to be dropped
+    null_byproduct_descriptions = df["byproduct_description"].isnull().sum()
+    assert null_byproduct_descriptions <= 22, (
+        f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 22"
+    )
+    df = df.dropna(subset=["byproduct_description"])
+
+    # For all the tons data, we want to convert 1000s of tons to tons.
+    # We want to leave the Steam Sales (MMBtu) unconverted, as they
+    # are reported in MMBtu and not 1000 tons.
+    # TODO 07/31: Investigate why steam values show up sporadically in some
+    # columns.
+    df.loc[
+        df["byproduct_description"] != "Steam Sales (MMBtu)",
+        df.columns.str.endswith("_units"),
+    ] *= 1000.0
+
+    # For all columns, rename from 1000 tons to tons.
+    df.columns = df.columns.str.replace("_1000_tons", "_tons")
+
+    # Create units column
+    df["byproduct_units"] = np.where(
+        df["byproduct_description"] == "Steam Sales (MMBtu)", "mmbtu", "tons"
+    )
+    # A large number of plants report entirely NA values in all columns across all
+    # categories of byproducts and also do not indicate whether they have any byproducts
+    # to report. We can drop these rows without losing any information. In 2022 and
+    # later years, this seems to be what EIA is doing as well, so applying this across
+    # all years of data make the table more consistent across time.
+    cols_to_check = list(
+        df.filter(regex=r"^(disposal|sold|stored|used|total)_.*_units$").columns
+    ) + ["no_byproducts_to_report"]
+    df = df.groupby(["report_year", "plant_id_eia"]).filter(
+        lambda group: group[cols_to_check].notna().any(axis=None)
+    )
+    return df
+
+
+@asset_check(asset=_core_eia923__yearly_byproduct_disposition, blocking=True)
+def disposition_continuity_check(bpd):
+    """Check to see if columns vary as slowly as expected."""
+    return pudl.validate.group_mean_continuity_check(
+        df=bpd,
+        thresholds={
+            "disposal_landfill_units": 0.4,
+            "disposal_offsite_units": 0.4,
+            "disposal_ponds_units": 0.4,
+            "sold_units": 0.4,
+            # "stored_offsite_units":0.9, # High enough that they're not worth validating
+            # "stored_onsite_units":0.9,
+            "used_offsite_units": 0.4,
+            "used_onsite_units": 0.4,
+            "total_disposal_units": 0.4,
+        },
+        groupby_col="report_year",
+        n_outliers_allowed=5,
+    )

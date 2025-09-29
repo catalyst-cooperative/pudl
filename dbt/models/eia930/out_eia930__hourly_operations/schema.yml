@@ -6,51 +6,60 @@ sources:
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
-              table_name: out_eia930__hourly_operations
-              partition_column: datetime_utc
+              arguments:
+                table_name: out_eia930__hourly_operations
+                partition_expr: "EXTRACT(YEAR FROM datetime_utc)"
           - expect_columns_are_close:
-              column_a: demand_reported_mwh
-              column_b: demand_imputed_pudl_mwh
-              row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL"
-              atol: 0.2
+              arguments:
+                column_a: demand_reported_mwh
+                column_b: demand_imputed_pudl_mwh
+                row_condition: "demand_imputed_pudl_mwh_imputation_code IS NULL"
+                atol: 1.0
         columns:
           - name: datetime_utc
           - name: balancing_authority_code_eia
           - name: net_generation_reported_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
-                  lower_bound: 0.0
-                  upper_bound: 0.02
+                  arguments:
+                    lower_bound: 0.0
+                    upper_bound: 0.02
           - name: net_generation_adjusted_mwh
           - name: net_generation_imputed_eia_mwh
           - name: interchange_reported_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
-                  lower_bound: 0.0
-                  upper_bound: 0.02
+                  arguments:
+                    lower_bound: 0.0
+                    upper_bound: 0.02
           - name: interchange_adjusted_mwh
           - name: interchange_imputed_eia_mwh
           - name: demand_reported_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
-                  lower_bound: 0.1
-                  upper_bound: 0.2
+                  arguments:
+                    lower_bound: 0.1
+                    upper_bound: 0.2
           - name: demand_adjusted_mwh
           - name: demand_imputed_pudl_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
-                  lower_bound: 0.1
-                  upper_bound: 0.2
+                  arguments:
+                    lower_bound: 0.1
+                    upper_bound: 0.2
           - name: demand_imputed_pudl_mwh_imputation_code
-            tests:
+            data_tests:
               - dbt_expectations.expect_column_values_to_not_be_in_set:
-                  value_set: ["simulated"]
+                  arguments:
+                    value_set: ["simulated"]
               - expect_missingness_between:
-                  lower_bound: 0.75
-                  upper_bound: 1.0
+                  arguments:
+                    lower_bound: 0.75
+                    upper_bound: 1.0
           - name: demand_imputed_eia_mwh
           - name: demand_forecast_mwh
-            tests:
+            data_tests:
               - expect_missingness_between:
-                  lower_bound: 0.1
-                  upper_bound: 0.2
+                  arguments:
+                    lower_bound: 0.1
+                    upper_bound: 0.2

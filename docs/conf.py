@@ -57,6 +57,7 @@ extensions = [
     "autoapi.extension",
     "sphinx_issues",
     "sphinx_reredirects",
+    "sphinx_tabs.tabs",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
 ]
@@ -96,7 +97,6 @@ intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
     "dagster": ("https://docs.dagster.io/", None),
     "dask": ("https://docs.dask.org/en/latest/", None),
-    "datasette": ("https://docs.datasette.io/en/stable/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
@@ -163,6 +163,9 @@ def data_dictionary_metadata_to_rst(app):
 
 
 INCLUDED_SOURCES = [
+    "censusdp1tract",
+    "censuspep",
+    "eiaapi",
     "eia860",
     "eia861",
     "eia923",

@@ -18,17 +18,20 @@ semi-structured but machine readable formats. For details on exactly what data i
 available from these data sources and what state it is in, see the individual
 pages for each source:
 
+* :doc:`data_sources/censusdp1tract`
+* :doc:`data_sources/censuspep`
 * :doc:`data_sources/eia860`
 * :doc:`data_sources/eia861`
 * :doc:`data_sources/eia923`
 * :doc:`data_sources/eia930`
-* :doc:`data_sources/epacems`
+* :doc:`data_sources/eiaapi`
 * :doc:`data_sources/epacamd_eia`
+* :doc:`data_sources/epacems`
 * :doc:`data_sources/ferc1`
 * :doc:`data_sources/ferc714`
-* :doc:`data_sources/phmsagas`
 * :doc:`data_sources/gridpathratoolkit`
 * :doc:`data_sources/nrelatb`
+* :doc:`data_sources/phmsagas`
 * :doc:`data_sources/vcerare`
 
 PUDL's clean and complete versions of these data sources are stored in the

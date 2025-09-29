@@ -134,7 +134,7 @@ EXPLOSION_CALCULATION_TOLERANCES: dict[str, GroupMetricChecks] = {
     ),
 }
 
-MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str]] = {
+MANUAL_DBF_METADATA_FIXES: dict[str, dict[str, str | int | pandas_NAType]] = {
     "less_noncurrent_portion_of_allowances": {
         "dbf2020_row_number": 53,
         "dbf2020_table_name": "f1_comp_balance_db",
@@ -232,6 +232,12 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
         "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
             "core_pudl__assn_ferc1_pudl_utilities"
         ),
+        "core_pudl__assn_ferc1_dbf_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_dbf_pudl_utilities"
+        ),
+        "core_pudl__assn_ferc1_xbrl_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_xbrl_pudl_utilities"
+        ),
     }
 
     @asset(
@@ -247,13 +253,27 @@ def ferc1_output_asset_factory(table_name: str) -> AssetsDefinition:
 
         Merge in utility IDs from ``core_pudl__assn_ferc1_pudl_utilities``.
         """
-        return_df = kwargs[f"core_ferc1__{table_name}"].merge(
-            kwargs["core_pudl__assn_ferc1_pudl_utilities"],
-            on="utility_id_ferc1",
-            how="left",
-            validate="many_to_one",
+        return (
+            kwargs[f"core_ferc1__{table_name}"]
+            .merge(
+                kwargs["core_pudl__assn_ferc1_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_dbf_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_xbrl_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
         )
-        return return_df
 
     return _create_output_asset
 
@@ -287,12 +307,28 @@ out_ferc1_assets = [
 def _out_ferc1__yearly_plants_utilities(
     core_pudl__assn_ferc1_pudl_plants: pd.DataFrame,
     core_pudl__assn_ferc1_pudl_utilities: pd.DataFrame,
+    core_pudl__assn_ferc1_dbf_pudl_utilities: pd.DataFrame,
+    core_pudl__assn_ferc1_xbrl_pudl_utilities: pd.DataFrame,
 ) -> pd.DataFrame:
     """A denormalized table containing FERC plant and utility names and IDs."""
-    return pd.merge(
-        core_pudl__assn_ferc1_pudl_plants,
-        core_pudl__assn_ferc1_pudl_utilities,
-        on="utility_id_ferc1",
+    return (
+        pd.merge(
+            core_pudl__assn_ferc1_pudl_plants,
+            core_pudl__assn_ferc1_pudl_utilities,
+            on="utility_id_ferc1",
+        )
+        .merge(
+            core_pudl__assn_ferc1_dbf_pudl_utilities,
+            on="utility_id_ferc1",
+            how="left",
+            validate="many_to_one",
+        )
+        .merge(
+            core_pudl__assn_ferc1_xbrl_pudl_utilities,
+            on="utility_id_ferc1",
+            how="left",
+            validate="many_to_one",
+        )
     )
 
 
@@ -939,6 +975,12 @@ def exploded_table_asset_factory(
         "core_pudl__assn_ferc1_pudl_utilities": AssetIn(
             "core_pudl__assn_ferc1_pudl_utilities"
         ),
+        "core_pudl__assn_ferc1_dbf_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_dbf_pudl_utilities"
+        ),
+        "core_pudl__assn_ferc1_xbrl_pudl_utilities": AssetIn(
+            "core_pudl__assn_ferc1_xbrl_pudl_utilities"
+        ),
     }
     ins |= {table_name: AssetIn(table_name) for table_name in table_names}
 
@@ -965,6 +1007,8 @@ def exploded_table_asset_factory(
                 "_out_ferc1__detailed_tags",
                 "off_by_facts",
                 "core_pudl__assn_ferc1_pudl_utilities",
+                "core_pudl__assn_ferc1_dbf_pudl_utilities",
+                "core_pudl__assn_ferc1_xbrl_pudl_utilities",
             ]
         }
         return (
@@ -981,6 +1025,18 @@ def exploded_table_asset_factory(
             .boom(tables_to_explode=tables_to_explode)
             .merge(
                 kwargs["core_pudl__assn_ferc1_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_dbf_pudl_utilities"],
+                on="utility_id_ferc1",
+                how="left",
+                validate="many_to_one",
+            )
+            .merge(
+                kwargs["core_pudl__assn_ferc1_xbrl_pudl_utilities"],
                 on="utility_id_ferc1",
                 how="left",
                 validate="many_to_one",
@@ -2134,13 +2190,15 @@ class XbrlCalculationForestFerc1(BaseModel):
         forest.remove_nodes_from(almost_pure_stepparents)
 
         forest = self.prune_unrooted(forest)
-        if not nx.is_forest(forest):
+        if not nx.is_directed_acyclic_graph(forest):
             logger.error(
-                "Calculations in Exploded Metadata can not be represented as a forest!"
+                "Calculations in Exploded Metadata cannot be represented as a directed acyclic graph!"
             )
         remaining_stepparents = set(self.stepparents(forest))
+        # "Stepparents" (nodes that have a child with more than 1 parent) are okay in
+        # a DAG, which is what our "Forest" is now.
         if remaining_stepparents:
-            logger.error(f"{remaining_stepparents=}")
+            logger.info(f"{remaining_stepparents=}")
 
         return forest
 

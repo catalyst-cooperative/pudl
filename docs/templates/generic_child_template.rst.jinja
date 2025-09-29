@@ -26,7 +26,7 @@ described here.
 {% block download_docs %}
 This block iterates through any downloadable PDFs for the data source that might provide
 extra context.  These might be a diagram of the database or a blank form for the data
-source for a certain time frame. Place documents in ``docs/data_sources/{{ resource.name }}/`` and they will show up here automatically.
+source for a certain time frame. Place documents in ``docs/data_sources/{{ source.name }}/`` and they will show up here automatically.
 {% for filename in download_paths %}
 * :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`__
 {% endfor %}
@@ -57,4 +57,8 @@ What does the original data look like?
 {% block notable_irregularities %}
 This block discusses any irregularities about the dataset that could be helpful for a
 user to know about.
+{% endblock %}
+
+{% block extra_pudl_transform_text %}
+This block adds any extra information about how PUDL transforms the original data.
 {% endblock %}

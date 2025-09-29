@@ -1823,7 +1823,7 @@ BCHA,bc_hydro,British Columbia Hydro and Power Authority,,Canada,,CAN,,False
 BPAT,bonneville_power,Bonneville Power Administration,America/Los_Angeles,Northwest,,NW,western,False
 CHPD,public_utility_district_of_chelan_county,Public Utility District No. 1 of Chelan County,America/Los_Angeles,Northwest,,NW,western,False
 CISO,california_iso,California Independent System Operator,America/Los_Angeles,California,,CAL,western,False
-CEA,chugach_electric,Chugach Electric Assn Inc,Anchorage,,,,,
+CEA,chugach_electric,Chugach Electric Assn Inc,America/Anchorage,,,,,
 CEN,centro_nacional_de_control_de_energia,Centro Nacional de Control de Energia,,Mexico,,MEX,,False
 CFE,comision_federal_de_electricidad,Comisión Federal de Electricidad,,Mexico,2018-07-01,MEX,,False
 CPLE,duke_energy_progress_east,Duke Energy Progress East,America/New_York,Carolinas,,CAR,eastern,False

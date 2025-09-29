@@ -5,42 +5,44 @@ sources:
       - name: core_eia860__scd_generators_multifuel
         data_tests:
           - expect_columns_not_all_null:
-              row_conditions:
-                county: EXTRACT(year FROM report_date) >= 2009
-                operational_status_code: EXTRACT(year FROM report_date) >= 2011
-                technology_description: EXTRACT(year FROM report_date) >= 2014
-                sector_name_eia: EXTRACT(year FROM report_date) >= 2011
-                sector_id_eia: EXTRACT(year FROM report_date) >= 2011
-                capacity_mw: EXTRACT(year FROM report_date) >= 2013
-                summer_capacity_mw: EXTRACT(year FROM report_date) >= 2013
-                winter_capacity_mw: EXTRACT(year FROM report_date) >= 2013
-                current_planned_generator_operating_date: EXTRACT(year FROM report_date) >= 2017
-                energy_source_code_1: EXTRACT(year FROM report_date) >= 2013
-                energy_source_code_2: EXTRACT(year FROM report_date) >= 2013
-                can_burn_multiple_fuels: EXTRACT(year FROM report_date) NOT IN (2013, 2014, 2015)
-                time_to_switch_oil_to_gas: EXTRACT(year FROM report_date) >= 2013
-                can_switch_when_operating: EXTRACT(year FROM report_date) >= 2009
-                net_winter_capacity_natural_gas_mw: EXTRACT(year FROM report_date) >= 2013
-                net_winter_capacity_oil_mw: EXTRACT(year FROM report_date) >= 2013
-                has_factors_that_limit_switching: EXTRACT(year FROM report_date) NOT IN (2004, 2005, 2006, 2009, 2010, 2011, 2012)
-                has_storage_limits: EXTRACT(year FROM report_date) >= 2007
-                has_air_permit_limits: EXTRACT(year FROM report_date) >= 2007
-                has_other_factors_that_limit_switching: EXTRACT(year FROM report_date) >= 2007
-                can_cofire_oil_and_gas: EXTRACT(year FROM report_date) <= 2012
-                can_cofire_100_oil: EXTRACT(year FROM report_date) <= 2012
-                max_oil_heat_input: EXTRACT(year FROM report_date) <= 2012
-                max_oil_output_mw: EXTRACT(year FROM report_date) <= 2012
-                can_fuel_switch: EXTRACT(year FROM report_date) <= 2012
-                has_regulatory_limits: EXTRACT(year FROM report_date) IN (2004, 2005, 2006, 2009, 2010, 2011, 2012)
-                fuel_switch_energy_source_1: EXTRACT(year FROM report_date) <= 2012
-                fuel_switch_energy_source_2: EXTRACT(year FROM report_date) <= 2012
-                fuel_switch_energy_source_3: EXTRACT(year FROM report_date) <= 2012
-                fuel_switch_energy_source_4: EXTRACT(year FROM report_date) <= 2012
-                fuel_switch_energy_source_5: EXTRACT(year FROM report_date) <= 2012
-                fuel_switch_energy_source_6: EXTRACT(year FROM report_date) <= 2012
+              arguments:
+                row_conditions:
+                  county: EXTRACT(year FROM report_date) >= 2009
+                  operational_status_code: EXTRACT(year FROM report_date) >= 2011
+                  technology_description: EXTRACT(year FROM report_date) >= 2014
+                  sector_name_eia: EXTRACT(year FROM report_date) >= 2011
+                  sector_id_eia: EXTRACT(year FROM report_date) >= 2011
+                  capacity_mw: EXTRACT(year FROM report_date) >= 2013
+                  summer_capacity_mw: EXTRACT(year FROM report_date) >= 2013
+                  winter_capacity_mw: EXTRACT(year FROM report_date) >= 2013
+                  current_planned_generator_operating_date: EXTRACT(year FROM report_date) >= 2017
+                  energy_source_code_1: EXTRACT(year FROM report_date) >= 2013
+                  energy_source_code_2: EXTRACT(year FROM report_date) >= 2013
+                  can_burn_multiple_fuels: EXTRACT(year FROM report_date) NOT IN (2013, 2014, 2015)
+                  time_to_switch_oil_to_gas: EXTRACT(year FROM report_date) >= 2013
+                  can_switch_when_operating: EXTRACT(year FROM report_date) >= 2009
+                  net_winter_capacity_natural_gas_mw: EXTRACT(year FROM report_date) >= 2013
+                  net_winter_capacity_oil_mw: EXTRACT(year FROM report_date) >= 2013
+                  has_factors_that_limit_switching: EXTRACT(year FROM report_date) NOT IN (2004, 2005, 2006, 2009, 2010, 2011, 2012)
+                  has_storage_limits: EXTRACT(year FROM report_date) >= 2007
+                  has_air_permit_limits: EXTRACT(year FROM report_date) >= 2007
+                  has_other_factors_that_limit_switching: EXTRACT(year FROM report_date) >= 2007
+                  can_cofire_oil_and_gas: EXTRACT(year FROM report_date) <= 2012
+                  can_cofire_100_oil: EXTRACT(year FROM report_date) <= 2012
+                  max_oil_heat_input: EXTRACT(year FROM report_date) <= 2012
+                  max_oil_output_mw: EXTRACT(year FROM report_date) <= 2012
+                  can_fuel_switch: EXTRACT(year FROM report_date) <= 2012
+                  has_regulatory_limits: EXTRACT(year FROM report_date) IN (2004, 2005, 2006, 2009, 2010, 2011, 2012)
+                  fuel_switch_energy_source_1: EXTRACT(year FROM report_date) <= 2012
+                  fuel_switch_energy_source_2: EXTRACT(year FROM report_date) <= 2012
+                  fuel_switch_energy_source_3: EXTRACT(year FROM report_date) <= 2012
+                  fuel_switch_energy_source_4: EXTRACT(year FROM report_date) <= 2012
+                  fuel_switch_energy_source_5: EXTRACT(year FROM report_date) <= 2012
+                  fuel_switch_energy_source_6: EXTRACT(year FROM report_date) <= 2012
           - check_row_counts_per_partition:
-              table_name: core_eia860__scd_generators_multifuel
-              partition_column: report_date
+              arguments:
+                table_name: core_eia860__scd_generators_multifuel
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: utility_id_eia

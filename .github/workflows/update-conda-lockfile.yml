@@ -21,9 +21,15 @@ jobs:
       - name: Get today's date
         run: |
           echo "TODAY=$(date +%Y-%m-%d)" >> $GITHUB_ENV
-      - uses: actions/checkout@v4
+      - name: Generate GH token
+        uses: actions/create-github-app-token@v2
+        id: generate-token
         with:
-          token: ${{ secrets.PUDL_BOT_PAT }}
+          app-id: ${{ secrets.WORKFLOW_TRIGGERER_APP_ID }}
+          private-key: ${{ secrets.WORKFLOW_TRIGGERER_PRIVATE_KEY }}
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
       - name: Install Micromamba
         uses: mamba-org/setup-micromamba@v2
         with:
@@ -45,7 +51,7 @@ jobs:
         if: ${{ (github.event_name == 'schedule' && github.repository == 'catalyst-cooperative/pudl') || (github.event_name == 'workflow_dispatch') }}
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.PUDL_BOT_PAT }}
+          token: ${{ steps.generate-token.outputs.token }}
           commit-message: "Update conda-lock.yml and re-render conda environment files. Autoupdate pre-commit hooks."
           title: Update conda lockfile for week of ${{ env.TODAY }}
           body: >
