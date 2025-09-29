@@ -1399,7 +1399,7 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     fgd_df.columns = fgd_df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
     fgd_df.loc[:, "fgd_sorbent_consumption_tons"] = fgd_df.loc[
         :, "fgd_sorbent_consumption_tons"
-    ].round(2)
+    ].round(-2)
 
     # Convert SO2 test date column to datetime
     # This column only exists for 2008-2011
