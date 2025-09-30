@@ -1593,7 +1593,7 @@ def disposition_continuity_check(bpd):
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset
 def _core_eia923__byproduct_expenses_and_revenues(
     raw_eia923__byproduct_expenses_and_revenues: pd.DataFrame,
 ) -> pd.DataFrame:
