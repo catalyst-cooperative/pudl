@@ -22,6 +22,12 @@ Deprecations
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860
+~~~~~~~~
+
+* Updated EIA-860 with final release data from 2024. See issue :issue:`4616` and
+  PR :pr:`4617`.
+
 New Data
 ^^^^^^^^
 
@@ -31,8 +37,25 @@ Quality of Life Improvements
 Documentation
 ^^^^^^^^^^^^^
 
+* Added data source pages for:
+
+  * :doc:`data_sources/censuspep`; see issue :issue:`4375` and PR :pr:`4622`.
+
 New Data Tests & Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* After investigating some modest discrepancies between our imputed hourly electricity
+  demand and prior work by :user:`truggles` & :user:`awongel`, we're removing the
+  "EXPERIMENTAL" warning label that we had on those tables. See `our discussion
+  about the imputation results in the PUDL Examples repo
+  <https://github.com/catalyst-cooperative/pudl-examples/pull/10>`__. The `associated
+  notebook is available on Kaggle <https://www.kaggle.com/code/catalystcooperative/06-pudl-imputed-electricity-demand>`__
+
+  This relates to the PUDL imputed demand values in following tables:
+
+  * :ref:`out_eia930__hourly_operations`
+  * :ref:`out_eia930__hourly_subregion_demand`
+  * :ref:`out_eia930__hourly_aggregated_demand`
 
 Bug Fixes
 ^^^^^^^^^
@@ -92,6 +115,13 @@ tables with a valid ``geometry`` column are:
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+Re-introduce 88888 and 99999 utility_id_eia
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These values, representing redacted values and state aggregates, were
+intentionally dropped from eia923 and eia861 due to primary key and
+data inconsistency issues. We're adding them back in! See :issue:`808`
+and PR :pr:`4291`.
 
 EIA-860M
 ~~~~~~~~

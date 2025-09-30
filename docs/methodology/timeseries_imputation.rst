@@ -39,6 +39,17 @@ heuristics in PUDL and now apply them to both EIA-930 and the very similar FERC-
 demand data reported by electricity planning areas. The FERC-714 longer history (going
 back to 2006, vs.  2015 for the EIA-930).
 
+Exploratory Notebooks
+---------------------
+
+While integrating the :doc:`/data_sources/eia930` data and developing and debugging the
+electricity demand imputation, we created a couple of Jupyter notebooks, which are
+available on Kaggle if you would like to explore the data and imputation results
+further:
+
+* `EIA-930 Sanity Checks <https://www.kaggle.com/code/catalystcooperative/03-eia-930-sanity-checks>`__
+* `PUDL Imputed Electricity Demand <https://www.kaggle.com/code/catalystcooperative/06-pudl-imputed-electricity-demand>`__
+
 Imputation Algorithm
 --------------------
 
