@@ -592,6 +592,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total installed (nameplate) capacity, in megawatts.",
         "unit": "MW",
     },
+    "capex_air_abatement": {
+        "type": "number",
+        "description": (
+            "Cost of new structures and/or equipment purchased to reduce, monitor, or "
+            "eliminate airborne pollutants"
+        ),
+        "unit": "USD",
+    },
     "capex_annual_addition": {
         "type": "number",
         "description": "Annual capital addition into `capex_total`.",
@@ -652,6 +660,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Cost of plant: land and land rights (USD).",
         "unit": "USD",
     },
+    "capex_other_abatement": {
+        "type": "number",
+        "description": (
+            "Other amortizable expenses and purchases of new structures and or equipment "
+            "when such purchases are not allocated to a particular unit or item."
+        ),
+        "unit": "USD",
+    },
     "capex_other": {
         "type": "number",
         "description": "Other costs associated with the plant (USD).",
@@ -667,6 +683,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Cost of plant: roads, railroads, and bridges (USD).",
         "unit": "USD",
     },
+    "capex_solid_waste": {
+        "type": "number",
+        "description": (
+            "Cost of structures or equipment purchased to collect and dispose of objectionable solids or contained liquids."
+        ),
+        "unit": "USD",
+    },
     "capex_structures": {
         "type": "number",
         "description": "Cost of plant: structures and improvements (USD).",
@@ -675,6 +698,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capex_total": {
         "type": "number",
         "description": "Total cost of plant (USD).",
+        "unit": "USD",
+    },
+    "capex_water_abatement": {
+        "type": "number",
+        "description": (
+            "Cost of new structures and/or equipment purchased to reduce, monitor, "
+            "or eliminate waterborne pollutants, including chlorine, phosphates, acids, bases, hydrocarbons, sewage, "
+            "and other pollutants."
+        ),
         "unit": "USD",
     },
     "capex_wheels_turbines_generators": {
@@ -4093,6 +4125,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Maintenance of boiler (or reactor) plant.",
         "unit": "USD",
     },
+    "opex_bottom_ash_collection": {
+        "type": "number",
+        "description": "Costs of materials and labor associated with the collection of bottom ash from all sources.",
+        "unit": "USD",
+    },
+    "opex_bottom_ash_disposal": {
+        "type": "number",
+        "description": "Costs of materials and labor associated with the disposal of bottom ash from all sources.",
+        "unit": "USD",
+    },
+    "opex_bottom_ash_other": {
+        "type": "number",
+        "description": "Other costs associated with the collection and disposal of bottom ash.",
+        "unit": "USD",
+    },
     "opex_coolants": {
         "type": "number",
         "description": "Cost of coolants and water (nuclear plants only)",
@@ -4111,6 +4158,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "opex_engineering": {
         "type": "number",
         "description": "Production expenses: maintenance, supervision, and engineering (USD).",
+        "unit": "USD",
+    },
+    "opex_fgd_byproduct_collection": {
+        "type": "number",
+        "description": "Costs of materials and labor associated with the collection of sulfur by-product (flue gas desulfurization).",
+        "unit": "USD",
+    },
+    "opex_fgd_byproduct_disposal": {
+        "type": "number",
+        "description": "Costs of materials and labor associated with the disposal of sulfur by-product (flue gas desulfurization).",
+        "unit": "USD",
+    },
+    "opex_fgd_byproduct_other": {
+        "type": "number",
+        "description": "Other costs associated with the collection and disposal of sulfur by-product (flue gas desulfurization).",
         "unit": "USD",
     },
     "opex_fgd_feed_materials_chemical": {
@@ -4147,6 +4209,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Fixed operation and maintenance expenses. Annual expenditures to operate and maintain equipment that are not incurred on a per-unit-energy basis.",
         "unit": "USD_per_kw",
+    },
+    "opex_fly_ash_collection": {
+        "type": "number",
+        "description": "Costs of materials and labor associated with the collection of fly ash from all sources.",
+        "unit": "USD",
+    },
+    "opex_fly_ash_disposal": {
+        "type": "number",
+        "description": "Costs of materials and labor associated with the disposal of fly ash from all sources.",
+        "unit": "USD",
+    },
+    "opex_fly_ash_other": {
+        "type": "number",
+        "description": "Other costs associated with the collection and disposal of fly ash.",
+        "unit": "USD",
     },
     "opex_variable_per_mwh": {
         "type": "number",
@@ -4201,6 +4278,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "opex_operations": {
         "type": "number",
         "description": "Production expenses: operations, supervision, and engineering (USD).",
+        "unit": "USD",
+    },
+    "opex_other_abatement_collection": {
+        "type": "number",
+        "description": "Abatement costs of by-product collection that are not allocated to a particular expenditure, e.g., costs of operating an environmental protection office.",
+        "unit": "USD",
+    },
+    "opex_other_abatement_disposal": {
+        "type": "number",
+        "description": "Abatement costs of by-product disposal that are not allocated to a particular expenditure.",
+        "unit": "USD",
+    },
+    "opex_other_abatement_other": {
+        "type": "number",
+        "description": "Other abatement costs that are not allocated to a particular expenditure.",
         "unit": "USD",
     },
     "opex_per_mwh": {
@@ -4264,10 +4356,40 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Total production expenses, excluding fuel (USD).",
         "unit": "USD",
     },
+    "opex_total_collection_abatement": {
+        "type": "number",
+        "description": "Sum of abatement costs associated with by-product collection.",
+        "unit": "USD",
+    },
+    "opex_total_disposal_abatement": {
+        "type": "number",
+        "description": "Sum of abatement costs associated with by-product disposal.",
+        "unit": "USD",
+    },
+    "opex_total_other_abatement": {
+        "type": "number",
+        "description": "Sum of other abatement costs associated with the collection and disposal of byproducts.",
+        "unit": "USD",
+    },
     "opex_transfer": {"type": "number", "description": "Steam transferred (Credit)."},
     "opex_water_for_power": {
         "type": "number",
         "description": "Production expenses: water for power (USD).",
+        "unit": "USD",
+    },
+    "opex_water_abatement_collection": {
+        "type": "number",
+        "description": "Costs associated with the collection/abatement of water pollution, e.g., equipment operation and maintenance of pumps, pipes, and settling ponds.",
+        "unit": "USD",
+    },
+    "opex_water_abatement_disposal": {
+        "type": "number",
+        "description": "Costs associated with the disposal of water pollutants.",
+        "unit": "USD",
+    },
+    "opex_water_abatement_other": {
+        "type": "number",
+        "description": "Other abatement costs associated with water pollutants.",
         "unit": "USD",
     },
     "original_planned_generator_operating_date": {
@@ -5086,6 +5208,36 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "transmission",
             ]
         },
+    },
+    "revenues_bottom_ash": {
+        "type": "number",
+        "description": "Revenue from the sale of bottom ash by-product.",
+        "unit": "USD",
+    },
+    "revenues_fgd_byproducts": {
+        "type": "number",
+        "description": "Revenue from the sale of flue gas desulfurization by-product.",
+        "unit": "USD",
+    },
+    "revenues_fly_ash": {
+        "type": "number",
+        "description": "Revenue from the sale of fly ash by-product.",
+        "unit": "USD",
+    },
+    "revenues_fly_bottom_ash_intermingled": {
+        "type": "number",
+        "description": "Revenue from the sale of intermingled fly and bottom ash by-product.",
+        "unit": "USD",
+    },
+    "revenues_other_byproducts": {
+        "type": "number",
+        "description": "Revenue from the sale of other by-products.",
+        "unit": "USD",
+    },
+    "revenues_total_byproduct": {
+        "type": "number",
+        "description": "Total revenue from the sale of by-products.",
+        "unit": "USD",
     },
     "row_type_xbrl": {
         "type": "string",

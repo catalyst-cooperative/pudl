@@ -1,0 +1,37 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia923__byproduct_expenses_and_revenues
+        columns:
+          - name: plant_id_eia
+          - name: report_year
+          - name: data_maturity
+          - name: capex_air_abatement
+          - name: capex_other_abatement
+          - name: capex_solid_waste
+          - name: capex_water_abatement
+          - name: opex_bottom_ash_collection
+          - name: opex_bottom_ash_disposal
+          - name: opex_bottom_ash_other
+          - name: opex_fgd_byproduct_collection
+          - name: opex_fgd_byproduct_disposal
+          - name: opex_fgd_byproduct_other
+          - name: opex_fly_ash_collection
+          - name: opex_fly_ash_disposal
+          - name: opex_fly_ash_other
+          - name: opex_other_abatement_collection
+          - name: opex_other_abatement_disposal
+          - name: opex_other_abatement_other
+          - name: opex_total_collection_abatement
+          - name: opex_total_disposal_abatement
+          - name: opex_total_other_abatement
+          - name: opex_water_abatement_collection
+          - name: opex_water_abatement_disposal
+          - name: opex_water_abatement_other
+          - name: revenues_bottom_ash
+          - name: revenues_fgd_byproducts
+          - name: revenues_fly_ash
+          - name: revenues_fly_bottom_ash_intermingled
+          - name: revenues_other_byproducts
+          - name: revenues_total_byproduct
