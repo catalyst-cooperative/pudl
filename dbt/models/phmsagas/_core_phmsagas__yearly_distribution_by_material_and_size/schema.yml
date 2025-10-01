@@ -14,3 +14,9 @@ sources:
           - name: mains_miles
           - name: services
           - name: main_other_material_detail
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_phmsagas__yearly_distribution_by_material_and_size
+                partition_expr: "EXTRACT(YEAR FROM report_date)"

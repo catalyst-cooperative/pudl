@@ -18,3 +18,9 @@ sources:
           - name: preparer_phone
           - name: preparer_fax
           - name: preparer_email
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_phmsagas__yearly_distribution_filings
+                partition_expr: "EXTRACT(YEAR FROM report_date)"

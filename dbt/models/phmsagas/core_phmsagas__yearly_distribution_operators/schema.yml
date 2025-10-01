@@ -4,6 +4,7 @@ sources:
     tables:
       - name: core_phmsagas__yearly_distribution_operators
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_phmsagas__yearly_distribution_operators

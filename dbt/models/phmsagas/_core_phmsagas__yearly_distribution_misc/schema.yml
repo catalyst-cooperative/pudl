@@ -4,6 +4,7 @@ sources:
     tables:
       - name: _core_phmsagas__yearly_distribution_misc
         data_tests:
+          - expect_columns_not_all_null
           - dbt_expectations.expect_compound_columns_to_be_unique:
               arguments:
                 column_list:
@@ -11,6 +12,10 @@ sources:
                   - report_id
                   - operator_id_phmsa
                   - operating_state
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_phmsagas__yearly_distribution_misc
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: report_id

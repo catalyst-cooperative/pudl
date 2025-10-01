@@ -4,7 +4,7 @@ from typing import Any
 
 GENERIC_CLEANING_STATE_WARNING = {
     "type": "custom",
-    "description": "We have not fully cleaned these tables. Except some inconsistent units, data types and values over the years of reported data.",
+    "description": "This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.",
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -47,7 +47,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": {
             "additional_summary_text": ("distribution operator information."),
             "additional_source_text": "(Part A)",
-            "usage_warnings": [GENERIC_CLEANING_STATE_WARNING],
             "additional_details_text": (
                 "This table contains operator-level information including "
                 "office and headquarter location."
@@ -97,10 +96,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "type": "custom",
                     "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
                 },
+                {
+                    "type": "custom",
+                    "description": "Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.",
+                },
             ],
             "additional_primary_key_text": (
                 "We expect the primary key for this table should be report_id, "
-                "operator_id_phmsa, operating_state and material. There are nulls in "
+                "operator_id_phmsa, operating_state and material. However, there are nulls in "
                 "the operating_state across several years of reporting."
             ),
         },
@@ -168,7 +171,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "total and hazardous leaks eliminated or repaired during the report year."
             ),
             "additional_source_text": "(Part C)",
-            "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
+            "usage_warnings": [
+                GENERIC_CLEANING_STATE_WARNING,
+                "aggregation_hazard",
+                {
+                    "type": "custom",
+                    "description": "Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.",
+                },
+            ],
             "additional_primary_key_text": (
                 "We expect the primary key for this table should be report_id, "
                 "operator_id_phmsa, operating_state, leak_severity and leak_source. "
@@ -185,7 +195,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operating_state",
                 "leak_severity",
                 "leak_source",
-                "mains",  # TODO: make into number of instances not miles. and check all instances of this column
+                "mains",
                 "services",
             ],
             # "primary_key": [
@@ -217,6 +227,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 {
                     "type": "custom",
                     "description": "The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).",
+                },
+                {
+                    "type": "custom",
+                    "description": "Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.",
                 },
             ],
             "additional_primary_key_text": (
@@ -286,7 +300,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": {
             "additional_summary_text": ("miscellaneous distribution information."),
             "additional_source_text": "(Part B & C)",
-            "usage_warnings": [GENERIC_CLEANING_STATE_WARNING],
+            "usage_warnings": [
+                GENERIC_CLEANING_STATE_WARNING,
+                {
+                    "type": "custom",
+                    "description": "Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.",
+                },
+            ],
             "additional_primary_key_text": (
                 "We expect the primary key for this table should be report_id, "
                 "operator_id_phmsa, and operating_state. "

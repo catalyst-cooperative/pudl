@@ -816,7 +816,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         },
     },
     "commodity": {
-        # Could be enum-ed with a little clean up.
+        # TODO: Could be enum-ed with a little clean up.
         "type": "string",
         "description": "The type of gas delivered by the distribution pipeline.",
     },
@@ -1111,8 +1111,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "data_date": {
         "type": "date",
-        # this is how PHMSA describes this... which is terse at best.
-        "description": "Data as of date.",
+        "description": "When the data source was last updated.",
     },
     "data_observed": {
         "type": "boolean",
@@ -4256,7 +4255,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operator_id_phmsa": {
         "type": "integer",
-        "description": "PHMSA unique operator ID.",
+        "description": "PHMSA unique operator ID. A value of zero represents an unknown operator ID.",
     },
     "operator_name_phmsa": {
         "type": "string",

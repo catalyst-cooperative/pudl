@@ -13,3 +13,9 @@ sources:
           - name: leak_source
           - name: mains
           - name: services
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_phmsagas__yearly_distribution_leaks
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
