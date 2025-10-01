@@ -18,7 +18,14 @@ from dagster import AssetCheckResult, AssetChecksDefinition, asset, asset_check
 
 
 def __sanitize_string(series: pd.Series) -> pd.Series:
-    return series.str.lower().str.strip().str.replace(r"\W+", "_", regex=True)
+    return (
+        series.str.lower()
+        .str.strip()
+        .str.replace(r"\W+", "_", regex=True)
+        .str.replace(
+            r"_+$", "", regex=True
+        )  # This is for () that get turned into _ at the end.
+    )
 
 
 def get_series_info(series_name: pd.Series) -> pd.DataFrame:
@@ -150,18 +157,13 @@ def filter_enrich_sanitize(
             "variable_fields",
         ]
     )
-
     sanitized = enriched.assign(
         **{
             colname: __sanitize_string(enriched[colname])
             for colname in enriched.columns
-            if colname not in {"projection_year", "value"}
-        }
-    ).pipe(
-        lambda df: df.assign(
-            report_year_series=df.report_year_series.str.replace("aeo", ""),
-            value=pd.to_numeric(df.value.str.replace("- -", "")),
-        )
+            if colname not in {"projection_year", "value", "report_year"}
+        },
+        value=lambda x: pd.to_numeric(x.value, errors="coerce"),
     )
 
     assert (sanitized.region_series == sanitized.region_category).all(), (
@@ -171,12 +173,11 @@ def filter_enrich_sanitize(
         "Series and taxonomy must agree on case!"
     )
 
-    # TODO 2024-04-20: one day we'll include report year in the extract step -
-    # at that point we'll have to compare that with the report year extracted
-    # from the series name.
-    return sanitized.drop(columns=["region_series", "case_series"]).rename(
-        columns={"region_category": "region", "report_year_series": "report_year"}
-    )
+    # Dropping report_year_series here because we don't need it but we MIGHT want it later
+    # So not fully removing it from get_series_info()
+    return sanitized.drop(
+        columns=["region_series", "case_series", "report_year_series"]
+    ).rename(columns={"region_category": "region"})
 
 
 def _collect_totals(df: pd.DataFrame, total_colname="dimension") -> pd.DataFrame:
@@ -403,7 +404,6 @@ def core_eiaaeo__yearly_projected_electric_sales(
         dimension_column="dimension",
     )
     assert subtotals_totals_match_ratio == 1.0
-
     unstacked = unstack(
         df=trimmed,
         eventual_pk=[
@@ -414,7 +414,6 @@ def core_eiaaeo__yearly_projected_electric_sales(
             "projection_year",
         ],
     )
-
     renamed_for_pudl = (
         unstacked.dropna(how="all")
         .reset_index()
@@ -427,7 +426,6 @@ def core_eiaaeo__yearly_projected_electric_sales(
             }
         )
     )
-
     return renamed_for_pudl
 
 
@@ -565,13 +563,13 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
             "total",
             "transportation",
             "unspecified",
+            "industrial_hydrogen_production",
         },
     }
     for column, expected in expected_values.items():
         assert (actual := set(sanitized[column].unique())) == expected, (
             f"Unexpected values in {column}: Expected {expected}; found {actual}"
         )
-
     # 1 quad = 1 quadrillion btu = 1e9 mmbtu
     sanitized.loc[sanitized.units == "quads", "value"] *= 1e9
 
@@ -607,7 +605,6 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
             "value": "energy_use_mmbtu",
         }
     )
-
     return renamed_for_pudl
 
 
@@ -630,7 +627,7 @@ def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
 
     assert set(sanitized.topic.unique()) == {"electricity"}
     assert set(sanitized.variable_name.unique()) == {"fuel_prices"}
-    assert set(sanitized.units.unique()) == {"2022_mmbtu", "nom_mmbtu"}
+    assert set(sanitized.units.unique()) == {"2024_mmbtu", "2022_mmbtu", "nom_mmbtu"}
     # turn variable_name into `nominal_fuel_prices` and `real_fuel_prices` based on unit
     sanitized.variable_name = sanitized.units + "_" + sanitized.variable_name
 
