@@ -215,7 +215,7 @@ def _dedupe_year_distribution_idx(
         cleaned_raw.duplicated(["report_id", "operator_id_phmsa"], keep=False)
     ]
     # There are 6 values that we expect to be duplicated.
-    assert len(non_unique_groups) <= 7, (
+    assert len(non_unique_groups) < 7, (
         f"Found {len(non_unique_groups)} records with duplicates, expected 6 or less."
     )
     assert all(non_unique_groups.operator_id_phmsa == 0), (
