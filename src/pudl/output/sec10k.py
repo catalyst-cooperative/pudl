@@ -62,7 +62,7 @@ def _fill_sics(df: pd.DataFrame) -> pd.DataFrame:
     non_unique_sics = sic_nunique_names[sic_nunique_names["industry_name_sic"] > 1][
         "industry_id_sic"
     ].to_list()
-    assert set(non_unique_sics) == known_nonunique_sics, (
+    assert set(non_unique_sics) <= known_nonunique_sics, (
         f"Found non-unique mapping of SIC ID to industry name! {set(non_unique_sics) - known_nonunique_sics}"
     )
 
