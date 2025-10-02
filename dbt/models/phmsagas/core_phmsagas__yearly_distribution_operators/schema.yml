@@ -4,7 +4,10 @@ sources:
     tables:
       - name: core_phmsagas__yearly_distribution_operators
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              arguments:
+                row_conditions:
+                  headquarters_county: EXTRACT(year FROM report_date) BETWEEN 1984 AND 2017
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_phmsagas__yearly_distribution_operators

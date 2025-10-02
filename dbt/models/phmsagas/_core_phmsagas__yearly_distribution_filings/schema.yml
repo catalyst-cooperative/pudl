@@ -19,7 +19,10 @@ sources:
           - name: preparer_fax
           - name: preparer_email
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              arguments:
+                row_conditions:
+                  filing_correction_date: EXTRACT(year FROM report_date) BETWEEN 1990 AND 1999
           - check_row_counts_per_partition:
               arguments:
                 table_name: _core_phmsagas__yearly_distribution_filings
