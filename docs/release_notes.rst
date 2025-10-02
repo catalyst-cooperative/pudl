@@ -28,6 +28,11 @@ EIA-860
 * Updated EIA-860 with final release data from 2024. See issue :issue:`4616` and
   PR :pr:`4617`.
 
+EIA-923
+~~~~~~~~
+
+* Updated EIA-923 with final release data from 2024. See PR :pr:`4641`.
+
 New Data
 ^^^^^^^^
 
