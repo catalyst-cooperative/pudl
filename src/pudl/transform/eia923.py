@@ -491,6 +491,10 @@ def _coalmine_cleanup(
             # I checked the same id from other years in the raw data, and the leading 0s
             # only appear in 2024, so this function removes them so the years line up.
             mine_id_msha=lambda x: x.mine_id_msha.str.replace("O", "0").astype("Int64"),
+            # 2025-10-1: there's one mine in 2025 that reports its type as "F", which
+            # exists in MSHA's codebook but not in EIA's. "F" doesn't seem to
+            # be equivalent to EIA's "P" type, so I'm nulling it for now.
+            mine_type_code=lambda x: x.mine_type_code.mask(x.mine_type_code == "F"),
         )
         # No leading or trailing whitespace:
         .pipe(pudl.helpers.simplify_strings, columns=["mine_name"])
@@ -500,7 +504,13 @@ def _coalmine_cleanup(
     )
     # join state and partial county FIPS into five digit county FIPS
     cmi_df["county_id_fips"] = cmi_df["state_id_fips"] + cmi_df["county_id_fips"]
-    cmi_df = PUDL_PACKAGE.encode(cmi_df)
+    try:
+        cmi_df = PUDL_PACKAGE.encode(cmi_df)
+    except ValueError:
+        logger.error(
+            f"Problems encoding core_eia923__entity_coalmine. df.head():\n{cmi_df.head()}"
+        )
+        raise
     return cmi_df
 
 
