@@ -16,4 +16,4 @@ fgd_electricity_consumption_mwh,electric_energy_consumption,electric_energy_cons
 so2_removal_efficiency_annual,efficiency_at_annual_operating_factor,efficiency_at_annual_operating_factor,efficiency_at_annual_operating_factor,efficiency_at_annual_operating_factor,,,,,,,,,,,,,
 so2_removal_efficiency_tested,tested_efficiency_at_100_load,tested_efficiency_at_100_load,tested_efficiency_at_100_load,tested_efficiency_at_100_load,,,,,,,,,,,,,
 so2_test_date,date_of_latest_efficiency_test,date_of_latest_efficiency_test,date_of_latest_efficiency_test,date_of_latest_efficiency_test,,,,,,,,,,,,,
-early_release,,,,,,,,,,,,,,,,,early_release_data_june_2025_not_fully_edited_use_with_caution_do_not_aggregate_to_state_regional_or_national_totals
+early_release,,,,,,,,,,,,,,,,,

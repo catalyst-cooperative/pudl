@@ -33,6 +33,15 @@ class Extractor(excel.ExcelExtractor):
 
     def process_raw(self, df, page, **partition):
         """Drops reserved columns."""
+        # check skiprows first
+        for i, c in enumerate(df.columns):
+            assert isinstance(c, str), (
+                f"Error at page {page} partition {partition}: "
+                f"Expected str column header {i} but found {type(c)}. "
+                f"df.head():\n{df.head()}\n\n"
+                f"Skipped rows from {self.source_filename(page, **partition)}:\n{pd.read_excel(self._file_cache[self.source_filename(page, **partition)], header=None, sheet_name=self._metadata.get_sheet_name(page, **partition), nrows=self._metadata.get_skiprows(page, **partition))}"
+            )
+        # nix reserved columns
         to_drop = [c for c in df.columns if c[:8] == "reserved"]
         df = df.drop(to_drop, axis=1)
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
