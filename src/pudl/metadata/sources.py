@@ -848,7 +848,7 @@ SOURCES: dict[str, Any] = {
         "email": "pudl@catalyst.coop",
     },
     "sec10k": {
-        "title": "U.S. Securities and Exchange Commission Form 10-K",
+        "title": "U.S. Securities and Exchange Commission (SEC) Form 10-K",
         "path": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
         "description": (
             "The SEC Form 10-K is an annual report required by the U.S. Securities and "
