@@ -206,6 +206,7 @@ class GenericExtractor(ABC):
                 raise ValueError(
                     f"{page}/{partition_selection}: Expected columns not found in extracted table:"
                     f"\n{missing_raw_cols}"
+                    f"\nAvailable columns: \n{'\n'.join(df.columns)}"
                 )
 
     def process_final_page(self, df: pd.DataFrame, page: str) -> pd.DataFrame:
