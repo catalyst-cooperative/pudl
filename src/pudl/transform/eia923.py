@@ -1623,7 +1623,7 @@ def _core_eia923__byproduct_expenses_and_revenues(
     )
 
     # Convert thousands of dollars to dollars and remove suffix from column name
-    df.loc[:, df.columns.str.endswith("_thousand_dollars")] *= 1000
-    df.columns = df.columns.str.replace("_thousand_dollars", "")
+    df.loc[:, df.columns.str.endswith("_1000_dollars")] *= 1000
+    df.columns = df.columns.str.replace("_1000_dollars", "")
 
     return df
