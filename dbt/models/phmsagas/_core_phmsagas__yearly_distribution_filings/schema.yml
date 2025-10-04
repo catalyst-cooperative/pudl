@@ -1,0 +1,29 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_phmsagas__yearly_distribution_filings
+        columns:
+          - name: report_id
+          - name: operator_id_phmsa
+          - name: report_date
+          - name: filing_date
+          - name: initial_filing_date
+          - name: filing_correction_date
+          - name: report_filing_type
+          - name: data_date
+          - name: form_revision_id
+          - name: preparer_name
+          - name: preparer_title
+          - name: preparer_phone
+          - name: preparer_fax
+          - name: preparer_email
+        data_tests:
+          - expect_columns_not_all_null:
+              arguments:
+                row_conditions:
+                  filing_correction_date: EXTRACT(year FROM report_date) BETWEEN 1990 AND 1999
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_phmsagas__yearly_distribution_filings
+                partition_expr: "EXTRACT(YEAR FROM report_date)"

@@ -126,7 +126,7 @@ def dummy_pandera_schema():
         {
             "description": "test resource based on core_eia__entity_plants",
             "schema": {
-                "fields": ["plant_id_eia", "city", "state"],
+                "fields": ["plant_id_eia", "city", "capacity_mw"],
                 "primary_key": ["plant_id_eia"],
             },
             "sources": ["eia860", "eia923"],
@@ -147,7 +147,7 @@ def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
         {
             "plant_id_eia": [12345, 12346],
             "city": ["Bloomington", "Springfield"],
-            "state": ["IL", "IL"],
+            "capacity_mw": [1.3, 1.0],
         }
     ).pipe(apply_pudl_dtypes)
     assert not dummy_pandera_schema.validate(good_dataframe).empty
@@ -167,7 +167,7 @@ def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
                 {
                     "plant_id_eia": ["non_number"],
                     "city": ["Bloomington"],
-                    "state": ["IL"],
+                    "capacity_mw": [1.3],
                 }
             ).astype(str),
             id="bad dtype",
@@ -178,7 +178,7 @@ def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
                 {
                     "plant_id_eia": [12345, 12345],
                     "city": ["Bloomington", "Springfield"],
-                    "state": ["IL", "IL"],
+                    "capacity_mw": [1.3, 1.0],
                 }
             ).pipe(apply_pudl_dtypes),
             id="duplicate PK",
