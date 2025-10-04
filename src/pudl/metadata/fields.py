@@ -596,7 +596,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Cost of new structures and/or equipment purchased to reduce, monitor, or "
-            "eliminate airborne pollutants"
+            "eliminate airborne pollutants."
         ),
         "unit": "USD",
     },
