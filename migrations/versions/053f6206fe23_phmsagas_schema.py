@@ -1,7 +1,7 @@
 """phmsagas schema
 
 Revision ID: 053f6206fe23
-Revises: 76397c4db652
+Revises: 7ff6e93327fb
 Create Date: 2025-09-25 17:29:50.545669
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '053f6206fe23'
-down_revision = '76397c4db652'
+down_revision = '7ff6e93327fb'
 branch_labels = None
 depends_on = None
 
