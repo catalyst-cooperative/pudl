@@ -3394,6 +3394,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Text description of Standard Industrial Classification (SIC)",
     },
+    "industry_group_sic": {
+        "type": "string",
+        "description": (
+            "A higher level industry category defined within the Standard Industrial "
+            "Classification (SIC) system."
+        ),
+    },
     "industry_id_sic": {
         "type": "string",
         "description": (
