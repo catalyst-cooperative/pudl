@@ -35,7 +35,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
     # Preliminary clean and get rid of unnecessary 'year' column
     own_df = (
         raw_eia860__ownership.copy()
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.convert_to_date)
         .drop(columns=["year"])
     )
@@ -278,7 +278,7 @@ def _core_eia860__generators(
     ]
     gens_df = (
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(
             pudl.helpers.fix_boolean_columns,
@@ -358,7 +358,7 @@ def _core_eia860__generators_solar(
         )
     solar_df = (
         pd.concat([solar_existing, solar_retired], sort=True)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.fix_boolean_columns, boolean_columns_to_fix)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
@@ -396,7 +396,7 @@ def _core_eia860__generators_energy_storage(
 
     storage_df = (
         pd.concat([storage_ex, storage_pr, storage_re], sort=True)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
         .pipe(
@@ -474,7 +474,7 @@ def _core_eia860__generators_wind(
 
     wind_df = (
         pd.concat([wind_ex, wind_re], sort=True)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.month_year_to_date)
         .pipe(pudl.helpers.convert_to_date)
         .pipe(
@@ -534,7 +534,7 @@ def _core_eia860__generators_multifuel(
     multifuel_df = (
         pd.concat([multifuel_ex, multifuel_pr, multifuel_re], sort=True)
         .dropna(subset=["generator_id", "plant_id_eia"])
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
@@ -602,7 +602,7 @@ def _core_eia860__plants(raw_eia860__plant: pd.DataFrame) -> pd.DataFrame:
     """
     # Populating the '_core_eia860__plants' table
     p_df = (
-        raw_eia860__plant.pipe(pudl.helpers.fix_eia_na)
+        raw_eia860__plant.pipe(pudl.helpers.standardize_na_values)
         .astype({"zip_code": str})
         .drop("iso_rto", axis="columns")
     )
@@ -711,7 +711,7 @@ def _core_eia860__utilities(raw_eia860__utility: pd.DataFrame) -> pd.DataFrame:
     u_df = raw_eia860__utility
 
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    u_df = pudl.helpers.fix_eia_na(u_df)
+    u_df = pudl.helpers.standardize_na_values(u_df)
     u_df["state"] = u_df.state.str.upper()
     u_df["state"] = u_df.state.replace(
         {
@@ -805,7 +805,7 @@ def _core_eia860__boilers(
     b_df = (
         pd.concat([b_df, ecs], sort=True)
         .dropna(subset=["boiler_id", "plant_id_eia"])
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
     )
 
     # Defensive check: if any values in boiler_fuel_code_5 - boiler_fuel_code_8,
@@ -977,7 +977,9 @@ def _core_eia860__emissions_control_equipment(
 ) -> pd.DataFrame:
     """Pull and transform the emissions control equipment table."""
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    emce_df = pudl.helpers.fix_eia_na(raw_eia860__emissions_control_equipment)
+    emce_df = pudl.helpers.standardize_na_values(
+        raw_eia860__emissions_control_equipment
+    )
 
     # Spot fix bad months
     emce_df["emission_control_operating_month"] = emce_df[
@@ -1183,7 +1185,7 @@ def _core_eia860__boiler_cooling(
         A cleaned and normalized version of the EIA boiler to cooler ID table.
     """
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    bc_assn = pudl.helpers.fix_eia_na(raw_eia860__boiler_cooling)
+    bc_assn = pudl.helpers.standardize_na_values(raw_eia860__boiler_cooling)
     # Replace the report year col with a report date col for the harvesting process
     bc_assn = pudl.helpers.convert_to_date(
         df=bc_assn, year_col="report_year", date_col="report_date"
@@ -1208,7 +1210,7 @@ def _core_eia860__boiler_stack_flue(
         A cleaned and normalized version of the EIA boiler to stack flue ID table.
     """
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    bsf_assn = pudl.helpers.fix_eia_na(raw_eia860__boiler_stack_flue)
+    bsf_assn = pudl.helpers.standardize_na_values(raw_eia860__boiler_stack_flue)
     # Replace the report year col with a report date col for the harvesting process
     bsf_assn = pudl.helpers.convert_to_date(
         df=bsf_assn, year_col="report_year", date_col="report_date"
@@ -1268,7 +1270,7 @@ def _core_eia860__cooling_equipment(
     ce_df = raw_eia860__cooling_equipment
 
     # Generic cleaning
-    ce_df = ce_df.pipe(pudl.helpers.fix_eia_na).pipe(
+    ce_df = ce_df.pipe(pudl.helpers.standardize_na_values).pipe(
         pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes
     )
 
@@ -1362,7 +1364,7 @@ def _core_eia860__fgd_equipment(
     fgd_df = raw_eia860__fgd_equipment
 
     # Generic cleaning
-    fgd_df = fgd_df.pipe(pudl.helpers.fix_eia_na).pipe(
+    fgd_df = fgd_df.pipe(pudl.helpers.standardize_na_values).pipe(
         pudl.helpers.add_fips_ids, _core_censuspep__yearly_geocodes
     )
 

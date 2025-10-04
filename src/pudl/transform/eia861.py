@@ -13,7 +13,7 @@ from pudl.helpers import (
     clean_eia_counties,
     convert_cols_dtypes,
     convert_to_date,
-    fix_eia_na,
+    standardize_na_values,
 )
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.enums import (
@@ -547,7 +547,7 @@ def _pre_process(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
       for details.
     """
     prep_df = (
-        fix_eia_na(df)
+        standardize_na_values(df)
         .drop(columns=["early_release"], errors="ignore")
         .pipe(convert_to_date)
         .pipe(_combine_88888_values, idx_cols)

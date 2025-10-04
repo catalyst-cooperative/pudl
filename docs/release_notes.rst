@@ -31,6 +31,18 @@ EIA-860
 New Data
 ^^^^^^^^
 
+PHMSA
+~~~~~
+* Added eight transformed table containing annual data from PHMSA natural gas
+  distributors from 1970 to the present. Note that these containing mostly numeric
+  values are named as ``_core`` - indicating that these tables have not been fully
+  cleaned and validated. We've published these tables to make the 50+
+  years of PHMSA data we've extracted and mapped available for others to use and for
+  contributors to more easily improve incrementally. See :issue:`3770` and :pr:`4005`.
+* The first cleaned table, ``core_phmsagas__distribution_operators`` has been added
+  to our PUDL database. Thanks to :user:`seeess1` for all of your work on this!
+
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
