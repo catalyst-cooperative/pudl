@@ -3021,39 +3021,39 @@ package:
     category: main
     optional: false
   - name: ca-certificates
-    version: 2025.8.3
+    version: 2025.10.5
     manager: conda
     platform: linux-64
     dependencies:
       __unix: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.8.3-hbd8a1cb_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.10.5-hbd8a1cb_0.conda
     hash:
-      md5: 74784ee3d225fc3dca89edb635b4e5cc
-      sha256: 837b795a2bb39b75694ba910c13c15fa4998d4bb2a622c214a6a5174b2ae53d1
+      md5: f9e5fbc24009179e8b0409624691758a
+      sha256: 3b5ad78b8bb61b6cdc0978a6a99f8dfb2cc789a451378d054698441005ecbdb6
     category: main
     optional: false
   - name: ca-certificates
-    version: 2025.8.3
+    version: 2025.10.5
     manager: conda
     platform: osx-64
     dependencies:
       __unix: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.8.3-hbd8a1cb_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.10.5-hbd8a1cb_0.conda
     hash:
-      md5: 74784ee3d225fc3dca89edb635b4e5cc
-      sha256: 837b795a2bb39b75694ba910c13c15fa4998d4bb2a622c214a6a5174b2ae53d1
+      md5: f9e5fbc24009179e8b0409624691758a
+      sha256: 3b5ad78b8bb61b6cdc0978a6a99f8dfb2cc789a451378d054698441005ecbdb6
     category: main
     optional: false
   - name: ca-certificates
-    version: 2025.8.3
+    version: 2025.10.5
     manager: conda
     platform: osx-arm64
     dependencies:
       __unix: ""
-    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.8.3-hbd8a1cb_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.10.5-hbd8a1cb_0.conda
     hash:
-      md5: 74784ee3d225fc3dca89edb635b4e5cc
-      sha256: 837b795a2bb39b75694ba910c13c15fa4998d4bb2a622c214a6a5174b2ae53d1
+      md5: f9e5fbc24009179e8b0409624691758a
+      sha256: 3b5ad78b8bb61b6cdc0978a6a99f8dfb2cc789a451378d054698441005ecbdb6
     category: main
     optional: false
   - name: cachecontrol
@@ -3469,39 +3469,39 @@ package:
     category: dev
     optional: true
   - name: certifi
-    version: 2025.8.3
+    version: 2025.10.5
     manager: conda
     platform: linux-64
     dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/certifi-2025.8.3-pyhd8ed1ab_0.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/certifi-2025.10.5-pyhd8ed1ab_0.conda
     hash:
-      md5: 11f59985f49df4620890f3e746ed7102
-      sha256: a1ad5b0a2a242f439608f22a538d2175cac4444b7b3f4e2b8c090ac337aaea40
+      md5: 257ae203f1d204107ba389607d375ded
+      sha256: 955bac31be82592093f6bc006e09822cd13daf52b28643c9a6abd38cd5f4a306
     category: main
     optional: false
   - name: certifi
-    version: 2025.8.3
+    version: 2025.10.5
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/certifi-2025.8.3-pyhd8ed1ab_0.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/certifi-2025.10.5-pyhd8ed1ab_0.conda
     hash:
-      md5: 11f59985f49df4620890f3e746ed7102
-      sha256: a1ad5b0a2a242f439608f22a538d2175cac4444b7b3f4e2b8c090ac337aaea40
+      md5: 257ae203f1d204107ba389607d375ded
+      sha256: 955bac31be82592093f6bc006e09822cd13daf52b28643c9a6abd38cd5f4a306
     category: main
     optional: false
   - name: certifi
-    version: 2025.8.3
+    version: 2025.10.5
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/certifi-2025.8.3-pyhd8ed1ab_0.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/certifi-2025.10.5-pyhd8ed1ab_0.conda
     hash:
-      md5: 11f59985f49df4620890f3e746ed7102
-      sha256: a1ad5b0a2a242f439608f22a538d2175cac4444b7b3f4e2b8c090ac337aaea40
+      md5: 257ae203f1d204107ba389607d375ded
+      sha256: 955bac31be82592093f6bc006e09822cd13daf52b28643c9a6abd38cd5f4a306
     category: main
     optional: false
   - name: cffi
@@ -20163,13 +20163,13 @@ package:
     dependencies:
       docutils: ">=0.14"
       pybtex: ">=0.16"
-      python: ">=3.13.0rc1,<3.14.0a0"
+      python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
       setuptools: ""
-    url: https://conda.anaconda.org/conda-forge/linux-64/pybtex-docutils-1.0.3-py313h78bf25f_2.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/pybtex-docutils-1.0.3-py313h78bf25f_3.conda
     hash:
-      md5: 68a4db6190d2ed44f7571ff6f998c1cc
-      sha256: c506e6f916291eed339673487aa6eda93e13faeaef7fe4b3b01b6ba29711c3e5
+      md5: 9b1fe6ef70bec3ed76ef009a577fda60
+      sha256: 5ff7c1cd2bdf00dbedaf27edd5011901776c10eeb642ca68ff9153ea33ea40dd
     category: main
     optional: false
   - name: pybtex-docutils
@@ -20179,13 +20179,13 @@ package:
     dependencies:
       docutils: ">=0.14"
       pybtex: ">=0.16"
-      python: ">=3.13.0rc1,<3.14.0a0"
+      python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
       setuptools: ""
-    url: https://conda.anaconda.org/conda-forge/osx-64/pybtex-docutils-1.0.3-py313habf4b1d_2.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/pybtex-docutils-1.0.3-py313habf4b1d_3.conda
     hash:
-      md5: 0a1de20a3e99b5f8f359ddb2c45cd7f4
-      sha256: 47997bc9552c54286b3566cf510eddc8ba39341ba015031ee5dd89d6e33b81ef
+      md5: cc5edc2c43e6e79fddd03bfac2089e66
+      sha256: 43c517293d1e3f74623749d87be3e3003012a6a1ead8df1ced80f48db50d6d05
     category: main
     optional: false
   - name: pybtex-docutils
@@ -20195,13 +20195,13 @@ package:
     dependencies:
       docutils: ">=0.14"
       pybtex: ">=0.16"
-      python: ">=3.13.0rc1,<3.14.0a0"
+      python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
       setuptools: ""
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pybtex-docutils-1.0.3-py313h8f79df9_2.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pybtex-docutils-1.0.3-py313h8f79df9_3.conda
     hash:
-      md5: edfd98f900f24667e6fbc41fc3c405e0
-      sha256: 802fa3ad0e66329ad125ecf407ecfb5020f517ece7184e36ca1342eeffe8196c
+      md5: e09568cbfe178e1930f966726e4ef01a
+      sha256: c3b62db9b75842bc15687eafc258a79bcf16981a0369abb8783618dc15944b87
     category: main
     optional: false
   - name: pycparser

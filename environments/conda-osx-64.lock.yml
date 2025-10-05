@@ -71,7 +71,7 @@ dependencies:
   - brotli-python=1.1.0=py313h253db18_4
   - bzip2=1.0.8=h500dc9f_8
   - c-ares=1.34.5=hf13058a_0
-  - ca-certificates=2025.8.3=hbd8a1cb_0
+  - ca-certificates=2025.10.5=hbd8a1cb_0
   - cachecontrol=0.14.3=pyha770c72_0
   - cachecontrol-with-filecache=0.14.3=pyhd8ed1ab_0
   - cached-property=1.5.2=hd8ed1ab_1
@@ -81,7 +81,7 @@ dependencies:
   - catalystcoop.dbfread=3.0.0=pyhd8ed1ab_1
   - catalystcoop.ferc_xbrl_extractor=1.6.0=pyhd8ed1ab_0
   - cattrs=25.2.0=pyhd8ed1ab_0
-  - certifi=2025.8.3=pyhd8ed1ab_0
+  - certifi=2025.10.5=pyhd8ed1ab_0
   - cffi=2.0.0=py313h8715ba9_0
   - cfgv=3.3.1=pyhd8ed1ab_1
   - chardet=5.2.0=pyhd8ed1ab_3
@@ -437,7 +437,7 @@ dependencies:
   - pyasn1=0.6.1=pyhd8ed1ab_2
   - pyasn1-modules=0.4.2=pyhd8ed1ab_0
   - pybtex=0.25.1=pyhd8ed1ab_0
-  - pybtex-docutils=1.0.3=py313habf4b1d_2
+  - pybtex-docutils=1.0.3=py313habf4b1d_3
   - pycparser=2.22=pyh29332c3_1
   - pydantic=2.11.10=pyh3cfb1c2_0
   - pydantic-core=2.33.2=py313hb35714d_0
