@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 3dd1bcfc8bb66f1a60fe287b914cde57432a107d82b515f58e75d670cd5498a9
-    osx-64: f8c41c15dcb989726d364e60d5bd8fc8683269c82279b8302e10e8f360e25f91
-    osx-arm64: 77cd1d1ae812584e6809c8dcf01548bd430b2c49cd6ec143b01357c484f099b5
+    linux-64: 36c6948a6b23488107dbac30679939eebb41b02d76d2bb0731d5e54f8afef610
+    osx-64: cc894821dca16b9e5c26955d0bfa0756ec9508f6a05478faf57852dd7c1802fa
+    osx-arm64: fcab03ec968b3d9797702b7bee1ef3329459f38da30246bf8b6f0f28d2dc2ef2
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -1019,81 +1019,78 @@ package:
     category: main
     optional: false
   - name: astroid
-    version: 4.0.0
+    version: 3.3.11
     manager: conda
     platform: linux-64
     dependencies:
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/astroid-4.0.0-py313h78bf25f_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/astroid-3.3.11-py313h78bf25f_1.conda
     hash:
-      md5: aa15295e7a72347a6ef4966ab7c8541e
-      sha256: 9c52e1714ec84dd6a99a358da451aa86a9265f46e154b7fad84aa6609f98020c
+      md5: 1351e4454619472afeed9475e451de3c
+      sha256: fd352800653c61b829bd3c2466628059dcef1649ddcaa9ff53cd80e39520b195
     category: main
     optional: false
   - name: astroid
-    version: 4.0.0
+    version: 3.3.11
     manager: conda
     platform: osx-64
     dependencies:
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/astroid-4.0.0-py313habf4b1d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/astroid-3.3.11-py313habf4b1d_1.conda
     hash:
-      md5: 7dd32ffe6b767cdcb3f6d14bb0cc3a96
-      sha256: 88c450ba764ddf1453cde501c244037ce18809954161bf2437414e559862de6c
+      md5: 4910a369565c7977f9f473c07d048a14
+      sha256: 7f11630057272d3357458daa5d00e5aab9d0b484d98c4c43bf5e9621c8d9686e
     category: main
     optional: false
   - name: astroid
-    version: 4.0.0
+    version: 3.3.11
     manager: conda
     platform: osx-arm64
     dependencies:
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/astroid-4.0.0-py313h8f79df9_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/astroid-3.3.11-py313h8f79df9_1.conda
     hash:
-      md5: 2c0624b191de37c901a16fad4d9a0fee
-      sha256: e50f9e14c7c0e61708afab2360e92827bb5266f2a6c319c4645636a6df9e81c5
+      md5: 945e62efbf0f263fd71bc26a082d0e99
+      sha256: 478548a3aa58abb9ec1157cb22f85990e3f74d63ad00dea805465e4480f18aeb
     category: main
     optional: false
   - name: asttokens
-    version: 2.4.1
+    version: 3.0.0
     manager: conda
     platform: linux-64
     dependencies:
-      python: ">=3.5"
-      six: ">=1.12.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-2.4.1-pyhd8ed1ab_0.conda
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-3.0.0-pyhd8ed1ab_1.conda
     hash:
-      md5: 5f25798dcefd8252ce5f9dc494d5f571
-      sha256: 708168f026df19a0344983754d27d1f7b28bb21afc7b97a82f02c4798a3d2111
+      md5: 8f587de4bcf981e26228f268df374a9b
+      sha256: 93b14414b3b3ed91e286e1cbe4e7a60c4e1b1c730b0814d1e452a8ac4b9af593
     category: main
     optional: false
   - name: asttokens
-    version: 2.4.1
+    version: 3.0.0
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.5"
-      six: ">=1.12.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-2.4.1-pyhd8ed1ab_0.conda
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-3.0.0-pyhd8ed1ab_1.conda
     hash:
-      md5: 5f25798dcefd8252ce5f9dc494d5f571
-      sha256: 708168f026df19a0344983754d27d1f7b28bb21afc7b97a82f02c4798a3d2111
+      md5: 8f587de4bcf981e26228f268df374a9b
+      sha256: 93b14414b3b3ed91e286e1cbe4e7a60c4e1b1c730b0814d1e452a8ac4b9af593
     category: main
     optional: false
   - name: asttokens
-    version: 2.4.1
+    version: 3.0.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.5"
-      six: ">=1.12.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-2.4.1-pyhd8ed1ab_0.conda
+      python: ">=3.9"
+    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-3.0.0-pyhd8ed1ab_1.conda
     hash:
-      md5: 5f25798dcefd8252ce5f9dc494d5f571
-      sha256: 708168f026df19a0344983754d27d1f7b28bb21afc7b97a82f02c4798a3d2111
+      md5: 8f587de4bcf981e26228f268df374a9b
+      sha256: 93b14414b3b3ed91e286e1cbe4e7a60c4e1b1c730b0814d1e452a8ac4b9af593
     category: main
     optional: false
   - name: async-lru
@@ -18388,36 +18385,36 @@ package:
     category: main
     optional: false
   - name: pandoc
-    version: 3.8.1
+    version: 3.8.2
     manager: conda
     platform: linux-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/linux-64/pandoc-3.8.1-ha770c72_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/pandoc-3.8.2-ha770c72_0.conda
     hash:
-      md5: 867fad79e8dbf2a38f1d9bbb9101aafe
-      sha256: bab8e43037c40560bb8996ab5bda966aeb370e5c715c25acb5e1ec8287078cc6
+      md5: 4c9317a85d1c233f490545392e895118
+      sha256: ae3760e865327aaf95df025ccea9ddc1d80ab9f70c5d2478bbfbf324b8eb4e7d
     category: main
     optional: false
   - name: pandoc
-    version: 3.8.1
+    version: 3.8.2
     manager: conda
     platform: osx-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-64/pandoc-3.8.1-h694c41f_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/pandoc-3.8.2-h694c41f_0.conda
     hash:
-      md5: 281aec77a8275789201e5e4d8bfb6f53
-      sha256: 7cb647ac26dcc6e6b715294734c1f9edea1b5eba2f1937f1594c6f4c07630215
+      md5: b8cb588161a247b8e8aade0797d44e60
+      sha256: 6dc48341fc550b56bc1da8a6354ebc05f5583da38589ba7c0d5b1b8d275d094a
     category: main
     optional: false
   - name: pandoc
-    version: 3.8.1
+    version: 3.8.2
     manager: conda
     platform: osx-arm64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pandoc-3.8.1-hce30654_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pandoc-3.8.2-hce30654_0.conda
     hash:
-      md5: 0c91fcd0274f5067c4a2af66a3a8f4f3
-      sha256: 15cba89f43e3ad018c27159331a8c02af97eb0f56a8aabe4f8ad44977a0d6c19
+      md5: 747f91e4f0d6edbe47df2a72736d6df7
+      sha256: dbdabb3fedde2688ddca4bcbca2de7987150372df2cbf0303cc872b40be7f1df
     category: main
     optional: false
   - name: pandocfilters
