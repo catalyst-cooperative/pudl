@@ -1510,7 +1510,7 @@ def distribute_annually_reported_data_to_months_if_annual(
     reporting in only one month that is not January or December, the assumption about
     January and December only reporting is almost certainly resulting in some non-annual
     data being allocated across all months, but on average the data will be more
-    accruate.
+    accurate.
 
     Note: We should be able to use the ``reporting_frequency_code`` column for the
     identification of annually reported data. This currently does not work because we
