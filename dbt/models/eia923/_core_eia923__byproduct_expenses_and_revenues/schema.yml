@@ -24,6 +24,7 @@ sources:
                   - opex_fgd_byproduct_collection
                   - opex_fly_ash_collection
                   - opex_other_abatement_collection
+                  - opex_water_abatement_collection
                 total_column: opex_total_collection_abatement
                 discrepancy_threshold: 0.01
                 max_discrepancy_rate: 0.01
@@ -35,6 +36,7 @@ sources:
                   - opex_fgd_byproduct_disposal
                   - opex_fly_ash_disposal
                   - opex_other_abatement_disposal
+                  - opex_water_abatement_disposal
                 total_column: opex_total_disposal_abatement
                 discrepancy_threshold: 0.01
                 max_discrepancy_rate: 0.01
@@ -46,6 +48,7 @@ sources:
                   - opex_fgd_byproduct_other
                   - opex_fly_ash_other
                   - opex_other_abatement_other
+                  - opex_water_abatement_other
                 total_column: opex_total_other_abatement
                 discrepancy_threshold: 0.01
                 max_discrepancy_rate: 0.01
