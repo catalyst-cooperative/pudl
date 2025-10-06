@@ -27,8 +27,8 @@ dependencies:
   - argon2-cffi-bindings=25.1.0=py313h07c4f96_1
   - arpack=3.9.1=nompi_hf03ea27_102
   - arrow=1.3.0=pyhd8ed1ab_1
-  - astroid=3.3.11=py313h78bf25f_1
-  - asttokens=3.0.0=pyhd8ed1ab_1
+  - astroid=4.0.0=py313h78bf25f_0
+  - asttokens=2.4.1=pyhd8ed1ab_0
   - async-lru=2.0.5=pyh29332c3_0
   - at-spi2-atk=2.38.0=h0630a04_3
   - at-spi2-core=2.40.3=h0630a04_0
@@ -105,7 +105,7 @@ dependencies:
   - cycler=0.12.1=pyhd8ed1ab_1
   - cyrus-sasl=2.1.28=hd9c7081_0
   - cytoolz=1.0.1=py313h536fd9c_0
-  - daff=1.4.2=pyhd8ed1ab_0
+  - daff=1.4.2=pyhcf101f3_1
   - dagster=1.11.13=pyh742d864_0
   - dagster-dbt=1!0.27.13=pyhcf101f3_0
   - dagster-graphql=1.11.13=pyh742d864_0
@@ -304,19 +304,19 @@ dependencies:
   - libffi=3.4.6=h2dba641_1
   - libfreetype=2.14.1=ha770c72_0
   - libfreetype6=2.14.1=h73754d4_0
-  - libgcc=15.1.0=h767d61c_5
-  - libgcc-ng=15.1.0=h69a702a_5
+  - libgcc=15.2.0=h767d61c_5
+  - libgcc-ng=15.2.0=h69a702a_5
   - libgd=2.3.3=h6f5c62b_11
   - libgdal-core=3.11.4=h14edee0_0
-  - libgfortran=15.1.0=h69a702a_5
-  - libgfortran5=15.1.0=hcea5267_5
+  - libgfortran=15.2.0=h69a702a_5
+  - libgfortran5=15.2.0=hcd61629_5
   - libgl=1.7.0=ha4b6fd6_2
   - libgl-devel=1.7.0=ha4b6fd6_2
   - libglib=2.86.0=h1fed272_0
   - libglvnd=1.7.0=ha4b6fd6_2
   - libglx=1.7.0=ha4b6fd6_2
   - libglx-devel=1.7.0=ha4b6fd6_2
-  - libgomp=15.1.0=h767d61c_5
+  - libgomp=15.2.0=h767d61c_5
   - libgoogle-cloud=2.39.0=hdb79228_0
   - libgoogle-cloud-storage=2.39.0=hdbdcf42_0
   - libgrpc=1.73.1=h1e535eb_0
@@ -346,8 +346,8 @@ dependencies:
   - libspatialite=5.1.0=h7250436_15
   - libsqlite=3.50.4=h0c1763c_0
   - libssh2=1.11.1=hcf80075_0
-  - libstdcxx=15.1.0=h8f9b012_5
-  - libstdcxx-ng=15.1.0=h4852527_5
+  - libstdcxx=15.2.0=h8f9b012_5
+  - libstdcxx-ng=15.2.0=h4852527_5
   - libthrift=0.22.0=h454ac66_1
   - libtiff=4.7.1=h8261f1e_0
   - libutf8proc=2.11.0=hb04c3b8_0
@@ -614,8 +614,8 @@ dependencies:
   - typos=1.37.2=hdab8a38_0
   - tzdata=2025b=h78e105d_0
   - ukkonen=1.0.1=py313h33d0bda_5
-  - universal-pathlib=0.3.1=hd8ed1ab_0
-  - universal_pathlib=0.3.1=pyhd8ed1ab_0
+  - universal-pathlib=0.3.2=hd8ed1ab_0
+  - universal_pathlib=0.3.2=pyhd8ed1ab_0
   - uri-template=1.3.0=pyhd8ed1ab_1
   - uriparser=0.9.8=hac33072_0
   - urllib3=2.5.0=pyhd8ed1ab_0

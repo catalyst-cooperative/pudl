@@ -26,8 +26,8 @@ dependencies:
   - argon2-cffi-bindings=25.1.0=py313hf050af9_1
   - arpack=3.9.1=nompi_hdfe9103_102
   - arrow=1.3.0=pyhd8ed1ab_1
-  - astroid=3.3.11=py313habf4b1d_1
-  - asttokens=3.0.0=pyhd8ed1ab_1
+  - astroid=4.0.0=py313habf4b1d_0
+  - asttokens=2.4.1=pyhd8ed1ab_0
   - async-lru=2.0.5=pyh29332c3_0
   - atk-1.0=2.38.0=h4bec284_2
   - attrs=25.3.0=pyh71513ae_0
@@ -102,7 +102,7 @@ dependencies:
   - cycler=0.12.1=pyhd8ed1ab_1
   - cyrus-sasl=2.1.28=h610c526_0
   - cytoolz=1.0.1=py313h63b0ddb_0
-  - daff=1.4.2=pyhd8ed1ab_0
+  - daff=1.4.2=pyhcf101f3_1
   - dagster=1.11.13=pyh742d864_0
   - dagster-dbt=1!0.27.13=pyhcf101f3_0
   - dagster-graphql=1.11.13=pyh742d864_0
@@ -294,8 +294,8 @@ dependencies:
   - libfreetype6=2.14.1=h6912278_0
   - libgd=2.3.3=h8555400_11
   - libgdal-core=3.11.4=hc3955fc_0
-  - libgfortran=15.1.0=h5f6db21_1
-  - libgfortran5=15.1.0=hfa3c126_1
+  - libgfortran=15.2.0=h306097a_1
+  - libgfortran5=15.2.0=h336fb69_1
   - libglib=2.86.0=h7cafd41_0
   - libgoogle-cloud=2.39.0=hed66dea_0
   - libgoogle-cloud-storage=2.39.0=h8ac052b_0
@@ -588,8 +588,8 @@ dependencies:
   - typos=1.37.2=h121f529_0
   - tzdata=2025b=h78e105d_0
   - ukkonen=1.0.1=py313h0c4e38b_5
-  - universal-pathlib=0.3.1=hd8ed1ab_0
-  - universal_pathlib=0.3.1=pyhd8ed1ab_0
+  - universal-pathlib=0.3.2=hd8ed1ab_0
+  - universal_pathlib=0.3.2=pyhd8ed1ab_0
   - uri-template=1.3.0=pyhd8ed1ab_1
   - uriparser=0.9.8=h6aefe2f_0
   - urllib3=2.5.0=pyhd8ed1ab_0
