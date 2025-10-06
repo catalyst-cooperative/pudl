@@ -4687,7 +4687,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Take the sum of: (purchased gas + produced gas) minus (customer use + company use "
             "+ appropriate adjustments). Then divide by the sum of (customer use + company use "
             "+ appropriate adjustments). "
-            "Prior to 2017, this field was calculcated with a different deonominator "
+            "Prior to 2017, this field was calculated with a different deonominator "
             "(purchased gas + produced gas). "
             "The time period between 2010-2017 having this different calculation "
             "method ensured that there was no records that had a negative "
@@ -5062,7 +5062,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "record_count": {
         "type": "integer",
-        "description": "Number of distinct generator IDs that partcipated in the aggregation for a plant part list record.",
+        "description": "Number of distinct generator IDs that participated in the aggregation for a plant part list record.",
     },
     "record_id": {
         "type": "string",

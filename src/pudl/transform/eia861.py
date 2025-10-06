@@ -1161,7 +1161,7 @@ def _core_eia861__balancing_authority(
 
     Transformations include:
 
-    * Fill in balancing authrority IDs based on date, utility ID, and BA Name.
+    * Fill in balancing authority IDs based on date, utility ID, and BA Name.
     * Backfill balancing authority codes based on BA ID.
     * Fix BA code and ID typos.
     * Combine 88888 utility ID EIA rows with duplicate primary keys.

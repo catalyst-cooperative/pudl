@@ -105,7 +105,7 @@ Geospatial outputs with GeoParquet
 We've started producing `GeoParquet <https://geoparquet.org/>`__ outputs that include
 explicit geometries for use with `GeoPandas <https://geopandas.org/>`__ and other
 mapping and geospatial analysis packages. See :func:`geopandas.read_parquet` for
-dcoumentation on how to read them. We've also tested it with the `DuckDB Spatial
+documentation on how to read them. We've also tested it with the `DuckDB Spatial
 extension <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__.
 This is still experimental and there are only a handful of tables that currently include
 geometries, but we hope to apply it more widely in the future for any tables with
