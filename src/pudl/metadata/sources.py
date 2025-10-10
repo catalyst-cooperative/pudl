@@ -363,7 +363,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": [2023],
+            "years": [2023, 2025],
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
