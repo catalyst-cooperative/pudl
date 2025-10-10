@@ -922,8 +922,8 @@ class ReconcileTableCalculations(TransformParams):
     subdimension_merge_validation: Literal["one_to_many", "many_to_many"] = (
         "one_to_many"
     )
-    """For the subdimension calculations, how to merge valiate when merging the data (left)
-    onto the calculation components (right)."""
+    """For the subdimension calculations, how to merge validate when merging the data
+(left) onto the calculation components (right)."""
 
 
 def reconcile_table_calculations(
@@ -5494,7 +5494,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
         factoid's by doing this AND that we have a fully deduped output below. In an
         ideal world, we would have multiple pieces of metadata information (like
-        calucations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+        calculations and ferc account #'s), for every single :meth:`wide_to_tidy` value
         column.
 
         Note: This is **almost** the same as the method for
@@ -5865,7 +5865,7 @@ class OperatingRevenuesTableTransformer(Ferc1AbstractTableTransformer):
         referencing the dollar columns.
 
         In an ideal world, we would have multiple pieces of metadata information (like
-        calucations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+        calculations and ferc account #'s), for every single :meth:`wide_to_tidy` value
         column. We would probably want to employ that across the board - adding suffixes
         or something like that to stack the metadata in a similar fashion that we stack
         the data.
@@ -5984,19 +5984,19 @@ class CashFlowsTableTransformer(Ferc1AbstractTableTransformer):
             ]
             .groupby(["utility_id_ferc1", "report_year"])[["amount"]]
             .sum(min_count=2, numeric_only=True)
-            .add_suffix("_ending_balace")
+            .add_suffix("_ending_balance")
         )
         # grab reported ending balance & squish with the calculated version
         end_bal = df[df.amount_type == "ending_balance"].set_index(
             ["utility_id_ferc1", "report_year"]
         )
         logger.info(end_bal_calc.columns)
-        end_bal.loc[:, "amount_ending_balace"] = end_bal_calc.amount_ending_balace
+        end_bal.loc[:, "amount_ending_balance"] = end_bal_calc.amount_ending_balance
 
         # when both exist, are they close?
         end_bal_off = end_bal[
-            ~np.isclose(end_bal.amount, end_bal.amount_ending_balace)
-            & end_bal[["amount", "amount_ending_balace"]].notnull().all(axis="columns")
+            ~np.isclose(end_bal.amount, end_bal.amount_ending_balance)
+            & end_bal[["amount", "amount_ending_balance"]].notnull().all(axis="columns")
         ]
         if (end_bal_off_ratio := len(end_bal_off) / len(end_bal)) > 0.005:
             raise ValueError(

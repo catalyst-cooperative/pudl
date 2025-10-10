@@ -625,7 +625,6 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
 
     * Remove fields implicated elsewhere.
     * Replace . values with NA.
-    * Remove rows with utility ids 99999.
     * Create a fuel_type_code_pudl field that organizes fuel types into
       clean, distinguishable categories.
     * Combine year and month columns into a single date column.
@@ -667,10 +666,7 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     # Convert the EIA923 DataFrame from yearly to monthly records.
     gen_fuel = _yearly_to_monthly_records(gen_fuel)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    gen_fuel = pudl.helpers.fix_eia_na(gen_fuel)
-    # Remove "State fuel-level increment" records... which don't pertain to
-    # any particular plant (they have plant_id_eia == operator_id == 99999)
-    gen_fuel = gen_fuel[gen_fuel.plant_id_eia != 99999]
+    gen_fuel = pudl.helpers.standardize_na_values(gen_fuel)
 
     # conservative manual correction for bad prime mover codes
     gen_fuel["prime_mover_code"] = (
@@ -880,7 +876,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
 
     bf_df = _yearly_to_monthly_records(bf_df)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    bf_df = pudl.helpers.fix_eia_na(bf_df)
+    bf_df = pudl.helpers.standardize_na_values(bf_df)
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
@@ -986,7 +982,7 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
             axis="columns",
         )
         .pipe(_yearly_to_monthly_records)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.convert_to_date)
     )
     # There are a few records that contain (literal) "nan"s in the generator_id
@@ -1207,7 +1203,7 @@ def _core_eia923__fuel_receipts_costs(
         )
         .drop(cols_to_drop, axis=1)
         # Replace the EIA923 NA value ('.') with a real NA value.
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         # These come in ALL CAPS from EIA...
         .pipe(pudl.helpers.simplify_strings, columns=["supplier_name"])
         .pipe(
@@ -1294,7 +1290,9 @@ def _core_eia923__monthly_cooling_system_information(
     second, with precision of 0.1 cfs."
     """
     csi_df = raw_eia923__cooling_system_information
-    csi_df = csi_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.convert_to_date)
+    csi_df = csi_df.pipe(pudl.helpers.standardize_na_values).pipe(
+        pudl.helpers.convert_to_date
+    )
 
     # cooling_id_eia is sometimes NA, but we also want to use it as a primary
     # key. fortunately it's a string so we can just convert all NA values to
@@ -1392,7 +1390,9 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     fgd_df = fgd_df.drop_duplicates()
 
     # Replace the EIA923 NA value ('.') with a real NA value.
-    fgd_df = pudl.helpers.fix_eia_na(fgd_df).pipe(pudl.helpers.convert_to_date)
+    fgd_df = pudl.helpers.standardize_na_values(fgd_df).pipe(
+        pudl.helpers.convert_to_date
+    )
 
     # Convert thousands of dollars to dollars
     fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] *= 1000
@@ -1478,7 +1478,7 @@ def _core_eia923__energy_storage(
 
     """
     es_df = (
-        pudl.helpers.fix_eia_na(raw_eia923__energy_storage)
+        pudl.helpers.standardize_na_values(raw_eia923__energy_storage)
         .pipe(pudl.helpers.fix_boolean_columns, ["associated_combined_heat_power"])
         .pipe(pudl.helpers.simplify_strings, ["fuel_unit"])
         .assign(
@@ -1530,7 +1530,7 @@ def _core_eia923__yearly_byproduct_disposition(
     Returns:
         Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
     """
-    df = pudl.helpers.fix_eia_na(raw_eia923__byproduct_disposition)
+    df = pudl.helpers.standardize_na_values(raw_eia923__byproduct_disposition)
 
     # Drops known duplicate primary keys.
     # These rows contain no meaningful data. To prevent dropping future rows unexpectedly, we
