@@ -1453,6 +1453,7 @@ class Resource(PudlMeta):
             "pudl",
             "nrelatb",
             "vcerare",
+            "phmsagas",
             "sec",
         ]
         | None
@@ -1483,6 +1484,7 @@ class Resource(PudlMeta):
             "service_territories",
             "nrelatb",
             "vcerare",
+            "phmsagas",
             "sec10k",
         ]
         | None
@@ -1855,7 +1857,12 @@ class Resource(PudlMeta):
 
         df = self.format_df(df)
         pk = self.schema.primary_key
-        if pk and not (dupes := df[df.duplicated(subset=pk, keep=False)]).empty:
+        if (
+            pk
+            and not (
+                dupes := df[df.duplicated(subset=pk, keep=False)].sort_values(pk)
+            ).empty
+        ):
             raise ValueError(
                 f"{self.name} {len(dupes)}/{len(df)} duplicate primary keys ({pk=}) "
                 "when enforcing schema:\n"
