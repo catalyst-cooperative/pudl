@@ -28,6 +28,12 @@ EIA-860
 * Updated EIA-860 with final release data from 2024. See issue :issue:`4616` and
   PR :pr:`4617`.
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for August
+  of 2025. See issue :issue:`4639` and PR :pr:`4638`.
+
 New Data
 ^^^^^^^^
 
