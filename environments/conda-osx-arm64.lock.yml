@@ -14,7 +14,7 @@ dependencies:
   - aioitertools=0.12.0=pyhd8ed1ab_1
   - aiosignal=1.4.0=pyhd8ed1ab_0
   - alabaster=1.0.0=pyhd8ed1ab_1
-  - alembic=1.16.5=pyhd8ed1ab_0
+  - alembic=1.17.0=pyhd8ed1ab_0
   - altair=5.5.0=pyhd8ed1ab_1
   - annotated-types=0.7.0=pyhd8ed1ab_1
   - antlr-python-runtime=4.13.2=pyhd8ed1ab_1

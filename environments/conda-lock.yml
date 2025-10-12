@@ -474,7 +474,7 @@ package:
     category: main
     optional: false
   - name: alembic
-    version: 1.16.5
+    version: 1.17.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -483,14 +483,14 @@ package:
       sqlalchemy: ">=1.4.0"
       tomli: ""
       typing_extensions: ">=4.12"
-    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.16.5-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.17.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 4785020eaacbcc363876eed0d8d8dca1
-      sha256: 429d38610f40ff0e95f1341872af4ac734218ee02268bb5293afeb09d2a59c26
+      md5: 2ef5bb4a16331cfac0f1c92d4bca115e
+      sha256: d3eff60826f218362d7d3095aa2c10d7ddae764913c3d2c0edb46499ea251928
     category: main
     optional: false
   - name: alembic
-    version: 1.16.5
+    version: 1.17.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -499,14 +499,14 @@ package:
       sqlalchemy: ">=1.4.0"
       tomli: ""
       typing_extensions: ">=4.12"
-    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.16.5-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.17.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 4785020eaacbcc363876eed0d8d8dca1
-      sha256: 429d38610f40ff0e95f1341872af4ac734218ee02268bb5293afeb09d2a59c26
+      md5: 2ef5bb4a16331cfac0f1c92d4bca115e
+      sha256: d3eff60826f218362d7d3095aa2c10d7ddae764913c3d2c0edb46499ea251928
     category: main
     optional: false
   - name: alembic
-    version: 1.16.5
+    version: 1.17.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -515,10 +515,10 @@ package:
       sqlalchemy: ">=1.4.0"
       tomli: ""
       typing_extensions: ">=4.12"
-    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.16.5-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/alembic-1.17.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 4785020eaacbcc363876eed0d8d8dca1
-      sha256: 429d38610f40ff0e95f1341872af4ac734218ee02268bb5293afeb09d2a59c26
+      md5: 2ef5bb4a16331cfac0f1c92d4bca115e
+      sha256: d3eff60826f218362d7d3095aa2c10d7ddae764913c3d2c0edb46499ea251928
     category: main
     optional: false
   - name: altair
