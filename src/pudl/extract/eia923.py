@@ -32,7 +32,12 @@ class Extractor(excel.ExcelExtractor):
     # oil_stocks, coal_stocks, petcoke_stocks
 
     def process_raw(self, df, page, **partition):
-        """Drops reserved columns."""
+        """Prepare raw table for extraction.
+
+        Check extraction configuration is sensible, drop reserved columns, switch to
+        standardized column names, and perform other broadly-applicable cleanup of
+        data formats, types, and missingness.
+        """
         # check skiprows first
         for i, c in enumerate(df.columns):
             assert isinstance(c, str), (
