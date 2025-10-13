@@ -1593,7 +1593,7 @@ def disposition_continuity_check(bpd):
     )
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager")
 def _core_eia923__byproduct_expenses_and_revenues(
     raw_eia923__byproduct_expenses_and_revenues: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1615,7 +1615,7 @@ def _core_eia923__byproduct_expenses_and_revenues(
     # This column is dropped from all EIA 923 tables
     df = df.drop(["early_release"], axis=1)
 
-    df = pudl.helpers.fix_eia_na(df)
+    df = pudl.helpers.standardize_na_values(df)
 
     # One dupe for plant_id_eia=6504 and report_year=2010 with no differences in byproduct dollars reported
     df = pudl.helpers.dedupe_and_drop_nas(
