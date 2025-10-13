@@ -62,7 +62,7 @@ def get_plant_states(plant_ids: list[int]) -> list[str]:
     """Determine what set of states a given set of EIA plant IDs are within.
 
     If you only want to select data about a particular set of power plants from the EPA
-    CEMS data, this is useful for identifying which patitions of the Parquet dataset
+    CEMS data, this is useful for identifying which partitions of the Parquet dataset
     you will need to search.
 
     Args:
@@ -88,7 +88,7 @@ def get_plant_years(plant_ids: list[int]) -> list[int]:
     """Determine which years a given set of EIA plant IDs appear in.
 
     If you only want to select data about a particular set of power plants from the EPA
-    CEMS data, this is useful for identifying which patitions of the Parquet dataset
+    CEMS data, this is useful for identifying which partitions of the Parquet dataset
     you will need to search.
 
     NOTE: the EIA-860 and EIA-923 data which are used here don't cover as many years as

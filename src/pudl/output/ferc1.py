@@ -674,11 +674,11 @@ def calc_annual_capital_additions_ferc1(
 ) -> pd.DataFrame:
     """Calculate annual capital additions for FERC1 steam records.
 
-    Convert the capex_total column into annual capital additons the
-    `capex_total` column is the cumulative capital poured into the plant over
+    Convert the ``capex_total`` column into annual capital additions. The
+    ``capex_total`` column is the cumulative capital poured into the plant over
     time. This function takes the annual difference should generate the annual
-    capial additions. It also want generates a rolling average, to smooth out
-    the big annual fluxuations.
+    capital additions. It also want generates a rolling average, to smooth out
+    the big annual fluctuations.
 
     Args:
         steam_df: result of `prep_plants_ferc()`
@@ -2397,7 +2397,7 @@ class XbrlCalculationForestFerc1(BaseModel):
         graph_to_plot = self.full_digraph
         nodes_to_remove = set(graph_to_plot.nodes()).difference(nodes)
         # NOTE: this doesn't and can't revise the graph to identify which nodes are
-        # still connecteded to the root we care about after remvoing these nodes.
+        # still connecteded to the root we care about after removing these nodes.
         # We might want to use a more intelligent method of building the graph.
         graph_to_plot.remove_nodes_from(nodes_to_remove)
         self.plot_graph(graph_to_plot)

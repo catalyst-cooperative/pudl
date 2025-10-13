@@ -848,22 +848,12 @@ SOURCES: dict[str, Any] = {
         "email": "pudl@catalyst.coop",
     },
     "sec10k": {
-        "title": "U.S. Securities and Exchange Commission Form 10-K",
+        "title": "U.S. Securities and Exchange Commission (SEC) Form 10-K",
         "path": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
         "description": (
-            """The SEC Form 10-K is an annual report required by the U.S. Securities and
-Exchange Commission (SEC), that gives a comprehensive summary of a company's financial
-performance.
-
-The full contents of the SEC 10-K are available through the SEC's EDGAR
-database. PUDL integrates only some of the 10-K metadata and data extracted from the
-unstructured Exhibit 21 attachment, which describes the ownership relationships between
-the parent company and its subsidiaries. This data is used to create a linkage between
-EIA utilities and SEC reporting companies, to better understand the relationships
-between utilities and their affiliates, and the resulting economic and political impacts.
-
-This data was originally downloaded from the SEC and processed using a machine learning
-pipeline found here: https://github.com/catalyst-cooperative/mozilla-sec-eia"""
+            "The SEC Form 10-K is an annual report required by the U.S. Securities and "
+            "Exchange Commission (SEC), that gives a comprehensive summary of a "
+            "company's financial performance."
         ),
         "field_namespace": "sec",
         "working_partitions": {
