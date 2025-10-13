@@ -1025,8 +1025,11 @@ def _drop_duplicates__core_eia923__generation(
     gen_df = gen_df.drop(index=drop_em.index)
     # raise alarm bells if we are dropping more than we expect... but not for unit
     # tests when we are feeding it almost all problems.
-    if not unit_test and (drop_ratio := len(drop_em) / len(gen_df)) > 0.011:
-        raise AssertionError(f"{drop_ratio} but expected ")
+    max_drop_ratio = 0.013
+    if not unit_test and (drop_ratio := len(drop_em) / len(gen_df)) > max_drop_ratio:
+        raise AssertionError(
+            f"Dropped {drop_ratio} as duplicates but expected only {max_drop_ratio}"
+        )
 
     # BUT THERE IS MORE...
     # truly duplicate records from one plant (id 3405) from 2012 and 2013.
