@@ -901,10 +901,10 @@ and consumption is the net generation."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "_core_eia923__byproduct_expenses_and_revenues": {
+    "_core_eia923__yearly_byproduct_expenses_and_revenues": {
         "description": {
             "additional_summary_text": (
-                "Financial information related to combustion by-products reported by "
+                "financial information related to combustion by-products reported by "
                 "thermoelectric power plants with total steam turbine capacity of 100 "
                 "megawatts or greater and that produced combustion by-products during the reporting year."
             ),

@@ -2,12 +2,12 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: _core_eia923__byproduct_expenses_and_revenues
+      - name: _core_eia923__yearly_byproduct_expenses_and_revenues
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: _core_eia923__byproduct_expenses_and_revenues
+                table_name: _core_eia923__yearly_byproduct_expenses_and_revenues
                 partition_expr: report_year
           - expect_sum_close_to_total_column:
               name: revenue_discrepancy_rate

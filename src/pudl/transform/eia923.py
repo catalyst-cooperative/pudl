@@ -1594,7 +1594,7 @@ def disposition_continuity_check(bpd):
 
 
 @asset(io_manager_key="pudl_io_manager")
-def _core_eia923__byproduct_expenses_and_revenues(
+def _core_eia923__yearly_byproduct_expenses_and_revenues(
     raw_eia923__byproduct_expenses_and_revenues: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the eia923__byproduct_expenses_and_revenues table.
@@ -1608,7 +1608,7 @@ def _core_eia923__byproduct_expenses_and_revenues(
         dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__byproduct_expenses_and_revenues`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_byproduct_expenses_and_revenues`` dataframe ready for harvesting.
     """
     df = raw_eia923__byproduct_expenses_and_revenues.copy()
 
