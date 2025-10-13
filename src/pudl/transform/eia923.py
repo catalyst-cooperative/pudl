@@ -1604,3 +1604,39 @@ def disposition_continuity_check(bpd):
         groupby_col="report_year",
         n_outliers_allowed=5,
     )
+
+
+@asset(io_manager_key="pudl_io_manager")
+def _core_eia923__yearly_byproduct_expenses_and_revenues(
+    raw_eia923__byproduct_expenses_and_revenues: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__byproduct_expenses_and_revenues table.
+
+    Transformations include:
+    * Standardize NA values
+    * Convert 1000 dollars (opex and revenue columns) to dollars
+
+    Args:
+        raw_eia923__byproduct_expenses_and_revenues: The raw ``raw_eia923__byproduct_expenses_and_revenues``
+        dataframe.
+
+    Returns:
+        Cleaned ``_core_eia923__yearly_byproduct_expenses_and_revenues`` dataframe ready for harvesting.
+    """
+    df = raw_eia923__byproduct_expenses_and_revenues.copy()
+
+    # This column is dropped from all EIA 923 tables
+    df = df.drop(["early_release"], axis=1)
+
+    df = pudl.helpers.standardize_na_values(df)
+
+    # One dupe for plant_id_eia=6504 and report_year=2010 with no differences in byproduct dollars reported
+    df = pudl.helpers.dedupe_and_drop_nas(
+        df, primary_key_cols=["plant_id_eia", "report_year"]
+    )
+
+    # Convert thousands of dollars to dollars and remove suffix from column name
+    df.loc[:, df.columns.str.endswith("_1000_dollars")] *= 1000
+    df.columns = df.columns.str.replace("_1000_dollars", "")
+
+    return df

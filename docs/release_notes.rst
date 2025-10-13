@@ -47,6 +47,16 @@ PHMSA
 * The first cleaned table, ``core_phmsagas__distribution_operators`` has been added
   to our PUDL database. Thanks to :user:`seeess1` for all of your work on this!
 
+EIA 923
+^^^^^^^
+
+* Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
+  Schedule 8B Financial Information to the PUDL database as
+  :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`. Once harvested, this
+  table will be replaced with a well-normalized version of the same data, but it is
+  being published in this form until then. See :issue:`4099` and :issue:`2448`, and
+  :pr:`4636`.
+
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

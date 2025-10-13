@@ -1,0 +1,91 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia923__yearly_byproduct_expenses_and_revenues
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_eia923__yearly_byproduct_expenses_and_revenues
+                partition_expr: report_year
+          - expect_sum_close_to_total_column:
+              name: revenue_discrepancy_rate
+              arguments:
+                sum_columns:
+                  - revenues_bottom_ash
+                  - revenues_fgd_byproducts
+                  - revenues_fly_ash
+                  - revenues_fly_bottom_ash_intermingled
+                  - revenues_other_byproducts
+                total_column: revenues_total_byproduct
+                discrepancy_threshold: 0.01
+                max_discrepancy_rate: 0.01
+          - expect_sum_close_to_total_column:
+              name: opex_collection_discrepancy_rate
+              arguments:
+                sum_columns:
+                  - opex_bottom_ash_collection
+                  - opex_fgd_byproduct_collection
+                  - opex_fly_ash_collection
+                  - opex_other_abatement_collection
+                  - opex_water_abatement_collection
+                total_column: opex_total_collection_abatement
+                discrepancy_threshold: 0.01
+                max_discrepancy_rate: 0.01
+          - expect_sum_close_to_total_column:
+              name: opex_disposal_discrepancy_rate
+              arguments:
+                sum_columns:
+                  - opex_bottom_ash_disposal
+                  - opex_fgd_byproduct_disposal
+                  - opex_fly_ash_disposal
+                  - opex_other_abatement_disposal
+                  - opex_water_abatement_disposal
+                total_column: opex_total_disposal_abatement
+                discrepancy_threshold: 0.01
+                max_discrepancy_rate: 0.01
+          - expect_sum_close_to_total_column:
+              name: opex_other_discrepancy_rate
+              arguments:
+                sum_columns:
+                  - opex_bottom_ash_other
+                  - opex_fgd_byproduct_other
+                  - opex_fly_ash_other
+                  - opex_other_abatement_other
+                  - opex_water_abatement_other
+                total_column: opex_total_other_abatement
+                discrepancy_threshold: 0.01
+                max_discrepancy_rate: 0.01
+        columns:
+          - name: plant_id_eia
+          - name: report_year
+          - name: data_maturity
+          - name: capex_air_abatement
+          - name: capex_other_abatement
+          - name: capex_solid_waste
+          - name: capex_water_abatement
+          - name: opex_bottom_ash_collection
+          - name: opex_bottom_ash_disposal
+          - name: opex_bottom_ash_other
+          - name: opex_fgd_byproduct_collection
+          - name: opex_fgd_byproduct_disposal
+          - name: opex_fgd_byproduct_other
+          - name: opex_fly_ash_collection
+          - name: opex_fly_ash_disposal
+          - name: opex_fly_ash_other
+          - name: opex_other_abatement_collection
+          - name: opex_other_abatement_disposal
+          - name: opex_other_abatement_other
+          - name: opex_total_collection_abatement
+          - name: opex_total_disposal_abatement
+          - name: opex_total_other_abatement
+          - name: opex_water_abatement_collection
+          - name: opex_water_abatement_disposal
+          - name: opex_water_abatement_other
+          - name: revenues_bottom_ash
+          - name: revenues_fgd_byproducts
+          - name: revenues_fly_ash
+          - name: revenues_fly_bottom_ash_intermingled
+          - name: revenues_other_byproducts
+          - name: revenues_total_byproduct
