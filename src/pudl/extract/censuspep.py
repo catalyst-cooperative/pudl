@@ -3,7 +3,6 @@
 import pandas as pd
 from dagster import Output, asset
 
-import pudl
 import pudl.logging_helpers
 from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory

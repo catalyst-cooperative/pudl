@@ -666,7 +666,7 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     # Convert the EIA923 DataFrame from yearly to monthly records.
     gen_fuel = _yearly_to_monthly_records(gen_fuel)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    gen_fuel = pudl.helpers.fix_eia_na(gen_fuel)
+    gen_fuel = pudl.helpers.standardize_na_values(gen_fuel)
 
     # conservative manual correction for bad prime mover codes
     gen_fuel["prime_mover_code"] = (
@@ -876,7 +876,7 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
 
     bf_df = _yearly_to_monthly_records(bf_df)
     # Replace the EIA923 NA value ('.') with a real NA value.
-    bf_df = pudl.helpers.fix_eia_na(bf_df)
+    bf_df = pudl.helpers.standardize_na_values(bf_df)
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
@@ -982,7 +982,7 @@ def _core_eia923__generation(raw_eia923__generator: pd.DataFrame) -> pd.DataFram
             axis="columns",
         )
         .pipe(_yearly_to_monthly_records)
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.convert_to_date)
     )
     # There are a few records that contain (literal) "nan"s in the generator_id
@@ -1203,7 +1203,7 @@ def _core_eia923__fuel_receipts_costs(
         )
         .drop(cols_to_drop, axis=1)
         # Replace the EIA923 NA value ('.') with a real NA value.
-        .pipe(pudl.helpers.fix_eia_na)
+        .pipe(pudl.helpers.standardize_na_values)
         # These come in ALL CAPS from EIA...
         .pipe(pudl.helpers.simplify_strings, columns=["supplier_name"])
         .pipe(
@@ -1290,7 +1290,9 @@ def _core_eia923__monthly_cooling_system_information(
     second, with precision of 0.1 cfs."
     """
     csi_df = raw_eia923__cooling_system_information
-    csi_df = csi_df.pipe(pudl.helpers.fix_eia_na).pipe(pudl.helpers.convert_to_date)
+    csi_df = csi_df.pipe(pudl.helpers.standardize_na_values).pipe(
+        pudl.helpers.convert_to_date
+    )
 
     # cooling_id_eia is sometimes NA, but we also want to use it as a primary
     # key. fortunately it's a string so we can just convert all NA values to
@@ -1388,7 +1390,9 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     fgd_df = fgd_df.drop_duplicates()
 
     # Replace the EIA923 NA value ('.') with a real NA value.
-    fgd_df = pudl.helpers.fix_eia_na(fgd_df).pipe(pudl.helpers.convert_to_date)
+    fgd_df = pudl.helpers.standardize_na_values(fgd_df).pipe(
+        pudl.helpers.convert_to_date
+    )
 
     # Convert thousands of dollars to dollars
     fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] *= 1000
@@ -1474,7 +1478,7 @@ def _core_eia923__energy_storage(
 
     """
     es_df = (
-        pudl.helpers.fix_eia_na(raw_eia923__energy_storage)
+        pudl.helpers.standardize_na_values(raw_eia923__energy_storage)
         .pipe(pudl.helpers.fix_boolean_columns, ["associated_combined_heat_power"])
         .pipe(pudl.helpers.simplify_strings, ["fuel_unit"])
         .assign(
@@ -1526,7 +1530,7 @@ def _core_eia923__yearly_byproduct_disposition(
     Returns:
         Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
     """
-    df = pudl.helpers.fix_eia_na(raw_eia923__byproduct_disposition)
+    df = pudl.helpers.standardize_na_values(raw_eia923__byproduct_disposition)
 
     # Drops known duplicate primary keys.
     # These rows contain no meaningful data. To prevent dropping future rows unexpectedly, we
@@ -1587,3 +1591,39 @@ def disposition_continuity_check(bpd):
         groupby_col="report_year",
         n_outliers_allowed=5,
     )
+
+
+@asset(io_manager_key="pudl_io_manager")
+def _core_eia923__yearly_byproduct_expenses_and_revenues(
+    raw_eia923__byproduct_expenses_and_revenues: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__byproduct_expenses_and_revenues table.
+
+    Transformations include:
+    * Standardize NA values
+    * Convert 1000 dollars (opex and revenue columns) to dollars
+
+    Args:
+        raw_eia923__byproduct_expenses_and_revenues: The raw ``raw_eia923__byproduct_expenses_and_revenues``
+        dataframe.
+
+    Returns:
+        Cleaned ``_core_eia923__yearly_byproduct_expenses_and_revenues`` dataframe ready for harvesting.
+    """
+    df = raw_eia923__byproduct_expenses_and_revenues.copy()
+
+    # This column is dropped from all EIA 923 tables
+    df = df.drop(["early_release"], axis=1)
+
+    df = pudl.helpers.standardize_na_values(df)
+
+    # One dupe for plant_id_eia=6504 and report_year=2010 with no differences in byproduct dollars reported
+    df = pudl.helpers.dedupe_and_drop_nas(
+        df, primary_key_cols=["plant_id_eia", "report_year"]
+    )
+
+    # Convert thousands of dollars to dollars and remove suffix from column name
+    df.loc[:, df.columns.str.endswith("_1000_dollars")] *= 1000
+    df.columns = df.columns.str.replace("_1000_dollars", "")
+
+    return df

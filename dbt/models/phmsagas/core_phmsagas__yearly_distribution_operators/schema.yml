@@ -1,0 +1,30 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_phmsagas__yearly_distribution_operators
+        data_tests:
+          - expect_columns_not_all_null:
+              arguments:
+                row_conditions:
+                  headquarters_county: EXTRACT(year FROM report_date) BETWEEN 1984 AND 2017
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_phmsagas__yearly_distribution_operators
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+        columns:
+          - name: report_id
+          - name: report_date
+          - name: operator_id_phmsa
+          - name: operator_name_phmsa
+          - name: office_street_address
+          - name: office_city
+          - name: office_county
+          - name: office_zip
+          - name: office_state
+          - name: headquarters_street_address
+          - name: headquarters_city
+          - name: headquarters_county
+          - name: headquarters_state
+          - name: headquarters_zip
+          - name: additional_information

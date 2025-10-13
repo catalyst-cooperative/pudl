@@ -31,6 +31,28 @@ EIA-860
 New Data
 ^^^^^^^^
 
+PHMSA
+~~~~~
+* Added eight transformed table containing annual data from PHMSA natural gas
+  distributors from 1970 to the present. Note that these containing mostly numeric
+  values are named as ``_core`` - indicating that these tables have not been fully
+  cleaned and validated. We've published these tables to make the 50+
+  years of PHMSA data we've extracted and mapped available for others to use and for
+  contributors to more easily improve incrementally. See :issue:`3770` and :pr:`4005`.
+* The first cleaned table, ``core_phmsagas__distribution_operators`` has been added
+  to our PUDL database. Thanks to :user:`seeess1` for all of your work on this!
+
+EIA 923
+^^^^^^^
+
+* Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
+  Schedule 8B Financial Information to the PUDL database as
+  :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`. Once harvested, this
+  table will be replaced with a well-normalized version of the same data, but it is
+  being published in this form until then. See :issue:`4099` and :issue:`2448`, and
+  :pr:`4636`.
+
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -93,7 +115,7 @@ Geospatial outputs with GeoParquet
 We've started producing `GeoParquet <https://geoparquet.org/>`__ outputs that include
 explicit geometries for use with `GeoPandas <https://geopandas.org/>`__ and other
 mapping and geospatial analysis packages. See :func:`geopandas.read_parquet` for
-dcoumentation on how to read them. We've also tested it with the `DuckDB Spatial
+documentation on how to read them. We've also tested it with the `DuckDB Spatial
 extension <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__.
 This is still experimental and there are only a handful of tables that currently include
 geometries, but we hope to apply it more widely in the future for any tables with

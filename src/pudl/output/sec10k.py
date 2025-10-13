@@ -9,6 +9,7 @@ import dagster as dg
 import pandas as pd
 
 from pudl import logging_helpers
+from pudl.metadata.dfs import STANDARD_INDUSTRIAL_CLASSIFICATION
 from pudl.transform.sec10k import _extract_filer_cik_from_filename
 
 logger = logging_helpers.get_logger(__name__)
@@ -19,6 +20,111 @@ def _filename_sec10k_to_source_url(
 ) -> pd.Series:
     """Construct the source URL for SEC 10-K filings."""
     return "https://www.sec.gov/Archives/edgar/data/" + filename_sec10k + ".txt"
+
+
+def _fill_sics(df: pd.DataFrame) -> pd.DataFrame:
+    """Fill missing SIC IDs and names where possible.
+
+    Within the reporting history for each company, as identified by Central Index Key
+    (CIK), fill in missing values of ``industry_id_sic`` when the values reported before
+    and after the gap are the same. If the beginning of the series is missing, backfill
+    it. If the end of the series is missing, forward fill it. Assign industry groups and
+    specific industry names based on the canonical descriptions from the SEC which
+    correspond to the reported industry ID.
+
+    This step is deferred until the output table because it requires the ``report_date``
+    column, which is not part of the ``core_sec10k__quarterly_company_information``
+    table
+    """
+    sorted_sics = df.sort_values(by=["central_index_key", "report_date"]).assign(
+        # 1044 is "silver mines" which doesn't show up in the canonical SEC list.
+        # Instead it should be 1040 "gold and silver mines" -- there's only one
+        # company that used the overly specific SIC.
+        industry_id_sic=lambda _df: _df["industry_id_sic"].replace({"1044": "1040"})
+    )
+    non_null_sics = sorted_sics.loc[
+        :, ["industry_id_sic", "industry_name_sic"]
+    ].dropna()
+    assert not non_null_sics.empty, "No non-null SICs to validate!"
+
+    # Check that the reported mapping between SIC IDs and names is unique -- that each
+    # SIC ID maps to at most one SIC name.
+    sic_nunique_names = (
+        non_null_sics.groupby("industry_id_sic")["industry_name_sic"]
+        .nunique()
+        .reset_index()
+    )
+    # 2820 has one entry with garbled spelling.
+    # 1040 we just munged up above.
+    # The industry names associated with them will be overwritten by the official
+    # SEC list.
+    known_nonunique_sics = {"1040", "2820"}
+    non_unique_sics = sic_nunique_names[sic_nunique_names["industry_name_sic"] > 1][
+        "industry_id_sic"
+    ].to_list()
+    assert set(non_unique_sics) <= known_nonunique_sics, (
+        f"Found non-unique mapping of SIC ID to industry name! {set(non_unique_sics) - known_nonunique_sics}"
+    )
+
+    # Forward and backward fill SIC codes within each company
+    sorted_sics["ffill_sic"] = sorted_sics.groupby("central_index_key")[
+        "industry_id_sic"
+    ].transform("ffill")
+    sorted_sics["bfill_sic"] = sorted_sics.groupby("central_index_key")[
+        "industry_id_sic"
+    ].transform("bfill")
+    # Initially set the filled values to the original values.
+    sorted_sics["industry_id_sic_filled"] = sorted_sics["industry_id_sic"].copy()
+
+    # Fill unambiguous cases, where ffill == bfill (consistent across time)
+    missing_mask = sorted_sics["industry_id_sic"].isna()
+    consistent_mask = sorted_sics["ffill_sic"] == sorted_sics["bfill_sic"]
+    sorted_sics.loc[missing_mask & consistent_mask, "industry_id_sic_filled"] = (
+        sorted_sics.loc[missing_mask & consistent_mask, "ffill_sic"]
+    )
+
+    # Forward fill if the last values are all missing
+    still_missing = sorted_sics["industry_id_sic_filled"].isna()
+    bfill_null = sorted_sics["bfill_sic"].isna()
+    sorted_sics.loc[still_missing & bfill_null, "industry_id_sic_filled"] = (
+        sorted_sics.loc[still_missing & bfill_null, "ffill_sic"]
+    )
+
+    # Backward fill if the first values are all missing
+    still_missing = sorted_sics["industry_id_sic_filled"].isna()
+    ffill_null = sorted_sics["ffill_sic"].isna()
+    sorted_sics.loc[still_missing & ffill_null, "industry_id_sic_filled"] = (
+        sorted_sics.loc[still_missing & ffill_null, "bfill_sic"]
+    )
+
+    canonical_sics = STANDARD_INDUSTRIAL_CLASSIFICATION.assign(
+        industry_name_sic=lambda x: x["industry_name_sic"].str.lower(),
+        industry_group_sic=lambda x: x["industry_group_sic"].str.lower(),
+    )
+    # Clean up the interim columns
+    return (
+        sorted_sics.drop(
+            columns=[
+                "industry_id_sic",
+                "industry_name_sic",
+                "ffill_sic",
+                "bfill_sic",
+            ]
+        )
+        .rename(
+            columns={
+                "industry_id_sic_filled": "industry_id_sic",
+            }
+        )
+        # Use the more complete canonical list of SICs from SEC to associate names and
+        # descriptions with the extracted IDs.
+        .merge(
+            canonical_sics,
+            how="left",
+            on="industry_id_sic",
+            validate="many_to_one",
+        )
+    )
 
 
 @dg.asset(
@@ -74,8 +180,12 @@ def out_sec10k__quarterly_company_information(
             on="filename_sec10k",
             validate="many_to_one",
         )
+        .assign(
+            source_url=lambda x: _filename_sec10k_to_source_url(x["filename_sec10k"])
+        )
+        .pipe(_fill_sics)
         .convert_dtypes()
-    ).assign(source_url=lambda x: _filename_sec10k_to_source_url(x["filename_sec10k"]))
+    )
     return company_info
 
 
