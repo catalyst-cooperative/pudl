@@ -235,10 +235,8 @@ resource "google_service_account" "pudl_archiver_gha" {
 
 resource "google_storage_bucket_iam_member" "pudl_archiver_gcs_iam" {
   for_each = toset([
-    "roles/storage.objectCreator",
-    "roles/storage.objectViewer",
     "roles/storage.legacyBucketReader",
-    "roles/storage.objectViewer",
+    "roles/storage.objectUser",
   ])
 
   bucket = google_storage_bucket.pudl_archive_bucket.name
