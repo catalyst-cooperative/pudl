@@ -31,7 +31,8 @@ EIA-860
 EIA-923
 ~~~~~~~~
 
-* Updated EIA-923 with final release data from 2024. See PR :pr:`4641`.
+* Updated EIA-923 with final release data from 2024. Also includes 2025 data up
+  through July. See PR :pr:`4641`.
 
 New Data
 ^^^^^^^^
