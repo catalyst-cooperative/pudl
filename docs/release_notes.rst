@@ -2,22 +2,16 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2025.10.0:
+
 ---------------------------------------------------------------------------------------
-v2025.XX.x (2025-MM-DD)
+v2025.10.0 (2025-10-14)
 ---------------------------------------------------------------------------------------
 
-Enhancements
-^^^^^^^^^^^^
-
-Deprecations
-^^^^^^^^^^^^
-
-* We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
-  deployment, but are still working on achieiving feature parity in the new `PUDL Data
-  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
-  <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
-  :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
-  main PUDL repo.
+This is a regular monthly data release, primarily intended to ensure that PUDL has the
+most up-to-date EIA-860M data. It also happens to include final EIA-860 data for 2024,
+and some newly integrated EIA-923 financial data and PHMSA natural gas data. See below
+for details.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -28,11 +22,36 @@ EIA-860
 * Updated EIA-860 with final release data from 2024. See issue :issue:`4616` and
   PR :pr:`4617`.
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for August
+  of 2025. See issue :issue:`4639` and PR :pr:`4638`.
+
 New Data
 ^^^^^^^^
 
-Quality of Life Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PHMSA
+~~~~~
+
+* Added eight transformed table containing annual data from PHMSA natural gas
+  distributors from 1970 to the present. Note that these containing mostly numeric
+  values are named as ``_core`` - indicating that these tables have not been fully
+  cleaned and validated. We've published these tables to make the 50+
+  years of PHMSA data we've extracted and mapped available for others to use and for
+  contributors to more easily improve incrementally. See :issue:`3770` and :pr:`4005`.
+* The first cleaned table, ``core_phmsagas__distribution_operators`` has been added
+  to our PUDL database. Thanks to :user:`seeess1` for all of your work on this!
+
+EIA 923
+~~~~~~~
+
+* Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
+  Schedule 8B Financial Information to the PUDL database as
+  :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`. Once harvested, this
+  table will be replaced with a well-normalized version of the same data, but it is
+  being published in this form until then. See :issue:`4099` and :issue:`2448`, and
+  :pr:`4636`.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -40,6 +59,7 @@ Documentation
 * Added data source pages for:
 
   * :doc:`data_sources/censuspep`; see issue :issue:`4375` and PR :pr:`4622`.
+  * :doc:`data_sources/sec10k`; see issue :issue:`4329,4347` and PR :pr:`4562`.
 
 New Data Tests & Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,8 +77,15 @@ New Data Tests & Data Validations
   * :ref:`out_eia930__hourly_subregion_demand`
   * :ref:`out_eia930__hourly_aggregated_demand`
 
-Bug Fixes
-^^^^^^^^^
+Deprecations
+^^^^^^^^^^^^
+
+* We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
+  deployment, but are still working on achieiving feature parity in the new `PUDL Data
+  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
+  <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
+  :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
+  main PUDL repo.
 
 .. _release-v2025.9.1:
 
@@ -93,7 +120,7 @@ Geospatial outputs with GeoParquet
 We've started producing `GeoParquet <https://geoparquet.org/>`__ outputs that include
 explicit geometries for use with `GeoPandas <https://geopandas.org/>`__ and other
 mapping and geospatial analysis packages. See :func:`geopandas.read_parquet` for
-dcoumentation on how to read them. We've also tested it with the `DuckDB Spatial
+documentation on how to read them. We've also tested it with the `DuckDB Spatial
 extension <https://duckdb.org/docs/stable/core_extensions/spatial/overview.html>`__.
 This is still experimental and there are only a handful of tables that currently include
 geometries, but we hope to apply it more widely in the future for any tables with

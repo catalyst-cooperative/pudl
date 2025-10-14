@@ -901,6 +901,63 @@ and consumption is the net generation."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
+    "_core_eia923__yearly_byproduct_expenses_and_revenues": {
+        "description": {
+            "additional_summary_text": (
+                "financial information related to combustion by-products reported by "
+                "thermoelectric power plants with total steam turbine capacity of 100 "
+                "megawatts or greater and that produced combustion by-products during the reporting year."
+            ),
+            "additional_source_text": "(Schedule 8B)",
+            "additional_details_text": (
+                "Cost data must be entered for all entries on Schedule 8A. "
+                "Financial information includes operational and maintenance expenditures (opex), "
+                "capital expenditures (capex), and by-products sales revenue."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_year",
+                "data_maturity",
+                "capex_air_abatement",
+                "capex_other_abatement",
+                "capex_solid_waste",
+                "capex_water_abatement",
+                "opex_bottom_ash_collection",
+                "opex_bottom_ash_disposal",
+                "opex_bottom_ash_other",
+                "opex_fgd_byproduct_collection",
+                "opex_fgd_byproduct_disposal",
+                "opex_fgd_byproduct_other",
+                "opex_fly_ash_collection",
+                "opex_fly_ash_disposal",
+                "opex_fly_ash_other",
+                "opex_other_abatement_collection",
+                "opex_other_abatement_disposal",
+                "opex_other_abatement_other",
+                "opex_total_collection_abatement",
+                "opex_total_disposal_abatement",
+                "opex_total_other_abatement",
+                "opex_water_abatement_collection",
+                "opex_water_abatement_disposal",
+                "opex_water_abatement_other",
+                "revenues_bottom_ash",
+                "revenues_fgd_byproducts",
+                "revenues_fly_ash",
+                "revenues_fly_bottom_ash_intermingled",
+                "revenues_other_byproducts",
+                "revenues_total_byproduct",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_year",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
 }
 """EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
 
