@@ -51,7 +51,7 @@ datasets:
       years: [2020, 2024]
       eia860m: true
     eia860m:
-      year_months: ["2025-06", "2025-07"]
+      year_months: ["2025-07", "2025-08"]
     eia861:
       # These years must overlap with FERC-714 to allow assets that depend on both to
       # be materialized.
