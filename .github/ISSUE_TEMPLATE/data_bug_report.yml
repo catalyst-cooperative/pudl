@@ -13,6 +13,20 @@ body:
       description: Please list all tables impacted by this bug.
     validations:
       required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: How severe is this data bug?
+      description: |
+        High indicates that the data is unusable.
+        Medium indicates that the data can be used with some effort.
+        Low indicates that the bug presents little to no barrier to using this data.
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
   - type: textarea
     id: impacted-data
     attributes:
