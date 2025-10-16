@@ -28,6 +28,11 @@ EIA-860M
 * Updated EIA-860M monthly generator report with newly published data for August
   of 2025. See issue :issue:`4639` and PR :pr:`4638`.
 
+EIA-923
+~~~~~~~~
+
+* Updated EIA-923 with final release data from 2024. Also includes 2025 data up
+  through July. See PR :pr:`4641`.
 
 Re-introduce 88888 and 99999 utility_id_eia
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
