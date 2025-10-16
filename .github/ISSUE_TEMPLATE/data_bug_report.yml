@@ -2,9 +2,7 @@ name: Data bug report.
 description: Report irregularities with PUDL data.
 title: ""
 labels: ["bug", "data-validation"]
-# projects: ["octo-org/1", "octo-org/44"]
-# assignees:
-#  - octocat
+projects: ["Catalyst Megaproject"]
 body:
   - type: input
     id: table
