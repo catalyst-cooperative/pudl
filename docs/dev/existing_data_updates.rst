@@ -95,10 +95,14 @@ the years (e.g. ``boiler_fuel``). However ``page_name`` does not necessarily cor
 directly to PUDL database table names because we don't load the data from all pages, and
 some pages result in more than one database table after normalization.
 
-**2.A.1)** If you're adding a new year, add a column for the new year of data to each of
-the aforementioned files. If there are any changes to prior years, make sure to address
-those too. (See note above). If you are updating early release data with final release
-data, replace the values in the appropriate year column.
+**2.A.1)** If you're adding a new year, add a column for the new year of data to
+  each of the aforementioned files. If there are any changes to prior years, make
+  sure to address those too. If you are updating early release data with final
+  release data, replace the values in the appropriate year column. **The easiest way
+  to correct the values for these files is to test extraction in Dagster as
+  described in the next step, then use the error messages to narrow down what should
+  be updated.** Exhaustively examining each file manually to compare it with its
+  predecessor is the most difficult way.
 
 .. note::
 

@@ -20,7 +20,7 @@ assignees: ""
 - [ ] Close out the [PUDL Release Notes](https://catalystcoop-pudl.readthedocs.io/en/nightly/release_notes.html) with an overview of the changes in this release
 - [ ] Merge those changes into `main`
 - [ ] Verify that all `stable` commits are on `main` with `git log main..stable`
-- [ ] Tag the release `git tag -as -m "PUDL vYYYY.M.x"`
+- [ ] Tag the release `git tag -as -m "PUDL vYYYY.M.x" vYYYY.M.x`
 - [ ] Push the release tag to `main`: `git push origin vYYYY.M.x`
 - [ ] Verify that the new [GitHub (software) release](https://github.com/catalyst-cooperative/pudl/releases) has been published
 - [ ] Verify [`catalystcoop.pudl` PyPI (software) release](https://pypi.org/project/catalystcoop.pudl/)
