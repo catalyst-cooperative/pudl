@@ -27,6 +27,12 @@ before the year are considered.
 For more information about scenarios, policy assumptions, and more, visit `EIA's AEO webpage <https://www.eia.gov/outlooks/aeo/>`__.
 {% endblock %}
 
+{% block download_docs %}
+{% for filename in download_paths -%}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
 {% block availability %}
 PUDL has incorporated data from a small subset of AEO table based on input from the energy
 modeling community. If there's a table you don't see but would like to, let us know or
