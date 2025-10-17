@@ -22,15 +22,6 @@ utility and balancing authority service territories based on FERC 714 and EIA 86
 Currently, we are distributing the Census DP1 data as a standalone SQLite DB which is
 converted directly from the original geodatabase distributed by the US Census Bureau.
 
-.. _data-eiaaeo:
-
-EIA Annual Energy Outlook (AEO)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The `EIA's Annual Energy Outlook <https://www.eia.gov/outlooks/aeo/>`__ underwent a
-major overhaul in 2024, but we've integrated a few key tables from the earlier data.
-These are just a small subset of the dozens of tables that have historically been part
-of the AEO. Look for ``eiaaeo`` in the table name to find this data.
-
 FERC DBF & XBRL Data
 ^^^^^^^^^^^^^^^^^^^^
 FERC publishes Forms 1, 2, 6, and 60 data as VisualFoxPro DBF files (2020 and earlier)
