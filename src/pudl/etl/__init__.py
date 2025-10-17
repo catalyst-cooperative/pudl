@@ -172,7 +172,7 @@ default_asset_checks += [
 
 default_resources = {
     "datastore": datastore,
-    "pudl_io_manager": pudl_mixed_format_io_manager,
+    "pudl_io_manager": parquet_io_manager,
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
     "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
