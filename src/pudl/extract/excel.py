@@ -231,9 +231,15 @@ class ExcelExtractor(GenericExtractor):
                             df, index=False
                         )
                 else:
-                    excel_file = pd.ExcelFile(
-                        BytesIO(zf.read(xlsx_filename)), engine="calamine"
-                    )
+                    try:
+                        excel_file = pd.ExcelFile(
+                            BytesIO(zf.read(xlsx_filename)), engine="calamine"
+                        )
+                    except Exception as e:
+                        logger.error(
+                            f"Error while loading page {page}, partition {partition}: {e=}, {type(e)=}"
+                        )
+                        raise
             self._file_cache[xlsx_filename] = excel_file
         # TODO(rousik): this _file_cache could be replaced with @cache or @memoize annotations
         excel_file = self._file_cache[xlsx_filename]
