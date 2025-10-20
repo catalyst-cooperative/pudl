@@ -16,6 +16,12 @@ for details.
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+Census PEP
+~~~~~~~~~~
+
+* Expanded geocodes to include vintages for each year from 2011-2024. See issue
+  :issue:`4637` and PR :pr:`4665`.
+
 EIA-860
 ~~~~~~~~
 

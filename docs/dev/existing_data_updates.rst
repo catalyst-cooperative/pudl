@@ -471,8 +471,9 @@ sanity check the data in the database and the derived outputs by running
     $ dbt_helper validate
 
 There are two kinds of failures that are common at this stage, summarized below. If
-other tests have failed, see the :doc:`validation reference guide
-<dev/data_validation_reference>` for help fixing them.
+other tests have failed, see
+:doc:`the validation reference guide </dev/data_validation_reference>` for help
+fixing them.
 
 **9.3)** ``source_expect_quantile_constraints_*``: You may need to update the expected
 distribution of fuel prices if they were particularly high or low in the new year of
