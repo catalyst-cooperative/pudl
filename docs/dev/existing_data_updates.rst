@@ -459,25 +459,36 @@ run all the integration tests against your live PUDL DB with:
 
     $ make pytest-integration-full
 
-**9.2)** When the CI tests are passing against all years of data, sanity check the data
-in the database and the derived outputs by running
+We expect ``test/integration/dbt_test.py::test_dbt`` to fail at this point, but
+everything else should pass. Fix any remaining failures and we'll fix dbt in the next
+step.
+
+**9.2)** When the non-dbt integration tests are passing against all years of data,
+sanity check the data in the database and the derived outputs by running
 
 .. code-block:: console
 
     $ dbt_helper validate
 
-We expect at least some of the validation tests to fail initially because we haven't
-updated the number of records we expect to see in each table.
+There are two kinds of failures that are common at this stage, summarized below. If
+other tests have failed, see the :doc:`validation reference guide
+<dev/data_validation_reference>` for help fixing them.
 
-**9.3)** You may also need to update the expected distribution of fuel prices if they
-were particularly high or low in the new year of data. Other values like expected heat
-content per unit of fuel should be relatively stable. If the required adjustments are
-large, or there are other types of validations failing, they should be investigated.
+**9.3)** ``source_expect_quantile_constraints_*``: You may need to update the expected
+distribution of fuel prices if they were particularly high or low in the new year of
+data. Other values like expected heat content per unit of fuel should be relatively
+stable. If the required adjustments are large, or there are other types of
+validations failing, they should be investigated.
 
-**9.4)** Update the expected number of rows in the ``dbt`` row count tests. Pay
-attention to how far off of previous expectations the new tables are. E.g. if there
-are already 20 years of data, and you're integrating 1 new year of data, probably the
-number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).
+**9.4)** ``source_check_row_counts_per_partition_*``: **Always fix rowcounts last.**
+Run the ``build-deploy-pudl`` GHA against your branch to generate a fresh rowcounts
+file. When the deployment report appears in Slack, it will read as failed, but the
+build will have left behind a perfect rowcounts file. Copy it to your branch using
+:doc:`the nightly build instructions </dev/nightly_data_builds>`, and inspect the
+changes using ``git diff``. Pay attention to how far off of previous expectations the
+new rowcounts are. E.g. if there are already 20 years of data, and you're integrating
+1 new year of data, probably the number of rows in the tables should be increasing by
+around 5% (since 1/20 = 0.05).
 
 10. Update the Documentation
 ----------------------------
