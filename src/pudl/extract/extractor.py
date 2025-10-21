@@ -58,9 +58,15 @@ class GenericMetadata:
 
     def _load_csv(self, package: str, filename: str) -> pd.DataFrame:
         """Load metadata from a filename that is found in a package."""
-        return pd.read_csv(
+        df = pd.read_csv(
             importlib.resources.files(package) / filename, index_col=0, comment="#"
         )
+        # we are assigning the index which contains the partitions as a sting dtype.
+        # many of the partitions are years which are reasonably interpreted as ints,
+        # but some are dates or other actual strings. We force the partitions to be
+        # strings here and via _get_partition_selection.
+        df.index = df.index.astype(pd.StringDtype())
+        return df
 
     def _load_column_maps(self, column_map_pkg: str) -> dict:
         """Create a dictionary of all column mapping CSVs to use in get_column_map()."""
@@ -99,14 +105,14 @@ class GenericMetadata:
 
     def get_all_columns(self, page) -> list[str]:
         """Returns list of all pudl columns for a given page across all partitions."""
-        return sorted(self._column_map[page].T.columns)
+        return sorted(self._column_map[page].columns)
 
     def get_column_map(self, page, **partition) -> dict:
         """Return dictionary of original columns to renamed columns for renaming in a given partition and page."""
         return {
             v: k
             for k, v in self._column_map[page]
-            .T.loc[str(self._get_partition_selection(partition))]
+            .loc[str(self._get_partition_selection(partition))]
             .to_dict()
             .items()
             if v != -1
@@ -181,7 +187,7 @@ class GenericExtractor(ABC):
 
     def get_page_cols(self, page: str, partition_selection: str) -> pd.RangeIndex:
         """Get the columns for a particular page and partition key."""
-        col_map = self._metadata._column_map[page]
+        col_map = self._metadata._column_map[page].T
         return col_map.loc[
             (col_map[partition_selection].notnull())
             & (col_map[partition_selection] != -1),
