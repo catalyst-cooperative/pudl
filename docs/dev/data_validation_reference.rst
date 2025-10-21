@@ -480,6 +480,8 @@ Here we'd have several options:
 The query you build using any of the above could be copied and pasted into a
 duckdb session, and the results interrogated further from there.
 
+.. _row-countfailures:
+
 Debugging and fixing row count failures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
