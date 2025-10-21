@@ -187,12 +187,13 @@ class GenericExtractor(ABC):
 
     def get_page_cols(self, page: str, partition_selection: str) -> pd.RangeIndex:
         """Get the columns for a particular page and partition key."""
-        col_map = self._metadata._column_map[page].T
-        return col_map.loc[
-            (col_map[partition_selection].notnull())
-            & (col_map[partition_selection] != -1),
-            [partition_selection],
-        ].index
+        col_map = self._metadata._column_map[page]
+        return (
+            col_map.loc[[partition_selection], :]
+            .replace(to_replace=[-1, "-1"], value=None)
+            .dropna(how="all", axis=1)
+            .columns
+        )
 
     def validate(self, df: pd.DataFrame, page: str, **partition: PartitionSelection):
         """Check if there are any missing or extra columns."""
