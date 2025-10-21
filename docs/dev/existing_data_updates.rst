@@ -484,7 +484,7 @@ validations failing, they should be investigated.
 **9.4)** ``source_check_row_counts_per_partition_*``: **Always fix rowcounts last.**
 Run the ``build-deploy-pudl`` GHA against your branch to generate a fresh rowcounts
 file. When the deployment report appears in Slack, it will read as failed, but the
-build will have left behind a perfect rowcounts file. Copy it to your branch using
+build will have left behind a file containing updated rowcounts for the new data. Copy it to your branch using
 :doc:`the nightly build instructions </dev/nightly_data_builds>`, and inspect the
 changes using ``git diff``. Pay attention to how far off of previous expectations the
 new rowcounts are. E.g. if there are already 20 years of data, and you're integrating
