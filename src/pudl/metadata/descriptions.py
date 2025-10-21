@@ -2,6 +2,7 @@
 
 import re
 from collections import namedtuple
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Self
 
@@ -194,7 +195,9 @@ Availability [{self.availability.type}]: {self.availability.description}
         ).strip()
 
 
-def component(fn):
+def component(
+    fn: Callable[..., ResourceTrait | list[ResourceTrait]],
+) -> Callable[..., ResourceTrait | list[ResourceTrait]]:
     """Decorator for functions which resolve a description component."""
     fn.__is_component = True
     return fn
