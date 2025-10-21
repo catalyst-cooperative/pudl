@@ -475,21 +475,30 @@ other tests have failed, see
 :doc:`the validation reference guide </dev/data_validation_reference>` for help
 fixing them.
 
-**9.3)** ``source_expect_quantile_constraints_*``: You may need to update the expected
+**9.2.1)** ``source_expect_quantile_constraints_*``: You may need to update the expected
 distribution of fuel prices if they were particularly high or low in the new year of
 data. Other values like expected heat content per unit of fuel should be relatively
-stable. If the required adjustments are large, or there are other types of
-validations failing, they should be investigated.
+stable. If the required adjustments are large, they should be investigated.
 
-**9.4)** ``source_check_row_counts_per_partition_*``: **Always fix rowcounts last.**
-Run the ``build-deploy-pudl`` GHA against your branch to generate a fresh rowcounts
-file. When the deployment report appears in Slack, it will read as failed, but the
-build will have left behind a file containing updated rowcounts for the new data. Copy it to your branch using
-:doc:`the nightly build instructions </dev/nightly_data_builds>`, and inspect the
-changes using ``git diff``. Pay attention to how far off of previous expectations the
-new rowcounts are. E.g. if there are already 20 years of data, and you're integrating
-1 new year of data, probably the number of rows in the tables should be increasing by
-around 5% (since 1/20 = 0.05).
+**9.2.2)** ``source_check_row_counts_per_partition_*``: **Always fix rowcounts
+last.** That way, if fixes to other problems results in changes to the count, or new
+counts have been added to main since your last update, you won't have to throw away
+work. For most tables, a local run of ``etl-full` will generate a correct file, but
+some EIA tables can only be repeatably counted in GHA (see issue :issue:`4574`). If
+your update touches those tables, or if you don't have a full local run available to
+you, run the ``build-deploy-pudl`` GHA against your branch to generate a fresh
+rowcounts file. When the deployment report appears in Slack, it will read as failed,
+but the build will have left behind a file containing updated rowcounts for the new
+data. Copy it to your branch using
+:doc:`the nightly build instructions </dev/nightly_data_builds>`.
+
+Once you have a new candidate rowcounts file, inspect the changes using ``git diff``.
+Pay attention to the partitions affected and the magnitude of each change. For
+example, if data is partitioned by year and you are doing an annual update, most of
+the changes should be for that year's partition. If you are doing a quarterly update,
+the number of rows for that year's partition should be increasing by about 1/4 of the
+previous year's total. If changes to rowcounts appear for wildly unrelated
+partitions, or are wildly out of proportion to your expectations, investigate.
 
 10. Update the Documentation
 ----------------------------
