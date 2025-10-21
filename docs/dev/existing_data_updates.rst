@@ -481,25 +481,25 @@ distribution of fuel prices if they were particularly high or low in the new yea
 data. Other values like expected heat content per unit of fuel should be relatively
 stable. If the required adjustments are large, they should be investigated.
 
-**9.2.2)** ``source_check_row_counts_per_partition_*``: **Always fix rowcounts
+**9.2.2)** ``source_check_row_counts_per_partition_*``: **Always fix row counts
 last.** That way, if fixes to other problems result in changes to the count, or new
 counts have been added to main since your last update, you won't have to throw away
 work. For most tables, a local run of the full ETL will permit you to use
-``dbt_helper`` to update the rowcounts file (see :ref:`rowcount-failures`), but some
+``dbt_helper`` to update the row counts file (see :ref:`row-countfailures`), but some
 EIA tables can only be repeatably counted in GHA (see issue :issue:`4574`). If your
 update touches those tables, or if you don't have a full local run available to you,
-run the ``build-deploy-pudl`` GHA against your branch to generate a fresh rowcounts
+run the ``build-deploy-pudl`` GHA against your branch to generate a fresh row counts
 file. When the deployment report appears in Slack, it will read as failed, but the
-build will have left behind a file containing updated rowcounts for the new data.
-Copy it to your branch using :doc:`the nightly build instructions
-</dev/nightly_data_builds>`.
+build will have left behind a file containing updated row counts for the new data.
+Copy it to your branch using
+:doc:`the nightly build instructions </dev/nightly_data_builds>`.
 
-Once you have a new candidate rowcounts file, inspect the changes using ``git diff``.
+Once you have a new candidate row counts file, inspect the changes using ``git diff``.
 Pay attention to the partitions affected and the magnitude of each change. For
 example, if data is partitioned by year and you are doing an annual update, most of
 the changes should be for that year's partition. If you are doing a quarterly update,
 the number of rows for that year's partition should be increasing by about 1/4 of the
-previous year's total. If changes to rowcounts appear for wildly unrelated
+previous year's total. If changes to row counts appear for wildly unrelated
 partitions, or are wildly out of proportion to your expectations, investigate.
 
 10. Update the Documentation
