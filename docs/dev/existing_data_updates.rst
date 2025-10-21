@@ -31,6 +31,7 @@ at the "Years Liberated" field.
 * :doc:`/data_sources/eia861`
 * :doc:`/data_sources/eia923`
 * :doc:`/data_sources/eia930`
+* :doc:`/data_sources/eiaaeo`
 * :doc:`/data_sources/epacems`
 * :doc:`/data_sources/ferc1`
 * :doc:`/data_sources/ferc714`

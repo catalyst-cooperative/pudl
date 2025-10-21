@@ -48,7 +48,7 @@ class Ferc2DbfExtractor(FercDbfExtractor):
     @staticmethod
     def is_valid_partition(fl: dict[str, Any]):
         """Drops partition with non-empty `part` fields."""
-        return fl.get("part") is None
+        return fl.get("part") == "all"
 
     def aggregate_table_frames(
         self, table_name: str, dfs: list[PartitionedDataFrame]
