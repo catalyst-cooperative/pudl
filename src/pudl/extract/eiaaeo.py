@@ -17,7 +17,7 @@ from dagster import (
     asset_check,
     multi_asset,
 )
-from pandera import DataFrameModel, Field
+from pandera.pandas import DataFrameModel, Field
 from pydantic import BaseModel
 
 import pudl.logging_helpers
