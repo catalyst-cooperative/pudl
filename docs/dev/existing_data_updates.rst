@@ -481,16 +481,17 @@ data. Other values like expected heat content per unit of fuel should be relativ
 stable. If the required adjustments are large, they should be investigated.
 
 **9.2.2)** ``source_check_row_counts_per_partition_*``: **Always fix rowcounts
-last.** That way, if fixes to other problems results in changes to the count, or new
+last.** That way, if fixes to other problems result in changes to the count, or new
 counts have been added to main since your last update, you won't have to throw away
-work. For most tables, a local run of ``etl-full` will generate a correct file, but
-some EIA tables can only be repeatably counted in GHA (see issue :issue:`4574`). If
-your update touches those tables, or if you don't have a full local run available to
-you, run the ``build-deploy-pudl`` GHA against your branch to generate a fresh
-rowcounts file. When the deployment report appears in Slack, it will read as failed,
-but the build will have left behind a file containing updated rowcounts for the new
-data. Copy it to your branch using
-:doc:`the nightly build instructions </dev/nightly_data_builds>`.
+work. For most tables, a local run of the full ETL will permit you to use
+``dbt_helper`` to update the rowcounts file (see :ref:`rowcount-failures`), but some
+EIA tables can only be repeatably counted in GHA (see issue :issue:`4574`). If your
+update touches those tables, or if you don't have a full local run available to you,
+run the ``build-deploy-pudl`` GHA against your branch to generate a fresh rowcounts
+file. When the deployment report appears in Slack, it will read as failed, but the
+build will have left behind a file containing updated rowcounts for the new data.
+Copy it to your branch using :doc:`the nightly build instructions
+</dev/nightly_data_builds>`.
 
 Once you have a new candidate rowcounts file, inspect the changes using ``git diff``.
 Pay attention to the partitions affected and the magnitude of each change. For
