@@ -1642,7 +1642,7 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     return df
 
 
-# @asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def _core_eia923__emissions_control(
     raw_eia923__emissions_control: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1689,6 +1689,16 @@ def _core_eia923__emissions_control(
             "particulate_removal_efficiency_100pct_load": "particulate_removal_efficiency_tested",
         },
         axis=1,
+    )
+
+    # Encode operational_status
+    df["operational_status"] = df.operational_status.str.upper().map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_operational_status"]["df"],
+            from_col="code",
+            to_col="operational_status",
+            null_value=pd.NA,
+        )
     )
 
     return df
