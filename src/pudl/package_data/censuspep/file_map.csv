@@ -1,2 +1,4 @@
-page,2023,2015,2009
-geocodes,all-geocodes-v2023.xlsx,all-geocodes-v2015.xlsx,all-geocodes-v2009.xls
+page,geocodes
+2023,all-geocodes-v2023.xlsx
+2015,all-geocodes-v2015.xlsx
+2009,all-geocodes-v2009.xls
