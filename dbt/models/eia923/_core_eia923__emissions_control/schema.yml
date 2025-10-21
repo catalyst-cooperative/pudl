@@ -1,0 +1,36 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia923__emissions_control
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_eia923__emissions_control
+                partition_expr: report_year
+        columns:
+          - name: plant_id_eia
+          - name: report_year
+          - name: acid_gas_removal_efficiency
+          - name: annual_nox_emission_rate_lb_per_mmbtu
+          - name: data_maturity
+          - name: environmental_equipment_name
+          - name: fgd_electricity_consumption_mwh
+          - name: fgd_sorbent_consumption_1000_tons
+          - name: hours_in_service
+          - name: mercury_control_id_eia
+          - name: mercury_emission_rate_lb_per_trillion_btu
+          - name: mercury_removal_efficiency
+          - name: nox_control_id_eia
+          - name: operational_status
+          - name: ozone_season_nox_emission_rate_lb_per_mmbtu
+          - name: particulate_control_id_eia
+          - name: particulate_emission_rate_lb_per_mmbtu
+          - name: particulate_removal_efficiency_tested
+          - name: particulate_removal_efficiency_annual
+          - name: particulate_test_date
+          - name: so2_control_id_eia
+          - name: so2_removal_efficiency_tested
+          - name: so2_removal_efficiency_annual
+          - name: so2_test_date

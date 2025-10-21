@@ -61,6 +61,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Indicates whether the emissions control equipment controls acid (HCl) gas.",
     },
+    "acid_gas_removal_efficiency": {
+        "type": "number",
+        "description": "Percent removal efficiency for acid gas emissions",
+    },
     "actual_peak_demand_savings_mw": {
         "type": "number",
         "description": "Demand reduction actually achieved by demand response activities. Measured at the time of the company's annual system peak hour.",
@@ -177,6 +181,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Maximum cooling water temperature at outlet in winter",
         "type": "number",
         "unit": "F",
+    },
+    "annual_nox_emission_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": (
+            "Actual controlled (or uncontrolled) nitrogen oxides emission rate. "
+            "Based on data from CEMS where possible."
+        ),
     },
     "annual_total_chlorine_lbs": {
         "description": (
@@ -2453,6 +2464,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Entity type of principal owner.",
     },
+    "environmental_equipment_name": {
+        "type": "string",
+        "description": "Type of equipment or strategy for the control of air emissions.",
+    },
     "estimated_or_actual_capacity_data": {
         "type": "string",
         "description": "Whether the reported capacity data is estimated or actual.",
@@ -3189,6 +3204,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Number of AMI meters with home area network (HAN) gateway enabled."
         ),
     },
+    "hours_in_service": {
+        "type": "integer",
+        "description": (
+            "Total hours the emissions control was in service during the reporting year, "
+            "rounded to the nearest hour."
+        ),
+        "unit": "hr",
+    },
     "hrsg": {
         "type": "boolean",
         "description": "indicates if the boiler is a heat recovery steam generator (HRSG).",
@@ -3765,6 +3788,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "mercury_control_proposed_strategy_3": {
         "type": "string",
         "description": "Proposed strategy to comply with the most stringent mercury regulation.",
+    },
+    "mercury_emission_rate_lb_per_trillion_btu": {
+        "type": "number",
+        "description": (
+            "Actual controlled (or uncontrolled) mercury emission rate, based on "
+            "data from CEMS, where possible."
+        ),
+    },
+    "mercury_removal_efficiency": {
+        "type": "number",
+        "description": "Percent removal efficiency for mercury emissions rounded to nearest 0.1 percent of weight",
     },
     "merge_address": {
         "type": "string",
@@ -4671,6 +4705,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether a plant part record has a duplicate record with different ownership status.",
     },
+    "ozone_season_nox_emission_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": "Actual controlled (or uncontrolled) nitrogen oxides emission rate during the ozone season (May to September)",
+    },
     "parent_company_central_index_key": {
         "type": "string",
         "description": "Central index key (CIK) of the parent company.",
@@ -4788,6 +4826,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "particulate_control_out_of_compliance_strategy_3": {
         "type": "string",
         "description": "If boiler is not in compliance with particulate matter regulations, strategy for compliance.",
+    },
+    "particulate_emission_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": "Average annual emission removal rate for particulate matter.",
+    },
+    "particulate_removal_efficiency_tested": {
+        "type": "number",
+        "description": "The tested efficiency for the removal of particulate matter of an equipment or strategy.",
+    },
+    "particulate_removal_efficiency_annual": {
+        "type": "number",
+        "description": (
+            "Particulate removal efficiency, based on the annual operating factor, "
+            "which is defined as annual fuel consumption (MMBtu) divided by the product "
+            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year."
+        ),
+    },
+    "particulate_test_date": {
+        "type": "date",
+        "description": "Date of the latest efficiency test for the removal of particulate matter.",
     },
     "partitions": {
         "type": "string",

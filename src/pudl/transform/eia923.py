@@ -1640,3 +1640,54 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     df.columns = df.columns.str.replace("_1000_dollars", "")
 
     return df
+
+
+# @asset(io_manager_key="pudl_io_manager")
+def _core_eia923__emissions_control(
+    raw_eia923__emissions_control: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__emissions_control table.
+
+    Transformations include:
+    * Standardize NA values
+    *
+
+    Args:
+        raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
+        dataframe.
+
+    Returns:
+        Cleaned ``_core_eia923__emissions_control`` dataframe ready for harvesting.
+    """
+    df = raw_eia923__emissions_control.copy()
+
+    # This column is dropped from all EIA 923 tables
+    df = df.drop(["early_release"], axis=1)
+
+    df = pudl.helpers.standardize_na_values(df)
+
+    # Fix malformed report-year string columns (i.e., should be MM-YYYY)
+    def clean_date(val):
+        if pd.isna(val):
+            return None
+        val = str(val).strip()
+        year = val[-4:]
+        month = val[:-4].replace("-", "").zfill(2)
+        if not (month.isdigit() and year.isdigit()):
+            return None
+        return f"{month}-{year}"
+
+    date_cols = ["so2_test_date", "particulate_test_date"]
+    for col in date_cols:
+        df[col] = df[col].apply(clean_date)
+
+    # Rename to be consistent with existing column names
+    df = df.rename(
+        {
+            "so2_removal_efficiency_100pct_load": "so2_removal_efficiency_tested",
+            "particulate_removal_efficiency_100pct_load": "particulate_removal_efficiency_tested",
+        },
+        axis=1,
+    )
+
+    return df
