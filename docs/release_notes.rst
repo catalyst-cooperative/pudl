@@ -174,6 +174,17 @@ EIA-860M
 * Updated EIA-860M monthly generator report with newly published data for July
   of 2025. See issue :issue:`4590` and PR :pr:`4594`.
 
+FERC Form 1
+~~~~~~~~~~~
+
+* Updated FERC Form 1 2024 data to include late respondents. See :pr:`4630`.
+
+FERC Forms 2, 6 and 60
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
+  late respondents. See :pr:`4630`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
