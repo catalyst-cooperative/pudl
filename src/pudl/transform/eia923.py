@@ -1650,7 +1650,8 @@ def _core_eia923__emissions_control(
 
     Transformations include:
     * Standardize NA values
-    *
+    * Clean month-year date string columns
+    * Rename columns to align with other EIA tables
 
     Args:
         raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
