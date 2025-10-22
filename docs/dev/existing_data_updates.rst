@@ -31,6 +31,7 @@ at the "Years Liberated" field.
 * :doc:`/data_sources/eia861`
 * :doc:`/data_sources/eia923`
 * :doc:`/data_sources/eia930`
+* :doc:`/data_sources/eiaaeo`
 * :doc:`/data_sources/epacems`
 * :doc:`/data_sources/ferc1`
 * :doc:`/data_sources/ferc714`
@@ -94,10 +95,14 @@ the years (e.g. ``boiler_fuel``). However ``page_name`` does not necessarily cor
 directly to PUDL database table names because we don't load the data from all pages, and
 some pages result in more than one database table after normalization.
 
-**2.A.1)** If you're adding a new year, add a column for the new year of data to each of
-the aforementioned files. If there are any changes to prior years, make sure to address
-those too. (See note above). If you are updating early release data with final release
-data, replace the values in the appropriate year column.
+**2.A.1)** If you're adding a new year, add a column for the new year of data to
+  each of the aforementioned files. If there are any changes to prior years, make
+  sure to address those too. If you are updating early release data with final
+  release data, replace the values in the appropriate year column. **The easiest way
+  to correct the values for these files is to test extraction in Dagster as
+  described in the next step, then use the error messages to narrow down what should
+  be updated.** Exhaustively examining each file manually to compare it with its
+  predecessor is the most difficult way.
 
 .. note::
 
@@ -455,25 +460,47 @@ run all the integration tests against your live PUDL DB with:
 
     $ make pytest-integration-full
 
-**9.2)** When the CI tests are passing against all years of data, sanity check the data
-in the database and the derived outputs by running
+We expect ``test/integration/dbt_test.py::test_dbt`` to fail at this point, but
+everything else should pass. Fix any remaining failures and we'll fix dbt in the next
+step.
+
+**9.2)** When the non-dbt integration tests are passing against all years of data,
+sanity check the data in the database and the derived outputs by running
 
 .. code-block:: console
 
     $ dbt_helper validate
 
-We expect at least some of the validation tests to fail initially because we haven't
-updated the number of records we expect to see in each table.
+There are two kinds of failures that are common at this stage, summarized below. If
+other tests have failed, see
+:doc:`the validation reference guide </dev/data_validation_reference>` for help
+fixing them.
 
-**9.3)** You may also need to update the expected distribution of fuel prices if they
-were particularly high or low in the new year of data. Other values like expected heat
-content per unit of fuel should be relatively stable. If the required adjustments are
-large, or there are other types of validations failing, they should be investigated.
+**9.2.1)** ``source_expect_quantile_constraints_*``: You may need to update the expected
+distribution of fuel prices if they were particularly high or low in the new year of
+data. Other values like expected heat content per unit of fuel should be relatively
+stable. If the required adjustments are large, they should be investigated.
 
-**9.4)** Update the expected number of rows in the ``dbt`` row count tests. Pay
-attention to how far off of previous expectations the new tables are. E.g. if there
-are already 20 years of data, and you're integrating 1 new year of data, probably the
-number of rows in the tables should be increasing by around 5% (since 1/20 = 0.05).
+**9.2.2)** ``source_check_row_counts_per_partition_*``: **Always fix row counts
+last.** That way, if fixes to other problems result in changes to the count, or new
+counts have been added to main since your last update, you won't have to throw away
+work. For most tables, a local run of the full ETL will permit you to use
+``dbt_helper`` to update the row counts file (see :ref:`row-countfailures`), but some
+EIA tables can only be repeatably counted in GHA (see issue :issue:`4574`). If your
+update touches those tables, or if you don't have a full local run available to you,
+run the ``build-deploy-pudl`` GHA against your branch to generate a fresh row counts
+file. When the deployment report appears in Slack, it will read as failed, but the
+build will have left behind a file containing updated row counts for the new data.
+Copy it to your branch using
+:doc:`the nightly build instructions </dev/nightly_data_builds>`.
+
+Once you have a new candidate row counts file, inspect the changes using ``git diff``.
+Pay attention to the partitions affected and the magnitude of each change. For
+example, if data is partitioned by year and you are doing an annual update, most of
+the changes should be for that year's partition. If you are doing a quarterly update,
+the number of rows for that year's partition should be increasing by about 1/4 of the
+previous year's total. If changes to row counts appear for wildly unrelated
+partitions, or are wildly out of proportion to your expectations, investigate.
 
 10. Update the Documentation
 ----------------------------

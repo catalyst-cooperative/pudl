@@ -12,12 +12,44 @@ Enhancements
 Deprecations
 ^^^^^^^^^^^^
 
-* We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
-  deployment, but are still working on achieiving feature parity in the new `PUDL Data
-  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
-  <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
-  :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
-  main PUDL repo.
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Census PEP
+~~~~~~~~~~
+
+* Expanded geocodes to include vintages for each year from 2011-2024. See issue
+  :issue:`4637` and PR :pr:`4665`.
+
+New Data
+^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+* Added data source pages for:
+
+  * :doc:`data_sources/eiaaeo`; see issue :issue:`4371` and PR :pr:`4660`.
+
+New Data Tests & Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+.. _release-v2025.10.0:
+
+---------------------------------------------------------------------------------------
+v2025.10.0 (2025-10-14)
+---------------------------------------------------------------------------------------
+
+This is a regular monthly data release, primarily intended to ensure that PUDL has the
+most up-to-date EIA-860M data. It also happens to include final EIA-860 data for 2024,
+and some newly integrated EIA-923 financial data and PHMSA natural gas data. See below
+for details.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -28,11 +60,32 @@ EIA-860
 * Updated EIA-860 with final release data from 2024. See issue :issue:`4616` and
   PR :pr:`4617`.
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M monthly generator report with newly published data for August
+  of 2025. See issue :issue:`4639` and PR :pr:`4638`.
+
+EIA-923
+~~~~~~~~
+
+* Updated EIA-923 with final release data from 2024. Also includes 2025 data up
+  through July. See PR :pr:`4641`.
+
+Re-introduce 88888 and 99999 utility_id_eia
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These values, representing redacted values and state aggregates, were
+intentionally dropped from eia923 and eia861 due to primary key and
+data inconsistency issues. We're adding them back in! See :issue:`808`
+and PR :pr:`4291`.
+
 New Data
 ^^^^^^^^
 
 PHMSA
 ~~~~~
+
 * Added eight transformed table containing annual data from PHMSA natural gas
   distributors from 1970 to the present. Note that these containing mostly numeric
   values are named as ``_core`` - indicating that these tables have not been fully
@@ -42,9 +95,15 @@ PHMSA
 * The first cleaned table, ``core_phmsagas__distribution_operators`` has been added
   to our PUDL database. Thanks to :user:`seeess1` for all of your work on this!
 
+EIA 923
+~~~~~~~
 
-Quality of Life Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
+  Schedule 8B Financial Information to the PUDL database as
+  :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`. Once harvested, this
+  table will be replaced with a well-normalized version of the same data, but it is
+  being published in this form until then. See :issue:`4099` and :issue:`2448`, and
+  :pr:`4636`.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -52,6 +111,7 @@ Documentation
 * Added data source pages for:
 
   * :doc:`data_sources/censuspep`; see issue :issue:`4375` and PR :pr:`4622`.
+  * :doc:`data_sources/sec10k`; see issue :issue:`4329,4347` and PR :pr:`4562`.
 
 New Data Tests & Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -69,8 +129,15 @@ New Data Tests & Data Validations
   * :ref:`out_eia930__hourly_subregion_demand`
   * :ref:`out_eia930__hourly_aggregated_demand`
 
-Bug Fixes
-^^^^^^^^^
+Deprecations
+^^^^^^^^^^^^
+
+* We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
+  deployment, but are still working on achieiving feature parity in the new `PUDL Data
+  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
+  <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
+  :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
+  main PUDL repo.
 
 .. _release-v2025.9.1:
 
@@ -128,18 +195,22 @@ tables with a valid ``geometry`` column are:
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Re-introduce 88888 and 99999 utility_id_eia
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-These values, representing redacted values and state aggregates, were
-intentionally dropped from eia923 and eia861 due to primary key and
-data inconsistency issues. We're adding them back in! See :issue:`808`
-and PR :pr:`4291`.
-
 EIA-860M
 ~~~~~~~~
 
 * Updated EIA-860M monthly generator report with newly published data for July
   of 2025. See issue :issue:`4590` and PR :pr:`4594`.
+
+FERC Form 1
+~~~~~~~~~~~
+
+* Updated FERC Form 1 2024 data to include late respondents. See :pr:`4630`.
+
+FERC Forms 2, 6 and 60
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
+  late respondents. See :pr:`4630`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
