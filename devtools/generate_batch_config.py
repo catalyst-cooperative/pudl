@@ -68,6 +68,7 @@ def to_config(
             "serviceAccount": {
                 "email": "deploy-pudl-vm-service-account@catalyst-cooperative-pudl.iam.gserviceaccount.com"
             },
+            "instances": [{"installOpsAgent": True}],
         },
         "logsPolicy": {"destination": "CLOUD_LOGGING"},
     }
