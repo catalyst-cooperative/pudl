@@ -7,4 +7,4 @@ year_index,report_year,utility_id_eia,utility_name_eia,ownership_code,ownership,
 2021,0,1,2,4,5,6,3,7,8,9,10,11,12,13,14,15,16,17,18,19,20,-1
 2022,0,1,2,4,5,6,3,7,8,9,10,11,12,13,14,15,16,17,18,19,20,-1
 2023,0,1,2,4,5,6,3,7,8,9,10,11,12,13,14,15,16,17,18,19,20,-1
-2024,,,,,,,,,,,,,,,,,,,,,,
+2024,data_year,utility_number,utility_name,short_form,ownership_code,ownership,monthly,advanced_metering,delivery_company,demand_response,distribution_systems,dynamic_pricing,energy_efficiency,mergers,net_metering,non_net_metering_distributed,operational_data,reliablity,sales_to_ultimate_customers,service_territory,utility_data,
