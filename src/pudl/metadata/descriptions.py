@@ -309,7 +309,27 @@ class ResourceDescriptionBuilder:
     @component
     def availability(self, settings, defaults) -> ResourceTrait:
         """Compute the availability component of the resource description."""
-        return ResourceTrait(type="NA", description="Not yet implemented")
+        most_recent_data = str(
+            first_non_none(
+                settings.get("availability"),
+                min(  # if availability differs between sources, use the *least* recent among them
+                    [
+                        str(avail)
+                        for avail in (
+                            # get most recent availability for each source
+                            max(source.get_temporal_partitions() or [None])
+                            for source in settings.get("sources")
+                        )
+                        if avail is not None
+                    ]  # skip sources with weird partitions (inner)
+                    or [None]  # skip sources with weird partitions (outer)
+                ),
+                "Unknown",
+            )
+        )
+        return ResourceTrait(
+            type=str(most_recent_data != "Unknown"), description=most_recent_data
+        )
 
     def _generic_component(
         self,

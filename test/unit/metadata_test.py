@@ -250,10 +250,13 @@ CHECK_DESCRIPTION_PRIMARY_KEYS = False
 def test_description_compliance(resource_id):
     resource_dict = RESOURCE_METADATA[resource_id]
     assert isinstance(resource_dict["description"], dict), (
-        f"""Table {resource_id} is listed as description-compliant in metadata_test.py, but the "description" key is not a dictionary. (In theory pydantic should have screamed about that before you got this far)"""
+        f"""Table {resource_id} must have a dictionary under the "description" key, but instead I found a {type(resource_dict["description"])}"""
     )
     resolved = ResourceDescriptionBuilder(
-        resource_id=resource_id, settings=resource_dict
+        resource_id=resource_id,
+        settings=Resource._resolve_references_from_resource_descriptor(
+            resource_id, PudlResourceDescriptor.model_validate(resource_dict)
+        ),
     ).build()
     name_parse = {
         "layer_code": resolved.layer.type,
