@@ -86,7 +86,7 @@ class ExcelMetadata(GenericMetadata):
 
     def get_form(self, page) -> str:
         """Returns the form name for a given page."""
-        return self._page_part_map.loc["form", page]
+        return self._page_part_map.loc[page, "form"]
 
 
 class ExcelExtractor(GenericExtractor):
