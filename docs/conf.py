@@ -170,6 +170,7 @@ INCLUDED_SOURCES = [
     "eia861",
     "eia923",
     "eia930",
+    "eiaaeo",
     "ferc1",
     "ferc714",
     "epacems",

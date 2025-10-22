@@ -2,6 +2,44 @@
 PUDL Release Notes
 =======================================================================================
 
+---------------------------------------------------------------------------------------
+v2025.XX.x (2025-MM-DD)
+---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+Deprecations
+^^^^^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Census PEP
+~~~~~~~~~~
+
+* Expanded geocodes to include vintages for each year from 2011-2024. See issue
+  :issue:`4637` and PR :pr:`4665`.
+
+New Data
+^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+* Added data source pages for:
+
+  * :doc:`data_sources/eiaaeo`; see issue :issue:`4371` and PR :pr:`4660`.
+
+New Data Tests & Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
 .. _release-v2025.10.0:
 
 ---------------------------------------------------------------------------------------
@@ -162,6 +200,17 @@ EIA-860M
 
 * Updated EIA-860M monthly generator report with newly published data for July
   of 2025. See issue :issue:`4590` and PR :pr:`4594`.
+
+FERC Form 1
+~~~~~~~~~~~
+
+* Updated FERC Form 1 2024 data to include late respondents. See :pr:`4630`.
+
+FERC Forms 2, 6 and 60
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated our extraction of FERC Forms 2, 6, and 60 to raw SQLite databases to include
+  late respondents. See :pr:`4630`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
