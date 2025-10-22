@@ -1,7 +1,9 @@
 {{ descriptions.summary.description|safe }}
 
-Availability:
+{% if descriptions.availability.type == "True" %}
+Most-recent data:
   {{ descriptions.availability.description|safe }}
+{% endif %}
 
 Processing:
   {{ descriptions.layer.description|safe }}
