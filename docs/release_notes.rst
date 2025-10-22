@@ -3,8 +3,29 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v202X.XX.X (XXXX-XX-XX)
+v2025.XX.x (2025-MM-DD)
 ---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+Deprecations
+^^^^^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Census PEP
+~~~~~~~~~~
+
+* Expanded geocodes to include vintages for each year from 2011-2024. See issue
+  :issue:`4637` and PR :pr:`4665`.
+
+New Data
+^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Documentation
 ^^^^^^^^^^^^^
@@ -12,6 +33,12 @@ Documentation
 * Added data source pages for:
 
   * :doc:`data_sources/eiaaeo`; see issue :issue:`4371` and PR :pr:`4660`.
+
+New Data Tests & Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
 
 .. _release-v2025.10.0:
 
