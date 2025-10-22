@@ -311,7 +311,7 @@ class ResourceDescriptionBuilder:
         """Compute the availability component of the resource description."""
         most_recent_data = str(
             first_non_none(
-                settings.get("availability"),
+                settings.get("availability_text"),
                 min(  # if availability differs between sources, use the *least* recent among them
                     [
                         str(avail)

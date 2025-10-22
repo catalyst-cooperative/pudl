@@ -1250,7 +1250,7 @@ class PudlResourceDescriptor(PudlMeta):
         If None or otherwise left unset, will be filled in with auto warnings only. If
         no auto warnings apply, hides the Usage Warnings section entirely."""
 
-        availability: str | None = None
+        availability_text: str | None = None
         """Most recent data available. If None or otherwise left unset, will be filled
         in with the most recent partition listed for the data source.
 
