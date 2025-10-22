@@ -2,8 +2,12 @@
 
 """Materialize an asset while profiling its memory usage.
 
+Automatically generates a flamegraph from the tracked memory usage.
+
 Example usage:
+
     ./memory_profile.py -a <asset selection>
+
     ./memory_profile.py -a <asset selection> -d <output_dir>
 """
 
@@ -52,7 +56,7 @@ def materialize_assets(asset_selection: str) -> Any:
 )
 @click.option("--directory", "-d", default=".", help="Directory to put profiles in.")
 def cli(asset_selection, aggregate, directory):
-    """CLI interface wrapper."""
+    """Materialize an asset with memory tracking and create a flamegraph."""
     click.echo(f"Materializing {asset_selection} via in-process executor.")
     profile_location = (
         Path(directory)
