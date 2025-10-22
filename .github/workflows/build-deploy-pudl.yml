@@ -44,14 +44,12 @@ jobs:
         run: |
           echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
           echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}" >> "$GITHUB_ENV"
-          echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           echo "NIGHTLY_TAG: $NIGHTLY_TAG"
           echo "BUILD_ID: $BUILD_ID"
-          echo "BATCH_JOB_ID: $BATCH_JOB_ID"
 
       - name: Tag nightly build
         if: ${{ (github.event_name == 'schedule') && (env.SKIP_BUILD != 'true') }}
@@ -147,7 +145,7 @@ jobs:
       # Start the batch job
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud batch jobs submit run-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
+        run: gcloud batch jobs submit run-etl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
       - name: Post to pudl-deployments channel
         if: always()
