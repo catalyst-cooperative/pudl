@@ -673,7 +673,7 @@ class AeoCheckSpec:
 
 
 BASE_AEO_CATEGORIES = {
-    "model_case_eiaaeo": 17,
+    "model_case_eiaaeo": 20,
     "projection_year": 30,
     "electricity_market_module_region_eiaaeo": 26,
 }
@@ -690,7 +690,7 @@ check_specs = [
     AeoCheckSpec(
         name="gen_in_electric_sector_by_tech",
         asset="core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
-        num_rows_by_report_year={2023: 77064},
+        num_rows_by_report_year={2023: 77064, 2025: 50700},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "fuel_type_eiaaeo": 6,
@@ -699,7 +699,7 @@ check_specs = [
     AeoCheckSpec(
         name="electricity_sales",
         asset="core_eiaaeo__yearly_projected_electric_sales",
-        num_rows_by_report_year={2023: 51376},
+        num_rows_by_report_year={2023: 51376, 2025: 33800},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "customer_class": 4,
@@ -708,7 +708,7 @@ check_specs = [
     AeoCheckSpec(
         name="electricity_sales",
         asset="core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type",
-        num_rows_by_report_year={2023: 50882},
+        num_rows_by_report_year={2023: 50882, 2025: 33475},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "fuel_type_eiaaeo": 4,
