@@ -6,7 +6,7 @@ Particularly useful for assets that don't get persisted normally.
 
 Example usage:
 
-    ./materialize_to_parquet.py --asset raw_eia860__generator --out generators.feather
+    ./materialize_to_parquet.py --asset raw_eia860__generator --out generators.parquet
 """
 
 from pathlib import Path
@@ -17,13 +17,13 @@ import pandas as pd
 
 
 def materialize_asset(asset_name: str, output_file: Path) -> None:
-    """Materialize an asset (and its dependencies) and write to Feather.
+    """Materialize an asset (and its dependencies) and write to Parquet.
 
     Note (2025-06-12): we only handle assets that are pandas dataframes at this point.
 
     Args:
         asset_name: a string that we can turn into an asset key.
-        output_file: the path to write Feather file out to.
+        output_file: the path to write Parquet file out to.
     """
     from pudl.etl import defs
 
@@ -40,10 +40,7 @@ def materialize_asset(asset_name: str, output_file: Path) -> None:
     asset_value = execution_result.asset_value(asset_key=asset_name)
 
     if isinstance(asset_value, pd.DataFrame):
-        asset_value.to_feather(output_file)
-    elif isinstance(asset_value, dict):
-        for key, value in asset_value.items():
-            value.to_feather(str(output_file).replace(".", f"_{key}."))
+        asset_value.to_parquet(output_file, engine="pyarrow")
     else:
         raise RuntimeError(f"Value for {asset_name} is not a pandas DataFrame!")
 

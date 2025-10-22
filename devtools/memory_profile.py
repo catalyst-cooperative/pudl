@@ -1,12 +1,10 @@
 #! /usr/bin/env python3
 
-"""Materialize an asset and export it to Feather for sharing.
-
-Particularly useful for assets that don't get persisted normally.
+"""Materialize an asset while profiling its memory usage.
 
 Example usage:
-
-    ./materialize_to_feather.py --asset raw_eia860__generator --out generators.feather
+    ./memory_profile.py -a <asset selection>
+    ./memory_profile.py -a <asset selection> -d <output_dir>
 """
 
 from datetime import UTC, datetime
