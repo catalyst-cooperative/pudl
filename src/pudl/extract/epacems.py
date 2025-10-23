@@ -91,7 +91,7 @@ API_DTYPE_DICT = {
     # These op_date, op_hour, and op_time variables get converted to
     # operating_date, operating_datetime and operating_time_interval in
     # transform/epacems.py
-    "Date": pl.datatypes.String,
+    "Date": pl.datatypes.Date,
     "Hour": pl.datatypes.Int16,
     "Operating Time": pl.datatypes.Float32,
     "Gross Load (MW)": pl.datatypes.Float32,
@@ -152,7 +152,7 @@ class EpaCemsDatastore:
         ):
             lf = pl.scan_csv(csv_file, schema_overrides=API_DTYPE_DICT)
             lf = (
-                lf.drop(list(API_IGNORE_COLS & set(lf.columns)))
+                lf.drop(list(set(lf.columns) - set(API_RENAME_DICT.keys())))
                 .cast(API_DTYPE_DICT, strict=False)
                 .rename(API_RENAME_DICT, strict=False)
             )
