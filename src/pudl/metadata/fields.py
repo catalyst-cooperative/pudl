@@ -8265,8 +8265,9 @@ def apply_pudl_dtypes_polars(
     Returns:
         The input dataframe, but with standard PUDL types applied.
     """
+    columns = lf.collect_schema().names()
     unspecified_fields = sorted(
-        set(lf.collect_schema().names())
+        set(columns)
         - set(field_meta.keys())
         - set(field_meta_by_group.get(group, {}).keys())
     )
@@ -8282,4 +8283,4 @@ def apply_pudl_dtypes_polars(
         field_meta_by_group=field_meta_by_group,
         dtype_map=FIELD_DTYPES_POLARS,
     )
-    return lf.cast({key: value for key, value in dtypes.items() if key in lf.columns})
+    return lf.cast({key: value for key, value in dtypes.items() if key in columns})
