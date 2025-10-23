@@ -39,7 +39,6 @@ API_RENAME_DICT = {
     "State": "state",
     "Facility ID": "plant_id_epa",  # unique facility id for internal EPA database management (ORIS code)
     "Unit ID": "emissions_unit_id_epa",
-    "Associated Stacks": "associated_stacks",
     # These op_date, op_hour, and op_time variables get converted to
     # operating_date, operating_datetime and operating_time_interval in
     # transform/epacems.py
@@ -55,7 +54,6 @@ API_RENAME_DICT = {
     "CO2 Mass (short tons)": "co2_mass_tons",
     "CO2 Mass Measure Indicator": "co2_mass_measurement_code",
     "Heat Input (mmBtu)": "heat_content_mmbtu",
-    "Heat Input Measure Indicator": "heat_content_measure_flg",
 }
 """Dict: A dictionary containing EPA CEMS column names (keys) and replacement names to
 use when reading those columns into PUDL (values).
@@ -67,7 +65,6 @@ API_DTYPE_DICT = {
     "State": pl.datatypes.Categorical,
     "Facility ID": pl.datatypes.Int32,  # unique facility id for internal EPA database management (ORIS code)
     "Unit ID": pl.datatypes.String,
-    "Associated Stacks": pl.datatypes.String,
     # These op_date, op_hour, and op_time variables get converted to
     # operating_date, operating_datetime and operating_time_interval in
     # transform/epacems.py
@@ -83,7 +80,6 @@ API_DTYPE_DICT = {
     "CO2 Mass (short tons)": pl.datatypes.Float32,
     "CO2 Mass Measure Indicator": pl.datatypes.Categorical,
     "Heat Input (mmBtu)": pl.datatypes.Float32,
-    "Heat Input Measure Indicator": pl.datatypes.Categorical,
 }
 
 
