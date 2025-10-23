@@ -25,6 +25,7 @@ from dagster import (
 
 import pudl
 from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
+from pudl.transform.epacems import transform
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -71,20 +72,27 @@ def extract_quarter(
     ds = context.resources.datastore
 
     partitioned_path = _partitioned_path()
+    partition = EpaCemsPartition(year_quarter=year_quarter)
 
     ds = EpaCemsDatastore(context.resources.datastore)
-    lf = ds.get_data_frame(partition=EpaCemsPartition(year_quarter=year_quarter))
-    lf.sink_parquet(partitioned_path / f"{year_quarter}.parquet")
+    (
+        ds.get_data_frame(partition=partition)
+        .with_columns(year=partition.year)
+        .sink_parquet(partitioned_path / f"{year_quarter}.parquet")
+    )
 
     return year_quarter
 
 
 @op
-def consolidate_partitions(context, partitions: list[str]) -> None:
+def transform_and_write_monolithic(
+    partitions: list[str],
+    core_epa__assn_eia_epacamd: pd.DataFrame,
+    core_eia__entity_plants: pd.DataFrame,
+) -> None:
     """Read partitions into memory and write to a single monolithic output.
 
     Args:
-        context: dagster keyword that provides access to resources and config.
         partitions: Year and state combinations in the output database.
     """
     partitioned_path = _partitioned_path()
@@ -92,11 +100,22 @@ def consolidate_partitions(context, partitions: list[str]) -> None:
         PudlPaths().output_dir / "parquet" / "core_epacems__hourly_emissions.parquet"
     )
 
-    pl.scan_parquet(partitioned_path).sink_parquet(monolithic_path, engine="streaming")
+    (
+        pl.scan_parquet(partitioned_path)
+        .pipe(
+            transform,
+            core_epa__assn_eia_epacamd=core_epa__assn_eia_epacamd,
+            core_eia__entity_plants=core_eia__entity_plants,
+        )
+        .sink_parquet(monolithic_path, engine="streaming")
+    )
 
 
 @graph_asset
-def core_epacems__hourly_emissions() -> None:
+def core_epacems__hourly_emissions(
+    _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
+    core_eia__entity_plants: pd.DataFrame,
+) -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
     This asset creates a dynamic graph of ops to process EPA CEMS data in parallel. It
@@ -110,7 +129,11 @@ def core_epacems__hourly_emissions() -> None:
             year_quarter,
         )
     )
-    return consolidate_partitions(partitions.collect())
+    return transform_and_write_monolithic(
+        partitions.collect(),
+        _core_epa__assn_eia_epacamd_unique,
+        core_eia__entity_plants,
+    )
 
 
 @asset(
