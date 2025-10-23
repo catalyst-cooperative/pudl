@@ -132,7 +132,9 @@ class EpaCemsDatastore:
         ):
             lf = pl.scan_csv(csv_file, schema_overrides=API_DTYPE_DICT)
             lf = (
-                lf.drop(list(set(lf.columns) - set(API_RENAME_DICT.keys())))
+                lf.drop(
+                    list(set(lf.collect_schema().names()) - set(API_RENAME_DICT.keys()))
+                )
                 .cast(API_DTYPE_DICT, strict=False)
                 .rename(API_RENAME_DICT, strict=False)
             )
