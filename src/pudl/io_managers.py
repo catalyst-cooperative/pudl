@@ -8,6 +8,7 @@ from sqlite3 import sqlite_version
 import dask.dataframe as dd
 import geopandas as gpd
 import pandas as pd
+import polars as pl
 import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
@@ -26,7 +27,7 @@ from packaging import version
 from upath import UPath
 
 import pudl
-from pudl.helpers import get_parquet_table
+from pudl.helpers import get_parquet_table, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.workspace.setup import PudlPaths
 
@@ -310,7 +311,9 @@ class SQLiteIOManager(IOManager):
 class PudlParquetIOManager(IOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
 
-    def handle_output(self, context: OutputContext, obj: pd.DataFrame) -> None:
+    def handle_output(
+        self, context: OutputContext, obj: pd.DataFrame | pl.LazyFrame
+    ) -> None:
         """Writes pudl dataframe to parquet file."""
         if not isinstance(obj, pd.DataFrame):
             raise TypeError(f"Only pandas dataframes are supported, got {type(obj)}.")
@@ -318,19 +321,34 @@ class PudlParquetIOManager(IOManager):
         parquet_path = PudlPaths().parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
-        res = Resource.from_id(table_name)
-        df = res.enforce_schema(obj)
-        pa_schema = res.to_pyarrow()
-        df.to_parquet(
-            path=parquet_path,
-            index=False,
-            schema=pa_schema,
-        )
+        if isinstance(obj, pd.DataFrame):
+            res = Resource.from_id(table_name)
+            df = res.enforce_schema(obj)
+            pa_schema = res.to_pyarrow()
+            df.to_parquet(
+                path=parquet_path,
+                index=False,
+                schema=pa_schema,
+            )
+        else:
+            logger.warning(
+                "PudlParquetIOManager currently does not do any schema enformcement for polars LazyFrames"
+            )
+            obj.sink_parquet(parquet_path)
 
-    def load_input(self, context: InputContext) -> pd.DataFrame | gpd.GeoDataFrame:
+    def load_input(
+        self, context: InputContext
+    ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
-        return get_parquet_table(table_name)
+        if (
+            context.dagster_type.typing_type == pd.DataFrame
+            or context.dagster_type.typing_type == gpd.GeoDataFrame
+        ):
+            df = get_parquet_table(table_name)
+        else:
+            df = get_parquet_table_polars(table_name)
+        return df
 
 
 class PudlGeoParquetIOManager(PudlParquetIOManager):
