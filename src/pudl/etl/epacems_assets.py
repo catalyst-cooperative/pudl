@@ -9,13 +9,11 @@ for processing each year of EPA CEMS data and execute these ops in parallel. For
 see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs and https://docs.dagster.io/concepts/assets/graph-backed-assets.
 """
 
-from collections import namedtuple
 from pathlib import Path
 
 import dask.dataframe as dd
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
+import polars as pl
 from dagster import (
     AssetIn,
     DynamicOut,
@@ -26,20 +24,15 @@ from dagster import (
 )
 
 import pudl
-from pudl.extract.epacems import EpaCemsPartition
-from pudl.metadata.classes import Resource
-from pudl.metadata.enums import EPACEMS_STATES
+from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-YearPartitions = namedtuple("YearPartitions", ["year_quarters"])
-
-
 def _partitioned_path() -> Path:
     partitioned_path = (
-        PudlPaths().output_dir / "parquet" / "core_epacems__hourly_emissions"
+        PudlPaths().output_dir / "parquet" / "raw_epacems__hourly_emissions"
     )
     partitioned_path.mkdir(exist_ok=True)
     return partitioned_path
@@ -49,74 +42,45 @@ def _partitioned_path() -> Path:
     out=DynamicOut(),
     required_resource_keys={"dataset_settings"},
 )
-def get_years_from_settings(context):
+def get_year_quarters_from_settings(context):
     """Return set of years in settings.
 
     These will be used to kick off worker processes to process each year of data in
     parallel.
     """
     epacems_settings = context.resources.dataset_settings.epacems
-    years = {
-        EpaCemsPartition(year_quarter=yq).year for yq in epacems_settings.year_quarters
-    }
-    for year in years:
-        yield DynamicOutput(year, mapping_key=str(year))
+    for year_quarter in epacems_settings.year_quarters:
+        yield DynamicOutput(year_quarter, mapping_key=str(year_quarter))
 
 
 @op(
     required_resource_keys={"datastore", "dataset_settings"},
     tags={"memory-use": "high"},
 )
-def process_single_year(
+def extract_quarter(
     context,
-    year,
-    core_epa__assn_eia_epacamd: pd.DataFrame,
-    core_eia__entity_plants: pd.DataFrame,
-) -> YearPartitions:
+    year_quarter: str,
+) -> str:
     """Process a single year of EPA CEMS data.
 
     Args:
         context: dagster keyword that provides access to resources and config.
         year: Year of data to process.
-        core_epa__assn_eia_epacamd: The EPA EIA crosswalk table used for harmonizing the
             ORISPL code with EIA.
-        core_eia__entity_plants: The EIA Plant entities used for aligning timezones.
     """
     ds = context.resources.datastore
-    epacems_settings = context.resources.dataset_settings.epacems
 
-    schema = Resource.from_id("core_epacems__hourly_emissions").to_pyarrow()
     partitioned_path = _partitioned_path()
 
-    year_quarters_in_year = {
-        yq
-        for yq in epacems_settings.year_quarters
-        if EpaCemsPartition(year_quarter=yq).year == year
-    }
+    ds = EpaCemsDatastore(context.resources.datastore)
+    lf = ds.get_data_frame(partition=EpaCemsPartition(year_quarter=year_quarter))
+    lf.sink_parquet(partitioned_path / f"{year_quarter}.parquet")
 
-    for year_quarter in year_quarters_in_year:
-        logger.info(f"Processing EPA CEMS hourly data for {year_quarter}")
-        df = pudl.extract.epacems.extract(year_quarter=year_quarter, ds=ds)
-        if not df.empty:  # If state-year combination has data
-            df = pudl.transform.epacems.transform(
-                df, core_epa__assn_eia_epacamd, core_eia__entity_plants
-            )
-        table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
-
-        # Write to a directory of partitioned parquet files
-        with pq.ParquetWriter(
-            where=partitioned_path / f"epacems-{year_quarter}.parquet",
-            schema=schema,
-            compression="snappy",
-            version="2.6",
-        ) as partitioned_writer:
-            partitioned_writer.write_table(table)
-
-    return YearPartitions(year_quarters_in_year)
+    return year_quarter
 
 
 @op
-def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
+def consolidate_partitions(context, partitions: list[str]) -> None:
     """Read partitions into memory and write to a single monolithic output.
 
     Args:
@@ -127,35 +91,12 @@ def consolidate_partitions(context, partitions: list[YearPartitions]) -> None:
     monolithic_path = (
         PudlPaths().output_dir / "parquet" / "core_epacems__hourly_emissions.parquet"
     )
-    schema = Resource.from_id("core_epacems__hourly_emissions").to_pyarrow()
 
-    with pq.ParquetWriter(
-        where=monolithic_path, schema=schema, compression="snappy", version="2.6"
-    ) as monolithic_writer:
-        for year_partition in partitions:
-            for state in EPACEMS_STATES:
-                monolithic_writer.write_table(
-                    # Concat a slice of each state's data from all quarters in a year
-                    # and write to parquet to create year-state row groups
-                    pa.concat_tables(
-                        [
-                            pq.read_table(
-                                source=partitioned_path
-                                / f"epacems-{year_quarter}.parquet",
-                                filters=[[("state", "=", state.upper())]],
-                                schema=schema,
-                            )
-                            for year_quarter in year_partition.year_quarters
-                        ]
-                    )
-                )
+    pl.scan_parquet(partitioned_path).sink_parquet(monolithic_path, engine="streaming")
 
 
 @graph_asset
-def core_epacems__hourly_emissions(
-    _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
-    core_eia__entity_plants: pd.DataFrame,
-) -> None:
+def core_epacems__hourly_emissions() -> None:
     """Extract, transform and load CSVs for EPA CEMS.
 
     This asset creates a dynamic graph of ops to process EPA CEMS data in parallel. It
@@ -163,12 +104,10 @@ def core_epacems__hourly_emissions(
     information see:
     https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs.
     """
-    years = get_years_from_settings()
-    partitions = years.map(
-        lambda year: process_single_year(
-            year,
-            _core_epa__assn_eia_epacamd_unique,
-            core_eia__entity_plants,
+    year_quarters = get_year_quarters_from_settings()
+    partitions = year_quarters.map(
+        lambda year_quarter: extract_quarter(
+            year_quarter,
         )
     )
     return consolidate_partitions(partitions.collect())
