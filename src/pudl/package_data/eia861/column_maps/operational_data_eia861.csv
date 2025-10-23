@@ -24,4 +24,4 @@ year_index,report_year,utility_id_eia,utility_name_eia,short_form,state,entity_t
 2021,0,1,2,-1,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,-1,22,23,24,-1,25,26,27,28,29,30,31,-1
 2022,0,1,2,-1,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,-1,22,23,24,-1,25,26,27,28,29,30,31,-1
 2023,0,1,2,-1,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,-1,22,23,24,-1,25,26,27,28,29,30,31,-1
-2024,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+2024,data_year,utility_number,utility_name,,state,ownership_type,nerc_region,summer_peak_demand,winter_peak_demand,net_generation,wholesale_power_purchases,exchange_energy_received,exchange_energy_delivered,net_power_exchanged,wheeled_power_received,wheeled_power_delivered,net_wheeled_power,transmission_by_other_losses,total_sources,sales_to_ultimate_customers,sales_for_resale,furnished_without_charge,consumed_by_respondent_without_charge,,total_energy_losses,total_disposition,from_retail_sales,,from_delivery_customers,from_sales_for_resale,from_credits_or_adjustments,from_transmission,from_other,total,data_type_o_observed_i_imputed,
