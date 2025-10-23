@@ -28,7 +28,6 @@ import polars as pl
 from pydantic import BaseModel, StringConstraints
 
 import pudl.logging_helpers
-from pudl.metadata.classes import Resource
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -158,56 +157,3 @@ class EpaCemsDatastore:
                 .rename(API_RENAME_DICT, strict=False)
             )
             return lf
-
-    def _csv_to_dataframe(
-        self,
-        csv_path: Path,
-        ignore_cols: dict[str, str],
-        rename_dict: dict[str, str],
-        dtype_dict: dict[str, type],
-        chunksize: int = 100_000,
-    ) -> pd.DataFrame:
-        """Convert a CEMS csv file into a :class:`pandas.DataFrame`.
-
-        Args:
-            csv_path: Path to CSV file containing data to read.
-
-        Returns:
-            A DataFrame containing the filtered and dtyped contents of the CSV file.
-        """
-        chunk_iter = pd.read_csv(
-            csv_path,
-            index_col=False,
-            usecols=lambda col: col not in ignore_cols,
-            dtype=dtype_dict,
-            chunksize=chunksize,
-            low_memory=True,
-            parse_dates=["Date"],
-        )
-        df = pd.concat(chunk_iter)
-        dtypes = {k: v for k, v in dtype_dict.items() if k in df.columns}
-        return df.astype(dtypes).rename(columns=rename_dict)
-
-
-def extract(year_quarter: str, ds: Datastore) -> pd.DataFrame:
-    """Coordinate the extraction of EPA CEMS hourly DataFrames.
-
-    Args:
-        year_quarter: report year and quarter of the data to extract
-        ds: Initialized datastore
-    Yields:
-        A single quarter of EPA CEMS hourly emissions data.
-    """
-    ds = EpaCemsDatastore(ds)
-    partition = EpaCemsPartition(year_quarter=year_quarter)
-    year = partition.year
-    # We have to assign the reporting year for partitioning purposes
-    try:
-        logger.info(f"Extracting data frame for {year_quarter}")
-        df = ds.get_data_frame(partition).assign(year=year)
-    # If the requested quarter is not found, return an empty df with expected columns:
-    except KeyError:
-        logger.warning(f"No data found for {year_quarter}. Returning empty dataframe.")
-        res = Resource.from_id("core_epacems__hourly_emissions")
-        df = res.format_df(pd.DataFrame())
-    return df
