@@ -11,7 +11,6 @@ see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs and https:/
 
 from pathlib import Path
 
-import dask.dataframe as dd
 import pandas as pd
 import polars as pl
 from dagster import (
@@ -138,26 +137,21 @@ def core_epacems__hourly_emissions(
 
 @asset(
     ins={
-        "core_epacems__hourly_emissions": AssetIn(
-            input_manager_key="epacems_io_manager"
-        ),
+        "core_epacems__hourly_emissions": AssetIn(input_manager_key="pudl_io_manager"),
     },
-    compute_kind="Dask",
 )
 def _core_epacems__emissions_unit_ids(
-    core_epacems__hourly_emissions: dd.DataFrame,
+    core_epacems__hourly_emissions: pl.LazyFrame,
 ) -> pd.DataFrame:
     """Make unique annual plant_id_eia and emissions_unit_id_epa.
 
     Returns:
         dataframe with unique set of: "plant_id_eia", "year" and "emissions_unit_id_epa"
     """
-    epacems_ids = (
-        core_epacems__hourly_emissions[
+    return (
+        core_epacems__hourly_emissions.select(
             ["plant_id_eia", "year", "emissions_unit_id_epa"]
-        ]
-        .drop_duplicates()
-        .compute()
-    )
-
-    return epacems_ids
+        )
+        .unique()
+        .collect(engine="streaming")
+    ).to_pandas()
