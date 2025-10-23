@@ -8266,7 +8266,7 @@ def apply_pudl_dtypes_polars(
         The input dataframe, but with standard PUDL types applied.
     """
     unspecified_fields = sorted(
-        set(lf.columns)
+        set(lf.collect_schema().names())
         - set(field_meta.keys())
         - set(field_meta_by_group.get(group, {}).keys())
     )
