@@ -63,26 +63,6 @@ use when reading those columns into PUDL (values).
 There are some duplicate rename values because the column names change year to year.
 """
 
-# Any column that exactly matches one of these won't be read
-API_IGNORE_COLS = {
-    "Facility Name",
-    "SO2 Rate (lbs/mmBtu)",
-    "SO2 Rate Measure Indicator",
-    "CO2 Rate (tons/mmBtu)",
-    "CO2 Rate (short tons/mmBtu)",
-    "CO2 Rate Measure Indicator",
-    "NOx Rate (lbs/mmBtu)",
-    "NOx Rate Measure Indicator",
-    "Secondary Fuel Type",
-    "Unit Type",
-    "SO2 Controls",
-    "NOx Controls",
-    "PM Controls",
-    "Hg Controls",
-    "Program Code",
-}
-"""Set: The set of EPA CEMS columns to ignore when reading data."""
-
 API_DTYPE_DICT = {
     "State": pl.datatypes.Categorical,
     "Facility ID": pl.datatypes.Int32,  # unique facility id for internal EPA database management (ORIS code)
