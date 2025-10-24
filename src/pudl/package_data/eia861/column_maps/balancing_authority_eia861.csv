@@ -22,3 +22,4 @@ year_index,report_year,utility_id_eia,utility_name_eia,balancing_authority_id_ei
 2021,0,-1,-1,1,2,3,4,-1
 2022,0,-1,-1,1,2,3,4,-1
 2023,0,-1,-1,1,2,3,4,-1
+2024,data_year,,,ba_id,ba_code,state,balancing_authority_name,

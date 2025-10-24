@@ -80,6 +80,7 @@ datasets:
           2021,
           2022,
           2023,
+          2024,
         ]
     eia930:
       half_years: ["2024half2"]
