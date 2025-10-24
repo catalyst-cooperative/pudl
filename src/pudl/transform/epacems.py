@@ -167,7 +167,13 @@ def transform(
 
     return (
         raw_lf.pipe(apply_pudl_dtypes_polars, group="epacems")
-        .with_columns(pl.col("emissions_unit_id_epa").str.strip_chars_start("0"))
+        .with_columns(
+            emissions_unit_id_epa=pl.when(
+                pl.col("emissions_unit_id_epa").str.contains(r"^\d+$")
+            )
+            .then(pl.col("emissions_unit_id_epa").str.strip_chars_start("0"))
+            .otherwise(pl.col("emissions_unit_id_epa"))
+        )
         .pipe(harmonize_eia_epa_orispl, core_epa__assn_eia_epacamd)
         .pipe(
             convert_to_utc,
