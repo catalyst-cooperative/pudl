@@ -5,7 +5,6 @@ import re
 from pathlib import Path
 from sqlite3 import sqlite_version
 
-import dask.dataframe as dd
 import geopandas as gpd
 import pandas as pd
 import polars as pl
@@ -20,11 +19,9 @@ from dagster import (
     InputContext,
     IOManager,
     OutputContext,
-    UPathIOManager,
     io_manager,
 )
 from packaging import version
-from upath import UPath
 
 import pudl
 from pudl.helpers import get_parquet_table, get_parquet_table_polars
@@ -868,37 +865,3 @@ def ferc714_xbrl_sqlite_io_manager(init_context) -> FercXBRLSQLiteIOManager:
         base_dir=PudlPaths().output_dir,
         db_name="ferc714_xbrl",
     )
-
-
-class EpaCemsIOManager(UPathIOManager):
-    """An IO Manager that dumps outputs to a parquet file."""
-
-    extension: str = ".parquet"
-
-    def __init__(self, base_path: UPath, schema: pa.Schema) -> None:
-        """Initialize a EpaCemsIOManager."""
-        super().__init__(base_path=base_path)
-        self.schema = schema
-
-    def dump_to_path(self, context: OutputContext, obj: dd.DataFrame, path: UPath):
-        """Write dataframe to parquet file."""
-        raise NotImplementedError("This IO Manager doesn't support writing data.")
-
-    def load_from_path(self, context: InputContext, path: UPath) -> dd.DataFrame:
-        """Load a directory of parquet files to a dask dataframe."""
-        logger.info(f"Reading parquet file from {path}")
-        return dd.read_parquet(
-            path,
-            engine="pyarrow",
-            index=False,
-            split_row_groups=True,
-        )
-
-
-@io_manager
-def epacems_io_manager(
-    init_context: InitResourceContext,
-) -> EpaCemsIOManager:
-    """IO Manager that writes EPA CEMS partitions to individual parquet files."""
-    schema = Resource.from_id("core_epacems__hourly_emissions").to_pyarrow()
-    return EpaCemsIOManager(base_path=UPath(PudlPaths().parquet_path()), schema=schema)
