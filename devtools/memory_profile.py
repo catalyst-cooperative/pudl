@@ -46,6 +46,7 @@ def materialize_assets(asset_selection: str) -> None:
     full_etl_job = defs.get_job_def("etl_full")
     dg.materialize(
         assets=defs.assets,
+        instance=dg.DagsterInstance.get(),
         resources=full_etl_job.resource_defs,
         selection=asset_selection_with_multi_asset_siblings,
     )
