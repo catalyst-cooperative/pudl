@@ -115,7 +115,7 @@ class GenericMetadata:
             .loc[str(self._get_partition_selection(partition))]
             .to_dict()
             .items()
-            if v != -1
+            if v not in [-1, "-1"]
         }
 
 

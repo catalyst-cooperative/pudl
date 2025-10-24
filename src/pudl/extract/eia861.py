@@ -40,7 +40,7 @@ class Extractor(excel.ExcelExtractor):
         """Rename columns with location."""
         # for 2024 we began mapping the columns using the string names instead of
         # the numeric location.
-        if str(list(partition.values())[0]) == "2024":
+        if int(list(partition.values())[0]) >= 2024:
             df = super().process_raw(df, page, **partition)
         else:
             column_map_numeric = self._metadata.get_column_map(page, **partition)
