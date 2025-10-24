@@ -149,7 +149,7 @@ def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def transform(
+def transform_epacems(
     raw_lf: pl.LazyFrame,
     core_epa__assn_eia_epacamd: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
