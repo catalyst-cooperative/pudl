@@ -61,12 +61,11 @@ def extract_quarter(
     context,
     year_quarter: str,
 ) -> str:
-    """Process a single year of EPA CEMS data.
+    """Extract a single quarter of EPA CEMS data and write to parquet.
 
     Args:
         context: dagster keyword that provides access to resources and config.
-        year: Year of data to process.
-            ORISPL code with EIA.
+        year_quarter: Year quarter to process, formatted like '1995q1'.
     """
     ds = context.resources.datastore
 
@@ -89,7 +88,11 @@ def transform_and_write_monolithic(
     core_epa__assn_eia_epacamd: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
 ) -> None:
-    """Read partitions into memory and write to a single monolithic output.
+    """Transform EQR data and write to a monolithic parquet file.
+
+    Reads raw EQR data from partitioned dataset created by ``extract_quarter``, then
+    uses Polars streaming engine to perform transforms and write to parquet in one
+    step.
 
     Args:
         partitions: Year and state combinations in the output database.
