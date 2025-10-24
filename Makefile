@@ -69,7 +69,7 @@ docs-clean:
 	rm -f docs/data_dictionaries/pudl_db.rst
 	rm -f docs/data_dictionaries/codes_and_labels.rst
 	rm -rf docs/data_dictionaries/code_csvs
-	rm -f docs/data_sources/censusdp1tract.rst
+	rm -f docs/data_sources/census*.rst
 	rm -f docs/data_sources/eia*.rst
 	rm -f docs/data_sources/epacems*.rst
 	rm -f docs/data_sources/epacamd*.rst
