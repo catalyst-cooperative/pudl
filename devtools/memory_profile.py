@@ -9,19 +9,28 @@ Example usage:
     ./memory_profile.py -a <asset selection>
 
     ./memory_profile.py -a <asset selection> -d <output_dir>
+
+The asset selection follows `normal dagster syntax <https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference>`_:
+
+* If you select an asset for which the upstream assets haven't been materialized
+  yet, the materialization will fail.
+
+* You can select all upstream assets for a specific asset like so:
+  ``-a '+key:asset_key'``. If you expect this to run for a while, consider running
+  with ``--aggregate`` as well so the flamegraph generation doesn't take as long.
 """
 
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 from subprocess import run
-from typing import Any
 
 import click
 import dagster as dg
 from memray import FileFormat, Tracker
 
 
-def materialize_assets(asset_selection: str) -> Any:
+def materialize_assets(asset_selection: str) -> None:
     """Materialize an asset (and its dependencies).
 
     Args:
@@ -35,14 +44,11 @@ def materialize_assets(asset_selection: str) -> Any:
     ).required_multi_asset_neighbors()
 
     full_etl_job = defs.get_job_def("etl_full")
-    execution_result = dg.materialize(
+    dg.materialize(
         assets=defs.assets,
         resources=full_etl_job.resource_defs,
         selection=asset_selection_with_multi_asset_siblings,
     )
-
-    asset_value = execution_result.asset_value(asset_key=asset_selection)
-    return asset_value
 
 
 @click.command(help=__doc__)
@@ -60,7 +66,7 @@ def cli(asset_selection, aggregate, directory):
     click.echo(f"Materializing {asset_selection} via in-process executor.")
     profile_location = (
         Path(directory)
-        / f"memray-{asset_selection}-{datetime.now(tz=UTC):%Y-%m-%dT%H:%M:%S}.bin"
+        / f"memray-{re.sub(r'\W+', '_', asset_selection)}-{datetime.now(tz=UTC):%Y-%m-%dT%H:%M:%S}.bin"
     )
     file_format = (
         FileFormat.AGGREGATED_ALLOCATIONS if aggregate else FileFormat.ALL_ALLOCATIONS
