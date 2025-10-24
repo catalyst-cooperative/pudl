@@ -255,7 +255,6 @@ ignore = [
     "PD010", # Use of df.stack()
     "PD013", # Use of df.unstack()
     "PD015", # Use of pd.merge() rather than df.merge()
-    "PD901", # df as variable name
     "RET504", # Ignore unnecessary assignment before return
     "RUF005", # Unpack iterables instead of concatenation
     "S101", # Use of assert
