@@ -24,7 +24,7 @@ from dagster import (
 
 import pudl
 from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
-from pudl.transform.epacems import transform
+from pudl.transform.epacems import transform_epacems
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -105,7 +105,7 @@ def transform_and_write_monolithic(
     (
         pl.scan_parquet(partitioned_path)
         .pipe(
-            transform,
+            transform_epacems,
             core_epa__assn_eia_epacamd=core_epa__assn_eia_epacamd,
             core_eia__entity_plants=core_eia__entity_plants,
         )
