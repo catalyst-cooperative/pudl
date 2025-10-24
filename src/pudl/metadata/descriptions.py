@@ -160,6 +160,7 @@ class ResolvedResourceDescription:
     appropriate for including in a data dictionary, datapackage export, or sqlachemy operation.
     """
 
+    resource_id: str
     summary: ResourceTrait
     layer: ResourceTrait
     source: ResourceTrait
@@ -243,10 +244,11 @@ class ResourceDescriptionBuilder:
     def build(self):
         """Compute and store all description components from manually-specified settings and automatic sources."""
         return ResolvedResourceDescription(
+            self.resource_id,
             **{
                 name: getattr(self, name)(self.settings, self.defaults)
                 for name in self.components
-            }
+            },
         )
 
     @component
