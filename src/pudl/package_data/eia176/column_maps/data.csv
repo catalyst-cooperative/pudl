@@ -1,9 +1,2 @@
-year_index,any_year
-company,company
-area,area
-value,value
-item,item
-itemsort,itemsort
-id,id
-line,line
-atype,atype
+year_index,company,area,value,item,itemsort,id,line,atype
+any_year,company,area,value,item,itemsort,id,line,atype

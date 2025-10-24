@@ -1565,7 +1565,7 @@ def impute_flagged_values(
     .. note::
        The imputation is parallelized internally, and by default will use all available
        CPU cores. If you want to limit the number of cores used, you can set the
-       ``OPM_NUM_THREADS`` environment variable to the desired number of threads.
+       ``OMP_NUM_THREADS`` environment variable to the desired number of threads.
 
     Args:
         df: Timeseries matrix as described in :func:`_prepare_timeseries_matrix`

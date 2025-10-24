@@ -55,7 +55,7 @@ class VCERareMetadata(GenericMetadata):
 
     def get_file_name(self, page, **partition):
         """Returns file name of given partition and page."""
-        return self._file_name.loc[page, str(self._get_partition_selection(partition))]
+        return self._file_name.loc[str(self._get_partition_selection(partition)), page]
 
 
 class Extractor(CsvExtractor):
