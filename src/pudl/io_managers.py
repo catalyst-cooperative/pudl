@@ -315,8 +315,6 @@ class PudlParquetIOManager(IOManager):
         self, context: OutputContext, obj: pd.DataFrame | pl.LazyFrame
     ) -> None:
         """Writes pudl dataframe to parquet file."""
-        if not isinstance(obj, pd.DataFrame):
-            raise TypeError(f"Only pandas dataframes are supported, got {type(obj)}.")
         table_name = get_table_name_from_context(context)
         parquet_path = PudlPaths().parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
@@ -330,11 +328,16 @@ class PudlParquetIOManager(IOManager):
                 index=False,
                 schema=pa_schema,
             )
-        else:
+        elif isinstance(obj, pl.LazyFrame):
             logger.warning(
                 "PudlParquetIOManager currently does not do any schema enformcement for polars LazyFrames"
             )
-            obj.sink_parquet(parquet_path)
+            obj.sink_parquet(parquet_path, engine="streaming")
+        else:
+            raise TypeError(
+                "PudlParquetIOManager only supports pandas DataFrames and Polars LazyFrames"
+                f", got {type(obj)}."
+            )
 
     def load_input(
         self, context: InputContext

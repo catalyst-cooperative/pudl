@@ -17,6 +17,7 @@ from dagster import (
     AssetIn,
     DynamicOut,
     DynamicOutput,
+    Out,
     asset,
     graph_asset,
     op,
@@ -82,12 +83,12 @@ def extract_quarter(
     return year_quarter
 
 
-@op
+@op(out={"core_epacems__hourly_emissions": Out(io_manager_key="parquet_io_manager")})
 def transform_and_write_monolithic(
     partitions: list[str],
     core_epa__assn_eia_epacamd: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
-) -> None:
+) -> pl.LazyFrame:
     """Transform EQR data and write to a monolithic parquet file.
 
     Reads raw EQR data from partitioned dataset created by ``extract_quarter``, then
@@ -98,18 +99,11 @@ def transform_and_write_monolithic(
         partitions: Year and state combinations in the output database.
     """
     partitioned_path = _partitioned_path()
-    monolithic_path = (
-        PudlPaths().output_dir / "parquet" / "core_epacems__hourly_emissions.parquet"
-    )
 
-    (
-        pl.scan_parquet(partitioned_path)
-        .pipe(
-            transform_epacems,
-            core_epa__assn_eia_epacamd=core_epa__assn_eia_epacamd,
-            core_eia__entity_plants=core_eia__entity_plants,
-        )
-        .sink_parquet(monolithic_path, engine="streaming")
+    return pl.scan_parquet(partitioned_path).pipe(
+        transform_epacems,
+        core_epa__assn_eia_epacamd=core_epa__assn_eia_epacamd,
+        core_eia__entity_plants=core_eia__entity_plants,
     )
 
 
