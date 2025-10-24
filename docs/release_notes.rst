@@ -21,11 +21,15 @@ Census PEP
 * Expanded geocodes to include vintages for each year from 2011-2024. See issue
   :issue:`4637` and PR :pr:`4665`.
 
-EIA-923
-~~~~~~~~
+EIA 923
+~~~~~~~
 
-* Updated EIA-923 with final release data from 2024. Also includes 2025 data up
+* Updated EIA 923 with final release data from 2024. Also includes 2025 data up
   through July. See PR :pr:`4641`.
+
+EIA 861
+~~~~~~~
+* Added EIA 861 final release data from 2024. See :issue:`4648` and PR :pr:`4672`.
 
 New Data
 ^^^^^^^^
@@ -53,23 +57,23 @@ v2025.10.0 (2025-10-14)
 ---------------------------------------------------------------------------------------
 
 This is a regular monthly data release, primarily intended to ensure that PUDL has the
-most up-to-date EIA-860M data. It also happens to include final EIA-860 data for 2024,
-and some newly integrated EIA-923 financial data and PHMSA natural gas data. See below
+most up-to-date EIA 860M data. It also happens to include final EIA 860 data for 2024,
+and some newly integrated EIA 923 financial data and PHMSA natural gas data. See below
 for details.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-EIA-860
+EIA 860
 ~~~~~~~~
 
-* Updated EIA-860 with final release data from 2024. See issue :issue:`4616` and
+* Updated EIA 860 with final release data from 2024. See issue :issue:`4616` and
   PR :pr:`4617`.
 
-EIA-860M
+EIA 860M
 ~~~~~~~~
 
-* Updated EIA-860M monthly generator report with newly published data for August
+* Updated EIA 860M monthly generator report with newly published data for August
   of 2025. See issue :issue:`4639` and PR :pr:`4638`.
 
 Re-introduce 88888 and 99999 utility_id_eia
@@ -149,7 +153,7 @@ v2025.9.1 (2025-09-05)
 
    There was an issue with the ``v2025.9.0`` release process and that tag was deleted.
 
-This is a monthly release primarily focused on updating the EIA-860M, with other
+This is a monthly release primarily focused on updating the EIA 860M, with other
 incremental changes coming along for the ride. A couple of things to be aware of:
 
 * :user:`mfripp` identified a bug in how we were constructing detailed utility
@@ -195,10 +199,10 @@ tables with a valid ``geometry`` column are:
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-EIA-860M
+EIA 860M
 ~~~~~~~~
 
-* Updated EIA-860M monthly generator report with newly published data for July
+* Updated EIA 860M monthly generator report with newly published data for July
   of 2025. See issue :issue:`4590` and PR :pr:`4594`.
 
 FERC Form 1
@@ -260,7 +264,7 @@ v2025.8.0 (2025-08-14)
 This is a regular quarterly release of PUDL. It includes new 2024 annual updates for a
 number of datasets (FERC Forms 2, 6, 60, & 714), and a minor update to the 2024 FERC
 Form 1 data that includes late filings & revisions. It also includes year-to-date
-updates for the monthly and quarterly datasets, including EIA-860M, EIA-923, EIA-930,
+updates for the monthly and quarterly datasets, including EIA 860M, EIA 923, EIA 930,
 and the EPA CEMS hourly emissions. There were also a number of data processing bug fixes
 and data usability improvements. See the full notes below for details.
 
@@ -276,16 +280,16 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-EIA-860M
+EIA 860M
 ~~~~~~~~
 
-* Updated EIA-860M monthly generator report with newly published data for May and June
+* Updated EIA 860M monthly generator report with newly published data for May and June
   of 2025. See issue :issue:`4379` and PR :pr:`4536`.
 
-EIA-923
+EIA 923
 ~~~~~~~
 
-* Added EIA-923 data through May 2025. See :issue:`4516` and :pr:`4538`.
+* Added EIA 923 data through May 2025. See :issue:`4516` and :pr:`4538`.
 
 EIA 930
 ~~~~~~~
@@ -378,7 +382,7 @@ Documentation
 New Tests and Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-EIA-930 and FERC-714 Hourly Imputed Demand
+EIA 930 and FERC-714 Hourly Imputed Demand
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added checks which ensure that *only* hourly electricity demand values which are flagged
@@ -511,13 +515,13 @@ v2025.5.0 (2025-05-20)
 ---------------------------------------------------------------------------------------
 
 This is our regular quarterly PUDL data release for 2025Q2. It includes sub-annual
-updates to the EIA-860M, EIA-923, EIA-930, EIA bulk electricity API, and EPA CEMS
+updates to the EIA 860M, EIA 923, EIA 930, EIA bulk electricity API, and EPA CEMS
 datasets. It also includes preliminary 2024 data for FERC Form 1 (integrated into PUDL)
 and FERC Forms 2, 6, and 60 (as stand-alone SQLite databases). The VCE RARE hourly
 county-level renewable energy generation curves have been extended back to cover
 2014-2018.
 
-This release also includes new imputed versions of the FERC-714 and EIA-930 hourly
+This release also includes new imputed versions of the FERC-714 and EIA 930 hourly
 demand curves with missing values filled in and a better organized version of the SEC
 10-K company ownership data. Note that work on the demand imputations and SEC 10-K data
 is ongoing.
@@ -542,7 +546,7 @@ New Data
 FERC 714
 ~~~~~~~~
 * We refactored our timseries imputation functions to be more generalized and reusable,
-  so they can be applied to electricity demand curves from both FERC-714 and EIA-930,
+  so they can be applied to electricity demand curves from both FERC-714 and EIA 930,
   as well as other time series data in the future. This resulted in some minor changes
   to the imputation results. See issue :issue:`4112` and PR :pr:`4113`.
 * Added the table :ref:`out_ferc714__hourly_planning_area_demand`, which contains an
@@ -727,7 +731,7 @@ New Data
 
 EIA 176
 ~~~~~~~
-* Add a couple of semi-transformed interim EIA-176 (natural gas sources and
+* Add a couple of semi-transformed interim EIA 176 (natural gas sources and
   dispositions) tables. They aren't yet being written to the database, but are one step
   closer. See :issue:`3555` and PRs :pr:`3590,3978`. Thanks to :user:`davidmudrauskas`
   for moving this dataset forward.
@@ -983,13 +987,13 @@ v2024.8.0 (2024-08-19)
 
 This is our regular quarterly release for 2024Q3. It includes quarterly updates to all
 datasets that are updated with quarterly or higher frequency by their publishers,
-including EIA-860M, EIA-923 (YTD data), EIA-930, the EIA's bulk electricity API data
+including EIA 860M, EIA 923 (YTD data), EIA 930, the EIA's bulk electricity API data
 (used to fill in missing fuel prices), and the EPA CEMS hourly emissions data.
 
 Annual datasets which have been published since our last quarterly release have also
 been integrated. These include FERC Forms 1, 2, 6, 60, and 714, and the NREL ATB.
 
-This release also includes provisional versions of the annual 2023 EIA-860 and EIA-923
+This release also includes provisional versions of the annual 2023 EIA 860 and EIA 923
 datasets, whose final release will not happen until the fall.
 
 New Data Coverage
@@ -1111,7 +1115,7 @@ modelers (with support from GridLab). Details below.
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
-EIA-860 & EIA-923
+EIA 860 & EIA 923
 ~~~~~~~~~~~~~~~~~
 
 * Added cleaned EIA860 Schedule 8E FGD Equipment and EIA923 Schedule 8C FGD Operation
@@ -1175,10 +1179,10 @@ NREL ATB
 * Added new NREL ATB tables with annual technology cost and performance projections. See
   issue :issue:`3465` and PRs :pr:`3498,3570`.
 
-EIA-930
+EIA 930
 ~~~~~~~
 
-* Added hourly generation, demand, and interchange tables from the EIA-930. See issues
+* Added hourly generation, demand, and interchange tables from the EIA 930. See issues
   :issue:`3486,3505` PR :pr:`3584` and `this issue in the PUDL archiver repo
   <https://github.com/catalyst-cooperative/pudl-archiver/issues/295>`__. See the
   data source documentation :doc:`data_sources/eia930` for more information.
@@ -2116,7 +2120,7 @@ Bug Fixes
 * Fixed a testing bug where the partitioned EPA CEMS outputs generated using parallel
   processing were getting output in the same output directory as the real ETL, which
   should never happen. See :pr:`1618`.
-* Changed the way fixes to the EIA-861 balancing authority names and IDs are applied,
+* Changed the way fixes to the EIA 861 balancing authority names and IDs are applied,
   so that they still work when only some years of data are being processed. See
   :pr:`1671` and :issue:`828`.
 
