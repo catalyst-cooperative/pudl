@@ -128,27 +128,6 @@ def _load_plant_utc_offset(core_eia__entity_plants: pd.DataFrame) -> pd.DataFram
     return timezones
 
 
-def correct_gross_load_mw(df: pd.DataFrame) -> pd.DataFrame:
-    """Fix values of gross load that are wrong by orders of magnitude.
-
-    Args:
-        df: A CEMS dataframe
-
-    Returns:
-        The same DataFrame with corrected gross load values.
-    """
-    # Largest fossil plant is something like 3500 MW, and the largest unit
-    # in the EIA 860 is less than 1500. Therefore, assume they've done it
-    # wrong (by writing KWh) if they report more.
-    # (There is a cogen unit, 54634 unit 1, that regularly reports around
-    # 1700 MW. I'm assuming they're correct.)
-    # This is rare, so don't bother most of the time.
-    bad = df["gross_load_mw"] > 2000
-    if bad.any():
-        df.loc[bad, "gross_load_mw"] = df.gross_load_mw / 1000
-    return df
-
-
 def transform_epacems(
     raw_lf: pl.LazyFrame,
     core_epa__assn_eia_epacamd: pd.DataFrame,
@@ -157,8 +136,9 @@ def transform_epacems(
     """Transform EPA CEMS hourly data and ready it for export to Parquet.
 
     Args:
-        raw_df: An extracted by not yet transformed year_quarter of EPA CEMS data.
-        pudl_engine: SQLAlchemy connection engine for connecting to an existing PUDL DB.
+        raw_lf: LazyFrame pointing to raw EPA CEMS data.
+        core_epa__assn_eia_epacamd: EPA-EIA crosswalk DataFrame.
+        core_eia__entity_plants: EIA plants DataFrame.
 
     Returns:
         A single year_quarter of EPA CEMS data
@@ -168,6 +148,8 @@ def transform_epacems(
     return (
         raw_lf.pipe(apply_pudl_dtypes_polars, group="epacems")
         .with_columns(
+            # Strip leading zeros from strings
+            # TODO: Update method in helpers.py with polars implementation from here.
             emissions_unit_id_epa=pl.when(
                 pl.col("emissions_unit_id_epa").str.contains(r"^\d+$")
             )
@@ -179,6 +161,7 @@ def transform_epacems(
             convert_to_utc,
             plant_utc_offset=_load_plant_utc_offset(core_eia__entity_plants),
         )
+        # Fix gross load that is orders of magnitude too high
         .with_columns(
             gross_load_mw=pl.when(pl.col("gross_load_mw") > 2000)
             .then(pl.col("gross_load_mw") / 1000)
