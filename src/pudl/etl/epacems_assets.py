@@ -11,13 +11,13 @@ see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs and https:/
 
 from pathlib import Path
 
-import dask.dataframe as dd
 import pandas as pd
 import polars as pl
 from dagster import (
     AssetIn,
     DynamicOut,
     DynamicOutput,
+    Out,
     asset,
     graph_asset,
     op,
@@ -25,7 +25,7 @@ from dagster import (
 
 import pudl
 from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
-from pudl.transform.epacems import transform
+from pudl.transform.epacems import transform_epacems
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -62,12 +62,11 @@ def extract_quarter(
     context,
     year_quarter: str,
 ) -> str:
-    """Process a single year of EPA CEMS data.
+    """Extract a single quarter of EPA CEMS data and write to parquet.
 
     Args:
         context: dagster keyword that provides access to resources and config.
-        year: Year of data to process.
-            ORISPL code with EIA.
+        year_quarter: Year quarter to process, formatted like '1995q1'.
     """
     ds = context.resources.datastore
 
@@ -84,30 +83,27 @@ def extract_quarter(
     return year_quarter
 
 
-@op
+@op(out={"core_epacems__hourly_emissions": Out(io_manager_key="parquet_io_manager")})
 def transform_and_write_monolithic(
     partitions: list[str],
     core_epa__assn_eia_epacamd: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
-) -> None:
-    """Read partitions into memory and write to a single monolithic output.
+) -> pl.LazyFrame:
+    """Transform EQR data and write to a monolithic parquet file.
+
+    Reads raw EQR data from partitioned dataset created by ``extract_quarter``, then
+    uses Polars streaming engine to perform transforms and write to parquet in one
+    step.
 
     Args:
         partitions: Year and state combinations in the output database.
     """
     partitioned_path = _partitioned_path()
-    monolithic_path = (
-        PudlPaths().output_dir / "parquet" / "core_epacems__hourly_emissions.parquet"
-    )
 
-    (
-        pl.scan_parquet(partitioned_path)
-        .pipe(
-            transform,
-            core_epa__assn_eia_epacamd=core_epa__assn_eia_epacamd,
-            core_eia__entity_plants=core_eia__entity_plants,
-        )
-        .sink_parquet(monolithic_path, engine="streaming")
+    return pl.scan_parquet(partitioned_path).pipe(
+        transform_epacems,
+        core_epa__assn_eia_epacamd=core_epa__assn_eia_epacamd,
+        core_eia__entity_plants=core_eia__entity_plants,
     )
 
 
@@ -138,26 +134,21 @@ def core_epacems__hourly_emissions(
 
 @asset(
     ins={
-        "core_epacems__hourly_emissions": AssetIn(
-            input_manager_key="epacems_io_manager"
-        ),
+        "core_epacems__hourly_emissions": AssetIn(input_manager_key="pudl_io_manager"),
     },
-    compute_kind="Dask",
 )
 def _core_epacems__emissions_unit_ids(
-    core_epacems__hourly_emissions: dd.DataFrame,
+    core_epacems__hourly_emissions: pl.LazyFrame,
 ) -> pd.DataFrame:
     """Make unique annual plant_id_eia and emissions_unit_id_epa.
 
     Returns:
         dataframe with unique set of: "plant_id_eia", "year" and "emissions_unit_id_epa"
     """
-    epacems_ids = (
-        core_epacems__hourly_emissions[
+    return (
+        core_epacems__hourly_emissions.select(
             ["plant_id_eia", "year", "emissions_unit_id_epa"]
-        ]
-        .drop_duplicates()
-        .compute()
-    )
-
-    return epacems_ids
+        )
+        .unique()
+        .collect(engine="streaming")
+    ).to_pandas()

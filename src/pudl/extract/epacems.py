@@ -63,23 +63,23 @@ There are some duplicate rename values because the column names change year to y
 
 API_DTYPE_DICT = {
     "State": pl.datatypes.Categorical,
-    "Facility ID": pl.datatypes.Int32,  # unique facility id for internal EPA database management (ORIS code)
+    "Facility ID": pl.datatypes.Int64,  # unique facility id for internal EPA database management (ORIS code)
     "Unit ID": pl.datatypes.String,
     # These op_date, op_hour, and op_time variables get converted to
     # operating_date, operating_datetime and operating_time_interval in
     # transform/epacems.py
     "Date": pl.datatypes.Date,
     "Hour": pl.datatypes.Int16,
-    "Operating Time": pl.datatypes.Float32,
-    "Gross Load (MW)": pl.datatypes.Float32,
-    "Steam Load (1000 lb/hr)": pl.datatypes.Float32,
-    "SO2 Mass (lbs)": pl.datatypes.Float32,
+    "Operating Time": pl.datatypes.Float64,
+    "Gross Load (MW)": pl.datatypes.Float64,
+    "Steam Load (1000 lb/hr)": pl.datatypes.Float64,
+    "SO2 Mass (lbs)": pl.datatypes.Float64,
     "SO2 Mass Measure Indicator": pl.datatypes.Categorical,
-    "NOx Mass (lbs)": pl.datatypes.Float32,
+    "NOx Mass (lbs)": pl.datatypes.Float64,
     "NOx Mass Measure Indicator": pl.datatypes.Categorical,
-    "CO2 Mass (short tons)": pl.datatypes.Float32,
+    "CO2 Mass (short tons)": pl.datatypes.Float64,
     "CO2 Mass Measure Indicator": pl.datatypes.Categorical,
-    "Heat Input (mmBtu)": pl.datatypes.Float32,
+    "Heat Input (mmBtu)": pl.datatypes.Float64,
 }
 
 
