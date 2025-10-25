@@ -162,6 +162,7 @@ dev = [
     "jupyterlab>4.4",
     "jupyter-lsp",
     "jupyterlab-lsp",
+    "memray>=1.18.0",
     "ruff-lsp",
     "jupyter-resource-usage",
     "pygraphviz",
