@@ -10,6 +10,7 @@ For data validation we almost entirely rely on dbt data tests.
 from typing import Any
 
 import geopandas as gpd
+import pandas as pd
 import pandera as pr
 from dagster import (
     AssetCheckResult,
@@ -152,7 +153,7 @@ def asset_check_from_schema(
     pandera_schema = resource.schema.to_pandera()
 
     @asset_check(asset=asset_key, blocking=True)
-    def pandera_schema_check(asset_value) -> AssetCheckResult:
+    def pandera_schema_check(asset_value: pd.DataFrame) -> AssetCheckResult:
         # Collect all metadata
         metadata = (
             _collect_asset_metadata(asset_value)

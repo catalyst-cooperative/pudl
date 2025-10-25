@@ -1,6 +1,7 @@
 """Unit tests for the pudl.transform.epacems module."""
 
 import pandas as pd
+import polars as pl
 
 import pudl.transform.epacems as epacems
 
@@ -36,5 +37,11 @@ def test_harmonize_eia_epa_orispl():
             "plant_id_eia": [58697, 3, 10, 1111],
         }
     )
-    actual_df = epacems.harmonize_eia_epa_orispl(cems_test_df, crosswalk_test_df)
+    actual_df = (
+        epacems.harmonize_eia_epa_orispl(
+            pl.from_pandas(cems_test_df).lazy(), crosswalk_test_df
+        )
+        .collect()
+        .to_pandas()
+    )
     pd.testing.assert_frame_equal(expected_df, actual_df, check_dtype=False)

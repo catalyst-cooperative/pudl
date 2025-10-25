@@ -17,7 +17,6 @@ from dagster import (
 import pudl
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
-    epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,
@@ -178,7 +177,6 @@ default_resources = {
     "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
     "dataset_settings": dataset_settings,
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
-    "epacems_io_manager": epacems_io_manager,
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
 }

@@ -6,9 +6,21 @@ from collections.abc import Callable
 import geoarrow.pyarrow as ga
 import geopandas as gpd
 import pandas as pd
+import polars as pl
 import pyarrow as pa
 import sqlalchemy as sa
 from sqlalchemy.dialects.sqlite import DATETIME as SQLITE_DATETIME
+
+FIELD_DTYPES_POLARS: dict[str, str] = {
+    "boolean": pl.datatypes.Boolean,
+    "date": pl.datatypes.Date,
+    "datetime": pl.datatypes.Datetime,
+    "integer": pl.datatypes.Int64,
+    "number": pl.datatypes.Float64,
+    "string": pl.datatypes.String,
+    "year": pl.datatypes.Datetime,
+}
+"""Polars data type by PUDL field type (Data Package `field.type`)."""
 
 FIELD_DTYPES_PANDAS: dict[str, str] = {
     "boolean": "boolean",
