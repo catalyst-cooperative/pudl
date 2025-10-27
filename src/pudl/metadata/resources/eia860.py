@@ -9,6 +9,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "boilers which may vary from year to year. Compiled from across all "
                 "EIA-860 data."
             ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -154,6 +155,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "generators which may vary from year to year. Compiled from across "
                 "EIA-860 and EIA-923 data."
             ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -327,6 +329,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plants which may vary from year to year. Compiled from across all "
                 "EIA-860 and EIA-923 data."
             ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -412,6 +415,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "utilities which may vary from year to year. Compiled from all EIA data."
             ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
