@@ -5,11 +5,11 @@ PUDL Release Notes
 ---------------------------------------------------------------------------------------
 v2025.XX.x (2025-MM-DD)
 ---------------------------------------------------------------------------------------
+This is a regular monthly data release, primarily intended to ensure that PUDL has the
+most up-to-date EIA-860M data. This also includes some performance improvements that aim
+to allow contributors to more easily run the full ETL locally.
 
 Enhancements
-^^^^^^^^^^^^
-
-Deprecations
 ^^^^^^^^^^^^
 
 Expanded Data Coverage
@@ -49,6 +49,15 @@ New Data Tests & Data Validations
 
 Bug Fixes
 ^^^^^^^^^
+
+Deprecations
+^^^^^^^^^^^^
+
+Dev tooling
+^^^^^^^^^^^
+
+* As part of a performance push, we added some tools for quick memory profiling
+  of asset materialization. See issue :issue:`4619` and PR :pr:`4655`.
 
 .. _release-v2025.10.0:
 
