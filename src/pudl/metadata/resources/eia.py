@@ -119,6 +119,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_boilers": {
         "description": {
             "additional_summary_text": "boilers compiled from the EIA-860 and EIA-923.",
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -645,6 +646,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_generators": {
         "description": {
             "additional_summary_text": "generators compiled from across the EIA-860 and EIA-923.",
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -720,6 +722,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_plants": {
         "description": {
             "additional_summary_text": "plants, compiled from across all EIA-860 and EIA-923 data.",
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -805,6 +808,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_utilities": {
         "description": {
             "additional_summary_text": "utilities, compiled from all EIA data.",
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
