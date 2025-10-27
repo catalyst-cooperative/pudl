@@ -99,7 +99,7 @@ jobs:
           ls -a
 
       - name: Upload docs coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-docs
           include-hidden-files: true
@@ -154,7 +154,7 @@ jobs:
           ls -a
 
       - name: Upload unit tests coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-unit
           include-hidden-files: true
@@ -260,7 +260,7 @@ jobs:
           ls -a
 
       - name: Upload integration test coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-integration
           include-hidden-files: true
@@ -268,7 +268,7 @@ jobs:
 
       - name: Upload dbt test failure database artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: dbt-failures
           path: pudl_dbt_tests.duckdb
