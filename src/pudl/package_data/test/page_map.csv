@@ -1,5 +1,4 @@
-year_index,2010,2011,2012
-books,0,0,0
-boxes,1,1,1
-shoes,2,2,2
-time,3,3,3
+year_index,books,boxes,shoes,time
+2010,0,1,2,3
+2011,0,1,2,3
+2012,0,1,2,3

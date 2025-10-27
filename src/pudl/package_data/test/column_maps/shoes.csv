@@ -1,4 +1,10 @@
-year_index,2010,2011,20122010,2011,20122010,2011,20122010,2011,2012
-size,size_eur,size_us_m,size_us_w
-color,colour,style,color
-make,brand,name,make
+year_index,size,color,make
+2010,size_eur,colour,brand
+2011,size_us_m,style,name
+20122010,size_us_w,color,make
+2011.1,,,
+20122010.1,,,
+2011.2,,,
+20122010.2,,,
+2011.3,,,
+2012,,,
