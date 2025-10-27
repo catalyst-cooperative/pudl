@@ -1,4 +1,4 @@
-name: Data bug report.
+name: Data bug report
 description: Report irregularities with PUDL data.
 title: ""
 labels: ["bug", "data-validation"]
