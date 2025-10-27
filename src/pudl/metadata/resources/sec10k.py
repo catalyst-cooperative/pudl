@@ -9,6 +9,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "subsidiaries listed in "
                 "Exhibit 21 and their SEC central index key, if the subsidiary also files Form 10-K."
             ),
+            "usage_warnings": ["discontinued_pudl"],
             "additional_details_text": "Exhibit 21 subsidiaries and SEC 10-K filers are "
             "considered matched if they have identical names and the same location of incorporation.",
         },
@@ -25,6 +26,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "subsidiaries listed in Exhibit 21 and EIA utilities."
             ),
+            "usage_warnings": ["discontinued_pudl"],
             "additional_details_text": (
                 "An Exhibit 21 subsidiary is considered matched "
                 "to an EIA utility if their names are identical. Only subsidiaries that "
@@ -52,7 +54,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                         "using a machine learning model and contains some incompletions and errors. It should not be "
                         "treated as ground truth data."
                     ),
-                }
+                },
+                "discontinued_pudl",
             ],
             "additional_details_text": """SEC central index keys are matched to EIA
 utility IDs using probabilistic record linkage based on associated company information
@@ -72,6 +75,7 @@ the match with the highest probability is selected.""",
     "core_sec10k__quarterly_filings": {
         "description": {
             "additional_summary_text": "metadata describing SEC 10-K filings.",
+            "usage_warnings": ["discontinued_pudl"],
             "additional_details_text": """
 Each SEC 10-K filing is submitted by a single company, but may contain information about
 numerous other companies. This table indicates the company submitting the filing, as
@@ -101,6 +105,7 @@ key.""",
     "out_sec10k__quarterly_filings": {
         "description": {
             "additional_summary_text": "metadata describing SEC 10-K filings.",
+            "usage_warnings": ["discontinued_pudl"],
             "additional_details_text": """
 Each SEC 10-K filing is submitted by a single company, but may contain information about
 numerous other companies. This table indicates the company submitting the filing, as
@@ -140,7 +145,8 @@ constructed from the filename.""",
                         "using a machine learning model and contains some incompletions and errors. It should not be "
                         "treated as ground truth data."
                     ),
-                }
+                },
+                "discontinued_pudl",
             ],
             "additional_details_text": """
 Exhibit 21 is an unstructured text or PDF attachment to the main SEC 10-K filing
@@ -165,6 +171,7 @@ location of the subsidiary.""",
     "core_sec10k__quarterly_company_information": {
         "description": {
             "additional_summary_text": "company and filing information extracted from SEC 10-K filing headers.",
+            "usage_warnings": ["discontinued_pudl"],
             "additional_details_text": """
 While the SEC 10-K filings are submitted by a single company, they often contain
 references to many other related companies. Information about these companies and the
@@ -222,6 +229,7 @@ as inputs into the probabilistic record linkage process.""",
     "core_sec10k__changelog_company_name": {
         "description": {
             "additional_summary_text": "the names each SEC 10-K filer has used.",
+            "usage_warnings": ["discontinued_pudl"],
             "additional_details_text": """
 This table is extracted from the same SEC 10-K filing header information as
 :ref:`core_sec10k__quarterly_company_information`. Each filing reports the full history of
@@ -252,6 +260,7 @@ the old and new company names have been swapped.""",
         "description": {
             "additional_summary_text": "the names each SEC 10-K filer has used.",
             "layer_code": "out_narrow",
+            "usage_warnings": ["discontinued_pudl"],
             "additional_details_text": """
 We use the company name reported in association with each name change block in the
 company information table to fill in the most recent value of ``company_name_new``.
@@ -273,6 +282,7 @@ have been dropped.""",
     "out_sec10k__quarterly_company_information": {
         "description": {
             "additional_summary_text": "company and filing data extracted from SEC 10-K filings.",
+            "usage_warnings": ["discontinued_pudl"],
             "additional_details_text": (
                 "In addition to the information provided by the "
                 ":ref:`core_sec10k__quarterly_company_information` table, this output table merges in the "
@@ -338,7 +348,8 @@ have been dropped.""",
                         "using a machine learning model and contains some incompletions and errors. It should not be "
                         "treated as ground truth data."
                     ),
-                }
+                },
+                "discontinued_pudl",
             ],
             "additional_details_text": """Company ownership fractions are extracted from SEC 10-K Exhibit 21. Information about
 the companies is extracted primarily from the headers of the SEC 10-K filing.
