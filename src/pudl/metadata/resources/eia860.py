@@ -18,6 +18,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "EIA-860 data."
             ),
             "additional_details_text": HARVESTING_DETAIL_TEXT,
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -173,6 +174,7 @@ blend of these two sources.
 
 The related table with the static attributes about generators is
 :ref:`core_eia__entity_generators`.""",
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -347,6 +349,7 @@ The related table with the static attributes about generators is
                 "EIA-860 and EIA-923 data."
             ),
             "additional_details_text": HARVESTING_DETAIL_TEXT,
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -433,6 +436,7 @@ The related table with the static attributes about generators is
                 "utilities which may vary from year to year. Compiled from all EIA data."
             ),
             "additional_details_text": HARVESTING_DETAIL_TEXT,
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
