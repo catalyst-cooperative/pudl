@@ -742,7 +742,9 @@ def organize_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df[organized_cols]
 
 
-def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+def simplify_strings(
+    df: pd.DataFrame, columns: list[str], copy: bool = True
+) -> pd.DataFrame:
     """Simplify the strings contained in a set of dataframe columns.
 
     Performs several operations to simplify strings for comparison and parsing purposes.
@@ -759,17 +761,19 @@ def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     Returns:
         The whole DataFrame that was passed in, with the string columns cleaned up.
     """
-    out_df = df.copy()
+    out_df = df.copy() if copy else df
     for col in columns:
         if col in out_df.columns:
-            out_df.loc[out_df[col].notnull(), col] = (
-                out_df.loc[out_df[col].notnull(), col]
-                .astype(str)
-                .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
-                .str.strip()
-                .str.lower()
-                .str.replace(r"\s+", " ", regex=True)
-            )
+            mask = out_df[col].notnull()
+            if mask.sum() > 0:
+                out_df.loc[mask, col] = (
+                    out_df.loc[mask, col]
+                    .astype(str)
+                    .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
+                    .str.strip()
+                    .str.lower()
+                    .str.replace(r"\s+", " ", regex=True)
+                )
     return out_df
 
 
@@ -972,9 +976,7 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
         month_year_date.append((month_col, year_col, date_col))
 
     for month_col, year_col, date_col in month_year_date:
-        df = fix_int_na(df, columns=[year_col, month_col])
-
-        date_mask = (df[year_col] != "") & (df[month_col] != "")
+        date_mask = df[[year_col, date_col]].notna().all(axis="columns")
         years = df.loc[date_mask, year_col]
         months = df.loc[date_mask, month_col]
 
@@ -996,6 +998,7 @@ def convert_to_date(
     day_col: str = "report_day",
     month_na_value: int = 1,
     day_na_value: int = 1,
+    copy: bool = True,
 ) -> pd.DataFrame:
     """Convert specified year, month or day columns into a datetime object.
 
@@ -1018,7 +1021,8 @@ def convert_to_date(
         A DataFrame in which the year, month, day columns values have been converted
         into datetime objects.
     """
-    df = df.copy()
+    if copy:
+        df = df.copy()
     if date_col in df.columns:
         return df
 
@@ -1034,8 +1038,10 @@ def convert_to_date(
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
-    df = df.drop(cols_to_drop, axis="columns")
 
+    if copy:
+        return df.drop(cols_to_drop, axis="columns")
+    df.drop(cols_to_drop, axis="columns", inplace=True)  # noqa: PD002
     return df
 
 
@@ -1892,6 +1898,7 @@ def convert_col_to_bool(
 def fix_boolean_columns(
     df: pd.DataFrame,
     boolean_columns_to_fix: list[str],
+    inplace: bool = False,
 ) -> pd.DataFrame:
     """Fix standard issues with EIA boolean columns.
 
@@ -1905,6 +1912,10 @@ def fix_boolean_columns(
         col: {"Y": True, "N": False, "X": False, "U": pd.NA}
         for col in boolean_columns_to_fix
     }
+    if inplace:
+        df.fillna(fillna_cols, inplace=True)  # noqa: PD002
+        df.replace(to_replace=boolean_replace_cols, inplace=True)  # noqa: PD002
+        return df
     return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)
 
 
