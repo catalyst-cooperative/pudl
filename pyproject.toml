@@ -28,7 +28,7 @@ dependencies = [
     "dask-expr>=2", # Required for dask[dataframe]
     "dbt-core>=1.10.11,!=1.10.12",
     "dbt-duckdb>=1.9.4",
-    "deepdiff>=7.0.1,<8",
+    "deepdiff>=8",
     "doc8>=1.1",
     "duckdb>=1.3.2,<1.4", # https://github.com/moj-analytical-services/splink/discussions/2796
     "email-validator>=1.0.3", # pydantic[email]
