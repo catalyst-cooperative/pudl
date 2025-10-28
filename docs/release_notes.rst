@@ -21,11 +21,19 @@ Census PEP
 * Expanded geocodes to include vintages for each year from 2011-2024. See issue
   :issue:`4637` and PR :pr:`4665`.
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data up through September 2025. See :issue:`4698` and
+  :pr:`4706`.
+
 EIA-923
 ~~~~~~~~
 
 * Updated EIA-923 with final release data from 2024. Also includes 2025 data up
   through July. See PR :pr:`4641`.
+* Updated EIA-923 with monthly data up through August 2025. See :issue:`4699` and
+  :pr:`4706`.
 
 New Data
 ^^^^^^^^
