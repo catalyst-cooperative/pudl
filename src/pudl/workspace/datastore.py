@@ -10,6 +10,7 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
 from urllib.parse import ParseResult, urlparse
 
@@ -329,6 +330,10 @@ class Datastore:
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
+        # If you want to extract a file to *disk* instead of memory, it helps
+        # to have a temporary directory that sticks around until the Datastore
+        # object is deleted
+        self.temporary_extraction_dir = TemporaryDirectory()
 
         if local_cache_path:
             logger.info(f"Adding local cache layer at {local_cache_path}")
