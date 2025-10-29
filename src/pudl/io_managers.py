@@ -327,7 +327,7 @@ class PudlParquetIOManager(IOManager):
             )
         elif isinstance(obj, pl.LazyFrame):
             logger.warning(
-                "PudlParquetIOManager currently does not do any schema enformcement for polars LazyFrames"
+                "PudlParquetIOManager currently does not do any schema enforcement for polars LazyFrames"
             )
             obj.sink_parquet(parquet_path, engine="streaming")
         else:
@@ -341,13 +341,10 @@ class PudlParquetIOManager(IOManager):
     ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
-        if (
-            context.dagster_type.typing_type == pd.DataFrame
-            or context.dagster_type.typing_type == gpd.GeoDataFrame
-        ):
-            df = get_parquet_table(table_name)
-        else:
+        if context.dagster_type.typing_type == pl.LazyFrame:
             df = get_parquet_table_polars(table_name)
+        else:
+            df = get_parquet_table(table_name)
         return df
 
 

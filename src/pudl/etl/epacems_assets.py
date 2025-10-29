@@ -56,7 +56,6 @@ def get_year_quarters_from_settings(context):
 
 @op(
     required_resource_keys={"datastore", "dataset_settings"},
-    tags={"memory-use": "high"},
 )
 def extract_quarter(
     context,
