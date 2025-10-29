@@ -22,9 +22,18 @@ sources:
                 partition_expr:
         columns:
           - name: mine_id_pudl
+            tests:
+              - not_null
+              - unique
           - name: mine_name
+            tests:
+              - not_null
           - name: mine_type_code
           - name: state
+            tests:
+              - not_null
           - name: county_id_fips
           - name: mine_id_msha
           - name: data_maturity
+            tests:
+              - not_null
