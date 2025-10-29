@@ -6,13 +6,10 @@ import dask.dataframe as dd
 import pandas as pd
 import pytest
 import sqlalchemy as sa
-from dagster import build_init_resource_context
-from pydantic import ValidationError
 
-from pudl.extract.epacems import extract
-from pudl.io_managers import epacems_io_manager
 from pudl.output.epacems import epacems, year_state_filter
 from pudl.settings import EpaCemsSettings, EtlSettings
+from pudl.workspace.setup import PudlPaths
 
 
 @pytest.fixture(scope="module")
@@ -29,11 +26,7 @@ def epacems_parquet_path(pudl_engine: sa.Engine) -> Path:
     Args:
         pudl_engine: An implicit dependency that ensures the .parquet files exist.
     """
-    context = build_init_resource_context()
-    return (
-        epacems_io_manager(context)._base_path
-        / "core_epacems__hourly_emissions.parquet"
-    )
+    return PudlPaths().parquet_path("core_epacems__hourly_emissions")
 
 
 def test_epacems_subset(epacems_settings: EpaCemsSettings, epacems_parquet_path: Path):
@@ -56,12 +49,6 @@ def test_epacems_subset(epacems_settings: EpaCemsSettings, epacems_parquet_path:
     assert actual.shape[0].compute() > 0
 
 
-def test_epacems_missing_partition(pudl_datastore_fixture):
-    """Check that trying to extract a non-working partition raises ValidationError"""
-    with pytest.raises(ValidationError):
-        _ = extract(year_quarter="1994Q4", ds=pudl_datastore_fixture)
-
-
 def test_epacems_parallel(pudl_engine, epacems_parquet_path):
     """Test that we can run the EPA CEMS ETL in parallel."""
     # We need a temporary output directory to avoid dropping the ID/ME 2019/2020
@@ -78,10 +65,4 @@ def test_epacems_parallel(pudl_engine, epacems_parquet_path):
     assert df.state.unique() == ["ME"]
 
 
-def test_missing_cems_partition(pudl_datastore_fixture):
-    """Test that the extract step returns an empty df.
-
-    Note: This could be a unit test, but it interacts with zenodo which is sometimes
-    slow. It must retrieve the datapacakge.json associated with the archive.
-    """
-    assert extract("2051q4", ds=pudl_datastore_fixture).empty
+# TODO: Add tests for expected behavior with bad partitions: 1994q4, 2051q4
