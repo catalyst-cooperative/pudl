@@ -2,12 +2,11 @@
 
 from pathlib import Path
 
-import dask.dataframe as dd
 import pandas as pd
 import pytest
 import sqlalchemy as sa
 
-from pudl.output.epacems import epacems, year_state_filter
+from pudl.output.epacems import epacems as epacems_output
 from pudl.settings import EpaCemsSettings, EtlSettings
 from pudl.workspace.setup import PudlPaths
 
@@ -29,40 +28,26 @@ def epacems_parquet_path(pudl_engine: sa.Engine) -> Path:
     return PudlPaths().parquet_path("core_epacems__hourly_emissions")
 
 
-def test_epacems_subset(epacems_settings: EpaCemsSettings, epacems_parquet_path: Path):
-    """Check that epacems output retrieves a non-empty dataframe."""
+def test_epacems_output(epacems_settings: EpaCemsSettings, epacems_parquet_path: Path):
+    """Check that epacems output routine retrieves a non-empty dataframe."""
     if not epacems_settings:
         pytest.skip("EPA CEMS not in settings file and so is not being tested.")
     path = epacems_parquet_path
     years = [yq.year for yq in pd.to_datetime(epacems_settings.year_quarters)]
     states = ["ID"]  # Test on Idaho, one of the smallest states
-    actual = epacems(
+    actual = epacems_output(
         columns=["year", "state", "gross_load_mw"],
         epacems_path=path,
         years=years,
         states=states,
     )
-    assert isinstance(actual, dd.DataFrame)
+    assert isinstance(actual, pd.DataFrame)
     assert "gross_load_mw" in actual.columns
     assert "state" in actual.columns
     assert "year" in actual.columns
-    assert actual.shape[0].compute() > 0
-
-
-def test_epacems_parallel(pudl_engine, epacems_parquet_path):
-    """Test that we can run the EPA CEMS ETL in parallel."""
-    # We need a temporary output directory to avoid dropping the ID/ME 2019/2020
-    # parallel outputs in the real output directory and interfering with the normal
-    # monolithic outputs.
-    df = dd.read_parquet(
-        epacems_parquet_path,
-        filters=year_state_filter(years=[2023], states=["ME"]),
-        index=False,
-        engine="pyarrow",
-        split_row_groups=True,
-    ).compute()
-    assert df.year.unique() == [2023]
-    assert df.state.unique() == ["ME"]
+    assert actual.state.unique().tolist() == states
+    assert set(actual.year.unique().tolist()).issubset(set(years))
+    assert len(actual) > 0
 
 
 # TODO: Add tests for expected behavior with bad partitions: 1994q4, 2051q4

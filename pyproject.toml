@@ -24,8 +24,6 @@ dependencies = [
     "dagster>=1.11.10",
     "dagster-dbt", # Needs to follow dagster, but RTD can't deal with epochs
     "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
-    "dask>=2025",
-    "dask-expr>=2", # Required for dask[dataframe]
     "dbt-core>=1.10.11,!=1.10.12",
     "dbt-duckdb>=1.9.4",
     "deepdiff>=8",
@@ -58,7 +56,7 @@ dependencies = [
     "pandas>=2.3",
     "pandera>=0.26",
     "pillow<12",
-    "polars",
+    "polars>=1.34",
     "pre-commit>=4",
     "pyarrow>=20,<21", # pandas[parquet]; <21 for Kaggle geopandas compatibility
     "pydantic>=2.11",

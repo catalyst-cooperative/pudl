@@ -13,11 +13,13 @@ Usage Example:
    crosswalk_with_subplant_ids = pudl.etl.make_subplant_ids(filtered_crosswalk)
 """
 
-import dask.dataframe as dd
 import pandas as pd
+import polars as pl
 
 
-def _get_unique_keys(epacems: pd.DataFrame | dd.DataFrame) -> pd.DataFrame:
+def _get_unique_keys(
+    epacems: pd.DataFrame | pl.DataFrame | pl.LazyFrame,
+) -> pd.DataFrame:
     """Get unique unit IDs from EPA CEMS data.
 
     Args:
@@ -27,15 +29,25 @@ def _get_unique_keys(epacems: pd.DataFrame | dd.DataFrame) -> pd.DataFrame:
         Unique keys from the epacems dataset.
     """
     # The purpose of this function is mostly to resolve the
-    # ambiguity between dask and pandas dataframes
-    ids = epacems[["plant_id_eia", "emissions_unit_id_epa"]].drop_duplicates()
-    if isinstance(epacems, dd.DataFrame):
-        ids = ids.compute()
-    return ids
+    # ambiguity between polars and pandas dataframes
+    if isinstance(epacems, pd.DataFrame):
+        return epacems[["plant_id_eia", "emissions_unit_id_epa"]].drop_duplicates()
+    if isinstance(epacems, pl.LazyFrame):
+        return (
+            epacems.select(["plant_id_eia", "emissions_unit_id_epa"])
+            .unique()
+            .collect()
+            .to_pandas()
+        )
+    # Better be a polars DataFrame at this point...
+    assert isinstance(epacems, pl.DataFrame)
+    return (
+        epacems.select(["plant_id_eia", "emissions_unit_id_epa"]).unique().to_pandas()
+    )
 
 
 def filter_crosswalk_by_epacems(
-    crosswalk: pd.DataFrame, epacems: pd.DataFrame | dd.DataFrame
+    crosswalk: pd.DataFrame, epacems: pd.DataFrame | pl.DataFrame | pl.LazyFrame
 ) -> pd.DataFrame:
     """Inner join unique CEMS units with :ref:`core_epa__assn_eia_epacamd` crosswalk.
 
@@ -77,7 +89,7 @@ def filter_out_boiler_rows(crosswalk: pd.DataFrame) -> pd.DataFrame:
 
 
 def filter_crosswalk(
-    crosswalk: pd.DataFrame, epacems: pd.DataFrame | dd.DataFrame
+    crosswalk: pd.DataFrame, epacems: pd.DataFrame | pl.DataFrame | pl.LazyFrame
 ) -> pd.DataFrame:
     """Remove unmapped crosswalk rows or duplicates due to m2m boiler relationships.
 
