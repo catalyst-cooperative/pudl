@@ -313,7 +313,10 @@ def concat_pages(paged_dfs: list[dict[str, pd.DataFrame]]) -> dict[str, pd.DataF
 
     # concatenate the dataframes in each list in the dictionary into a single dataframe
     for page in all_data:
-        all_data[page] = pd.concat(all_data[page]).reset_index(drop=True)
+        to_concat = [_df for _df in all_data[page] if not _df.empty]
+        all_data[page] = (
+            pd.concat(to_concat).reset_index(drop=True) if to_concat else pd.DataFrame()
+        )
 
     return all_data
 
