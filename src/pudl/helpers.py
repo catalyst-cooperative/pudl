@@ -2156,10 +2156,11 @@ def retry(
     seconds.
 
     Args:
-    func: the function to retry
-    retry_on: the errors to catch.
-    base_delay_sec: how much time to sleep for the first retry.
-    kwargs: keyword arguments to pass to the wrapped function. Pass non-kwargs as kwargs too.
+        func: the function to retry
+        retry_on: the errors to catch.
+        base_delay_sec: how much time to sleep for the first retry.
+        kwargs: keyword arguments to pass to the wrapped function. Pass non-kwargs as
+            kwargs too.
     """
     for try_count in range(max_retries):
         delay = 2**try_count * base_delay_sec

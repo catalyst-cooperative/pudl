@@ -432,7 +432,11 @@ class Datastore:
             f"Got resource {dataset=}, {filters=}, {md5sum=}, "
             f"{len(resource_bytes)} bytes; turning into ZipFile"
         )
-        return retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=resource)
+        return retry(
+            zipfile.ZipFile,
+            retry_on=(zipfile.BadZipFile),
+            file=io.BytesIO(self.get_unique_resource(dataset, **filters)),
+        )
 
     def get_zipfile_resources(
         self, dataset: str, **filters: Any
