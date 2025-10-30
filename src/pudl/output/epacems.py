@@ -4,7 +4,8 @@ from collections.abc import Iterable, Sequence
 from itertools import product
 from pathlib import Path
 
-import dask.dataframe as dd
+import pandas as pd
+import polars as pl
 
 from pudl.helpers import get_parquet_table
 from pudl.workspace.setup import PudlPaths
@@ -119,8 +120,12 @@ def epacems(
     years: Sequence[int] | None = None,
     columns: Sequence[str] | None = None,
     epacems_path: Path | None = None,
-) -> dd.DataFrame:
+) -> pd.DataFrame:
     """Load EPA CEMS data from PUDL with optional subsetting.
+
+    Warning:
+        This function can potentially load a very large amount of data into memory.
+        Subsetting by state and year is strongly recommended.
 
     Args:
         states: subset by state abbreviation.  Defaults to None (which gets all states).
@@ -133,23 +138,16 @@ def epacems(
         The requested epacems data. If requested states or years are not available, no
         error will be raised.
     """
-    # columns=None is handled by dd.read_parquet; gives all columns
-    if columns is not None:
-        # nonexistent columns are handled by dd.read_parquet; raises ValueError
-        columns = list(columns)
-
     if epacems_path is None:
         epacems_path = PudlPaths().output_dir / "epacems"
 
-    epacems = dd.read_parquet(
-        epacems_path,
-        columns=columns,
-        engine="pyarrow",
-        index=False,
-        split_row_groups=True,
-        filters=year_state_filter(
-            states=states,
-            years=years,
-        ),
+    return (
+        pl.scan_parquet(epacems_path)
+        .select(pl.all() if columns is None else list(columns))
+        .filter(
+            (pl.col("state").is_in(states) if states is not None else pl.lit(True))
+            & (pl.col("year").is_in(years) if years is not None else pl.lit(True))
+        )
+        .collect()
+        .to_pandas()
     )
-    return epacems
