@@ -265,6 +265,7 @@ def schema_has_removals_or_modifications(
         ignore_order=True,
         verbose_level=2,
         view="tree",
+        threshold_to_diff_deeper=0,
     )
 
     change_keys = {
