@@ -329,7 +329,11 @@ class PudlParquetIOManager(IOManager):
             logger.warning(
                 "PudlParquetIOManager currently does not do any schema enforcement for polars LazyFrames"
             )
-            obj.sink_parquet(parquet_path, engine="streaming")
+            obj.sink_parquet(
+                parquet_path,
+                engine="streaming",
+                row_group_size=100_000,
+            )
         else:
             raise TypeError(
                 "PudlParquetIOManager only supports pandas DataFrames and Polars LazyFrames"

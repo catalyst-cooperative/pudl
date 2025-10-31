@@ -25,7 +25,7 @@ from dagster import (
 
 import pudl
 from pudl.extract.epacems import EpaCemsDatastore, EpaCemsPartition
-from pudl.transform.epacems import transform_epacems
+from pudl.transform.epacems import _load_plant_utc_offset, transform_epacems
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -101,8 +101,8 @@ def transform_and_write_monolithic(
 
     return pl.scan_parquet(partitioned_path).pipe(
         transform_epacems,
-        core_epa__assn_eia_epacamd=core_epa__assn_eia_epacamd,
-        core_eia__entity_plants=core_eia__entity_plants,
+        core_epa__assn_eia_epacamd=pl.from_pandas(core_epa__assn_eia_epacamd).lazy(),
+        plant_utc_offset=_load_plant_utc_offset(core_eia__entity_plants),
     )
 
 
@@ -115,8 +115,7 @@ def core_epacems__hourly_emissions(
 
     This asset creates a dynamic graph of ops to process EPA CEMS data in parallel. It
     will create both a partitioned and single monolithic parquet output. For more
-    information see:
-    https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs.
+    information see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs
     """
     year_quarters = get_year_quarters_from_settings()
     partitions = year_quarters.map(
@@ -125,6 +124,7 @@ def core_epacems__hourly_emissions(
         )
     )
     return transform_and_write_monolithic(
+        # Grab the list of all partitions processed e.g. ['1995q1', '1995q2', ...]
         partitions.collect(),
         _core_epa__assn_eia_epacamd_unique,
         core_eia__entity_plants,
