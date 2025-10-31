@@ -21,7 +21,7 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=3",
     "coverage>=7.10",
-    "dagster>=1.11.10",
+    "dagster>=1.11.10,<1.12",
     "dagster-dbt", # Needs to follow dagster, but RTD can't deal with epochs
     "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
     "dbt-core>=1.10.11,!=1.10.12",
@@ -157,7 +157,7 @@ resource_description = "pudl.scripts.resource_description:main"
 
 [project.optional-dependencies]
 dev = [
-    "dagster-webserver>=1.11.10",
+    "dagster-webserver>=1.11.10,<1.12",
     "jupyterlab>4.4",
     "jupyter-lsp",
     "jupyterlab-lsp",

@@ -19,7 +19,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 ###############################################################################
 def harmonize_eia_epa_orispl(
     lf: pl.LazyFrame,
-    crosswalk_df: pd.DataFrame,
+    crosswalk_lf: pl.LazyFrame,
 ) -> pl.LazyFrame:
     """Harmonize the ORISPL code to match the EIA data.
 
@@ -48,32 +48,30 @@ def harmonize_eia_epa_orispl(
     Returns:
         The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
     """
-    # Make sure the crosswalk does not have multiple plant_id_eia values for each
-    # plant_id_epa and emissions_unit_id_epa value before reassigning IDs.
-    one_to_many = crosswalk_df.groupby(
-        ["plant_id_epa", "emissions_unit_id_epa"]
-    ).filter(
-        lambda x: x.plant_id_eia.nunique() > 1  # noqa: PD101
-    )
-    if not one_to_many.empty:
-        raise AssertionError(
-            "The core_epa__assn_eia_epacamd crosswalk has more than one plant_id_eia value per "
-            "plant_id_epa and emissions_unit_id_epa group"
+    crosswalk_lf = (
+        crosswalk_lf.select(
+            [
+                "plant_id_eia",
+                "plant_id_epa",
+                "emissions_unit_id_epa",
+            ]
         )
-    crosswalk_df = crosswalk_df[
-        ["plant_id_eia", "plant_id_epa", "emissions_unit_id_epa"]
-    ].drop_duplicates()
+        .unique()
+        # Sorty by join key to improve join performance
+        .sort(["plant_id_eia", "emissions_unit_id_epa"])
+    )
 
     # Merge CEMS with Crosswalk to get correct EIA ORISPL code and fill in all unmapped
     # values with old plant_id_epa value.
     return lf.join(
-        pl.from_pandas(crosswalk_df).lazy(),
+        crosswalk_lf,
         on=["plant_id_epa", "emissions_unit_id_epa"],
         how="left",
+        coalesce=True,
     ).with_columns(pl.col("plant_id_eia").fill_null(pl.col("plant_id_epa")))
 
 
-def convert_to_utc(lf: pl.LazyFrame, plant_utc_offset: pd.DataFrame) -> pl.LazyFrame:
+def convert_to_utc(lf: pl.LazyFrame, plant_utc_offset: pl.LazyFrame) -> pl.LazyFrame:
     """Convert CEMS datetime data to UTC timezones.
 
     Transformations include:
@@ -88,50 +86,103 @@ def convert_to_utc(lf: pl.LazyFrame, plant_utc_offset: pd.DataFrame) -> pl.LazyF
         The same data, with an op_datetime_utc column added and the op_date and op_hour
         columns removed.
     """
-    lf = lf.with_columns(
-        op_datetime_naive=pl.col("op_date").dt.combine(pl.time(hour=pl.col("op_hour")))
-    ).join(
-        pl.from_pandas(plant_utc_offset).lazy(),
-        how="left",
-        on="plant_id_eia",
+    return (
+        lf.with_columns(
+            op_datetime_naive=pl.col("op_date").dt.combine(
+                pl.time(hour=pl.col("op_hour"))
+            )
+        )
+        .join(
+            plant_utc_offset.sort("plant_id_eia"),
+            how="left",
+            on="plant_id_eia",
+            coalesce=True,
+        )
+        # Add the offset from UTC. CEMS data don't have DST, so the offset is always the
+        # same for a given plant. The result is a timezone naive datetime column that
+        # contains values in UTC. Storing timezone info in Numpy datetime64 objects is
+        # deprecated, but the PyArrow schema stores this data as UTC. See:
+        # https://numpy.org/devdocs/reference/arrays.datetime.html#basic-datetimes
+        .with_columns(
+            operating_datetime_utc=pl.col("op_datetime_naive") - pl.col("utc_offset")
+        )
+        .drop(["op_date", "op_hour", "op_datetime_naive", "utc_offset"])
     )
 
-    # Add the offset from UTC. CEMS data don't have DST, so the offset is always the
-    # same for a given plant. The result is a timezone naive datetime column that
-    # contains values in UTC. Storing timezone info in Numpy datetime64 objects is
-    # deprecated, but the PyArrow schema stores this data as UTC. See:
-    # https://numpy.org/devdocs/reference/arrays.datetime.html#basic-datetimes
-    return lf.with_columns(
-        operating_datetime_utc=pl.col("op_datetime_naive") - pl.col("utc_offset")
-    ).drop(["op_date", "op_hour", "op_datetime_naive", "utc_offset"])
 
-
-def _load_plant_utc_offset(core_eia__entity_plants: pd.DataFrame) -> pd.DataFrame:
+def _load_plant_utc_offset(core_eia__entity_plants: pd.DataFrame) -> pl.LazyFrame:
     """Load the UTC offset each EIA plant.
 
     CEMS times don't change for DST, so we get the UTC offset by using the
     offset for the plants' timezones in January.
 
     Args:
-        pudl_engine: A database connection engine for
-            an existing PUDL DB.
+        core_eia__entity_plants: EIA plants DataFrame.
 
     Returns:
-        Dataframe of applicable timezones taken from the core_eia__entity_plants table.
+        Polars LazyFrame of applicable timezones taken from the core_eia__entity_plants
+        table.
     """
-    timezones = core_eia__entity_plants[["plant_id_eia", "timezone"]].copy().dropna()
-    jan1 = datetime.datetime(2011, 1, 1)  # year doesn't matter
-    timezones["utc_offset"] = timezones["timezone"].apply(
-        lambda tz: pytz.timezone(tz).localize(jan1).utcoffset()
+    logger.debug("Creating plant UTC offset LazyFrame")
+
+    # Process timezone data efficiently
+    timezones_df = (
+        core_eia__entity_plants[["plant_id_eia", "timezone"]]
+        .dropna()
+        .drop_duplicates()  # Remove duplicates to minimize processing
     )
-    del timezones["timezone"]
-    return timezones
+
+    # Calculate UTC offset for January (no DST) - vectorized approach
+    jan1 = datetime.datetime(2011, 1, 1)
+
+    # Create a mapping of unique timezones to offsets to avoid repeated calculations
+    unique_timezones = timezones_df["timezone"].unique()
+    timezone_offset_map = {
+        tz: pytz.timezone(tz).localize(jan1).utcoffset() for tz in unique_timezones
+    }
+
+    timezones_df["utc_offset"] = timezones_df["timezone"].map(timezone_offset_map)
+
+    return pl.from_pandas(timezones_df[["plant_id_eia", "utc_offset"]]).lazy()
+
+
+def _validate_crosswalk_uniqueness(crosswalk_lf: pl.LazyFrame) -> None:
+    """Validate that crosswalk has unique plant_id_eia values per EPA plant/unit.
+
+    This validation is done separately to avoid materializing the LazyFrame during
+    transformation.
+
+    Args:
+        crosswalk_lf: A polars LazyFrame of the core_epa__assn_eia_epacamd table.
+
+    Raises:
+        AssertionError: If crosswalk has multiple plant_id_eia values for a single EPA
+        identifier.
+    """
+    logger.debug("Validating crosswalk uniqueness")
+
+    # Check for one-to-many relationships between EPA and EIA plant IDs
+    one_to_many_df = (
+        crosswalk_lf.group_by(["plant_id_epa", "emissions_unit_id_epa"])
+        .agg(pl.col("plant_id_eia").n_unique().alias("unique_eia_plants"))
+        .filter(pl.col("unique_eia_plants") > 1)
+        .collect()  # Materialize only the validation results
+    )
+
+    if len(one_to_many_df) > 0:
+        logger.error(
+            f"Found {len(one_to_many_df)} EPA plant/unit combinations with multiple EIA plant IDs"
+        )
+        raise AssertionError(
+            "The core_epa__assn_eia_epacamd crosswalk has more than one plant_id_eia "
+            "value per plant_id_epa and emissions_unit_id_epa group"
+        )
 
 
 def transform_epacems(
     raw_lf: pl.LazyFrame,
-    core_epa__assn_eia_epacamd: pd.DataFrame,
-    core_eia__entity_plants: pd.DataFrame,
+    core_epa__assn_eia_epacamd: pl.LazyFrame,
+    plant_utc_offset: pl.LazyFrame,
 ) -> pl.LazyFrame:
     """Transform EPA CEMS hourly data and ready it for export to Parquet.
 
@@ -143,7 +194,7 @@ def transform_epacems(
     Returns:
         A single year_quarter of EPA CEMS data
     """
-    # Create all the table inputs used for the subtransform functions below
+    _validate_crosswalk_uniqueness(core_epa__assn_eia_epacamd)
 
     return (
         raw_lf.pipe(apply_pudl_dtypes_polars, group="epacems")
@@ -157,10 +208,7 @@ def transform_epacems(
             .otherwise(pl.col("emissions_unit_id_epa"))
         )
         .pipe(harmonize_eia_epa_orispl, core_epa__assn_eia_epacamd)
-        .pipe(
-            convert_to_utc,
-            plant_utc_offset=_load_plant_utc_offset(core_eia__entity_plants),
-        )
+        .pipe(convert_to_utc, plant_utc_offset=plant_utc_offset)
         # Fix gross load that is orders of magnitude too high
         .with_columns(
             gross_load_mw=pl.when(pl.col("gross_load_mw") > 2000)
