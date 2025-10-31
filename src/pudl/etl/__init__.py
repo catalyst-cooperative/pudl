@@ -30,7 +30,6 @@ from pudl.settings import EtlSettings
 
 from . import (
     eia_bulk_elec_assets,
-    epacems_assets,
     glue_assets,
     static_assets,
 )
@@ -74,7 +73,7 @@ core_module_groups = {
     "core_eia861": [pudl.transform.eia861],
     "core_eia923": [pudl.transform.eia923],
     "core_eia930": [pudl.transform.eia930],
-    "core_epacems": [epacems_assets],
+    "core_epacems": [pudl.transform.epacems],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
