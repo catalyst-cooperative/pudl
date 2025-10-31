@@ -1,13 +1,17 @@
 """Module to perform data cleaning functions on EPA CEMS data tables."""
 
 import datetime
+from pathlib import Path
 
+import dagster as dg
 import pandas as pd
 import polars as pl
 import pytz
 
 import pudl.logging_helpers
+from pudl.extract.epacems import extract_quarter
 from pudl.metadata.fields import apply_pudl_dtypes_polars
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -48,7 +52,9 @@ def harmonize_eia_epa_orispl(
     Returns:
         The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
     """
-    crosswalk_lf = (
+    # Merge CEMS with Crosswalk to get correct EIA ORISPL code and fill in all unmapped
+    # values with old plant_id_epa value.
+    return lf.join(
         crosswalk_lf.select(
             [
                 "plant_id_eia",
@@ -57,14 +63,7 @@ def harmonize_eia_epa_orispl(
             ]
         )
         .unique()
-        # Sorty by join key to improve join performance
-        .sort(["plant_id_eia", "emissions_unit_id_epa"])
-    )
-
-    # Merge CEMS with Crosswalk to get correct EIA ORISPL code and fill in all unmapped
-    # values with old plant_id_epa value.
-    return lf.join(
-        crosswalk_lf,
+        .sort(["plant_id_eia", "emissions_unit_id_epa"]),
         on=["plant_id_epa", "emissions_unit_id_epa"],
         how="left",
         coalesce=True,
@@ -79,7 +78,7 @@ def convert_to_utc(lf: pl.LazyFrame, plant_utc_offset: pl.LazyFrame) -> pl.LazyF
     * Account for timezone differences with offset from UTC.
 
     Args:
-        lf: A CEMS hourly LazyFrame for one year-state.
+        df: A CEMS hourly DataFrame for one year-state.
         plant_utc_offset: A dataframe association with timezones.
 
     Returns:
@@ -110,8 +109,8 @@ def convert_to_utc(lf: pl.LazyFrame, plant_utc_offset: pl.LazyFrame) -> pl.LazyF
     )
 
 
-def _load_plant_utc_offset(core_eia__entity_plants: pd.DataFrame) -> pl.LazyFrame:
-    """Load the UTC offset each EIA plant.
+def _load_plant_utc_offset(core_eia__entity_plants: pl.DataFrame) -> pl.DataFrame:
+    """Load the UTC offset for each EIA plant.
 
     CEMS times don't change for DST, so we get the UTC offset by using the
     offset for the plants' timezones in January.
@@ -120,33 +119,34 @@ def _load_plant_utc_offset(core_eia__entity_plants: pd.DataFrame) -> pl.LazyFram
         core_eia__entity_plants: EIA plants DataFrame.
 
     Returns:
-        Polars LazyFrame of applicable timezones taken from the core_eia__entity_plants
+        Polars DataFrame of applicable timezones taken from the core_eia__entity_plants
         table.
     """
-    logger.debug("Creating plant UTC offset LazyFrame")
-
-    # Process timezone data efficiently
-    timezones_df = (
-        core_eia__entity_plants[["plant_id_eia", "timezone"]]
-        .dropna()
-        .drop_duplicates()  # Remove duplicates to minimize processing
-    )
-
-    # Calculate UTC offset for January (no DST) - vectorized approach
-    jan1 = datetime.datetime(2011, 1, 1)
+    logger.debug("Creating plant UTC offset DataFrame")
 
     # Create a mapping of unique timezones to offsets to avoid repeated calculations
-    unique_timezones = timezones_df["timezone"].unique()
+    jan1 = datetime.datetime(2011, 1, 1)
+
     timezone_offset_map = {
-        tz: pytz.timezone(tz).localize(jan1).utcoffset() for tz in unique_timezones
+        tz: pytz.timezone(tz).localize(jan1).utcoffset()
+        for tz in core_eia__entity_plants.get_column("timezone")
+        .drop_nulls()
+        .unique()
+        .to_list()
     }
 
-    timezones_df["utc_offset"] = timezones_df["timezone"].map(timezone_offset_map)
+    return (
+        core_eia__entity_plants.select(["plant_id_eia", "timezone"])
+        .drop_nulls()
+        .unique()
+        .with_columns(
+            utc_offset=pl.col("timezone").replace(timezone_offset_map, default=None)
+        )
+        .select(["plant_id_eia", "utc_offset"])
+    )
 
-    return pl.from_pandas(timezones_df[["plant_id_eia", "utc_offset"]]).lazy()
 
-
-def _validate_crosswalk_uniqueness(crosswalk_lf: pl.LazyFrame) -> None:
+def _validate_crosswalk_uniqueness(crosswalk_df: pl.DataFrame) -> None:
     """Validate that crosswalk has unique plant_id_eia values per EPA plant/unit.
 
     This validation is done separately to avoid materializing the LazyFrame during
@@ -161,17 +161,17 @@ def _validate_crosswalk_uniqueness(crosswalk_lf: pl.LazyFrame) -> None:
     """
     logger.debug("Validating crosswalk uniqueness")
 
-    # Check for one-to-many relationships between EPA and EIA plant IDs
-    one_to_many_df = (
-        crosswalk_lf.group_by(["plant_id_epa", "emissions_unit_id_epa"])
+    # Count distinct EIA plant IDs per EPA plant/unit combination
+    num_violations = (
+        crosswalk_df.group_by(["plant_id_epa", "emissions_unit_id_epa"])
         .agg(pl.col("plant_id_eia").n_unique().alias("unique_eia_plants"))
         .filter(pl.col("unique_eia_plants") > 1)
-        .collect()  # Materialize only the validation results
+        .height
     )
 
-    if len(one_to_many_df) > 0:
+    if num_violations > 0:
         logger.error(
-            f"Found {len(one_to_many_df)} EPA plant/unit combinations with multiple EIA plant IDs"
+            f"Found {num_violations} EPA plant/unit combinations with multiple EIA plant IDs"
         )
         raise AssertionError(
             "The core_epa__assn_eia_epacamd crosswalk has more than one plant_id_eia "
@@ -181,8 +181,8 @@ def _validate_crosswalk_uniqueness(crosswalk_lf: pl.LazyFrame) -> None:
 
 def transform_epacems(
     raw_lf: pl.LazyFrame,
-    core_epa__assn_eia_epacamd: pl.LazyFrame,
-    plant_utc_offset: pl.LazyFrame,
+    core_epa__assn_eia_epacamd: pl.DataFrame,
+    plant_utc_offset: pl.DataFrame,
 ) -> pl.LazyFrame:
     """Transform EPA CEMS hourly data and ready it for export to Parquet.
 
@@ -194,8 +194,6 @@ def transform_epacems(
     Returns:
         A single year_quarter of EPA CEMS data
     """
-    _validate_crosswalk_uniqueness(core_epa__assn_eia_epacamd)
-
     return (
         raw_lf.pipe(apply_pudl_dtypes_polars, group="epacems")
         .with_columns(
@@ -207,8 +205,8 @@ def transform_epacems(
             .then(pl.col("emissions_unit_id_epa").str.strip_chars_start("0"))
             .otherwise(pl.col("emissions_unit_id_epa"))
         )
-        .pipe(harmonize_eia_epa_orispl, core_epa__assn_eia_epacamd)
-        .pipe(convert_to_utc, plant_utc_offset=plant_utc_offset)
+        .pipe(harmonize_eia_epa_orispl, core_epa__assn_eia_epacamd.lazy())
+        .pipe(convert_to_utc, plant_utc_offset=plant_utc_offset.lazy())
         # Fix gross load that is orders of magnitude too high
         .with_columns(
             gross_load_mw=pl.when(pl.col("gross_load_mw") > 2000)
@@ -217,3 +215,73 @@ def transform_epacems(
         )
         .pipe(apply_pudl_dtypes_polars, group="epacems")
     )
+
+
+def _partitioned_path() -> Path:
+    partitioned_path = (
+        PudlPaths().output_dir / "parquet" / "raw_epacems__hourly_emissions"
+    )
+    partitioned_path.mkdir(exist_ok=True)
+    return partitioned_path
+
+
+@dg.asset(
+    required_resource_keys={"datastore", "dataset_settings"},
+    io_manager_key="parquet_io_manager",
+)
+def core_epacems__hourly_emissions(
+    context,
+    _core_epa__assn_eia_epacamd_unique: pd.DataFrame,
+    core_eia__entity_plants: pd.DataFrame,
+) -> pl.LazyFrame:
+    """Extract EPA CEMS data by quarter and write to partitioned Parquet files."""
+    # Validate uniqueness once before processing all partitions
+    unique_crosswalk = pl.DataFrame(_core_epa__assn_eia_epacamd_unique)
+    _validate_crosswalk_uniqueness(unique_crosswalk)
+    plant_utc_offset = _load_plant_utc_offset(pl.DataFrame(core_eia__entity_plants))
+    partitioned_path = _partitioned_path()
+
+    # Iterate over all the partitions we are processing, since polars is parallelized
+    # internally and this will save us significant dagster process startup overhead and
+    # avoid CPU resource contention.
+    output_paths = []
+    for year_quarter in context.resources.dataset_settings.epacems.year_quarters:
+        output_path = partitioned_path / f"{year_quarter}.parquet"
+        output_paths.append(output_path)
+        context.log.info(f"Processing EPA CEMS {year_quarter}")
+
+        extract_quarter(context, year_quarter).pipe(
+            transform_epacems,
+            core_epa__assn_eia_epacamd=unique_crosswalk,
+            plant_utc_offset=plant_utc_offset,
+        ).sink_parquet(
+            output_path,
+            engine="streaming",
+            row_group_size=100_000,
+        )
+
+    return pl.scan_parquet(output_paths, low_memory=True)
+
+
+@dg.asset(
+    ins={
+        "core_epacems__hourly_emissions": dg.AssetIn(
+            input_manager_key="pudl_io_manager"
+        ),
+    },
+)
+def _core_epacems__emissions_unit_ids(
+    core_epacems__hourly_emissions: pl.LazyFrame,
+) -> pd.DataFrame:
+    """Make unique annual plant_id_eia and emissions_unit_id_epa.
+
+    Returns:
+        dataframe with unique set of: "plant_id_eia", "year" and "emissions_unit_id_epa"
+    """
+    return (
+        core_epacems__hourly_emissions.select(
+            ["plant_id_eia", "year", "emissions_unit_id_epa"]
+        )
+        .unique()
+        .collect(engine="streaming")
+    ).to_pandas()

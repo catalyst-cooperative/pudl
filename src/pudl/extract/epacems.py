@@ -126,7 +126,7 @@ class EpaCemsDatastore:
             ) as zf,
             zf.open(str(partition.get_quarterly_file()), "r") as csv_file,
         ):
-            lf = pl.scan_csv(csv_file, schema_overrides=API_DTYPE_DICT)
+            lf = pl.scan_csv(csv_file, low_memory=True, schema_overrides=API_DTYPE_DICT)
             lf = (
                 lf.drop(
                     list(set(lf.collect_schema().names()) - set(API_RENAME_DICT.keys()))
@@ -134,4 +134,24 @@ class EpaCemsDatastore:
                 .cast(API_DTYPE_DICT, strict=False)
                 .rename(API_RENAME_DICT, strict=False)
             )
-            return lf
+
+        return lf
+
+
+def extract_quarter(
+    context,
+    year_quarter: str,
+) -> pl.LazyFrame:
+    """Extract a single quarter of EPA CEMS data return it as a lazy polars DataFrame.
+
+    Args:
+        context: dagster keyword that provides access to resources and config.
+        year_quarter: Year quarter to process, formatted like '1995q1'.
+    """
+    partition = EpaCemsPartition(year_quarter=year_quarter)
+
+    return (
+        EpaCemsDatastore(context.resources.datastore)
+        .get_data_frame(partition=partition)
+        .with_columns(year=partition.year)
+    )
