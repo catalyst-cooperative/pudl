@@ -681,10 +681,10 @@ check_specs = [
     AeoCheckSpec(
         name="gen_in_electric_sector_by_tech",
         asset="core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
-        num_rows_by_report_year={2023: 166972},
+        num_rows_by_report_year={2023: 166972, 2025: 126750},
         category_counts=BASE_AEO_CATEGORIES
         | {
-            "technology_description_eiaaeo": 13,
+            "technology_description_eiaaeo": 16,
         },
     ),
     AeoCheckSpec(
