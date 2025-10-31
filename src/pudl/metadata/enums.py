@@ -414,7 +414,7 @@ ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "total",
     "total_energy",  # this could be the same as total?
 ]
-"""Energy use types from Table 2 of EIA AEO 2023.
+"""Energy use types from Table 2 of EIA AEO 2023-2025.
 
 These are from the series titles, not the display titles in the EIA's data browser tool,
 which may show different text."""
