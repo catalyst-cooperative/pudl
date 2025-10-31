@@ -314,7 +314,7 @@ class AEOTaxonomy:
         return re.sub(self.__sanitize_re, "_", s.lower().strip().replace(" : ", "__"))
 
     def __series_to_records(
-        self, series_id: str, potential_parents: set[int], year: int
+        self, series_id: str, potential_parents: set[int], report_year: int
     ) -> pd.DataFrame:
         """Turn a data series into records we can feed into a DataFrame.
 
@@ -367,13 +367,13 @@ class AEOTaxonomy:
                 "series_name": series["name"],
                 "category_name": parent_name,
                 "model_case_eiaaeo": case_name,
-                "report_year": year,  # Add the report year here
+                "report_year": report_year,  # Add the report year here
             }
             for d in series["data"]
         )
         return records
 
-    def get_table(self, table_number: int, year: int) -> pd.DataFrame:
+    def get_table(self, table_number: int, report_year: int) -> pd.DataFrame:
         """Get a specific table number as a DataFrame, including the report year."""
         matching_category_ids = {
             n_id
@@ -393,7 +393,9 @@ class AEOTaxonomy:
 
         series_records = itertools.chain.from_iterable(
             self.__series_to_records(
-                series_id, potential_parents=matching_category_ids, year=year
+                series_id,
+                potential_parents=matching_category_ids,
+                report_year=report_year,
             )
             for series_id in matching_series
         )
@@ -445,20 +447,22 @@ def raw_eiaaeo(context: AssetExecutionContext):
     ds = context.resources.datastore
 
     # Extract for all years specified in the settings
-    years = context.resources.dataset_settings.eia.eiaaeo.years
+    report_years = context.resources.dataset_settings.eia.eiaaeo.years
 
     selected = context.op_execution_context.selected_output_names
     for asset_name in selected:
         all_years_data = []
-        for year in years:
-            filename = f"AEO{year}.txt"
-            with ds.get_zipfile_resource("eiaaeo", year=year).open(
+        for report_year in report_years:
+            filename = f"AEO{report_year}.txt"
+            with ds.get_zipfile_resource("eiaaeo", year=report_year).open(
                 filename, mode="r"
             ) as aeo_raw:
                 taxonomy = AEOTaxonomy(io.TextIOWrapper(aeo_raw))
 
             # Extract the table for the current year and append to the list
-            table_data = taxonomy.get_table(name_to_number[asset_name], year=year)
+            table_data = taxonomy.get_table(
+                name_to_number[asset_name], report_year=report_year
+            )
             all_years_data.append(table_data)
 
         # Combine data from all years into a single DataFrame
