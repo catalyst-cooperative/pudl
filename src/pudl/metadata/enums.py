@@ -337,9 +337,9 @@ FUEL_TYPES_EIAAEO: list[str] = [
 
 MODEL_CASES_EIAAEO: list[str] = [
     "aeo2022",
-    "aeo2023",
-    "alternative_electricity",
-    "alternative_transportation",
+    "aeo2023",  # Added in 2025
+    "alternative_electricity",  # Added in 2025
+    "alternative_transportation",  # Added in 2025
     "fast_builds_plus_high_lng_price",
     "high_economic_growth",
     "high_lng_price",
