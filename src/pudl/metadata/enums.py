@@ -312,7 +312,10 @@ TECH_DESCRIPTIONS_EIAAEO: list[str] = [
     "combustion_turbine_diesel",
     "distributed_generation",
     "diurnal_storage",
+    "fossil_steam",  # Added in 2025
     "fuel_cells",
+    "hydrogen",  # Added in 2025
+    "hydrogen_turbine",  # Added in 2025
     "natural_gas",
     "nuclear",
     "oil_and_natural_gas_steam",
