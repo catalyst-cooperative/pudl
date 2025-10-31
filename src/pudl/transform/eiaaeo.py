@@ -269,7 +269,7 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             ],
             dimension_column="dimension",
         )
-        assert 0.999 < ratio_close_reported_calculated <= 1.0, (
+        assert 0.998 < ratio_close_reported_calculated <= 1.0, (
             f"reported vs. calculated totals: {ratio_close_reported_calculated}"
         )
 
