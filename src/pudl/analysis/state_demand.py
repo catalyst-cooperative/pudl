@@ -158,11 +158,11 @@ def total_state_sales_eia861(
 )
 def out_ferc714__hourly_estimated_state_demand(
     context,
-    out_ferc714__hourly_planning_area_demand: pd.DataFrame,
+    out_ferc714__hourly_planning_area_demand: pl.LazyFrame,
     out_censusdp1tract__counties: gpd.GeoDataFrame,
     out_ferc714__respondents_with_fips: pd.DataFrame,
     core_eia861__yearly_sales: pd.DataFrame | None = None,
-) -> pd.DataFrame:
+) -> pl.LazyFrame:
     """Estimate hourly electricity demand by state.
 
     Args:
@@ -174,12 +174,9 @@ def out_ferc714__hourly_estimated_state_demand(
             demand is scaled to match these totals.
 
     Returns:
-        Dataframe with columns ``state_id_fips``, ``datetime_utc``, ``demand_mwh``, and
+        LazyFrame with columns ``state_id_fips``, ``datetime_utc``, ``demand_mwh``, and
         (if ``state_totals`` was provided) ``scaled_demand_mwh``.
     """
-    # out_ferc714__hourly_planning_area_demand["year"] = (
-    #     out_ferc714__hourly_planning_area_demand.datetime_utc.dt.year
-    # )
     # Get config
     mean_overlaps = context.op_config["mean_overlaps"]
 
@@ -195,17 +192,16 @@ def out_ferc714__hourly_estimated_state_demand(
     fields = ["demand_mwh"]
 
     # Switch to polars for the gnarly bits
-    pl_out_ferc714__hourly_planning_area_demand = (
-        pl.from_pandas(out_ferc714__hourly_planning_area_demand)
-        .lazy()
-        .with_columns(
+    out_ferc714__hourly_planning_area_demand = (
+        out_ferc714__hourly_planning_area_demand.with_columns(
             year=pl.col("datetime_utc").dt.year()
         )
     )
     # Pre-compute list of respondent-years with demand
     with_demand = (
-        pl_out_ferc714__hourly_planning_area_demand
-        .group_by(["respondent_id_ferc714", "year"])
+        out_ferc714__hourly_planning_area_demand.group_by(
+            ["respondent_id_ferc714", "year"]
+        )
         .agg(pl.col("demand_imputed_pudl_mwh").sum())
         .filter(pl.col("demand_imputed_pudl_mwh") > 0)
         .select(["respondent_id_ferc714", "year"])
@@ -214,25 +210,20 @@ def out_ferc714__hourly_estimated_state_demand(
     df = (
         # Merge counties with respondent- and state-county assignments,
         # keeping only respondent-years with nonzero demand
-        pl.from_pandas(count_assign_ferc714).lazy()
-        .join(
-            with_demand,
-            on=["respondent_id_ferc714","year"]
-        )
-        .join(
-            pl.from_pandas(counties).lazy(),
-            on=["county_id_fips"]
-        )
+        pl.from_pandas(count_assign_ferc714)
+        .lazy()
+        .join(with_demand, on=["respondent_id_ferc714", "year"])
+        .join(pl.from_pandas(counties).lazy(), on=["county_id_fips"])
     )
     respondent_population = (
         df.group_by(["respondent_id_ferc714", "year"])
         .agg(respondent_population=pl.col("population").sum())
-        .select(["respondent_id_ferc714","year","respondent_population"])
+        .select(["respondent_id_ferc714", "year", "respondent_population"])
     )
     df = (
         df.join(
             respondent_population,
-            on=["respondent_id_ferc714","year"],
+            on=["respondent_id_ferc714", "year"],
             how="left",
         )
         .with_columns(
@@ -246,13 +237,10 @@ def out_ferc714__hourly_estimated_state_demand(
         # Normalize county weights by county occurrences (by year)
         df = (
             df.join(
-                df.groupby(["county_id_fips", "year"])
-                .agg(count=pl.len()),
+                df.groupby(["county_id_fips", "year"]).agg(count=pl.len()),
                 on=["county_id_fips", "year"],
             )
-            .with_columns(
-                weight = pl.col("weight") / pl.col("count")
-            )
+            .with_columns(weight=pl.col("weight") / pl.col("count"))
             .drop("count")
         )
     df = (
@@ -261,7 +249,7 @@ def out_ferc714__hourly_estimated_state_demand(
         .agg(pl.col("weight").sum())
         .select(["respondent_id_ferc714", "year", "state_id_fips", "weight"])
         .join(
-            pl_out_ferc714__hourly_planning_area_demand,
+            out_ferc714__hourly_planning_area_demand,
             on=["respondent_id_ferc714", "year"],
         )
         .with_columns(
@@ -271,31 +259,24 @@ def out_ferc714__hourly_estimated_state_demand(
     )
     if total_sales_eia861 is not None:
         # scale estimates using state sales
-        df = (
-            df.join(
-                # compute scale factor between current and target state totals
-                df.group_by(["state_id_fips", "year"])
-                .agg(pl.col("demand_mwh").sum())
-                .join(
-                    pl.from_pandas(total_sales_eia861).lazy(),
-                    on=["state_id_fips", "year"],
-                    suffix="_sales"
-                )
-                .with_columns(
-                    scale=pl.col("demand_mwh_sales") / pl.col("demand_mwh")
-                )
-                .select(["state_id_fips", "year", "scale"]),
+        df = df.join(
+            # compute scale factor between current and target state totals
+            df.group_by(["state_id_fips", "year"])
+            .agg(pl.col("demand_mwh").sum())
+            .join(
+                pl.from_pandas(total_sales_eia861).lazy(),
                 on=["state_id_fips", "year"],
+                suffix="_sales",
             )
-            .with_columns(
-                scaled_demand_mwh=pl.col("demand_mwh")*pl.col("scale")
-            )
-        )
+            .with_columns(scale=pl.col("demand_mwh_sales") / pl.col("demand_mwh"))
+            .select(["state_id_fips", "year", "scale"]),
+            on=["state_id_fips", "year"],
+        ).with_columns(scaled_demand_mwh=pl.col("demand_mwh") * pl.col("scale"))
         fields.append("scaled_demand_mwh")
     df = (
         # sum by state-hour to yield hourly estimates
         df.group_by(["state_id_fips", "datetime_utc"])
         .agg(*[pl.col(x).sum() for x in fields])
-        .select(["state_id_fips", "datetime_utc"]+fields)
+        .select(["state_id_fips", "datetime_utc"] + fields)
     )
-    return df.collect(engine="streaming").to_pandas()
+    return df
