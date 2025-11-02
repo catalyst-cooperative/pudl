@@ -95,15 +95,18 @@ class EpaCemsPartition(BaseModel):
         """Return the year associated with the year_quarter."""
         return pd.to_datetime(self.year_quarter).year
 
+    @property
+    def quarter(self):
+        """Return the quarter associated with the year_quarter."""
+        return pd.to_datetime(self.year_quarter).quarter
+
     def get_filters(self):
         """Returns filters for retrieving given partition resource from Datastore."""
         return {"year_quarter": self.year_quarter}
 
     def get_quarterly_file(self) -> Path:
         """Return the name of the CSV file that holds annual hourly data."""
-        return Path(
-            f"epacems-{self.year}q{pd.to_datetime(self.year_quarter).quarter}.csv"
-        )
+        return Path(f"epacems-{self.year}q{self.quarter}.csv")
 
 
 class EpaCemsDatastore:

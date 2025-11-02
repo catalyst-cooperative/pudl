@@ -247,7 +247,6 @@ def core_epacems__hourly_emissions(
     output_paths = []
     for year_quarter in context.resources.dataset_settings.epacems.year_quarters:
         output_path = partitioned_path / f"{year_quarter}.parquet"
-        output_paths.append(output_path)
         context.log.info(f"Processing EPA CEMS {year_quarter}")
 
         extract_quarter(context, year_quarter).pipe(
@@ -259,6 +258,8 @@ def core_epacems__hourly_emissions(
             engine="streaming",
             row_group_size=100_000,
         )
+
+        output_paths.append(output_path)
 
     return pl.scan_parquet(output_paths, low_memory=True)
 
