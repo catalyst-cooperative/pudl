@@ -33,6 +33,12 @@ EIA-923
 * Updated EIA-923 with final release data from 2024 and 2025 data up through August.
   See PR :pr:`4641`, :issue:`4699` and :pr:`4706`.
 
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data to include data published up through
+  the beginning of November 2025. See :issue:`4724` and PR :pr:`4725`.
+
 New Data
 ^^^^^^^^
 
