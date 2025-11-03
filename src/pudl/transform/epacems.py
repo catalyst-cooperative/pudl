@@ -228,6 +228,7 @@ def _partitioned_path() -> Path:
 @dg.asset(
     required_resource_keys={"datastore", "dataset_settings"},
     io_manager_key="parquet_io_manager",
+    op_tags={"memory-use": "high"},
 )
 def core_epacems__hourly_emissions(
     context,
