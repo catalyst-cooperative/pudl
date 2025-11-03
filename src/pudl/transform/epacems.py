@@ -47,7 +47,7 @@ def harmonize_eia_epa_orispl(
 
     Args:
         lf: A CEMS hourly LazyFrame for one year-month-state.
-        crosswalk_df: The core_epa__assn_eia_epacamd dataframe from the database.
+        crosswalk_lf: The core_epa__assn_eia_epacamd table as a Polars LazyFrame.
 
     Returns:
         The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
@@ -78,8 +78,8 @@ def convert_to_utc(lf: pl.LazyFrame, plant_utc_offset: pl.LazyFrame) -> pl.LazyF
     * Account for timezone differences with offset from UTC.
 
     Args:
-        df: A CEMS hourly DataFrame for one year-state.
-        plant_utc_offset: A dataframe association with timezones.
+        lf: CEMS hourly data for one year-state as a Polars LazyFrame.
+        plant_utc_offset: Associated plant UTC offsets as a Polars LazyFrame.
 
     Returns:
         The same data, with an op_datetime_utc column added and the op_date and op_hour
@@ -153,7 +153,7 @@ def _validate_crosswalk_uniqueness(crosswalk_df: pl.DataFrame) -> None:
     transformation.
 
     Args:
-        crosswalk_lf: A polars LazyFrame of the core_epa__assn_eia_epacamd table.
+        crosswalk_df: A polars DataFrame of the core_epa__assn_eia_epacamd table.
 
     Raises:
         AssertionError: If crosswalk has multiple plant_id_eia values for a single EPA
