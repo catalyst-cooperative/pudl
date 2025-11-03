@@ -31,7 +31,7 @@ def _core_eia176__data(
     """
     raw_eia176__data = raw_eia176__data.astype({"report_year": int, "value": float})
 
-    aggregate_primary_key = ["report_year", "operating_area"]
+    aggregate_primary_key = ["report_year", "operating_state"]
     company_primary_key = aggregate_primary_key + ["operator_id_eia", "operator_name"]
     company_drop_columns = ["form_line_numbers", "unit_type", "line"]
     # We must drop 'id' here and cannot use as primary key because its arbitrary/duplicate in aggregate records
@@ -39,7 +39,7 @@ def _core_eia176__data(
     aggregate_drop_columns = company_drop_columns + ["operator_id_eia", "operator_name"]
 
     # Clean up text columns to ensure string matching is precise
-    for col in ["operator_name", "operating_area"]:
+    for col in ["operator_name", "operating_state"]:
         raw_eia176__data[col] = raw_eia176__data[col].str.strip().str.lower()
 
     long_company = raw_eia176__data.loc[
@@ -94,7 +94,7 @@ def validate_totals(
     """
     # First make it so we can directly compare reported aggregates to groupings of granular data
     comparable_aggregates = _core_eia176__yearly_aggregate_data.sort_values(
-        ["report_year", "operating_area"]
+        ["report_year", "operating_state"]
     ).fillna(0)
 
     # Group company data into state-level data and compare to reported totals
@@ -102,28 +102,28 @@ def validate_totals(
         _core_eia176__yearly_company_data.drop(
             columns=["operator_id_eia", "operator_name"]
         )
-        .groupby(["report_year", "operating_area"])
+        .groupby(["report_year", "operating_state"])
         .sum()
         .round(4)
         .reset_index()
     )
     aggregate_state = comparable_aggregates[
-        comparable_aggregates.operating_area != "u.s. total"
+        comparable_aggregates.operating_state != "u.s. total"
     ].reset_index(drop=True)
     # Compare using the same columns
     state_diff = aggregate_state[state_data.columns].compare(state_data)
 
     # Group calculated state-level data into US-level data and compare to reported totals
     us_data = (
-        state_data.drop(columns="operating_area")
+        state_data.drop(columns="operating_state")
         .groupby("report_year")
         .sum()
         .sort_values("report_year")
         .reset_index()
     )
     aggregate_us = (
-        comparable_aggregates[comparable_aggregates.operating_area == "u.s. total"]
-        .drop(columns="operating_area")
+        comparable_aggregates[comparable_aggregates.operating_state == "u.s. total"]
+        .drop(columns="operating_state")
         .sort_values("report_year")
         .reset_index(drop=True)
     )

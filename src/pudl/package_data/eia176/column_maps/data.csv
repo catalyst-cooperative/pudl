@@ -1,4 +1,4 @@
-year_index,operator_name,operating_area,value,variable_name,form_line_numbers,operator_id_eia,line,unit_type
+year_index,operator_name,operating_state,value,variable_name,form_line_numbers,operator_id_eia,line,unit_type
 1997,company,area,value,item,itemsort,id,line,atype
 1998,company,area,value,item,itemsort,id,line,atype
 1999,company,area,value,item,itemsort,id,line,atype

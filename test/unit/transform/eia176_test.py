@@ -4,7 +4,7 @@ from pytest import fixture
 from pudl.transform.eia176 import _core_eia176__data, get_wide_table, validate_totals
 
 COLUMN_NAMES = [
-    "operating_area",
+    "operating_state",
     "unit_type",
     "operator_name",
     "operator_id_eia",
@@ -126,7 +126,7 @@ def df():
     df.loc[4] = TX_AGGREGATE
     df.loc[5] = US_AGGREGATE
     df.loc[6] = COMPANY_4
-    df = df.set_index(["operating_area", "operator_name"])
+    df = df.set_index(["operating_state", "operator_name"])
     return df
 
 
@@ -143,7 +143,7 @@ def test_core_eia176__data(df):
     company_row = wide_company.loc[0]
     assert list(company_row.index) == [
         "report_year",
-        "operating_area",
+        "operating_state",
         "operator_id_eia",
         "operator_name",
         "residential_sales_volume",
@@ -160,7 +160,7 @@ def test_core_eia176__data(df):
     aggregate_row = wide_aggregate.loc[0]
     assert list(aggregate_row.index) == [
         "report_year",
-        "operating_area",
+        "operating_state",
         "residential_sales_volume",
     ]
     assert list(aggregate_row.values) == [2022, "new mexico", NM_VOLUME]
@@ -180,13 +180,13 @@ def test_get_wide_table(df):
         .drop(columns=DROP_COLS)
     )
 
-    primary_key = ["report_year", "operating_area", "operator_id_eia", "operator_name"]
+    primary_key = ["report_year", "operating_state", "operator_id_eia", "operator_name"]
     wide_table = get_wide_table(long_table, primary_key)
 
     assert wide_table.shape == (3, 6)
     assert list(wide_table.loc[0].index) == [
         "report_year",
-        "operating_area",
+        "operating_state",
         "operator_id_eia",
         "operator_name",
         "residential_sales_volume",
