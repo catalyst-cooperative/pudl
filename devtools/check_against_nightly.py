@@ -36,7 +36,7 @@ def cli(local_targets: tuple[Path], pdb: bool = False):
             assert_frame_equal(local_lf, remote_lf)
         except AssertionError as e:
             if pdb:
-                breakpoint()  # noqa
+                breakpoint()
             click.echo(f"MISMATCH\n{e}")
         else:
             click.echo("OK")
