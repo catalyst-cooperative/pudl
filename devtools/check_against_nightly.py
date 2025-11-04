@@ -20,7 +20,10 @@ from polars.testing import assert_frame_equal
 
 @click.command(help=__doc__)
 @click.argument("local-targets", nargs=-1, type=click.Path())
-def cli(local_targets: tuple[Path]):
+@click.option(
+    "--pdb", is_flag=True, help="Drop into a breakpoint if any dataframes don't match."
+)
+def cli(local_targets: tuple[Path], pdb: bool = False):
     """Compare local Parquet files against nightly."""
     local_paths = [Path(target) for target in local_targets]
     click.echo(f"Comparing {', '.join(p.stem for p in local_paths)} against nightly...")
@@ -32,6 +35,8 @@ def cli(local_targets: tuple[Path]):
         try:
             assert_frame_equal(local_lf, remote_lf)
         except AssertionError as e:
+            if pdb:
+                breakpoint()  # noqa
             click.echo(f"MISMATCH\n{e}")
         else:
             click.echo("OK")

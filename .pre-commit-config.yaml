@@ -19,6 +19,8 @@ repos:
       - id: check-toml
       - id: check-case-conflict # Avoid case sensitivity in file names.
       - id: debug-statements # Watch for lingering debugger calls.
+        exclude: |
+          ^devtools/check_against_nightly.py$
       - id: mixed-line-ending # Use Unix line-endings to avoid big no-op CSV diffs.
         args: ["--fix=lf"]
       - id: trailing-whitespace
