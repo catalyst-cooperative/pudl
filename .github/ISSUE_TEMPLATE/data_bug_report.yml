@@ -1,6 +1,6 @@
 name: Data bug report
 description: Report irregularities with PUDL data.
-labels: ["bug", "data-validation"]
+labels: ["bug"]
 projects: ["Catalyst Megaproject"]
 body:
   - type: input
