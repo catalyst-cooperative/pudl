@@ -56,7 +56,7 @@ dependencies = [
     "pandas>=2.3",
     "pandera>=0.26",
     "pillow<12",
-    "polars>=1.34",
+    "polars>=1.35",
     "pre-commit>=4",
     "pyarrow>=20,<21", # pandas[parquet]; <21 for Kaggle geopandas compatibility
     "pydantic>=2.11",
