@@ -248,7 +248,7 @@ def core_epacems__hourly_emissions(
     output_paths = []
     for year_quarter in context.resources.dataset_settings.epacems.year_quarters:
         output_path = partitioned_path / f"{year_quarter}.parquet"
-        context.log.info(f"Processing EPA CEMS {year_quarter}")
+        logger.info(f"Processing EPA CEMS {year_quarter}")
 
         extract_quarter(context, year_quarter).pipe(
             transform_epacems,
