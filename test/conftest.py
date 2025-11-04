@@ -414,6 +414,9 @@ def logger_config():
             "matplotlib": logging.WARNING,
         }
     )
+    # Ensure PUDL logs propagate to pytest's log capture
+    pudl_logger = logging.getLogger("catalystcoop")
+    pudl_logger.propagate = True
 
 
 @pytest.fixture(scope="session")
