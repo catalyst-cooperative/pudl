@@ -160,7 +160,6 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
 ) -> pd.DataFrame:
-
     primary_key = ["report_year", "operator_id_eia", "operating_state"]
 
     keep = [
