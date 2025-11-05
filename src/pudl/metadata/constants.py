@@ -14,7 +14,7 @@ from sqlalchemy.dialects.sqlite import DATETIME as SQLITE_DATETIME
 FIELD_DTYPES_POLARS: dict[str, str] = {
     "boolean": pl.datatypes.Boolean,
     "date": pl.datatypes.Date,
-    "datetime": pl.datatypes.Datetime,
+    "datetime": pl.datatypes.Datetime(time_unit="ms"),
     "integer": pl.datatypes.Int64,
     "number": pl.datatypes.Float64,
     "string": pl.datatypes.String,
