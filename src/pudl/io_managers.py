@@ -327,16 +327,9 @@ class PudlParquetIOManager(IOManager):
             )
         elif isinstance(obj, pl.LazyFrame):
             logger.warning(
-                "PudlParquetIOManager enforces dtypes on LazyFrames but does not do any other schema enforcement."
+                "PudlParquetIOManager enforces does not do any schema enforcement."
             )
             obj.sink_parquet(
-                parquet_path,
-                engine="streaming",
-                row_group_size=100_000,
-            )
-
-            pl_schema = Resource.from_id(table_name).to_polars_dtypes()
-            obj.match_to_schema(pl_schema).sink_parquet(
                 parquet_path,
                 engine="streaming",
                 row_group_size=100_000,
