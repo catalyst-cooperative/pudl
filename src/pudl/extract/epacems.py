@@ -28,6 +28,7 @@ import polars as pl
 from pydantic import BaseModel, StringConstraints
 
 import pudl.logging_helpers
+from pudl.metadata.classes import Resource
 from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -145,14 +146,24 @@ def extract_quarter(
 ) -> pl.LazyFrame:
     """Extract a single quarter of EPA CEMS data return it as a lazy polars DataFrame.
 
+    If the requested quarter is not found in the datastore, an empty DataFrame with the
+    expected columns is returned.
+
     Args:
         context: dagster keyword that provides access to resources and config.
         year_quarter: Year quarter to process, formatted like '1995q1'.
     """
+    epacems_datastore = EpaCemsDatastore(context.resources.datastore)
     partition = EpaCemsPartition(year_quarter=year_quarter)
 
-    return (
-        EpaCemsDatastore(context.resources.datastore)
-        .get_data_frame(partition=partition)
-        .with_columns(year=partition.year)
-    )
+    try:
+        # Assign a year column so the parquet output can be partitioned easily.
+        df = epacems_datastore.get_data_frame(partition=partition).with_columns(
+            year=partition.year
+        )
+    except KeyError:
+        logger.warning(f"No data found for {year_quarter}. Returning empty dataframe.")
+        res = Resource.from_id("core_epacems__hourly_emissions")
+        df = pl.LazyFrame(res.format_df(pd.DataFrame()))
+
+    return df
