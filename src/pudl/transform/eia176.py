@@ -22,17 +22,14 @@ logger = get_logger(__name__)
         "_core_eia176__yearly_aggregate_data": AssetOut(),
     },
 )
-def _core_eia176__custom(
-    raw_eia176__custom: pd.DataFrame,
+def _core_eia176__data(
+    raw_eia176__data: pd.DataFrame,
 ) -> tuple[Output, Output]:
-    """Process EIA 176 custom report data into company and aggregate outputs.
-
-    Take raw dataframe produced by querying all forms from the EIA 176 custom report
-    and return two wide tables with primary keys and one column per variable.
+    """Take raw list and return two wide tables with primary keys and one column per variable.
 
     One table with data for each year and company, one with state- and US-level aggregates per year.
     """
-    raw_eia176__custom = raw_eia176__custom.astype({"report_year": int, "value": float})
+    raw_eia176__data = raw_eia176__data.astype({"report_year": int, "value": float})
 
     aggregate_primary_key = ["report_year", "operating_state"]
     company_primary_key = aggregate_primary_key + ["operator_id_eia", "operator_name"]
@@ -43,18 +40,18 @@ def _core_eia176__custom(
 
     # Clean up text columns to ensure string matching is precise
     for col in ["operator_name", "operating_state"]:
-        raw_eia176__custom[col] = raw_eia176__custom[col].str.strip().str.lower()
+        raw_eia176__data[col] = raw_eia176__data[col].str.strip().str.lower()
 
-    long_company = raw_eia176__custom.loc[
-        raw_eia176__custom.operator_name != "total of all companies"
+    long_company = raw_eia176__data.loc[
+        raw_eia176__data.operator_name != "total of all companies"
     ]
     wide_company = get_wide_table(
         long_table=long_company.drop(columns=company_drop_columns),
         primary_key=company_primary_key,
     )
 
-    long_aggregate = raw_eia176__custom.loc[
-        raw_eia176__custom.operator_name == "total of all companies"
+    long_aggregate = raw_eia176__data.loc[
+        raw_eia176__data.operator_name == "total of all companies"
     ]
     wide_aggregate = get_wide_table(
         long_table=long_aggregate.drop(columns=aggregate_drop_columns).dropna(

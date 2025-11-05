@@ -188,7 +188,7 @@ class ZenodoDoiSettings(BaseSettings):
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
     censuspep: ZenodoDoi = "10.5281/zenodo.15315316"
-    eia176: ZenodoDoi = "10.5072/zenodo.397283"
+    eia176: ZenodoDoi = "10.5281/zenodo.14589676"
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
     eia860: ZenodoDoi = "10.5281/zenodo.17091669"
