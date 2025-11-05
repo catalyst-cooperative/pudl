@@ -49,18 +49,14 @@ def raw_eia930__interchange(context) -> Path:
 @asset(required_resource_keys={"datastore", "dataset_settings"})
 def raw_eia930__subregion(context) -> Path:
     """Raw subregion page - only exists after 2018h2."""
-    all_half_years = context.resources.dataset_settings.eia.eia930.half_years
-    half_years_split = (half_year.split("half") for half_year in all_half_years)
-    half_years_parsed = ((int(year), int(half)) for year, half in half_years_split)
-    valid_half_years = [
-        f"{year}half{half}"
-        for year, half in half_years_parsed
-        if (year > 2018) or (year == 2018 and half == 2)
-    ]
     return extract_page(
         datastore=context.resources.datastore,
         page="subregion",
-        half_years=valid_half_years,
+        half_years=[
+            h
+            for h in context.resources.dataset_settings.eia.eia930.half_years
+            if h >= "2018half2"
+        ],
     )
 
 
@@ -72,7 +68,7 @@ def extract_page(datastore: Datastore, page: str, half_years: list[str]) -> Path
 
     If we were to return the `con.query()` and use an IOManager to manage
     the Parquet IO, we would have to manage the DuckDB connection lifetime
-    so we don't try to write out from a closed DuckDB connection. So, we just
+    to avoid trying to write out from a closed DuckDB connection. So, we just
     write out directly in this asset and return a Path that we can pass to
     ``pd.read_parquet``, ``pl.scan_parquet``, or any other Parquet reading
     strategy.
@@ -99,9 +95,9 @@ def extract_page(datastore: Datastore, page: str, half_years: list[str]) -> Path
         f"SELECT * FROM {view_name}"  # noqa: S608 (we trust this view name)
         for view_name in individual_views
     )
-    output_path = PudlPaths().parquet_path(f"raw_eia930__{page}.parquet")
+    output_path = PudlPaths().parquet_path(f"raw_eia930__{page}")
     con.query(union_query).to_parquet(str(output_path))
-    return output_path.with_suffix("")
+    return output_path
 
 
 def extract_half_year_page(
