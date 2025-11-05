@@ -64,6 +64,11 @@ class AEOTable(DataFrameModel):
         description="A human-readable name for the series that this value came "
         "from. Usually contains many fields separated by `` : ``.",
     )
+    series_id: str = Field(
+        coerce=True,
+        description="A machine-readable ID for the series that this value came "
+        "from. Usually contains many fields separated by ``.`` and ``_``.",
+    )
     category_name: str = Field(
         coerce=True,
         description="A human-readable name for the category that the above "
@@ -365,6 +370,7 @@ class AEOTaxonomy:
                 "value": d[1],
                 "units": series["units"],
                 "series_name": series["name"],
+                "series_id": series["series_id"],
                 "category_name": parent_name,
                 "model_case_eiaaeo": case_name,
                 "report_year": report_year,  # Add the report year here
