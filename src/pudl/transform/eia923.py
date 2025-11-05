@@ -1682,15 +1682,6 @@ def _core_eia923__emissions_control(
     for col in date_cols:
         df[col] = df[col].apply(clean_date)
 
-    # Rename to be consistent with existing column names
-    df = df.rename(
-        {
-            "so2_removal_efficiency_100pct_load": "so2_removal_efficiency_tested",
-            "particulate_removal_efficiency_100pct_load": "particulate_removal_efficiency_tested",
-        },
-        axis=1,
-    )
-
     # Encode operational_status
     df["operational_status"] = df.operational_status.str.upper().map(
         pudl.helpers.label_map(
