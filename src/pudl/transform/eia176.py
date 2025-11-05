@@ -248,11 +248,11 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     df = pd.melt(
         df, id_vars=primary_key, var_name="metric", value_name="value"
     ).reset_index()
-    df[["consumer_type", "metric_type"]] = df["metric"].str.extract(
+    df[["customer_type", "metric_type"]] = df["metric"].str.extract(
         r"(residential|commercial|industrial|electric_power|vehicle_fuel|other)_(.+)$"
     )
     df = df.drop(columns="metric").reset_index()
-    primary_key.append("consumer_type")
+    primary_key.append("customer_type")
     df = df.pivot(
         index=primary_key, columns="metric_type", values="value"
     ).reset_index()
