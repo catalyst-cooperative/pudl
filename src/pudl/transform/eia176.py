@@ -254,9 +254,6 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     temp_df = temp_df.pivot(
         index=primary_key + ["customer_class"], columns="metric_type", values="value"
     ).reset_index()
-    temp_df[
-        (temp_df["report_year"] == 1997) & (temp_df["operator_id_eia"] == "17600512AR")
-    ]
 
     temp_df = temp_df[
         temp_df["sales_volume"].notna()
