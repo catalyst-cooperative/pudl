@@ -66,6 +66,12 @@ Dev tooling
 
 * As part of a performance push, we added some tools for quick memory profiling
   of asset materialization. See issue :issue:`4619` and PR :pr:`4655`.
+* We are no longer relying on Dask dataframes for processing data larger than memory.
+  We've started using `Polars <https://pola.rs>`__ and `DuckDB <https://duckdb.org>`__
+  instead. For now this primarily affects the very large :doc:`data_sources/epacems`
+  dataset, but we anticipate using these tools in other contexts to address performance
+  bottlenecks. See issue :issue:`4663` and PR :pr:`4676` for the conversion of EPA
+  CEMS from Dask to Polars.
 
 .. _release-v2025.10.0:
 
