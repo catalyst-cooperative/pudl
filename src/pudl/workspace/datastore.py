@@ -198,7 +198,7 @@ class ZenodoDoiSettings(BaseSettings):
     eia930: ZenodoDoi = "10.5281/zenodo.16676166"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
     eiaaeo: ZenodoDoi = "10.5281/zenodo.15622378"
-    eiaapi: ZenodoDoi = "10.5281/zenodo.16676182"
+    eiaapi: ZenodoDoi = "10.5281/zenodo.17500949"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.14834878"
     epacems: ZenodoDoi = "10.5281/zenodo.16792669"
     ferc1: ZenodoDoi = "10.5281/zenodo.17076623"
@@ -425,14 +425,18 @@ class Datastore:
 
     def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
         """Retrieves unique resource and opens it as a ZipFile."""
-        resource_bytes = self.get_unique_resource(dataset, **filters)
-        resource = io.BytesIO(resource_bytes)
-        md5sum = hashlib.file_digest(resource, "md5").hexdigest()
-        logger.info(
-            f"Got resource {dataset=}, {filters=}, {md5sum=}, "
-            f"{len(resource_bytes)} bytes; turning into ZipFile"
-        )
-        return retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=resource)
+
+        def retryable() -> zipfile.ZipFile:
+            resource_bytes = self.get_unique_resource(dataset, **filters)
+            resource = io.BytesIO(resource_bytes)
+            md5sum = hashlib.file_digest(resource, "md5").hexdigest()
+            logger.info(
+                f"Got resource {dataset=}, {filters=}, {md5sum=}, "
+                f"{len(resource_bytes)} bytes; turning into ZipFile"
+            )
+            return zipfile.ZipFile(resource)
+
+        return retry(retryable, retry_on=(zipfile.BadZipFile))
 
     def get_zipfile_resources(
         self, dataset: str, **filters: Any
