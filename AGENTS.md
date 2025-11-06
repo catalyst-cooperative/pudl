@@ -88,4 +88,3 @@
   memory limitations are important, we may also use DuckDB or polars dataframes.
 - For large datasets (>1GB), consider polars for aggregations before pandas.
 - Use polars for memory-intensive operations or when pandas performance is limiting.
-- Profile code with cProfile when optimizing performance-critical sections.
