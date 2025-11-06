@@ -60,6 +60,10 @@ from pudl.metadata.sources import SOURCES
 
 FIELD_METADATA: dict[str, dict[str, Any]] = {
     "consumers": {"type": "integer", "description": "number of consumers"},
+    "operator_id_eia": {
+        "type": "string",
+        "description": "Operator EIA id",
+    },
     "revenue": {
         "type": "number",
         "description": "revenue",

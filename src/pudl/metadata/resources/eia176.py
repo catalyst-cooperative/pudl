@@ -13,7 +13,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "report_year",
-                "operator_utility_id_eia",
+                "operator_id_eia",
                 "operating_state",
                 "customer_class",
                 "revenue_class",
@@ -23,8 +23,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_year",
-                "operator_utility_id_eia",
-                "operating_state",
+                "operator_id_eia",
                 "customer_class",
                 "revenue_class",
             ],

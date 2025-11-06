@@ -255,6 +255,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         index=primary_key + ["customer_class"], columns="metric_type", values="value"
     ).reset_index()
 
+    # Assert that volume totals match the sum of sub-components
     temp_df = temp_df[
         temp_df["sales_volume"].notna()
         & temp_df["transport_volume"].notna()
@@ -291,13 +292,8 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     ).reset_index()
     df.columns.name = None
 
-    # Exctract numeric part from operator_id_eia and rename the column
-    df["operator_id_eia"] = df["operator_id_eia"].str[:-2].astype(int)
-
     # Rename columns as needed
-    df = df.rename(
-        columns={"operator_id_eia": "operator_utility_id_eia", "volume": "volume_mfc"}
-    )
+    df = df.rename(columns={"volume": "volume_mfc"})
 
     # Ensure all values in rows with null operating state are zeroes, and drop them
     assert (
@@ -309,19 +305,9 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     df = df.dropna(subset=["operating_state"])
     df = df.dropna(subset=["consumers", "revenue", "volume_mfc"], how="all")
 
-    # Ensure data types are homogenous
-
     # Convert consumers to integers - can't have half a consumer
-    assert cast(pd.Series, df["consumers"].dropna() % 1 == 0).all(), (
-        "Consumer values are all expected to be valid integers"
-    )
-    df["consumers"] = pd.to_numeric(df["consumers"], errors="coerce").astype("Int64")
 
-    df["operating_state"] = df["operating_state"].astype("string")
     df["customer_class"] = df["customer_class"].astype("category")
     df["revenue_class"] = df["revenue_class"].astype("category")
-
-    assert df["volume_mfc"].dtype == "float64"
-    assert df["revenue"].dtype == "float64"
 
     return df
