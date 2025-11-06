@@ -327,7 +327,7 @@ class PudlParquetIOManager(IOManager):
             )
         elif isinstance(obj, pl.LazyFrame):
             logger.warning(
-                "PudlParquetIOManager enforces does not do any schema enforcement."
+                "PudlParquetIOManager does not do any schema enforcement."
             )
             obj.sink_parquet(
                 parquet_path,
