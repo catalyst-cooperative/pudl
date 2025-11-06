@@ -15,6 +15,11 @@ Enhancements
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EPACEMS
+~~~~~~~
+
+* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
+
 Census PEP
 ~~~~~~~~~~
 
