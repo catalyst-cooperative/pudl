@@ -44,6 +44,7 @@ jobs:
               - '!.github/actionlint.yml'
               - '!.github/dependabot.yml'
               - '!.github/release.yml'
+              - '!.github/ISSUE_TEMPLATE/*.yml'
               - '!AGENTS.md'
               - '!README.rst'
               - '!CONTRIBUTING.rst'
