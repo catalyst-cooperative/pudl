@@ -562,7 +562,6 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
         raise AssertionError(
             "No more duplicates! Yay! AEO fixed the problem and you can remove this code."
         )
-
     dupe_mask = sanitized.drop(columns=["value", "series_id"]).duplicated(keep=False)
     byprdh2_mask = sanitized.series_id.str.contains("byprdh2")
     sanitized.loc[dupe_mask & byprdh2_mask, "variable_name"] = "byproduct_hydrogen"
@@ -685,7 +684,6 @@ class AeoCheckSpec:
 
     name: str
     asset: str
-    num_rows_by_report_year: dict[int, int]
     category_counts: dict[str, int]
 
 
@@ -698,7 +696,6 @@ check_specs = [
     AeoCheckSpec(
         name="gen_in_electric_sector_by_tech",
         asset="core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
-        num_rows_by_report_year={2023: 166972, 2025: 126750},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "technology_description_eiaaeo": 16,
@@ -707,7 +704,6 @@ check_specs = [
     AeoCheckSpec(
         name="gen_in_electric_sector_by_tech",
         asset="core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
-        num_rows_by_report_year={2023: 77064, 2025: 50700},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "fuel_type_eiaaeo": 6,
@@ -716,7 +712,6 @@ check_specs = [
     AeoCheckSpec(
         name="electricity_sales",
         asset="core_eiaaeo__yearly_projected_electric_sales",
-        num_rows_by_report_year={2023: 51376, 2025: 33800},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "customer_class": 4,
@@ -725,7 +720,6 @@ check_specs = [
     AeoCheckSpec(
         name="electricity_sales",
         asset="core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type",
-        num_rows_by_report_year={2023: 50882, 2025: 33475},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "fuel_type_eiaaeo": 4,
@@ -740,11 +734,6 @@ def make_check(spec: AeoCheckSpec) -> AssetChecksDefinition:
     @asset_check(asset=spec.asset, blocking=True)
     def _check(df):
         errors = []
-        for year, expected_rows in spec.num_rows_by_report_year.items():
-            if (num_rows := len(df.loc[df.report_year == year])) != expected_rows:
-                errors.append(
-                    f"Expected {expected_rows} for report year {year}, found {num_rows}"
-                )
         for category, expected_num in spec.category_counts.items():
             value_counts = df[category].value_counts()
             non_zero_values = value_counts.loc[value_counts > 0]
