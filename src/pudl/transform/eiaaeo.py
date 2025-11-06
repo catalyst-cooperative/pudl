@@ -314,6 +314,7 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             "topic",
             "subtopic",
             "units",
+            "series_id",
         ]
     )
 
@@ -394,6 +395,7 @@ def core_eiaaeo__yearly_projected_electric_sales(
         columns=[
             "topic",
             "units",
+            "series_id",
         ]
     )
 
@@ -466,6 +468,7 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
             "topic",
             "subtopic",
             "units",
+            "series_id",
         ]
     )
 
@@ -648,6 +651,7 @@ def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
         columns=[
             "topic",
             "units",
+            "series_id",
         ]
     )
 
