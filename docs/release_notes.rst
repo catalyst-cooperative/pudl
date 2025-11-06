@@ -20,6 +20,10 @@ EIA AEO
 
 * Added projection data from the 2025 AEO. See issue :issue:`4591` and PR :pr:`4631`.
 
+EPACEMS
+~~~~~~~
+
+* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
 
 Census PEP
 ~~~~~~~~~~
