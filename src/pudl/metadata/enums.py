@@ -374,6 +374,7 @@ descriptions page.
 
 ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "biofuels_heat_and_coproducts",
+    "byproduct_hydrogen",
     "coal",
     "coal_subtotal",
     "coal_to_liquids_heat_and_power",

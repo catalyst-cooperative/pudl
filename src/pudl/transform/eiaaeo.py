@@ -552,6 +552,18 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
         ),
     ).rename(columns={"subtopic": "dimension"})
 
+    # Fix error in 2025 data where series name for Byproduct Hydrogen is incorrectly
+    # labeled as Electricity Imports, causing a duplicate primary key with the actual
+    # Electricity Imports data. Get the correct series name from the series_id for now.
+    if not sanitized.drop(columns=["value", "series_id"]).duplicated().any():
+        raise AssertionError(
+            "No more duplicates! Yay! AEO fixed the problem and you can remove this code."
+        )
+
+    dupe_mask = sanitized.drop(columns=["value", "series_id"]).duplicated(keep=False)
+    byprdh2_mask = sanitized.series_id.str.contains("byprdh2")
+    sanitized.loc[dupe_mask & byprdh2_mask, "variable_name"] = "byproduct_hydrogen"
+
     expected_values = {
         "topic": {"energy_use"},
         "units": {"quads"},
@@ -578,6 +590,7 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
             columns=[
                 "topic",
                 "units",
+                "series_id",
             ]
         )
         .set_index(
