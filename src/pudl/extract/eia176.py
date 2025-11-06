@@ -45,9 +45,13 @@ class Extractor(CsvExtractor):
     ) -> pd.DataFrame:
         """Append report year to df to distinguish data from other years."""
         df = df.rename(columns=self._metadata.get_column_map(page, **partition))
-        self.cols_added.append("report_year")
-        selection = self._metadata._get_partition_selection(partition)
-        return df.assign(report_year=selection)
+        # Some but not all of our input data has a report_year column,
+        # so we assign it from the partition where it is not provided.
+        if "report_year" not in df.columns:
+            selection = self._metadata._get_partition_selection(partition)
+            df = df.assign(report_year=selection)
+            self.cols_added.append("report_year")
+        return df
 
 
 raw_eia176__all_dfs = raw_df_factory(Extractor, name="eia176")
@@ -80,7 +84,7 @@ def raw_eia176__operation_types_and_sector_items(raw_eia176__all_dfs):
     Returns:
         An extracted EIA 176 dataframe.
     """
-    return Output(value=raw_eia176__all_dfs["types_of_operations_and_sector_items"])
+    return Output(value=raw_eia176__all_dfs["type_of_operations_and_sector_items"])
 
 
 @asset

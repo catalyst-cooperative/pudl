@@ -1,4 +1,4 @@
-year_index,operating_state,operator_id_eia,operator_name,operator_status,data_last_updated
+year_index,operating_state,operator_id_eia,operator_name,operator_status,report_year
 1997,report_state,id,company_name,-1,last_update
 1998,report_state,id,company_name,-1,last_update
 1999,report_state,id,company_name,-1,last_update
