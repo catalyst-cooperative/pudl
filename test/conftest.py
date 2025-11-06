@@ -412,7 +412,8 @@ def logger_config():
             "arelle": logging.INFO,
             "urllib3": logging.INFO,
             "matplotlib": logging.WARNING,
-        }
+        },
+        propagate=True,
     )
 
 
