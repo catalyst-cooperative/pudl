@@ -312,9 +312,9 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     # Ensure data types are homogenous
 
     # Convert consumers to integers - can't have half a consumer
-    assert cast(
-        pd.Series, df["consumers"].dropna() % 1 == 0
-    ).all(), "Consumer values are all expected to be valid integers"
+    assert cast(pd.Series, df["consumers"].dropna() % 1 == 0).all(), (
+        "Consumer values are all expected to be valid integers"
+    )
     df["consumers"] = pd.to_numeric(df["consumers"], errors="coerce").astype("Int64")
 
     df["operating_state"] = df["operating_state"].astype("string")
