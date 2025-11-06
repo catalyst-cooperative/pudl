@@ -22,6 +22,7 @@ from typing import Any, Literal, NamedTuple
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import polars as pl
 import requests
 import sqlalchemy as sa
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
@@ -2145,10 +2146,11 @@ def retry(
     seconds.
 
     Args:
-    func: the function to retry
-    retry_on: the errors to catch.
-    base_delay_sec: how much time to sleep for the first retry.
-    kwargs: keyword arguments to pass to the wrapped function. Pass non-kwargs as kwargs too.
+        func: the function to retry
+        retry_on: the errors to catch.
+        base_delay_sec: how much time to sleep for the first retry.
+        kwargs: keyword arguments to pass to the wrapped function. Pass non-kwargs as
+            kwargs too.
     """
     for try_count in range(max_retries):
         delay = 2**try_count * base_delay_sec
@@ -2160,6 +2162,21 @@ def retry(
             )
             time.sleep(delay)
     return func(**kwargs)
+
+
+def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
+    """Read a table from a parquet file and return as a polars LazyFrame."""
+    # Import here to avoid circular imports
+    from pudl.metadata.classes import Resource
+
+    resource = Resource.from_id(table_name)
+    schema = resource.to_polars_dtypes()
+
+    # Get the Parquet file path
+    paths = PudlPaths()
+    parquet_path = paths.parquet_path(table_name)
+
+    return pl.scan_parquet(parquet_path, schema=schema)
 
 
 def get_parquet_table(
