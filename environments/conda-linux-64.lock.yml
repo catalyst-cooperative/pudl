@@ -23,7 +23,7 @@ dependencies:
   - antlr-python-runtime=4.13.2=pyhd8ed1ab_1
   - anyio=4.11.0=pyhcf101f3_0
   - appdirs=1.4.4=pyhd8ed1ab_1
-  - arelle-release=2.37.68=pyhd8ed1ab_0
+  - arelle-release=2.37.69=pyhd8ed1ab_0
   - argon2-cffi=25.1.0=pyhd8ed1ab_0
   - argon2-cffi-bindings=25.1.0=py313h07c4f96_1
   - arpack=3.9.1=nompi_hf03ea27_102
@@ -92,7 +92,7 @@ dependencies:
   - charset-normalizer=3.4.4=pyhd8ed1ab_0
   - click=8.1.8=pyh707e725_0
   - click-default-group=1.2.4=pyhd8ed1ab_1
-  - cloudpickle=3.1.1=pyhd8ed1ab_0
+  - cloudpickle=3.1.2=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_1
   - coloredlogs=14.0=pyhd8ed1ab_3
   - comm=0.2.3=pyhe01879c_0
@@ -119,7 +119,7 @@ dependencies:
   - dask-core=2025.10.0=pyhcf101f3_0
   - dask-expr=2.0.0=pyhd8ed1ab_0
   - databricks-sdk=0.71.0=pyhd8ed1ab_0
-  - dbt-adapters=1.17.3=pyhd8ed1ab_0
+  - dbt-adapters=1.18.0=pyhd8ed1ab_0
   - dbt-common=1.35.0=pyhd8ed1ab_0
   - dbt-core=1.10.13=pyhd8ed1ab_0
   - dbt-duckdb=1.9.4=pyhd8ed1ab_0
@@ -149,9 +149,9 @@ dependencies:
   - exceptiongroup=1.3.0=pyhd8ed1ab_0
   - execnet=2.1.1=pyhd8ed1ab_1
   - executing=2.2.1=pyhd8ed1ab_0
-  - fastapi=0.120.4=h9378a72_0
+  - fastapi=0.121.0=h67827d6_0
   - fastapi-cli=0.0.13=pyhcf101f3_0
-  - fastapi-core=0.120.4=pyhcf101f3_0
+  - fastapi-core=0.121.0=pyhcf101f3_0
   - filelock=3.20.0=pyhd8ed1ab_0
   - flask=3.1.2=pyhd8ed1ab_0
   - flask-cors=6.0.1=pyhe01879c_0
@@ -193,9 +193,9 @@ dependencies:
   - gnutls=3.8.9=h86084c0_1
   - google-api-core=2.28.1=pyhd8ed1ab_0
   - google-auth=2.41.1=pyhd8ed1ab_0
-  - google-auth-oauthlib=1.2.3=pyhd8ed1ab_0
+  - google-auth-oauthlib=1.2.3=pyhd8ed1ab_1
   - google-cloud-core=2.5.0=pyhd8ed1ab_0
-  - google-cloud-sdk=545.0.0=py313h78bf25f_0
+  - google-cloud-sdk=546.0.0=py313h78bf25f_0
   - google-cloud-storage=3.4.1=pyhcf101f3_1
   - google-crc32c=1.7.1=py313h74173ec_1
   - google-resumable-media=2.7.2=pyhd8ed1ab_2
@@ -227,7 +227,7 @@ dependencies:
   - humanfriendly=10.0=pyh707e725_8
   - humanize=4.14.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
-  - hypothesis=6.144.0=pyha770c72_0
+  - hypothesis=6.145.1=pyha770c72_0
   - icu=75.1=he02047a_0
   - identify=2.6.15=pyhd8ed1ab_0
   - idna=3.11=pyhd8ed1ab_0
@@ -273,7 +273,7 @@ dependencies:
   - jupyterlab-lsp=5.2.0=pyhcf101f3_1
   - jupyterlab_pygments=0.3.0=pyhd8ed1ab_2
   - jupyterlab_server=2.28.0=pyhcf101f3_0
-  - jupyterlab_widgets=3.0.16=pyhd8ed1ab_0
+  - jupyterlab_widgets=3.0.16=pyhcf101f3_1
   - keyring=25.6.0=pyha804496_0
   - keyutils=1.6.3=hb9d3cd8_0
   - kiwisolver=1.4.9=py313hc8edb43_1
@@ -299,8 +299,8 @@ dependencies:
   - libcrc32c=1.1.2=h9c3ff4c_0
   - libcups=2.3.3=hb8b1518_5
   - libcurl=8.16.0=h4e3cde8_0
-  - libcxx=21.1.4=ha0f52bf_2
-  - libcxxabi=21.1.4=h9fd08b6_2
+  - libcxx=21.1.5=ha0f52bf_0
+  - libcxxabi=21.1.5=h9fd08b6_0
   - libdeflate=1.24=h86f0d12_0
   - libdrm=2.4.125=hb03c661_1
   - libedit=3.1.20250104=pl5321h7949ede_0
@@ -403,7 +403,7 @@ dependencies:
   - munkres=1.1.4=pyhd8ed1ab_1
   - muparser=2.3.5=h5888daf_0
   - mypy_extensions=1.1.0=pyha770c72_0
-  - narwhals=2.10.1=pyhcf101f3_0
+  - narwhals=2.10.2=pyhcf101f3_0
   - nbclient=0.10.2=pyhd8ed1ab_0
   - nbconvert=7.16.6=hc388f54_1
   - nbconvert-core=7.16.6=pyhcf101f3_1
@@ -448,7 +448,7 @@ dependencies:
   - partd=1.4.2=pyhd8ed1ab_0
   - pathlib-abc=0.5.2=pyh9692d8f_0
   - pathspec=0.12.1=pyhd8ed1ab_1
-  - pbr=7.0.2=pyhd8ed1ab_0
+  - pbr=7.0.3=pyhd8ed1ab_0
   - pcre2=10.46=h1321c63_0
   - petl=1.7.17=pyhd8ed1ab_0
   - pexpect=4.9.0=pyhd8ed1ab_1
@@ -532,7 +532,7 @@ dependencies:
   - readline=8.2=h8c095d6_2
   - readthedocs-sphinx-ext=2.2.5=pyhd8ed1ab_1
   - referencing=0.37.0=pyhcf101f3_0
-  - regex=2025.10.23=py313h07c4f96_0
+  - regex=2025.11.3=py313h07c4f96_0
   - requests=2.32.5=pyhd8ed1ab_0
   - requests-oauthlib=2.0.0=pyhd8ed1ab_1
   - requests-toolbelt=1.0.0=pyhd8ed1ab_1
@@ -585,7 +585,7 @@ dependencies:
   - sphinxcontrib-jsmath=1.0.1=pyhd8ed1ab_1
   - sphinxcontrib-qthelp=2.0.0=pyhd8ed1ab_1
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_1
-  - splink=4.0.9=pyhd8ed1ab_0
+  - splink=4.0.10=pyhd8ed1ab_0
   - sqlalchemy=2.0.44=py313h07c4f96_0
   - sqlglot=27.29.0=pyhcf101f3_0
   - sqlglot-rs=27.29.0=h80e3e46_0
