@@ -380,7 +380,7 @@ class AEOTaxonomy:
         return records
 
     def get_table(self, table_number: int, report_year: int) -> pd.DataFrame:
-        """Get a specific table number as a DataFrame, including the report year."""
+        """Get a specific table number and report year as a DataFrame."""
         matching_category_ids = {
             n_id
             for n_id in self.graph
