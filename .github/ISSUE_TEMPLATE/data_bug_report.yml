@@ -1,0 +1,43 @@
+name: Data bug report
+description: Report irregularities with PUDL data.
+labels: ["bug"]
+projects: ["Catalyst Megaproject"]
+body:
+  - type: input
+    id: table
+    attributes:
+      label: Impacted table(s)
+      description: Please list all tables impacted by this bug.
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: How severe is this data bug?
+      description: |
+        High indicates that the data is unusable.
+        Medium indicates that the data can be used with some effort.
+        Low indicates that the bug presents little to no barrier to using this data.
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+  - type: textarea
+    id: impacted-data
+    attributes:
+      label: Identify impacted data
+      description: |
+        Which portion of the table is impacted by the bug (i.e. does the
+        bug impact a specific date range or entity)?
+    validations:
+      required: true
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: |
+        What irregularities have you found with this data?
+    validations:
+      required: true

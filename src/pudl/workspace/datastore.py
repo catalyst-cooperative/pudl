@@ -187,24 +187,24 @@ class ZenodoDoiSettings(BaseSettings):
     """Digital Object Identifiers pointing to currently used Zenodo archives."""
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
-    censuspep: ZenodoDoi = "10.5281/zenodo.14648211"
+    censuspep: ZenodoDoi = "10.5281/zenodo.15315316"
     eia176: ZenodoDoi = "10.5281/zenodo.14589676"
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
     eia860: ZenodoDoi = "10.5281/zenodo.17091669"
-    eia860m: ZenodoDoi = "10.5281/zenodo.17200983"
+    eia860m: ZenodoDoi = "10.5281/zenodo.17447502"
     eia861: ZenodoDoi = "10.5281/zenodo.13907096"
-    eia923: ZenodoDoi = "10.5281/zenodo.17191198"
+    eia923: ZenodoDoi = "10.5281/zenodo.17440792"
     eia930: ZenodoDoi = "10.5281/zenodo.16676166"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
     eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
-    eiaapi: ZenodoDoi = "10.5281/zenodo.16676182"
+    eiaapi: ZenodoDoi = "10.5281/zenodo.17500949"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.14834878"
     epacems: ZenodoDoi = "10.5281/zenodo.16792669"
-    ferc1: ZenodoDoi = "10.5281/zenodo.16676192"
-    ferc2: ZenodoDoi = "10.5281/zenodo.15340992"
-    ferc6: ZenodoDoi = "10.5281/zenodo.15772158"
-    ferc60: ZenodoDoi = "10.5281/zenodo.15386890"
+    ferc1: ZenodoDoi = "10.5281/zenodo.17076623"
+    ferc2: ZenodoDoi = "10.5281/zenodo.17223540"
+    ferc6: ZenodoDoi = "10.5281/zenodo.16676188"
+    ferc60: ZenodoDoi = "10.5281/zenodo.17223513"
     ferc714: ZenodoDoi = "10.5281/zenodo.16676145"
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
@@ -425,14 +425,18 @@ class Datastore:
 
     def get_zipfile_resource(self, dataset: str, **filters: Any) -> zipfile.ZipFile:
         """Retrieves unique resource and opens it as a ZipFile."""
-        resource_bytes = self.get_unique_resource(dataset, **filters)
-        resource = io.BytesIO(resource_bytes)
-        md5sum = hashlib.file_digest(resource, "md5").hexdigest()
-        logger.info(
-            f"Got resource {dataset=}, {filters=}, {md5sum=}, "
-            f"{len(resource_bytes)} bytes; turning into ZipFile"
-        )
-        return retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=resource)
+
+        def retryable() -> zipfile.ZipFile:
+            resource_bytes = self.get_unique_resource(dataset, **filters)
+            resource = io.BytesIO(resource_bytes)
+            md5sum = hashlib.file_digest(resource, "md5").hexdigest()
+            logger.info(
+                f"Got resource {dataset=}, {filters=}, {md5sum=}, "
+                f"{len(resource_bytes)} bytes; turning into ZipFile"
+            )
+            return zipfile.ZipFile(resource)
+
+        return retry(retryable, retry_on=(zipfile.BadZipFile))
 
     def get_zipfile_resources(
         self, dataset: str, **filters: Any

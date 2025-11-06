@@ -1,4 +1,4 @@
-year_index,2010,2011,2012
-title,book_title,title_of_book,title
-author,name,author,author
-pages,pages,pages,pages
+year_index,title,author,pages
+2010,book_title,name,pages
+2011,title_of_book,author,pages
+2012,title,author,pages

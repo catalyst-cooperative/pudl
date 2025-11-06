@@ -40,7 +40,7 @@ SOURCES: dict[str, Any] = {
             "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
             "These FIPS Codes are a subset of a broader Population Estimates dataset."
         ),
-        "working_partitions": {"years": [2023, 2015, 2009]},
+        "working_partitions": {"years": [2009] + list(range(2011, 2025))},
         "keywords": sorted(
             {"fips", "census", "county", "state", "geography", "geocodes"}
         ),
@@ -205,7 +205,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-08", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-09", freq="M")
             ],
         },
         "keywords": sorted(

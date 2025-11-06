@@ -2,7 +2,6 @@
 
 import enum
 import json
-import logging
 import re
 from importlib.resources import files
 from typing import Self
@@ -10,7 +9,9 @@ from typing import Self
 import pandas as pd
 from pydantic import BaseModel, Field, model_validator
 
-logger = logging.getLogger(__name__)
+from pudl.logging_helpers import get_logger
+
+logger = get_logger(__name__)
 
 CLEANING_RULES_DICT = {
     "remove_email": [" ", r"\S*@\S*\s?"],
