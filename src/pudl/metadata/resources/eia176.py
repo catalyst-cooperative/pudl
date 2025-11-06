@@ -6,8 +6,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "description": {
             "additional_summary_text": (
-                "Information about a company's gas deliveries to end-use consumers from eia176"
-            )
+                "a company's natural gas deliveries to end-use consumers within the report state."
+            ),
+            "additional_source_text": "(Part 6, Lines 10.0-11.6)",
         },
         "schema": {
             "fields": [
