@@ -169,6 +169,15 @@ CUSTOMER_CLASSES: list[str] = [
     "commercial_other",  # commercial *OR* other - used in EIA AEO only.
 ]
 
+CUSTOMER_CLASSES_EIA176: list[str] = [
+    "commercial",
+    "electric_power",
+    "industrial",
+    "other",
+    "residential",
+    "vehicle_fuel",
+]
+
 TECH_CLASSES: list[str] = [
     "backup",  # WHERE Is this used? because removed from DG table b/c not a real component
     "chp_cogen",
@@ -198,6 +207,11 @@ REVENUE_CLASSES: list[str] = [
     "total",
     "transmission",
     "unbundled",
+]
+
+REVENUE_CLASSES_EIA176: list[str] = [
+    "sales",
+    "transport",
 ]
 
 RELIABILITY_STANDARDS: list[str] = ["ieee_standard", "other_standard"]

@@ -1,5 +1,7 @@
 """Module to perform data cleaning functions on EIA176 data tables."""
 
+from typing import cast
+
 import pandas as pd
 from dagster import (
     AssetCheckResult,
@@ -75,7 +77,7 @@ def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataF
     unstacked.columns = unstacked.columns.droplevel(0)
     unstacked = simplify_columns(unstacked)  # Clean up column names
     unstacked.columns.name = None  # gets rid of "item" name of columns index
-    return unstacked.reset_index().fillna(0)
+    return unstacked.reset_index()
 
 
 @asset_check(
@@ -173,7 +175,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         "residential_transport_revenue",
         "residential_transport_volume",
         # 10.1+11.1
-        "residential_volume",
+        # "residential_volume",
         # 2 ==========================================
         # 10.2
         "commercial_sales_consumers",
@@ -184,7 +186,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         "commercial_transport_revenue",
         "commercial_transport_volume",
         # 10.2 + 11.2
-        "commercial_volume",
+        # "commercial_volume",
         # 3 ==========================================
         # 10.3
         "industrial_sales_consumers",
@@ -195,7 +197,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         "industrial_transport_revenue",
         "industrial_transport_volume",
         # 10.3 + 11.3
-        "industrial_volume",
+        # "industrial_volume",
         # 4 ==========================================
         # 10.4
         "electric_power_sales_consumers",
@@ -206,7 +208,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         "electric_power_transport_revenue",
         "electric_power_transport_volume",
         # 10.4 + 11.4
-        "electric_power_volume",
+        # "electric_power_volume",
         # 5 ==========================================
         # 10.5
         "vehicle_fuel_sales_consumers",
@@ -217,7 +219,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         "vehicle_fuel_transport_revenue",
         "vehicle_fuel_transport_volume",
         # 10.5 + 11.5
-        "vehicle_fuel_volume",
+        # "vehicle_fuel_volume",
         # 6 ==========================================
         # 10.6
         "other_sales_consumers",
@@ -227,12 +229,46 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         "other_transport_consumers",
         "other_transport_volume",
         # 10.6 + 11.6
+        # "other_volume",
+    ]
+
+    volumes = [
         "other_volume",
+        "vehicle_fuel_volume",
+        "electric_power_volume",
+        "industrial_volume",
+        "residential_volume",
+        "commercial_volume",
     ]
 
     df = _core_eia176__yearly_company_data.filter(primary_key + keep)
 
-    # Normalize operating states
+    # Assert that volume sums match
+    temp_df = _core_eia176__yearly_company_data.filter(primary_key + keep + volumes)
+    temp_df = pd.melt(
+        temp_df, id_vars=primary_key, var_name="metric", value_name="value"
+    ).reset_index()
+    temp_df[["customer_class", "metric_type"]] = temp_df["metric"].str.extract(
+        r"(residential|commercial|industrial|electric_power|vehicle_fuel|other)_(.+)$"
+    )
+    temp_df = temp_df.pivot(
+        index=primary_key + ["customer_class"], columns="metric_type", values="value"
+    ).reset_index()
+    temp_df[
+        (temp_df["report_year"] == 1997) & (temp_df["operator_id_eia"] == "17600512AR")
+    ]
+
+    temp_df = temp_df[
+        temp_df["sales_volume"].notna()
+        & temp_df["transport_volume"].notna()
+        & temp_df["volume"].notna()
+    ]
+    assert cast(
+        pd.Series,
+        (temp_df["sales_volume"] + temp_df["transport_volume"]) == temp_df["volume"],
+    ).all(), "Volumes don't match"
+
+    # Normalize operating states, those that are missing in subdivisions will be NA
     codes = (
         core_pudl__codes_subdivisions.assign(
             key=lambda d: d["subdivision_name"].str.strip().str.casefold()
@@ -241,20 +277,54 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         .set_index("key")["subdivision_code"]
     )
     df["operating_state"] = (
-        df["operating_state"].str.strip().str.casefold().map(lambda _: codes.get(_, _))
+        df["operating_state"].str.strip().str.casefold().map(codes.get)
     )
 
     df = pd.melt(
         df, id_vars=primary_key, var_name="metric", value_name="value"
     ).reset_index()
-    df[["customer_type", "metric_type"]] = df["metric"].str.extract(
-        r"(residential|commercial|industrial|electric_power|vehicle_fuel|other)_(.+)$"
+    df[["customer_class", "revenue_class", "metric_type"]] = df["metric"].str.extract(
+        r"(residential|commercial|industrial|electric_power|vehicle_fuel|other)_(sales|transport)_(.+)$"
     )
+
     df = df.drop(columns="metric").reset_index()
-    primary_key.append("customer_type")
+    primary_key.extend(["customer_class", "revenue_class"])
     df = df.pivot(
         index=primary_key, columns="metric_type", values="value"
     ).reset_index()
     df.columns.name = None
+
+    # Exctract numeric part from operator_id_eia and rename the column
+    df["operator_id_eia"] = df["operator_id_eia"].str[:-2].astype(int)
+
+    # Rename columns as needed
+    df = df.rename(
+        columns={"operator_id_eia": "operator_utility_id_eia", "volume": "volume_mfc"}
+    )
+
+    # Ensure all values in rows with null operating state are zeroes, and drop them
+    assert (
+        df[df["operating_state"].isna()]
+        .sum()[["consumers", "revenue", "volume_mfc"]]
+        .sum()
+        == 0
+    )
+    df = df.dropna(subset=["operating_state"])
+    df = df.dropna(subset=["consumers", "revenue", "volume_mfc"], how="all")
+
+    # Ensure data types are homogenous
+
+    # Convert consumers to integers - can't have half a consumer
+    assert cast(
+        pd.Series, df["consumers"].dropna() % 1 == 0
+    ).all(), "Consumer values are all expected to be valid integers"
+    df["consumers"] = pd.to_numeric(df["consumers"], errors="coerce").astype("Int64")
+
+    df["operating_state"] = df["operating_state"].astype("string")
+    df["customer_class"] = df["customer_class"].astype("category")
+    df["revenue_class"] = df["revenue_class"].astype("category")
+
+    assert df["volume_mfc"].dtype == "float64"
+    assert df["revenue"].dtype == "float64"
 
     return df
