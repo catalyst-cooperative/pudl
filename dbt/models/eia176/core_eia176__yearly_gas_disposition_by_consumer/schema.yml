@@ -3,11 +3,18 @@ sources:
   - name: pudl
     tables:
       - name: core_eia176__yearly_gas_disposition_by_consumer
+
         data_tests:
+          - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia176__yearly_gas_disposition_by_consumer
                 partition_expr: "report_year"
+          - dbt_utils.expression_is_true:
+            expression: "volume_mfc is null or volume_mfc >= 0"
+          - dbt_utils.expression_is_true:
+            expression: "consumers is null or consumers >= 0"
+                
         columns:
           - name: report_year
           - name: operator_id_eia
