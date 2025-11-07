@@ -15,6 +15,11 @@ Enhancements
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EPACEMS
+~~~~~~~
+
+* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
+
 Census PEP
 ~~~~~~~~~~
 
@@ -66,6 +71,14 @@ Dev tooling
 
 * As part of a performance push, we added some tools for quick memory profiling
   of asset materialization. See issue :issue:`4619` and PR :pr:`4655`.
+* We are no longer relying on Dask dataframes for processing data larger than memory.
+  We've started using `Polars <https://pola.rs>`__ and `DuckDB <https://duckdb.org>`__
+  instead. For now this primarily affects the very large :doc:`data_sources/epacems`
+  dataset, but we anticipate using these tools in other contexts to address performance
+  bottlenecks. See issue :issue:`4663` and PR :pr:`4676` for the conversion of EPA
+  CEMS from Dask to Polars.
+* We also added ``devtools/check_against_nightly.py`` to quickly compare local
+  Parquet outputs with those from the nightly builds.
 
 .. _release-v2025.10.0:
 
