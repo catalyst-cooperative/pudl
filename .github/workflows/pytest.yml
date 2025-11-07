@@ -32,6 +32,7 @@ jobs:
           predicate-quantifier: "every"
           filters: |
             code:
+              - '!dbt/seeds/etl_full_row_counts.csv'
               - '!docker/*'
               - '!docs/**.rst'
               - '!docs/**.md'
