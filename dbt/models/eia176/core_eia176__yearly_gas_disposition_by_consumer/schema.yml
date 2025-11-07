@@ -14,7 +14,7 @@ sources:
             expression: "volume_mfc is null or volume_mfc >= 0"
           - dbt_utils.expression_is_true:
             expression: "consumers is null or consumers >= 0"
-                
+
         columns:
           - name: report_year
           - name: operator_id_eia
