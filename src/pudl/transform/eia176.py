@@ -157,7 +157,7 @@ def validate_totals(
     return AssetCheckResult(passed=True)
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager")
 def core_eia176__yearly_gas_disposition_by_consumer(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
