@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia176__yearly_gas_disposition_by_consumer
+        data_tests:
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia176__yearly_gas_disposition_by_consumer
+                partition_expr: "report_year"
+        columns:
+          - name: report_year
+          - name: operator_id_eia
+          - name: operating_state
+          - name: customer_class
+          - name: revenue_class
+          - name: consumers
+          - name: revenue
+          - name: volume_mfc
