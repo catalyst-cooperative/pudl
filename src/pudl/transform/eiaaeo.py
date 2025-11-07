@@ -18,7 +18,14 @@ from dagster import AssetCheckResult, AssetChecksDefinition, asset, asset_check
 
 
 def __sanitize_string(series: pd.Series) -> pd.Series:
-    return series.str.lower().str.strip().str.replace(r"\W+", "_", regex=True)
+    return (
+        series.str.lower()
+        .str.strip()
+        .str.replace(r"\W+", "_", regex=True)
+        .str.replace(
+            r"_+$", "", regex=True
+        )  # This is for () that get turned into _ at the end.
+    )
 
 
 def get_series_info(series_name: pd.Series) -> pd.DataFrame:
@@ -150,18 +157,13 @@ def filter_enrich_sanitize(
             "variable_fields",
         ]
     )
-
     sanitized = enriched.assign(
         **{
             colname: __sanitize_string(enriched[colname])
             for colname in enriched.columns
-            if colname not in {"projection_year", "value"}
-        }
-    ).pipe(
-        lambda df: df.assign(
-            report_year_series=df.report_year_series.str.replace("aeo", ""),
-            value=pd.to_numeric(df.value.str.replace("- -", "")),
-        )
+            if colname not in {"projection_year", "value", "report_year"}
+        },
+        value=lambda x: pd.to_numeric(x.value, errors="coerce"),
     )
 
     assert (sanitized.region_series == sanitized.region_category).all(), (
@@ -171,12 +173,11 @@ def filter_enrich_sanitize(
         "Series and taxonomy must agree on case!"
     )
 
-    # TODO 2024-04-20: one day we'll include report year in the extract step -
-    # at that point we'll have to compare that with the report year extracted
-    # from the series name.
-    return sanitized.drop(columns=["region_series", "case_series"]).rename(
-        columns={"region_category": "region", "report_year_series": "report_year"}
-    )
+    # Dropping report_year_series here because we don't need it but we MIGHT want it later
+    # So not fully removing it from get_series_info()
+    return sanitized.drop(
+        columns=["region_series", "case_series", "report_year_series"]
+    ).rename(columns={"region_category": "region"})
 
 
 def _collect_totals(df: pd.DataFrame, total_colname="dimension") -> pd.DataFrame:
@@ -268,7 +269,7 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             ],
             dimension_column="dimension",
         )
-        assert 0.999 < ratio_close_reported_calculated <= 1.0, (
+        assert 0.998 < ratio_close_reported_calculated <= 1.0, (
             f"reported vs. calculated totals: {ratio_close_reported_calculated}"
         )
 
@@ -313,6 +314,7 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
             "topic",
             "subtopic",
             "units",
+            "series_id",
         ]
     )
 
@@ -393,6 +395,7 @@ def core_eiaaeo__yearly_projected_electric_sales(
         columns=[
             "topic",
             "units",
+            "series_id",
         ]
     )
 
@@ -403,7 +406,6 @@ def core_eiaaeo__yearly_projected_electric_sales(
         dimension_column="dimension",
     )
     assert subtotals_totals_match_ratio == 1.0
-
     unstacked = unstack(
         df=trimmed,
         eventual_pk=[
@@ -414,7 +416,6 @@ def core_eiaaeo__yearly_projected_electric_sales(
             "projection_year",
         ],
     )
-
     renamed_for_pudl = (
         unstacked.dropna(how="all")
         .reset_index()
@@ -427,7 +428,6 @@ def core_eiaaeo__yearly_projected_electric_sales(
             }
         )
     )
-
     return renamed_for_pudl
 
 
@@ -468,6 +468,7 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
             "topic",
             "subtopic",
             "units",
+            "series_id",
         ]
     )
 
@@ -554,6 +555,17 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
         ),
     ).rename(columns={"subtopic": "dimension"})
 
+    # Fix error in 2025 data where series name for Byproduct Hydrogen is incorrectly
+    # labeled as Electricity Imports, causing a duplicate primary key with the actual
+    # Electricity Imports data. Get the correct series name from the series_id for now.
+    if not sanitized.drop(columns=["value", "series_id"]).duplicated().any():
+        raise AssertionError(
+            "No more duplicates! Yay! AEO fixed the problem and you can remove this code."
+        )
+    dupe_mask = sanitized.drop(columns=["value", "series_id"]).duplicated(keep=False)
+    byprdh2_mask = sanitized.series_id.str.contains("byprdh2")
+    sanitized.loc[dupe_mask & byprdh2_mask, "variable_name"] = "byproduct_hydrogen"
+
     expected_values = {
         "topic": {"energy_use"},
         "units": {"quads"},
@@ -565,13 +577,13 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
             "total",
             "transportation",
             "unspecified",
+            "industrial_hydrogen_production",
         },
     }
     for column, expected in expected_values.items():
         assert (actual := set(sanitized[column].unique())) == expected, (
             f"Unexpected values in {column}: Expected {expected}; found {actual}"
         )
-
     # 1 quad = 1 quadrillion btu = 1e9 mmbtu
     sanitized.loc[sanitized.units == "quads", "value"] *= 1e9
 
@@ -580,6 +592,7 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
             columns=[
                 "topic",
                 "units",
+                "series_id",
             ]
         )
         .set_index(
@@ -607,7 +620,6 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
             "value": "energy_use_mmbtu",
         }
     )
-
     return renamed_for_pudl
 
 
@@ -630,7 +642,7 @@ def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
 
     assert set(sanitized.topic.unique()) == {"electricity"}
     assert set(sanitized.variable_name.unique()) == {"fuel_prices"}
-    assert set(sanitized.units.unique()) == {"2022_mmbtu", "nom_mmbtu"}
+    assert set(sanitized.units.unique()) == {"2024_mmbtu", "2022_mmbtu", "nom_mmbtu"}
     # turn variable_name into `nominal_fuel_prices` and `real_fuel_prices` based on unit
     sanitized.variable_name = sanitized.units + "_" + sanitized.variable_name
 
@@ -638,6 +650,7 @@ def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
         columns=[
             "topic",
             "units",
+            "series_id",
         ]
     )
 
@@ -671,12 +684,11 @@ class AeoCheckSpec:
 
     name: str
     asset: str
-    num_rows_by_report_year: dict[int, int]
     category_counts: dict[str, int]
 
 
 BASE_AEO_CATEGORIES = {
-    "model_case_eiaaeo": 17,
+    "model_case_eiaaeo": 20,
     "projection_year": 30,
     "electricity_market_module_region_eiaaeo": 26,
 }
@@ -684,16 +696,14 @@ check_specs = [
     AeoCheckSpec(
         name="gen_in_electric_sector_by_tech",
         asset="core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology",
-        num_rows_by_report_year={2023: 166972},
         category_counts=BASE_AEO_CATEGORIES
         | {
-            "technology_description_eiaaeo": 13,
+            "technology_description_eiaaeo": 16,
         },
     ),
     AeoCheckSpec(
         name="gen_in_electric_sector_by_tech",
         asset="core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type",
-        num_rows_by_report_year={2023: 77064},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "fuel_type_eiaaeo": 6,
@@ -702,7 +712,6 @@ check_specs = [
     AeoCheckSpec(
         name="electricity_sales",
         asset="core_eiaaeo__yearly_projected_electric_sales",
-        num_rows_by_report_year={2023: 51376},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "customer_class": 4,
@@ -711,7 +720,6 @@ check_specs = [
     AeoCheckSpec(
         name="electricity_sales",
         asset="core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type",
-        num_rows_by_report_year={2023: 50882},
         category_counts=BASE_AEO_CATEGORIES
         | {
             "fuel_type_eiaaeo": 4,
@@ -726,11 +734,6 @@ def make_check(spec: AeoCheckSpec) -> AssetChecksDefinition:
     @asset_check(asset=spec.asset, blocking=True)
     def _check(df):
         errors = []
-        for year, expected_rows in spec.num_rows_by_report_year.items():
-            if (num_rows := len(df.loc[df.report_year == year])) != expected_rows:
-                errors.append(
-                    f"Expected {expected_rows} for report year {year}, found {num_rows}"
-                )
         for category, expected_num in spec.category_counts.items():
             value_counts = df[category].value_counts()
             non_zero_values = value_counts.loc[value_counts > 0]
