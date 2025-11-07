@@ -312,7 +312,10 @@ TECH_DESCRIPTIONS_EIAAEO: list[str] = [
     "combustion_turbine_diesel",
     "distributed_generation",
     "diurnal_storage",
+    "fossil_steam",  # Added in 2025
     "fuel_cells",
+    "hydrogen",  # Added in 2025
+    "hydrogen_turbine",  # Added in 2025
     "natural_gas",
     "nuclear",
     "oil_and_natural_gas_steam",
@@ -337,6 +340,9 @@ FUEL_TYPES_EIAAEO: list[str] = [
 
 MODEL_CASES_EIAAEO: list[str] = [
     "aeo2022",
+    "aeo2023",  # Added in 2025
+    "alternative_electricity",  # Added in 2025
+    "alternative_transportation",  # Added in 2025
     "fast_builds_plus_high_lng_price",
     "high_economic_growth",
     "high_lng_price",
@@ -368,6 +374,7 @@ descriptions page.
 
 ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "biofuels_heat_and_coproducts",
+    "byproduct_hydrogen",
     "coal",
     "coal_subtotal",
     "coal_to_liquids_heat_and_power",
@@ -377,8 +384,11 @@ ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "electricity",
     "electricity_imports",
     "electricity_related_losses",
+    "ev_charging_commercial",
+    "ev_charging_residential",
     "hydrocarbon_gas_liquids",
     "hydrogen",
+    "hydrogen_related_losses",
     "jet_fuel",
     "kerosene",
     "lease_and_plant_fuel",
@@ -396,16 +406,19 @@ ENERGY_USE_TYPES_EIAAEO: list[str] = [
     "other_industrial_coal",
     "other_petroleum",
     "other_coal",
+    "passenger_rail",
     "petrochemical_feedstocks",
     "pipeline_fuel_natural_gas",
     "pipeline_natural_gas",
     "propane",
+    "purchased_electricity",
     "renewable_energy",
     "residual_fuel_oil",
     "steam_coal",
     "total",
+    "total_energy",  # this could be the same as total?
 ]
-"""Energy use types from Table 2 of EIA AEO 2023.
+"""Energy use types from Table 2 of EIA AEO 2023-2025.
 
 These are from the series titles, not the display titles in the EIA's data browser tool,
 which may show different text."""
