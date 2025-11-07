@@ -74,6 +74,9 @@ New Data Tests & Data Validations
 Bug Fixes
 ^^^^^^^^^
 
+* Fixed a bug where the EIA 930 subregion data from 2018-07-01 to 2019-01-01 was
+  being dropped. See PR :pr:`4731`.
+
 Deprecations
 ^^^^^^^^^^^^
 
