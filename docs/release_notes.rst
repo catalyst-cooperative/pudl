@@ -15,6 +15,11 @@ Enhancements
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA AEO
+~~~~~~~
+
+* Added projection data from the 2025 AEO. See issue :issue:`4591` and PR :pr:`4631`.
+
 EPACEMS
 ~~~~~~~
 
