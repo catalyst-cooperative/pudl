@@ -32,6 +32,7 @@ jobs:
           predicate-quantifier: "every"
           filters: |
             code:
+              - '!dbt/seeds/etl_full_row_counts.csv'
               - '!docker/*'
               - '!docs/**.rst'
               - '!docs/**.md'
@@ -45,6 +46,7 @@ jobs:
               - '!.github/dependabot.yml'
               - '!.github/release.yml'
               - '!.github/ISSUE_TEMPLATE/*.yml'
+              - '!AGENTS.md'
               - '!README.rst'
               - '!CONTRIBUTING.rst'
               - '!LICENSE.txt'

@@ -10,6 +10,7 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
 from urllib.parse import ParseResult, urlparse
 
@@ -195,9 +196,9 @@ class ZenodoDoiSettings(BaseSettings):
     eia860m: ZenodoDoi = "10.5281/zenodo.17447502"
     eia861: ZenodoDoi = "10.5281/zenodo.13907096"
     eia923: ZenodoDoi = "10.5281/zenodo.17440792"
-    eia930: ZenodoDoi = "10.5281/zenodo.16676166"
+    eia930: ZenodoDoi = "10.5281/zenodo.17500936"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
-    eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
+    eiaaeo: ZenodoDoi = "10.5281/zenodo.15622378"
     eiaapi: ZenodoDoi = "10.5281/zenodo.17500949"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.14834878"
     epacems: ZenodoDoi = "10.5281/zenodo.17500930"
@@ -329,6 +330,10 @@ class Datastore:
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
+        # If you want to extract a file to *disk* instead of memory, it helps
+        # to have a temporary directory that sticks around until the Datastore
+        # object is deleted
+        self.temporary_extraction_dir = TemporaryDirectory()
 
         if local_cache_path:
             logger.info(f"Adding local cache layer at {local_cache_path}")
