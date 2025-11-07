@@ -59,18 +59,20 @@ from pudl.metadata.sources import SOURCES
 # )
 
 FIELD_METADATA: dict[str, dict[str, Any]] = {
-    "consumers": {"type": "integer", "description": "number of consumers"},
+    "consumers": {"type": "integer", "description": "Number of consumers"},
     "operator_id_eia": {
         "type": "string",
         "description": "Operator EIA id",
     },
     "revenue": {
         "type": "number",
-        "description": "revenue",
+        "description": "Revenue including taxes",
+        "unit": "USD",
     },
-    "volume_mfc": {
+    "volume_mcf": {
         "type": "number",
-        "description": "volume",
+        "description": "Total volume of the deliveries",
+        "unit": "McF",
     },
     "acid_gas_control": {
         "type": "boolean",
@@ -8526,7 +8528,13 @@ elements which should be overridden need to be specified.
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_gas_disposition_by_consumer": {
+        "operating_state": {
+            "description": "State that the distribution utility is reporting for.",
+        },
         "customer_class": {
+            "description": (
+                f"High level categorization of customer type: {CUSTOMER_CLASSES_EIA176}"
+            ),
             "type": "string",
             "constraints": {
                 "enum": CUSTOMER_CLASSES_EIA176,

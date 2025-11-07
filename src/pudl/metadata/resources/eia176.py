@@ -19,7 +19,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "revenue_class",
                 "consumers",
                 "revenue",
-                "volume_mfc",
+                "volume_mcf",
             ],
             "primary_key": [
                 "report_year",

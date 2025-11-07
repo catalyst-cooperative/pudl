@@ -293,17 +293,17 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     df.columns.name = None
 
     # Rename columns as needed
-    df = df.rename(columns={"volume": "volume_mfc"})
+    df = df.rename(columns={"volume": "volume_mcf"})
 
     # Ensure all values in rows with null operating state are zeroes, and drop them
     assert (
         df[df["operating_state"].isna()]
-        .sum()[["consumers", "revenue", "volume_mfc"]]
+        .sum()[["consumers", "revenue", "volume_mcf"]]
         .sum()
         == 0
     )
     df = df.dropna(subset=["operating_state"])
-    df = df.dropna(subset=["consumers", "revenue", "volume_mfc"], how="all")
+    df = df.dropna(subset=["consumers", "revenue", "volume_mcf"], how="all")
 
     # Convert consumers to integers - can't have half a consumer
 
