@@ -363,7 +363,7 @@ SOURCES: dict[str, Any] = {
         },
         "field_namespace": "eia",
         "working_partitions": {
-            "years": [2023],
+            "years": [2023, 2025],
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -456,7 +456,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2025q1", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2025q3", freq="Q")
             ]
         },
         "contributors": [
