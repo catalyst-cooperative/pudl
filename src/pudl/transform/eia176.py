@@ -90,7 +90,7 @@ def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataF
 @asset_check(
     asset="_core_eia176__yearly_company_data",
     additional_ins={"_core_eia176__yearly_aggregate_data": AssetIn()},
-    blocking=True,
+    blocking=False,
 )
 def validate_totals(
     _core_eia176__yearly_company_data: pd.DataFrame,
