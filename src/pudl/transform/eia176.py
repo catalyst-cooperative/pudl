@@ -162,6 +162,38 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Produce annual company-level gas disposition by consumer class (EIA-176).
+
+    Transforms company-level EIA-176 data into a normalized table with one row per
+    ("report_year", "operator_id_eia", "operating_state", "customer_class", "revenue_class")
+    and three value columns: "consumers", "revenue", and "volume_mcf".
+
+    Processing:
+
+    * Select sales and transport metrics for residential, commercial, industrial,
+      electric_power, vehicle_fuel, and other.
+    * Validate that ``sales_volume + transport_volume == total volume`` per customer
+      class.
+    * Normalize ``operating_state`` to two-letter subdivision codes via
+      ``core_pudl__codes_subdivisions``; drop rows with unknown states (these rows must
+      contain zeros across value columns).
+    * Drop rows where all of ``consumers``/``revenue``/``volume_mcf`` are NULL.
+
+    Args:
+        _core_eia176__yearly_company_data: Wide company-level EIA-176 data with
+            per-metric columns.
+        core_pudl__codes_subdivisions: Mapping from ``subdivision_name`` to
+            ``subdivision_code`` used to normalize ``operating_state``.
+
+    Raises:
+        AssertionError: If component volumes don’t sum to totals, or if rows with
+            unknown ``operating_state`` contain non-zero values.
+
+    Notes:
+        - ``volume_mcf`` is thousand cubic feet (MCF).
+        - ``consumers`` is a count; ``revenue`` is nominal USD as reported.
+        - ``customer_class`` and ``revenue_class`` are returned as categoricals.
+    """
     primary_key = ["report_year", "operator_id_eia", "operating_state"]
 
     keep = [

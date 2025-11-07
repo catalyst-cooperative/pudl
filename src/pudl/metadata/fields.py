@@ -64,11 +64,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Operator EIA id",
     },
-    "revenue": {
-        "type": "number",
-        "description": "Revenue including taxes",
-        "unit": "USD",
-    },
     "volume_mcf": {
         "type": "number",
         "description": "Total volume of the deliveries",
@@ -8530,6 +8525,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
             "description": "State that the distribution utility is reporting for.",
+        },
+        "revenue": {
+            "description": "Revenue including taxes",
         },
         "customer_class": {
             "description": (
