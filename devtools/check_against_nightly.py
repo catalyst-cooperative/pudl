@@ -50,7 +50,7 @@ def cli(local_targets: tuple[Path], pdb: bool, reference_dir):
         local = pl.scan_parquet(local_path)
         reference = pl.scan_parquet(f"{reference_dir}/{local_path.name}")
         try:
-            assert_frame_equal(local, reference)
+            assert_frame_equal(local, reference, check_column_order=False)
         except AssertionError as e:
             if pdb:
                 breakpoint()

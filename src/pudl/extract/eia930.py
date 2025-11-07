@@ -60,7 +60,11 @@ def raw_eia930__subregion(context) -> Path:
     )
 
 
-def extract_page(datastore: Datastore, page: str, half_years: list[str]) -> Path:
+def extract_page(
+    datastore: Datastore,
+    page: str,
+    half_years: list[str],
+) -> Path:
     """Pull data for a page across many half-years into a Parquet file.
 
     This involves reading each half-year, of course, but also concatenating them
@@ -96,7 +100,8 @@ def extract_page(datastore: Datastore, page: str, half_years: list[str]) -> Path
         for view_name in individual_views
     )
     output_path = PudlPaths().parquet_path(f"raw_eia930__{page}")
-    con.query(union_query).to_parquet(str(output_path))
+    all_partitions = con.query(union_query)
+    all_partitions.to_parquet(str(output_path))
     return output_path
 
 
@@ -132,10 +137,19 @@ def extract_half_year_page(
     def clean_name(name):
         return re.sub(r"\W+", "_", name.lower()).strip("_")
 
-    selects = ", ".join(
+    cleaned_column_names = {clean_name(col_name) for col_name in csv_rel.columns}
+    assert cleaned_column_names == set(column_map.keys())
+
+    select_existing_columns = [
         f'"{col_name}" as "{column_map[clean_name(col_name)]}"'
         for col_name in csv_rel.columns
-    )
+    ]
+
+    expected_null_cols = set(metadata.get_all_columns(page)) - set(column_map.values())
+    select_null_columns = [f"NULL as {col_name}" for col_name in expected_null_cols]
+
     view_name = f"v_{clean_name(filename)}"
-    csv_rel.select(selects).to_view(view_name)
+    csv_rel.select(", ".join(select_existing_columns + select_null_columns)).to_view(
+        view_name
+    )
     return view_name
