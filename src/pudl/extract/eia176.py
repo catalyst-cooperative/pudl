@@ -1,7 +1,7 @@
 """Extract EIA Form 176 data from CSVs."""
 
 import pandas as pd
-from dagster import Output, asset
+from dagster import asset
 
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
@@ -20,17 +20,23 @@ class Extractor(CsvExtractor):
         super().__init__(*args, **kwargs)
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
-        """Produce the source file name as it will appear in the archive.
+        """Produce the source file name as it will appear in the ZIP archive.
 
-        Expects a string for page, and additionally a keyword argument dictionary
-        specifying which particular partition to extract. Examples: {'year': 2009},
-        {'year_month': '2020-08'}.
+        For this archive in particular, we control the naming of the CSV files because
+        they are created by scraping EIA's natural gas query viewer interface. Rather
+        than creating a file_map.csv like the other EIA extractors, we handle the one
+        the missing company_list file in certain years here, returning "-1" since that
+        mirrors the behavior of the other extractors that do rely on file_map.csv.
 
         Args:
-            page: pudl name for the dataset contents, eg "boiler_generator_assn", "data"
+            page: the name of the "page" within the dataset to extract. For EIA-176
+                this is the descriptive portion of the name of one of the CSV files in
+                the ZIP archive, e.g. "natural_gas_deliveries".
+            partition: a dictionary uniquely identifying a partition to extract, e.g.
+                {"year": "2019", "format": "by_report"}
 
         Returns:
-            string name of the CSV file
+            Full name of the CSV file within the ZIP archive as a string.
         """
         partition_selection = self._metadata._get_partition_selection(partition)
         # Company list doesn't exist in certain years
@@ -57,41 +63,31 @@ class Extractor(CsvExtractor):
 raw_eia176__all_dfs = raw_df_factory(Extractor, name="eia176")
 
 
-@asset
-def raw_eia176__custom(raw_eia176__all_dfs):
-    """Extract raw EIA company data from CSV sheets into dataframes.
+def raw_eia176_asset_factory(in_page: str, out_page: str | None = None):
+    """Create raw EIA 176 asset for a specific page."""
+    out_page = in_page if out_page is None else out_page
 
-    Returns:
-        An extracted EIA 176 dataframe.
-    """
-    return Output(value=raw_eia176__all_dfs["custom"])
+    @asset(name=f"raw_eia176__{out_page}")
+    def _raw_eia176__page(raw_eia176__all_dfs: dict[str, pd.DataFrame]):
+        """Extract raw EIA 176 data from CSV sheets into dataframes.
 
+        Returns:
+            An extracted EIA 176 dataframe.
+        """
+        return raw_eia176__all_dfs[in_page]
 
-@asset
-def raw_eia176__company_list(raw_eia176__all_dfs):
-    """Extract raw EIA company data from CSV sheets into dataframes.
-
-    Returns:
-        An extracted EIA 176 dataframe.
-    """
-    return Output(value=raw_eia176__all_dfs["company_list"])
+    return _raw_eia176__page
 
 
-@asset
-def raw_eia176__operation_types_and_sector_items(raw_eia176__all_dfs):
-    """Extract raw EIA company data from CSV sheets into dataframes.
-
-    Returns:
-        An extracted EIA 176 dataframe.
-    """
-    return Output(value=raw_eia176__all_dfs["type_of_operations_and_sector_items"])
-
-
-@asset
-def raw_eia176__continuation_text_lines(raw_eia176__all_dfs):
-    """Extract raw EIA company data from CSV sheets into dataframes.
-
-    Returns:
-        An extracted EIA 176 dataframe.
-    """
-    return Output(value=raw_eia176__all_dfs["continuation_text_lines"])
+raw_eia176_assets = [
+    raw_eia176_asset_factory(in_page=in_page, out_page=out_page)
+    for in_page, out_page in {
+        "company_list": None,
+        "continuation_text_lines": None,
+        "custom": "numeric_data",
+        "natural_gas_deliveries": None,
+        "natural_gas_other_disposition_items": None,
+        "natural_gas_supply_items": None,
+        "operation_types_and_sector_items": None,
+    }.items()
+]
