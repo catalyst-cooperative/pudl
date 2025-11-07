@@ -82,6 +82,8 @@ Dev tooling
   dataset, but we anticipate using these tools in other contexts to address performance
   bottlenecks. See issue :issue:`4663` and PR :pr:`4676` for the conversion of EPA
   CEMS from Dask to Polars.
+* We also added ``devtools/check_against_nightly.py`` to quickly compare local
+  Parquet outputs with those from the nightly builds.
 
 .. _release-v2025.10.0:
 
