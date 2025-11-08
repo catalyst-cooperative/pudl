@@ -1648,7 +1648,10 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+# Comment this out for the moment since we have some more data cleaning to do before
+# all the fields are compatible with their assigned dtypes.
+# @asset(io_manager_key="pudl_io_manager")
+@asset
 def _core_eia923__emissions_control(
     raw_eia923__emissions_control: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1657,7 +1660,6 @@ def _core_eia923__emissions_control(
     Transformations include:
     * Standardize NA values
     * Clean month-year date string columns
-    * Rename columns to align with other EIA tables
 
     Args:
         raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
@@ -1688,14 +1690,26 @@ def _core_eia923__emissions_control(
     for col in date_cols:
         df[col] = df[col].apply(clean_date)
 
-    # Encode operational_status
-    df["operational_status"] = df.operational_status.str.upper().map(
-        pudl.helpers.label_map(
-            CODE_METADATA["core_eia__codes_operational_status"]["df"],
-            from_col="code",
-            to_col="operational_status",
-            null_value=pd.NA,
-        )
-    )
+    # Encode operational_status (and potentially other columns):
+    # This will standardize the categorical values in any columns that have foreign key
+    # relationships that point at one of the coding tables. It requires the table
+    # metadata to be defined, but the table doesn't actually need to be written to the
+    # database yet. We can't write the table to the DB yet because some of the date
+    # columns have invalid values.
+    df = PUDL_PACKAGE.encode(df)
+
+    # df["operational_status"] = df.operational_status.str.upper().map(
+    #     pudl.helpers.label_map(
+    #         CODE_METADATA["core_eia__codes_operational_status"]["df"],
+    #         from_col="code",
+    #         to_col="operational_status",
+    #         null_value=pd.NA,
+    #     )
+    # )
+
+    # This will fail because the dates columns contain some invalid values, but would
+    # get the dtypes close to their final form, allowing the pandera schema check to
+    # pass
+    # return pudl.metadata.fields.apply_pudl_dtypes(df, group="eia", strict=True)
 
     return df
