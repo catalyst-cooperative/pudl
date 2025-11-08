@@ -1,32 +1,20 @@
 {% extends "data_source_parent.rst.jinja" %}
 {% block database_text %}
-This block describes how the processed data is segmented into tables in the PUDL
-database and how more information about the table and fields can be accessed.
 {% endblock %}
-
-{% block browse_online scoped %}- this block can modify how the tables in the data
-source can be accessed online{% endblock %}
 
 {% block extra_table_text %}
 This block describes if there are any extra tables created in PUDL that are derived from
 the existing tables in the data source.
 {% endblock %}
 
-{% block browse_extra_online scoped %}
-This block can modify how the extra tables in the data source can be accessed online
-{% endblock %}
-
 {% block background %}
-This block provides a description of the data source - who is involved in creating the
-data in the data source, what data the source contains, and the time period the data
-spans.  If the form is organized into schedules or other formats, then that system is
-described here.
+EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__, also
+known as the **Annual Report of Natural and Supplemental Gas Supply and Disposition**,
+describes the origins, suppliers, and disposition of natural gas on a yearly and state
+by state basis.
 {% endblock %}
 
 {% block download_docs %}
-This block iterates through any downloadable PDFs for the data source that might provide
-extra context.  These might be a diagram of the database or a blank form for the data
-source for a certain time frame. Place documents in ``docs/data_sources/{{ source.name }}/`` and they will show up here automatically.
 {% for filename in download_paths -%}
 * :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
 {% endfor %}
@@ -51,6 +39,13 @@ Who is required to fill out the form?
 {% block original_data_title %}
 What does the original data look like?
 --------------------------------------
+We archive EIA-176 data from two sources: CSV files that are exported from the `EIA
+Natural Gas Query System <https://www.eia.gov/naturalgas/ngqs>`__ by iterating through
+all predefined reports related to Form 176, as well as a custom report that includes
+every numerical series related to Form 176. We also archive but do not currently process
+the bulk CSV download of all available natural gas data, since it is less well
+structured than the exports from the Natural Gas Query System.
+
 {% endblock %}
 {% block original_data %}{% endblock %}
 
