@@ -43,6 +43,12 @@ EIA-923
 * Updated EIA-923 with final release data from 2024 and 2025 data up through August.
   See PR :pr:`4641`, :issue:`4699` and :pr:`4706`.
 
+EIA 930
+~~~~~~~
+
+* Updated EIA-930 with data published up through the end of October 2025. See
+  :issue:`4719` and PR :pr:`4743`.
+
 EIA Bulk Electricity API
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -67,6 +73,9 @@ New Data Tests & Data Validations
 
 Bug Fixes
 ^^^^^^^^^
+
+* Fixed a bug where the EIA 930 subregion data from 2018-07-01 to 2019-01-01 was
+  being dropped. See PR :pr:`4731`.
 
 Deprecations
 ^^^^^^^^^^^^
