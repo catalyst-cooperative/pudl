@@ -15,6 +15,16 @@ Enhancements
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA AEO
+~~~~~~~
+
+* Added projection data from the 2025 AEO. See issue :issue:`4591` and PR :pr:`4631`.
+
+EPACEMS
+~~~~~~~
+
+* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
+
 Census PEP
 ~~~~~~~~~~
 
@@ -32,6 +42,12 @@ EIA-923
 
 * Updated EIA-923 with final release data from 2024 and 2025 data up through August.
   See PR :pr:`4641`, :issue:`4699` and :pr:`4706`.
+
+EIA 930
+~~~~~~~
+
+* Updated EIA-930 with data published up through the end of October 2025. See
+  :issue:`4719` and PR :pr:`4743`.
 
 EIA Bulk Electricity API
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -58,6 +74,9 @@ New Data Tests & Data Validations
 Bug Fixes
 ^^^^^^^^^
 
+* Fixed a bug where the EIA 930 subregion data from 2018-07-01 to 2019-01-01 was
+  being dropped. See PR :pr:`4731`.
+
 Deprecations
 ^^^^^^^^^^^^
 
@@ -72,6 +91,8 @@ Dev tooling
   dataset, but we anticipate using these tools in other contexts to address performance
   bottlenecks. See issue :issue:`4663` and PR :pr:`4676` for the conversion of EPA
   CEMS from Dask to Polars.
+* We also added ``devtools/check_against_nightly.py`` to quickly compare local
+  Parquet outputs with those from the nightly builds.
 
 .. _release-v2025.10.0:
 
