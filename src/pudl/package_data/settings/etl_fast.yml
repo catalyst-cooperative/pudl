@@ -51,7 +51,7 @@ datasets:
       years: [2020, 2024]
       eia860m: true
     eia860m:
-      year_months: ["2025-07", "2025-08"]
+      year_months: ["2025-08", "2025-09"]
     eia861:
       # eia861 runs fast. Discontinued tables break single-year ETL.
       # This is a temporary hack to make the tests pass!
@@ -85,7 +85,7 @@ datasets:
     eia930:
       half_years: ["2024half2"]
     eiaaeo:
-      years: [2023] # we can only handle 1 year at a time right now.
+      years: [2023, 2025]
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should

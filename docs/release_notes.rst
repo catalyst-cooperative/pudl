@@ -15,17 +15,45 @@ Enhancements
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA AEO
+~~~~~~~
+
+* Added projection data from the 2025 AEO. See issue :issue:`4591` and PR :pr:`4631`.
+
+EPACEMS
+~~~~~~~
+
+* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
+
 Census PEP
 ~~~~~~~~~~
 
 * Expanded geocodes to include vintages for each year from 2011-2024. See issue
   :issue:`4637` and PR :pr:`4665`.
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data up through September 2025. See :issue:`4698` and
+  :pr:`4706`.
+
 EIA-923
 ~~~~~~~
 
-* Updated EIA-923 with final release data from 2024. Also includes 2025 data up
-  through July. See PR :pr:`4641`.
+* Updated EIA-923 with final release data from 2024 and 2025 data up through August.
+  See PR :pr:`4641`, :issue:`4699` and :pr:`4706`.
+
+EIA 930
+~~~~~~~
+
+* Updated EIA-930 with data published up through the end of October 2025. See
+  :issue:`4719` and PR :pr:`4743`.
+
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data to include data published up through
+  the beginning of November 2025. See :issue:`4724` and PR :pr:`4725`.
 
 EIA-861
 ~~~~~~~
@@ -50,6 +78,9 @@ New Data Tests & Data Validations
 Bug Fixes
 ^^^^^^^^^
 
+* Fixed a bug where the EIA 930 subregion data from 2018-07-01 to 2019-01-01 was
+  being dropped. See PR :pr:`4731`.
+
 Deprecations
 ^^^^^^^^^^^^
 
@@ -58,6 +89,14 @@ Dev tooling
 
 * As part of a performance push, we added some tools for quick memory profiling
   of asset materialization. See issue :issue:`4619` and PR :pr:`4655`.
+* We are no longer relying on Dask dataframes for processing data larger than memory.
+  We've started using `Polars <https://pola.rs>`__ and `DuckDB <https://duckdb.org>`__
+  instead. For now this primarily affects the very large :doc:`data_sources/epacems`
+  dataset, but we anticipate using these tools in other contexts to address performance
+  bottlenecks. See issue :issue:`4663` and PR :pr:`4676` for the conversion of EPA
+  CEMS from Dask to Polars.
+* We also added ``devtools/check_against_nightly.py`` to quickly compare local
+  Parquet outputs with those from the nightly builds.
 
 .. _release-v2025.10.0:
 

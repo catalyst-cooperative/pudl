@@ -314,7 +314,7 @@ datasets:
     eia930:
       half_years: ["all"]
     eiaaeo:
-      years: [2023] # we can only handle 1 year at a time right now.
+      years: [2023, 2025]
   epacems:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should

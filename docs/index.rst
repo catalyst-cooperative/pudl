@@ -36,10 +36,9 @@ pages for each source:
 * :doc:`data_sources/sec10k`
 * :doc:`data_sources/vcerare`
 
-PUDL's clean and complete versions of these data sources are stored in the
-``pudl.sqlite`` database. Larger datasets, like EPA CEMS, are stored in parquet files.
-To get started using PUDL data, visit our :doc:`data_access` page, or continue reading
-to learn more about the PUDL data processing pipeline.
+PUDL's processed versions of these data sources are distributed primarily as Parquet
+files. To get started using PUDL data, visit our :doc:`data_access` page, or continue
+reading to learn more about the PUDL data processing pipeline.
 
 We also publish SQLite databases containing relatively pristine versions of our more
 difficult to parse inputs, especially the old Visual FoxPro (DBF, pre-2021) and new XBRL
@@ -165,7 +164,7 @@ value for inclusion in the final database. If a value which should be static is 
 consistently reported, it may also be set to N/A.
 
 Output Layer
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^
 
 Assets in the Core layer normalize the data to make storage more efficient and avoid
 data integrity issues, but you may want to combine information from more than one of
@@ -189,12 +188,12 @@ generator, or hourly electricity demand with missing and outlying values imputed
 
 .. seealso::
 
-    * `The PUDL Examples GitHub repo <https://github.com/catalyst-cooperative/pudl-examples>`__
-      to see how to access the PUDL Database directly, use the output functions, or
-      work with the EPA CEMS data using Dask.
-    * `How to Learn Dask in 2021 <https://coiled.io/blog/how-to-learn-dask-in-2021/>`__
-      is a great collection of self-guided resources if you are already familiar with
-      Python, Pandas, and NumPy.
+    * `The PUDL Examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__
+      provides examples of working with PUDL data using Python in Jupyter notebooks.
+    * For larger tables, including those with hourly resolution, you may want to use
+      tools designed for data that's larger than your computer's available memory.
+      `Polars dataframes <https://docs.pola.rs/user-guide/getting-started/>` and
+      `DuckDB <https://duckdb.org/docs/>` are great options.
 
 .. _test-and-validate:
 

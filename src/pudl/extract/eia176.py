@@ -19,30 +19,14 @@ class Extractor(CsvExtractor):
         self.METADATA = GenericMetadata("eia176")
         super().__init__(*args, **kwargs)
 
-    def get_page_cols(self, page: str, partition_key: str) -> list[str]:
-        """Get the columns for a particular page and partition key.
-
-        EIA 176 data has the same set of columns for all years,
-        so regardless of the partition key provided we select the same columns here.
-        """
-        return super().get_page_cols(page, "any_year")
-
     def process_raw(
         self, df: pd.DataFrame, page: str, **partition: PartitionSelection
     ) -> pd.DataFrame:
         """Append report year to df to distinguish data from other years."""
+        df = df.rename(columns=self._metadata.get_column_map(page, **partition))
         self.cols_added.append("report_year")
         selection = self._metadata._get_partition_selection(partition)
         return df.assign(report_year=selection)
-
-    def process_renamed(
-        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
-    ) -> pd.DataFrame:
-        """Strip and lowercase raw text fields (except ID)."""
-        text_fields = ["area", "atype", "company", "item"]
-        for tf in text_fields:
-            df[tf] = df[tf].str.strip().str.lower()
-        return df
 
 
 raw_eia176__all_dfs = raw_df_factory(Extractor, name="eia176")
