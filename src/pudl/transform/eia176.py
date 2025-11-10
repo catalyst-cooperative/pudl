@@ -41,8 +41,8 @@ def _core_eia176__numeric_data(
     aggregate_primary_key = ["report_year", "operating_state"]
     company_primary_key = aggregate_primary_key + ["operator_id_eia", "operator_name"]
     company_drop_columns = ["form_line_numbers", "unit_type", "line"]
-    # We must drop 'id' here and cannot use as primary key because its
-    # arbitrary/duplicate in aggregate records 'id' is a reliable ID only in the context
+    # We must drop 'id' here and cannot use it as primary key because its
+    # arbitrary/duplicate in aggregate records. 'id' is a reliable ID only in the context
     # of granular company data
     aggregate_drop_columns = company_drop_columns + ["operator_id_eia", "operator_name"]
 
