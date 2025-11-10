@@ -1292,7 +1292,8 @@ core_eia930__hourly_operations,2022,548958
 core_eia930__hourly_operations,2023,541664
 core_eia930__hourly_operations,2024,535824
 core_eia930__hourly_operations,2025,445994
-core_eia930__hourly_subregion_demand,2019,726527
+core_eia930__hourly_subregion_demand,2018,366043
+core_eia930__hourly_subregion_demand,2019,727080
 core_eia930__hourly_subregion_demand,2020,729072
 core_eia930__hourly_subregion_demand,2021,727080
 core_eia930__hourly_subregion_demand,2022,727080
@@ -2746,7 +2747,8 @@ out_eia930__hourly_operations,2022,548958
 out_eia930__hourly_operations,2023,541664
 out_eia930__hourly_operations,2024,535824
 out_eia930__hourly_operations,2025,442322
-out_eia930__hourly_subregion_demand,2019,726527
+out_eia930__hourly_subregion_demand,2018,366043
+out_eia930__hourly_subregion_demand,2019,727080
 out_eia930__hourly_subregion_demand,2020,729072
 out_eia930__hourly_subregion_demand,2021,727080
 out_eia930__hourly_subregion_demand,2022,727080

@@ -24,7 +24,7 @@ sources:
               - expect_missingness_between:
                   arguments:
                     lower_bound: 0.0
-                    upper_bound: 0.03
+                    upper_bound: 0.04
           - name: demand_imputed_pudl_mwh
             data_tests:
               - expect_missingness_between:
@@ -38,5 +38,5 @@ sources:
                     value_set: ["simulated"]
               - expect_missingness_between:
                   arguments:
-                    lower_bound: 0.89
+                    lower_bound: 0.85
                     upper_bound: 1.0
