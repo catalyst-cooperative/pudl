@@ -33,7 +33,7 @@ def dbt_target(test_dir: Path, request) -> str:
     return dbt_target
 
 
-@pytest.mark.order(3)
+@pytest.mark.order(4)
 def test_dbt(
     pudl_io_manager: PudlMixedFormatIOManager,
     test_dir: Path,
@@ -92,7 +92,7 @@ def test_update_tables(
 
 
 # Has to run after test_dbt above otherwise dbt dependencies aren't installed
-@pytest.mark.order(4)
+@pytest.mark.order(5)
 def test_validate_asset_selection():
     runner = CliRunner()
     result = runner.invoke(
