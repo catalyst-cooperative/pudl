@@ -15,21 +15,16 @@ Enhancements
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-EIA AEO
-~~~~~~~
-
-* Added projection data from the 2025 AEO. See issue :issue:`4591` and PR :pr:`4631`.
-
-EPACEMS
-~~~~~~~
-
-* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
-
 Census PEP
 ~~~~~~~~~~
 
 * Expanded geocodes to include vintages for each year from 2011-2024. See issue
   :issue:`4637` and PR :pr:`4665`.
+
+EIA AEO
+~~~~~~~
+
+* Added projection data from the 2025 AEO. See issue :issue:`4591` and PR :pr:`4631`.
 
 EIA-860M
 ~~~~~~~~
@@ -54,6 +49,16 @@ EIA Bulk Electricity API
 
 * Updated the EIA Bulk Electricity data to include data published up through
   the beginning of November 2025. See :issue:`4724` and PR :pr:`4725`.
+
+EPACEMS
+~~~~~~~
+
+* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
+
+FERC Form 1
+~~~~~~~~~~~
+
+* Updated FERC Form 1 2024 data to include late respondents. See :pr:`4747`.
 
 New Data
 ^^^^^^^^
