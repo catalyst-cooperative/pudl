@@ -109,10 +109,13 @@ class GenericMetadata:
 
     def get_column_map(self, page, **partition) -> dict:
         """Return dictionary of original columns to renamed columns for renaming in a given partition and page."""
+        # we drop all of the nulls which are either straight nulls (removed via dropna)
+        # OR they are -1's (which are often int's but sometimes show up as strings)
         return {
             v: k
             for k, v in self._column_map[page]
             .loc[str(self._get_partition_selection(partition))]
+            .dropna()
             .to_dict()
             .items()
             if v not in [-1, "-1"]
