@@ -4,7 +4,7 @@ import pytest
 from pudl.extract.csv import CsvExtractor
 from pudl.extract.extractor import GenericMetadata
 
-DATASET = "eia176"
+DATASET = "eia191"
 PAGE = "data"
 PARTITION_SELECTION = 2023
 PARTITION = {"year": PARTITION_SELECTION}
@@ -13,8 +13,8 @@ CSV_FILENAME = f"{DATASET}_{PARTITION_SELECTION}.csv"
 
 class FakeExtractor(CsvExtractor):
     def __init__(self, mocker):
-        # TODO: Make these tests independent of the eia176 implementation
-        self.METADATA = GenericMetadata("eia176")
+        # TODO: Make these tests independent of the eia191 implementation
+        self.METADATA = GenericMetadata("eia191")
         super().__init__(ds=mocker.MagicMock())
 
 
@@ -58,7 +58,7 @@ def test_extract(mocker, extractor):
     df = pd.DataFrame([company_data])
     df.columns = [company_field]
 
-    # TODO: Once FakeExtractor is independent of eia176, mock out populating _column_map for PARTITION_SELECTION;
+    # TODO: Once FakeExtractor is independent of eia191, mock out populating _column_map for PARTITION_SELECTION;
     #  Also include negative tests, i.e., for partition selections not in the _column_map
     mocker.patch.object(CsvExtractor, "load_source", return_value=df)
     # Testing the rename
