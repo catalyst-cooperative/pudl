@@ -45,7 +45,7 @@ class TestCsvExtractor:
     def test_extract_eia176(self, pudl_datastore_fixture):
         """Spot check extraction of eia176 csv files."""
         extractor = pudl.extract.eia176.Extractor(pudl_datastore_fixture)
-        page = "data"
+        page = "custom"
         year = 2018
         if "company" not in extractor.load_source(page=page, year=year).columns:
             raise AssertionError(f"page {page} not found in datastore for {year}")
