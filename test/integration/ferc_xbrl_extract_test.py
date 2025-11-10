@@ -15,14 +15,14 @@ from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_r
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.order(1)
+@pytest.mark.order(2)
 def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_metadata):
     """Attempt to access the XBRL based FERC 1 SQLite DB & XBRL taxonomy metadata.
 
     We're testing both the SQLite & JSON taxonomy here because they are generated
     together by the FERC 1 XBRL ETL.
 
-    This test is marked with order(1) to ensure that it is explicitly run before the
+    This test is marked with order(2) to ensure that it is explicitly run before the
     main PUDL ETL test, and is the first attempt to make use of the conceptually related
     FERC Form 1 XBRL DB engine & taxonomy fixtures. This means that if they fail, the
     failure will be more clearly associated with the fixture, and not some random
@@ -61,13 +61,13 @@ def test_ferc1_xbrl2sqlite(ferc1_engine_xbrl: sa.Engine, ferc1_xbrl_taxonomy_met
     )
 
 
-@pytest.mark.order(1)
+@pytest.mark.order(2)
 def test_ferc714_xbrl2sqlite(
     ferc714_engine_xbrl: sa.Engine, ferc714_xbrl_taxonomy_metadata: dict[str, Any]
 ):
     """Attempt to access the XBRL based FERC 714 SQLite DB & XBRL taxonomy metadata.
 
-    This test is marked with order(1) to ensure that it is explicitly run before the
+    This test is marked with order(2) to ensure that it is explicitly run before the
     main PUDL ETL test, and is the first attempt to make use of the conceptually related
     FERC-714 XBRL DB engine & taxonomy fixtures. This means that if they fail, the
     failure will be more clearly associated with the fixture, and not some random
