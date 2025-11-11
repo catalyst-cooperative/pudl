@@ -1,12 +1,9 @@
 {% extends "data_source_parent.rst.jinja" %}
 {% block database_text %}
 Clicking on the links will show you a description of the table as well as the names and
-descriptions of each of its fields. Due to the size of the CEMS data we only publish
-it as Parquet files, which are not browsable online, but which can be downloaded
-directly from :ref:`access-cloud` using the links embedded in the
-:doc:`/data_dictionaries/pudl_db` or accessed with a Jupyter Notebook on
-:ref:`access-kaggle`. See :ref:`access-cloud` for more information on how to query
-the Parquet outputs.
+descriptions of each of its fields. Due to the size of the CEMS data we do not publish
+it as part of our SQLite database, but it is available through all of our other
+`access methods <https://catalystcoop-pudl.readthedocs.io/en/latest/data_access.html#>`__.
 {% endblock %}
 
 {% block background %}
@@ -30,8 +27,7 @@ units and EIA boilers isn't perfect. See "Notable Irregularities" below.
 We integrate all years of EPA CEMS hourly data, including all reporting states.
 
 EPA releases the hourly CEMS data on a quarterly basis, with a lag of 2-3 months. We
-update the CEMS data within PUDL on a quarterly schedule, in support of `RMI's Utility
-Transition Hub <https://utilitytransitionhub.rmi.org/>`__.
+update the CEMS data within PUDL on a quarterly schedule.
 {% endblock %}
 
 {% block respondents_title %}
@@ -77,7 +73,7 @@ SQLite.
 Check out the `PUDL data access example notebook on Kaggle
 <https://www.kaggle.com/code/catalystcooperative/01-pudl-data-access>`__ or in our
 `pudl-examples repository <https://github.com/catalyst-cooperative/pudl-examples>`__ on
-GitHub for pointers on how to access this dataset efficiently using :mod:`dask`.
+GitHub for pointers on how to access this dataset efficiently using :mod:`polars`.
 
 EPA units vs. EIA units
 -----------------------

@@ -554,18 +554,9 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
 
     Any row filtering should be done before this step if desired.
 
-    Usage Example:
-
-    .. code-block:: python
-
-       epacems = pudl.output.epacems.epacems(states=['ID'])
-       core_epa__assn_eia_epacamd = pudl.helpers.get_parquet_table("core_epa__assn_eia_epacamd")
-       filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
-       crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
-
-    Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` vs.
-    ``plant_id_epa`` because the former is more granular and integrated into CEMS during
-    the transform process.
+    Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` rather
+    than ``plant_id_epa`` because the former is more granular and integrated into CEMS
+    during the transform process.
 
     Args:
         crosswalk: The core_epa__assn_eia_epacamd crosswalk
