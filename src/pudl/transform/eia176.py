@@ -273,30 +273,55 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         "commercial_volume",
     ]
 
-    df = _core_eia176__yearly_company_data.filter(primary_key + keep)
-
-    # Assert that volume sums match
-    temp_df = _core_eia176__yearly_company_data.filter(primary_key + keep + volumes)
-    temp_df = pd.melt(
-        temp_df, id_vars=primary_key, var_name="metric", value_name="value"
-    ).reset_index()
-    temp_df[["customer_class", "metric_type"]] = temp_df["metric"].str.extract(
-        r"(residential|commercial|industrial|electric_power|vehicle_fuel|other)_(.+)$"
+    customer_classes = (
+        "residential",
+        "commercial",
+        "industrial",
+        "electric_power",
+        "vehicle_fuel",
+        "other",
     )
-    temp_df = temp_df.pivot(
-        index=primary_key + ["customer_class"], columns="metric_type", values="value"
-    ).reset_index()
 
-    # Assert that volume totals match the sum of sub-components
-    temp_df = temp_df[
-        temp_df["sales_volume"].notna()
-        & temp_df["transport_volume"].notna()
-        & temp_df["volume"].notna()
-    ]
-    assert cast(
-        pd.Series,
-        (temp_df["sales_volume"] + temp_df["transport_volume"]) == temp_df["volume"],
-    ).all(), "Volumes don't match"
+    # Assert that volume sums match, ignoring NA cases
+    df = _core_eia176__yearly_company_data
+    mismatched = sum(
+        sum(
+            (
+                df[f"{customer_class}_transport_volume"].notna()
+                & df[f"{customer_class}_sales_volume"].notna()
+                & df[f"{customer_class}_volume"].notna()
+                & (
+                    (
+                        df[f"{customer_class}_transport_volume"]
+                        + df[f"{customer_class}_sales_volume"]
+                    )
+                    != df[f"{customer_class}_volume"]
+                )
+            )
+        )
+        for customer_class in customer_classes
+    )
+    assert not mismatched, f"found {mismatched} mismatched total volumes"
+
+    # Assert that there is an expected number of mismatched volume totals where one of the columns is null
+    df = _core_eia176__yearly_company_data.fillna(0)
+    mismatched = sum(
+        sum(
+            (
+                (
+                    df[f"{customer_class}_transport_volume"]
+                    + df[f"{customer_class}_sales_volume"]
+                )
+                != df[f"{customer_class}_volume"]
+            )
+        )
+        for customer_class in customer_classes
+    )
+    assert (
+        mismatched == 28
+    ), f"{mismatched} mismatched volume totals found, expected 28."
+
+    df = _core_eia176__yearly_company_data.filter(primary_key + keep)
 
     # Normalize operating states, those that are missing in subdivisions will be NA
     codes = (
@@ -314,7 +339,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         df, id_vars=primary_key, var_name="metric", value_name="value"
     ).reset_index()
     df[["customer_class", "revenue_class", "metric_type"]] = df["metric"].str.extract(
-        r"(residential|commercial|industrial|electric_power|vehicle_fuel|other)_(sales|transport)_(.+)$"
+        rf"({'|'.join(customer_classes)})_(sales|transport)_(.+)$"
     )
 
     df = df.drop(columns="metric").reset_index()
@@ -336,7 +361,5 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     )
     df = df.dropna(subset=["operating_state"])
     df = df.dropna(subset=["consumers", "revenue", "volume_mcf"], how="all")
-
-    # Convert consumers to integers - can't have half a consumer
 
     return df
