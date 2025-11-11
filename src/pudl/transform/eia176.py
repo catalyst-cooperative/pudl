@@ -339,7 +339,4 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
     # Convert consumers to integers - can't have half a consumer
 
-    df["customer_class"] = df["customer_class"].astype("category")
-    df["revenue_class"] = df["revenue_class"].astype("category")
-
     return df
