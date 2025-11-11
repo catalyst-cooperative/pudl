@@ -1,7 +1,5 @@
 """Module to perform data cleaning functions on EIA176 data tables."""
 
-from typing import cast
-
 import pandas as pd
 from dagster import (
     AssetCheckResult,
@@ -264,15 +262,6 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         # "other_volume",
     ]
 
-    volumes = [
-        "other_volume",
-        "vehicle_fuel_volume",
-        "electric_power_volume",
-        "industrial_volume",
-        "residential_volume",
-        "commercial_volume",
-    ]
-
     customer_classes = (
         "residential",
         "commercial",
@@ -286,17 +275,15 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     df = _core_eia176__yearly_company_data
     mismatched = sum(
         sum(
-            (
-                df[f"{customer_class}_transport_volume"].notna()
-                & df[f"{customer_class}_sales_volume"].notna()
-                & df[f"{customer_class}_volume"].notna()
-                & (
-                    (
-                        df[f"{customer_class}_transport_volume"]
-                        + df[f"{customer_class}_sales_volume"]
-                    )
-                    != df[f"{customer_class}_volume"]
+            df[f"{customer_class}_transport_volume"].notna()
+            & df[f"{customer_class}_sales_volume"].notna()
+            & df[f"{customer_class}_volume"].notna()
+            & (
+                (
+                    df[f"{customer_class}_transport_volume"]
+                    + df[f"{customer_class}_sales_volume"]
                 )
+                != df[f"{customer_class}_volume"]
             )
         )
         for customer_class in customer_classes
@@ -308,12 +295,10 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     mismatched = sum(
         sum(
             (
-                (
-                    df[f"{customer_class}_transport_volume"]
-                    + df[f"{customer_class}_sales_volume"]
-                )
-                != df[f"{customer_class}_volume"]
+                df[f"{customer_class}_transport_volume"]
+                + df[f"{customer_class}_sales_volume"]
             )
+            != df[f"{customer_class}_volume"]
         )
         for customer_class in customer_classes
     )
