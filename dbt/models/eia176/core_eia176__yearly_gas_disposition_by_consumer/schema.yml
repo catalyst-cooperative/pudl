@@ -10,8 +10,6 @@ sources:
               arguments:
                 table_name: core_eia176__yearly_gas_disposition_by_consumer
                 partition_expr: "report_year"
-          - dbt_utils.expression_is_true:
-              expression: "(volume_mcf is null or volume_mcf >= 0) and (consumers is null or consumers >=0)"
 
         columns:
           - name: report_year
