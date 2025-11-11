@@ -50,6 +50,11 @@ EIA Bulk Electricity API
 * Updated the EIA Bulk Electricity data to include data published up through
   the beginning of November 2025. See :issue:`4724` and PR :pr:`4725`.
 
+EPA/CAMD-EIA Crosswalk
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated EPA/CAMD-EIA crosswalk through 2024. See PR :pr:`4749`.
+
 EPACEMS
 ~~~~~~~
 
