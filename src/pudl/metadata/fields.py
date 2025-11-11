@@ -66,8 +66,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "volume_mcf": {
         "type": "number",
-        "description": "Total volume of the deliveries",
-        "unit": "McF",
+        "description": "Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.",
+        "unit": "Mcf",
     },
     "acid_gas_control": {
         "type": "boolean",
