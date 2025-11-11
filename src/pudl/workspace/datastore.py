@@ -189,7 +189,7 @@ class ZenodoDoiSettings(BaseSettings):
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
     censuspep: ZenodoDoi = "10.5281/zenodo.15315316"
-    eia176: ZenodoDoi = "10.5281/zenodo.14589676"
+    eia176: ZenodoDoi = "10.5281/zenodo.17563679"
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
     eia860: ZenodoDoi = "10.5281/zenodo.17091669"
@@ -202,7 +202,7 @@ class ZenodoDoiSettings(BaseSettings):
     eiaapi: ZenodoDoi = "10.5281/zenodo.17500949"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.14834878"
     epacems: ZenodoDoi = "10.5281/zenodo.17500930"
-    ferc1: ZenodoDoi = "10.5281/zenodo.17076623"
+    ferc1: ZenodoDoi = "10.5281/zenodo.17563678"
     ferc2: ZenodoDoi = "10.5281/zenodo.17223540"
     ferc6: ZenodoDoi = "10.5281/zenodo.16676188"
     ferc60: ZenodoDoi = "10.5281/zenodo.17223513"

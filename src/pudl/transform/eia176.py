@@ -22,36 +22,46 @@ logger = get_logger(__name__)
         "_core_eia176__yearly_aggregate_data": AssetOut(),
     },
 )
-def _core_eia176__data(
-    raw_eia176__data: pd.DataFrame,
+def _core_eia176__numeric_data(
+    raw_eia176__numeric_data: pd.DataFrame,
 ) -> tuple[Output, Output]:
-    """Take raw list and return two wide tables with primary keys and one column per variable.
+    """Process EIA 176 custom report data into company and aggregate outputs.
 
-    One table with data for each year and company, one with state- and US-level aggregates per year.
+    Take raw dataframe produced by querying all forms from the EIA 176 custom report
+    and return two wide tables with primary keys and one column per variable.
+
+    One table with data for each year and company, one with state- and US-level
+    aggregates per year.
+
     """
-    raw_eia176__data = raw_eia176__data.astype({"report_year": int, "value": float})
+    raw_eia176__numeric_data = raw_eia176__numeric_data.astype(
+        {"report_year": int, "value": float}
+    )
 
     aggregate_primary_key = ["report_year", "operating_state"]
     company_primary_key = aggregate_primary_key + ["operator_id_eia", "operator_name"]
     company_drop_columns = ["form_line_numbers", "unit_type", "line"]
-    # We must drop 'id' here and cannot use as primary key because its arbitrary/duplicate in aggregate records
-    # 'id' is a reliable ID only in the context of granular company data
+    # We must drop 'id' here and cannot use it as primary key because its
+    # arbitrary/duplicate in aggregate records. 'id' is a reliable ID only in the context
+    # of granular company data
     aggregate_drop_columns = company_drop_columns + ["operator_id_eia", "operator_name"]
 
     # Clean up text columns to ensure string matching is precise
     for col in ["operator_name", "operating_state"]:
-        raw_eia176__data[col] = raw_eia176__data[col].str.strip().str.lower()
+        raw_eia176__numeric_data[col] = (
+            raw_eia176__numeric_data[col].str.strip().str.lower()
+        )
 
-    long_company = raw_eia176__data.loc[
-        raw_eia176__data.operator_name != "total of all companies"
+    long_company = raw_eia176__numeric_data.loc[
+        raw_eia176__numeric_data.operator_name != "total of all companies"
     ]
     wide_company = get_wide_table(
         long_table=long_company.drop(columns=company_drop_columns),
         primary_key=company_primary_key,
     )
 
-    long_aggregate = raw_eia176__data.loc[
-        raw_eia176__data.operator_name == "total of all companies"
+    long_aggregate = raw_eia176__numeric_data.loc[
+        raw_eia176__numeric_data.operator_name == "total of all companies"
     ]
     wide_aggregate = get_wide_table(
         long_table=long_aggregate.drop(columns=aggregate_drop_columns).dropna(
@@ -86,13 +96,14 @@ def validate_totals(
     _core_eia176__yearly_company_data: pd.DataFrame,
     _core_eia176__yearly_aggregate_data: pd.DataFrame,
 ) -> AssetCheckResult:
-    """Compare reported and calculated totals for different geographical aggregates, report any differences.
+    """Compare reported and calculated totals for different geographical aggregates.
 
-    EIA reports an adjustment company at the area-level, so these values are expected to be identical.
-    Once we validate this, we can preserve the detailed data and discard the aggregate data to
-    remove duplicate information.
+    EIA reports an adjustment company at the area-level, so these values are expected to
+    be identical.  Once we validate this, we can preserve the detailed data and discard
+    the aggregate data to remove duplicate information.
     """
-    # First make it so we can directly compare reported aggregates to groupings of granular data
+    # First make it so we can directly compare reported aggregates to groupings of
+    # granular data
     comparable_aggregates = _core_eia176__yearly_aggregate_data.sort_values(
         ["report_year", "operating_state"]
     ).fillna(0)
