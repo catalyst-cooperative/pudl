@@ -45,7 +45,8 @@ The data in PUDL spans from 1997 to the most recently reported year.
 {% block respondents_title %}
 Who is required to fill out the form?
 -------------------------------------
-
+{% endblock %}
+{% block respondents %}
 According to the EIA, the Form EIA‐176 must be completed by:
 
 * Interstate natural gas pipeline companies
@@ -87,6 +88,8 @@ filing.
 {% block original_data_title %}
 What does the original data look like?
 --------------------------------------
+{% endblock %}
+{% block original_data %}
 We archive EIA-176 data from two sources: CSV files that are exported from the `EIA
 Natural Gas Query System <https://www.eia.gov/naturalgas/ngqs>`__ by iterating through
 all predefined reports related to Form 176, as well as a custom report that includes
