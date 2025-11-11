@@ -8527,7 +8527,7 @@ elements which should be overridden need to be specified.
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
-            "description": "State that the distribution utility is reporting for.",
+            "description": "State that the operator is reporting for.",
         },
         "revenue": {
             "description": "Revenue including taxes",
