@@ -5,10 +5,11 @@ from typing import Any
 
 import geopandas as gpd
 import pandas as pd
+import polars as pl
 from pytz import all_timezones
 
 from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.constants import FIELD_DTYPES_PANDAS
+from pudl.metadata.constants import FIELD_DTYPES_PANDAS, FIELD_DTYPES_POLARS
 from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
@@ -65,11 +66,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operator_id_eia": {
         "type": "string",
-        "description": "The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.",
+        "description": (
+            "The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state."
+        ),
     },
     "volume_mcf": {
         "type": "number",
-        "description": "Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.",
+        "description": (
+            "Total volume of natural gas deliveries in the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
         "unit": "Mcf",
     },
     "acid_gas_control": {
@@ -2735,7 +2740,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "enum": (
                 set(CUSTOMER_CLASSES) - {"direct_connection"}
-                | {"electric_power", "unspecified"}
+                | {"electric_power", "unspecified", "industrial_hydrogen_production"}
             )
         },
     },
@@ -8530,7 +8535,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "description": "State that the operator is reporting for.",
         },
         "revenue": {
-            "description": "Revenue including taxes, rounded to the nearest whole dollar.",
+            "description": (
+                "Revenue including taxes, rounded to the nearest whole dollar."
+            ),
         },
         "customer_class": {
             "description": (
@@ -9391,3 +9398,52 @@ def apply_pudl_dtypes(
         dtype_map=FIELD_DTYPES_PANDAS,
     )
     return df.astype({col: dtypes[col] for col in df.columns if col in dtypes})
+
+
+def apply_pudl_dtypes_polars(
+    lf: pl.LazyFrame,
+    group: str | None = None,
+    field_meta: dict[str, Any] = FIELD_METADATA,
+    field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    strict: bool = False,
+) -> pl.LazyFrame:
+    """Apply dtypes to those columns in a dataframe that have PUDL types defined.
+
+    Note that ad-hoc column dtypes can be defined and merged with default PUDL field
+    metadata before it's passed in as ``field_meta`` if you have module specific column
+    types you need to apply alongside the standard PUDL field types.
+
+    Args:
+        df: The dataframe to apply types to. Not all columns need to have types
+            defined in the PUDL metadata unless you pass ``strict=True``.
+        group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        field_meta: A dictionary of field metadata, where each key is a field name
+            and the values are dictionaries which must have a "type" element. By
+            default this is pudl.metadata.fields.FIELD_METADATA.
+        field_meta_by_group: A dictionary of field metadata to use as overrides,
+            based on the value of `group`, if any. By default it uses the overrides
+            defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+        strict: whether or not all columns need a corresponding field.
+
+    Returns:
+        The input dataframe, but with standard PUDL types applied.
+    """
+    columns = lf.collect_schema().names()
+    unspecified_fields = sorted(
+        set(columns)
+        - set(field_meta.keys())
+        - set(field_meta_by_group.get(group, {}).keys())
+    )
+    if strict and len(unspecified_fields) > 0:
+        raise ValueError(f"Found unspecified fields: {unspecified_fields}")
+    dtypes = get_pudl_dtypes(
+        group=group,
+        field_meta={
+            key: value
+            for key, value in field_meta.items()
+            if value["type"] in FIELD_DTYPES_POLARS
+        },
+        field_meta_by_group=field_meta_by_group,
+        dtype_map=FIELD_DTYPES_POLARS,
+    )
+    return lf.cast({key: value for key, value in dtypes.items() if key in columns})

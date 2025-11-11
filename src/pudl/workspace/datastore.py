@@ -10,6 +10,7 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
 from urllib.parse import ParseResult, urlparse
 
@@ -188,20 +189,20 @@ class ZenodoDoiSettings(BaseSettings):
 
     censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
     censuspep: ZenodoDoi = "10.5281/zenodo.15315316"
-    eia176: ZenodoDoi = "10.5281/zenodo.14589676"
+    eia176: ZenodoDoi = "10.5281/zenodo.17563679"
     eia191: ZenodoDoi = "10.5281/zenodo.10607837"
     eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
     eia860: ZenodoDoi = "10.5281/zenodo.17091669"
     eia860m: ZenodoDoi = "10.5281/zenodo.17447502"
     eia861: ZenodoDoi = "10.5281/zenodo.13907096"
     eia923: ZenodoDoi = "10.5281/zenodo.17440792"
-    eia930: ZenodoDoi = "10.5281/zenodo.16676166"
+    eia930: ZenodoDoi = "10.5281/zenodo.17500936"
     eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
-    eiaaeo: ZenodoDoi = "10.5281/zenodo.10838488"
-    eiaapi: ZenodoDoi = "10.5281/zenodo.16676182"
+    eiaaeo: ZenodoDoi = "10.5281/zenodo.15622378"
+    eiaapi: ZenodoDoi = "10.5281/zenodo.17500949"
     epacamd_eia: ZenodoDoi = "10.5281/zenodo.14834878"
-    epacems: ZenodoDoi = "10.5281/zenodo.16792669"
-    ferc1: ZenodoDoi = "10.5281/zenodo.17076623"
+    epacems: ZenodoDoi = "10.5281/zenodo.17500930"
+    ferc1: ZenodoDoi = "10.5281/zenodo.17563678"
     ferc2: ZenodoDoi = "10.5281/zenodo.17223540"
     ferc6: ZenodoDoi = "10.5281/zenodo.16676188"
     ferc60: ZenodoDoi = "10.5281/zenodo.17223513"
@@ -329,6 +330,10 @@ class Datastore:
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
+        # If you want to extract a file to *disk* instead of memory, it helps
+        # to have a temporary directory that sticks around until the Datastore
+        # object is deleted
+        self.temporary_extraction_dir = TemporaryDirectory()
 
         if local_cache_path:
             logger.info(f"Adding local cache layer at {local_cache_path}")

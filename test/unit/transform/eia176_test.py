@@ -1,7 +1,11 @@
 import pandas as pd
 from pytest import fixture
 
-from pudl.transform.eia176 import _core_eia176__data, get_wide_table, validate_totals
+from pudl.transform.eia176 import (
+    _core_eia176__numeric_data,
+    get_wide_table,
+    validate_totals,
+)
 
 COLUMN_NAMES = [
     "operating_state",
@@ -130,14 +134,16 @@ def df():
     return df
 
 
-def test_core_eia176__data(df):
+def test_core_eia176__numeric_data(df):
     eav_model = df.loc[
         [
             ("new mexico", "new mexico gas company"),
             ("new mexico", "total of all companies"),
         ]
     ].reset_index()
-    wide_company, wide_aggregate = (o.value for o in _core_eia176__data(eav_model))
+    wide_company, wide_aggregate = (
+        o.value for o in _core_eia176__numeric_data(eav_model)
+    )
     assert wide_company.shape == (1, 5)
 
     company_row = wide_company.loc[0]
