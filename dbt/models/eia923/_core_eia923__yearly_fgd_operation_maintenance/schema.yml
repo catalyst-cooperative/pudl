@@ -13,7 +13,7 @@ sources:
                   fgd_operational_status_code: EXTRACT(year FROM report_date) <= 2011
                   fgd_hours_in_service: EXTRACT(year FROM report_date) <= 2011
                   fgd_electricity_consumption_mwh: EXTRACT(year FROM report_date) <= 2011
-                  fgd_sorbent_consumption_1000_tons: EXTRACT(year FROM report_date) <= 2011
+                  fgd_sorbent_consumption_tons: EXTRACT(year FROM report_date) <= 2011
                   so2_removal_efficiency_tested: EXTRACT(year FROM report_date) <= 2011
                   so2_removal_efficiency_annual: EXTRACT(year FROM report_date) <= 2011
                   so2_test_date: EXTRACT(year FROM report_date) <= 2011
