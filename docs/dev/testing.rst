@@ -10,15 +10,15 @@ We use `pytest <https://pytest.org>`__ to specify software unit
 stored as targets in the PUDL ``Makefile`` for convenience and to ensure that
 we're all running the tests in similar ways by default.
 
-To run the checks that will be run on a PR by our continuous integration (CI) on GitHub
+To run the tests that will be run on a PR by our continuous integration (CI) on GitHub
 before it's merged into the ``main`` branch you can use the following command:
 
 .. code-block:: console
 
-    $ make ci
+    $ make pytest-coverage
 
-This includes running the pre-commit hooks, building the documentation, unit tests,
-integration tests, and checking to make sure we've got sufficient test coverage.
+This includes building the documentation, running unit & integration tests, and checking
+to make sure we've got sufficient test coverage.
 
 .. note::
 
@@ -83,8 +83,6 @@ There are several non-test ``make`` targets. To see them all open the ``Makefile
 * ``docs-build``: Remove existing PUDL documentation outputs and rebuild from scratch.
 * ``jlab``: start up a JupyerLab notebook server (will remain running in your terminal
   until you kill it with ``Control-C``).
-* ``ci``: Run all the checks that would be run in CI on GitHub, including the pre-commit
-  hooks, docs build, and software unit and integration tests.
 
 -------------------------------------------------------------------------------
 Selecting Input Data for Integration Tests
