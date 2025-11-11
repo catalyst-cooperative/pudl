@@ -62,7 +62,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "consumers": {"type": "integer", "description": "Number of end-use consumers within the report state."},
     "operator_id_eia": {
         "type": "string",
-        "description": "Operator EIA id",
+        "description": "The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.",
     },
     "volume_mcf": {
         "type": "number",
