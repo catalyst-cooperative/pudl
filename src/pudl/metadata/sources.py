@@ -495,7 +495,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Comma Separated Value (.csv)",
         },
         "field_namespace": "glue",
-        "working_partitions": {"years": sorted(set(range(2018, 2024)))},
+        "working_partitions": {"years": sorted(set(range(2018, 2025)))},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
