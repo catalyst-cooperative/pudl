@@ -2,11 +2,6 @@
 {% block database_text %}
 {% endblock %}
 
-{% block extra_table_text %}
-This block describes if there are any extra tables created in PUDL that are derived from
-the existing tables in the data source.
-{% endblock %}
-
 {% block background %}
 EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__, also
 known as the **Annual Report of Natural and Supplemental Gas Supply and Disposition**,
@@ -37,8 +32,6 @@ What data is available through PUDL?
 {% block availability %}
 We are actively integrating EIA-176 data into PUDL with support from external contributors.
 Currently, Part 6 of the form is the only one that has been fully integrated.
-
-The data in PUDL spans from 1997 to the most recently reported year.
 
 {% endblock %}
 
@@ -83,7 +76,6 @@ requirements, but can specifically request permission from the EIA to consolidat
 filing.
 
 {% endblock %}
-{% block respondents %}{% endblock %}
 
 {% block original_data_title %}
 What does the original data look like?
@@ -98,15 +90,15 @@ the bulk CSV download of all available natural gas data, since it is less well
 structured than the exports from the Natural Gas Query System.
 
 {% endblock %}
-{% block original_data %}{% endblock %}
 
 {% block notable_irregularities %}
 * **Offshore gas reporting:** For the purposes of Form 176 filings, a state is defined
   as including adjacent offshore Federal Domain areas. This means that any offshore gas
   operations will be reported under the relevant state.
-* **Adjustment companies:** The original data contains a number of "adjustment companies"
+* **Adjustment companies:** The original company-level data contains a number of "adjustment companies"
   that do not appear to be documented in the Natural Gas Query System `user guide <https://www.eia.gov/naturalgas/ngqs/ngqs_user_guide.pdf>`__.
   These companies all have "adjustment company" in their name and IDs beginning with 176999.
+  These records are included in the company-level data where they report values.
 {% endblock %}
 
 {% block extra_pudl_transform_text %}
