@@ -1,8 +1,8 @@
 """Add core_eia176__yearly_gas_disposition_by_consumer table
 
-Revision ID: 0f8abb125d4b
-Revises: d629674ba279
-Create Date: 2025-11-11 13:16:28.268110
+Revision ID: d40bbccf5eda
+Revises: e91f15227f60
+Create Date: 2025-11-11 13:29:51.416062
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0f8abb125d4b'
-down_revision = 'd629674ba279'
+revision = 'd40bbccf5eda'
+down_revision = 'e91f15227f60'
 branch_labels = None
 depends_on = None
 
