@@ -21,16 +21,16 @@ sources:
           - name: revenue_class
           - name: consumers
             data_tests:
-            - dbt_expectations.expect_column_min_to_be_between:
-                arguments:
-                  min_value: 0.0
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: revenue
             data_tests:
-            - dbt_expectations.expect_column_min_to_be_between:
-                arguments:
-                  min_value: 0.0
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: volume_mcf
             data_tests:
-            - dbt_expectations.expect_column_min_to_be_between:
-                arguments:
-                  min_value: 0.0
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
