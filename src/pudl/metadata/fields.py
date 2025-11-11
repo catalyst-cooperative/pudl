@@ -8530,7 +8530,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "description": "State that the operator is reporting for.",
         },
         "revenue": {
-            "description": "Revenue including taxes",
+            "description": "Revenue including taxes, rounded to the nearest whole dollar.",
         },
         "customer_class": {
             "description": (
