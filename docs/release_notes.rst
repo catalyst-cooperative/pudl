@@ -72,6 +72,10 @@ FERC Form 1
 New Data
 ^^^^^^^^
 
+* Added ``core_eia176__yearly_gas_disposition_by_consumer``, which contains cleaned
+  natural gas disposition data from Part 6 of the EIA 176 survey. Thanks to
+  :user:`MeadBarrel` for all your work on this!
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
