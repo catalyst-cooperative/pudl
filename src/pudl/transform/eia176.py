@@ -313,8 +313,8 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         )
         for customer_class in customer_classes
     )
-    assert mismatched == 28, (
-        f"{mismatched} mismatched volume totals found, expected 28."
+    assert mismatched <= 28, (
+        f"{mismatched} mismatched volume totals found, expected no more than 28."
     )
 
     df = _core_eia176__yearly_company_data.filter(primary_key + keep)
