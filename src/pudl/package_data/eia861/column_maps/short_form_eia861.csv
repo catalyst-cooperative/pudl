@@ -11,3 +11,4 @@ year_index,report_year,utility_id_eia,utility_name_eia,entity_type,state,balanci
 2021,0,1,2,3,4,5,6,7,8,9,10,11,12,-1,-1
 2022,0,1,2,3,4,5,6,7,8,9,10,11,12,-1,-1
 2023,0,1,2,3,4,5,6,7,8,9,10,11,12,-1,-1
+2024,data_year,utility_number,utility_name,ownership,state,ba_code,total_revenue_thousand_dollars,total_sales_mwh,total_customers,water_heater,net_metering,demand_side_management,time_based_programs,,
