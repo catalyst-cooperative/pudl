@@ -44,18 +44,15 @@ in the
 If the structure of the web pages or the URLs has changed, you may need to update the
 archivers themselves.
 
-**1.2)** Update the dictionary of production DOIs in :mod:`pudl.workspace.datastore` to
-refer to the new raw input archives.
+**1.2)** Obtain production DOIs from
+`Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__ and then update the
+dictionary of in :mod:`pudl.workspace.datastore` to refer to the new raw input
+archives.
 
 **1.3)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
 to reflect the years, months, or quarters of data that are available for each dataset
 and the ``records_liberated`` to show how many records are available. Check to make
 sure other fields such as ``source_format`` or ``path`` are still accurate.
-
-.. note::
-
-  If you're updating EIA861, you can skip the rest of the steps in this section and
-  all steps after step two because 861 is not yet included in the ETL.
 
 **1.4)** Update the partitions of data to be processed in
 the ``etl_full.yml`` and ``etl_fast.yml`` settings files stored under
