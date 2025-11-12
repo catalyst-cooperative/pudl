@@ -107,15 +107,21 @@ class GenericMetadata:
         """Returns list of all pudl columns for a given page across all partitions."""
         return sorted(self._column_map[page].columns)
 
-    def get_column_map(self, page, **partition) -> dict:
-        """Return dictionary of original columns to renamed columns for renaming in a given partition and page."""
+    def get_column_map(self, page, **partition) -> dict[str, str]:
+        """Return dictionary of original columns to renamed columns for renaming in a given partition and page.
+
+        Columns that don't exist in this partition/page will show up as pd.nan, so we need to filter those out.
+        """
+        # we drop all of the nulls which are either straight nulls (removed via dropna)
+        # OR they are -1's (which are often int's but sometimes show up as strings)
         return {
             v: k
             for k, v in self._column_map[page]
             .loc[str(self._get_partition_selection(partition))]
+            .dropna()
             .to_dict()
             .items()
-            if v != -1
+            if v not in [-1, "-1"]
         }
 
 

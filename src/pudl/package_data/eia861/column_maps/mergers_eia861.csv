@@ -16,3 +16,4 @@ year_index,report_year,utility_id_eia,utility_name_eia,state,entity_type,merge_d
 2021,0,1,2,-1,-1,3,4,5,6,7,8,9,-1,-1
 2022,0,1,2,-1,-1,3,4,5,6,7,8,9,-1,-1
 2023,0,1,2,-1,-1,3,4,5,6,7,8,9,-1,-1
+2024,data_year,utility_number,utility_name,,,merge_date,merge_company,new_parent,merge_address,merge_city,merge_state,merge_zip,,

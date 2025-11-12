@@ -1,5 +1,7 @@
 """Module to perform data cleaning functions on EIA930 data tables."""
 
+from pathlib import Path
+
 import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
@@ -19,7 +21,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
     compute_kind="pandas",
 )
 def core_eia930__hourly_operations_assets(
-    raw_eia930__balance: pd.DataFrame,
+    raw_eia930__balance: Path,
 ):
     """Separate raw_eia930__balance into net generation and demand tables.
 
@@ -29,15 +31,16 @@ def core_eia930__hourly_operations_assets(
     is also included, because the reported and calculated totals across all energy
     sources have significant differences which should be further explored.
     """
+    raw_eia930__balance_df = pd.read_parquet(raw_eia930__balance)
     nondata_cols = [
         "datetime_utc",
         "balancing_authority_code_eia",
     ]
     # Select all columns that aren't energy source specific
-    operations = raw_eia930__balance[
+    operations = raw_eia930__balance_df[
         nondata_cols
         + list(
-            raw_eia930__balance.filter(
+            raw_eia930__balance_df.filter(
                 regex=r"(demand|interchange|net_generation_total)"
             )
         )
@@ -45,7 +48,7 @@ def core_eia930__hourly_operations_assets(
     # Select only the columns that pertain to individual energy sources. Note that for
     # the "unknown" energy source there are only "reported" values.
     netgen_by_source = (
-        raw_eia930__balance[
+        raw_eia930__balance_df[
             nondata_cols
             + [
                 f"net_generation_{fuel}_{status}_mwh"
@@ -104,10 +107,11 @@ def core_eia930__hourly_operations_assets(
     compute_kind="pandas",
 )
 def core_eia930__hourly_subregion_demand(
-    raw_eia930__subregion: pd.DataFrame,
+    raw_eia930__subregion: Path,
 ):
     """Produce a normalized table of hourly electricity demand by BA subregion."""
-    return raw_eia930__subregion.assign(
+    raw_eia930__subregion_df = pd.read_parquet(raw_eia930__subregion)
+    return raw_eia930__subregion_df.assign(
         balancing_authority_subregion_code_eia=lambda df: df[
             "balancing_authority_subregion_code_eia"
         ].str.upper()
@@ -127,10 +131,11 @@ def core_eia930__hourly_subregion_demand(
     compute_kind="pandas",
 )
 def core_eia930__hourly_interchange(
-    raw_eia930__interchange: pd.DataFrame,
+    raw_eia930__interchange: Path,
 ):
     """Produce a normalized table of hourly interchange by balancing authority."""
-    return raw_eia930__interchange.loc[
+    raw_eia930__interchange_df = pd.read_parquet(raw_eia930__interchange)
+    return raw_eia930__interchange_df.loc[
         :,
         [
             "datetime_utc",

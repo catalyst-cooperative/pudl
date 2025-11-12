@@ -32,6 +32,7 @@ jobs:
           predicate-quantifier: "every"
           filters: |
             code:
+              - '!dbt/seeds/etl_full_row_counts.csv'
               - '!docker/*'
               - '!docs/**.rst'
               - '!docs/**.md'
@@ -44,6 +45,8 @@ jobs:
               - '!.github/actionlint.yml'
               - '!.github/dependabot.yml'
               - '!.github/release.yml'
+              - '!.github/ISSUE_TEMPLATE/*.yml'
+              - '!AGENTS.md'
               - '!README.rst'
               - '!CONTRIBUTING.rst'
               - '!LICENSE.txt'
@@ -99,7 +102,7 @@ jobs:
           ls -a
 
       - name: Upload docs coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-docs
           include-hidden-files: true
@@ -154,7 +157,7 @@ jobs:
           ls -a
 
       - name: Upload unit tests coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-unit
           include-hidden-files: true
@@ -260,7 +263,7 @@ jobs:
           ls -a
 
       - name: Upload integration test coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: coverage-integration
           include-hidden-files: true
@@ -268,7 +271,7 @@ jobs:
 
       - name: Upload dbt test failure database artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: dbt-failures
           path: pudl_dbt_tests.duckdb
@@ -288,7 +291,7 @@ jobs:
       - uses: actions/checkout@v5
       - name: Download coverage
         id: download-coverage
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           path: coverage
       - name: List downloaded files

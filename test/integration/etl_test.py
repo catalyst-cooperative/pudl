@@ -18,7 +18,7 @@ from pudl.resources import dataset_settings
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.order(2)
+@pytest.mark.order(3)
 def test_pudl_engine(
     pudl_engine: sa.Engine,
     check_foreign_keys_flag: bool,
@@ -41,14 +41,16 @@ def test_pudl_engine(
 class TestCsvExtractor:
     """Verify that we can load CSV files as provided via the datastore."""
 
+    @pytest.mark.order(1)
     def test_extract_eia176(self, pudl_datastore_fixture):
         """Spot check extraction of eia176 csv files."""
         extractor = pudl.extract.eia176.Extractor(pudl_datastore_fixture)
-        page = "data"
+        page = "custom"
         year = 2018
         if "company" not in extractor.load_source(page=page, year=year).columns:
             raise AssertionError(f"page {page} not found in datastore for {year}")
 
+    @pytest.mark.order(1)
     def test_extract_eia191(self, pudl_datastore_fixture):
         """Spot check extraction of eia191 csv files."""
         extractor = pudl.extract.eia191.Extractor(pudl_datastore_fixture)
@@ -60,6 +62,7 @@ class TestCsvExtractor:
         ):
             raise AssertionError(f"page {page} not found in datastore for {year}")
 
+    @pytest.mark.order(1)
     def test_extract_eia757a(self, pudl_datastore_fixture):
         """Spot check extraction of eia757a csv files."""
         extractor = pudl.extract.eia757a.Extractor(pudl_datastore_fixture)
@@ -83,6 +86,7 @@ class TestExcelExtractor:
                 f"file name for {page} in {year} doesn't match datastore."
             )
 
+    @pytest.mark.order(1)
     def test_excel_filename_eia860(self, pudl_datastore_fixture):
         """Spot check eia860 extractor gets the correct excel sheet names."""
         extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
@@ -108,6 +112,7 @@ class TestExcelExtractor:
             extractor=extractor, page="plant", year=2003, expected_name="PLANTY03.DBF"
         )
 
+    @pytest.mark.order(1)
     def test_excel_filename_eia923(self, pudl_datastore_fixture):
         """Spot check eia923 extractor gets the correct excel sheet names."""
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
@@ -130,6 +135,7 @@ class TestExcelExtractor:
             expected_name="EIA923_Schedules_2_3_4_5_M_12_2012_Final_Revision.xlsx",
         )
 
+    @pytest.mark.order(1)
     def test_extract_eia860(self, pudl_datastore_fixture):
         """Spot check extraction of eia860 excel files."""
         extractor = pudl.extract.eia860.Extractor(pudl_datastore_fixture)
@@ -138,6 +144,7 @@ class TestExcelExtractor:
         if "Ownership ID" not in extractor.load_source(page=page, year=year).columns:
             raise AssertionError(f"page {page} not found in datastore for {year}")
 
+    @pytest.mark.order(1)
     def test_extract_eia923(self, pudl_datastore_fixture):
         """Spot check extraction eia923 excel files."""
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)

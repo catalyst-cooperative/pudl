@@ -42,6 +42,9 @@ def materialize_assets(asset_selection: str) -> None:
     asset_selection_with_multi_asset_siblings = dg.AssetSelection.from_string(
         asset_selection
     ).required_multi_asset_neighbors()
+    click.echo(
+        f"Found {asset_selection_with_multi_asset_siblings.resolve(defs.resolve_asset_graph())}"
+    )
 
     full_etl_job = defs.get_job_def("etl_full")
     dg.materialize(
@@ -72,7 +75,12 @@ def cli(asset_selection, aggregate, directory):
     file_format = (
         FileFormat.AGGREGATED_ALLOCATIONS if aggregate else FileFormat.ALL_ALLOCATIONS
     )
-    with Tracker(file_name=profile_location, follow_fork=True, file_format=file_format):
+    with Tracker(
+        file_name=profile_location,
+        follow_fork=True,
+        file_format=file_format,
+        native_traces=True,
+    ):
         materialize_assets(asset_selection)
     run(["/usr/bin/env", "memray", "flamegraph", str(profile_location)])  # noqa: S603
 

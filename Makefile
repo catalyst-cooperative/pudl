@@ -162,15 +162,3 @@ unmapped-ids:
 		--ignore-foreign-key-constraints \
 		--etl-settings ${etl_full_yml} \
 		test/integration/glue_test.py
-
-########################################################################################
-# Continuous Integration Tests
-########################################################################################
-.PHONY: pre-commit
-pre-commit:
-	pre-commit run --all-files
-
-# This target will run all the tests that typically take place in our continuous
-# integration tests on GitHub (with the exception building our docker container).
-.PHONY: ci
-ci: pre-commit pytest-coverage

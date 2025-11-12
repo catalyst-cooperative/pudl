@@ -5,7 +5,7 @@ import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
-from pudl.metadata.classes import Package
+from pudl.metadata.classes import DataSource, Package
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -69,7 +69,8 @@ def raw_pudl__assn_eia_epacamd(context) -> pd.DataFrame:
 
     csv_map = {2018: "camd-eia-crosswalk-master/epa_eia_crosswalk.csv"} | {
         year: f"camd-eia-crosswalk-latest-{year}/epa_eia_crosswalk.csv"
-        for year in range(2019, 2024)
+        for year in DataSource.from_id("epacamd_eia").working_partitions["years"]
+        if year != 2018
     }
 
     ds = context.resources.datastore
@@ -554,18 +555,9 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
 
     Any row filtering should be done before this step if desired.
 
-    Usage Example:
-
-    .. code-block:: python
-
-       epacems = pudl.output.epacems.epacems(states=['ID'])
-       core_epa__assn_eia_epacamd = pudl.helpers.get_parquet_table("core_epa__assn_eia_epacamd")
-       filtered_crosswalk = pudl.analysis.epacamd_eia.filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
-       crosswalk_with_subplant_ids = make_subplant_ids(filtered_crosswalk)
-
-    Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` vs.
-    ``plant_id_epa`` because the former is more granular and integrated into CEMS during
-    the transform process.
+    Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` rather
+    than ``plant_id_epa`` because the former is more granular and integrated into CEMS
+    during the transform process.
 
     Args:
         crosswalk: The core_epa__assn_eia_epacamd crosswalk

@@ -17,7 +17,6 @@ from dagster import (
 import pudl
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
-    epacems_io_manager,
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
     ferc714_xbrl_sqlite_io_manager,
@@ -31,7 +30,6 @@ from pudl.settings import EtlSettings
 
 from . import (
     eia_bulk_elec_assets,
-    epacems_assets,
     glue_assets,
     static_assets,
 )
@@ -75,7 +73,7 @@ core_module_groups = {
     "core_eia861": [pudl.transform.eia861],
     "core_eia923": [pudl.transform.eia923],
     "core_eia930": [pudl.transform.eia930],
-    "core_epacems": [epacems_assets],
+    "core_epacems": [pudl.transform.epacems],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
@@ -178,7 +176,6 @@ default_resources = {
     "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
     "dataset_settings": dataset_settings,
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
-    "epacems_io_manager": epacems_io_manager,
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
 }
