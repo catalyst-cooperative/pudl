@@ -1,8 +1,8 @@
-"""Add core_eia176__yearly_gas_disposition_by_consumer table
+"""Add core_eia176__yearly_gas_disposition_by_consumer
 
-Revision ID: d40bbccf5eda
+Revision ID: a9da8b5ea49f
 Revises: e91f15227f60
-Create Date: 2025-11-11 13:29:51.416062
+Create Date: 2025-11-12 09:56:38.042925
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd40bbccf5eda'
+revision = 'a9da8b5ea49f'
 down_revision = 'e91f15227f60'
 branch_labels = None
 depends_on = None
@@ -22,7 +22,7 @@ def upgrade() -> None:
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('operator_id_eia', sa.Text(), nullable=False, comment='The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.'),
     sa.Column('operating_state', sa.Text(), nullable=True, comment='State that the operator is reporting for.'),
-    sa.Column('customer_class', sa.Enum('commercial', 'electric_power', 'industrial', 'other', 'residential', 'vehicle_fuel'), nullable=False, comment="High level categorization of customer type: ['commercial', 'electric_power', 'industrial', 'other', 'residential', 'vehicle_fuel']"),
+    sa.Column('customer_class', sa.Enum('commercial', 'electric_power', 'industrial', 'other', 'residential', 'vehicle_fuel'), nullable=False, comment='High level categorization of customer type: commercial, electric_power, industrial, residential, vehicle_fuel, or other'),
     sa.Column('revenue_class', sa.Enum('sales', 'transport'), nullable=False, comment="Source of revenue: ['sales', 'transport']"),
     sa.Column('consumers', sa.Integer(), nullable=True, comment='Number of end-use consumers within the report state.'),
     sa.Column('revenue', sa.Float(), nullable=True, comment='Revenue including taxes, rounded to the nearest whole dollar.'),

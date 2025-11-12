@@ -1222,7 +1222,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "customer_class": {
         "type": "string",
         "description": (
-            f"High level categorization of customer type: {CUSTOMER_CLASSES}."
+            "Source of revenue: whether revenue originates from gas owned directly by the "
+            "operator (sales) or gas transported by the operator (transport).."
         ),
         "constraints": {"enum": CUSTOMER_CLASSES},
     },
@@ -8541,7 +8542,8 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "customer_class": {
             "description": (
-                f"High level categorization of customer type: {CUSTOMER_CLASSES_EIA176}"
+                "High level categorization of customer type: "
+                "commercial, electric_power, industrial, residential, vehicle_fuel, or other"
             ),
             "type": "string",
             "constraints": {
