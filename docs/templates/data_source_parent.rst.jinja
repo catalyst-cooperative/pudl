@@ -40,7 +40,7 @@ the names and descriptions of each of its fields.
    {%- for resource in source_resources %}
    * - :ref:`{{ resource.sphinx_ref_name }}`
    {%- block browse_online scoped %}
-     - https://viewer.catalyst.coop/search?q=name:{{ resource.name }}
+     - https://data.catalyst.coop/search?q=name:{{ resource.name }}
    {% endblock %}
    {%- endfor %}
 
@@ -61,7 +61,7 @@ existing tables.
    {%- for resource in extra_resources %}
    * - :ref:`{{ resource.sphinx_ref_name }}`
    {%- block browse_extra_online scoped %}
-     - https://viewer.catalyst.coop/search?q=name:{{ resource.name }}
+     - https://data.catalyst.coop/search?q=name:{{ resource.name }}
    {% endblock %}
    {%- endfor %}
 {%- endif %}
