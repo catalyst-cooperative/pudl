@@ -3866,6 +3866,7 @@ out_ferc714__hourly_estimated_state_demand,2020,447984
 out_ferc714__hourly_estimated_state_demand,2021,445991
 out_ferc714__hourly_estimated_state_demand,2022,446755
 out_ferc714__hourly_estimated_state_demand,2023,446760
+out_ferc714__hourly_estimated_state_demand,2024,447979
 out_ferc714__hourly_planning_area_demand,2006,1533000
 out_ferc714__hourly_planning_area_demand,2007,1375319
 out_ferc714__hourly_planning_area_demand,2008,1326383
@@ -3903,7 +3904,7 @@ out_ferc714__respondents_with_fips,2020,9032
 out_ferc714__respondents_with_fips,2021,8976
 out_ferc714__respondents_with_fips,2022,8987
 out_ferc714__respondents_with_fips,2023,8998
-out_ferc714__respondents_with_fips,2024,218
+out_ferc714__respondents_with_fips,2024,9011
 out_ferc714__summarized_demand,2006,218
 out_ferc714__summarized_demand,2007,218
 out_ferc714__summarized_demand,2008,218
