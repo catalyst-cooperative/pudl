@@ -6,7 +6,8 @@ Managing External Contributions
 Overview
 -------------------------------------------------------------------------------
 
-Our codebase
+This document outlines norms, practical tips, and expectations for internal
+Catalyst developers reviewing external community contributions.
 
 -------------------------------------------------------------------------------
 Guidelines for contributors
