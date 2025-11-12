@@ -891,7 +891,7 @@ def median_of_rolling_median_offset(
         with da.config.set(scheduler="threads", num_workers=2):
             return da.array.nanmedian(
                 da.array.from_array(
-                    np.load(array_file, mmap_mode="r"), chunks=(21, 10791, 19)
+                    np.load(array_file, mmap_mode="r"), chunks=(21, 5000, 20)
                 ),
                 axis=0,
             ).compute()
