@@ -27,5 +27,6 @@ USAGE_WARNINGS = {
         "for details."
     ),
     "discontinued_data": "The data is no longer being collected or reported in this way.",
+    "discontinued_pudl": "PUDL does not currently update its copy of this data.",
     "experimental_wip": "This table is experimental and/or a work in progress and may change in the future.",
 }
