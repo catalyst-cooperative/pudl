@@ -1,6 +1,6 @@
 """Unit tests for the pudl.transform.epacems module."""
 
-import pandas as pd
+import polars as pl
 
 import pudl.transform.epacems as epacems
 
@@ -12,13 +12,13 @@ def test_harmonize_eia_epa_orispl():
     # on available plant/gen and plant/boiler keys, not all of the plant ids are
     # included. I had to find an example (2713-->58697) that would exist in the
     # version of the crosswalk created by the fast etl (i.e. the last few years).
-    cems_test_df = pd.DataFrame(
+    cems_test_df = pl.DataFrame(
         {
             "plant_id_epa": [2713, 3, 10, 1111],
             "emissions_unit_id_epa": ["01A", "1", "2", "no-match"],
         }
     )
-    crosswalk_test_df = pd.DataFrame(
+    crosswalk_test_df = pl.DataFrame(
         {
             "plant_id_epa": [2713, 3, 10],
             "plant_id_eia": [58697, 3, 10],
@@ -29,12 +29,14 @@ def test_harmonize_eia_epa_orispl():
     # official plant_id_eia values and the combined id values for instances
     # where there is no match for the the plant_id_epa/emissions_unit_id_epa
     # combination.
-    expected_df = pd.DataFrame(
+    expected_df = pl.DataFrame(
         {
             "plant_id_epa": [2713, 3, 10, 1111],
             "emissions_unit_id_epa": ["01A", "1", "2", "no-match"],
             "plant_id_eia": [58697, 3, 10, 1111],
         }
     )
-    actual_df = epacems.harmonize_eia_epa_orispl(cems_test_df, crosswalk_test_df)
-    pd.testing.assert_frame_equal(expected_df, actual_df, check_dtype=False)
+    actual_df = (
+        epacems.harmonize_eia_epa_orispl(cems_test_df.lazy(), crosswalk_test_df.lazy())
+    ).collect()
+    assert expected_df.equals(actual_df)
