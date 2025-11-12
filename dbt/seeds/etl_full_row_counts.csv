@@ -1386,7 +1386,8 @@ core_epa__assn_eia_epacamd,2020,6427
 core_epa__assn_eia_epacamd,2021,6410
 core_epa__assn_eia_epacamd,2022,6410
 core_epa__assn_eia_epacamd,2023,6371
-core_epa__assn_eia_epacamd_subplant_ids,,43117
+core_epa__assn_eia_epacamd,2024,6340
+core_epa__assn_eia_epacamd_subplant_ids,,43099
 core_epacems__hourly_emissions,1995,3846120
 core_epacems__hourly_emissions,1996,3645432
 core_epacems__hourly_emissions,1997,17660784

@@ -32,6 +32,10 @@ EIA-860M
 * Updated EIA-860M with monthly data up through September 2025. See :issue:`4698` and
   :pr:`4706`.
 
+EIA-861
+~~~~~~~
+* Added EIA-861 final release data from 2024. See :issue:`4648` and PR :pr:`4672`.
+
 EIA-923
 ~~~~~~~
 
@@ -50,10 +54,10 @@ EIA Bulk Electricity API
 * Updated the EIA Bulk Electricity data to include data published up through
   the beginning of November 2025. See :issue:`4724` and PR :pr:`4725`.
 
-EIA-861
-~~~~~~~
-* Added EIA-861 final release data from 2024. See :issue:`4648` and PR :pr:`4672`.
+EPA/CAMD-EIA Crosswalk
+~~~~~~~~~~~~~~~~~~~~~~
 
+* Updated EPA/CAMD-EIA crosswalk through 2024. See PR :pr:`4749`.
 
 EPACEMS
 ~~~~~~~
