@@ -40,8 +40,8 @@ from pudl.metadata.enums import (
     NERC_REGIONS,
     PLANT_PARTS,
     RELIABILITY_STANDARDS,
-    REVENUE_CLASSES,
     REVENUE_CLASSES_EIA176,
+    REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
     SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
@@ -1222,8 +1222,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "customer_class": {
         "type": "string",
         "description": (
-            "Source of revenue: whether revenue originates from gas owned directly by the "
-            "operator (sales) or gas transported by the operator (transport).."
+            "High level categorization of customer type (e.g., commercial, residential)."
         ),
         "constraints": {"enum": CUSTOMER_CLASSES},
     },
@@ -6162,8 +6161,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "revenue": {"type": "number", "description": "Amount of revenue.", "unit": "USD"},
     "revenue_class": {
         "type": "string",
-        "description": f"Source of revenue: {REVENUE_CLASSES}",
-        "constraints": {"enum": REVENUE_CLASSES},
+        "description": "Source of revenue (e.g., retail sales, transmission).",
+        "constraints": {"enum": REVENUE_CLASSES_EIA861},
     },
     "revenue_per_kwh": {
         "type": "number",
@@ -8542,8 +8541,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "customer_class": {
             "description": (
-                "High level categorization of customer type: "
-                "commercial, electric_power, industrial, residential, vehicle_fuel, or other"
+                "High level categorization of customer type (e.g., commercial, residential)."
             ),
             "type": "string",
             "constraints": {
@@ -8552,7 +8550,8 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "revenue_class": {
             "type": "string",
-            "description": f"Source of revenue: {REVENUE_CLASSES_EIA176}",
+            "description": "Source of revenue: whether revenue originates from gas owned directly by the "
+            "operator (sales) or gas transported by the operator (transport).",
             "constraints": {"enum": REVENUE_CLASSES_EIA176},
         },
     },

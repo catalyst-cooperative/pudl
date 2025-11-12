@@ -198,7 +198,7 @@ TECH_CLASSES: list[str] = [
     "wind",
 ]
 
-REVENUE_CLASSES: list[str] = [
+REVENUE_CLASSES_EIA861: list[str] = [
     "credits_or_adjustments",
     "delivery_customers",
     "other",
