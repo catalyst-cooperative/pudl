@@ -252,19 +252,19 @@ def test_description_compliance(resource_id):
     assert isinstance(resource_dict["description"], dict), (
         f"""Table {resource_id} is listed as description-compliant in metadata_test.py, but the "description" key is not a dictionary. (In theory pydantic should have screamed about that before you got this far)"""
     )
-    builder = ResourceDescriptionBuilder(
+    resolved = ResourceDescriptionBuilder(
         resource_id=resource_id, settings=resource_dict
-    )
+    ).build()
     name_parse = {
-        "layer_code": builder.layer.type,
-        "source_code": builder.source.type,
+        "layer_code": resolved.layer.type,
+        "source_code": resolved.source.type,
         "table_type_code": (
-            (builder.summary.type.split("[")[0] != "None")
-            or len(builder.summary.description) > 0
+            (resolved.summary.type.split("[")[0] != "None")
+            or len(resolved.summary.description) > 0
         ),
         "timeseries_resolution_code": (
-            (not builder.summary.type.startswith("timeseries"))
-            or len(builder.summary.type.split("[")[1]) > 1
+            (not resolved.summary.type.startswith("timeseries"))
+            or len(resolved.summary.type.split("[")[1]) > 1
         ),
     }
     for key, has_value in name_parse.items():
@@ -274,7 +274,7 @@ def test_description_compliance(resource_id):
     # todo: layer-based checks
     # todo: asset_type-based checks
     # pk-based checks
-    has_pk = builder.primary_key.type == "True"
+    has_pk = resolved.primary_key.type == "True"
     if CHECK_DESCRIPTION_PRIMARY_KEYS and not has_pk:  # pragma: no cover
         assert "additional_primary_key_text" in resource_dict["description"], (
             f"""Table {resource_id} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "additional_primary_key_text" to briefly describe what each record represents and, if needed, why no primary key is possible."""
