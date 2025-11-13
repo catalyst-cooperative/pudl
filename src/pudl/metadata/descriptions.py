@@ -183,7 +183,7 @@ class ResolvedResourceDescription:
     There are six description components:
 
     * summary
-    * availability [under development]
+    * availability
     * layer
     * source
     * primary_key
@@ -295,16 +295,16 @@ class ResourceDescriptionBuilder:
         """Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units."""
         availability = max(source.get_temporal_partitions() or [None])
         if availability is None:
-            # source availability isn't temporal so we don't know how to offset it
+            # source availability isn't temporal so we don't care about it for offset purposes
             return availability
         availability = str(availability)
         if offset == 0:
-            # we're not offsettting the source availability
+            # we're not offsetting the source availability
             return availability
         for partition_key in source.working_partitions:
             if partition_key in partition_offsets:
                 return partition_offsets[partition_key](availability, offset)
-        # no partition key had "year" in it
+        # we don't have an offset function configured for this key
         raise AssertionError(
             f"Need to offset temporal availability ({availability}) from {source.name} but couldn't find a partition key we know how to offset"
         )
