@@ -6,6 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Self
 
+import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from pudl.metadata.sources import SOURCES
@@ -98,6 +99,34 @@ timeseries_resolution_fragments: dict = {
     "hourly": "Hourly",
 }
 """More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources."""
+
+
+def half_year_offset(partition: str, offset: int) -> str:
+    """Offset a half_year partition by the specified number of half_years."""
+    yr, _, half = partition.partition("half")
+    offset = pd.Timestamp(
+        year=int(yr), month=(int(half) - 1) * 6 + 1, day=1
+    ) + pd.DateOffset(months=offset * 6)
+    return f"{offset.year}half{offset.month / 6 + 1:.0f}"
+
+
+partition_offsets: dict[str, Callable] = {
+    "years": lambda partition, offset: str(
+        pd.Period(pd.Timestamp(partition) + pd.DateOffset(years=offset), freq="Y")
+    ).lower(),
+    "year_quarters": lambda partition, offset: str(
+        pd.Period(pd.Timestamp(partition) + pd.DateOffset(months=offset * 3), freq="Q")
+    ).lower(),
+    "half_years": half_year_offset,
+    "year_months": lambda partition, offset: str(
+        pd.Period(pd.Timestamp(partition) + pd.DateOffset(months=offset), freq="M")
+    ).lower(),
+}
+"""Lookup table for computing offsets of temporal partitions.
+
+Maps each partition key to a function that, given a partition (2026, 2026q3,
+2026half1, 2026-07) and an integer offset, returns the partition ``offset``
+partition-units away from the input partition."""
 
 
 # [jul 2025 kmm] This is a mirror of pudl.metadata.PudlMeta, which can't be included here because it creates a circular import.
@@ -261,6 +290,25 @@ class ResourceDescriptionBuilder:
             },
         )
 
+    @staticmethod
+    def offset_source_availability(source, offset: int) -> str | None:
+        """Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units."""
+        availability = max(source.get_temporal_partitions() or [None])
+        if availability is None:
+            # source availability isn't temporal so we don't know how to offset it
+            return availability
+        availability = str(availability)
+        if offset == 0:
+            # we're not offsettting the source availability
+            return availability
+        for partition_key in source.working_partitions:
+            if partition_key in partition_offsets:
+                return partition_offsets[partition_key](availability, offset)
+        # no partition key had "year" in it
+        raise AssertionError(
+            f"Need to offset temporal availability ({availability}) from {source.name} but couldn't find a partition key we know how to offset"
+        )
+
     @component
     def summary(self, settings, defaults: "ResourceNameComponents") -> ResourceTrait:
         """Compute the summary component (first line) of the resource description.
@@ -316,12 +364,14 @@ class ResourceDescriptionBuilder:
                     [
                         str(avail)
                         for avail in (
-                            # get most recent availability for each source
-                            max(source.get_temporal_partitions() or [None])
+                            self.offset_source_availability(
+                                source, settings.get("availability_offset", 0)
+                            )
                             for source in settings.get("sources")
                         )
+                        # skip sources with weird partitions (inner)
                         if avail is not None
-                    ]  # skip sources with weird partitions (inner)
+                    ]
                     or [None]  # skip sources with weird partitions (outer)
                 ),
                 "Unknown",

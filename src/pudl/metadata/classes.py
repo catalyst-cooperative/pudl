@@ -986,11 +986,9 @@ class DataSource(PudlMeta):
     def get_temporal_partitions(self) -> list:
         """Return a list of temporal partitions encoding the time span covered by the data source."""
         partitions = self.working_partitions
-        for key in ["years", "half_years", "year_quarters"]:
+        for key in ["years", "half_years", "year_quarters", "year_months"]:
             if key in partitions:
                 return partitions[key]
-        if "year_month" in partitions:
-            return [partitions["year_month"]]
         return []
 
     def get_temporal_coverage(self, partitions: dict = None) -> str:
@@ -1250,9 +1248,18 @@ class PudlResourceDescriptor(PudlMeta):
         If None or otherwise left unset, will be filled in with auto warnings only. If
         no auto warnings apply, hides the Usage Warnings section entirely."""
 
+        availability_offset: int = 0
+        """Partition offset of most recent data available from that claimed by the data
+        source.
+
+        Only consulted when ``availability_text`` is None or otherwise unset.
+        Useful in cases where a particular resource relies on a subset of source data that
+        is updated on a slower cadence than most other data in the source."""
+
         availability_text: str | None = None
         """Most recent data available. If None or otherwise left unset, will be filled
-        in with the most recent partition listed for the data source.
+        in with the most recent partition listed for the data source, optionally offset
+        by ``availability_offset`` partitions.
 
         Generally only set when one table from a data source has been discontinued, but
         the remaining tables continue being updated."""

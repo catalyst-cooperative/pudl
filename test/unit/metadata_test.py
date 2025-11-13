@@ -13,7 +13,7 @@ from pudl.metadata.classes import (
     Resource,
     SnakeCase,
 )
-from pudl.metadata.descriptions import ResourceDescriptionBuilder
+from pudl.metadata.descriptions import ResourceDescriptionBuilder, partition_offsets
 from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resources import RESOURCE_METADATA
@@ -232,6 +232,47 @@ def test_frictionless_data_package_resources_populated():
         )
 
 
+@pytest.mark.parametrize(
+    "partition_key,period,offset,expected",
+    [
+        ("years", "2026", 0, "2026"),
+        ("years", "2026", 1, "2027"),
+        ("years", "2026", -1, "2025"),
+        ("year_quarters", "2026q1", 0, "2026q1"),
+        ("year_quarters", "2026q1", 1, "2026q2"),
+        ("year_quarters", "2026q1", -1, "2025q4"),
+        ("half_years", "2026half1", 0, "2026half1"),
+        ("half_years", "2026half1", 1, "2026half2"),
+        ("half_years", "2026half1", -1, "2025half2"),
+        ("year_months", "2026-01", 0, "2026-01"),
+        ("year_months", "2026-01", 1, "2026-02"),
+        ("year_months", "2026-01", -1, "2025-12"),
+    ],
+)
+def test_availability_offsets(partition_key, period, offset, expected):
+    """Check edge cases for temporal partition arithmetic."""
+    assert partition_offsets[partition_key](period, offset) == expected
+
+
+@pytest.mark.parametrize("source_id", sorted(r for r in SOURCES))
+def test_source_availability(source_id):
+    """Check that all sources have a reasonable temporal availability.
+
+    Sources with only non-temporal partitions will evaluate to None; all others
+    should show after 1990.
+
+    We check this because if you get the data types wrong in pd.Timestamp, it
+    spits out 1970 instead of the proper year.
+    """
+    src = DataSource.from_id(source_id)
+    availability = ResourceDescriptionBuilder.offset_source_availability(src, 0)
+    # Checking the lexical ordering of strings using > is a bit brittle, but has
+    # the bonus of handling years, year quarters, half years, and year months.
+    # If this breaks it probably means we're running on a machine that orders
+    # strings by weird criteria -- we can revisit this at that time.
+    assert (availability is None) or (availability > "1990")
+
+
 # TODO: flip this to true after we do the second pass to set description_primary_key
 # everywhere that needs it
 CHECK_DESCRIPTION_PRIMARY_KEYS = False
@@ -249,8 +290,9 @@ CHECK_DESCRIPTION_PRIMARY_KEYS = False
 )
 def test_description_compliance(resource_id):
     resource_dict = RESOURCE_METADATA[resource_id]
-    assert isinstance(resource_dict["description"], dict), (
-        f"""Table {resource_id} must have a dictionary under the "description" key, but instead I found a {type(resource_dict["description"])}"""
+    description_dict = resource_dict["description"]
+    assert isinstance(description_dict, dict), (
+        f"""Table {resource_id} must have a dictionary under the "description" key, but instead I found a {type(description_dict)}"""
     )
     resolved = ResourceDescriptionBuilder(
         resource_id=resource_id,
@@ -279,6 +321,13 @@ def test_description_compliance(resource_id):
     # pk-based checks
     has_pk = resolved.primary_key.type == "True"
     if CHECK_DESCRIPTION_PRIMARY_KEYS and not has_pk:  # pragma: no cover
-        assert "additional_primary_key_text" in resource_dict["description"], (
+        assert "additional_primary_key_text" in description_dict, (
             f"""Table {resource_id} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "additional_primary_key_text" to briefly describe what each record represents and, if needed, why no primary key is possible."""
         )
+
+    # availability-based checks
+    assert ("availability_text" not in description_dict) or (
+        "availability_offset" not in description_dict
+    ), (
+        f"Table {resource_id} has set both availability_text and availability_offset; you can't have both."
+    )
