@@ -6,6 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Self
 
+import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from pudl.metadata.sources import SOURCES
@@ -93,6 +94,34 @@ timeseries_resolution_fragments: dict = {
 """More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources."""
 
 
+def half_year_offset(partition: str, offset: int) -> str:
+    """Offset a half_year partition by the specified number of half_years."""
+    yr, _, half = partition.partition("half")
+    offset = pd.Timestamp(
+        year=int(yr), month=(int(half) - 1) * 6 + 1, day=1
+    ) + pd.DateOffset(months=offset * 6)
+    return f"{offset.year}half{offset.month / 6 + 1:.0f}"
+
+
+partition_offsets: dict[str, Callable] = {
+    "years": lambda partition, offset: str(
+        pd.Period(pd.Timestamp(partition) + pd.DateOffset(years=offset), freq="Y")
+    ).lower(),
+    "year_quarters": lambda partition, offset: str(
+        pd.Period(pd.Timestamp(partition) + pd.DateOffset(months=offset * 3), freq="Q")
+    ).lower(),
+    "half_years": half_year_offset,
+    "year_months": lambda partition, offset: str(
+        pd.Period(pd.Timestamp(partition) + pd.DateOffset(months=offset), freq="M")
+    ).lower(),
+}
+"""Lookup table for computing offsets of temporal partitions.
+
+Maps each partition key to a function that, given a partition (2026, 2026q3,
+2026half1, 2026-07) and an integer offset, returns the partition ``offset``
+partition-units away from the input partition."""
+
+
 # [jul 2025 kmm] This is a mirror of pudl.metadata.PudlMeta, which can't be included here because it creates a circular import.
 # Collecting all the description mechanisms in one file seemed more important than a few lines of duplication, but if
 # PudlMeta changes, we may wish to apply the same change here.
@@ -147,6 +176,7 @@ class ResolvedResourceDescription:
     There are six description components:
 
     * summary
+    * availability
     * layer
     * source
     * primary_key
@@ -162,6 +192,7 @@ class ResolvedResourceDescription:
 
     resource_id: str
     summary: ResourceTrait
+    availability: ResourceTrait
     layer: ResourceTrait
     source: ResourceTrait
     primary_key: ResourceTrait
@@ -175,12 +206,13 @@ class ResolvedResourceDescription:
         """
         return f"""
 {self.resource_id}
-   Summary [{self.summary.type}]: {self.summary.description}
-     Layer [{self.layer.type}]: {self.layer.description}
-    Source [{self.source.type}]: {self.source.description}
-        PK [{self.primary_key.type}]: {self.primary_key.description}
-  Warnings [{len(self.usage_warnings)}]:{"\n\t".join([""] + [f"{uw.type} - {uw.description}" for uw in self.usage_warnings])}
-   Details [{self.details.type}]:
+     Summary [{self.summary.type}]: {self.summary.description}
+Availability [{self.availability.type}]: {self.availability.description}
+       Layer [{self.layer.type}]: {self.layer.description}
+      Source [{self.source.type}]: {self.source.description}
+          PK [{self.primary_key.type}]: {self.primary_key.description}
+    Warnings [{len(self.usage_warnings)}]:{"\n\t".join([""] + [f"{uw.type} - {uw.description}" for uw in self.usage_warnings])}
+     Details [{self.details.type}]:
 {self.details.description}
 """
 
@@ -251,6 +283,25 @@ class ResourceDescriptionBuilder:
             },
         )
 
+    @staticmethod
+    def offset_source_availability(source, offset: int) -> str | None:
+        """Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units."""
+        availability = max(source.get_temporal_partitions() or [None])
+        if availability is None:
+            # source availability isn't temporal so we don't care about it for offset purposes
+            return availability
+        availability = str(availability)
+        if offset == 0:
+            # we're not offsetting the source availability
+            return availability
+        for partition_key in source.working_partitions:
+            if partition_key in partition_offsets:
+                return partition_offsets[partition_key](availability, offset)
+        # we don't have an offset function configured for this key
+        raise AssertionError(
+            f"Need to offset temporal availability ({availability}) from {source.name} but couldn't find a partition key we know how to offset"
+        )
+
     @component
     def summary(self, settings, defaults: "ResourceNameComponents") -> ResourceTrait:
         """Compute the summary component (first line) of the resource description.
@@ -294,6 +345,33 @@ class ResourceDescriptionBuilder:
             type=f"{table_type_code}[{timeseries_resolution_code}]",
             # glue all the component parts into a single string, skipping any missing bits.
             description=" ".join(c for c in components if c is not None),
+        )
+
+    @component
+    def availability(self, settings, defaults) -> ResourceTrait:
+        """Compute the availability component of the resource description."""
+        most_recent_data = str(
+            first_non_none(
+                settings.get("availability_text"),
+                min(  # if availability differs between sources, use the *least* recent among them
+                    [
+                        str(avail)
+                        for avail in (
+                            self.offset_source_availability(
+                                source, settings.get("availability_offset", 0)
+                            )
+                            for source in settings.get("sources")
+                        )
+                        # skip sources with weird partitions (inner)
+                        if avail is not None
+                    ]
+                    or [None]  # skip sources with weird partitions (outer)
+                ),
+                "Unknown",
+            )
+        )
+        return ResourceTrait(
+            type=str(most_recent_data != "Unknown"), description=most_recent_data
         )
 
     def _generic_component(
