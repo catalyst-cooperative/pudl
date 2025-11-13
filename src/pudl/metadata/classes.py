@@ -17,6 +17,7 @@ import jinja2
 import numpy as np
 import pandas as pd
 import pandera.pandas as pr
+import polars as pl
 import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
@@ -45,6 +46,7 @@ from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
     CONTRIBUTORS,
     FIELD_DTYPES_PANDAS,
+    FIELD_DTYPES_POLARS,
     FIELD_DTYPES_PYARROW,
     FIELD_DTYPES_SQL,
     LICENSES,
@@ -629,6 +631,10 @@ class Field(PudlMeta):
     def from_id(cls, x: str) -> "Field":
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
+
+    def to_polars_dtype(self) -> pl.DataType:
+        """Return polars data type."""
+        return FIELD_DTYPES_POLARS[self.type]
 
     def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
         """Return Pandas data type.
@@ -1463,6 +1469,7 @@ class Resource(PudlMeta):
     etl_group: (
         Literal[
             "censusdp1tract",
+            "eia176",
             "eia860",
             "eia861",
             "eia861_disabled",
@@ -1688,6 +1695,10 @@ class Resource(PudlMeta):
         if self.schema.primary_key is not None:
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
+
+    def to_polars_dtypes(self) -> dict[str, pl.DataType]:
+        """Return Polars data type of each field by field name."""
+        return {f.name: f.to_polars_dtype() for f in self.schema.fields}
 
     def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
         """Return Pandas data type of each field by field name.

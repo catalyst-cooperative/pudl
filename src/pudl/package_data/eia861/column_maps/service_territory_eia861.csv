@@ -24,3 +24,4 @@ year_index,report_year,utility_id_eia,utility_name_eia,short_form,state,county,e
 2021,0,1,2,3,4,5,-1
 2022,0,1,2,3,4,5,-1
 2023,0,1,2,3,4,5,-1
+2024,data_year,utility_number,utility_name,short_form,state,county,

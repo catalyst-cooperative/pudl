@@ -31,16 +31,6 @@ integration, don't hesitate to `open an issue on Github
 <https://github.com/catalyst-cooperative/pudl/issues>`__ requesting the data and
 explaining why it would be useful.
 
-.. _data-eia176:
-
-EIA Form 176
-^^^^^^^^^^^^
-
-EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__, also
-known as the **Annual Report of Natural and Supplemental Gas Supply and Disposition**,
-describes the origins, suppliers, and disposition of natural gas on a yearly and state
-by state basis. EIA Forms 191 and 757a come in the same bulk data download and also
-pertain to natural gas.
 
 .. _data-ferceqr:
 

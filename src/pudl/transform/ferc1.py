@@ -5328,7 +5328,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         There are instances of utilities that reported multiple values for several
         earnings types for a specific year (utility_id_ferc1 68 in 1998 &
         utility_id_ferc1 296 in 2015). We are taking the largest value reported and
-        dropping the rest. There very well could be a better strategey here, but there
+        dropping the rest. There very well could be a better strategy here, but there
         are only 25 records that have this problem, so we've going with this.
         """
         pks = PUDL_PACKAGE.get_resource(self.table_id.value).schema.primary_key

@@ -32,23 +32,27 @@ jobs:
           predicate-quantifier: "every"
           filters: |
             code:
-              - '!docker/*'
-              - '!docs/**.rst'
-              - '!docs/**.md'
-              - '!docs/**.pdf'
-              - '!docs/**.html'
-              - '!docs/**.rst.jinja'
-              - '!docs/**.bib'
+              - '!dbt/seeds/etl_full_row_counts.csv'
+              - '!docker/**'
+              - '!docs/**'
               - '!.github/**.md'
               - '!.github/FUNDING.yml'
               - '!.github/actionlint.yml'
               - '!.github/dependabot.yml'
               - '!.github/release.yml'
+              - '!.github/ISSUE_TEMPLATE/*.yml'
+              - '!AGENTS.md'
               - '!README.rst'
               - '!CONTRIBUTING.rst'
               - '!LICENSE.txt'
               - '!CITATION.cff'
               - '!.zenodo.json'
+              - '!**.gitignore'
+              - '!.git-blame-ignore-revs'
+              - '!.pre-commit-config.yaml'
+              - '!.readthedocs.yaml'
+              - '!.mypy.ini'
+              - '!test/unit/**'
       - name: print out components
         run: |
           echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
