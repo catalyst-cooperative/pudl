@@ -21,7 +21,7 @@ from pudl.metadata.enums import (
     FUEL_CLASSES,
     NERC_REGIONS,
     RELIABILITY_STANDARDS,
-    REVENUE_CLASSES,
+    REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
     TECH_CLASSES,
 )
@@ -2323,7 +2323,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
         transformed_od_rev,
         df_name="Operational Data Revenue",
         idx_cols=idx_cols,
-        class_list=REVENUE_CLASSES,
+        class_list=REVENUE_CLASSES_EIA861,
         class_type="revenue_class",
     )
 
