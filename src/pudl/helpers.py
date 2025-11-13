@@ -976,7 +976,7 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
         month_year_date.append((month_col, year_col, date_col))
 
     for month_col, year_col, date_col in month_year_date:
-        date_mask = df[[year_col, date_col]].notna().all(axis="columns")
+        date_mask = df[[year_col, month_col]].notna().all(axis="columns")
         years = df.loc[date_mask, year_col]
         months = df.loc[date_mask, month_col]
 
