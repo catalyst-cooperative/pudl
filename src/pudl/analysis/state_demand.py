@@ -177,65 +177,58 @@ def out_ferc714__hourly_estimated_state_demand(
         LazyFrame with columns ``state_id_fips``, ``datetime_utc``, ``demand_mwh``, and
         (if ``state_totals`` was provided) ``scaled_demand_mwh``.
     """
-    # Get config
-    mean_overlaps = context.op_config["mean_overlaps"]
 
-    # Call necessary functions
-    count_assign_ferc714 = county_assignments_ferc714(
-        out_ferc714__respondents_with_fips
-    )
-    counties = census_counties(out_censusdp1tract__counties)
-    total_sales_eia861 = total_state_sales_eia861(core_eia861__yearly_sales)
+    def prepare_county_respondents_with_demand(
+        county_assign_ferc714: pd.DataFrame,
+        out_censusdp1tract__counties: pd.DataFrame,
+        hourly_demand: pl.LazyFrame,
+    ) -> pl.LazyFrame:
+        """Connect respondent- and state-county assignments to additional county data, keeping only respondent-years with nonzero demand."""
+        with_demand = (
+            hourly_demand.group_by(["respondent_id_ferc714", "year"])
+            .agg(pl.col("demand_imputed_pudl_mwh").sum())
+            .filter(pl.col("demand_imputed_pudl_mwh") > 0)
+            .select(["respondent_id_ferc714", "year"])
+        )
+        counties = (
+            pl.from_pandas(census_counties(out_censusdp1tract__counties))
+            .lazy()
+            .with_columns(state_id_fips=pl.col("county_id_fips").str.head(2))
+        )
+        return (
+            pl.from_pandas(county_assign_ferc714)
+            .lazy()
+            .join(with_demand, on=["respondent_id_ferc714", "year"])
+            .join(counties, on=["county_id_fips"])
+        )
 
-    # Pre-compute state-county assignments
-    counties["state_id_fips"] = counties["county_id_fips"].str[:2]
-    fields = ["demand_mwh"]
+    def weight_counties(df: pl.LazyFrame) -> pl.LazyFrame:
+        """Weight counties by population fraction within each respondent-year.
 
-    # Switch to polars for the gnarly bits
-    out_ferc714__hourly_planning_area_demand = (
-        out_ferc714__hourly_planning_area_demand.with_columns(
-            year=pl.col("datetime_utc").dt.year()
+        TODO: Use more county attributes in the calculation of their weights.
+        """
+        respondent_population = (
+            df.group_by(["respondent_id_ferc714", "year"])
+            .agg(respondent_population=pl.col("population").sum())
+            .select(["respondent_id_ferc714", "year", "respondent_population"])
         )
-    )
-    # Pre-compute list of respondent-years with demand
-    with_demand = (
-        out_ferc714__hourly_planning_area_demand.group_by(
-            ["respondent_id_ferc714", "year"]
+        return (
+            df.join(
+                respondent_population,
+                on=["respondent_id_ferc714", "year"],
+                how="left",
+            )
+            .with_columns(
+                weight=pl.col("population") / pl.col("respondent_population"),
+            )
+            .drop("respondent_population")
         )
-        .agg(pl.col("demand_imputed_pudl_mwh").sum())
-        .filter(pl.col("demand_imputed_pudl_mwh") > 0)
-        .select(["respondent_id_ferc714", "year"])
-    )
 
-    df = (
-        # Merge counties with respondent- and state-county assignments,
-        # keeping only respondent-years with nonzero demand
-        pl.from_pandas(count_assign_ferc714)
-        .lazy()
-        .join(with_demand, on=["respondent_id_ferc714", "year"])
-        .join(pl.from_pandas(counties).lazy(), on=["county_id_fips"])
-    )
-    respondent_population = (
-        df.group_by(["respondent_id_ferc714", "year"])
-        .agg(respondent_population=pl.col("population").sum())
-        .select(["respondent_id_ferc714", "year", "respondent_population"])
-    )
-    df = (
-        df.join(
-            respondent_population,
-            on=["respondent_id_ferc714", "year"],
-            how="left",
-        )
-        .with_columns(
-            # weight counties by population fraction within each respondent-year
-            # TODO: Use more county attributes in the calculation of their weights
-            weight=pl.col("population") / pl.col("respondent_population"),
-        )
-        .drop("respondent_population")
-    )
-    if mean_overlaps:
-        # Normalize county weights by county occurrences (by year)
-        df = (
+    def normalize_overlaps(df: pl.LazyFrame) -> pl.LazyFrame:
+        """Optionally normalize county weights by county occurrences (by year)."""
+        if not context.op_config["mean_overlaps"]:
+            return df
+        return (
             df.join(
                 df.groupby(["county_id_fips", "year"]).agg(count=pl.len()),
                 on=["county_id_fips", "year"],
@@ -243,28 +236,39 @@ def out_ferc714__hourly_estimated_state_demand(
             .with_columns(weight=pl.col("weight") / pl.col("count"))
             .drop("count")
         )
-    df = (
-        # distribute respondent-year demand among states by weight
-        df.group_by(["respondent_id_ferc714", "year", "state_id_fips"])
-        .agg(pl.col("weight").sum())
-        .select(["respondent_id_ferc714", "year", "state_id_fips", "weight"])
-        .join(
-            out_ferc714__hourly_planning_area_demand,
-            on=["respondent_id_ferc714", "year"],
+
+    def distribute_demand_to_states(
+        df: pl.LazyFrame,
+        hourly_demand: pl.LazyFrame,
+    ) -> pl.LazyFrame:
+        """Distribute respondent-year demand among states by weight."""
+        return (
+            df.group_by(["respondent_id_ferc714", "year", "state_id_fips"])
+            .agg(pl.col("weight").sum())
+            .select(["respondent_id_ferc714", "year", "state_id_fips", "weight"])
+            .join(
+                hourly_demand,
+                on=["respondent_id_ferc714", "year"],
+            )
+            .with_columns(
+                demand_mwh=pl.col("demand_imputed_pudl_mwh") * pl.col("weight"),
+            )
+            .drop("demand_imputed_pudl_mwh")
         )
-        .with_columns(
-            demand_mwh=pl.col("demand_imputed_pudl_mwh") * pl.col("weight"),
-        )
-        .drop("demand_imputed_pudl_mwh")
-    )
-    if total_sales_eia861 is not None:
-        # scale estimates using state sales
-        df = df.join(
+
+    def rescale_using_sales(
+        df: pl.LazyFrame,
+        state_sales: pd.DataFrame | None,
+    ) -> pl.LazyFrame:
+        """Optionally scale estimates using state sales data."""
+        if state_sales is None:
+            return df
+        return df.join(
             # compute scale factor between current and target state totals
             df.group_by(["state_id_fips", "year"])
             .agg(pl.col("demand_mwh").sum())
             .join(
-                pl.from_pandas(total_sales_eia861).lazy(),
+                pl.from_pandas(state_sales).lazy(),
                 on=["state_id_fips", "year"],
                 suffix="_sales",
             )
@@ -272,11 +276,33 @@ def out_ferc714__hourly_estimated_state_demand(
             .select(["state_id_fips", "year", "scale"]),
             on=["state_id_fips", "year"],
         ).with_columns(scaled_demand_mwh=pl.col("demand_mwh") * pl.col("scale"))
-        fields.append("scaled_demand_mwh")
-    df = (
-        # sum by state-hour to yield hourly estimates
-        df.group_by(["state_id_fips", "datetime_utc"])
-        .agg(*[pl.col(x).sum() for x in fields])
-        .select(["state_id_fips", "datetime_utc"] + fields)
+
+    # demand outputs depend on whether we're doing sales adjustments
+    demand_cols = ["demand_mwh"]
+    if core_eia861__yearly_sales is not None:
+        demand_cols.append("scaled_demand_mwh")
+
+    # Switch to polars for the gnarly bits
+    hourly_demand = out_ferc714__hourly_planning_area_demand.with_columns(
+        year=pl.col("datetime_utc").dt.year()
     )
-    return df
+
+    estimated_state_demand = (
+        prepare_county_respondents_with_demand(
+            county_assignments_ferc714(out_ferc714__respondents_with_fips),
+            out_censusdp1tract__counties,
+            hourly_demand,
+        )
+        .pipe(weight_counties)
+        .pipe(normalize_overlaps)
+        .pipe(distribute_demand_to_states, hourly_demand=hourly_demand)
+        .pipe(
+            rescale_using_sales,
+            state_sales=total_state_sales_eia861(core_eia861__yearly_sales),
+        )
+        # sum by state-hour to yield hourly estimates
+        .group_by(["state_id_fips", "datetime_utc"])
+        .agg(*[pl.col(x).sum() for x in demand_cols])
+        .select(["state_id_fips", "datetime_utc"] + demand_cols)
+    )
+    return estimated_state_demand
