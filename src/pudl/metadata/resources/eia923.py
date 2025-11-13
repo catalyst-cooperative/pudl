@@ -5,6 +5,7 @@ from typing import Any
 TABLE_DESCRIPTIONS: dict[str, dict[str, Any]] = {
     "_core_eia923__yearly_fgd_operation_maintenance": {
         "additional_summary_text": "flue gas desulfurization (FGD) operation and maintenance expenses at generation facilities.",
+        "availability_offset": -1,
         "additional_source_text": "(Schedule 8C)",
         "usage_warnings": ["irregular_years"],
         "additional_details_text": (
@@ -18,6 +19,7 @@ years. Once this table has been harvested, it will be removed from the PUDL data
     },
     "_core_eia923__monthly_cooling_system_information": {
         "additional_summary_text": "cooling system information at generation facilities - mainly water volumes and temperatures.",
+        "availability_offset": -1,
         "additional_source_text": "(Schedule 8D)",
         "usage_warnings": ["irregular_years"],
         "additional_details_text": (
@@ -249,7 +251,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "out_eia923__yearly_boiler_fuel": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"]
+        | {
+            "availability_offset": -1,
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -438,7 +443,10 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__yearly_fuel_receipts_costs": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"]
+        | {
+            "availability_offset": -1,
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -561,7 +569,10 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__yearly_generation": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"]
+        | {
+            "availability_offset": -1,
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -646,7 +657,10 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__yearly_generation_fuel_combined": {
-        "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
+        "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"]
+        | {
+            "availability_offset": -1,
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -867,6 +881,7 @@ and consumption is the net generation."""
                 "by-products reported by thermoelectric power "
                 "plants with total steam turbine capacity of 100 megawatts or greater."
             ),
+            "availability_offset": -1,
             "additional_source_text": "(Schedule 8A)",
             "additional_details_text": (
                 "All by-products other than steam sales are reported in thousand tons and "
@@ -908,6 +923,7 @@ and consumption is the net generation."""
                 "thermoelectric power plants with total steam turbine capacity of 100 "
                 "megawatts or greater and that produced combustion by-products during the reporting year."
             ),
+            "availability_offset": -1,
             "additional_source_text": "(Schedule 8B)",
             "additional_details_text": (
                 "Cost data must be entered for all entries on Schedule 8A. "
