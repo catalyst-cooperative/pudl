@@ -63,7 +63,7 @@ jobs:
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
               - '!.mypy.ini'
-              - '!test/unit/*'
+              - '!test/unit/**'
       - name: print out components
         run: |
           echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
