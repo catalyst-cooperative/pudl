@@ -33,19 +33,8 @@ jobs:
           filters: |
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
-              - '!docker/*'
-              - '!docs/conf.py'
-              - '!docs/**.ico'
-              - '!docs/**.css'
-              - '!docs/**.csv'
-              - '!docs/**.png'
-              - '!docs/**.txt'
-              - '!docs/**.rst'
-              - '!docs/**.md'
-              - '!docs/**.pdf'
-              - '!docs/**.html'
-              - '!docs/**.rst.jinja'
-              - '!docs/**.bib'
+              - '!docker/**'
+              - '!docs/**
               - '!.github/**.md'
               - '!.github/FUNDING.yml'
               - '!.github/actionlint.yml'
