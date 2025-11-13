@@ -22,6 +22,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
         f"out_eia923__{freq}_generation_fuel_by_generator_energy_source": {
             "description": {
                 "additional_summary_text": "of estimated net generation and fuel consumption associated with each combination of generator, energy source, and prime mover.",
+                "layer_code": "out_narrow",
                 "additional_source_text": "(Schedule 3)",
                 "usage_warnings": [
                     "estimated_values",
@@ -120,6 +121,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "of estimated net generation and fuel consumption for each generator, "
                     "associated with each combination of generator, energy source, prime mover, and owner."
                 ),
+                "layer_code": "out_narrow",
                 "additional_source_text": "(Schedule 3)",
                 "usage_warnings": [
                     "estimated_values",

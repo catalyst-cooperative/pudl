@@ -139,6 +139,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
     "out_eia__yearly_assn_plant_parts_plant_gen": {
         "description": {
             "additional_summary_text": "plant parts (identified as ``record_id_eia``) and  'plant_gen' records (identified as ``record_id_eia_plant_gen``) from the :ref:`out_eia__yearly_plant_parts` table.",
+            "layer_code": "out_narrow",
             "usage_warnings": ["aggregation_hazard"],
             "additional_details_text": """
 The purpose of this table is to help determine what generator records are associated

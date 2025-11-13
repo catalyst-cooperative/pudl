@@ -1184,7 +1184,9 @@ class PudlResourceDescriptor(PudlMeta):
         timeseries and this value is None or otherwise left unset, will be filled in
         with a default resolution parsed from the resource id string."""
 
-        layer_code: Literal["raw", "_core", "core", "out", "test"] | None = None
+        layer_code: (
+            Literal["raw", "_core", "core", "out", "out_narrow", "test"] | None
+        ) = None
         """Indicates the degree of processing applied to the data in this resource.  If
         None or otherwise left unset, will be filled in with a default layer parsed from
         the resource id string."""
