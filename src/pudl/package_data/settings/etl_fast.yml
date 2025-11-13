@@ -55,7 +55,7 @@ datasets:
     eia861:
       # These years must overlap with FERC-714 to allow assets that depend on both to
       # be materialized.
-      years: [2020, 2023]
+      years: [2020, 2024]
     eia930:
       half_years: ["2024half2"]
     eiaaeo:

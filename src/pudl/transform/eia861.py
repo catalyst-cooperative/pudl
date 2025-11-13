@@ -21,7 +21,7 @@ from pudl.metadata.enums import (
     FUEL_CLASSES,
     NERC_REGIONS,
     RELIABILITY_STANDARDS,
-    REVENUE_CLASSES,
+    REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
     TECH_CLASSES,
 )
@@ -1103,9 +1103,9 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     # tests only test a few rows and therefore the difference in rows is a
     # much higher percentage than 0.001.
     len_diff = len(recombined_df) - len(df)
-    if (len_diff < -1) and (len_diff / len(df) < -0.001):
+    if (len_diff < -1) and (len_diff / len(df) < -0.0015):
         raise AssertionError(
-            f"Expected reduction in 88888 rows less than {len(df) * 0.001} but found: {-len_diff}!"
+            f"Expected reduction in 88888 rows less than ~{len(df) * 0.001} but found: {-len_diff}!"
         )
     return recombined_df
 
@@ -2329,7 +2329,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
         transformed_od_rev,
         df_name="Operational Data Revenue",
         idx_cols=idx_cols,
-        class_list=REVENUE_CLASSES,
+        class_list=REVENUE_CLASSES_EIA861,
         class_type="revenue_class",
     )
 

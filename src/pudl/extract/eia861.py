@@ -38,16 +38,21 @@ class Extractor(excel.ExcelExtractor):
 
     def process_raw(self, df: pd.DataFrame, page: str, **partition):
         """Rename columns with location."""
-        column_map_numeric = self._metadata.get_column_map(page, **partition)
-        df = df.rename(
-            columns=dict(
-                zip(
-                    df.columns[list(column_map_numeric.keys())],
-                    list(column_map_numeric.values()),
-                    strict=True,
+        # for 2024 we began mapping the columns using the string names instead of
+        # the numeric location.
+        if int(list(partition.values())[0]) >= 2024:
+            df = super().process_raw(df, page, **partition)
+        else:
+            column_map_numeric = self._metadata.get_column_map(page, **partition)
+            df = df.rename(
+                columns=dict(
+                    zip(
+                        df.columns[[int(col) for col in column_map_numeric]],
+                        list(column_map_numeric.values()),
+                        strict=True,
+                    )
                 )
             )
-        )
         self.cols_added = []
         # Eventually we should probably make this a transform
         for col in ["generator_id", "boiler_id"]:
