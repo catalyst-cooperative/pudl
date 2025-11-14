@@ -31,5 +31,27 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "eia",
         "sources": ["eia176"],
         "etl_group": "eia176",
-    }
+    },
+    "core_eia176__yearly_liquefied_natural_gas_inventory": {
+        "description": {
+            "additional_summary_text": "LNG storage volume at end of the year",
+            "additional_source_text": "(Part 5, Lines 8.0-8.2)",
+        },
+        "schema": {
+            "fields": [
+                "operator_id_eia",
+                "report_year",
+                "operating_state",
+                "lng_inventory_volume",
+                "lng_facility_volume",
+                "marine_terminal_facility_volume",
+                "lng_facility_capacity",
+                "marine_terminal_facility_capacity",
+            ],
+            "primary_key": [
+                "operator_id_eia",
+                "report_year",
+            ],
+        },
+    },
 }

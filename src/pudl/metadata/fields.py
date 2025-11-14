@@ -1571,6 +1571,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Land area in square meters.",
         "unit": "square meters",
     },
+    "lng_inventory_volume": {
+        "type": "number",
+        "description": (
+            "Liquefied natural gas (LNG) facility inventory volume "
+            "at end of year. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+    },
+    "lng_inventory_capacity": {
+        "type": "number",
+        "description": (
+            "Liquefied natural gas (LNG) facility inventory capacity, MMcf per day",
+        ),
+        "unit": "MMcf",
+    },
     "water_area": {
         "type": "number",
         "description": "Water area in square meters.",
@@ -4118,6 +4133,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "longitude": {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
+    },
+    "marine_terminal_facility_volume": {
+        "type": "number",
+        "description": (
+            "Marine terminal facility inventory volume "
+            "at end of year. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+    },
+    "marine_terminal_facility_capacity": {
+        "type": "number",
+        "description": ("Marine terminal facility inventory capacity, MMcf per day",),
+        "unit": "MMcf",
     },
     "mains_miles": {
         "type": "number",
@@ -8550,8 +8578,10 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "revenue_class": {
             "type": "string",
-            "description": "Source of revenue: whether revenue originates from gas owned directly by the "
-            "operator (sales) or gas transported by the operator (transport).",
+            "description": (
+                "Source of revenue: whether revenue originates from gas owned directly by the "
+                "operator (sales) or gas transported by the operator (transport)."
+            ),
             "constraints": {"enum": REVENUE_CLASSES_EIA176},
         },
     },
