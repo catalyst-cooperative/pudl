@@ -1469,6 +1469,7 @@ class Resource(PudlMeta):
     etl_group: (
         Literal[
             "censusdp1tract",
+            "eia176",
             "eia860",
             "eia861",
             "eia861_disabled",

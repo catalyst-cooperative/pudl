@@ -2,28 +2,51 @@
 PUDL Release Notes
 =======================================================================================
 
----------------------------------------------------------------------------------------
-v2025.XX.x (2025-MM-DD)
----------------------------------------------------------------------------------------
-This is a regular monthly data release, primarily intended to ensure that PUDL has the
-most up-to-date EIA-860M data. This also includes some performance improvements that aim
-to allow contributors to more easily run the full ETL locally.
+.. _release-v2025.11.0:
 
-Enhancements
-^^^^^^^^^^^^
+---------------------------------------------------------------------------------------
+v2025.11.0 (2025-11-13)
+---------------------------------------------------------------------------------------
+
+This is a quarterly PUDL data release, and includes final 2024 data for a number of
+annually reported EIA forms, as well as quarterly updates to data sources that are
+released more continuously, like EIA-930, bulk EIA electricity API data, EPA CEMS hourly
+emissions and EIA-860M. We're also beginning to integrate natural gas data, and have
+made some performance improvements that will hopefully make it easier for contributors
+run the full ETL locally. See below for all the details.
+
+New Data
+^^^^^^^^
+
+EIA-176
+~~~~~~~
+
+Thanks to open source contributions from `SwitchBox <https://switch.box>`__ and funding
+from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems>`__
+that helps us support outside contributors, we're beginning to integrate natural gas
+data into PUDL, starting with the :doc:`EIA Form 176 <data_sources/eia176>`. Follow the
+sub-issues listed in issue :issue:`4693` to track our progress.
+
+* Added :ref:`core_eia176__yearly_gas_disposition_by_consumer`, which contains cleaned
+  natural gas disposition data from Part 6 of EIA-176. Thanks to :user:`MeadBarrel` for
+  all your work on this. See issues :issue:`4694,4709` and PRs :pr:`4737,4721,4728`.
+
+Discontinued Data
+^^^^^^^^^^^^^^^^^
+
+NREL ATB for Electricity
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sadly, no update to `NREL's Annual Technology Baseline for Electricity
+<https://atb.nrel.gov/electricity/2024/index>`__ has been published for 2025.
+Historically this dataset has been updated in the summer, and would be integrated into
+PUDL's Q3 release. It seems as if it may have been quietly discontinued or at least
+deprioritized. We will continue to check for updates and integrate them if they become
+available. If you know of alternative public sources for this kind of forward-looking
+electricity sector cost projections, please let us know!
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
-
-EIA AEO
-~~~~~~~
-
-* Added projection data from the 2025 AEO. See issue :issue:`4591` and PR :pr:`4631`.
-
-EPACEMS
-~~~~~~~
-
-* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
 
 Census PEP
 ~~~~~~~~~~
@@ -31,35 +54,55 @@ Census PEP
 * Expanded geocodes to include vintages for each year from 2011-2024. See issue
   :issue:`4637` and PR :pr:`4665`.
 
+EIA AEO
+~~~~~~~
+
+* Added economic projections from the 2025 AEO. See issue :issue:`4591` and PR
+  :pr:`4631`.
+
 EIA-860M
 ~~~~~~~~
 
-* Updated EIA-860M with monthly data up through September 2025. See :issue:`4698` and
+* Updated EIA-860M with monthly data through September 2025. See :issue:`4698` and
   :pr:`4706`.
 
+EIA-861
+~~~~~~~
+* Added EIA-861 final release data from 2024. See :issue:`4648` and PR :pr:`4672`.
+
 EIA-923
-~~~~~~~~
-
-* Updated EIA-923 with final release data from 2024 and 2025 data up through August.
-  See PR :pr:`4641`, :issue:`4699` and :pr:`4706`.
-
-EIA 930
 ~~~~~~~
 
-* Updated EIA-930 with data published up through the end of October 2025. See
+* Updated EIA-923 with final release data from 2024 and 2025 data through August.
+  See PR :pr:`4641`, :issue:`4699` and :pr:`4706`.
+
+EIA-930
+~~~~~~~
+
+* Updated EIA-930 with data published through the end of October 2025. See
   :issue:`4719` and PR :pr:`4743`.
 
 EIA Bulk Electricity API
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Updated the EIA Bulk Electricity data to include data published up through
+* Updated the EIA Bulk Electricity API data to include data published through
   the beginning of November 2025. See :issue:`4724` and PR :pr:`4725`.
 
-New Data
-^^^^^^^^
+EPA/CAMD-EIA Crosswalk
+~~~~~~~~~~~~~~~~~~~~~~
 
-Quality of Life Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Updated EPA/CAMD-EIA crosswalk through 2024. See PR :pr:`4749`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated EPA CEMS hourly emissions data through September 2025. See :issue:`4723`
+  and :pr:`4733`.
+
+FERC Form 1
+~~~~~~~~~~~
+
+* Updated FERC Form 1 2024 data to include late respondents. See :pr:`4747`.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -67,9 +110,7 @@ Documentation
 * Added data source pages for:
 
   * :doc:`data_sources/eiaaeo`; see issue :issue:`4371` and PR :pr:`4660`.
-
-New Data Tests & Data Validations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  * :doc:`data_sources/eia176`; see issue :issue:`4696` and PR :pr:`4746`.
 
 Bug Fixes
 ^^^^^^^^^
@@ -77,10 +118,7 @@ Bug Fixes
 * Fixed a bug where the EIA 930 subregion data from 2018-07-01 to 2019-01-01 was
   being dropped. See PR :pr:`4731`.
 
-Deprecations
-^^^^^^^^^^^^
-
-Dev tooling
+Dev Tooling
 ^^^^^^^^^^^
 
 * As part of a performance push, we added some tools for quick memory profiling
@@ -143,7 +181,7 @@ PHMSA
 * The first cleaned table, ``core_phmsagas__distribution_operators`` has been added
   to our PUDL database. Thanks to :user:`seeess1` for all of your work on this!
 
-EIA 923
+EIA-923
 ~~~~~~~
 
 * Thanks to contributions from :user:`alexclippinger`, we've added cleaned EIA923
@@ -182,7 +220,7 @@ Deprecations
 
 * We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
   deployment, but are still working on achieiving feature parity in the new `PUDL Data
-  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
+  Viewer <https://data.catalyst.coop>`__. We have `an epic tracking our progress
   <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
   :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
   main PUDL repo.
@@ -335,10 +373,10 @@ EIA-923
 
 * Added EIA-923 data through May 2025. See :issue:`4516` and :pr:`4538`.
 
-EIA 930
+EIA-930
 ~~~~~~~
 
-* Updated EIA 930 data published up through the beginning of August 2025. See
+* Updated EIA-930 data published up through the beginning of August 2025. See
   :issue:`4517` and PR :pr:`4523`.
 
 EIA Bulk Electricity API
@@ -398,7 +436,7 @@ Quality of Life Improvements
 Bug Fixes
 ^^^^^^^^^
 
-* Fixed bug in how we were labeling the ``data_maturity`` of EIA 923. See issue
+* Fixed bug in how we were labeling the ``data_maturity`` of EIA-923. See issue
   :issue:`4328` and PR :pr:`4392`.
 * Fixed bug in how we were repairing a misfiled EIA code in
   :ref:`core_ferc714__respondent_id`. See issue :issue:`4439` and PR :pr:`4497`.
@@ -469,11 +507,11 @@ v2025.7.0 (2025-07-03)
 ---------------------------------------------------------------------------------------
 
 This release integrates early release annual 2024 data for the EIA Forms 860 and 923,
-as well as fresh EIA 860M monthly data. It also includes a few small bug-fixes, some of
+as well as fresh EIA-860M monthly data. It also includes a few small bug-fixes, some of
 which result in minor changes to the database schema. It also removes the deprecated
 ``PudlTabl`` output management class.
 
-We are experimenting a new **monthly** release schedule for PUDL, to keep the EIA 860M
+We are experimenting a new **monthly** release schedule for PUDL, to keep the EIA-860M
 data as fresh as possible. This is the first of those monthly releases.
 
 New Data
@@ -494,17 +532,17 @@ EIA AEO
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-EIA 860
+EIA-860
 ~~~~~~~
-* Added EIA 860 early release data from 2024. See :issue:`4323` and PR :pr:`4332`.
+* Added EIA-860 early release data from 2024. See :issue:`4323` and PR :pr:`4332`.
 
-EIA 860M
+EIA-860M
 ~~~~~~~~
-* Added EIA 860M data from April 2025. See :issue:`4324` and PR :pr:`4332`.
+* Added EIA-860M data from April 2025. See :issue:`4324` and PR :pr:`4332`.
 
-EIA 923
+EIA-923
 ~~~~~~~
-* Added EIA 923 early release data from 2024 and monthly data from March 2025. See
+* Added EIA-923 early release data from 2024 and monthly data from March 2025. See
   :issue:`4325` and PR :pr:`4332`.
 
 Bug Fixes
@@ -546,7 +584,7 @@ Quality of Life Improvements
 
 New Tests
 ^^^^^^^^^
-* Added a validation pipeline for our EIA 930 hourly demand imputation. This
+* Added a validation pipeline for our EIA-930 hourly demand imputation. This
   pipeline will perform imputation on a set of values which did not require imputation,
   so there is ground truth data to compare against. It will then compute the percent
   error for all of these imputed values against the reported data. This metric is
@@ -577,7 +615,7 @@ Upcoming Deprecations
 
 * Due to the growing size of PUDL database, we are no longer updating our `Datasette
   deployment <https://data.catalyst.coop>`__ and that URL will soon begin redirecting
-  users to the `PUDL Data Viewer <https://viewer.catalyst.coop>`__. You can track our
+  users to the `PUDL Data Viewer <https://data.catalyst.coop>`__. You can track our
   progress toward feature parity with the old Datasette deployment in
   `this issue <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__.
 * When we complete the migration of our data validation tests to the ``dbt`` framework,
@@ -597,9 +635,9 @@ FERC 714
   imputed version of demand. Previously these imputed values were not being distributed
   directly, and fed into the :ref:`out_ferc714__hourly_estimated_state_demand` table.
 
-EIA 930
+EIA-930
 ~~~~~~~
-Work on producing EIA 930 demand curves suitable for use in electricity system modeling
+Work on producing EIA-930 demand curves suitable for use in electricity system modeling
 is being done in collaboration with :user:`awongel` at
 `Carnegie Science <https://carnegiescience.edu>`__, with support from `GridLab
 <https://gridlab.org>`__. See issue :issue:`4083` for a list of related issues.
@@ -662,22 +700,22 @@ EPA CEMS
 ~~~~~~~~
 * Added 2025 Q1 of CEMS data. See :issue:`4236` and :pr:`4238`.
 
-EIA 930
+EIA-930
 ~~~~~~~~
-* Updated EIA 930 to include data published up through the beginning of May 2025.
+* Updated EIA-930 to include data published up through the beginning of May 2025.
   See :issue:`4235` and :pr:`4242`. Raw data now includes adjusted and imputed
   values for the ``unknown`` fuel source, making it behave like other fuel sources;
   see :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
   more information.
 
-EIA 860M
+EIA-860M
 ~~~~~~~~
-* Added EIA 860M data from January, February, and March 2025. See :issue:`4233` and
+* Added EIA-860M data from January, February, and March 2025. See :issue:`4233` and
   PR :pr:`4242`.
 
-EIA 923
+EIA-923
 ~~~~~~~
-* Added EIA 923 from January and February 2025. See :issue:`4234` and PR :pr:`4242`.
+* Added EIA-923 from January and February 2025. See :issue:`4234` and PR :pr:`4242`.
 
 VCE RARE
 ~~~~~~~~
@@ -773,7 +811,7 @@ for 2025.
 New Data
 ^^^^^^^^
 
-EIA 176
+EIA-176
 ~~~~~~~
 * Add a couple of semi-transformed interim EIA-176 (natural gas sources and
   dispositions) tables. They aren't yet being written to the database, but are one step
@@ -782,9 +820,9 @@ EIA 176
 * Extracted these interim tables up through the latest 2023 data release. See
   :issue:`4002` and :pr:`4004`.
 
-EIA 860
+EIA-860
 ~~~~~~~
-* Added EIA 860 Multifuel table. See :issue:`3438` and :pr:`3988`. Thanks to
+* Added EIA-860 Multifuel table. See :issue:`3438` and :pr:`3988`. Thanks to
   :user:`jmelot` for working on adding this new table.
 
 FERC 1
@@ -832,7 +870,7 @@ EPA CEMS
 EPA CAMD EIA Crosswalk
 ~~~~~~~~~~~~~~~~~~~~~~
 * In the past, the crosswalk in PUDL has used the EPA's published crosswalk (run with
-  2018 data), and an additional crosswalk we ran with 2021 EIA 860 data. To ensure that
+  2018 data), and an additional crosswalk we ran with 2021 EIA-860 data. To ensure that
   the crosswalk reflects updates in both EIA and EPA data, we re-ran the EPA R code
   which generates the EPA CAMD EIA crosswalk with 4 new years of data: 2019, 2020, 2022
   and 2023. Re-running the crosswalk pulls the latest data from the CAMD FACT API, which
@@ -847,22 +885,22 @@ EPA CAMD EIA Crosswalk
   and PR :pr:`4056` for a discussion of the changes observed in the course of this
   update.
 
-EIA 860M
+EIA-860M
 ~~~~~~~~
-* Added EIA 860m through December 2024. See :issue:`4038` and :pr:`4047`.
+* Added EIA-860m through December 2024. See :issue:`4038` and :pr:`4047`.
 
-EIA 923
+EIA-923
 ~~~~~~~
-* Added EIA 923 monthly data through September 2024. See :issue:`4038` and :pr:`4047`.
+* Added EIA-923 monthly data through September 2024. See :issue:`4038` and :pr:`4047`.
 
 EIA Bulk Electricity Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 * Updated the EIA Bulk Electricity data to include data published up through
   2024-11-01. See :issue:`4042` and PR :pr:`4051`.
 
-EIA 930
+EIA-930
 ~~~~~~~
-* Updated the EIA 930 data to include data published up through the beginning of
+* Updated the EIA-930 data to include data published up through the beginning of
   February 2025. See :issue:`4040` and PR :pr:`4054`. 10 new energy sources
   were added and 3 were retired; see
   :ref:`data-sources-eia930-changes-in-energy-source-granularity-over-time` for
@@ -904,25 +942,25 @@ October.
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
-EIA 930
+EIA-930
 ~~~~~~~
-* Added EIA 930 hourly data through the end of October as part of the Q3 quarterly
+* Added EIA-930 hourly data through the end of October as part of the Q3 quarterly
   release. See :issue:`3942` and :pr:`3946`.
 
-EIA 923
+EIA-923
 ~~~~~~~
-* Added EIA 923 data from August 2024 as part of the Q3 quarterly release.
+* Added EIA-923 data from August 2024 as part of the Q3 quarterly release.
   See :issue:`3941` and PR :pr:`3950`.
 
-EIA 860M
+EIA-860M
 ~~~~~~~~
-* Added 2024 EIA 860m data from August, September, and October as part of the Q3
+* Added 2024 EIA-860m data from August, September, and October as part of the Q3
   quarterly release. See :issue:`3940` and PR :pr:`3949`.
 
-EIA 861
+EIA-861
 ~~~~~~~
 
-* Added final release EIA 861 data. See :issue:`3905` and PR :pr:`3911`.
+* Added final release EIA-861 data. See :issue:`3905` and PR :pr:`3911`.
 
 EIA Bulk Electricity Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -952,7 +990,7 @@ v2024.10.0 (2024-10-20)
 ---------------------------------------------------------------------------------------
 
 This is a special early release to publish the new VCE Resource Adequacy Renewable
-Energy (RARE) dataset. It also includes final releases of EIA 860 and 923 data for 2023
+Energy (RARE) dataset. It also includes final releases of EIA-860 and 923 data for 2023
 and the FERC Form 714 data for 2021-2023, which had previously been integrated from
 the XBRL data published by FERC. See details below
 
@@ -974,20 +1012,20 @@ Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
-EIA 860
+EIA-860
 ~~~~~~~
-* Added EIA 860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
+* Added EIA-860 final release data from 2023. See :issue:`3684` and PR :pr:`3871`.
 
-EIA 861
+EIA-861
 ~~~~~~~
-* Added EIA 861 final release data from 2023. See :issue:`3905` and PR :pr:`3911`. This
+* Added EIA-861 final release data from 2023. See :issue:`3905` and PR :pr:`3911`. This
   includes a new ``energy_capacity_mwh`` field for battery storage in
   :ref:`core_eia861__yearly_net_metering_customer_fuel_class` and
   :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`.
 
-EIA 923
+EIA-923
 ~~~~~~~
-* Added EIA 923 final release data from 2023 and revised data from 2022. See
+* Added EIA-923 final release data from 2023 and revised data from 2022. See
   :issue:`3902` and PR :pr:`3903`.
 
 FERC Form 714
@@ -1068,23 +1106,23 @@ EIA AEO
     fuel type, and include both nominal USD per MMBtu as well as real 2022 USD
     per MMBtu. See issue :issue:`3649` and PR :pr:`3656`.
 
-EIA 860
+EIA-860
 ~~~~~~~
-* Added EIA 860 early release data from 2023. This included adding a new tab with
+* Added EIA-860 early release data from 2023. This included adding a new tab with
   proposed energy storage generators as well as adding a number of new columns
   regarding energy storage and solar generators. See issue :issue:`3676` and PR
   :pr:`3681`.
-* Added EIA 860m data through June 2024. See issue :issue:`3759` and PR :pr:`3767`.
+* Added EIA-860m data through June 2024. See issue :issue:`3759` and PR :pr:`3767`.
 
-EIA 923
+EIA-923
 ~~~~~~~
-* Added EIA 923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
-* Added EIA 923 monthly data through May as part of the Q2 quarterly release. See
+* Added EIA-923 early release data from 2023. See :issue:`3719` and PR :pr:`3721`.
+* Added EIA-923 monthly data through May as part of the Q2 quarterly release. See
   :issue:`3760` and :pr:`3768`.
 
-EIA 930
+EIA-930
 ~~~~~~~
-* Added EIA 930 hourly data through the end of July as part of the Q2 quarterly release.
+* Added EIA-930 hourly data through the end of July as part of the Q2 quarterly release.
   See :issue:`3761` and :pr:`3789`.
 
 EPA CEMS
@@ -1118,7 +1156,7 @@ NREL ATB
 Data Cleaning
 ^^^^^^^^^^^^^
 * When ``generator_operating_date`` values are too inconsistent to be harvested
-  successfully, we now take the last reported date in EIA 860 and 860M. See :issue:`423`
+  successfully, we now take the last reported date in EIA-860 and 860M. See :issue:`423`
   and PR :pr:`3967`.
 * Added the ``generator_operating_date`` field into
   :ref:`core_eia860m__changelog_generators`, adding 860M reported generator operating
@@ -1252,7 +1290,7 @@ Data Cleaning
 ^^^^^^^^^^^^^
 * When ``generator_operating_date`` values are too inconsistent to be harvested
   successfully, we now take the max date within a year and attempt to harvest again, to
-  rescue records lost because of inconsistent month reporting in EIA 860 and 860M. See
+  rescue records lost because of inconsistent month reporting in EIA-860 and 860M. See
   :issue:`3340` and PR :pr:`3419`. This change also fixed a bug that was preventing
   other columns harvested with a special process from being saved.
 * When ingesting FERC 1 XBRL filings, we now take the most recent non-null
@@ -1588,7 +1626,7 @@ Dagster Adoption
     datasources if no datasets are specified.
   * The Excel extractor in ``pudl.extract.excel`` has been updated to parallelize
     Excel spreadsheet extraction using Dagster ``@multi_asset`` functionality, thanks to
-    :user:`dstansby`. This is currently being used for EIA 860, 861 and 923 data. See
+    :user:`dstansby`. This is currently being used for EIA-860, 861 and 923 data. See
     :issue:`2385` and PRs :pr:`2644`, :pr:`2943`.
 
 * EIA ETL changes:
@@ -1688,7 +1726,7 @@ Data Coverage
   * :ref:`core_ferc1__yearly_sales_by_rate_schedules_sched304`, see issue
     :issue:`1823` & PR :pr:`2205`.
 
-* Harvested owner utilities from the EIA 860 ownership table which are now included in
+* Harvested owner utilities from the EIA-860 ownership table which are now included in
   the :ref:`core_eia__entity_utilities` and :ref:`core_pudl__assn_eia_pudl_utilities`
   tables. See :pr:`2714`. Renamed columns with owner or operator suffix to differentiate
   between owner and operator utility columns in :ref:`core_eia860__scd_ownership` and
@@ -1837,7 +1875,7 @@ Analysis
   to :user:`grgmiller` for his contribution, which was integrated by :user:`cmgosnell`!
   See PRs :pr:`1096,1608` and issues :issue:`1468,1478`.
 * Integrated :mod:`pudl.analysis.eia_ferc1_record_linkage` from our RMI collaboration
-  repo, which uses logistic regression to match FERC1 plants data to EIA 860 records.
+  repo, which uses logistic regression to match FERC1 plants data to EIA-860 records.
   While far from perfect, this baseline model utilizes the manually created training
   data and plant IDs to perform record linkage on the FERC1 data and EIA plant parts
   list created in :mod:`pudl.analysis.plant_parts_eia`. See issue :issue:`1064` & PR
@@ -1859,7 +1897,7 @@ Analysis
   :pr:`2553`.
 * Added outputs from :mod:`pudl.analysis.service_territory` and
   :mod:`pudl.analysis.state_demand` into PUDL. These outputs include the US Census
-  geometries associated with balancing authority and utility data from EIA 861
+  geometries associated with balancing authority and utility data from EIA-861
   (:ref:`out_eia861__yearly_balancing_authority_service_territory` and
   :ref:`out_eia861__yearly_utility_service_territory`), and the estimated total hourly
   electricity demand for each US state in
@@ -1958,7 +1996,7 @@ Data Coverage
   appear in the :doc:`data_sources/eia860` monthly updates for 2022.  See :pr:`1834`.
 * Added new ``datasources`` table, which includes partitions used to generate the
   database. See :pr:`2079`.
-* Integrated several new columns into the EIA 860 and EIA 923 including several
+* Integrated several new columns into the EIA-860 and EIA-923 including several
   codes with coding tables (See :doc:`data_dictionaries/codes_and_labels`). :pr:`1836`
 * Added the `EPACAMD-EIA Crosswalk <https://github.com/USEPA/camd-eia-crosswalk>`__ to
   the database. Previously, the crosswalk was a csv stored in ``package_data/glue``,
@@ -2089,7 +2127,7 @@ Helper Function Updates
 * Replaced the PUDL helper function ``clean_merge_asof`` that merged two dataframes
   reported on different temporal granularities, for example monthly vs yearly data.
   The reworked function, :mod:`pudl.helpers.date_merge`, is more encapsulating and
-  faster and replaces ``clean_merge_asof`` in the MCOE table and EIA 923 tables. See
+  faster and replaces ``clean_merge_asof`` in the MCOE table and EIA-923 tables. See
   :pr:`1103,1550`
 * The helper function :mod:`pudl.helpers.expand_timeseries` was also added, which
   expands a dataframe to include a full timeseries of data at a certain frequency.
@@ -2121,10 +2159,10 @@ Plant Parts List Module Changes
 * The mega generators table and in turn the plant parts list requires the MCOE table
   to generate. The MCOE table is now created with the new :mod:`pudl.helpers.date_merge`
   helper function (described above). As a result, now by default only columns from the
-  EIA 860 generators table that are necessary for the creation of the plant parts list
+  EIA-860 generators table that are necessary for the creation of the plant parts list
   will be included in the MCOE table. This list of columns is defined by the global
   :mod:`pudl.analysis.mcoe.DEFAULT_GENS_COLS`. If additional columns that are not part
-  of the default list are needed from the EIA 860 generators table, these columns can be
+  of the default list are needed from the EIA-860 generators table, these columns can be
   passed in with the ``gens_cols`` argument.  See :pr:`1550`
 * For memory efficiency, appropriate columns are now cast to string and
   categorical types when the full plant parts list is created. The resource and field
@@ -2407,7 +2445,7 @@ database schema, which will probably affect some users.
 New Analyses
 ^^^^^^^^^^^^
 * Added a deployed console script for running the state-level hourly electricity
-  demand allocation, using FERC 714 and EIA 861 data, simply called
+  demand allocation, using FERC 714 and EIA-861 data, simply called
   ``state_demand`` and implemented in :mod:`pudl.analysis.state_demand`. This
   script existed in the v0.4.0 release, but was not deployed on the user's
   system.
@@ -2493,7 +2531,7 @@ was largely done by :user:`ezwelty` and :user:`yashkumar1803` and included:
 
 * Semi-programmatic compilation of historical utility and balancing authority
   service territory geometries based on the counties associated with utilities,
-  and the utilities associated with balancing authorities in the EIA 861
+  and the utilities associated with balancing authorities in the EIA-861
   (2001-2019). See e.g. :pr:`670` but also many others.
 * A method for spatially allocating hourly electricity demand from FERC 714 to
   US states based on the overlapping historical utility service territories
@@ -2509,7 +2547,7 @@ fuel consumption for all generators. The process has known issues and is being
 actively developed. See :pr:`989`
 
 Net electricity generation and fuel consumption are reported in multiple ways in
-the EIA 923. The ``generation_fuel_eia923`` table reports both generation and
+the EIA-923. The ``generation_fuel_eia923`` table reports both generation and
 fuel consumption, and breaks them down by plant, prime mover, and fuel. In
 parallel, the ``generation_eia923`` table reports generation by generator,
 and the ``boiler_fuel_eia923`` table reports fuel consumption by boiler.
@@ -2556,23 +2594,23 @@ Data Management and Archiving
 Known Issues
 ^^^^^^^^^^^^
 
-* The EIA 861 and FERC 714 data are not yet integrated into the SQLite database
+* The EIA-861 and FERC 714 data are not yet integrated into the SQLite database
   outputs, because we need to overhaul our entity resolution process to
   accommodate them in the database structure. That work is ongoing, see
   :issue:`639`
-* The EIA 860 and EIA 923 data don't cover exactly the same rage of years. EIA
-  860 only goes back to 2004, while EIA 923 goes back to 2001. This is because
-  the pre-2004 EIA 860 data is stored in the DBF file format, and we need to
+* The EIA-860 and EIA-923 data don't cover exactly the same rage of years. EIA
+  860 only goes back to 2004, while EIA-923 goes back to 2001. This is because
+  the pre-2004 EIA-860 data is stored in the DBF file format, and we need to
   update our extraction code to deal with the different format. This means some
-  analyses that require both EIA 860 and EIA 923 data (like the calculation of
+  analyses that require both EIA-860 and EIA-923 data (like the calculation of
   heat rates) can only be performed as far back as 2004 at the moment. See
   :issue:`848`
-* There are 387 EIA utilities and 228 EIA palnts which appear in the EIA 923,
+* There are 387 EIA utilities and 228 EIA palnts which appear in the EIA-923,
   but which haven't yet been assigned PUDL IDs and associated with the
   corresponding utilities and plants reported in the FERC Form 1. These entities
-  show up in the 2001-2008 EIA 923 data that was just integrated. These older
+  show up in the 2001-2008 EIA-923 data that was just integrated. These older
   plants and utilities can't yet be used in conjunction with FERC data. When the
-  EIA 860 data for 2001-2003 has been integrated, we will finish this manual
+  EIA-860 data for 2001-2003 has been integrated, we will finish this manual
   ID assignment process. See :issue:`848,1069`
 * 52 of the algorithmically assigned ``plant_id_ferc1`` values found in the
   ``plants_steam_ferc1`` table are currently associated with more than one
@@ -2593,15 +2631,15 @@ Known Issues
 ---------------------------------------------------------------------------------------
 The primary changes in this release:
 
-* The 2009-2010 data for EIA 860 have been integrated, including updates
+* The 2009-2010 data for EIA-860 have been integrated, including updates
   to the data validation test cases.
 * Output tables are more uniform and less restrictive in what they
   include, no longer requiring PUDL Plant & Utility IDs in some tables.  This
   release was used to compile v1.1.0 of the PUDL Data Release, which is archived
   at Zenodo under this DOI: https://doi.org/10.5281/zenodo.3672068
 
-  With this release, the EIA 860 & 923 data now (finally!) cover the same span
-  of time. We do not anticipate integrating any older EIA 860 or 923 data at
+  With this release, the EIA-860 & 923 data now (finally!) cover the same span
+  of time. We do not anticipate integrating any older EIA-860 or 923 data at
   this time.
 
 .. _release-v0-3-1:

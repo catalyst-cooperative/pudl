@@ -112,6 +112,8 @@ class GenericMetadata:
 
         Columns that don't exist in this partition/page will show up as pd.nan, so we need to filter those out.
         """
+        # we drop all of the nulls which are either straight nulls (removed via dropna)
+        # OR they are -1's (which are often int's but sometimes show up as strings)
         return {
             v: k
             for k, v in self._column_map[page]
@@ -119,7 +121,7 @@ class GenericMetadata:
             .dropna()
             .to_dict()
             .items()
-            if v != -1
+            if v not in [-1, "-1"]
         }
 
 
