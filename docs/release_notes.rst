@@ -2,15 +2,48 @@
 PUDL Release Notes
 =======================================================================================
 
----------------------------------------------------------------------------------------
-v2025.XX.x (2025-MM-DD)
----------------------------------------------------------------------------------------
-This is a regular monthly data release, primarily intended to ensure that PUDL has the
-most up-to-date EIA-860M data. This also includes some performance improvements that aim
-to allow contributors to more easily run the full ETL locally.
+.. _release-v2025.11.0:
 
-Enhancements
-^^^^^^^^^^^^
+---------------------------------------------------------------------------------------
+v2025.11.0 (2025-11-13)
+---------------------------------------------------------------------------------------
+
+This is a quarterly PUDL data release, and includes final 2024 data for a number of
+annually reported EIA forms, as well as quarterly updates to data sources that are
+released more continuously, like EIA-930, bulk EIA electricity API data, EPA CEMS hourly
+emissions and EIA-860M. We're also beginning to integrate natural gas data, and have
+made some performance improvements that will hopefully make it easier for contributors
+run the full ETL locally. See below for all the details.
+
+New Data
+^^^^^^^^
+
+EIA-176
+~~~~~~~
+
+Thanks to open source contributions from `SwitchBox <https://switch.box>`__ and funding
+from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems>`__
+that helps us support outside contributors, we're beginning to integrate natural gas
+data into PUDL, starting with the :doc:`EIA Form 176 <data_sources/eia176>`. Follow the
+sub-issues listed in issue :issue:`4693` to track our progress.
+
+* Added :ref:`core_eia176__yearly_gas_disposition_by_consumer`, which contains cleaned
+  natural gas disposition data from Part 6 of EIA-176. Thanks to :user:`MeadBarrel` for
+  all your work on this. See issues :issue:`4694,4709` and PRs :pr:`4737,4721,4728`.
+
+Discontinued Data
+^^^^^^^^^^^^^^^^^
+
+NREL ATB for Electricity
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sadly, no update to `NREL's Annual Technology Baseline for Electricity
+<https://atb.nrel.gov/electricity/2024/index>`__ has been published for 2025.
+Historically this dataset has been updated in the summer, and would be integrated into
+PUDL's Q3 release. It seems as if it may have been quietly discontinued or at least
+deprioritized. We will continue to check for updates and integrate them if they become
+available. If you know of alternative public sources for this kind of forward-looking
+electricity sector cost projections, please let us know!
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -24,52 +57,52 @@ Census PEP
 EIA AEO
 ~~~~~~~
 
-* Added projection data from the 2025 AEO. See issue :issue:`4591` and PR :pr:`4631`.
+* Added economic projections from the 2025 AEO. See issue :issue:`4591` and PR
+  :pr:`4631`.
 
 EIA-860M
 ~~~~~~~~
 
-* Updated EIA-860M with monthly data up through September 2025. See :issue:`4698` and
+* Updated EIA-860M with monthly data through September 2025. See :issue:`4698` and
   :pr:`4706`.
-
-EIA-923
-~~~~~~~
-
-* Updated EIA-923 with final release data from 2024 and 2025 data up through August.
-  See PR :pr:`4641`, :issue:`4699` and :pr:`4706`.
-
-EIA 930
-~~~~~~~
-
-* Updated EIA-930 with data published up through the end of October 2025. See
-  :issue:`4719` and PR :pr:`4743`.
-
-EIA Bulk Electricity API
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-* Updated the EIA Bulk Electricity data to include data published up through
-  the beginning of November 2025. See :issue:`4724` and PR :pr:`4725`.
 
 EIA-861
 ~~~~~~~
 * Added EIA-861 final release data from 2024. See :issue:`4648` and PR :pr:`4672`.
 
-
-EPACEMS
+EIA-923
 ~~~~~~~
 
-* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
+* Updated EIA-923 with final release data from 2024 and 2025 data through August.
+  See PR :pr:`4641`, :issue:`4699` and :pr:`4706`.
+
+EIA-930
+~~~~~~~
+
+* Updated EIA-930 with data published through the end of October 2025. See
+  :issue:`4719` and PR :pr:`4743`.
+
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity API data to include data published through
+  the beginning of November 2025. See :issue:`4724` and PR :pr:`4725`.
+
+EPA/CAMD-EIA Crosswalk
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated EPA/CAMD-EIA crosswalk through 2024. See PR :pr:`4749`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated EPA CEMS hourly emissions data through September 2025. See :issue:`4723`
+  and :pr:`4733`.
 
 FERC Form 1
 ~~~~~~~~~~~
 
 * Updated FERC Form 1 2024 data to include late respondents. See :pr:`4747`.
-
-New Data
-^^^^^^^^
-
-Quality of Life Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Documentation
 ^^^^^^^^^^^^^
@@ -77,9 +110,7 @@ Documentation
 * Added data source pages for:
 
   * :doc:`data_sources/eiaaeo`; see issue :issue:`4371` and PR :pr:`4660`.
-
-New Data Tests & Data Validations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  * :doc:`data_sources/eia176`; see issue :issue:`4696` and PR :pr:`4746`.
 
 Bug Fixes
 ^^^^^^^^^
@@ -87,10 +118,7 @@ Bug Fixes
 * Fixed a bug where the EIA 930 subregion data from 2018-07-01 to 2019-01-01 was
   being dropped. See PR :pr:`4731`.
 
-Deprecations
-^^^^^^^^^^^^
-
-Dev tooling
+Dev Tooling
 ^^^^^^^^^^^
 
 * As part of a performance push, we added some tools for quick memory profiling
@@ -192,7 +220,7 @@ Deprecations
 
 * We have finally shut down our long-suffering `Datasette <https://datasette.io>`__
   deployment, but are still working on achieiving feature parity in the new `PUDL Data
-  Viewer <https://viewer.catalyst.coop>`__. We have `an epic tracking our progress
+  Viewer <https://data.catalyst.coop>`__. We have `an epic tracking our progress
   <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__. See issue
   :issue:`4481` and PR :pr:`4605` for the removal of Datasette references within the
   main PUDL repo.
@@ -587,7 +615,7 @@ Upcoming Deprecations
 
 * Due to the growing size of PUDL database, we are no longer updating our `Datasette
   deployment <https://data.catalyst.coop>`__ and that URL will soon begin redirecting
-  users to the `PUDL Data Viewer <https://viewer.catalyst.coop>`__. You can track our
+  users to the `PUDL Data Viewer <https://data.catalyst.coop>`__. You can track our
   progress toward feature parity with the old Datasette deployment in
   `this issue <https://github.com/catalyst-cooperative/eel-hole/issues/36>`__.
 * When we complete the migration of our data validation tests to the ``dbt`` framework,

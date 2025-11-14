@@ -33,13 +33,8 @@ jobs:
           filters: |
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
-              - '!docker/*'
-              - '!docs/**.rst'
-              - '!docs/**.md'
-              - '!docs/**.pdf'
-              - '!docs/**.html'
-              - '!docs/**.rst.jinja'
-              - '!docs/**.bib'
+              - '!docker/**'
+              - '!docs/**'
               - '!.github/**.md'
               - '!.github/FUNDING.yml'
               - '!.github/actionlint.yml'
@@ -52,6 +47,12 @@ jobs:
               - '!LICENSE.txt'
               - '!CITATION.cff'
               - '!.zenodo.json'
+              - '!**.gitignore'
+              - '!.git-blame-ignore-revs'
+              - '!.pre-commit-config.yaml'
+              - '!.readthedocs.yaml'
+              - '!.mypy.ini'
+              - '!test/unit/**'
       - name: print out components
         run: |
           echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
