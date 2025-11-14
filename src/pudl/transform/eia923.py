@@ -1668,10 +1668,8 @@ def _core_eia923__emissions_control(
     Returns:
         Cleaned ``_core_eia923__emissions_control`` dataframe ready for harvesting.
     """
-    df = raw_eia923__emissions_control.copy()
-
     # This column is dropped from all EIA 923 tables
-    df = df.drop(["early_release"], axis=1)
+    df = raw_eia923__emissions_control.drop(["early_release"], axis=1)
 
     df = pudl.helpers.standardize_na_values(df)
 
