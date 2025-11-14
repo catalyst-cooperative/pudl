@@ -2967,9 +2967,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fgd_sorbent_consumption_tons": {
         "type": "number",
-        "unit": "1000_tons",
+        "unit": "tons",
         "description": (
-            "Quantity of flue gas desulfurization sorbent used, to the nearest 0.1 thousand tons."
+            "Quantity of flue gas desulfurization sorbent used, to the nearest 100 ton."
         ),
     },
     "fgd_structure_cost": {
