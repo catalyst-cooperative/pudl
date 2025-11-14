@@ -116,6 +116,9 @@ What data is available?
 
 PUDL currently integrates data from:
 
+* **EIA Form 176** (a few tables -- work in progress):
+  - `Source Docs <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia176.html>`__
 * **EIA Form 860**:
   - `Source Docs <https://www.eia.gov/electricity/data/eia860/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia860.html>`__
@@ -132,6 +135,7 @@ PUDL currently integrates data from:
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eia930.html>`__
 * **EIA Annual Energy Outlook (AEO)** (a few tables):
   - `Source Docs <https://www.eia.gov/outlooks/aeo/>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/eiaaeo.html>`__
 * **EPA Continuous Emissions Monitoring System (CEMS)**:
   - `Source Docs <https://campd.epa.gov/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/epacems.html>`__
@@ -149,11 +153,13 @@ PUDL currently integrates data from:
   - `Source Docs <https://www.ferc.gov/form-60-annual-report-centralized-service-companies>`__
 * **NREL Annual Technology Baseline (ATB) for Electricity**:
   - `Source Docs <https://atb.nrel.gov/electricity/2024/data>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/nrelatb.html>`__
 * **GridPath Resource Adequacy Toolkit** (partial):
   - `Source Docs <https://gridlab.org/gridpathratoolkit/>`__
   - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/gridpathratoolkit.html>`__
 * **US Census Demographic Profile 1 Geodatabase**:
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
+  - `PUDL Docs <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_sources/censusdp1tract.html>`__
 
 High Priority Target Datasets
 -----------------------------
@@ -164,9 +170,7 @@ Get in touch!
 * Additional fully processed FERC Form 1 tables, e.g. Transmission & Distribution assets
 * Additional high value EIA AEO tables
 * `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
-* `EIA Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
-  (The Annual Report of Natural Gas Supply and Disposition)
-* `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__
+* `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__ (integration now in progress with support from `GridLab <https://gridlab.org>`__!)
 * `EIA Thermoelectric Water Usage <https://www.eia.gov/electricity/data/water/>`__
 * `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
   (Annual Report of Major Natural Gas Companies)

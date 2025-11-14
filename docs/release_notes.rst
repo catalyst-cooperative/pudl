@@ -2,15 +2,48 @@
 PUDL Release Notes
 =======================================================================================
 
----------------------------------------------------------------------------------------
-v2025.XX.x (2025-MM-DD)
----------------------------------------------------------------------------------------
-This is a regular monthly data release, primarily intended to ensure that PUDL has the
-most up-to-date EIA-860M data. This also includes some performance improvements that aim
-to allow contributors to more easily run the full ETL locally.
+.. _release-v2025.11.0:
 
-Enhancements
-^^^^^^^^^^^^
+---------------------------------------------------------------------------------------
+v2025.11.0 (2025-11-13)
+---------------------------------------------------------------------------------------
+
+This is a quarterly PUDL data release, and includes final 2024 data for a number of
+annually reported EIA forms, as well as quarterly updates to data sources that are
+released more continuously, like EIA-930, bulk EIA electricity API data, EPA CEMS hourly
+emissions and EIA-860M. We're also beginning to integrate natural gas data, and have
+made some performance improvements that will hopefully make it easier for contributors
+run the full ETL locally. See below for all the details.
+
+New Data
+^^^^^^^^
+
+EIA-176
+~~~~~~~
+
+Thanks to open source contributions from `SwitchBox <https://switch.box>`__ and funding
+from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems>`__
+that helps us support outside contributors, we're beginning to integrate natural gas
+data into PUDL, starting with the :doc:`EIA Form 176 <data_sources/eia176>`. Follow the
+sub-issues listed in issue :issue:`4693` to track our progress.
+
+* Added ref:`core_eia176__yearly_gas_disposition_by_consumer`, which contains cleaned
+  natural gas disposition data from Part 6 of EIA-176. Thanks to :user:`MeadBarrel` for
+  all your work on this. See issues :issue:`4694,4709` and PRs :pr:`4737,4721,4728`.
+
+Discontinued Data
+^^^^^^^^^^^^^^^^^
+
+NREL ATB for Electricity
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sadly, no update to `NREL's Annual Technology Baseline for Electricity
+<https://atb.nrel.gov/electricity/2024/index>`__ has been published for 2025.
+Historically this dataset has been updated in the summer, and would be integrated into
+PUDL's Q3 release. It seems as if it may have been quietly discontinued or at least
+deprioritized. We will continue to check for updates and integrate them if they become
+available. If you know of alternative public sources for this kind of forward-looking
+electricity sector cost projections, please let us know!
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -42,7 +75,7 @@ EIA-923
 * Updated EIA-923 with final release data from 2024 and 2025 data up through August.
   See PR :pr:`4641`, :issue:`4699` and :pr:`4706`.
 
-EIA 930
+EIA-930
 ~~~~~~~
 
 * Updated EIA-930 with data published up through the end of October 2025. See
@@ -51,7 +84,7 @@ EIA 930
 EIA Bulk Electricity API
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Updated the EIA Bulk Electricity data to include data published up through
+* Updated the EIA Bulk Electricity API data to include data published up through
   the beginning of November 2025. See :issue:`4724` and PR :pr:`4725`.
 
 EPA/CAMD-EIA Crosswalk
@@ -59,25 +92,16 @@ EPA/CAMD-EIA Crosswalk
 
 * Updated EPA/CAMD-EIA crosswalk through 2024. See PR :pr:`4749`.
 
-EPACEMS
-~~~~~~~
+EPA CEMS
+~~~~~~~~
 
-* Updated EPA-CEMS data through September 2025. See :issue:`4723` and :pr:`4733`.
+* Updated EPA CEMS hourly emissions data through September 2025. See :issue:`4723`
+  and :pr:`4733`.
 
 FERC Form 1
 ~~~~~~~~~~~
 
 * Updated FERC Form 1 2024 data to include late respondents. See :pr:`4747`.
-
-New Data
-^^^^^^^^
-
-* Added ``core_eia176__yearly_gas_disposition_by_consumer``, which contains cleaned
-  natural gas disposition data from Part 6 of the EIA 176 survey. Thanks to
-  :user:`MeadBarrel` for all your work on this!
-
-Quality of Life Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Documentation
 ^^^^^^^^^^^^^
@@ -85,9 +109,7 @@ Documentation
 * Added data source pages for:
 
   * :doc:`data_sources/eiaaeo`; see issue :issue:`4371` and PR :pr:`4660`.
-
-New Data Tests & Data Validations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  * :doc:`data_sources/eia176`; see issue :issue:`4696` and PR :pr:`4746`.
 
 Bug Fixes
 ^^^^^^^^^
@@ -95,10 +117,7 @@ Bug Fixes
 * Fixed a bug where the EIA 930 subregion data from 2018-07-01 to 2019-01-01 was
   being dropped. See PR :pr:`4731`.
 
-Deprecations
-^^^^^^^^^^^^
-
-Dev tooling
+Dev Tooling
 ^^^^^^^^^^^
 
 * As part of a performance push, we added some tools for quick memory profiling

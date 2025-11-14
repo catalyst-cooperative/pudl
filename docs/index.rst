@@ -20,6 +20,7 @@ pages for each source:
 
 * :doc:`data_sources/censusdp1tract`
 * :doc:`data_sources/censuspep`
+* :doc:`data_sources/eia176`
 * :doc:`data_sources/eia860`
 * :doc:`data_sources/eia861`
 * :doc:`data_sources/eia923`
