@@ -31,15 +31,13 @@ described at:
 
 import functools
 import re
-import tempfile
 import uuid
 import warnings
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Literal
 
-import dask as da
+import bottleneck as bn
 import numpy as np
 import pandas as pd
 import pandera.pandas as pa
@@ -881,20 +879,11 @@ def median_of_rolling_median_offset(
         else:
             shifted[i, :] = offset
     # Ignore warning for rows with all null values
-    with warnings.catch_warnings(), tempfile.TemporaryDirectory() as tmp_dir:
+    with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore", category=RuntimeWarning, message="All-NaN slice encountered"
         )
-        array_file = Path(tmp_dir) / "window.npy"
-        np.save(array_file, shifted)
-        del shifted
-        with da.config.set(scheduler="threads", num_workers=2):
-            return da.array.nanmedian(
-                da.array.from_array(
-                    np.load(array_file, mmap_mode="r"), chunks=(21, 5000, 20)
-                ),
-                axis=0,
-            ).compute()
+        return bn.nanmedian(shifted, axis=0)
 
 
 def rolling_iqr_of_rolling_median_offset(

@@ -21,7 +21,6 @@ dependencies = [
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=3",
     "coverage>=7.10",
-    "dask",
     "dagster>=1.12.1",
     "dagster-dbt", # Needs to follow dagster, but RTD can't deal with epochs
     "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
