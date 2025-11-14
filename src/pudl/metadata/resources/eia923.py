@@ -958,7 +958,7 @@ and consumption is the net generation."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "_core_eia923__emissions_control": {
+    "_core_eia923__yearly_emissions_control": {
         "description": {
             "additional_summary_text": (
                 "Actual rate and removal efficiency for air emissions reported by "
