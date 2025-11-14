@@ -1652,7 +1652,7 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
 # all the fields are compatible with their assigned dtypes.
 # @asset(io_manager_key="pudl_io_manager")
 @asset
-def _core_eia923__emissions_control(
+def _core_eia923__yearly_emissions_control(
     raw_eia923__emissions_control: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transforms the eia923__emissions_control table.
@@ -1666,7 +1666,7 @@ def _core_eia923__emissions_control(
         dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__emissions_control`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_emissions_control`` dataframe ready for harvesting.
     """
     # This column is dropped from all EIA 923 tables
     df = raw_eia923__emissions_control.drop(["early_release"], axis=1)

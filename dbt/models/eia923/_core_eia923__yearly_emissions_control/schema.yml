@@ -2,12 +2,12 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: _core_eia923__emissions_control
+      - name: _core_eia923__yearly_emissions_control
         data_tests:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: _core_eia923__emissions_control
+                table_name: _core_eia923__yearly_emissions_control
                 partition_expr: report_year
         columns:
           - name: plant_id_eia
