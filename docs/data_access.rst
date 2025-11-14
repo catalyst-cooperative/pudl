@@ -130,10 +130,10 @@ ephemeral and may not be as well validated as the ``stable`` releases.
 .. _access-viewer:
 
 ---------------------------------------------------------------------------------------
-PUDL Viewer
+PUDL Data Viewer
 ---------------------------------------------------------------------------------------
 
-We recently released the `PUDL Viewer <https://viewer.catalyst.coop/>`__ in beta.
+We recently released the `PUDL Data Viewer <https://data.catalyst.coop/>`__ in beta.
 
 It provides flexible search of table metadata, live data preview with filtering
 and sorting, and CSV export of up to 5 million rows.

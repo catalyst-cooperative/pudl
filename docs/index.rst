@@ -301,7 +301,7 @@ Enable Open Source Ecosystems (POSE) program
 
   About PUDL <self>
   data_access
-  PUDL Database Viewer <https://viewer.catalyst.coop>
+  PUDL Data Viewer <https://data.catalyst.coop>
   data_sources/index
   data_dictionaries/index
   methodology/index
