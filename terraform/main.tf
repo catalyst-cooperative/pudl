@@ -34,6 +34,9 @@ resource "google_storage_bucket" "tfstate" {
   versioning {
     enabled = true
   }
+  labels = {
+    component   = "terraform-state"
+  }
 }
 
 module "gh_oidc" {
@@ -128,7 +131,9 @@ resource "google_sql_database_instance" "mlflow_backend_store" {
       password_change_interval    = "30s"
       enable_password_policy      = true
     }
-
+    user_labels = {
+      component   = "mlflow"
+    }
   }
   # set `deletion_protection` to true, will ensure that one cannot accidentally delete this instance by
   # use of Terraform whereas `deletion_protection_enabled` flag protects this instance at the GCP level.
@@ -139,6 +144,9 @@ resource "google_storage_bucket" "pudl_models_outputs" {
   name          = "model-outputs.catalyst.coop"
   location      = "US"
   storage_class = "STANDARD"
+  labels = {
+    component   = "model-outputs"
+  }
 }
 
 resource "google_sql_user" "mlflow_postgresql_user" {
@@ -167,11 +175,13 @@ resource "google_secret_manager_secret" "pudl_usage_metrics_db_connection_string
 }
 
 resource "google_storage_bucket" "pudl_usage_metrics_archive_bucket" {
-  name          = "pudl-usage-metrics-archives.catalyst.coop"
-  location      = "US"
-  storage_class = "STANDARD"
-
+  name                        = "pudl-usage-metrics-archives.catalyst.coop"
+  location                    = "US"
+  storage_class               = "STANDARD"
   uniform_bucket_level_access = true
+  labels = {
+    component   = "usage-metrics"
+  }
 }
 
 resource "google_service_account" "usage_metrics_archiver" {
@@ -204,11 +214,13 @@ resource "google_storage_bucket_iam_member" "usage_metrics_etl_s3_logs_gcs_iam" 
 }
 
 resource "google_storage_bucket" "pudl_archive_bucket" {
-  name          = "archives.catalyst.coop"
-  location      = "US-EAST1"
-  storage_class = "STANDARD"
-
+  name                        = "archives.catalyst.coop"
+  location                    = "US-EAST1"
+  storage_class               = "STANDARD"
   uniform_bucket_level_access = true
+  labels = {
+    component   = "archives"
+  }
 }
 
 resource "google_service_account" "nrel_finito_inputs_gha" {
