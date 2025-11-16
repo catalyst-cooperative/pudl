@@ -16,7 +16,7 @@ dependencies:
   - aioitertools=0.12.0=pyhd8ed1ab_1
   - aiosignal=1.4.0=pyhd8ed1ab_0
   - alabaster=1.0.0=pyhd8ed1ab_1
-  - alembic=1.17.1=pyhd8ed1ab_0
+  - alembic=1.17.2=pyhd8ed1ab_0
   - altair=5.5.0=pyhd8ed1ab_1
   - annotated-doc=0.0.4=pyhcf101f3_0
   - annotated-types=0.7.0=pyhd8ed1ab_1
@@ -194,25 +194,25 @@ dependencies:
   - google-crc32c=1.7.1=py313h74173ec_1
   - google-resumable-media=2.7.2=pyhd8ed1ab_2
   - googleapis-common-protos=1.72.0=pyhd8ed1ab_0
-  - gql=3.5.3=pyhd8ed1ab_0
-  - gql-with-requests=3.5.3=hd8ed1ab_0
+  - gql=3.5.0=pyhd8ed1ab_2
+  - gql-with-requests=3.5.0=hd8ed1ab_2
   - graphene=3.4.3=pyhd8ed1ab_1
   - graphite2=1.3.14=hecca717_2
-  - graphql-core=3.2.6=pyh29332c3_0
+  - graphql-core=3.2.7=pyhcf101f3_0
   - graphql-relay=3.2.0=pyhd8ed1ab_1
   - graphviz=13.1.2=h87b6fe6_0
   - greenlet=3.2.4=py313h7033f15_1
   - grpcio=1.73.1=py313h2b3948d_1
   - grpcio-health-checking=1.73.1=pyhe01879c_0
   - grpcio-status=1.73.1=pyhd8ed1ab_0
-  - gtk3=3.24.43=h021d004_4
+  - gtk3=3.24.43=h0c6a113_5
   - gts=0.7.6=h977cf35_4
   - gunicorn=23.0.0=py313h78bf25f_3
   - h11=0.16.0=pyhd8ed1ab_0
   - h2=4.3.0=pyhcf101f3_0
   - h3=4.3.0=h3e4d06c_1
   - h3-py=4.3.0=py313h5d5ffb9_3
-  - harfbuzz=12.1.0=h15599e2_0
+  - harfbuzz=11.5.1=h15599e2_0
   - hicolor-icon-theme=0.17=ha770c72_2
   - hpack=4.1.0=pyhd8ed1ab_0
   - httpcore=1.0.9=pyh29332c3_0
@@ -221,7 +221,7 @@ dependencies:
   - humanfriendly=10.0=pyh707e725_8
   - humanize=4.14.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
-  - hypothesis=6.147.0=pyha770c72_0
+  - hypothesis=6.148.0=pyha770c72_0
   - icu=75.1=he02047a_0
   - identify=2.6.15=pyhd8ed1ab_0
   - idna=3.11=pyhd8ed1ab_0
@@ -285,11 +285,11 @@ dependencies:
   - libarrow-acero=20.0.0=h635bf11_25_cpu
   - libarrow-dataset=20.0.0=h635bf11_25_cpu
   - libarrow-substrait=20.0.0=h3f74fd7_25_cpu
-  - libblas=3.9.0=38_h4a7cf45_openblas
+  - libblas=3.9.0=39_h4a7cf45_openblas
   - libbrotlicommon=1.1.0=hb03c661_4
   - libbrotlidec=1.1.0=hb03c661_4
   - libbrotlienc=1.1.0=hb03c661_4
-  - libcblas=3.9.0=38_h0358290_openblas
+  - libcblas=3.9.0=39_h0358290_openblas
   - libcrc32c=1.1.2=h9c3ff4c_0
   - libcups=2.3.3=hb8b1518_5
   - libcurl=8.17.0=h4e3cde8_0
@@ -328,7 +328,7 @@ dependencies:
   - libjpeg-turbo=3.1.2=hb03c661_0
   - libjxl=0.11.1=h6cb5226_4
   - libkml=1.3.0=haa4a5bd_1022
-  - liblapack=3.9.0=38_h47877c9_openblas
+  - liblapack=3.9.0=39_h47877c9_openblas
   - liblzma=5.8.1=hb9d3cd8_2
   - libmicrohttpd=1.0.2=hc2fc477_0
   - libmpdec=4.0.0=hb9d3cd8_0
@@ -344,7 +344,7 @@ dependencies:
   - libpq=18.0=h3675c94_0
   - libprotobuf=6.31.1=h49aed37_2
   - libre2-11=2025.11.05=h7b12aa8_0
-  - librsvg=2.58.4=h49af25d_2
+  - librsvg=2.58.4=he92a37e_3
   - librttopo=1.1.0=h96cd706_19
   - libsodium=1.0.20=h4ab18f5_0
   - libspatialite=5.1.0=h7250436_15
@@ -547,7 +547,7 @@ dependencies:
   - s3fs=2025.10.0=pyhd8ed1ab_0
   - s3transfer=0.14.0=pyhd8ed1ab_0
   - scikit-learn=1.7.2=py313h06d4379_0
-  - scipy=1.16.3=py313h11c21cd_0
+  - scipy=1.16.3=py313h11c21cd_1
   - secretstorage=3.4.1=py313h78bf25f_0
   - semver=3.0.4=pyhd8ed1ab_0
   - send2trash=1.8.3=pyh0d859eb_1
