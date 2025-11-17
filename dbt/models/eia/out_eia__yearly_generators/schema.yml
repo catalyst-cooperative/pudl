@@ -67,7 +67,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_eia__yearly_generators
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_bgas_show_low_differing_primary_fuels:
               arguments:
                 bga_model: source('pudl', 'core_eia860__assn_boiler_generator')
@@ -81,6 +81,8 @@ sources:
           - name: utility_id_eia
           - name: utility_id_pudl
           - name: utility_name_eia
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_name_eia
           - name: technology_description
           - name: energy_source_code_1
           - name: prime_mover_code
