@@ -276,8 +276,16 @@ def _core_eia860__generators(
         "ferc_exempt_wholesale_generator",
         "ferc_qualifying_facility",
     ]
+    # pd.concat complains if you hand it an empty data frame, but there are some columns
+    # that only ever appear in data frames that happen to be empty for etl-fast.
+    # to get around that, we manually compute which columns those are so we can backfill
+    # them with nulls after the concat step.
+    src_dfs = [ge_df, gp_df, gr_df, g_df]
+    all_cols = set().union(*[set(src.columns) for src in src_dfs])
+    kept_cols = set().union(*[set(src.columns) for src in src_dfs if not src.empty])
     gens_df = (
-        pd.concat([x for x in [ge_df, gp_df, gr_df, g_df] if not x.empty], sort=True)
+        pd.concat([src for src in src_dfs if not src.empty], sort=True)
+        .assign(**dict.fromkeys(all_cols - kept_cols))
         .pipe(pudl.helpers.standardize_na_values)
         .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(
