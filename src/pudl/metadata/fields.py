@@ -60,6 +60,151 @@ from pudl.metadata.sources import SOURCES
 # )
 
 FIELD_METADATA: dict[str, dict[str, Any]] = {
+    "heat_content_of_delivered_gas": {
+        "description": "Heat content of gas delivered to consumers.",
+        "unit": "Btu/cf",
+        "type": "number",
+    },
+    "op_gas_consumption_by_facility_space_heat": {
+        "description": (
+            "Volume of natural gas consumed for space heat of operator's facilities "
+            "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "op_gas_consumption_by_new_pipeline_fill": {
+        "description": (
+            "Volume of natural gas consumed for operator's new pipeline fill "
+            "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "op_gas_consumption_by_pipeline_dist_storage_compressor_use": {
+        "description": (
+            "Volume of natural gas consumed by operator's pipeline distribution or storage "
+            "compressor use (14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "op_gas_consumption_by_vaporization_liquefaction_lng_fuel": {
+        "description": (
+            "Volume of natural gas consumed by operator for vaporization/liquefaction/LNG fuel"
+            "(14.73 psia and 60° Fahrenheit)",
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "op_gas_consumption_by_vehicle_fuel": {
+        "description": (
+            "Volume of natural gas used as company's fleet vehicle fuel"
+            "(14.73 psia and 60° Fahrenheit)",
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "op_gas_consumption_by_other": {
+        "description": (
+            "Volume of natural gas used in other company's operations"
+            "(14.73 psia and 60° Fahrenheit)",
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "operations_volume_underground_storage_injections": {
+        "description": (
+            "Underground storage injections volume (14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "operations_volume_lng_storage_injections": {
+        "description": (
+            "Liquified natural gas (LNG) storage injections volume (14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "lease_use_volume": {
+        "description": (
+            "Lease use volume (producers only) (14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "returns_for_repress_reinjection_volume": {
+        "description": (
+            "Volume of gas returned to oil or gas reservoirs, used for repressuring, reinjection "
+            "(producers only) (14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "losses_from_leaks_volume": {
+        "description": (
+            "Losses from leaks, damage, accidents, migration and/or blow down"
+            "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "disposition_to_distribution_companies_volume": {
+        "description": (
+            "Disposition to distribution companies within the report state"
+            "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "disposition_to_other_pipelines_volume": {
+        "description": (
+            "Dispositiont to other pipelines within the report state"
+            "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "disposition_to_storage_operators_volume": {
+        "description": (
+            "Dispositiont to storage operators within the report state"
+            "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "total_disposition_volume": {
+        "description": (
+            "Total disposition within the report state"
+            "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "unaccounted_for": {
+        "description": (
+            "Difference between gas supply (+) and disposition (-)"
+            "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "out_of_state_deliveries_volume": {
+        "description": (
+            "Total volume of operator's out of state deliveries"
+            "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "disposition_to_other_volume": {
+        "description": (
+            "Disposition not included in other fields" "(14.73 psia and 60° Fahrenheit)"
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
     "consumers": {
         "type": "integer",
         "description": "Number of end-use consumers within the report state.",
@@ -8530,154 +8675,7 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
-    "core_eia176__yearly_gas_disposition": {
-        "heat_content_of_delivered_gas": {
-            "description": "Heat content of gas delivered to consumers.",
-            "unit": "Btu/cf",
-            "type": "number",
-        },
-        "op_gas_consumption_by_facility_space_heat": {
-            "description": (
-                "Volume of natural gas consumed for space heat of operator's facilities "
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "op_gas_consumption_by_new_pipeline_fill": {
-            "description": (
-                "Volume of natural gas consumed for operator's new pipeline fill "
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "op_gas_consumption_by_pipeline_dist_storage_compressor_use": {
-            "description": (
-                "Volume of natural gas consumed by operator's pipeline distribution or storage "
-                "compressor use (14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "op_gas_consumption_by_vaporization_liquefaction_lng_fuel": {
-            "description": (
-                "Volume of natural gas consumed by operator for vaporization/liquefaction/LNG fuel",
-                "(14.73 psia and 60° Fahrenheit)",
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "op_gas_consumption_by_vehicle_fuel": {
-            "description": (
-                "Volume of natural gas used as company's fleet vehicle fuel",
-                "(14.73 psia and 60° Fahrenheit)",
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "op_gas_consumption_by_other": {
-            "description": (
-                "Volume of natural gas used in other company's operations",
-                "(14.73 psia and 60° Fahrenheit)",
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "operations_volume_underground_storage_injections": {
-            "description": (
-                "Underground storage injections volume (14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "operations_volume_lng_storage_injections": {
-            "description": (
-                "Liquified natural gas (LNG) storage injections volume (14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "lease_use_volume": {
-            "description": (
-                "Lease use volume (producers only) (14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "returns_for_repress_reinjection_volume": {
-            "description": (
-                "Volume of gas returned to oil or gas reservoirs, used for repressuring, reinjection "
-                "(producers only) (14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "losses_from_leaks_volume": {
-            "description": (
-                "Losses from leaks, damage, accidents, migration and/or blow down"
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "disposition_to_distribution_companies_volume": {
-            "description": (
-                "Disposition to distribution companies within the report state"
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "disposition_to_other_pipelines_volume": {
-            "description": (
-                "Dispositiont to other pipelines within the report state"
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "disposition_to_storage_operators_volume": {
-            "description": (
-                "Dispositiont to storage operators within the report state"
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "total_disposition_volume": {
-            "description": (
-                "Total disposition within the report state"
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "unaccounted_for": {
-            "description": (
-                "Difference between gas supply (+) and disposition (-)"
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "out_of_state_deliveries_volume": {
-            "description": (
-                "Total volume of operator's out of state deliveries"
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-        "disposition_to_other_volume": {
-            "description": (
-                "Disposition not included in other fields"
-                "(14.73 psia and 60° Fahrenheit)"
-            ),
-            "unit": "Mcf",
-            "type": "number",
-        },
-    },
+    "core_eia176__yearly_gas_disposition": {},
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
             "description": "State that the operator is reporting for.",
