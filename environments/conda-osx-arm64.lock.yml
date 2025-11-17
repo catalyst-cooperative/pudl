@@ -184,9 +184,9 @@ dependencies:
   - google-auth-oauthlib=1.2.2=pyhd8ed1ab_0
   - google-cloud-core=2.5.0=pyhd8ed1ab_0
   - google-cloud-sdk=547.0.0=py313h8f79df9_0
-  - google-cloud-storage=3.5.0=pyhcf101f3_0
+  - google-cloud-storage=3.6.0=pyhcf101f3_0
   - google-crc32c=1.7.1=py313h7962f2b_1
-  - google-resumable-media=2.7.2=pyhd8ed1ab_2
+  - google-resumable-media=2.8.0=pyhd8ed1ab_0
   - googleapis-common-protos=1.72.0=pyhd8ed1ab_0
   - gql=3.5.0=pyhd8ed1ab_2
   - gql-with-requests=3.5.0=hd8ed1ab_2
@@ -327,7 +327,7 @@ dependencies:
   - libssh2=1.11.1=h1590b86_0
   - libthrift=0.22.0=h14a376c_1
   - libtiff=4.7.1=h4030677_1
-  - libutf8proc=2.11.0=hc25f550_0
+  - libutf8proc=2.11.1=hd2415e0_0
   - libuv=1.51.0=h6caf38d_1
   - libwebp-base=1.6.0=h07db88b_0
   - libxcb=1.17.0=hdb1d25a_0
@@ -365,7 +365,7 @@ dependencies:
   - munkres=1.1.4=pyhd8ed1ab_1
   - muparser=2.3.5=h11e0b38_0
   - mypy_extensions=1.1.0=pyha770c72_0
-  - narwhals=2.11.0=pyhcf101f3_0
+  - narwhals=2.12.0=pyhcf101f3_0
   - nbclient=0.10.2=pyhd8ed1ab_0
   - nbconvert=7.16.6=hc388f54_1
   - nbconvert-core=7.16.6=pyhcf101f3_1
@@ -470,7 +470,7 @@ dependencies:
   - python-calamine=0.5.3=py313h0b74987_1
   - python-dateutil=2.9.0.post0=pyhe01879c_2
   - python-dotenv=1.2.1=pyhcf101f3_0
-  - python-duckdb=1.4.1=py313h0e822ff_0
+  - python-duckdb=1.4.2=py313h0e822ff_0
   - python-fastjsonschema=2.21.2=pyhe01879c_0
   - python-flatbuffers=25.9.23=pyh1e1bc0e_0
   - python-gil=3.13.9=h4df99d1_101
@@ -546,8 +546,8 @@ dependencies:
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_1
   - splink=4.0.11=pyhd8ed1ab_0
   - sqlalchemy=2.0.44=py313h6535dbc_0
-  - sqlglot=27.29.0=pyhcf101f3_0
-  - sqlglot-rs=27.29.0=h80e3e46_0
+  - sqlglot=28.0.0=pyhcf101f3_0
+  - sqlglot-rs=28.0.0=h5602114_0
   - sqlglotrs=0.7.3=py313hb4875b5_0
   - sqlite=3.51.0=h81ab1b7_0
   - sqlparse=0.5.3=pyhd8ed1ab_0
