@@ -351,7 +351,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     return df
 
 
-@asset
+@asset(io_manager_key="pudl_io_manager")
 def core_eia176__yearly_gas_disposition(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -434,6 +434,35 @@ def core_eia176__yearly_gas_disposition(
     _normalize_operating_states(core_pudl__codes_subdivisions, df)
     df = df.dropna(subset=["operating_state"])
     df.dropna(subset=keep, inplace=True, how="all")
+
+    operator_gas_consumption_prefix = "op_gas_consumption_by"
+
+    df = df.rename(
+        columns={
+            "heat_content_of_delivered_gas_btu_cf": "heat_content_of_delivered_gas",
+            "facility_space_heat": (
+                f"{operator_gas_consumption_prefix}_facility_space_heat"
+            ),
+            "new_pipeline_fill_volume": (
+                f"{operator_gas_consumption_prefix}_new_pipeline_fill"
+            ),
+            "pipeline_dist_storage_compressor_use": (
+                f"{operator_gas_consumption_prefix}_pipeline_dist_storage_compressor_use"
+            ),
+            "vaporization_liquefaction_lng_fuel": (
+                f"{operator_gas_consumption_prefix}_vaporization_liquefaction_lng_fuel"
+            ),
+            "vehicle_fuel_used_in_company_fleet": (
+                f"{operator_gas_consumption_prefix}_vehicle_fuel"
+            ),
+            "other": f"{operator_gas_consumption_prefix}_other",
+            "underground_storage_injections_volume": (
+                "operations_volume_underground_storage_injections"
+            ),
+            "lng_storage_injections_volume": "operations_volume_lng_storage_injections",
+            "deliveries_out_of_state_volume": "out_of_state_deliveries_volume",
+        }
+    )
 
     return df
 
