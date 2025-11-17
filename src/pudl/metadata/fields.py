@@ -176,8 +176,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "total_disposition_volume": {
         "description": (
-            "Total disposition within the report state"
-            "(14.73 psia and 60° Fahrenheit)"
+            "Total disposition within the report state(14.73 psia and 60° Fahrenheit)"
         ),
         "unit": "Mcf",
         "type": "number",
@@ -200,7 +199,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "disposition_to_other_volume": {
         "description": (
-            "Disposition not included in other fields" "(14.73 psia and 60° Fahrenheit)"
+            "Disposition not included in other fields(14.73 psia and 60° Fahrenheit)"
         ),
         "unit": "Mcf",
         "type": "number",
