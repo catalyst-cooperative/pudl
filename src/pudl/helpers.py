@@ -754,9 +754,14 @@ def simplify_strings(
 
     Leaves null values unaltered. Casts other values with astype(str).
 
+    Running with ``copy=False`` is intended for memory-intensive data frames where no
+    upstream process retains a reference to the data. Use care with this option,
+    and keep an eye out for spooky data changes showing up in unexpected places.
+
     Args:
         df: DataFrame whose columns are being cleaned up.
         columns: The labels of the string columns to be simplified.
+        copy: (Default True) Return a copy, making no changes to the original data.
 
     Returns:
         The whole DataFrame that was passed in, with the string columns cleaned up.
@@ -1007,6 +1012,10 @@ def convert_to_date(
     Otherwise the constructed date is placed in that column, and the columns
     which were used to create the date are dropped.
 
+    Running with ``copy=False`` is intended for memory-intensive data frames where no
+    upstream process retains a reference to the data. Use care with this option,
+    and keep an eye out for spooky data changes showing up in unexpected places.
+
     Args:
         df: dataframe to convert
         date_col: the name of the column you want in the output.
@@ -1016,6 +1025,7 @@ def convert_to_date(
         month_na_value: generated month if no month exists or if the month
             value is NA.
         day_na_value: generated day if no day exists or if the day value is NA.
+        copy: (default True) return a copy, making no changes to the original data.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted
@@ -1906,6 +1916,11 @@ def fix_boolean_columns(
     columns have "X" values which represents a False value. A subset of the columns
     have "U" values, presumably for "Unknown," which must be set to null in order to
     convert the columns to datatype Boolean.
+
+    If running with ``inplace=True``, will run in-place versions of the fill and
+    replace operations instead of returning a copy of the data frame. This mode is
+    useful for memory-intensive data frames, but be aware that upstream processes
+    retaining a reference to the data will see the changes made here.
     """
     fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {

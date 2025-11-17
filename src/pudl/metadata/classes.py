@@ -2318,8 +2318,16 @@ class Package(PudlMeta):
     def encode(self, df: pd.DataFrame, copy: bool = True) -> pd.DataFrame:
         """Clean up all coded columns in a dataframe based on PUDL coding tables.
 
+        Running with ``copy=False`` is intended for memory-intensive data frames where no
+        upstream process retains a reference to the data. Use care with this option,
+        and keep an eye out for spooky data changes showing up in unexpected places.
+
+        Args:
+            df: DataFrame whose code columns are being cleaned up.
+            copy: (Default True) Return a copy, making no changes to the original data.
+
         Returns:
-            A modified copy of the input dataframe.
+            A dataframe with clean code columns.
         """
         encoded_df = df.copy() if copy else df
         for col in encoded_df.columns:
