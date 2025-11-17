@@ -92,7 +92,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "op_gas_consumption_by_vaporization_liquefaction_lng_fuel": {
         "description": (
             "Volume of natural gas consumed by operator for vaporization/liquefaction/LNG fuel"
-            "(14.73 psia and 60° Fahrenheit)",
+            "(14.73 psia and 60° Fahrenheit)"
         ),
         "unit": "Mcf",
         "type": "number",
@@ -100,7 +100,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "op_gas_consumption_by_vehicle_fuel": {
         "description": (
             "Volume of natural gas used as company's fleet vehicle fuel"
-            "(14.73 psia and 60° Fahrenheit)",
+            "(14.73 psia and 60° Fahrenheit)"
         ),
         "unit": "Mcf",
         "type": "number",
@@ -108,7 +108,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "op_gas_consumption_by_other": {
         "description": (
             "Volume of natural gas used in other company's operations"
-            "(14.73 psia and 60° Fahrenheit)",
+            "(14.73 psia and 60° Fahrenheit)"
         ),
         "unit": "Mcf",
         "type": "number",
