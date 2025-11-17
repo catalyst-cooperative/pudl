@@ -2,6 +2,34 @@
 PUDL Release Notes
 =======================================================================================
 
+---------------------------------------------------------------------------------------
+v2025.X.X (2025-X-X)
+---------------------------------------------------------------------------------------
+
+This is a regular monthly data release, primarily intended to ensure that PUDL has the
+most up-to-date EIA-860M data.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Data Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performance improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Reduced peak memory usage for core_eia860m__changelog_generators from 22GB to 16GB
+
+
 .. _release-v2025.11.0:
 
 ---------------------------------------------------------------------------------------

@@ -276,16 +276,11 @@ def _core_eia860__generators(
         "ferc_exempt_wholesale_generator",
         "ferc_qualifying_facility",
     ]
-    # pd.concat complains if you hand it an empty data frame, but there are some columns
-    # that only ever appear in data frames that happen to be empty for etl-fast.
-    # to get around that, we manually compute which columns those are so we can backfill
-    # them with nulls after the concat step.
-    src_dfs = [ge_df, gp_df, gr_df, g_df]
-    all_cols = set().union(*[set(src.columns) for src in src_dfs])
-    kept_cols = set().union(*[set(src.columns) for src in src_dfs if not src.empty])
     gens_df = (
-        pd.concat([src for src in src_dfs if not src.empty], sort=True)
-        .assign(**dict.fromkeys(all_cols - kept_cols))
+        # pandas complains when you pass in empty dfs, but it's surprisingly more
+        # memory-expensive to skip the empty dfs and manually add the columns
+        # we need from them back in, so the complainer stays.
+        pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
         .pipe(pudl.helpers.standardize_na_values)
         .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(
@@ -315,7 +310,7 @@ def _core_eia860__generators(
         (gens_df.state == "UT") & (gens_df.balancing_authority_code_eia == "PA"),
         "balancing_authority_code_eia",
     ] = "PACE"
-    gens_df = PUDL_PACKAGE.encode(gens_df)
+    gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
 
     gens_df["fuel_type_code_pudl"] = gens_df.energy_source_code_1.str.upper().map(
         pudl.helpers.label_map(

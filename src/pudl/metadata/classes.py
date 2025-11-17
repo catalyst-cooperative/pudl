@@ -2315,13 +2315,13 @@ class Package(PudlMeta):
                 assert encoders[field.name].ignored_codes == field.encoder.ignored_codes
         return encoders
 
-    def encode(self, df: pd.DataFrame) -> pd.DataFrame:
+    def encode(self, df: pd.DataFrame, copy: bool = True) -> pd.DataFrame:
         """Clean up all coded columns in a dataframe based on PUDL coding tables.
 
         Returns:
             A modified copy of the input dataframe.
         """
-        encoded_df = df.copy()
+        encoded_df = df.copy() if copy else df
         for col in encoded_df.columns:
             if col in self.encoders:
                 encoded_df[col] = self.encoders[col].encode(
