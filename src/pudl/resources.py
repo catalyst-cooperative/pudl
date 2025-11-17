@@ -1,6 +1,7 @@
 """Collection of Dagster resources for PUDL."""
 
 from dagster import ConfigurableResource, Field, resource
+from dagster_duckdb import DuckDBResource
 
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, create_dagster_config
 from pudl.workspace.datastore import Datastore
@@ -58,3 +59,8 @@ def datastore(init_context) -> Datastore:
         # it should be initialized to the right values.
         ds_kwargs["local_cache_path"] = PudlPaths().input_dir
     return Datastore(**ds_kwargs)
+
+
+vcerare_duckdb_transformer = DuckDBResource(
+    database=str(PudlPaths().output_dir / "vcerare_transformer.duckdb")
+)
