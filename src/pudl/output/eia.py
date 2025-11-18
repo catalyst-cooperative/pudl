@@ -443,6 +443,9 @@ def _out_eia__plants_utilities(
         on=["report_date", "utility_id_eia"],
     )
 
+    # This list determines what plant or utility level attributes are available for
+    # inclusion in the denormalized generator tables. If there are additional fields
+    # that get requested, add them here.
     out_df = out_df.loc[
         :,
         [
@@ -453,6 +456,8 @@ def _out_eia__plants_utilities(
             "utility_id_eia",
             "utility_name_eia",
             "utility_id_pudl",
+            "balancing_authority_code_eia",
+            "balancing_authority_name_eia",
             "data_maturity",
         ],
     ].dropna(subset=["report_date", "plant_id_eia", "utility_id_eia"])
