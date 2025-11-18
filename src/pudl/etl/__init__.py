@@ -2,7 +2,6 @@
 
 import importlib.resources
 import itertools
-from pathlib import Path
 
 from dagster import (
     AssetKey,
@@ -29,7 +28,7 @@ from pudl.resources import (
     dataset_settings,
     datastore,
     ferc_to_sqlite_settings,
-    vcerare_duckdb_transformer,
+    pudl_duckdb_transformer,
 )
 from pudl.settings import EtlSettings
 
@@ -183,7 +182,7 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
-    "vcerare_duckdb_transformer": vcerare_duckdb_transformer,
+    "pudl_duckdb_transformer": pudl_duckdb_transformer,
 }
 
 # Limit the number of concurrent workers when launch assets that use a lot of memory.

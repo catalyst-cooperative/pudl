@@ -20,8 +20,6 @@ import pandas as pd
 from dagster import asset
 
 from pudl import logging_helpers
-from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import PudlPaths
 
 logger = logging_helpers.get_logger(__name__)
 
@@ -32,61 +30,48 @@ VCERARE_PAGES = {
 }
 
 
-def extract_year(
-    vcerare_page: str,
-    conn: duckdb.DuckDBPyConnection,
-    year: int,
-    ds: Datastore,
-):
-    """Extract one year of one vcerare table from CSV's and write to parquet."""
-    table_name = f"raw_vcerare__{vcerare_page}"
-    table_parquet_path = PudlPaths().output_dir / "parquet" / table_name
-    table_parquet_path.mkdir(exist_ok=True)
-    with (
-        ds.get_zipfile_resource("vcerare", year=year) as zf,
-        zf.open(f"{year}/{VCERARE_PAGES[vcerare_page]}") as csv,
-    ):
-        rel = conn.read_csv(csv)
-        columns = rel.columns
-        col_map = {col: col.lower() for col in columns}
-        col_map[columns[0]] = "hour_of_year"
-        (
-            rel.select(
-                f"{year} AS report_year, "
-                + ", ".join(
-                    [f'"{col}" AS "{clean_col}"' for col, clean_col in col_map.items()]
-                )
-            ).to_parquet(str(table_parquet_path / f"{year}.parquet"))
-        )
-
-
 def raw_vcerare_asset_factory(vcerare_page: str):
     """Construct an asset to extract a single page from vcerare."""
     table_name = f"raw_vcerare__{vcerare_page}"
 
+    def _clean_columns(
+        table_relation: duckdb.DuckDBPyRelation,
+    ) -> duckdb.DuckDBPyRelation:
+        """Apply basic cleaning to columns."""
+        columns = table_relation.columns
+        col_map = {col: col.lower() for col in columns}
+
+        # The first column is never named, but is always the ``hour_of_year`` column
+        col_map[columns[0]] = "hour_of_year"
+
+        # Rename all columns
+        return table_relation.select(
+            ", ".join(
+                [f'"{col}" AS "{clean_col}"' for col, clean_col in col_map.items()]
+            )
+        )
+
     @asset(
         name=table_name,
         required_resource_keys={
-            "datastore",
+            "pudl_duckdb_transformer",
             "dataset_settings",
-            "vcerare_duckdb_transformer",
         },
     )
     def _extract_asset(context):
-        """Extract a single year/page combo."""
-        ds = context.resources.datastore
-        vcerare_duckdb = context.resources.vcerare_duckdb_transformer
-        vcerare_settings = context.resources.dataset_settings.vcerare
-
-        with vcerare_duckdb.get_connection() as conn:
-            for year in vcerare_settings.years:
-                extract_year(vcerare_page, conn, year, ds)
-            (
-                conn.read_parquet(
-                    str(PudlPaths().output_dir / "parquet" / table_name),
-                    union_by_name=True,
-                ).to_view(table_name, replace=True)
-            )
+        """Extract data from a single vcerare page and write to parquet."""
+        dataset_settings = context.resources.dataset_settings
+        pudl_duckdb_transformer = context.resources.pudl_duckdb_transformer
+        pudl_duckdb_transformer.extract_csv_to_parquet(
+            "vcerare",
+            table_name,
+            partition_paths=[
+                ({"year": year}, f"{year}/{VCERARE_PAGES[vcerare_page]}")
+                for year in dataset_settings.vcerare.years
+            ],
+            add_partition_columns=["year"],
+            custom_transforms=_clean_columns,
+        )
 
     return _extract_asset
 

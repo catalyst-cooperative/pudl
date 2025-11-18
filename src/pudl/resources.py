@@ -1,6 +1,11 @@
 """Collection of Dagster resources for PUDL."""
 
-from dagster import ConfigurableResource, Field, resource
+from collections.abc import Callable
+from pathlib import Path
+
+import duckdb
+import pandas as pd
+from dagster import ConfigurableResource, Field, ResourceDependency, resource
 from dagster_duckdb import DuckDBResource
 
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, create_dagster_config
@@ -61,6 +66,109 @@ def datastore(init_context) -> Datastore:
     return Datastore(**ds_kwargs)
 
 
-vcerare_duckdb_transformer = DuckDBResource(
-    database=str(PudlPaths().output_dir / "vcerare_transformer.duckdb")
-)
+class PudlDuckDBResource(DuckDBResource):
+    """Resource to manage using parquet files on disk for performing transforms.
+
+    Tools like duckdb and Polars are very good at using parquet files on
+    disk to do fast and memory efficient transforms. This resource provides
+    tooling to manage offloading data to parquet files where they can be
+    used for this use case. These files will be stored in the
+    `${PUDL_WORKSPACE}/storage/parquet` directory, rather than in the
+    output directory where parquet files are stored for publication.
+    """
+
+    ds: ResourceDependency[Datastore]
+
+    def _get_parquet_dir(self, table_name: str) -> Path:
+        """Get path to directory for writing/reading parquet files."""
+        return PudlPaths().parquet_transform_dir / table_name
+
+    def load_extracted_df(
+        self, table_name: str, filters: list[str] = []
+    ) -> pd.DataFrame:
+        """Read data from a set of parquet files and return a pandas DataFrame.
+
+        Args:
+            table_name: Name of raw or intermediate table to load.
+            filters: A set of filters to apply when reading data.
+                See https://duckdb.org/docs/stable/clients/python/relational_api#filter.
+        """
+        with self.load_extracted_table(table_name) as rel:
+            for filter_str in filters:
+                rel = rel.filter(filter_str)
+            return rel.fetchdf()
+
+    def load_extracted_table(self, table_name: str) -> duckdb.DuckDBPyRelation:
+        """Create a duckdb relation to read from parquet files."""
+        with self.get_connection() as conn:
+            yield conn.read_parquet(f"{self._get_parquet_dir(table_name)}/*.parquet")
+
+    def extract_csv_to_parquet(
+        self,
+        dataset: str,
+        table_name: str,
+        partition_paths: list[tuple[dict, str]],
+        add_partition_columns: list[str] | None = None,
+        custom_transforms: Callable[[duckdb.DuckDBPyRelation], duckdb.DuckDBPyRelation]
+        | None = None,
+    ):
+        """Extract a set of partitioned CSV files from raw archives to a set of parquet files.
+
+        This method is developed for a common pattern where raw archives which contain
+        one zipfile per partition, and each zipfile contains a CSV of data corresponding
+        to that partition. This method will loop through these zipfiles, and extract
+        the data and write it to a parquet file. This will produce a directory with
+        one parquet file per extracted CSV file.
+
+        Args:
+            dataset: Name of dataset used to fetch CSV files using DataStore.
+            table_name: Name of raw table used to construct path for storing parquet files.
+            partition_paths: Set of tuples containing a dictionary of partition
+                key value pairs to get a zipfile, and corresponding path
+                within the zipfile to get a CSV file.
+            add_partition_columns: Partition keys that should be made columns
+                in the generated parquet files. The key should correspond
+                to a key in the ``partition_paths`` dicts. This is useful
+                for things like adding a ``report_year`` column to tables
+                partitioned by year.
+            custom_transforms: Callable that takes a duckdb relation and returns a duckdb
+                relation, allowing for custom transforms to be applied using duckdb
+                before writing to parquet.
+        """
+        parquet_path = self._get_parquet_dir(table_name)
+        parquet_path.mkdir(exist_ok=True, parents=True)
+
+        with self.get_connection() as conn:
+            # Loop through zipfiles and translate data from CSV to parquet
+            for partitions, path in partition_paths:
+                with (
+                    self.ds.get_zipfile_resource(dataset=dataset, **partitions) as zf,
+                    zf.open(path) as csv,
+                ):
+                    rel = conn.read_csv(csv)
+
+                    # Add any partition columns if requested
+                    if add_partition_columns is not None:
+                        rel.select(
+                            ", ".join(
+                                [
+                                    f"{partitions[partition_col]} AS {partition_col}"
+                                    for partition_col in add_partition_columns
+                                ]
+                            )
+                        )
+
+                    # Apply custom transforms
+                    if custom_transforms is not None:
+                        rel = custom_transforms(rel)
+
+                    # Write extracted/transformed data to parquet
+                    rel.to_parquet(
+                        str(
+                            parquet_path
+                            / ("_".join(map(str, partitions.values())) + ".parquet")
+                        )
+                    )
+
+
+pudl_duckdb_transformer = PudlDuckDBResource(database="", ds=datastore)
