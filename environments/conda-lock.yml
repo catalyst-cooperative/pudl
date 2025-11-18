@@ -1097,42 +1097,39 @@ package:
     category: main
     optional: false
   - name: asttokens
-    version: 2.4.1
+    version: 3.0.1
     manager: conda
     platform: linux-64
     dependencies:
-      python: ">=3.5"
-      six: ">=1.12.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-2.4.1-pyhd8ed1ab_0.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-3.0.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 5f25798dcefd8252ce5f9dc494d5f571
-      sha256: 708168f026df19a0344983754d27d1f7b28bb21afc7b97a82f02c4798a3d2111
+      md5: 9673a61a297b00016442e022d689faa6
+      sha256: ee4da0f3fe9d59439798ee399ef3e482791e48784873d546e706d0935f9ff010
     category: main
     optional: false
   - name: asttokens
-    version: 2.4.1
+    version: 3.0.1
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.5"
-      six: ">=1.12.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-2.4.1-pyhd8ed1ab_0.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-3.0.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 5f25798dcefd8252ce5f9dc494d5f571
-      sha256: 708168f026df19a0344983754d27d1f7b28bb21afc7b97a82f02c4798a3d2111
+      md5: 9673a61a297b00016442e022d689faa6
+      sha256: ee4da0f3fe9d59439798ee399ef3e482791e48784873d546e706d0935f9ff010
     category: main
     optional: false
   - name: asttokens
-    version: 2.4.1
+    version: 3.0.1
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.5"
-      six: ">=1.12.0"
-    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-2.4.1-pyhd8ed1ab_0.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/asttokens-3.0.1-pyhd8ed1ab_0.conda
     hash:
-      md5: 5f25798dcefd8252ce5f9dc494d5f571
-      sha256: 708168f026df19a0344983754d27d1f7b28bb21afc7b97a82f02c4798a3d2111
+      md5: 9673a61a297b00016442e022d689faa6
+      sha256: ee4da0f3fe9d59439798ee399ef3e482791e48784873d546e706d0935f9ff010
     category: main
     optional: false
   - name: async-lru
@@ -12662,39 +12659,39 @@ package:
     category: main
     optional: false
   - name: libblas
-    version: 3.9.0
+    version: 3.11.0
     manager: conda
     platform: linux-64
     dependencies:
       libopenblas: ">=0.3.30,<1.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libblas-3.9.0-39_h4a7cf45_openblas.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libblas-3.11.0-0_h4a7cf45_openblas.conda
     hash:
-      md5: eee930e4b1bea9d04bc045f9d73aadbe
-      sha256: 46d0b48c971d613bf762c330a88c81ab593176cded736f0f0391d210f5292b09
+      md5: 2bb9d4578340054b5ce0de1e7c1c55ff
+      sha256: c0a2755ec4a99e0948689e63611181fa6f262fb5386e5ac0b6ab6bb8830e9a5b
     category: main
     optional: false
   - name: libblas
-    version: 3.9.0
+    version: 3.11.0
     manager: conda
     platform: osx-64
     dependencies:
       libopenblas: ">=0.3.30,<1.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libblas-3.9.0-39_he492b99_openblas.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libblas-3.11.0-0_he492b99_openblas.conda
     hash:
-      md5: dfa22b0d4bce460c9417e5e76d324232
-      sha256: 308071cdcfb2d9550852bdc38e7b29ede40e7af3961496639fd4dab95574881a
+      md5: d0d0d5e2847781b4d2a7a558d6e9461c
+      sha256: 6e686fc6db45bcd9169a5b54657d266a344983e452e753c698db42386cef7a8d
     category: main
     optional: false
   - name: libblas
-    version: 3.9.0
+    version: 3.11.0
     manager: conda
     platform: osx-arm64
     dependencies:
       libopenblas: ">=0.3.30,<1.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libblas-3.9.0-39_h51639a9_openblas.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libblas-3.11.0-0_h51639a9_openblas.conda
     hash:
-      md5: d6a7d80a3af411fcf5de7fa6208c6ab7
-      sha256: 34a8f48a278c9147de8bdb1356d9b26bd9f6f351cd8e189c912f849cc83dc0c6
+      md5: eaa71d7de4790f012d790a6360996e2d
+      sha256: e6ac3bd2ef1025cd4e427a447d627b084491016c992d07d3a26cbbb66ede460d
     category: main
     optional: false
   - name: libbrotlicommon
@@ -12815,39 +12812,39 @@ package:
     category: main
     optional: false
   - name: libcblas
-    version: 3.9.0
+    version: 3.11.0
     manager: conda
     platform: linux-64
     dependencies:
-      libblas: 3.9.0
-    url: https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.9.0-39_h0358290_openblas.conda
+      libblas: 3.11.0
+    url: https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.11.0-0_h0358290_openblas.conda
     hash:
-      md5: 7a1e939533970ec4a60abd597a2fcdce
-      sha256: 218b99f01490d125895174dd51ca11d78425557acd6dd2020bde732c1d55c976
+      md5: 28edd73431cf4030be8a439ecf68a8cb
+      sha256: d400e068dc156f7d7f7cfd0b61856e0f3c2b36d2fb21b8e4f089688728b0a8d7
     category: main
     optional: false
   - name: libcblas
-    version: 3.9.0
+    version: 3.11.0
     manager: conda
     platform: osx-64
     dependencies:
-      libblas: 3.9.0
-    url: https://conda.anaconda.org/conda-forge/osx-64/libcblas-3.9.0-39_h9b27e0a_openblas.conda
+      libblas: 3.11.0
+    url: https://conda.anaconda.org/conda-forge/osx-64/libcblas-3.11.0-0_h9b27e0a_openblas.conda
     hash:
-      md5: a92f4e3bd85d44197f08fdcf44594e81
-      sha256: 11180fe217a154292df8665f7c6680dd5d6f4b88bfffa59bf9a6e983396f49e8
+      md5: 2c073e9c0a4cc64ad9c4fa766e0989ab
+      sha256: 2b2507d23db1228c2b13fc4fb62a0f9fa80ce6b41a2b37db1a5336c2e90845d3
     category: main
     optional: false
   - name: libcblas
-    version: 3.9.0
+    version: 3.11.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      libblas: 3.9.0
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/libcblas-3.9.0-39_hb0561ab_openblas.conda
+      libblas: 3.11.0
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/libcblas-3.11.0-0_hb0561ab_openblas.conda
     hash:
-      md5: 178a35f31352f5cbe87b17cc91323380
-      sha256: 3d289aa6f4cb26347d9c17c7b1750262a54587781210b33f2339b9c2f341ca11
+      md5: c1408bcd8f5ef727f0a6c48b8855ab9e
+      sha256: c746b9ac5ace8db8fafc8d62468045737d673fa6dc40af9dedff2c82ba169c72
     category: main
     optional: false
   - name: libcrc32c
@@ -14202,39 +14199,39 @@ package:
     category: main
     optional: false
   - name: liblapack
-    version: 3.9.0
+    version: 3.11.0
     manager: conda
     platform: linux-64
     dependencies:
-      libblas: 3.9.0
-    url: https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.9.0-39_h47877c9_openblas.conda
+      libblas: 3.11.0
+    url: https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.11.0-0_h47877c9_openblas.conda
     hash:
-      md5: 0515e3248a3f576976d4bc922b62bf30
-      sha256: 02e21d96dd3fc18ec906a3432cdde60d419f1168c43f2dbe2dad732a7b6b8d92
+      md5: d7465a8f51f90ca21ca806e1a8832b83
+      sha256: 24bfd6db5a204d50d820c3b6923879b6254b946958b09cbb59a173c62767406e
     category: main
     optional: false
   - name: liblapack
-    version: 3.9.0
+    version: 3.11.0
     manager: conda
     platform: osx-64
     dependencies:
-      libblas: 3.9.0
-    url: https://conda.anaconda.org/conda-forge/osx-64/liblapack-3.9.0-39_h859234e_openblas.conda
+      libblas: 3.11.0
+    url: https://conda.anaconda.org/conda-forge/osx-64/liblapack-3.11.0-0_h859234e_openblas.conda
     hash:
-      md5: 7cb99dae89b614db5c4651f59ef56679
-      sha256: 6cc0b1b6c9dc1e6ecd509531428c35a5c9bf7ea23578a386ba6837bf05d98031
+      md5: c35aac369084727d0d0088150df8e400
+      sha256: 8c9a79891a926d736823f331b837edd1163730f3952acd36059da84b483cd334
     category: main
     optional: false
   - name: liblapack
-    version: 3.9.0
+    version: 3.11.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      libblas: 3.9.0
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/liblapack-3.9.0-39_hd9741b5_openblas.conda
+      libblas: 3.11.0
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/liblapack-3.11.0-0_hd9741b5_openblas.conda
     hash:
-      md5: 5481bf2d967c9e27f1cd0bcaf6e282e6
-      sha256: 64d840a3051939939099c6669a5ca79b954ecf58a0b4afc0a6b43bb02ecdc92d
+      md5: 6000611a37b51527e2efeab6b7ca198b
+      sha256: 047ad38d4d3ade10e1e7e126eb9b267915cb7f1bd9129191d4a20a215d5bd60c
     category: main
     optional: false
   - name: liblzma
