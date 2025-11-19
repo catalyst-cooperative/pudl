@@ -3,6 +3,28 @@ name: zenodo-data-release
 
 on:
   workflow_dispatch:
+    inputs:
+      env:
+        description: "Zenodo environment to upload data to"
+        required: true
+        options:
+          - sandbox
+          - production
+        default: "sandbox"
+        type: choice
+      source_dir:
+        description: "Source from which to pull data (e.g. an S3 bucket path)"
+        required: true
+        default: "s3://pudl.catalyst.coop/nightly/"
+      ignore_regex:
+        description: "A regular expression matching filenames not to upload"
+        required: false
+        default: '(^.*\.parquet$|^.*\.zip$)'
+      publish:
+        description: "Whether to automatically publish the Zenodo record after upload"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   zenodo-data-release:
@@ -26,7 +48,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          aws-region: "us-west-2"
 
       - name: Set up pudl-dev conda environment
         uses: mamba-org/setup-micromamba@v2
@@ -35,15 +57,24 @@ jobs:
           environment-name: pudl-dev
           cache-environment: true
 
-      - name: Run zenodo data release script
+      - name: Do a Zenodo data release
         env:
-          PUDL_NIGHTLY_S3: "s3://pudl.catalyst.coop/nightly/"
           ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
           ZENODO_TOKEN_UPLOAD: ${{ secrets.ZENODO_TOKEN_UPLOAD }}
         run: |
           python devtools/zenodo/zenodo_data_release.py \
-            --env sandbox \
-            --source-dir "${PUDL_NIGHTLY_S3}" \
-            --ignore "^.*\.parquet$" \
-            --ignore "^.*\.zip$" \
-            --no-publish
+            --env "${{ inputs.env }}" \
+            --source-dir "${{ inputs.source_dir }}" \
+            ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
+            ${{ inputs.publish && '--publish' || '' }}
+
+      - name: Post status to pudl-deployments channel
+        if: always()
+        id: slack
+        uses: slackapi/slack-github-action@v2
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
+          payload: |
+            text: "zenodo-data-release status: ${{ job.status }}"
+            channel: "C03FHB9N0PQ"
