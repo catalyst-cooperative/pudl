@@ -299,7 +299,7 @@ class EmptyDraft(State):
         for openable_file in files:
             name = Path(openable_file.path).name
             if all_ignore_regex.search(openable_file.path):
-                logger.info(
+                logger.debug(
                     f"Ignoring {openable_file.path} because it matched {all_ignore_regex}"
                 )
                 continue
