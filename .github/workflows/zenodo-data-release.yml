@@ -1,0 +1,49 @@
+---
+name: zenodo-data-release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  zenodo-data-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Set up pudl-dev conda environment
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: environments/conda-lock.yml
+          environment-name: pudl-dev
+          cache-environment: true
+
+      - name: Run zenodo data release script
+        env:
+          PUDL_NIGHTLY_S3: "s3://pudl.catalyst.coop/nightly/"
+          ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
+          ZENODO_TOKEN_UPLOAD: ${{ secrets.ZENODO_TOKEN_UPLOAD }}
+        run: |
+          python devtools/zenodo/zenodo_data_release.py \
+            --env sandbox \
+            --source-dir "${PUDL_NIGHTLY_S3}" \
+            --ignore "^.*\.parquet$" \
+            --ignore "^.*\.zip$" \
+            --no-publish
