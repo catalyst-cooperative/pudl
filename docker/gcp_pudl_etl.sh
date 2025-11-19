@@ -188,10 +188,36 @@ function clean_up_outputs_for_distribution() {
         rm -f "$PUDL_OUTPUT/pudl_dbt_tests.duckdb"
 }
 
+function zenodo_data_release() {
+    ZENODO_ENV=$1
+    SOURCE_DIR=$2
+    IGNORE_REGEX=$3
+    PUBLISH=$4
+
+    # Trigger the zenodo data release workflow using the GitHub API
+    curl -sS -X POST \
+      -H "Accept: application/vnd.github+json" \
+      -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
+      https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
+      -d @<(cat <<JSON
+{
+  "ref": "${BUILD_REF}",
+  "inputs": {
+    "env": "${ZENODO_ENV}",
+    "source_dir": "${SOURCE_DIR}",
+    "ignore_regex": "${IGNORE_REGEX}",
+    "publish": "${PUBLISH}"
+  }
+}
+JSON
+)
+}
+
 ########################################################################################
 # MAIN SCRIPT
 ########################################################################################
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
+ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^.*\\\\.zip$)"
 
 # Initialize our success variables so they all definitely have a value to check
 ETL_SUCCESS=0
@@ -266,6 +292,13 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1  | tee -a "$LOGFILE"
     DEPLOY_EEL_HOLE_SUCCESS=${PIPESTATUS[0]}
+    if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
+        zenodo_data_release \
+            "sandbox" \
+            "s3://pudl.catalyst.coop/nightly/" \
+            "${ZENODO_IGNORE_REGEX}" \
+            "publish" 2>&1 | tee -a "$LOGFILE"
+    fi
 
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
     merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
@@ -281,6 +314,13 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     # We can only do this on the GCS bucket, not S3
     gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
     GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
+    if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
+        zenodo_data_release \
+            "production" \
+            "s3://pudl.catalyst.coop/stable/" \
+            "${ZENODO_IGNORE_REGEX}" \
+            "no-publish" 2>&1 | tee -a "$LOGFILE"
+    fi
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
@@ -291,22 +331,18 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     # Remove those uploads since they were just for testing.
     remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
-    curl -sS -X POST \
-      -H "Accept: application/vnd.github+json" \
-      -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
-      https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
-      -d @<(cat <<JSON
-{
-  "ref": "${BUILD_REF}",
-  "inputs": {
-    "env": "sandbox",
-    "source_dir": "s3://pudl.catalyst.coop/nightly/",
-    "ignore_regex": "(^.*\\.parquet$|^.*\\.zip$)",
-    "publish": "false"
-  }
-}
-JSON
-)
+    # NOTE: because we remove the test uploads and the zenodo data release workflow
+    # runs independent of the nightly build (it is not blocking), the workflow
+    # has no build-specific outputs to publish. It just attempts to republish the
+    # nightly outputs from s3://pudl.catalyst.coop/nightly/ to make sure that the
+    # process is working.
+    if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
+        zenodo_data_release \
+            "sandbox" \
+            "s3://pudl.catalyst.coop/nightly/" \
+            "${ZENODO_IGNORE_REGEX}" \
+            "publish" 2>&1 | tee -a "$LOGFILE"
+    fi
 
 else
     echo "Unknown build type, exiting!"
