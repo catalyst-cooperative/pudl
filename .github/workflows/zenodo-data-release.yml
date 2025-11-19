@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       env:
-        description: "Zenodo environment to upload data to"
+        description: "Upload to Zenodo server environment:"
         required: true
         options:
           - sandbox
@@ -13,20 +13,22 @@ on:
         default: "sandbox"
         type: choice
       source_dir:
-        description: "Source of PUDL data to publish"
+        description: "Path to PUDL data to publish:"
         required: true
         default: "s3://pudl.catalyst.coop/nightly/"
       ignore_regex:
-        description: "Ignore files matching this regex"
+        description: "Ignore files matching this regex:"
         required: false
         default: '(^.*\.parquet$|^.*\.zip$)'
+        # The real data release pattern
+        # default: '(^.*\.parquet$|pudl_parquet_datapackage.json$)'
       publish:
-        description: "Automatically publish new Zenodo record?"
+        description: "Automatically publish Zenodo record?"
         required: true
         default: "no-publish"
         options:
-          - publish
           - no-publish
+          - publish
         type: choice
 
 jobs:
