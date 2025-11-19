@@ -13,18 +13,21 @@ on:
         default: "sandbox"
         type: choice
       source_dir:
-        description: "Source from which to pull data (e.g. an S3 bucket path)"
+        description: "Source of PUDL data to publish"
         required: true
         default: "s3://pudl.catalyst.coop/nightly/"
       ignore_regex:
-        description: "A regular expression matching filenames not to upload"
+        description: "Ignore files matching this regex"
         required: false
         default: '(^.*\.parquet$|^.*\.zip$)'
       publish:
-        description: "Whether to automatically publish the Zenodo record after upload"
-        required: false
-        default: false
-        type: boolean
+        description: "Automatically publish new Zenodo record?"
+        required: true
+        default: "no-publish"
+        options:
+          - publish
+          - no-publish
+        type: choice
 
 jobs:
   zenodo-data-release:
@@ -66,7 +69,7 @@ jobs:
             --env "${{ inputs.env }}" \
             --source-dir "${{ inputs.source_dir }}" \
             ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
-            ${{ inputs.publish && '--publish' || '' }}
+            --${{ inputs.publish }}
 
       - name: Post status to pudl-deployments channel
         if: always()
