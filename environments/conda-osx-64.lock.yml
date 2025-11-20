@@ -83,7 +83,7 @@ dependencies:
   - cattrs=25.3.0=pyhd8ed1ab_0
   - certifi=2025.11.12=pyhd8ed1ab_0
   - cffi=2.0.0=py313hf57695f_1
-  - cfgv=3.3.1=pyhd8ed1ab_1
+  - cfgv=3.5.0=pyhd8ed1ab_0
   - chardet=5.2.0=pyhd8ed1ab_3
   - charset-normalizer=3.4.4=pyhd8ed1ab_0
   - click=8.1.8=pyh707e725_0

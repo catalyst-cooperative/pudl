@@ -365,7 +365,9 @@ class CompleteDraft(State):
         return self.zenodo_client.get_deposition(self.record_id).links.html
 
 
-@click.command()
+@click.command(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 @click.option(
     "--env",
     type=click.Choice([SANDBOX, PRODUCTION], case_sensitive=False),

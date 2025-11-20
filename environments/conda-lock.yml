@@ -3533,39 +3533,39 @@ package:
     category: main
     optional: false
   - name: cfgv
-    version: 3.3.1
+    version: 3.5.0
     manager: conda
     platform: linux-64
     dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/cfgv-3.3.1-pyhd8ed1ab_1.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/cfgv-3.5.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 57df494053e17dce2ac3a0b33e1b2a2e
-      sha256: d5696636733b3c301054b948cdd793f118efacce361d9bd4afb57d5980a9064f
+      md5: 381bd45fb7aa032691f3063aff47e3a1
+      sha256: aa589352e61bb221351a79e5946d56916e3c595783994884accdb3b97fe9d449
     category: main
     optional: false
   - name: cfgv
-    version: 3.3.1
+    version: 3.5.0
     manager: conda
     platform: osx-64
     dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/cfgv-3.3.1-pyhd8ed1ab_1.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/cfgv-3.5.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 57df494053e17dce2ac3a0b33e1b2a2e
-      sha256: d5696636733b3c301054b948cdd793f118efacce361d9bd4afb57d5980a9064f
+      md5: 381bd45fb7aa032691f3063aff47e3a1
+      sha256: aa589352e61bb221351a79e5946d56916e3c595783994884accdb3b97fe9d449
     category: main
     optional: false
   - name: cfgv
-    version: 3.3.1
+    version: 3.5.0
     manager: conda
     platform: osx-arm64
     dependencies:
-      python: ">=3.9"
-    url: https://conda.anaconda.org/conda-forge/noarch/cfgv-3.3.1-pyhd8ed1ab_1.conda
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/cfgv-3.5.0-pyhd8ed1ab_0.conda
     hash:
-      md5: 57df494053e17dce2ac3a0b33e1b2a2e
-      sha256: d5696636733b3c301054b948cdd793f118efacce361d9bd4afb57d5980a9064f
+      md5: 381bd45fb7aa032691f3063aff47e3a1
+      sha256: aa589352e61bb221351a79e5946d56916e3c595783994884accdb3b97fe9d449
     category: main
     optional: false
   - name: chardet

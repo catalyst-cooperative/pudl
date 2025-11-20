@@ -143,6 +143,7 @@ pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territo
 dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
+zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
 
 [project.urls]
 "Homepage" = "https://catalyst.coop/pudl/"
