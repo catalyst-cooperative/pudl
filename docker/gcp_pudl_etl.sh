@@ -288,9 +288,10 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
-    upload_to_dist_path "nightly" | tee -a "$LOGFILE"
+    upload_to_dist_path "nightly" | tee -a "$LOGFILE" &&
+        upload_to_dist_path "eel-hole" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-    gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1  | tee -a "$LOGFILE"
+    gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1 | tee -a "$LOGFILE"
     DEPLOY_EEL_HOLE_SUCCESS=${PIPESTATUS[0]}
     if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
         zenodo_data_release \
