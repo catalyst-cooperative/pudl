@@ -62,12 +62,16 @@ jobs:
           environment-name: pudl-dev
           cache-environment: true
 
+      - name: Install PUDL
+        run: |
+          pip install --no-deps --editable .
+
       - name: Do a Zenodo data release
         env:
           ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
           ZENODO_TOKEN_UPLOAD: ${{ secrets.ZENODO_TOKEN_UPLOAD }}
         run: |
-          python devtools/zenodo/zenodo_data_release.py \
+          zenodo_data_release \
             --env "${{ inputs.env }}" \
             --source-dir "${{ inputs.source_dir }}" \
             ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
