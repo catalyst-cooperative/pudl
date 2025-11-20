@@ -7,23 +7,31 @@ import os
 import re
 import tempfile
 import time
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import IO
 
 import click
+import coloredlogs
 import fsspec
 import requests
+from fsspec.core import url_to_fs
 from pydantic import AnyHttpUrl, BaseModel, Field
+
+from pudl.logging_helpers import get_logger
 
 SANDBOX = "sandbox"
 PRODUCTION = "production"
+RETRYABLE_STATUS_CODES = {502, 503, 504}
 
-logging.basicConfig(
+logger = get_logger(__name__)
+coloredlogs.install(
     level=logging.INFO,
-    format="%(asctime)s: %(levelname)s - %(message)s (%(filename)s:%(lineno)s)",
+    logger=logger,
+    fmt="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
-logger = logging.getLogger()
 
 
 class _LegacyLinks(BaseModel):
@@ -57,6 +65,36 @@ class _NewRecord(BaseModel):
     files: list[_NewFile]
 
 
+@dataclass
+class UploadSource:
+    """Encapsulate a re-openable upload stream (local path or cached temp file)."""
+
+    name: str
+    opener: Callable[[], IO[bytes]]
+    size: int
+    cleanup: Callable[[], None] | None = None
+
+    @contextmanager
+    def open(self) -> Iterator[IO[bytes]]:
+        """Yield a rewound stream for uploading."""
+        handle = self.opener()
+        try:
+            if hasattr(handle, "seek"):
+                handle.seek(0)
+            yield handle
+        finally:
+            handle.close()
+
+    def release(self) -> None:
+        """Clean up any temporary resources associated with this source."""
+        if not self.cleanup:
+            return
+        try:
+            self.cleanup()
+        except FileNotFoundError:
+            logger.debug("Temporary upload source already removed: %s", self.name)
+
+
 class ZenodoClient:
     """Thin wrapper over Zenodo REST API.
 
@@ -88,26 +126,35 @@ class ZenodoClient:
 
         logger.info(f"Using Zenodo token: {token[:4]}...{token[-4:]}")
 
-    def retry_request(self, *, method, url, max_tries=6, timeout=2, **kwargs):
-        """Wrap requests.request in retry logic.
-
-        Passes method, url, and **kwargs to requests.request.
-        """
-        for try_num in range(1, max_tries):
+    def retry_request(
+        self, *, method, url, max_tries=6, timeout=2, **kwargs
+    ) -> requests.Response:
+        """Wrap requests.request in retry logic for non-upload requests."""
+        response: requests.Response | None = None
+        for attempt in range(1, max_tries + 1):
             try:
-                return requests.request(
-                    method=method, url=url, timeout=timeout**try_num, **kwargs
+                response = requests.request(
+                    method=method, url=url, timeout=timeout**attempt, **kwargs
                 )
-            except (requests.RequestException, OSError) as e:
+                if response.status_code in RETRYABLE_STATUS_CODES:
+                    raise requests.HTTPError(
+                        f"Retryable status {response.status_code} from {url}",
+                        response=response,
+                    )
+                return response
+            except (requests.RequestException, OSError, requests.HTTPError) as exc:
+                if attempt == max_tries:
+                    raise
+                wait = timeout**attempt
                 logger.warning(
-                    f"Attempt #{try_num} Got {e}, retrying in {timeout**try_num} s"
+                    f"Attempt #{attempt} for {url} failed with {exc}, retrying in {wait}s"
                 )
-                time.sleep(timeout**try_num)
-
-        # don't catch errors on the last try.
-        return requests.request(
-            method=method, url=url, timeout=timeout**max_tries, **kwargs
-        )
+                time.sleep(wait)
+        if response is None:
+            raise RuntimeError(
+                f"Failed to complete request to {url} after {max_tries} tries"
+            )
+        return response
 
     def get_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: Get JSON describing a deposition.
@@ -178,7 +225,11 @@ class ZenodoClient:
         )
 
     def create_bucket_file(
-        self, bucket_url: AnyHttpUrl, file_name: str, file_content: IO[bytes]
+        self,
+        bucket_url: AnyHttpUrl,
+        file_name: str,
+        upload_source: UploadSource,
+        max_tries: int = 6,
     ) -> requests.Response:
         """LEGACY API: Upload a file to a deposition's file bucket.
 
@@ -188,15 +239,38 @@ class ZenodoClient:
         url = f"{bucket_url}/{file_name}"
         logger.info(f"Uploading file to {url}")
 
-        # don't worry about timeout=5s - that's "time for the server to
-        # connect", not "time to upload whole file."
-        response = self.retry_request(
-            method="PUT",
-            url=url,
-            headers=self.auth_headers,
-            data=file_content,
-            stream=True,
-        )
+        if upload_source.size == 0:
+            raise ValueError(f"Upload source for {file_name} has zero bytes")
+
+        response: requests.Response | None = None
+        for attempt in range(1, max_tries + 1):
+            try:
+                with upload_source.open() as payload:
+                    response = requests.put(
+                        url,
+                        headers=self.auth_headers,
+                        data=payload,
+                        stream=True,
+                        timeout=60,
+                    )
+                if response.status_code in RETRYABLE_STATUS_CODES:
+                    raise requests.HTTPError(
+                        f"Retryable status {response.status_code} from {url}",
+                        response=response,
+                    )
+                return response
+            except (requests.RequestException, OSError, requests.HTTPError) as exc:
+                if attempt == max_tries:
+                    raise
+                wait = 2**attempt
+                logger.warning(
+                    f"Upload attempt {attempt}/{max_tries} for {file_name} failed with {exc}, retrying in {wait}s"
+                )
+                time.sleep(wait)
+        if response is None:
+            raise RuntimeError(
+                f"Failed to upload {file_name} to Zenodo after {max_tries} attempts"
+            )
         return response
 
     def publish_deposition(self, deposition_id: int) -> _LegacyDeposition:
@@ -253,26 +327,31 @@ class InitialDataset(State):
 class EmptyDraft(State):
     """We can only sync the directory once we've gotten an empty draft."""
 
-    def _open_fsspec_file(self, openable_file: fsspec.core.OpenFile) -> IO[bytes]:
-        """Open a file that may be remote.
+    def _to_upload_source(self, openable_file: fsspec.core.OpenFile) -> UploadSource:
+        """Convert an fsspec OpenFile into a reusable UploadSource."""
+        logger.info(f"Preparing {openable_file.full_name}")
+        protocol = openable_file.fs.protocol
+        protocol_parts = protocol if isinstance(protocol, (list, tuple)) else [protocol]
+        if "local" in protocol_parts:
+            path = Path(openable_file.path)
+            size = path.stat().st_size
+            return UploadSource(
+                name=openable_file.full_name,
+                opener=lambda p=path: p.open("rb"),
+                size=size,
+            )
 
-        If the fsspec file is local already, just return the output of the
-        .open() method, which returns something file-like.
-
-        Otherwise, download to a tempfile and return the tempfile, which is
-        also file-like.
-
-        This is similar to just using fsspec cache in that it avoids
-        re-downloading the source file when the upload fails, but lets us log
-        how long downloads take.
-        """
-        logger.info(f"Reading {openable_file.full_name}")
-        if "local" in openable_file.fs.protocol:
-            return openable_file.open()
-
-        tmpfile = tempfile.NamedTemporaryFile()  # noqa: SIM115
-        openable_file.fs.get(openable_file.path, tmpfile.name)
-        return tmpfile
+        tmp_handle = tempfile.NamedTemporaryFile(delete=False)  # noqa: SIM115
+        tmp_path = Path(tmp_handle.name)
+        tmp_handle.close()
+        openable_file.fs.get(openable_file.path, tmp_path)
+        size = tmp_path.stat().st_size
+        return UploadSource(
+            name=openable_file.full_name,
+            opener=lambda p=tmp_path: p.open("rb"),
+            size=size,
+            cleanup=lambda p=tmp_path: p.unlink(missing_ok=True),
+        )
 
     def sync_directory(self, source_dir: str, ignore: tuple[str]) -> "ContentComplete":
         """Read data from source_dir and upload it."""
@@ -285,29 +364,35 @@ class EmptyDraft(State):
         # the files before getting to this state, so EmptyDraft would become
         # InProgressDraft.
 
-        maybe_dir = fsspec.open_files(source_dir, mode="rb")[0]
-        if not maybe_dir.fs.isdir(maybe_dir.path):
+        dir_fs, dir_path = url_to_fs(source_dir)
+        if not dir_fs.isdir(dir_path):
             raise ValueError(f"{source_dir} is not a directory!")
 
-        files = fsspec.open_files(
-            [
-                f"{maybe_dir.fs.protocol[0]}://{p}"
-                for p in maybe_dir.fs.ls(maybe_dir.path)
-            ]
+        protocol = dir_fs.protocol
+        protocol_prefix = (
+            protocol[0] if isinstance(protocol, (list, tuple)) else protocol
         )
-        all_ignore_regex = re.compile("|".join(ignore))
+        files = fsspec.open_files(
+            [f"{protocol_prefix}://{path}" for path in dir_fs.ls(dir_path)]
+        )
+        all_ignore_regex = re.compile("|".join(ignore)) if ignore else None
         for openable_file in files:
             name = Path(openable_file.path).name
-            if all_ignore_regex.search(openable_file.path):
+            if all_ignore_regex and all_ignore_regex.search(openable_file.path):
                 logger.debug(
                     f"Ignoring {openable_file.path} because it matched {all_ignore_regex}"
                 )
                 continue
-            with self._open_fsspec_file(openable_file) as upload_source:
+            upload_source = self._to_upload_source(openable_file)
+            try:
                 response = self.zenodo_client.create_bucket_file(
-                    bucket_url=bucket_url, file_name=name, file_content=upload_source
+                    bucket_url=bucket_url,
+                    file_name=name,
+                    upload_source=upload_source,
                 )
-            logger.info(f"Uploading to {bucket_url}/{name} got {response.text}")
+                logger.info(f"Uploading to {bucket_url}/{name} got {response.text}")
+            finally:
+                upload_source.release()
 
         return ContentComplete(
             record_id=self.record_id, zenodo_client=self.zenodo_client
