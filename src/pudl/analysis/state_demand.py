@@ -230,7 +230,7 @@ def out_ferc714__hourly_estimated_state_demand(
             return df
         return (
             df.join(
-                df.groupby(["county_id_fips", "year"]).agg(count=pl.len()),
+                df.group_by(["county_id_fips", "year"]).agg(count=pl.len()),
                 on=["county_id_fips", "year"],
             )
             .with_columns(weight=pl.col("weight") / pl.col("count"))
@@ -258,17 +258,19 @@ def out_ferc714__hourly_estimated_state_demand(
 
     def rescale_using_sales(
         df: pl.LazyFrame,
-        state_sales: pd.DataFrame | None,
+        core_eia861__yearly_sales: pd.DataFrame | None,
     ) -> pl.LazyFrame:
         """Optionally scale estimates using state sales data."""
-        if state_sales is None:
+        if core_eia861__yearly_sales is None:
             return df
         return df.join(
             # compute scale factor between current and target state totals
             df.group_by(["state_id_fips", "year"])
             .agg(pl.col("demand_mwh").sum())
             .join(
-                pl.from_pandas(state_sales).lazy(),
+                pl.from_pandas(
+                    total_state_sales_eia861(core_eia861__yearly_sales)
+                ).lazy(),
                 on=["state_id_fips", "year"],
                 suffix="_sales",
             )
@@ -298,7 +300,7 @@ def out_ferc714__hourly_estimated_state_demand(
         .pipe(distribute_demand_to_states, hourly_demand=hourly_demand)
         .pipe(
             rescale_using_sales,
-            state_sales=total_state_sales_eia861(core_eia861__yearly_sales),
+            core_eia861__yearly_sales,
         )
         # sum by state-hour to yield hourly estimates
         .group_by(["state_id_fips", "datetime_utc"])
