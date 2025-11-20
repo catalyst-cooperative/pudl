@@ -20,6 +20,7 @@ pages for each source:
 
 * :doc:`data_sources/censusdp1tract`
 * :doc:`data_sources/censuspep`
+* :doc:`data_sources/eia176`
 * :doc:`data_sources/eia860`
 * :doc:`data_sources/eia861`
 * :doc:`data_sources/eia923`
@@ -300,7 +301,7 @@ Enable Open Source Ecosystems (POSE) program
 
   About PUDL <self>
   data_access
-  PUDL Database Viewer <https://viewer.catalyst.coop>
+  PUDL Data Viewer <https://data.catalyst.coop>
   data_sources/index
   data_dictionaries/index
   methodology/index
