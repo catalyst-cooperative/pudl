@@ -122,8 +122,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
             form,
             mock_datastore,
             output_path=PudlPaths().output_dir,
-            sqlite_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.sqlite",
-            duckdb_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.duckdb",
+            sql_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.sqlite",
             batch_size=20,
             workers=10,
         )
@@ -155,8 +154,7 @@ def test_convert_form(mocker):
             form,
             FakeDatastore(),
             output_path=output_path,
-            sqlite_path=output_path / f"ferc{form.value}_xbrl.sqlite",
-            duckdb_path=output_path / f"ferc{form.value}_xbrl.duckdb",
+            sql_path=output_path / f"ferc{form.value}_xbrl.sqlite",
             batch_size=10,
             workers=5,
         )
@@ -165,8 +163,8 @@ def test_convert_form(mocker):
         filings = [f"filings_{year}_{form.value}" for year in settings.years]
         extractor_mock.assert_called_with(
             filings=filings,
-            sqlite_path=output_path / f"ferc{form.value}_xbrl.sqlite",
-            duckdb_path=output_path / f"ferc{form.value}_xbrl.duckdb",
+            db_path=output_path / f"ferc{form.value}_xbrl.sqlite",
+            clobber=False,
             taxonomy=f"raw_archive_{form.value}",
             form_number=form.value,
             metadata_path=str(
