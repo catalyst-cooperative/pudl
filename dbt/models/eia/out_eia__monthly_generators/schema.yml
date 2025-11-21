@@ -67,7 +67,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_eia__monthly_generators
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: plant_id_eia
           - name: generator_id
@@ -78,6 +78,8 @@ sources:
           - name: utility_id_eia
           - name: utility_id_pudl
           - name: utility_name_eia
+          - name: balancing_authority_code_eia
+          - name: balancing_authority_name_eia
           - name: technology_description
           - name: energy_source_code_1
           - name: prime_mover_code
@@ -197,17 +199,17 @@ sources:
                   arguments:
                     numerator_row_condition: fuel_type_code_pudl='coal'
                     min_fraction: 0.15
-                    max_fraction: 0.40
+                    max_fraction: 0.4
               - expect_column_fraction_with_condition:
                   arguments:
                     numerator_row_condition: fuel_type_code_pudl='gas'
                     min_fraction: 0.25
-                    max_fraction: 0.50
+                    max_fraction: 0.5
               - expect_column_fraction_with_condition:
                   arguments:
                     numerator_row_condition: fuel_type_code_pudl='hydro'
                     min_fraction: 0.04
-                    max_fraction: 0.10
+                    max_fraction: 0.1
               - expect_column_fraction_with_condition:
                   arguments:
                     numerator_row_condition: fuel_type_code_pudl='wind'
@@ -216,8 +218,8 @@ sources:
               - expect_column_fraction_with_condition:
                   arguments:
                     numerator_row_condition: fuel_type_code_pudl='solar'
-                    min_fraction: 0.00
-                    max_fraction: 0.10
+                    min_fraction: 0.0
+                    max_fraction: 0.1
           - name: total_fuel_cost
           - name: total_mmbtu
           - name: associated_combined_heat_power
