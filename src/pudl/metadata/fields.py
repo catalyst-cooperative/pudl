@@ -137,8 +137,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "losses_from_leaks_volume": {
         "description": (
-            "Losses from leaks, damage, accidents, migration and/or blow down"
-            "(14.73 psia and 60° Fahrenheit)"
+            "Known loss volumes as a result of leaks, damage, accidents, migration and blow down within the report state where the events took place, as well as estimated losses from leaks occurring during distribution activities. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
