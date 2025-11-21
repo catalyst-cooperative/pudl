@@ -159,8 +159,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "disposition_to_storage_operators_volume": {
         "description": (
-            "Dispositiont to storage operators within the report state"
-            "(14.73 psia and 60° Fahrenheit)"
+           "Disposition to storage operators within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
