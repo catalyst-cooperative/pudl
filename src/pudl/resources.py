@@ -166,7 +166,6 @@ class PudlParquetTransformer(ConfigurableResource):
                 before writing to parquet.
         """
         with duckdb.connect() as conn:
-            duckdb.sql("SET memory_limit = '4GB';")
             # Loop through zipfiles and translate data from CSV to parquet
             for partitions, path in partition_paths:
                 with (
