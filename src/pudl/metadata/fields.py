@@ -166,7 +166,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "total_disposition_volume": {
         "description": (
-            "Total disposition within the report state(14.73 psia and 60° Fahrenheit)"
+            "Total disposition within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
