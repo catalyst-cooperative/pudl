@@ -180,8 +180,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "out_of_state_deliveries_volume": {
         "description": (
-            "Total volume of operator's out of state deliveries"
-            "(14.73 psia and 60° Fahrenheit)"
+            "Total volume of the operator's deliveries across or to state lines or U.S. borders. This has been summed from the detailed data reported by each company on Line 14.0 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
