@@ -39,7 +39,6 @@ import click
 import coloredlogs
 import fsspec
 import requests
-from fsspec.core import url_to_fs
 from pydantic import AnyHttpUrl, BaseModel, Field
 
 from pudl.logging_helpers import get_logger
@@ -415,14 +414,7 @@ class EmptyDraft(State):
         """
         logger.info(f"Syncing files from {source_dir} to draft {self.record_id}...")
         bucket_url = self.zenodo_client.get_deposition(self.record_id).links.bucket
-
-        # TODO: if we want to have 'resumable' archives - we would need to get
-        # hashes from iter_files() and we'd also need to do deletion of all the
-        # extra files in the draft. in that case we won't want to delete all
-        # the files before getting to this state, so EmptyDraft would become
-        # InProgressDraft.
-
-        dir_fs, dir_path = url_to_fs(source_dir)
+        dir_fs, dir_path = fsspec.core.url_to_fs(source_dir)
         if not dir_fs.isdir(dir_path):
             raise ValueError(f"{source_dir} is not a directory!")
 
