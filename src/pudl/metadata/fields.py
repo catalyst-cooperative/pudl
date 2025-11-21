@@ -109,7 +109,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operations_volume_underground_storage_injections": {
         "description": (
-            "Underground storage injections volume (14.73 psia and 60° Fahrenheit)"
+            "The total volume added to underground storage operated by the company within the report state, regardless of ownership of the gas. This includes new fields. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
