@@ -106,6 +106,32 @@ function upload_to_dist_path() {
     fi
 }
 
+function zenodo_data_release() {
+    ZENODO_ENV=$1
+    SOURCE_DIR=$2
+    IGNORE_REGEX=$3
+    PUBLISH=$4
+
+    # Trigger the zenodo data release workflow using the GitHub API
+    curl -sS -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
+        https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
+        -d @<(
+            cat <<JSON
+{
+  "ref": "${BUILD_REF}",
+  "inputs": {
+    "env": "${ZENODO_ENV}",
+    "source_dir": "${SOURCE_DIR}",
+    "ignore_regex": "${IGNORE_REGEX}",
+    "publish": "${PUBLISH}"
+  }
+}
+JSON
+        )
+}
+
 function notify_slack() {
     # Notify pudl-deployment slack channel of deployment status
     echo "Notifying Slack about deployment status"
@@ -186,32 +212,6 @@ function clean_up_outputs_for_distribution() {
         rm -rf "$PUDL_OUTPUT/parquet" &&
         rm -f "$PUDL_OUTPUT/metadata.yml" &&
         rm -f "$PUDL_OUTPUT/pudl_dbt_tests.duckdb"
-}
-
-function zenodo_data_release() {
-    ZENODO_ENV=$1
-    SOURCE_DIR=$2
-    IGNORE_REGEX=$3
-    PUBLISH=$4
-
-    # Trigger the zenodo data release workflow using the GitHub API
-    curl -sS -X POST \
-        -H "Accept: application/vnd.github+json" \
-        -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
-        https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
-        -d @<(
-            cat <<JSON
-{
-  "ref": "${BUILD_REF}",
-  "inputs": {
-    "env": "${ZENODO_ENV}",
-    "source_dir": "${SOURCE_DIR}",
-    "ignore_regex": "${IGNORE_REGEX}",
-    "publish": "${PUBLISH}"
-  }
-}
-JSON
-        )
 }
 
 ########################################################################################
