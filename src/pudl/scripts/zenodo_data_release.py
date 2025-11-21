@@ -46,7 +46,17 @@ from pudl.logging_helpers import get_logger
 
 SANDBOX = "sandbox"
 PRODUCTION = "production"
-RETRYABLE_STATUS_CODES = {502, 503, 504}
+RETRYABLE_STATUS_CODES = {
+    408,  # Request Timeout
+    429,  # Too Many Requests / rate limited
+    500,  # Internal Server Error
+    502,  # Bad Gateway
+    503,  # Service Unavailable
+    504,  # Gateway Timeout
+    520,  # Web server returned an unknown error (proxy)
+    522,  # Connection timed out (proxy)
+    524,  # A timeout occurred (proxy)
+}
 
 logger = get_logger(__name__)
 coloredlogs.install(
