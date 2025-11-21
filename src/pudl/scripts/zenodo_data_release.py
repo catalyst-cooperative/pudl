@@ -7,11 +7,8 @@ import os
 import re
 import tempfile
 import time
-from collections.abc import Callable, Iterator
-from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import IO
 
 import click
 import coloredlogs
@@ -66,35 +63,6 @@ class _NewRecord(BaseModel):
 
 
 @dataclass
-class UploadSource:
-    """Encapsulate a re-openable upload stream (local path or cached temp file)."""
-
-    name: str
-    opener: Callable[[], IO[bytes]]
-    size: int
-    cleanup: Callable[[], None] | None = None
-
-    @contextmanager
-    def open(self) -> Iterator[IO[bytes]]:
-        """Yield a rewound stream for uploading."""
-        handle = self.opener()
-        try:
-            if hasattr(handle, "seek"):
-                handle.seek(0)
-            yield handle
-        finally:
-            handle.close()
-
-    def release(self) -> None:
-        """Clean up any temporary resources associated with this source."""
-        if not self.cleanup:
-            return
-        try:
-            self.cleanup()
-        except FileNotFoundError:
-            logger.debug("Temporary upload source already removed: %s", self.name)
-
-
 class ZenodoClient:
     """Thin wrapper over Zenodo REST API.
 
@@ -227,8 +195,7 @@ class ZenodoClient:
     def create_bucket_file(
         self,
         bucket_url: AnyHttpUrl,
-        file_name: str,
-        upload_source: UploadSource,
+        file_path: Path,
         max_tries: int = 6,
     ) -> requests.Response:
         """LEGACY API: Upload a file to a deposition's file bucket.
@@ -236,16 +203,18 @@ class ZenodoClient:
         Prefer this over the /deposit/depositions/{id}/files endpoint because
         it allows for files >100MB.
         """
-        url = f"{bucket_url}/{file_name}"
+        actual_name = file_path.name
+        url = f"{bucket_url}/{actual_name}"
         logger.info(f"Uploading file to {url}")
 
-        if upload_source.size == 0:
-            raise ValueError(f"Upload source for {file_name} has zero bytes")
+        size = file_path.stat().st_size
+        if size == 0:
+            raise ValueError(f"Upload source for {actual_name} has zero bytes")
 
         response: requests.Response | None = None
         for attempt in range(1, max_tries + 1):
             try:
-                with upload_source.open() as payload:
+                with file_path.open("rb") as payload:
                     response = requests.put(
                         url,
                         headers=self.auth_headers,
@@ -264,12 +233,12 @@ class ZenodoClient:
                     raise
                 wait = 2**attempt
                 logger.warning(
-                    f"Upload attempt {attempt}/{max_tries} for {file_name} failed with {exc}, retrying in {wait}s"
+                    f"Upload attempt {attempt}/{max_tries} for {actual_name} failed with {exc}, retrying in {wait}s"
                 )
                 time.sleep(wait)
         if response is None:
             raise RuntimeError(
-                f"Failed to upload {file_name} to Zenodo after {max_tries} attempts"
+                f"Failed to upload {actual_name} to Zenodo after {max_tries} attempts"
             )
         return response
 
@@ -327,31 +296,25 @@ class InitialDataset(State):
 class EmptyDraft(State):
     """We can only sync the directory once we've gotten an empty draft."""
 
-    def _to_upload_source(self, openable_file: fsspec.core.OpenFile) -> UploadSource:
-        """Convert an fsspec OpenFile into a reusable UploadSource."""
-        logger.info(f"Preparing {openable_file.full_name}")
+    @staticmethod
+    def _materialize_local_path(
+        openable_file: fsspec.core.OpenFile, staging_dir: Path
+    ) -> Path:
+        """Return a local filesystem path for ``openable_file``.
+
+        Files already on the local filesystem are returned directly. Remote
+        files are copied into ``staging_dir`` and the staged path is returned.
+        """
         protocol = openable_file.fs.protocol
         protocol_parts = protocol if isinstance(protocol, (list, tuple)) else [protocol]
         if "local" in protocol_parts:
-            path = Path(openable_file.path)
-            size = path.stat().st_size
-            return UploadSource(
-                name=openable_file.full_name,
-                opener=lambda p=path: p.open("rb"),
-                size=size,
-            )
+            return Path(openable_file.path)
 
-        tmp_handle = tempfile.NamedTemporaryFile(delete=False)  # noqa: SIM115
-        tmp_path = Path(tmp_handle.name)
-        tmp_handle.close()
+        fd, tmp_name = tempfile.mkstemp(dir=staging_dir)
+        os.close(fd)
+        tmp_path = Path(tmp_name)
         openable_file.fs.get(openable_file.path, tmp_path)
-        size = tmp_path.stat().st_size
-        return UploadSource(
-            name=openable_file.full_name,
-            opener=lambda p=tmp_path: p.open("rb"),
-            size=size,
-            cleanup=lambda p=tmp_path: p.unlink(missing_ok=True),
-        )
+        return tmp_path
 
     def sync_directory(self, source_dir: str, ignore: tuple[str]) -> "ContentComplete":
         """Read data from source_dir and upload it."""
@@ -376,23 +339,27 @@ class EmptyDraft(State):
             [f"{protocol_prefix}://{path}" for path in dir_fs.ls(dir_path)]
         )
         all_ignore_regex = re.compile("|".join(ignore)) if ignore else None
-        for openable_file in files:
-            name = Path(openable_file.path).name
-            if all_ignore_regex and all_ignore_regex.search(openable_file.path):
-                logger.debug(
-                    f"Ignoring {openable_file.path} because it matched {all_ignore_regex}"
-                )
-                continue
-            upload_source = self._to_upload_source(openable_file)
-            try:
-                response = self.zenodo_client.create_bucket_file(
-                    bucket_url=bucket_url,
-                    file_name=name,
-                    upload_source=upload_source,
-                )
-                logger.info(f"Uploading to {bucket_url}/{name} got {response.text}")
-            finally:
-                upload_source.release()
+
+        with tempfile.TemporaryDirectory() as staging_dir:
+            staging_path = Path(staging_dir)
+            for openable_file in files:
+                name = Path(openable_file.path).name
+                if all_ignore_regex and all_ignore_regex.search(openable_file.path):
+                    logger.debug(
+                        f"Ignoring {openable_file.path} because it matched {all_ignore_regex}"
+                    )
+                    continue
+
+                local_path = self._materialize_local_path(openable_file, staging_path)
+                try:
+                    response = self.zenodo_client.create_bucket_file(
+                        bucket_url=bucket_url,
+                        file_path=local_path,
+                    )
+                    logger.info(f"Uploading to {bucket_url}/{name} got {response.text}")
+                finally:
+                    if local_path.is_relative_to(staging_path):
+                        local_path.unlink(missing_ok=True)
 
         return ContentComplete(
             record_id=self.record_id, zenodo_client=self.zenodo_client

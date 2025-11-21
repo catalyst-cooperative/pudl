@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import io
 from types import SimpleNamespace
 
 import pytest
@@ -10,7 +9,6 @@ import requests
 
 from pudl.scripts.zenodo_data_release import (
     SANDBOX,
-    UploadSource,
     ZenodoClient,
 )
 
@@ -59,15 +57,12 @@ def test_retry_request_retries_on_502(monkeypatch, zenodo_client):
     assert resp.json()["result"] == "success"
 
 
-def test_create_bucket_file_reopens_stream(monkeypatch, zenodo_client):
+def test_create_bucket_file_reopens_stream(monkeypatch, zenodo_client, tmp_path):
     """create_bucket_file should re-read the entire payload on each retry."""
 
     data = b"hello-world"
-    upload_source = UploadSource(
-        name="test.bin",
-        opener=lambda: io.BytesIO(data),
-        size=len(data),
-    )
+    file_path = tmp_path / "test.bin"
+    file_path.write_bytes(data)
 
     calls: list[bytes] = []
 
@@ -85,8 +80,7 @@ def test_create_bucket_file_reopens_stream(monkeypatch, zenodo_client):
 
     response = zenodo_client.create_bucket_file(
         bucket_url="https://sandbox.zenodo.org/api/files/123",
-        file_name="test.bin",
-        upload_source=upload_source,
+        file_path=file_path,
         max_tries=3,
     )
 
