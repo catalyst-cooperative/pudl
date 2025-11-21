@@ -95,8 +95,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "op_gas_consumption_by_vehicle_fuel": {
         "description": (
-            "Volume of natural gas used as company's fleet vehicle fuel"
-            "(14.73 psia and 60° Fahrenheit)"
+            "Volume of natural gas used in the operator's company-owned fleet within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
