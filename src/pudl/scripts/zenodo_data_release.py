@@ -367,24 +367,56 @@ class EmptyDraft(State):
     def _materialize_local_path(
         openable_file: fsspec.core.OpenFile, staging_dir: Path
     ) -> Path:
-        """Return a local filesystem path for ``openable_file``.
+        """Ensure the given ``fsspec`` handle exists on the local filesystem.
 
-        Files already on the local filesystem are returned directly. Remote
-        files are copied into ``staging_dir`` and the staged path is returned.
+        When ``openable_file`` already resides on the local filesystem we avoid
+        copying and return its existing path. Remote files are downloaded into
+        ``staging_dir`` (a shared temporary directory) so the rest of the upload
+        pipeline can treat every artifact as a simple ``Path`` without caring
+        where it came from.
+
+        Args:
+            openable_file: ``fsspec`` handle pointing to the source artifact.
+            staging_dir: Directory used to cache remote files locally.
+
+        Returns:
+            A ``Path`` pointing to a readable local copy of ``openable_file``.
         """
+        # Some remote filesystems support multiple protocols (e.g. "gcs" and "gs"), so
+        # this isn't always just a string.
         protocol = openable_file.fs.protocol
         protocol_parts = protocol if isinstance(protocol, (list, tuple)) else [protocol]
         if "local" in protocol_parts:
             return Path(openable_file.path)
 
+        # Create a uniquely named path in the staging directory that we can safely
+        # download the remote file to, without worrying about collisions. The real name
+        # of the file will be preserved during upload to Zenodo.
         fd, tmp_name = tempfile.mkstemp(dir=staging_dir)
         os.close(fd)
         tmp_path = Path(tmp_name)
+        # Actually download the remote file to the unique tmp_path
         openable_file.fs.get(openable_file.path, tmp_path)
         return tmp_path
 
     def sync_directory(self, source_dir: str, ignore: tuple[str]) -> "ContentComplete":
-        """Read data from source_dir and upload it."""
+        """Upload every file in ``source_dir`` to the draft bucket.
+
+        The method enumerates files (not subdirectories) via ``fsspec`` so the source
+        can live on local disk, GCS, S3, etc. Remote objects are first staged into a
+        temporary directory to ensure uploads always come from local ``Path`` objects
+        that can be rewound for retries. Regex patterns provided via ``ignore`` are
+        applied to the full path of each candidate file, allowing us to drop logs,
+        intermediate data, or other nightlies-only artifacts before hitting Zenodo.
+
+        Args:
+            source_dir: Directory (local or remote) whose contents will be sent to
+                Zenodo.
+            ignore: Tuple of regex patterns; any path matching one is skipped.
+
+        Returns:
+            A ``ContentComplete`` state ready for metadata updates.
+        """
         logger.info(f"Syncing files from {source_dir} to draft {self.record_id}...")
         bucket_url = self.zenodo_client.get_deposition(self.record_id).links.bucket
 

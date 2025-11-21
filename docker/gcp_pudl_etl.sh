@@ -196,10 +196,11 @@ function zenodo_data_release() {
 
     # Trigger the zenodo data release workflow using the GitHub API
     curl -sS -X POST \
-      -H "Accept: application/vnd.github+json" \
-      -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
-      https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
-      -d @<(cat <<JSON
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
+        https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
+        -d @<(
+            cat <<JSON
 {
   "ref": "${BUILD_REF}",
   "inputs": {
@@ -210,14 +211,14 @@ function zenodo_data_release() {
   }
 }
 JSON
-)
+        )
 }
 
 ########################################################################################
 # MAIN SCRIPT
 ########################################################################################
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
-ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^.*\\\\.zip$)"
+ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^pudl_parquet_datapackage\\\\.json$)"
 
 # Initialize our success variables so they all definitely have a value to check
 ETL_SUCCESS=0
@@ -318,7 +319,7 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
         zenodo_data_release \
             "production" \
-            "s3://pudl.catalyst.coop/stable/" \
+            "s3://pudl.catalyst.coop/${BUILD_REF}/" \
             "${ZENODO_IGNORE_REGEX}" \
             "no-publish" 2>&1 | tee -a "$LOGFILE"
     fi

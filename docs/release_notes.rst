@@ -21,6 +21,13 @@ New Data Tests & Data Validations
 Bug Fixes
 ^^^^^^^^^
 
+* Increase the robustness of retries when uploading a PUDL data release to Zenodo,
+  catching common transient error status codes, and restarting file uploads from the
+  beginning of the file when an error occurs rather than uploading an empty file.
+  Previously these errors were not caught and missing or zero-length files were only
+  caught through manual inspection of draft data releases. See issue :issue:`4290` and
+  PR :pr:`4778`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -29,6 +36,13 @@ Quality of Life Improvements
   :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables, as
   multiple users have requested them. Most recently :user:`sam-hostetter` in issue
   :issue:`4772`. See :pr:`4776`.
+* Decoupl the publication of Zenodo data releases from the nightly and release builds
+  by creating a ``zenodo-data-release`` GitHub Actions workflow that can create a new
+  archive of a PUDL data release from nightly or stable build outputs. This should
+  reduce the idle capacity and runtime of our nightly build VM significantly, and also
+  allow us to retry Zenodo release uploads when Zenodo flakes out. The nightly and
+  release builds will now trigger the ``zenodo-data-release`` workflow using ``curl``
+  and the GitHub API. See issue :issue:`4775` and PR :pr:`4778`.
 
 .. _release-v2025.11.0:
 
