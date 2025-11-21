@@ -367,7 +367,7 @@ class EmptyDraft(State):
     def _sync_local_path(
         openable_file: fsspec.core.OpenFile, staging_dir: Path
     ) -> Path:
-        """Ensure the given ``fsspec`` handle exists on the local filesystem.
+        """Ensure the given ``fsspec`` file exists on the local filesystem.
 
         When ``openable_file`` already resides on the local filesystem we avoid
         copying and return its existing path. Remote files are downloaded into
@@ -382,8 +382,7 @@ class EmptyDraft(State):
         Returns:
             A ``Path`` pointing to a readable local copy of ``openable_file``.
         """
-        # Some remote filesystems support multiple protocols (e.g. "gcs" and "gs"), so
-        # this isn't always just a string.
+        # fsspec supports chained protocols, so this isn't always just a string
         protocol = openable_file.fs.protocol
         protocol_parts = protocol if isinstance(protocol, (list, tuple)) else [protocol]
         if "local" in protocol_parts:
@@ -427,6 +426,7 @@ class EmptyDraft(State):
         if not dir_fs.isdir(dir_path):
             raise ValueError(f"{source_dir} is not a directory!")
 
+        # fsspec supports chained protocols, so this isn't always just a string
         protocol = dir_fs.protocol
         protocol_prefix = (
             protocol[0] if isinstance(protocol, (list, tuple)) else protocol
@@ -454,6 +454,7 @@ class EmptyDraft(State):
                     )
                     logger.info(f"Uploading to {bucket_url}/{name} got {response.text}")
                 finally:
+                    # Remove the local copy if we put it in the temporary staging area
                     if local_path.is_relative_to(staging_path):
                         local_path.unlink(missing_ok=True)
 
