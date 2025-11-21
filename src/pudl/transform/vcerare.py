@@ -5,17 +5,15 @@ in this module, as they have exactly the same structure.
 """
 
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
+import polars as pl
 from dagster import (
     asset,
 )
 
 import pudl
 from pudl.helpers import cleanstrings_snake, simplify_columns, zero_pad_numeric_string
-from pudl.metadata.classes import Resource
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.resources import PudlParquetTransformer
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -149,7 +147,7 @@ def _add_time_cols(df: pd.DataFrame, df_name: str) -> pd.DataFrame:
     )
     df = pd.concat(
         [df.reset_index(drop=True), new_time_col.reset_index(drop=True)], axis="columns"
-    ).rename(columns={"unnamed_0": "hour_of_year"})
+    )
     return df
 
 
@@ -219,7 +217,7 @@ def _check_for_valid_counties(
     logger.info(f"Checking for valid counties in the {df_name} table.")
     county_state_names_fips = clean_fips_df.county_state_names.unique().tolist()
     county_state_names_cap_fac = df.columns.tolist()
-    expected_non_counties = ["report_year", "unnamed_0"]
+    expected_non_counties = ["report_year", "hour_of_year"]
     non_county_cols = [
         x
         for x in county_state_names_fips
@@ -320,31 +318,6 @@ def _standardize_census_names(vce_fips_df: pd.DataFrame, census_pep_data: pd.Dat
     return names_df
 
 
-def _handle_2015_nulls(combined_df: pd.DataFrame, year: int):
-    """Handle unexpected null values in 2015.
-
-    In 2015, there are a few hundred null values for PV capacity factors that
-    should be zeroed out, according to correspondence with the data provider.
-    This function narrowly zeroes out these nulls, expecting that the rest of the
-    data should conform to the expectation of no-null values.
-    """
-    if year == 2015:
-        null_selector = (combined_df.capacity_factor_solar_pv.isnull()) & (
-            combined_df.report_year == 2015
-        )
-        logger.info(
-            f"{len(combined_df.loc[null_selector])} null PV capacity values found in the 2015 data. Zeroing out these values."
-        )
-        assert len(combined_df.loc[null_selector]) == 1320, (
-            f"Expected 1320 null values but found {len(combined_df.loc[null_selector])}."
-        )
-        combined_df.loc[
-            null_selector,
-            "capacity_factor_solar_pv",
-        ] = 0
-    return combined_df
-
-
 def _clip_unexpected_2016_pv_capacity(df: pd.DataFrame, df_name: str, year: int):
     """Handle unexpectedly large PV capacity values in 2016.
 
@@ -363,39 +336,6 @@ def _clip_unexpected_2016_pv_capacity(df: pd.DataFrame, df_name: str, year: int)
         )
         df.loc[df.capacity_factor_solar_pv > 1.10, "capacity_factor_solar_pv"] = 1.10
     return df
-
-
-def _combine_all_cap_fac_dfs(cap_fac_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
-    """Combine capacity factor tables."""
-    logger.info("Merging all the capacity factor tables into one")
-    merge_keys = ["report_year", "datetime_utc", "hour_of_year", "county_state_names"]
-    for name, df in cap_fac_dict.items():
-        cap_fac_dict[name] = df.set_index(merge_keys)
-    mega_df = pd.concat(
-        [
-            cap_fac_dict["solar_pv"],
-            cap_fac_dict["offshore_wind"],
-            cap_fac_dict["onshore_wind"],
-        ],
-        axis="columns",
-    ).reset_index()
-
-    return mega_df
-
-
-def _combine_cap_fac_with_fips_df(
-    cap_fac_df: pd.DataFrame, fips_df: pd.DataFrame
-) -> pd.DataFrame:
-    """Combine the combined capacity factor df with the FIPS df."""
-    logger.info(
-        "Merging the combined capacity factor table with the Lat-Long-FIPS table"
-    )
-    combined_df = pd.merge(
-        cap_fac_df, fips_df, on="county_state_names", how="left", validate="m:1"
-    ).drop(columns="county_state_names")
-    # We need the _vcerare columns earlier when we check that no counties are missing, but
-    # at this point they are extraneous
-    return combined_df
 
 
 def _get_parquet_path():
@@ -417,13 +357,13 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def one_year_hourly_available_capacity_factor(
+    transformer: PudlParquetTransformer,
     year: int,
-    raw_vcerare__lat_lon_fips: pd.DataFrame,
+    fips_df_census: pd.DataFrame,
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
-    census_pep_data: pd.DataFrame,
-) -> pd.DataFrame:
+) -> dict[str, pd.DataFrame]:
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
@@ -431,10 +371,6 @@ def one_year_hourly_available_capacity_factor(
     """
     logger.info(
         f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
-    )
-    # Clean up the FIPS table and update state_county names to match Census data
-    fips_df_census = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips).pipe(
-        _standardize_census_names, census_pep_data
     )
 
     # Apply the same transforms to all the capacity factor tables. This is slower
@@ -445,50 +381,87 @@ def one_year_hourly_available_capacity_factor(
         "offshore_wind": raw_vcerare__offshore_wind_power_140m,
         "onshore_wind": raw_vcerare__onshore_wind_power_100m,
     }
-    clean_dict = {
-        df_name: _spot_fix_great_lakes_columns(df)
+    [
+        _spot_fix_great_lakes_columns(df)
         .pipe(_check_for_valid_counties, fips_df_census, df_name)
         .pipe(_add_time_cols, df_name)
         .pipe(_drop_city_cols, df_name)
         .pipe(_make_cap_fac_frac, df_name)
         .pipe(_stack_cap_fac_df, df_name)
         .pipe(_clip_unexpected_2016_pv_capacity, df_name, year)
+        .pipe(transformer.offload_table, f"_core_vcerare__{df_name}", year=year)
         for df_name, df in raw_dict.items()
-    }
+    ]
 
-    # Combine the data and perform a few last cleaning mechanisms
-    # Sort the data by primary key columns to produce compact row groups
-    return apply_pudl_dtypes(
-        _combine_all_cap_fac_dfs(clean_dict)
-        .pipe(_handle_2015_nulls, year)
-        .pipe(_combine_cap_fac_with_fips_df, fips_df_census)
-        .sort_values(by=["state", "place_name", "datetime_utc"])
-        .reset_index(drop=True)
+
+def merge_all_vce_tables(
+    transformer: PudlParquetTransformer, table_name: str, year: int
+):
+    """Merge cleaned VCE tables to create final ``out`` table and write as partitioned parquet file."""
+    merge_keys = ["report_year", "datetime_utc", "hour_of_year", "county_state_names"]
+
+    # Merge and write as partitioned parquet files to disk
+    transformer.offload_table(
+        transformer.get_lf("_core_vcerare__solar_pv", year=year)
+        .join(
+            transformer.get_lf("_core_vcerare__offshore_wind", year=year),
+            on=merge_keys,
+            how="full",
+            coalesce=True,
+        )
+        .join(
+            transformer.get_lf("_core_vcerare__onshore_wind", year=year),
+            on=merge_keys,
+            how="full",
+            coalesce=True,
+        )
+        .with_columns(pl.col("capacity_factor_solar_pv").fill_null(0))
+        .join(
+            transformer.get_lf("_vce_fips_census"),
+            on="county_state_names",
+            how="left",
+            validate="m:1",
+        )
+        .sort(by=["state", "place_name", "datetime_utc"])
+        .drop(["index", "county_state_names"]),
+        table_name,
+        year=year,
     )
 
 
-@asset(op_tags={"memory-use": "high"})
+@asset(
+    op_tags={"memory-use": "high"},
+    deps=[
+        "raw_vcerare__fixed_solar_pv_lat_upv",
+        "raw_vcerare__offshore_wind_power_140m",
+        "raw_vcerare__onshore_wind_power_100m",
+    ],
+    required_resource_keys={"pudl_parquet_transformer"},
+    io_manager_key="parquet_io_manager",
+)
 def out_vcerare__hourly_available_capacity_factor(
     context,
     raw_vcerare__lat_lon_fips: pd.DataFrame,
-    raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
-    raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
-    raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
     _core_censuspep__yearly_geocodes: pd.DataFrame,
-):
+) -> pl.LazyFrame:
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
     the columns for each county or subregion into a single place_name column.
     Asset will process 1 year of data at a time to limit peak memory usage.
     """
-
-    def _get_year(df, year):
-        return df.loc[df["report_year"] == year]
-
+    transformer: PudlParquetTransformer = context.resources.pudl_parquet_transformer
+    report_years = (
+        transformer.get_lf("raw_vcerare__fixed_solar_pv_lat_upv")
+        .select("report_year")
+        .unique()
+        .sort(by="report_year")
+        .collect()
+        .to_pandas()
+    )
     # Get census vintage to conform the data to.
     assert int(_core_censuspep__yearly_geocodes.report_year.max()) >= int(
-        raw_vcerare__fixed_solar_pv_lat_upv["report_year"].max()
+        report_years.max()
     )  # Check these are in sync
 
     # Only keep latest census data relating to the state-county level
@@ -503,29 +476,39 @@ def out_vcerare__hourly_available_capacity_factor(
         )  # Only keep state-county level records
     ]
 
-    parquet_path = _get_parquet_path()
-    schema = Resource.from_id(
-        "out_vcerare__hourly_available_capacity_factor"
-    ).to_pyarrow()
+    # Clean up the FIPS table and update state_county names to match Census data
+    fips_df_census = _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips).pipe(
+        _standardize_census_names, census_pep_data
+    )
 
-    with pq.ParquetWriter(
-        where=parquet_path, schema=schema, compression="snappy", version="2.6"
-    ) as parquet_writer:
-        for year in raw_vcerare__fixed_solar_pv_lat_upv["report_year"].unique():
-            df = one_year_hourly_available_capacity_factor(
-                year=int(year),
-                raw_vcerare__lat_lon_fips=raw_vcerare__lat_lon_fips,
-                raw_vcerare__fixed_solar_pv_lat_upv=_get_year(
-                    raw_vcerare__fixed_solar_pv_lat_upv, year
-                ),
-                raw_vcerare__offshore_wind_power_140m=_get_year(
-                    raw_vcerare__offshore_wind_power_140m, year
-                ),
-                raw_vcerare__onshore_wind_power_100m=_get_year(
-                    raw_vcerare__onshore_wind_power_100m, year
-                ),
-                census_pep_data=census_pep_data,
-            )
-            parquet_writer.write_table(
-                pa.Table.from_pandas(df, schema=schema, preserve_index=False)
-            )
+    # Write to disk for later merge with full VCE table
+    transformer.offload_table(
+        fips_df_census.reset_index().astype({"county_state_names": "category"}),
+        "_vce_fips_census",
+    )
+
+    # Intermediate table name to write partitioned output parquet files
+    partitioned_output_table = "mega_vce"
+    for year in report_years["report_year"]:
+        one_year_hourly_available_capacity_factor(
+            transformer=transformer,
+            year=int(year),
+            fips_df_census=fips_df_census,
+            raw_vcerare__fixed_solar_pv_lat_upv=transformer.get_df(
+                "raw_vcerare__fixed_solar_pv_lat_upv",
+                filters=[("report_year", "=", year)],
+            ),
+            raw_vcerare__offshore_wind_power_140m=transformer.get_df(
+                "raw_vcerare__offshore_wind_power_140m",
+                filters=[("report_year", "=", year)],
+            ),
+            raw_vcerare__onshore_wind_power_100m=transformer.get_df(
+                "raw_vcerare__onshore_wind_power_100m",
+                filters=[("report_year", "=", year)],
+            ),
+        )
+
+        # Merge table into final output table
+        merge_all_vce_tables(transformer, partitioned_output_table, year)
+
+    return transformer.get_lf(partitioned_output_table)

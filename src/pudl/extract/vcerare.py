@@ -39,10 +39,13 @@ def raw_vcerare_asset_factory(vcerare_page: str):
     ) -> duckdb.DuckDBPyRelation:
         """Apply basic cleaning to columns."""
         columns = table_relation.columns
-        col_map = {col: col.lower() for col in columns}
+        col_map = {
+            col: col.lower().replace(".", "").replace("-", "_") for col in columns
+        }
 
         # The first column is never named, but is always the ``hour_of_year`` column
         col_map[columns[0]] = "hour_of_year"
+        col_map["year"] = "report_year"
 
         # Rename all columns
         return table_relation.select(
@@ -54,15 +57,15 @@ def raw_vcerare_asset_factory(vcerare_page: str):
     @asset(
         name=table_name,
         required_resource_keys={
-            "pudl_duckdb_transformer",
+            "pudl_parquet_transformer",
             "dataset_settings",
         },
     )
     def _extract_asset(context):
         """Extract data from a single vcerare page and write to parquet."""
         dataset_settings = context.resources.dataset_settings
-        pudl_duckdb_transformer = context.resources.pudl_duckdb_transformer
-        pudl_duckdb_transformer.extract_csv_to_parquet(
+        pudl_parquet_transformer = context.resources.pudl_parquet_transformer
+        pudl_parquet_transformer.extract_csv_to_parquet(
             "vcerare",
             table_name,
             partition_paths=[

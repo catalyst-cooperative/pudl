@@ -5,8 +5,8 @@ from pathlib import Path
 
 import duckdb
 import pandas as pd
+import polars as pl
 from dagster import ConfigurableResource, Field, ResourceDependency, resource
-from dagster_duckdb import DuckDBResource
 
 from pudl.settings import DatasetsSettings, FercToSqliteSettings, create_dagster_config
 from pudl.workspace.datastore import Datastore
@@ -66,7 +66,7 @@ def datastore(init_context) -> Datastore:
     return Datastore(**ds_kwargs)
 
 
-class PudlDuckDBResource(DuckDBResource):
+class PudlParquetTransformer(ConfigurableResource):
     """Resource to manage using parquet files on disk for performing transforms.
 
     Tools like duckdb and Polars are very good at using parquet files on
@@ -81,27 +81,57 @@ class PudlDuckDBResource(DuckDBResource):
 
     def _get_parquet_dir(self, table_name: str) -> Path:
         """Get path to directory for writing/reading parquet files."""
-        return PudlPaths().parquet_transform_dir / table_name
+        parquet_path = PudlPaths().parquet_transform_dir / table_name
+        parquet_path.mkdir(exist_ok=True, parents=True)
+        return parquet_path
 
-    def load_extracted_df(
-        self, table_name: str, filters: list[str] = []
-    ) -> pd.DataFrame:
+    def offload_table(
+        self, df: pd.DataFrame | pl.LazyFrame, table_name: str, **partitions: dict
+    ) -> Path:
+        """Write data from DataFrame or LazyFrame to disk as a parquet file.
+
+        Offloading data to disk allows Polars and duckdb to perform highly efficient
+        transforms.
+        """
+        parquet_path = self._get_parquet_name(table_name, **partitions)
+        if isinstance(df, pd.DataFrame):
+            df.to_parquet(parquet_path)
+        else:
+            df.sink_parquet(parquet_path, engine="streaming")
+        return Path(parquet_path)
+
+    def get_df(self, table_name: str, filters: list[str] = []) -> pd.DataFrame:
         """Read data from a set of parquet files and return a pandas DataFrame.
 
         Args:
             table_name: Name of raw or intermediate table to load.
             filters: A set of filters to apply when reading data.
-                See https://duckdb.org/docs/stable/clients/python/relational_api#filter.
+                See ``pd.DataFrame.read_parquet``.
         """
-        with self.load_extracted_table(table_name) as rel:
-            for filter_str in filters:
-                rel = rel.filter(filter_str)
-            return rel.fetchdf()
+        return pd.read_parquet(self._get_parquet_dir(table_name), filters=filters)
 
-    def load_extracted_table(self, table_name: str) -> duckdb.DuckDBPyRelation:
+    def get_lf(self, table_name: str, **partitions) -> pl.LazyFrame:
+        """Return LazyFrame pointing to parquet table on disk."""
+        if partitions == {}:
+            return pl.scan_parquet(self._get_parquet_dir(table_name))
+        return pl.scan_parquet(self._get_parquet_name(table_name, **partitions))
+
+    def get_duckdb_table(
+        self, conn, table_name: str, alias: str | None = None
+    ) -> duckdb.DuckDBPyRelation:
         """Create a duckdb relation to read from parquet files."""
-        with self.get_connection() as conn:
-            yield conn.read_parquet(f"{self._get_parquet_dir(table_name)}/*.parquet")
+        rel = conn.read_parquet(f"{self._get_parquet_dir(table_name)}/*.parquet")
+        if alias is not None:
+            rel.set_alias(alias)
+        return rel
+
+    def _get_parquet_name(self, table_name: str, **partitions: dict) -> str:
+        base_path = self._get_parquet_dir(table_name)
+        if partitions is not None:
+            filename = "_".join(map(str, partitions.values())) + ".parquet"
+        else:
+            filename = "monolithic.parquet"
+        return str(base_path / filename)
 
     def extract_csv_to_parquet(
         self,
@@ -135,10 +165,8 @@ class PudlDuckDBResource(DuckDBResource):
                 relation, allowing for custom transforms to be applied using duckdb
                 before writing to parquet.
         """
-        parquet_path = self._get_parquet_dir(table_name)
-        parquet_path.mkdir(exist_ok=True, parents=True)
-
-        with self.get_connection() as conn:
+        with duckdb.connect() as conn:
+            duckdb.sql("SET memory_limit = '4GB';")
             # Loop through zipfiles and translate data from CSV to parquet
             for partitions, path in partition_paths:
                 with (
@@ -149,8 +177,9 @@ class PudlDuckDBResource(DuckDBResource):
 
                     # Add any partition columns if requested
                     if add_partition_columns is not None:
-                        rel.select(
-                            ", ".join(
+                        rel = rel.select(
+                            "*, "
+                            + ", ".join(
                                 [
                                     f"{partitions[partition_col]} AS {partition_col}"
                                     for partition_col in add_partition_columns
@@ -163,12 +192,7 @@ class PudlDuckDBResource(DuckDBResource):
                         rel = custom_transforms(rel)
 
                     # Write extracted/transformed data to parquet
-                    rel.to_parquet(
-                        str(
-                            parquet_path
-                            / ("_".join(map(str, partitions.values())) + ".parquet")
-                        )
-                    )
+                    rel.to_parquet(self._get_parquet_name(table_name, **partitions))
 
 
-pudl_duckdb_transformer = PudlDuckDBResource(database="", ds=datastore)
+pudl_parquet_transformer = PudlParquetTransformer(ds=datastore)
