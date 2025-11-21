@@ -487,7 +487,10 @@ def core_eia176__yearly_gas_disposition(
 def _normalize_operating_states(
     core_pudl__codes_subdivisions: pd.DataFrame, df: pd.DataFrame
 ):
-    """Normalize operating states in-place"""
+    """Map full state names to their postal abbreviations.
+
+    This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.
+    """
     df = df.copy()
     codes = (
         core_pudl__codes_subdivisions.assign(
