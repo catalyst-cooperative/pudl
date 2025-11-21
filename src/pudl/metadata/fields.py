@@ -74,8 +74,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "op_gas_consumption_by_new_pipeline_fill": {
         "description": (
-            "Volume of natural gas consumed for operator's new pipeline fill "
-            "(14.73 psia and 60° Fahrenheit)"
+            "Volume of natural gas consumed as fuel for the operator's new pipeline fill within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
