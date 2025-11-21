@@ -407,6 +407,23 @@ def core_eia176__yearly_gas_disposition(
 
     df = df.merge(tl)
 
+    tl_text = raw_eia176__continuation_text_lines.filter(
+        [*primary_key, "line", "reference_company_or_line_description"]
+    )
+    tl_text = tl_text[tl_text["line"] == 1260]
+    tl_text = tl_text.drop("line", axis=1)
+    tl_text = tl_text.rename(
+        columns={
+            "reference_company_or_line_description": (
+                "operational_consumption_other_detail"
+            )
+        }
+    )
+    assert (
+        not tl_text[primary_key].duplicated().any()
+    ), 'Found multiple values in "gas consumed in company\'s operations" "other" field (12.6)'
+    df = df.merge(tl_text)
+
     deliveries_out_of_state_mismatch = (
         (df["deliveries_out_of_state_volume"] != df[1400])
         & (df["deliveries_out_of_state_volume"].notna() | df[1400].notna())
@@ -484,6 +501,7 @@ def core_eia176__yearly_gas_disposition(
             "total_disposition_volume": f"total_disposition_{unit_suffix}",
         }
     )
+
     return df
 
 

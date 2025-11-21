@@ -109,6 +109,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "Mcf",
         "type": "number",
     },
+    "operational_consumption_other_detail": {
+        "description": (
+            "Free-text detail describing the operator’s specified “other purposes” for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf"
+        ),
+        "type": "string",
+    },
     "operations_storage_underground_mcf": {
         "description": (
             "The total volume added to underground storage operated by the company within the report state, regardless of ownership of the gas. This includes new fields. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."

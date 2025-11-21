@@ -63,6 +63,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "unaccounted_for_mcf",
                 "disposition_out_of_state_mcf",
                 "disposition_other_mcf",
+                "operational_consumption_other_detail",
             ],
             "primary_key": [
                 "operator_id_eia",
