@@ -116,7 +116,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operations_volume_lng_storage_injections": {
         "description": (
-            "Liquified natural gas (LNG) storage injections volume (14.73 psia and 60° Fahrenheit)"
+            "The total volume added to LNG storage operated by the company within the report state, regardless of ownership of the gas. For LNG import and export marine terminals, this should exclude injections of LNG during the course of routine operations for handling imports, as well as LNG held in storage for future use. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
