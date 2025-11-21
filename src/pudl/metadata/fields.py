@@ -187,7 +187,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "disposition_to_other_volume": {
         "description": (
-            "Disposition not included in other fields(14.73 psia and 60° Fahrenheit)"
+            ""Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
