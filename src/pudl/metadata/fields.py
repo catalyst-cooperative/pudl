@@ -67,8 +67,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "op_gas_consumption_by_facility_space_heat": {
         "description": (
-            "Volume of natural gas consumed for space heat of operator's facilities "
-            "(14.73 psia and 60° Fahrenheit)"
+            "Volume of natural gas consumed as fuel for space heat of the operator's own facilities within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
