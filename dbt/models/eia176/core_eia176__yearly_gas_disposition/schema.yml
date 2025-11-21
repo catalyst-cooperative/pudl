@@ -15,7 +15,7 @@ sources:
           - name: operator_id_eia
           - name: report_year
           - name: operating_state
-          - name: heat_content_of_delivered_gas_btu_cf
+          - name: delivered_gas_heat_content_mmbtu_per_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
@@ -41,7 +41,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: operational_consumption_vehicles_mcf
+          - name: operational_consumption_vehicle_fuel_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
@@ -51,12 +51,12 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: operations_storage_underground_mcf
+          - name: operational_storage_underground_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: operations_storage_lng_mcf
+          - name: operational_lng_storage_injections_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
@@ -66,7 +66,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: producer_reservoir_repressurization_mcf
+          - name: producer_returned_for_repressuring_reinjection_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
@@ -102,7 +102,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: disposition_other_mcf
+          - name: other_disposition_all_other_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:

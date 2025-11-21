@@ -60,7 +60,7 @@ from pudl.metadata.sources import SOURCES
 # )
 
 FIELD_METADATA: dict[str, dict[str, Any]] = {
-    "heat_content_of_delivered_gas_btu_cf": {
+    "delivered_gas_heat_content_mmbtu_per_mcf": {
         "description": (
             "The average annual heat content of gas delivered directly to consumers."
         ),
@@ -95,7 +95,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "Mcf",
         "type": "number",
     },
-    "operational_consumption_vehicles_mcf": {
+    "operational_consumption_vehicle_fuel_mcf": {
         "description": (
             "Volume of natural gas used in the operator's company-owned fleet within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
@@ -115,14 +115,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "type": "string",
     },
-    "operations_storage_underground_mcf": {
+    "operational_storage_underground_mcf": {
         "description": (
             "The total volume added to underground storage operated by the company within the report state, regardless of ownership of the gas. This includes new fields. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
     },
-    "operations_storage_lng_mcf": {
+    "operational_lng_storage_injections_mcf": {
         "description": (
             "The total volume added to LNG storage operated by the company within the report state, regardless of ownership of the gas. For LNG import and export marine terminals, this should exclude injections of LNG during the course of routine operations for handling imports, as well as LNG held in storage for future use. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
@@ -136,7 +136,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "Mcf",
         "type": "number",
     },
-    "producer_reservoir_repressurization_mcf": {
+    "producer_returned_for_repressuring_reinjection_mcf": {
         "description": (
             "The volume of gas delivered directly from the operator's system to oil or gas fields located within the report state for repressuring, pressure maintenance, and cycling operations. This field should only be reported by producers. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
@@ -193,7 +193,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "Mcf",
         "type": "number",
     },
-    "disposition_other_mcf": {
+    "other_disposition_all_other_mcf": {
         "description": (
             "Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),

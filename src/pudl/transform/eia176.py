@@ -318,9 +318,9 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         )
         for customer_class in customer_classes
     )
-    assert mismatched <= 28, (
-        f"{mismatched} mismatched volume totals found, expected no more than 28."
-    )
+    assert (
+        mismatched <= 28
+    ), f"{mismatched} mismatched volume totals found, expected no more than 28."
 
     df = _core_eia176__yearly_company_data.filter(primary_key + keep)
 
@@ -362,6 +362,7 @@ def core_eia176__yearly_gas_disposition(
     raw_eia176__continuation_text_lines: pd.DataFrame,
 ) -> pd.DataFrame:
     """Produce company-level gas disposition (EIA176, Part B)"""
+
     extras = ["operating_state"]
 
     keep = [
@@ -428,17 +429,17 @@ def core_eia176__yearly_gas_disposition(
         (df["deliveries_out_of_state_volume"] != df[1400])
         & (df["deliveries_out_of_state_volume"].notna() | df[1400].notna())
     ).sum()
-    assert deliveries_out_of_state_mismatch <= 4, (
-        "More than 4 out of state deliveries total mismatches"
-    )
+    assert (
+        deliveries_out_of_state_mismatch <= 4
+    ), "More than 4 out of state deliveries total mismatches"
 
     disposition_to_other_mismatch = (
         (df["disposition_to_other_volume"] != df[1840])
         & (df["disposition_to_other_volume"].notna() | df[1840].notna())
     ).sum()
-    assert disposition_to_other_mismatch <= 2, (
-        "More than 2 disposition to other mismatches"
-    )
+    assert (
+        disposition_to_other_mismatch <= 2
+    ), "More than 2 disposition to other mismatches"
     df = df.drop(
         columns=["deliveries_out_of_state_volume", "disposition_to_other_volume"]
     )
@@ -452,55 +453,84 @@ def core_eia176__yearly_gas_disposition(
     df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
     df = df.dropna(subset=keep, how="all")
 
-    operator_gas_consumption_prefix = "operational_consumption"
-    operations_storage_prefix = "operations_storage"
-    unit_suffix = "mcf"
+    # Replace 9999 values prior to 2012 with NA
+    df.loc[
+        (df["heat_content_of_delivered_gas_btu_cf"] == 9999)
+        & (df["report_year"] < 2012),
+        "heat_content_of_delivered_gas_btu_cf",
+    ] = pd.NA
+
+    df["heat_content_of_delivered_gas_btu_cf"] /= 1000
 
     df = df.rename(
         columns={
-            "heat_content_of_delivered_gas_btu_cf": "heat_content_mmbtu_per_mcf",
-            "facility_space_heat": (
-                f"{operator_gas_consumption_prefix}_facility_space_heat_{unit_suffix}"
+            "heat_content_of_delivered_gas_btu_cf": (
+                "delivered_gas_heat_content_mmbtu_per_mcf"
             ),
+            "facility_space_heat": f"operational_consumption_facility_space_heat_mcf",
             "new_pipeline_fill_volume": (
-                f"{operator_gas_consumption_prefix}_new_pipeline_fill_{unit_suffix}"
+                f"operational_consumption_new_pipeline_fill_mcf"
             ),
             "pipeline_dist_storage_compressor_use": (
-                f"{operator_gas_consumption_prefix}_compressors_{unit_suffix}"
+                f"operational_consumption_compressors_mcf"
             ),
             "vaporization_liquefaction_lng_fuel": (
-                f"{operator_gas_consumption_prefix}_lng_vaporization_liquefaction_{unit_suffix}"
+                f"operational_consumption_lng_vaporization_liquefaction_mcf"
             ),
             "vehicle_fuel_used_in_company_fleet": (
-                f"{operator_gas_consumption_prefix}_vehicles_{unit_suffix}"
+                f"operational_consumption_vehicle_fuel_mcf"
             ),
-            "other": f"{operator_gas_consumption_prefix}_other_{unit_suffix}",
+            "other": f"operational_consumption_other_mcf",
             "underground_storage_injections_volume": (
-                f"{operations_storage_prefix}_underground_{unit_suffix}"
+                "operational_storage_underground_mcf"
             ),
-            "lng_storage_injections_volume": (
-                f"{operations_storage_prefix}_lng_{unit_suffix}"
-            ),
-            "lease_use_volume": f"producer_lease_use_{unit_suffix}",
+            "lng_storage_injections_volume": "operational_lng_storage_injections_mcf",
+            "lease_use_volume": f"producer_lease_use_mcf",
             "returns_for_repress_reinjection_volume": (
-                f"producer_reservoir_repressurization_{unit_suffix}"
+                f"producer_returned_for_repressuring_reinjection_mcf"
             ),
-            "losses_from_leaks_volume": f"losses_{unit_suffix}",
+            "losses_from_leaks_volume": f"losses_mcf",
             "disposition_to_distribution_companies_volume": (
-                f"disposition_distribution_companies_{unit_suffix}"
+                f"disposition_distribution_companies_mcf"
             ),
-            "disposition_to_other_pipelines_volume": (
-                f"disposition_other_pipelines_{unit_suffix}"
-            ),
+            "disposition_to_other_pipelines_volume": f"disposition_other_pipelines_mcf",
             "disposition_to_storage_operators_volume": (
-                f"disposition_storage_operators_{unit_suffix}"
+                f"disposition_storage_operators_mcf"
             ),
-            "unaccounted_for": f"unaccounted_for_{unit_suffix}",
-            "deliveries_out_of_state_volume": f"disposition_out_of_state_{unit_suffix}",
-            "disposition_to_other_volume": f"disposition_other_{unit_suffix}",
-            "total_disposition_volume": f"total_disposition_{unit_suffix}",
+            "unaccounted_for": f"unaccounted_for_mcf",
+            "deliveries_out_of_state_volume": f"disposition_out_of_state_mcf",
+            "disposition_to_other_volume": f"other_disposition_all_other_mcf",
+            "total_disposition_volume": f"total_disposition_mcf",
         }
     )
+
+    df = df[
+        [
+            "operator_id_eia",
+            "report_year",
+            "operating_state",
+            "delivered_gas_heat_content_mmbtu_per_mcf",
+            "operational_consumption_facility_space_heat_mcf",
+            "operational_consumption_new_pipeline_fill_mcf",
+            "operational_consumption_compressors_mcf",
+            "operational_consumption_lng_vaporization_liquefaction_mcf",
+            "operational_consumption_vehicle_fuel_mcf",
+            "operational_consumption_other_mcf",
+            "operational_consumption_other_detail",
+            "operational_storage_underground_mcf",
+            "operational_lng_storage_injections_mcf",
+            "producer_lease_use_mcf",
+            "producer_returned_for_repressuring_reinjection_mcf",
+            "disposition_distribution_companies_mcf",
+            "disposition_storage_operators_mcf",
+            "disposition_other_pipelines_mcf",
+            "disposition_out_of_state_mcf",
+            "other_disposition_all_other_mcf",
+            "total_disposition_mcf",
+            "losses_mcf",
+            "unaccounted_for_mcf",
+        ]
+    ]
 
     return df
 
