@@ -13,165 +13,73 @@ The drive also contains one more CSV file: vce_county_lat_long_fips_table.csv. T
 read in when the fips partition is set to True.
 """
 
-from collections import defaultdict
 from io import BytesIO
 
-import numpy as np
+import duckdb
 import pandas as pd
-from dagster import AssetsDefinition, Output, asset
+from dagster import asset
 
 from pudl import logging_helpers
-from pudl.extract.csv import CsvExtractor
-from pudl.extract.extractor import GenericMetadata, PartitionSelection, raw_df_factory
 
 logger = logging_helpers.get_logger(__name__)
 
-VCERARE_PAGES = [
-    "offshore_wind_power_140m",
-    "onshore_wind_power_100m",
-    "fixed_solar_pv_lat_upv",
-]
+VCERARE_PAGES = {
+    "offshore_wind_power_140m": "Wind_Power_140m_Offshore_county.csv",
+    "onshore_wind_power_100m": "Wind_Power_100m_Onshore_county.csv",
+    "fixed_solar_pv_lat_upv": "Fixed_SolarPV_Lat_UPV_county.csv",
+}
 
 
-class VCERareMetadata(GenericMetadata):
-    """Special metadata class for VCE RARE Power Dataset."""
+def raw_vcerare_asset_factory(vcerare_page: str):
+    """Construct an asset to extract a single page from vcerare."""
+    table_name = f"raw_vcerare__{vcerare_page}"
 
-    def __init__(self, *args, **kwargs):
-        """Initialize the module.
+    def _clean_columns(
+        table_relation: duckdb.DuckDBPyRelation,
+    ) -> duckdb.DuckDBPyRelation:
+        """Apply basic cleaning to columns."""
+        columns = table_relation.columns
+        col_map = {
+            col: col.lower().replace(".", "").replace("-", "_") for col in columns
+        }
 
-        Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
-        """
-        super().__init__(*args, **kwargs)
-        self._file_name = self._load_csv(self._pkg, "file_map.csv")
+        # The first column is never named, but is always the ``hour_of_year`` column
+        col_map[columns[0]] = "hour_of_year"
+        col_map["year"] = "report_year"
 
-    def _load_column_maps(self, column_map_pkg) -> dict:
-        """There are no column maps to load, so return an empty dictionary."""
-        return {}
-
-    def get_all_pages(self) -> list[str]:
-        """Hard code the page names, which usually are pulled from column rename spreadsheets."""
-        return VCERARE_PAGES
-
-    def get_file_name(self, page, **partition):
-        """Returns file name of given partition and page."""
-        return self._file_name.loc[str(self._get_partition_selection(partition)), page]
-
-
-class Extractor(CsvExtractor):
-    """Extractor for VCE RARE Power Dataset."""
-
-    def __init__(self, *args, **kwargs):
-        """Initialize the module.
-
-        Args:
-            ds (:class:datastore.Datastore): Initialized datastore.
-        """
-        self.METADATA = VCERareMetadata("vcerare")
-        super().__init__(*args, **kwargs)
-
-    def get_column_map(self, page, **partition):
-        """Return empty dictionary, we don't rename these files."""
-        return {}
-
-    def source_filename(self, page: str, **partition: PartitionSelection) -> str:
-        """Produce the CSV file name as it will appear in the archive.
-
-        The files are nested in an additional folder with the year name inside of the
-        zipfile, so we add a prefix folder based on the yearly partition to the source
-        filename.
-
-        Args:
-            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
-                "coal_stocks"
-            partition: partition to load. Examples:
-                {'year': 2009}
-                {'year_month': '2020-08'}
-
-        Returns:
-            string name of the CSV file
-        """
-        return f"{partition['year']}/{self._metadata.get_file_name(page, **partition)}"
-
-    def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
-        """Produce the dataframe object for the given partition.
-
-        Args:
-            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
-                "data"
-            partition: partition to load. Examples:
-                {'year': 2009}
-                {'year_month': '2020-08'}
-
-        Returns:
-            pd.DataFrame instance containing CSV data
-        """
-        with (
-            self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
-        ):
-            # Get list of file names in the zipfile
-            files = zf.namelist()
-            # Get the particular file of interest
-            file = next(
-                (x for x in files if self.source_filename(page, **partition) in x), None
+        # Rename all columns
+        return table_relation.select(
+            ", ".join(
+                [f'"{col}" AS "{clean_col}"' for col, clean_col in col_map.items()]
             )
+        )
 
-            # Read it in using pandas
-            # Set all dtypes except for the first unnamed hours column
-            # to be float32 to reduce memory on read-in
-            dtype_dict = defaultdict(lambda: np.float32)
-            dtype_dict["Unnamed: 0"] = (
-                "int"  # Set first unnamed column (hours) to be an integer.
-            )
+    @asset(
+        name=table_name,
+        required_resource_keys={
+            "pudl_parquet_transformer",
+            "dataset_settings",
+        },
+    )
+    def _extract_asset(context):
+        """Extract data from a single vcerare page and write to parquet."""
+        dataset_settings = context.resources.dataset_settings
+        pudl_parquet_transformer = context.resources.pudl_parquet_transformer
+        pudl_parquet_transformer.extract_csv_to_parquet(
+            "vcerare",
+            table_name,
+            partition_paths=[
+                ({"year": year}, f"{year}/{VCERARE_PAGES[vcerare_page]}")
+                for year in dataset_settings.vcerare.years
+            ],
+            add_partition_columns=["year"],
+            custom_transforms=_clean_columns,
+        )
 
-            df = pd.read_csv(BytesIO(zf.read(file)), dtype=dtype_dict)
-
-        return df
-
-    def process_raw(
-        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
-    ) -> pd.DataFrame:
-        """Append report year to df to distinguish data from other years."""
-        self.cols_added.append("report_year")
-        selection = self._metadata._get_partition_selection(partition)
-        return df.assign(report_year=selection)
-
-    def validate(
-        self, df: pd.DataFrame, page: str, **partition: PartitionSelection
-    ) -> pd.DataFrame:
-        """Skip this step, as we aren't renaming any columns."""
-        return df
-
-    def combine(self, dfs: list[pd.DataFrame], page: str) -> pd.DataFrame:
-        """Concatenate dataframes into one, take any special steps for processing final page."""
-        df = pd.concat(dfs, sort=True, ignore_index=True)
-
-        return self.process_final_page(df, page)
+    return _extract_asset
 
 
-raw_vcerare__all_dfs = raw_df_factory(Extractor, name="vcerare")
-
-
-def raw_vcerare_asset_factory(part: str) -> AssetsDefinition:
-    """An asset factory for VCE RARE Power Dataset."""
-    asset_kwargs = {
-        "name": f"raw_vcerare__{part}",
-        "required_resource_keys": {"datastore", "dataset_settings"},
-    }
-
-    @asset(**asset_kwargs)
-    def _extract(context, raw_vcerare__all_dfs):
-        """Extract VCE RARE Power Dataset.
-
-        Args:
-            context: dagster keyword that provides access to resources and config.
-        """
-        return Output(value=raw_vcerare__all_dfs[part])
-
-    return _extract
-
-
-raw_vcerare_assets = [raw_vcerare_asset_factory(part) for part in VCERARE_PAGES]
+raw_vcerare_assets = [raw_vcerare_asset_factory(page) for page in VCERARE_PAGES]
 
 
 @asset(required_resource_keys={"datastore", "dataset_settings"})
