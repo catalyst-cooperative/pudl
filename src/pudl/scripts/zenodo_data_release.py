@@ -364,7 +364,7 @@ class EmptyDraft(State):
     """We can only sync the directory once we've gotten an empty draft."""
 
     @staticmethod
-    def _materialize_local_path(
+    def _sync_local_path(
         openable_file: fsspec.core.OpenFile, staging_dir: Path
     ) -> Path:
         """Ensure the given ``fsspec`` handle exists on the local filesystem.
@@ -389,13 +389,10 @@ class EmptyDraft(State):
         if "local" in protocol_parts:
             return Path(openable_file.path)
 
-        # Create a uniquely named path in the staging directory that we can safely
-        # download the remote file to, without worrying about collisions. The real name
-        # of the file will be preserved during upload to Zenodo.
-        fd, tmp_name = tempfile.mkstemp(dir=staging_dir)
-        os.close(fd)
-        tmp_path = Path(tmp_name)
-        # Actually download the remote file to the unique tmp_path
+        tmp_path = Path(staging_dir, Path(openable_file.path).name)
+        # Remove the tmp_path if it already exists to avoid conflicts
+        tmp_path.unlink(missing_ok=True)
+        # Actually download the remote file to the tmp_path that mirrors the original
         openable_file.fs.get(openable_file.path, tmp_path)
         return tmp_path
 
@@ -449,7 +446,7 @@ class EmptyDraft(State):
                     )
                     continue
 
-                local_path = self._materialize_local_path(openable_file, staging_path)
+                local_path = self._sync_local_path(openable_file, staging_path)
                 try:
                     response = self.zenodo_client.create_bucket_file(
                         bucket_url=bucket_url,
