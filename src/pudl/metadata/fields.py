@@ -123,7 +123,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "lease_use_volume": {
         "description": (
-            "Lease use volume (producers only) (14.73 psia and 60° Fahrenheit)"
+            "The total volume of gas used in the company's well, field and lease operations. This field should only be reported by producers. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
