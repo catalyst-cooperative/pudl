@@ -319,7 +319,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
     df = _core_eia176__yearly_company_data.filter(primary_key + keep)
 
-    _normalize_operating_states(core_pudl__codes_subdivisions, df)
+    df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
 
     df = pd.melt(
         df, id_vars=primary_key, var_name="metric", value_name="value"
@@ -428,9 +428,9 @@ def core_eia176__yearly_gas_disposition(
         }
     )
 
-    _normalize_operating_states(core_pudl__codes_subdivisions, df)
+    df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
     df = df.dropna(subset=["operating_state"])
-    df.dropna(subset=keep, inplace=True, how="all")
+    df = df.dropna(subset=keep, how="all")
 
     operator_gas_consumption_prefix = "operational_consumption"
     operations_storage_prefix = "operations_storage"
@@ -488,6 +488,7 @@ def _normalize_operating_states(
     core_pudl__codes_subdivisions: pd.DataFrame, df: pd.DataFrame
 ):
     """Normalize operating states in-place"""
+    df = df.copy()
     codes = (
         core_pudl__codes_subdivisions.assign(
             key=lambda d: d["subdivision_name"].str.strip().str.casefold()
@@ -498,3 +499,4 @@ def _normalize_operating_states(
     df["operating_state"] = (
         df["operating_state"].str.strip().str.casefold().map(codes.get)
     )
+    return df
