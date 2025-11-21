@@ -318,9 +318,9 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         )
         for customer_class in customer_classes
     )
-    assert (
-        mismatched <= 28
-    ), f"{mismatched} mismatched volume totals found, expected no more than 28."
+    assert mismatched <= 28, (
+        f"{mismatched} mismatched volume totals found, expected no more than 28."
+    )
 
     df = _core_eia176__yearly_company_data.filter(primary_key + keep)
 
@@ -428,17 +428,17 @@ def core_eia176__yearly_gas_disposition(
         (df["deliveries_out_of_state_volume"] != df[1400])
         & (df["deliveries_out_of_state_volume"].notna() | df[1400].notna())
     ).sum()
-    assert (
-        deliveries_out_of_state_mismatch <= 4
-    ), "More than 4 out of state deliveries total mismatches"
+    assert deliveries_out_of_state_mismatch <= 4, (
+        "More than 4 out of state deliveries total mismatches"
+    )
 
     disposition_to_other_mismatch = (
         (df["disposition_to_other_volume"] != df[1840])
         & (df["disposition_to_other_volume"].notna() | df[1840].notna())
     ).sum()
-    assert (
-        disposition_to_other_mismatch <= 2
-    ), "More than 2 disposition to other mismatches"
+    assert disposition_to_other_mismatch <= 2, (
+        "More than 2 disposition to other mismatches"
+    )
     df = df.drop(
         columns=["deliveries_out_of_state_volume", "disposition_to_other_volume"]
     )
