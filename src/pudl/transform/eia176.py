@@ -454,10 +454,11 @@ def core_eia176__yearly_gas_disposition(
             "vehicle_fuel_used_in_company_fleet": (
                 f"{operator_gas_consumption_prefix}_vehicles_{unit_suffix}"
             ),
-            "operations_volume_underground_storage_injections": (
+            "other": f"{operator_gas_consumption_prefix}_other_{unit_suffix}",
+            "underground_storage_injections_volume": (
                 f"{operations_storage_prefix}_underground_{unit_suffix}"
             ),
-            "operations_volume_lng_storage_injections": (
+            "lng_storage_injections_volume": (
                 f"{operations_storage_prefix}_lng_{unit_suffix}"
             ),
             "lease_use_volume": f"producer_lease_use_{unit_suffix}",
@@ -475,8 +476,9 @@ def core_eia176__yearly_gas_disposition(
                 f"disposition_storage_operators_{unit_suffix}"
             ),
             "unaccounted_for": f"unaccounted_for_{unit_suffix}",
-            "out_of_state_deliveries_volume": f"disposition_out_of_state_{unit_suffix}",
+            "deliveries_out_of_state_volume": f"disposition_out_of_state_{unit_suffix}",
             "disposition_to_other_volume": f"disposition_other_{unit_suffix}",
+            "total_disposition_volume": f"total_disposition_{unit_suffix}",
         }
     )
     return df
