@@ -66,7 +66,8 @@ def test_create_bucket_file_reopens_stream(monkeypatch, zenodo_client, tmp_path)
 
     calls: list[bytes] = []
 
-    def fake_put(url, *, headers, data, stream, timeout):  # noqa: ARG001
+    def fake_request(*, method, url, headers, data, stream, timeout):  # noqa: ARG001
+        assert method == "PUT"
         payload = data.read()
         calls.append(payload)
         if len(calls) == 1:
@@ -74,8 +75,8 @@ def test_create_bucket_file_reopens_stream(monkeypatch, zenodo_client, tmp_path)
         return _fake_response(200)
 
     monkeypatch.setattr(
-        "pudl.scripts.zenodo_data_release.requests.put",
-        fake_put,
+        "pudl.scripts.zenodo_data_release.requests.request",
+        fake_request,
     )
 
     response = zenodo_client.create_bucket_file(

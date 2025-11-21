@@ -1,5 +1,28 @@
 #!/usr/bin/env python
-"""Script to sync a directory up to Zenodo."""
+"""Upload a prepared PUDL data release directory to Zenodo.
+
+The PUDL data release process produces a directory of artifacts (zipped Parquet files,
+SQLite databases, JSON metadata, logs, etc.) that are uploaded to CERN's Zenodo data
+repository for long-term archival access. Each new versioned release of PUDL is
+associated with the same original PUDL concept DOI.
+
+This module provides a CLI that handles the process of uploading a new version to
+Zenodo, given a prepared directory of artifacts, typically produced by the PUDL builds.
+
+Uses state objects to ensure that Zenodo API calls happen in a valid order.
+
+Reads the files to upload via ``fsspec`` and stages remote files locally one at a time
+so uploads can be retried, without using excessive local disk space.
+
+Implements resilient retries for all requests to recover from transient network issues
+and Zenodo server flakiness. Zero-byte uploads are prevented.
+
+NOTE: PUDL nightly build outputs are NOT suitable a Zenodo data release unless the
+Parquet outputs are filtered out with an appropriate ignore_regex. Double check what
+files should actually be distributed before running the script.
+
+Run ``zenodo_data_release --help`` for CLI usage instructions.
+"""
 
 import datetime
 import logging
@@ -7,8 +30,10 @@ import os
 import re
 import tempfile
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import IO
 
 import click
 import coloredlogs
@@ -62,7 +87,6 @@ class _NewRecord(BaseModel):
     files: list[_NewFile]
 
 
-@dataclass
 class ZenodoClient:
     """Thin wrapper over Zenodo REST API.
 
@@ -95,14 +119,54 @@ class ZenodoClient:
         logger.info(f"Using Zenodo token: {token[:4]}...{token[-4:]}")
 
     def retry_request(
-        self, *, method, url, max_tries=6, timeout=2, **kwargs
+        self,
+        *,
+        method,
+        url,
+        max_tries: int = 6,
+        request_timeout: float | None = None,
+        data_factory: Callable[[], IO[bytes]] | None = None,
+        **kwargs,
     ) -> requests.Response:
-        """Wrap requests.request in retry logic for non-upload requests."""
+        """Retry calls to ``requests.request`` with exponential backoff.
+
+        Args:
+            method: HTTP method to use for the request (e.g. ``GET``).
+            url: Fully-qualified URL to which the request is sent.
+            max_tries: Maximum number of attempts before surfacing an error.
+            request_timeout: Optional per-request timeout in seconds. When ``None`` the
+                timeout grows exponentially (``2**attempt``).
+            data_factory: Optional callable that yields a fresh binary stream for each
+                attempt. Useful for uploads that require reopening a file-like object.
+            **kwargs: Additional keyword arguments passed through directly to
+                ``requests.request``.
+
+        Returns:
+            The ``requests.Response`` produced by the successful attempt.
+
+        Raises:
+            requests.RequestException: If all attempts fail with a requests error.
+            OSError: If reading from disk fails when preparing a payload.
+            RuntimeError: If no response object is produced (should be rare).
+        """
         response: requests.Response | None = None
         for attempt in range(1, max_tries + 1):
+            # Create a fresh set of kwargs for each attempt so that data_factory()
+            # can produce a fresh payload.
+            attempt_kwargs = dict(kwargs)
+            payload: IO[bytes] | None = None
+            timeout_value = (
+                request_timeout if request_timeout is not None else 2**attempt
+            )
             try:
+                if data_factory:
+                    payload = data_factory()
+                    attempt_kwargs["data"] = payload
                 response = requests.request(
-                    method=method, url=url, timeout=timeout**attempt, **kwargs
+                    method=method,
+                    url=url,
+                    timeout=timeout_value,
+                    **attempt_kwargs,
                 )
                 if response.status_code in RETRYABLE_STATUS_CODES:
                     raise requests.HTTPError(
@@ -113,11 +177,14 @@ class ZenodoClient:
             except (requests.RequestException, OSError, requests.HTTPError) as exc:
                 if attempt == max_tries:
                     raise
-                wait = timeout**attempt
+                wait = 2**attempt
                 logger.warning(
                     f"Attempt #{attempt} for {url} failed with {exc}, retrying in {wait}s"
                 )
                 time.sleep(wait)
+            finally:
+                if payload:
+                    payload.close()
         if response is None:
             raise RuntimeError(
                 f"Failed to complete request to {url} after {max_tries} tries"
@@ -200,8 +267,20 @@ class ZenodoClient:
     ) -> requests.Response:
         """LEGACY API: Upload a file to a deposition's file bucket.
 
-        Prefer this over the /deposit/depositions/{id}/files endpoint because
-        it allows for files >100MB.
+        We prefer this API this over the /deposit/depositions/{id}/files endpoint
+        because it allows for files >100MB.
+
+        Args:
+            bucket_url: Upload destination returned by Zenodo for the draft.
+            file_path: Local path to the artifact being uploaded.
+            max_tries: Maximum number of upload attempts before failing.
+
+        Returns:
+            The ``requests.Response`` from the successful upload attempt.
+
+        Raises:
+            ValueError: If ``file_path`` is empty.
+            requests.RequestException: If all upload attempts fail.
         """
         actual_name = file_path.name
         url = f"{bucket_url}/{actual_name}"
@@ -211,36 +290,15 @@ class ZenodoClient:
         if size == 0:
             raise ValueError(f"Upload source for {actual_name} has zero bytes")
 
-        response: requests.Response | None = None
-        for attempt in range(1, max_tries + 1):
-            try:
-                with file_path.open("rb") as payload:
-                    response = requests.put(
-                        url,
-                        headers=self.auth_headers,
-                        data=payload,
-                        stream=True,
-                        timeout=60,
-                    )
-                if response.status_code in RETRYABLE_STATUS_CODES:
-                    raise requests.HTTPError(
-                        f"Retryable status {response.status_code} from {url}",
-                        response=response,
-                    )
-                return response
-            except (requests.RequestException, OSError, requests.HTTPError) as exc:
-                if attempt == max_tries:
-                    raise
-                wait = 2**attempt
-                logger.warning(
-                    f"Upload attempt {attempt}/{max_tries} for {actual_name} failed with {exc}, retrying in {wait}s"
-                )
-                time.sleep(wait)
-        if response is None:
-            raise RuntimeError(
-                f"Failed to upload {actual_name} to Zenodo after {max_tries} attempts"
-            )
-        return response
+        return self.retry_request(
+            method="PUT",
+            url=url,
+            max_tries=max_tries,
+            request_timeout=60,
+            headers=self.auth_headers,
+            stream=True,
+            data_factory=lambda: file_path.open("rb"),
+        )
 
     def publish_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: publish deposition."""
@@ -256,11 +314,10 @@ class ZenodoClient:
 class State:
     """Parent class for dataset states.
 
-    Provides an abstraction layer that hides Zenodo's data model from the
-    caller.
+    Provides an abstraction layer that hides Zenodo's data model from the caller.
 
-    Subclasses + their limited method definitions provide a way to avoid
-    calling the operations in the wrong order.
+    Subclasses + their limited method definitions provide a way to avoid calling the
+    operations in the wrong order.
     """
 
     record_id: int
@@ -270,8 +327,8 @@ class State:
 class InitialDataset(State):
     """Represent initial dataset state.
 
-    At this point, we don't know if there is an existing draft or not - the
-    only thing we can do is try to get a fresh draft.
+    At this point, we don't know if there is an existing draft or not - the only thing
+    we can do is try to get a fresh draft.
     """
 
     def get_empty_draft(self) -> "EmptyDraft":
@@ -418,6 +475,7 @@ class CompleteDraft(State):
 
 
 @click.command(
+    help=__doc__,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 @click.option(
@@ -432,11 +490,8 @@ class CompleteDraft(State):
     type=str,
     required=True,
     help="Path to a directory whose contents will be uploaded to Zenodo. "
-    "Subdirectories are ignored. Can get files from GCS as well - just prefix "
-    "with gs://. NOTE: nightly build outputs are NOT suitable for creating a Zenodo "
-    "data release, as they include hundreds of individual Parquet files, which we "
-    "archive on Zenodo as a single zipfile. Check what files should actually be "
-    "distributed. E.g. it may be *.log *.zip *.json ",
+    "Subdirectories are ignored. Accepts GCS or S3 URLs as well. Prefix remote paths "
+    "with e.g. gs:// or s3://.",
 )
 @click.option(
     "--ignore",
@@ -446,7 +501,8 @@ class CompleteDraft(State):
 @click.option(
     "--publish/--no-publish",
     default=False,
-    help="Whether to publish the new record without confirmation, or leave it as a draft to be reviewed.",
+    help="Whether to publish the new record without confirmation, or leave it as a "
+    "draft to be reviewed and approved manually.",
     show_default=True,
 )
 def pudl_zenodo_data_release(

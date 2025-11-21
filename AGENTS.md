@@ -49,7 +49,8 @@
 - Use `pathlib.Path` for file system operations instead of string concatenation.
 - Follow snake_case for functions/variables, PascalCase for classes.
 - Use f-strings for string formatting, including in logging statements.
-- Write docstrings for all public functions/classes using the Google docstring style.
+- Write docstrings for all public functions/classes using Google style python
+  docstrings.
 - Limit lines to 88 characters for better readability.
 - Do not use `print()` statements; use logging instead.
 
