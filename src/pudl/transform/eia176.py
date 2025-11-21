@@ -16,6 +16,11 @@ from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
 
+DROP_OPERATING_STATES = (
+    "fed. gulf of mexico",
+    "mexico",
+)
+
 
 @multi_asset(
     outs={
@@ -313,9 +318,9 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         )
         for customer_class in customer_classes
     )
-    assert mismatched <= 28, (
-        f"{mismatched} mismatched volume totals found, expected no more than 28."
-    )
+    assert (
+        mismatched <= 28
+    ), f"{mismatched} mismatched volume totals found, expected no more than 28."
 
     df = _core_eia176__yearly_company_data.filter(primary_key + keep)
 
@@ -345,7 +350,6 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         .sum()
         == 0
     )
-    df = df.dropna(subset=["operating_state"])
     df = df.dropna(subset=["consumers", "revenue", "volume_mcf"], how="all")
 
     return df
@@ -407,17 +411,17 @@ def core_eia176__yearly_gas_disposition(
         (df["deliveries_out_of_state_volume"] != df[1400])
         & (df["deliveries_out_of_state_volume"].notna() | df[1400].notna())
     ).sum()
-    assert deliveries_out_of_state_mismatch <= 4, (
-        "More than 4 out of state deliveries total mismatches"
-    )
+    assert (
+        deliveries_out_of_state_mismatch <= 4
+    ), "More than 4 out of state deliveries total mismatches"
 
     disposition_to_other_mismatch = (
         (df["disposition_to_other_volume"] != df[1840])
         & (df["disposition_to_other_volume"].notna() | df[1840].notna())
     ).sum()
-    assert disposition_to_other_mismatch <= 2, (
-        "More than 2 disposition to other mismatches"
-    )
+    assert (
+        disposition_to_other_mismatch <= 2
+    ), "More than 2 disposition to other mismatches"
     df = df.drop(
         columns=["deliveries_out_of_state_volume", "disposition_to_other_volume"]
     )
@@ -429,7 +433,6 @@ def core_eia176__yearly_gas_disposition(
     )
 
     df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
-    df = df.dropna(subset=["operating_state"])
     df = df.dropna(subset=keep, how="all")
 
     operator_gas_consumption_prefix = "operational_consumption"
@@ -484,9 +487,7 @@ def core_eia176__yearly_gas_disposition(
     return df
 
 
-def _normalize_operating_states(
-    core_pudl__codes_subdivisions: pd.DataFrame, df: pd.DataFrame
-):
+def _normalize_operating_states(core_pudl__codes_subdivisions, df):
     """Map full state names to their postal abbreviations.
 
     This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.
@@ -499,7 +500,14 @@ def _normalize_operating_states(
         .drop_duplicates("key")
         .set_index("key")["subdivision_code"]
     )
-    df["operating_state"] = (
-        df["operating_state"].str.strip().str.casefold().map(codes.get)
-    )
+    norm = df["operating_state"].astype(str).str.strip().str.casefold()
+    mask_valid = norm.isin(codes.index)
+    mask_safe_drop = norm.isin(DROP_OPERATING_STATES)
+
+    invalid = norm[~(mask_valid | mask_safe_drop)].unique()
+    if len(invalid) > 0:
+        raise ValueError(f"Unknown operating_state values: {invalid!r}")
+
+    df["operating_state"] = norm.map(codes)
+    df.dropna(subset=["operating_state"])
     return df
