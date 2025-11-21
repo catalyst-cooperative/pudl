@@ -3,20 +3,14 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2025.X.X (2025-X-X)
+v2025.12.x (2025-12-XX)
 ---------------------------------------------------------------------------------------
-
-This is a regular monthly data release, primarily intended to ensure that PUDL has the
-most up-to-date EIA-860M data.
-
-Expanded Data Coverage
-^^^^^^^^^^^^^^^^^^^^^^
 
 New Data
 ^^^^^^^^
 
-Bug Fixes
-^^^^^^^^^
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
 
 Documentation
 ^^^^^^^^^^^^^
@@ -24,11 +18,22 @@ Documentation
 New Data Tests & Data Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Bug Fixes
+^^^^^^^^^
+
 Performance improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Reduced peak memory usage for core_eia860m__changelog_generators from 22GB to 16GB
 
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added ``balancing_authority_code_eia`` and ``balancing_authority_name_eia`` to the
+  set of plant-level attributes that are merged into the denormalized
+  :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables, as
+  multiple users have requested them. Most recently :user:`sam-hostetter` in issue
+  :issue:`4772`. See :pr:`4776`.
 
 .. _release-v2025.11.0:
 
