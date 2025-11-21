@@ -173,8 +173,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "unaccounted_for": {
         "description": (
-            "Difference between gas supply (+) and disposition (-)"
-            "(14.73 psia and 60° Fahrenheit)"
+            "The difference between gas supply and disposition. A positive entry indicates supply in excess of accounted-for disposition. A negative entry indicates accounted-for disposition exceeds reported supply. This is calculated as the difference between Part 4 Line 7.0 and Part 6 Line 19.0, and is reported as Line 20.0 in the original form."
         ),
         "unit": "Mcf",
         "type": "number",
