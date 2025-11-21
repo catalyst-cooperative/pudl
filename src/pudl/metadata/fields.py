@@ -81,8 +81,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "op_gas_consumption_by_pipeline_dist_storage_compressor_use": {
         "description": (
-            "Volume of natural gas consumed by operator's pipeline distribution or storage "
-            "compressor use (14.73 psia and 60° Fahrenheit)"
+            "Volume of natural gas consumed as fuel for the operator's own pipeline distribution or storage compressor use within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
