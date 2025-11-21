@@ -19,7 +19,8 @@ sources:
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
-                    min_value: 0.0
+                    min_value: 900.0
+                    max_value: 1200.0
           - name: op_gas_consumption_by_facility_space_heat
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
