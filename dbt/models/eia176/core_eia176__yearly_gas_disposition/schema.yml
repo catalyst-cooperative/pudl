@@ -15,94 +15,94 @@ sources:
           - name: operator_id_eia
           - name: report_year
           - name: operating_state
-          - name: heat_content_of_delivered_gas
+          - name: heat_content_of_delivered_gas_btu_cf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 900.0
                     max_value: 1200.0
-          - name: op_gas_consumption_by_facility_space_heat
+          - name: operational_consumption_facility_space_heat_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: op_gas_consumption_by_new_pipeline_fill
+          - name: operational_consumption_new_pipeline_fill_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: op_gas_consumption_by_pipeline_dist_storage_compressor_use
+          - name: operational_consumption_compressors_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: op_gas_consumption_by_vaporization_liquefaction_lng_fuel
+          - name: operational_consumption_lng_vaporization_liquefaction_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: op_gas_consumption_by_vehicle_fuel
+          - name: operational_consumption_vehicles_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: op_gas_consumption_by_other
+          - name: operational_consumption_other_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: operations_volume_underground_storage_injections
+          - name: operations_storage_underground_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: operations_volume_lng_storage_injections
+          - name: operations_storage_lng_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: lease_use_volume
+          - name: producer_lease_use_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: returns_for_repress_reinjection_volume
+          - name: producer_reservoir_repressurization_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: losses_from_leaks_volume
+          - name: losses_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: disposition_to_distribution_companies_volume
+          - name: disposition_distribution_companies_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: disposition_to_other_pipelines_volume
+          - name: disposition_other_pipelines_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: disposition_to_storage_operators_volume
+          - name: disposition_storage_operators_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: total_disposition_volume
+          - name: total_disposition_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: unaccounted_for
-          - name: out_of_state_deliveries_volume
+          - name: unaccounted_for_mcf
+          - name: disposition_out_of_state_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: disposition_to_other_volume
+          - name: disposition_other_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
