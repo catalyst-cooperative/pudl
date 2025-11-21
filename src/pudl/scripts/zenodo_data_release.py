@@ -47,7 +47,6 @@ SANDBOX = "sandbox"
 PRODUCTION = "production"
 RETRYABLE_STATUS_CODES = {
     408,  # Request Timeout
-    429,  # Too Many Requests / rate limited
     500,  # Internal Server Error
     502,  # Bad Gateway
     503,  # Service Unavailable

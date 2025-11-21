@@ -32,6 +32,8 @@ on:
 jobs:
   zenodo-data-release:
     runs-on: ubuntu-latest
+    concurrency:
+      group: zenodo-data-release-${{ inputs.env }}
     permissions:
       contents: read
       id-token: write
