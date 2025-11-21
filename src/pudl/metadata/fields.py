@@ -130,8 +130,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "returns_for_repress_reinjection_volume": {
         "description": (
-            "Volume of gas returned to oil or gas reservoirs, used for repressuring, reinjection "
-            "(producers only) (14.73 psia and 60° Fahrenheit)"
+            "The volume of gas delivered directly from the operator's system to oil or gas fields located within the report state for repressuring, pressure maintenance, and cycling operations. This field should only be reported by producers. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
