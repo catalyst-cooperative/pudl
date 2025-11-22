@@ -36,13 +36,17 @@ Quality of Life Improvements
   :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables, as
   multiple users have requested them. Most recently :user:`sam-hostetter` in issue
   :issue:`4772`. See :pr:`4776`.
-* Decoupl the publication of Zenodo data releases from the nightly and release builds
+* Decouple the publication of Zenodo data releases from the nightly and release builds
   by creating a ``zenodo-data-release`` GitHub Actions workflow that can create a new
   archive of a PUDL data release from nightly or stable build outputs. This should
   reduce the idle capacity and runtime of our nightly build VM significantly, and also
   allow us to retry Zenodo release uploads when Zenodo flakes out. The nightly and
   release builds will now trigger the ``zenodo-data-release`` workflow using ``curl``
   and the GitHub API. See issue :issue:`4775` and PR :pr:`4778`.
+* Replaced ``fgd_sorbent_consumption_1000_tons`` with ``fgd_sorbent_consumption_tons``
+  and changed units, consumption tons, to be rounded to nearest 100 tons in the
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance` table. See issue :issue:`4301`
+  and PR :pr:`4426`.
 
 .. _release-v2025.11.0:
 
