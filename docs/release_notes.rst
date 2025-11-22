@@ -30,8 +30,9 @@ Quality of Life Improvements
   multiple users have requested them. Most recently :user:`sam-hostetter` in issue
   :issue:`4772`. See :pr:`4776`.
 * Replaced ``fgd_sorbent_consumption_1000_tons`` with ``fgd_sorbent_consumption_tons``
-  and changed units, consumption tons, to be rounded to nearest 100 in the
-  :ref:`_core_eia923__yearly_fgd_operation_maintenance` table.
+  and changed units, consumption tons, to be rounded to nearest 100 tons in the
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance` table. See issue :issue:`4301`
+  and PR :pr:`4426`.
 
 
 .. _release-v2025.11.0:
