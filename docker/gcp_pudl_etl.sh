@@ -107,16 +107,29 @@ function upload_to_dist_path() {
 }
 
 function zenodo_data_release() {
-    echo "Creating a new PUDL data release on Zenodo."
+    ZENODO_ENV=$1
+    SOURCE_DIR=$2
+    IGNORE_REGEX=$3
+    PUBLISH=$4
 
-    if [[ "$1" == "production" ]]; then
-        ~/pudl/devtools/zenodo/zenodo_data_release.py --no-publish --env "$1" --source-dir "$PUDL_OUTPUT" --ignore "$PUDL_OUTPUT"/pudl_parquet_datapackage.json
-    elif [[ "$1" == "sandbox" ]]; then
-        ~/pudl/devtools/zenodo/zenodo_data_release.py --publish --env "$1" --source-dir "$PUDL_OUTPUT" --ignore "$PUDL_OUTPUT"/pudl_parquet_datapackage.json
-    else
-        echo "Invalid Zenodo environment"
-        exit 1
-    fi
+    # Trigger the zenodo data release workflow using the GitHub API
+    curl -sS -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
+        https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
+        -d @<(
+            cat <<JSON
+{
+  "ref": "${BUILD_REF}",
+  "inputs": {
+    "env": "${ZENODO_ENV}",
+    "source_dir": "${SOURCE_DIR}",
+    "ignore_regex": "${IGNORE_REGEX}",
+    "publish": "${PUBLISH}"
+  }
+}
+JSON
+        )
 }
 
 function notify_slack() {
@@ -142,7 +155,6 @@ function notify_slack() {
     message+="DISTRIBUTION_BUCKET_SUCCESS: $DISTRIBUTION_BUCKET_SUCCESS\n"
     message+="DEPLOY_EEL_HOLE_SUCCESS: $DEPLOY_EEL_HOLE_SUCCESS\n"
     message+="GCS_TEMPORARY_HOLD_SUCCESS: $GCS_TEMPORARY_HOLD_SUCCESS \n"
-    message+="ZENODO_SUCCESS: $ZENODO_SUCCESS\n\n"
     # we need to trim off the last dash-delimited section off the build ID to get a valid log link
     message+="<https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl|*Query logs online*>\n\n"
     message+="<https://storage.cloud.google.com/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log|*Download logs to your computer*>\n\n"
@@ -206,6 +218,7 @@ function clean_up_outputs_for_distribution() {
 # MAIN SCRIPT
 ########################################################################################
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
+ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^pudl_parquet_datapackage\\\\.json$)"
 
 # Initialize our success variables so they all definitely have a value to check
 ETL_SUCCESS=0
@@ -216,7 +229,6 @@ WRITE_DATAPACKAGE_SUCCESS=0
 CLEAN_UP_OUTPUTS_SUCCESS=0
 DISTRIBUTION_BUCKET_SUCCESS=0
 DEPLOY_EEL_HOLE_SUCCESS=0
-ZENODO_SUCCESS=0
 GCS_TEMPORARY_HOLD_SUCCESS=0
 
 # Set the build type based on the action trigger and tag
@@ -282,12 +294,13 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     gcloud run services update pudl-viewer --image us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest --region us-east1 | tee -a "$LOGFILE"
     DEPLOY_EEL_HOLE_SUCCESS=${PIPESTATUS[0]}
-    # Remove individual parquet outputs and distribute just the zipped parquet
-    # archives on Zenodo, due to their number of files limit
-    rm -f "$PUDL_OUTPUT"/*.parquet
-    # push a data release to Zenodo sandbox
-    zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
-    ZENODO_SUCCESS=${PIPESTATUS[0]}
+    if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
+        zenodo_data_release \
+            "sandbox" \
+            "s3://pudl.catalyst.coop/nightly/" \
+            "${ZENODO_IGNORE_REGEX}" \
+            "publish" 2>&1 | tee -a "$LOGFILE"
+    fi
 
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
     merge_tag_into_branch "$BUILD_REF" stable 2>&1 | tee -a "$LOGFILE"
@@ -299,16 +312,17 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     upload_to_dist_path "$BUILD_REF" | tee -a "$LOGFILE" &&
         upload_to_dist_path "stable" | tee -a "$LOGFILE"
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
-    # Remove individual parquet outputs and distribute just the zipped parquet
-    # archives on Zenodo, due to their number of files limit
-    rm -f "$PUDL_OUTPUT"/*.parquet
-    # push a data release to Zenodo production
-    zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
-    ZENODO_SUCCESS=${PIPESTATUS[0]}
     # This is a versioned release. Ensure that outputs can't be accidentally deleted.
     # We can only do this on the GCS bucket, not S3
     gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold 2>&1 | tee -a "$LOGFILE"
     GCS_TEMPORARY_HOLD_SUCCESS=${PIPESTATUS[0]}
+    if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
+        zenodo_data_release \
+            "production" \
+            "s3://pudl.catalyst.coop/${BUILD_REF}/" \
+            "${ZENODO_IGNORE_REGEX}" \
+            "no-publish" 2>&1 | tee -a "$LOGFILE"
+    fi
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
@@ -319,12 +333,18 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     # Remove those uploads since they were just for testing.
     remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
-    # Remove individual parquet outputs and distribute just the zipped parquet
-    # archives on Zenodo, due to their number of files limit
-    rm -f "$PUDL_OUTPUT"/*.parquet
-    # push a data release to Zenodo sandbox
-    zenodo_data_release "$ZENODO_TARGET_ENV" 2>&1 | tee -a "$LOGFILE"
-    ZENODO_SUCCESS=${PIPESTATUS[0]}
+    # NOTE: because we remove the test uploads and the zenodo data release workflow
+    # runs independent of the nightly build (it is not blocking), the workflow
+    # has no build-specific outputs to publish. It just attempts to republish the
+    # nightly outputs from s3://pudl.catalyst.coop/nightly/ to make sure that the
+    # process is working.
+    if [[ $DISTRIBUTION_BUCKET_SUCCESS == 0 ]]; then
+        zenodo_data_release \
+            "sandbox" \
+            "s3://pudl.catalyst.coop/nightly/" \
+            "${ZENODO_IGNORE_REGEX}" \
+            "publish" 2>&1 | tee -a "$LOGFILE"
+    fi
 
 else
     echo "Unknown build type, exiting!"
@@ -348,8 +368,7 @@ if [[ $ETL_SUCCESS == 0 &&
     $CLEAN_UP_OUTPUTS_SUCCESS == 0 &&
     $DISTRIBUTION_BUCKET_SUCCESS == 0 &&
     $DEPLOY_EEL_HOLE_SUCCESS == 0 &&
-    $GCS_TEMPORARY_HOLD_SUCCESS == 0 &&
-    $ZENODO_SUCCESS == 0 ]] \
+    $GCS_TEMPORARY_HOLD_SUCCESS == 0 ]] \
     ; then
     notify_slack "success"
 else
