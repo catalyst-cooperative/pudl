@@ -277,20 +277,27 @@ def _core_eia860__generators(
         "ferc_qualifying_facility",
     ]
     gens_df = (
+        # pandas complains when you pass in empty dfs, but it's surprisingly more
+        # memory-expensive to skip the empty dfs and manually add the columns
+        # we need from them back in, so the complainer stays.
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
         .pipe(pudl.helpers.standardize_na_values)
         .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
+            inplace=True,
         )
-        .replace(to_replace=nulls_replace_cols)
-        .pipe(pudl.helpers.month_year_to_date)
+    )
+    gens_df.replace(to_replace=nulls_replace_cols, inplace=True)  # noqa: PD002
+    gens_df = (
+        gens_df.pipe(pudl.helpers.month_year_to_date)
         .pipe(
             pudl.helpers.simplify_strings,
             columns=["rto_iso_lmp_node_id", "rto_iso_location_wholesale_reporting_id"],
+            copy=False,
         )
-        .pipe(pudl.helpers.convert_to_date)
+        .pipe(pudl.helpers.convert_to_date, copy=False)
     )
     # This manual fix is required before encoding because there's not a unique mapping
     # PA -> PACW in Oregon
@@ -303,7 +310,7 @@ def _core_eia860__generators(
         (gens_df.state == "UT") & (gens_df.balancing_authority_code_eia == "PA"),
         "balancing_authority_code_eia",
     ] = "PACE"
-    gens_df = PUDL_PACKAGE.encode(gens_df)
+    gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
 
     gens_df["fuel_type_code_pudl"] = gens_df.energy_source_code_1.str.upper().map(
         pudl.helpers.label_map(

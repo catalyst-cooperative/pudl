@@ -21,6 +21,11 @@ New Data Tests & Data Validations
 Bug Fixes
 ^^^^^^^^^
 
+Performance improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Reduced peak memory usage for core_eia860m__changelog_generators from 22GB to 16GB
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
