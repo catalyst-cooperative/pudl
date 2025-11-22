@@ -85,5 +85,7 @@ jobs:
           method: chat.postMessage
           token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
           payload: |
-            text: "zenodo-data-release (${{ github.ref }}) finished with status: ${{ job.status }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            channel: "C03FHB9N0PQ"
+            {
+              "text": "${{job.status == 'success' && ':white_check_mark:' || ':x:'}} zenodo-data-release (`${{ github.ref }}`) finished with status: ${{ job.status }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "channel": "C03FHB9N0PQ"
+            }
