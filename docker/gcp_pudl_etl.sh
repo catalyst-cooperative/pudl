@@ -191,7 +191,7 @@ function merge_tag_into_branch() {
 function clean_up_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
     pushd "$PUDL_OUTPUT" &&
-        find ./ -type f -depth 1 -name '*.sqlite' | parallel --will-cite 'zip -9 "{1}.zip" "{1}"' &&
+        find ./ -maxdepth 1 -type f -name '*.sqlite' -print | parallel --will-cite 'zip -9 "{1}.zip" "{1}"' &&
         rm -f ./*.sqlite &&
         popd &&
         # Create a zip file of all the parquet outputs for distribution on Kaggle
