@@ -191,12 +191,9 @@ function merge_tag_into_branch() {
 function clean_up_outputs_for_distribution() {
     # Compress the SQLite DBs for easier distribution
     pushd "$PUDL_OUTPUT" &&
-        for file in *.sqlite; do
-            echo "Compressing $file" &&
-                zip "$file.zip" "$file" &&
-                rm "$file"
-        done
-    popd &&
+        find ./ -type f -depth 1 -name "*.sqlite" | parallel --will-cite 'zip -9 "{1}.zip" "{1}"' &&
+        rm -f ./*.sqlite &&
+        popd &&
         # Create a zip file of all the parquet outputs for distribution on Kaggle
         # Don't try to compress the already compressed Parquet files with Zip.
         pushd "$PUDL_OUTPUT/parquet" &&
@@ -210,7 +207,6 @@ function clean_up_outputs_for_distribution() {
         popd &&
         # Remove any remaiining files and directories we don't want to distribute
         rm -rf "$PUDL_OUTPUT/parquet" &&
-        rm -f "$PUDL_OUTPUT/metadata.yml" &&
         rm -f "$PUDL_OUTPUT/pudl_dbt_tests.duckdb"
 }
 
@@ -218,7 +214,7 @@ function clean_up_outputs_for_distribution() {
 # MAIN SCRIPT
 ########################################################################################
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
-ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^pudl_parquet_datapackage\\\\.json$)"
+ZENODO_IGNORE_REGEX="(^.*\\\\.parquet$|^.*pudl_parquet_datapackage\\\\.json$)"
 
 # Initialize our success variables so they all definitely have a value to check
 ETL_SUCCESS=0
