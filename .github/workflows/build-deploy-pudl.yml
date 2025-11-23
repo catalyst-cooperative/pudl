@@ -136,7 +136,7 @@ jobs:
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
-            --container-env OMP_NUM_THREADS=8 \
+            --container-env OMP_NUM_THREADS=4 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
             --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
