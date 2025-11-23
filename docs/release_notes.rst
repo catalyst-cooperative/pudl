@@ -12,6 +12,13 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+FERC Form 6
+~~~~~~~~~~~
+
+* Updated to using the `latest archive of FERC Form 6
+  <https://zenodo.org/records/17119798>`__ to capture a few late revisions. See PR
+  :pr:`4784`.
+
 Documentation
 ^^^^^^^^^^^^^
 
