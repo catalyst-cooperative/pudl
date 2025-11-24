@@ -62,7 +62,8 @@ from pudl.metadata.sources import SOURCES
 FIELD_METADATA: dict[str, dict[str, Any]] = {
     "delivered_gas_heat_content_mmbtu_per_mcf": {
         "description": (
-            "The average annual heat content of gas delivered directly to consumers."
+            "The average annual heat content of gas delivered directly to consumers. "
+            "Note: operator 17617651KY has several values that are slightly higher than 1.2"
         ),
         "unit": "MMBtu_per_Mcf",
         "type": "number",
