@@ -6,20 +6,19 @@ SQLite databases, JSON metadata, logs, etc.) that are uploaded to CERN's Zenodo 
 repository for long-term archival access. Each new versioned release of PUDL is
 associated with the same original PUDL concept DOI.
 
-This module provides a CLI that handles the process of uploading a new version to
-Zenodo, given a prepared directory of artifacts, typically produced by the PUDL builds.
+This module provides a CLI that handles the process of uploading a new PUDL data release
+to Zenodo, given a prepared directory of artifacts typically produced by the PUDL builds.
 
-Uses state objects to ensure that Zenodo API calls happen in a valid order.
+It uses state objects to ensure that Zenodo API calls happen in a valid order. The files
+to upload are read using ``fsspec`` and remote files are staged locally one at a time
+so uploads can be retried, but without using excessive local disk space.
 
-Reads the files to upload via ``fsspec`` and stages remote files locally one at a time
-so uploads can be retried, without using excessive local disk space.
-
-Implements resilient retries for all requests to recover from transient network issues
+Retries are implemented for all upload requests to recover from transient network issues
 and Zenodo server flakiness. Zero-byte uploads are prevented.
 
-NOTE: PUDL nightly build outputs are NOT suitable a Zenodo data release unless the
-Parquet outputs are filtered out with an appropriate ignore_regex. Double check what
-files should actually be distributed before running the script.
+NOTE: PUDL nightly build outputs are NOT suitable for producing a Zenodo data release
+unless the Parquet outputs are filtered out with an appropriate ignore_regex. Double
+check what files should actually be distributed before running the script.
 
 Run ``zenodo_data_release --help`` for CLI usage instructions.
 """
@@ -245,8 +244,8 @@ class ZenodoClient:
     ) -> _LegacyDeposition:
         """LEGACY API: Update deposition metadata.
 
-        Replaces the existing metadata completely - so make sure to pass in
-        complete metadata. You cannot update metadata fields one at a time.
+        Replaces the existing metadata completely - so make sure to pass in complete
+        metadata. You cannot update metadata fields one at a time.
         """
         url = f"{self.base_url}/deposit/depositions/{deposition_id}"
         data = {"metadata": metadata.model_dump()}
