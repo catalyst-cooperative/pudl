@@ -420,9 +420,9 @@ def core_eia176__yearly_gas_disposition(
             )
         }
     )
-    assert (
-        not tl_text[primary_key].duplicated().any()
-    ), 'Found multiple values in "gas consumed in company\'s operations" "other" field (12.6)'
+    assert not tl_text[primary_key].duplicated().any(), (
+        'Found multiple values in "gas consumed in company\'s operations" "other" field (12.6)'
+    )
     df = df.merge(tl_text)
 
     deliveries_out_of_state_mismatch = (
