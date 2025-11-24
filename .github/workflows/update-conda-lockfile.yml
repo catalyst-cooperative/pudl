@@ -27,7 +27,7 @@ jobs:
         with:
           app-id: ${{ secrets.WORKFLOW_TRIGGERER_APP_ID }}
           private-key: ${{ secrets.WORKFLOW_TRIGGERER_PRIVATE_KEY }}
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           token: ${{ steps.generate-token.outputs.token }}
       - name: Install Micromamba
