@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       env:
-        description: "Zenodo environment to upload data to"
+        description: "Upload to Zenodo server environment:"
         required: true
         options:
           - sandbox
@@ -13,22 +13,27 @@ on:
         default: "sandbox"
         type: choice
       source_dir:
-        description: "Source from which to pull data (e.g. an S3 bucket path)"
+        description: "Path to PUDL data to publish:"
         required: true
         default: "s3://pudl.catalyst.coop/nightly/"
       ignore_regex:
-        description: "A regular expression matching filenames not to upload"
+        description: "Ignore files matching this regex:"
         required: false
-        default: '(^.*\.parquet$|^.*\.zip$)'
+        default: '(^.*\.parquet$|^pudl_parquet_datapackage\.json$)'
       publish:
-        description: "Whether to automatically publish the Zenodo record after upload"
-        required: false
-        default: false
-        type: boolean
+        description: "Automatically publish Zenodo record?"
+        required: true
+        default: "no-publish"
+        options:
+          - no-publish
+          - publish
+        type: choice
 
 jobs:
   zenodo-data-release:
     runs-on: ubuntu-latest
+    concurrency:
+      group: zenodo-data-release-${{ inputs.env }}
     permissions:
       contents: read
       id-token: write
@@ -39,7 +44,7 @@ jobs:
         shell: bash -l {0}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -57,16 +62,20 @@ jobs:
           environment-name: pudl-dev
           cache-environment: true
 
+      - name: Install PUDL
+        run: |
+          pip install --no-deps --editable .
+
       - name: Do a Zenodo data release
         env:
           ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
           ZENODO_TOKEN_UPLOAD: ${{ secrets.ZENODO_TOKEN_UPLOAD }}
         run: |
-          python devtools/zenodo/zenodo_data_release.py \
+          zenodo_data_release \
             --env "${{ inputs.env }}" \
             --source-dir "${{ inputs.source_dir }}" \
             ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
-            ${{ inputs.publish && '--publish' || '' }}
+            --${{ inputs.publish }}
 
       - name: Post status to pudl-deployments channel
         if: always()
@@ -76,5 +85,7 @@ jobs:
           method: chat.postMessage
           token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
           payload: |
-            text: "zenodo-data-release status: ${{ job.status }}"
-            channel: "C03FHB9N0PQ"
+            {
+              "text": "${{job.status == 'success' && ':white_check_mark:' || ':x:'}} zenodo-data-release (`${{ github.ref }}`) finished with status: ${{ job.status }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "channel": "C03FHB9N0PQ"
+            }

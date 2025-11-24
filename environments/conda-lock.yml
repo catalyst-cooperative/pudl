@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 5a64237eac3399308de3fcb3975eeaf3b5eabeafbee2562816241bbe7c3ff6c4
-    osx-64: f2357c3a48a07ce4ad887f6868b44c2ea54b0b26562a410c3a77feebb4481ae0
-    osx-arm64: a520da7bdf8fb1bdc27bf40b3d9c3c3ae50ad2e8a2af0ddf6bff459e9bc1937a
+    linux-64: 9f044e760ef86ff290b114495601a86722958e6e981785ca77604698b158db1c
+    osx-64: 30584c9eaf2b13c3230e18d01e942a1e0cfe43a7a6e41b9d9780e22f0772e5f0
+    osx-arm64: 57709304dd45c490692a2dbdd5a831e12030b29e37d0bd6bb9b6767c7ab85d4b
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -18674,6 +18674,42 @@ package:
       sha256: 705484ad60adee86cab1aad3d2d8def03a699ece438c864e8ac995f6f66401a6
     category: dev
     optional: true
+  - name: parallel
+    version: "20250822"
+    manager: conda
+    platform: linux-64
+    dependencies:
+      perl: ""
+    url: https://conda.anaconda.org/conda-forge/linux-64/parallel-20250822-ha770c72_0.conda
+    hash:
+      md5: 3e1d1c027020370bb0ab33e6f794091c
+      sha256: 23e0a3735ab44ec5f6610c2d7d96d084b698b06432b10ada5d086f3aac8952db
+    category: main
+    optional: false
+  - name: parallel
+    version: "20250822"
+    manager: conda
+    platform: osx-64
+    dependencies:
+      perl: ""
+    url: https://conda.anaconda.org/conda-forge/osx-64/parallel-20250822-h694c41f_0.conda
+    hash:
+      md5: 84b4c8f4bf54b47a093d000f9c172cd3
+      sha256: 798c8bee64bbeae69b35f51fddccc0af75e0ebdadb9cacacdd20cb63d8aa54ab
+    category: main
+    optional: false
+  - name: parallel
+    version: "20250822"
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      perl: ""
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/parallel-20250822-hce30654_0.conda
+    hash:
+      md5: bccd7fbc737d957a3a61ee01417dbf57
+      sha256: b8202531686aef04af47ece4856da8a2ebce29ebc27e13b147160c2b460e8cf0
+    category: main
+    optional: false
   - name: paramiko
     version: 4.0.0
     manager: conda
@@ -18949,6 +18985,41 @@ package:
     hash:
       md5: 0e6e82c3cc3835f4692022e9b9cd5df8
       sha256: 5bf2eeaa57aab6e8e95bea6bd6bb2a739f52eb10572d8ed259d25864d3528240
+    category: main
+    optional: false
+  - name: perl
+    version: 5.32.1
+    manager: conda
+    platform: linux-64
+    dependencies:
+      libgcc-ng: ">=12"
+      libxcrypt: ">=4.4.36"
+    url: https://conda.anaconda.org/conda-forge/linux-64/perl-5.32.1-7_hd590300_perl5.conda
+    hash:
+      md5: f2cfec9406850991f4e3d960cc9e3321
+      sha256: 9ec32b6936b0e37bcb0ed34f22ec3116e75b3c0964f9f50ecea5f58734ed6ce9
+    category: main
+    optional: false
+  - name: perl
+    version: 5.32.1
+    manager: conda
+    platform: osx-64
+    dependencies: {}
+    url: https://conda.anaconda.org/conda-forge/osx-64/perl-5.32.1-7_h10d778d_perl5.conda
+    hash:
+      md5: dc442e0885c3a6b65e61c61558161a9e
+      sha256: 8ebd35e2940055a93135b9fd11bef3662cecef72d6ee651f68d64a2f349863c7
+    category: main
+    optional: false
+  - name: perl
+    version: 5.32.1
+    manager: conda
+    platform: osx-arm64
+    dependencies: {}
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/perl-5.32.1-7_h4614cfb_perl5.conda
+    hash:
+      md5: ba3cbe93f99e896765422cc5f7c3a79e
+      sha256: b0c55040d2994fd6bf2f83786561d92f72306d982d6ea12889acad24a9bf43b8
     category: main
     optional: false
   - name: petl
