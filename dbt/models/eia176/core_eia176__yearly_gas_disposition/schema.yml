@@ -8,7 +8,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia176__yearly_gas_disposition_by_consumer
+                table_name: core_eia176__yearly_gas_disposition
                 partition_expr: "report_year"
 
         columns:
@@ -19,8 +19,8 @@ sources:
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
-                    min_value: 900.0
-                    max_value: 1200.0
+                    min_value: 0.8
+                    max_value: 1.2
           - name: operational_consumption_facility_space_heat_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -107,3 +107,4 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+          - name: operational_consumption_other_detail
