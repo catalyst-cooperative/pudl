@@ -19,6 +19,7 @@ logger = get_logger(__name__)
 DROP_OPERATING_STATES = (
     "fed. gulf of mexico",
     "mexico",
+    "other",
 )
 
 
@@ -345,8 +346,8 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
     # Ensure all values in rows with null operating state are zeroes, and drop them
     assert (
-        df[df["operating_state"].isna()]
-        .sum()[["consumers", "revenue", "volume_mcf"]]
+        df[df["operating_state"].isna()][["consumers", "revenue", "volume_mcf"]]
+        .sum()
         .sum()
         == 0
     )
@@ -420,9 +421,9 @@ def core_eia176__yearly_gas_disposition(
             )
         }
     )
-    assert not tl_text[primary_key].duplicated().any(), (
-        'Found multiple values in "gas consumed in company\'s operations" "other" field (12.6)'
-    )
+    assert (
+        not tl_text[primary_key].duplicated().any()
+    ), 'Found multiple values in "gas consumed in company\'s operations" "other" field (12.6)'
     df = df.merge(tl_text)
 
     deliveries_out_of_state_mismatch = (
@@ -451,6 +452,7 @@ def core_eia176__yearly_gas_disposition(
     )
 
     df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
+    df.dropna(subset=["operating_state"])
     df = df.dropna(subset=keep, how="all")
 
     # Replace 9999 values prior to 2012 with NA
@@ -557,5 +559,4 @@ def _normalize_operating_states(core_pudl__codes_subdivisions, df):
         raise ValueError(f"Unknown operating_state values: {invalid!r}")
 
     df["operating_state"] = norm.map(codes)
-    df.dropna(subset=["operating_state"])
     return df
