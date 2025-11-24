@@ -204,7 +204,7 @@ class ZenodoDoiSettings(BaseSettings):
     epacems: ZenodoDoi = "10.5281/zenodo.17500930"
     ferc1: ZenodoDoi = "10.5281/zenodo.17563678"
     ferc2: ZenodoDoi = "10.5281/zenodo.17223540"
-    ferc6: ZenodoDoi = "10.5281/zenodo.16676188"
+    ferc6: ZenodoDoi = "10.5281/zenodo.17119798"
     ferc60: ZenodoDoi = "10.5281/zenodo.17223513"
     ferc714: ZenodoDoi = "10.5281/zenodo.16676145"
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"

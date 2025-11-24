@@ -12,6 +12,7 @@ env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
   PUDL_INPUT: /home/runner/pudl-work/input/
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
+  ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
 
 jobs:
   change_filter:
@@ -22,7 +23,7 @@ jobs:
       # 2025-07-17: because merge_group is an Object and run_code_checks is not a conditional, need to explicitly check for null-ness instead of relying on truthiness.
       run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && (github.event.merge_group != null)) }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: dorny/paths-filter@v3
@@ -33,25 +34,27 @@ jobs:
           filters: |
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
-              - '!docker/*'
-              - '!docs/**.rst'
-              - '!docs/**.md'
-              - '!docs/**.pdf'
-              - '!docs/**.html'
-              - '!docs/**.rst.jinja'
-              - '!docs/**.bib'
+              - '!docker/**'
+              - '!docs/**'
               - '!.github/**.md'
               - '!.github/FUNDING.yml'
               - '!.github/actionlint.yml'
               - '!.github/dependabot.yml'
               - '!.github/release.yml'
               - '!.github/ISSUE_TEMPLATE/*.yml'
+              - '!.github/workflows/zenodo-data-release.yml'
               - '!AGENTS.md'
               - '!README.rst'
               - '!CONTRIBUTING.rst'
               - '!LICENSE.txt'
               - '!CITATION.cff'
               - '!.zenodo.json'
+              - '!**.gitignore'
+              - '!.git-blame-ignore-revs'
+              - '!.pre-commit-config.yaml'
+              - '!.readthedocs.yaml'
+              - '!.mypy.ini'
+              - '!test/unit/**'
       - name: print out components
         run: |
           echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
@@ -67,7 +70,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -117,7 +120,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -185,7 +188,7 @@ jobs:
       - name: Collect Workflow Telemetry
         uses: catchpoint/workflow-telemetry-action@v2
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -288,7 +291,7 @@ jobs:
       - change_filter
     if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Download coverage
         id: download-coverage
         uses: actions/download-artifact@v6

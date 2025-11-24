@@ -18,8 +18,8 @@ database tables and provided a short description of the contents of each table h
 
    As of 2025-09-08 the links below are not working, because we are in the process of
    migrating web-based access to PUDL data to `a new interface
-   <https://viewer.catalyst.coop>`__. The links should start working again once we have
-   `added the raw FERC DBs to the PUDL Viewer
+   <https://data.catalyst.coop>`__. The links should start working again once we have
+   `added the raw FERC DBs to the PUDL Data Viewer
    <https://github.com/catalyst-cooperative/eel-hole/issues/4>`__ and `implemented
    per-table direct links
    <https://github.com/catalyst-cooperative/eel-hole/issues/56>`__
