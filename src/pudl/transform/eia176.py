@@ -319,9 +319,9 @@ def core_eia176__yearly_gas_disposition_by_consumer(
         )
         for customer_class in customer_classes
     )
-    assert mismatched <= 28, (
-        f"{mismatched} mismatched volume totals found, expected no more than 28."
-    )
+    assert (
+        mismatched <= 28
+    ), f"{mismatched} mismatched volume totals found, expected no more than 28."
 
     df = _core_eia176__yearly_company_data.filter(primary_key + keep)
 
@@ -362,7 +362,7 @@ def core_eia176__yearly_gas_disposition(
     core_pudl__codes_subdivisions: pd.DataFrame,
     raw_eia176__continuation_text_lines: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Produce company-level gas disposition (EIA176, Part B)"""
+    """Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0)"""
     extras = ["operating_state"]
 
     keep = [
@@ -420,26 +420,26 @@ def core_eia176__yearly_gas_disposition(
             )
         }
     )
-    assert not tl_text[primary_key].duplicated().any(), (
-        'Found multiple values in "gas consumed in company\'s operations" "other" field (12.6)'
-    )
+    assert (
+        not tl_text[primary_key].duplicated().any()
+    ), 'Found multiple values in "gas consumed in company\'s operations" "other" field (12.6)'
     df = df.merge(tl_text)
 
     deliveries_out_of_state_mismatch = (
         (df["deliveries_out_of_state_volume"] != df[1400])
         & (df["deliveries_out_of_state_volume"].notna() | df[1400].notna())
     ).sum()
-    assert deliveries_out_of_state_mismatch <= 4, (
-        "More than 4 out of state deliveries total mismatches"
-    )
+    assert (
+        deliveries_out_of_state_mismatch <= 4
+    ), "More than 4 out of state deliveries total mismatches"
 
     disposition_to_other_mismatch = (
         (df["disposition_to_other_volume"] != df[1840])
         & (df["disposition_to_other_volume"].notna() | df[1840].notna())
     ).sum()
-    assert disposition_to_other_mismatch <= 2, (
-        "More than 2 disposition to other mismatches"
-    )
+    assert (
+        disposition_to_other_mismatch <= 2
+    ), "More than 2 disposition to other mismatches"
     df = df.drop(
         columns=["deliveries_out_of_state_volume", "disposition_to_other_volume"]
     )
@@ -469,9 +469,7 @@ def core_eia176__yearly_gas_disposition(
                 "delivered_gas_heat_content_mmbtu_per_mcf"
             ),
             "facility_space_heat": "operational_consumption_facility_space_heat_mcf",
-            "new_pipeline_fill_volume": (
-                "operational_consumption_new_pipeline_fill_mcf"
-            ),
+            "new_pipeline_fill_volume": "operational_consumption_new_pipeline_fill_mcf",
             "pipeline_dist_storage_compressor_use": (
                 "operational_consumption_compressors_mcf"
             ),
