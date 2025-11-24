@@ -324,11 +324,15 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+
+    # Disable the test upload to the distribution bucket for now to avoid egress fees
+    # and speed up the build. Uncomment if you need to test the distribution upload.
     # Upload to GCS / S3 just to test that it works.
-    upload_to_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
-    DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
+    # upload_to_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
+    # DISTRIBUTION_BUCKET_SUCCESS=${PIPESTATUS[0]}
     # Remove those uploads since they were just for testing.
-    remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
+    # remove_dist_path "$BUILD_ID" | tee -a "$LOGFILE"
+
     # NOTE: because we remove the test uploads and the zenodo data release workflow
     # runs independent of the nightly build (it is not blocking), the workflow
     # has no build-specific outputs to publish. It just attempts to republish the

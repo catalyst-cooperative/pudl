@@ -28,12 +28,12 @@ New Data Tests & Data Validations
 Bug Fixes
 ^^^^^^^^^
 
-* Increase the robustness of retries when uploading a PUDL data release to Zenodo,
-  catching common transient error status codes, and restarting file uploads from the
-  beginning of the file when an error occurs rather than uploading an empty file.
-  Previously these errors were not caught and missing or zero-length files were only
-  caught through manual inspection of draft data releases. See issue :issue:`4290` and
-  PR :pr:`4778`.
+* Improve the retry logic we use when uploading a PUDL data release to Zenodo: Catch
+  common transient error status codes and retry the upload instead of continuing as if
+  nothing had gone wrong. When retrying, restart the upload from the beginning of the
+  file rather than uploading a zero-length file. Previously both types of errors
+  (missing files and zero-length files) were only caught through manual inspection of
+  draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -50,6 +50,11 @@ Quality of Life Improvements
   allow us to retry Zenodo release uploads when Zenodo flakes out. The nightly and
   release builds will now trigger the ``zenodo-data-release`` workflow using ``curl``
   and the GitHub API. See issue :issue:`4775` and PR :pr:`4778`.
+* Disabled the distribution of build outputs to S3/GCS during ``workflow_dispatch``
+  builds since these uploads are pretty robust, they slow down the build, we delete the
+  outputs right after uploading them, and there are egress fees associated with sending
+  the data to S3. Build artifacts are still uploaded to ``gs://builds.catalyst.coop``.
+  See PR :pr:`4778`.
 * Replaced ``fgd_sorbent_consumption_1000_tons`` with ``fgd_sorbent_consumption_tons``
   and changed units, consumption tons, to be rounded to nearest 100 tons in the
   :ref:`i_core_eia923__yearly_fgd_operation_maintenance` table. See issue :issue:`4301`
