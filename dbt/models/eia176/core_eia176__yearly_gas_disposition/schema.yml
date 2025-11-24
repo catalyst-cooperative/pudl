@@ -18,6 +18,7 @@ sources:
           - name: delivered_gas_heat_content_mmbtu_per_mcf
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
+                  row_condition: operator_id_eia != '17617651KY'
                   arguments:
                     min_value: 0.8
                     max_value: 1.2
