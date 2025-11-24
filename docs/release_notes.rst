@@ -55,6 +55,9 @@ Quality of Life Improvements
   outputs right after uploading them, and there are egress fees associated with sending
   the data to S3. Build artifacts are still uploaded to ``gs://builds.catalyst.coop``.
   See PR :pr:`4778`.
+* Reduced the size of our nightly build VM to 8 CPUs & 64GB RAM since that configuration
+  works again after our performance improvements, and it's cheaper and not that much
+  slower than the bigger VM. See :pr:`4778`.
 * Replaced ``fgd_sorbent_consumption_1000_tons`` with ``fgd_sorbent_consumption_tons``
   and changed units, consumption tons, to be rounded to nearest 100 tons in the
   :ref:`i_core_eia923__yearly_fgd_operation_maintenance` table. See issue :issue:`4301`
