@@ -1,4 +1,4 @@
-FROM mambaorg/micromamba:2.3.2-ubuntu24.04
+FROM mambaorg/micromamba:2.4.0-ubuntu24.04
 
 ENV CONTAINER_HOME=/home/$MAMBA_USER
 ENV PGDATA=${CONTAINER_HOME}/pgdata
