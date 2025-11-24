@@ -122,7 +122,7 @@ resource "google_cloud_run_v2_service" "pudl_usage_metrics_dashboard" {
       resources {
         limits = {
           cpu    = "1000m"
-          memory = "2Gi"
+          memory = "4Gi"
         }
         cpu_idle = true
       }
