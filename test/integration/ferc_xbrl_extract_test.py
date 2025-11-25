@@ -4,15 +4,89 @@ import logging
 from itertools import chain
 from typing import Any
 
+import duckdb
 import pandas as pd
 import pytest
 import sqlalchemy as sa
 
 from pudl.etl import defs
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
+from pudl.settings import FercToSqliteSettings
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
+from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
+
+FERC_FORMS = [1, 2, 6, 60, 714]
+
+
+def _get_tables(conn) -> set[str]:
+    """Return set of all tables in duckdb."""
+    tables = conn.execute("SELECT table_name FROM information_schema.tables").fetchall()
+    return {table_name for (table_name,) in tables}
+
+
+def _find_empty_tables(db_conn, tables: set[str]) -> set[str]:
+    """Loop through tables and identify any that are empty."""
+    empty_tables = []
+    for table_name in tables:
+        query = f"SELECT COUNT(*) FROM '{table_name}';"  # noqa: S608
+        if db_conn.execute(query).fetchone()[0] == 0:
+            empty_tables.append(table_name)
+    return set(empty_tables)
+
+
+@pytest.mark.order(2)
+def test_sqlite_duckdb_equivalence(ferc_to_sqlite_settings: FercToSqliteSettings):
+    """Ensure that the XBRL-derived FERC SQLite and DuckDB databases are equivalent."""
+    for form in FERC_FORMS:
+        if ferc_to_sqlite_settings.__getattribute__(
+            f"ferc{form}_xbrl_to_sqlite_settings"
+        ).disabled:
+            logger.info(
+                f"Skipping FERC Form {form} sqlite vs duckdb equivalence test..."
+            )
+            continue
+        logger.info(f"Comparing FERC Form {form} SQLite vs. DuckDB outputs...")
+        sqlite_path = PudlPaths().sqlite_db_path(f"ferc{form}_xbrl")
+        duckdb_path = PudlPaths().duckdb_db_path(f"ferc{form}_xbrl")
+
+        with (
+            duckdb.connect(sqlite_path) as sqlite_conn,
+            duckdb.connect(duckdb_path) as duckdb_conn,
+        ):
+            # Check for tables that only exist in either sqlite/duckdb but not both
+            sqlite_tables = _get_tables(sqlite_conn)
+            duckdb_tables = _get_tables(duckdb_conn)
+
+            extra_sqlite_tables = sqlite_tables - duckdb_tables
+            extra_duckdb_tables = duckdb_tables - sqlite_tables
+
+            assert extra_sqlite_tables == set()
+            assert extra_duckdb_tables == set()
+            logger.info(f"  - Both have the same {len(sqlite_tables)} tables.")
+
+            # Check for empty tables in either output
+            empty_sqlite_tables = _find_empty_tables(sqlite_conn, sqlite_tables)
+            empty_duckdb_tables = _find_empty_tables(duckdb_conn, duckdb_tables)
+
+            assert empty_sqlite_tables == set()
+            assert empty_duckdb_tables == set()
+            logger.info("  - No empty tables.")
+
+            # Check that tables are identical
+            # SQLite/duckdb have nuanced dtype differences, so ignore types
+            n_tables = 0
+            for table in sorted(sqlite_tables):
+                n_tables += 1
+                pd.testing.assert_frame_equal(
+                    sqlite_conn.table(table).df(),
+                    duckdb_conn.table(table).df(),
+                    check_like=True,
+                    check_dtype=False,
+                    check_exact=True,
+                )
+            logger.info(f"  - All {n_tables} tables are identical.")
 
 
 @pytest.mark.order(2)
