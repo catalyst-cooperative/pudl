@@ -136,8 +136,8 @@ class PudlParquetTransformer(ConfigurableResource):
     def extract_csv_to_parquet(
         self,
         dataset: str,
-        table_name: str,
-        partition_paths: list[tuple[dict, str]],
+        table_name_map: dict[str, str],
+        partition_paths: list[tuple[dict, Path]],
         add_partition_columns: list[str] | None = None,
         custom_transforms: Callable[[duckdb.DuckDBPyRelation], duckdb.DuckDBPyRelation]
         | None = None,
@@ -145,14 +145,14 @@ class PudlParquetTransformer(ConfigurableResource):
         """Extract a set of partitioned CSV files from raw archives to a set of parquet files.
 
         This method is developed for a common pattern where raw archives which contain
-        one zipfile per partition, and each zipfile contains a CSV of data corresponding
-        to that partition. This method will loop through these zipfiles, and extract
+        one zipfile per partition, and each zipfile contains one or more CSV files per
+        partition. This method will loop through these zipfiles, and extract
         the data and write it to a parquet file. This will produce a directory with
         one parquet file per extracted CSV file.
 
         Args:
             dataset: Name of dataset used to fetch CSV files using DataStore.
-            table_name: Name of raw table used to construct path for storing parquet files.
+            table_name_map: Map name of raw PUDL table to corresponding CSV file.
             partition_paths: Set of tuples containing a dictionary of partition
                 key value pairs to get a zipfile, and corresponding path
                 within the zipfile to get a CSV file.
@@ -170,28 +170,29 @@ class PudlParquetTransformer(ConfigurableResource):
             with (
                 duckdb.connect() as conn,
                 self.ds.get_zipfile_resource(dataset=dataset, **partitions) as zf,
-                zf.open(path) as csv,
             ):
-                rel = conn.read_csv(csv)
+                for table_name, csv_name in table_name_map.items():
+                    with zf.open(str(path / csv_name)) as csv:
+                        rel = conn.read_csv(csv)
 
-                # Add any partition columns if requested
-                if add_partition_columns is not None:
-                    rel = rel.select(
-                        "*, "
-                        + ", ".join(
-                            [
-                                f"{partitions[partition_col]} AS {partition_col}"
-                                for partition_col in add_partition_columns
-                            ]
+                    # Add any partition columns if requested
+                    if add_partition_columns is not None:
+                        rel = rel.select(
+                            "*, "
+                            + ", ".join(
+                                [
+                                    f"{partitions[partition_col]} AS {partition_col}"
+                                    for partition_col in add_partition_columns
+                                ]
+                            )
                         )
-                    )
 
-                # Apply custom transforms
-                if custom_transforms is not None:
-                    rel = custom_transforms(rel)
+                    # Apply custom transforms
+                    if custom_transforms is not None:
+                        rel = custom_transforms(rel)
 
-                # Write extracted/transformed data to parquet
-                rel.to_parquet(self._get_parquet_name(table_name, **partitions))
+                    # Write extracted/transformed data to parquet
+                    rel.to_parquet(self._get_parquet_name(table_name, **partitions))
 
 
 pudl_parquet_transformer = PudlParquetTransformer(ds=datastore)

@@ -14,72 +14,61 @@ read in when the fips partition is set to True.
 """
 
 from io import BytesIO
+from pathlib import Path
 
 import duckdb
 import pandas as pd
-from dagster import asset
+from dagster import AssetSpec, asset, multi_asset
 
 from pudl import logging_helpers
 
 logger = logging_helpers.get_logger(__name__)
 
 VCERARE_PAGES = {
-    "offshore_wind_power_140m": "Wind_Power_140m_Offshore_county.csv",
-    "onshore_wind_power_100m": "Wind_Power_100m_Onshore_county.csv",
-    "fixed_solar_pv_lat_upv": "Fixed_SolarPV_Lat_UPV_county.csv",
+    "raw_vcerare__offshore_wind_power_140m": "Wind_Power_140m_Offshore_county.csv",
+    "raw_vcerare__onshore_wind_power_100m": "Wind_Power_100m_Onshore_county.csv",
+    "raw_vcerare__fixed_solar_pv_lat_upv": "Fixed_SolarPV_Lat_UPV_county.csv",
 }
 
 
-def raw_vcerare_asset_factory(vcerare_page: str):
-    """Construct an asset to extract a single page from vcerare."""
-    table_name = f"raw_vcerare__{vcerare_page}"
+def _clean_columns(
+    table_relation: duckdb.DuckDBPyRelation,
+) -> duckdb.DuckDBPyRelation:
+    """Apply basic cleaning to column names."""
+    columns = table_relation.columns
+    col_map = {col: col.lower().replace(".", "").replace("-", "_") for col in columns}
 
-    def _clean_columns(
-        table_relation: duckdb.DuckDBPyRelation,
-    ) -> duckdb.DuckDBPyRelation:
-        """Apply basic cleaning to columns."""
-        columns = table_relation.columns
-        col_map = {
-            col: col.lower().replace(".", "").replace("-", "_") for col in columns
-        }
+    # The first column is never named, but is always the ``hour_of_year`` column
+    col_map[columns[0]] = "hour_of_year"
+    col_map["year"] = "report_year"
 
-        # The first column is never named, but is always the ``hour_of_year`` column
-        col_map[columns[0]] = "hour_of_year"
-        col_map["year"] = "report_year"
-
-        # Rename all columns
-        return table_relation.select(
-            ", ".join(
-                [f'"{col}" AS "{clean_col}"' for col, clean_col in col_map.items()]
-            )
-        )
-
-    @asset(
-        name=table_name,
-        required_resource_keys={
-            "pudl_parquet_transformer",
-            "dataset_settings",
-        },
+    # Rename all columns
+    return table_relation.select(
+        ", ".join([f'"{col}" AS "{clean_col}"' for col, clean_col in col_map.items()])
     )
-    def _extract_asset(context):
-        """Extract data from a single vcerare page and write to parquet."""
-        dataset_settings = context.resources.dataset_settings
-        pudl_parquet_transformer = context.resources.pudl_parquet_transformer
-        pudl_parquet_transformer.extract_csv_to_parquet(
-            "vcerare",
-            table_name,
-            partition_paths=[
-                ({"year": year}, f"{year}/{VCERARE_PAGES[vcerare_page]}")
-                for year in dataset_settings.vcerare.years
-            ],
-            add_partition_columns=["year"],
-            custom_transforms=_clean_columns,
-        )
-
-    return _extract_asset
 
 
-raw_vcerare_assets = [raw_vcerare_asset_factory(page) for page in VCERARE_PAGES]
+@multi_asset(
+    specs=[AssetSpec(table_name) for table_name in VCERARE_PAGES],
+    required_resource_keys={
+        "pudl_parquet_transformer",
+        "dataset_settings",
+    },
+)
+def extract_vcerare(context):
+    """Extract data from all vcerare pages and write to parquet files."""
+    dataset_settings = context.resources.dataset_settings
+    pudl_parquet_transformer = context.resources.pudl_parquet_transformer
+    pudl_parquet_transformer.extract_csv_to_parquet(
+        "vcerare",
+        VCERARE_PAGES,
+        partition_paths=[
+            ({"year": year}, Path(f"{year}/"))
+            for year in dataset_settings.vcerare.years
+        ],
+        add_partition_columns=["year"],
+        custom_transforms=_clean_columns,
+    )
 
 
 @asset(required_resource_keys={"datastore", "dataset_settings"})
