@@ -165,33 +165,33 @@ class PudlParquetTransformer(ConfigurableResource):
                 relation, allowing for custom transforms to be applied using duckdb
                 before writing to parquet.
         """
-        with duckdb.connect() as conn:
-            # Loop through zipfiles and translate data from CSV to parquet
-            for partitions, path in partition_paths:
-                with (
-                    self.ds.get_zipfile_resource(dataset=dataset, **partitions) as zf,
-                    zf.open(path) as csv,
-                ):
-                    rel = conn.read_csv(csv)
+        # Loop through zipfiles and translate data from CSV to parquet
+        for partitions, path in partition_paths:
+            with (
+                duckdb.connect() as conn,
+                self.ds.get_zipfile_resource(dataset=dataset, **partitions) as zf,
+                zf.open(path) as csv,
+            ):
+                rel = conn.read_csv(csv)
 
-                    # Add any partition columns if requested
-                    if add_partition_columns is not None:
-                        rel = rel.select(
-                            "*, "
-                            + ", ".join(
-                                [
-                                    f"{partitions[partition_col]} AS {partition_col}"
-                                    for partition_col in add_partition_columns
-                                ]
-                            )
+                # Add any partition columns if requested
+                if add_partition_columns is not None:
+                    rel = rel.select(
+                        "*, "
+                        + ", ".join(
+                            [
+                                f"{partitions[partition_col]} AS {partition_col}"
+                                for partition_col in add_partition_columns
+                            ]
                         )
+                    )
 
-                    # Apply custom transforms
-                    if custom_transforms is not None:
-                        rel = custom_transforms(rel)
+                # Apply custom transforms
+                if custom_transforms is not None:
+                    rel = custom_transforms(rel)
 
-                    # Write extracted/transformed data to parquet
-                    rel.to_parquet(self._get_parquet_name(table_name, **partitions))
+                # Write extracted/transformed data to parquet
+                rel.to_parquet(self._get_parquet_name(table_name, **partitions))
 
 
 pudl_parquet_transformer = PudlParquetTransformer(ds=datastore)
