@@ -34,7 +34,7 @@ Bug Fixes
   file rather than uploading a zero-length file. Previously both types of errors
   (missing files and zero-length files) were only caught through manual inspection of
   draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
-  
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
