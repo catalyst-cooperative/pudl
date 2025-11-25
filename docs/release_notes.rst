@@ -35,6 +35,12 @@ Bug Fixes
   (missing files and zero-length files) were only caught through manual inspection of
   draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
 
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Reduced peak memory usage for :ref:`core_eia860m__changelog_generators` from 22GB to
+  16GB. See issue :issue:`4686` and PR :pr:`4707`.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
