@@ -24,7 +24,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -42,9 +42,11 @@ jobs:
       - name: Set action environment variables
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
-          echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
-          echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}" >> "$GITHUB_ENV"
-          echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          {
+              echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)";
+              echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}";
+              echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)";
+          } >> "$GITHUB_ENV"
 
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}

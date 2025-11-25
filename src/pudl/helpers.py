@@ -2202,7 +2202,7 @@ def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
     paths = PudlPaths()
     parquet_path = paths.parquet_path(table_name)
 
-    return pl.scan_parquet(parquet_path, schema=schema)
+    return pl.scan_parquet(parquet_path).cast(schema, strict=False)
 
 
 def get_parquet_table(
