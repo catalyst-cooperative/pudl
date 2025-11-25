@@ -3,8 +3,10 @@
 # This script won't work locally because it needs adequate GCP permissions.
 
 function send_slack_msg() {
-    echo "sending Slack message"
-    curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}"
+    set +x &&
+        echo "sending Slack message" &&
+        curl -X POST -H "Content-type: application/json" -H "Authorization: Bearer ${SLACK_TOKEN}" https://slack.com/api/chat.postMessage --data "{\"channel\": \"C03FHB9N0PQ\", \"text\": \"$1\"}" &&
+        set -x
 }
 
 function authenticate_gcp() {
@@ -112,13 +114,14 @@ function zenodo_data_release() {
     IGNORE_REGEX=$3
     PUBLISH=$4
 
-    # Trigger the zenodo data release workflow using the GitHub API
-    curl -sS -X POST \
-        -H "Accept: application/vnd.github+json" \
-        -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
-        https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
-        -d @<(
-            cat <<JSON
+    set +x &&
+        echo "Triggerng the zenodo data release workflow using the GitHub API and curl" &&
+        curl -sS -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
+            https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches \
+            -d @<(
+                cat <<JSON
 {
   "ref": "${BUILD_REF}",
   "inputs": {
@@ -129,7 +132,8 @@ function zenodo_data_release() {
   }
 }
 JSON
-        )
+            ) &&
+        set -x
 }
 
 function notify_slack() {
@@ -166,10 +170,7 @@ function notify_slack() {
 function merge_tag_into_branch() {
     TAG=$1
     BRANCH=$2
-    # When building the image, GHA adds an HTTP basic auth header in git
-    # config, which overrides the auth we set below. So we unset it.
-    git config --unset http.https://github.com/.extraheader &&
-        git config user.email "pudl@catalyst.coop" &&
+    git config user.email "pudl@catalyst.coop" &&
         git config user.name "pudlbot" &&
         set +x &&
         echo "Setting authenticated git remote URL using PAT" &&
