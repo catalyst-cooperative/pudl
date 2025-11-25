@@ -70,6 +70,10 @@ def to_config(
             },
         },
         "logsPolicy": {"destination": "CLOUD_LOGGING"},
+        "labels": {
+            "component": "build",
+            "build_ref": env_dict.get("BUILD_REF", None),
+        },
     }
     return config
 
