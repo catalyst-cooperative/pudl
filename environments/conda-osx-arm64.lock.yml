@@ -138,9 +138,9 @@ dependencies:
   - exceptiongroup=1.3.1=pyhd8ed1ab_0
   - execnet=2.1.2=pyhd8ed1ab_0
   - executing=2.2.1=pyhd8ed1ab_0
-  - fastapi=0.121.3=hf029e93_0
+  - fastapi=0.122.0=h6dd4f06_0
   - fastapi-cli=0.0.16=pyhcf101f3_1
-  - fastapi-core=0.121.3=pyhcf101f3_0
+  - fastapi-core=0.122.0=pyhcf101f3_0
   - filelock=3.20.0=pyhd8ed1ab_0
   - flask=3.1.2=pyhd8ed1ab_0
   - flask-cors=6.0.1=pyhe01879c_0
@@ -212,6 +212,7 @@ dependencies:
   - httpcore=1.0.9=pyh29332c3_0
   - httptools=0.7.1=py313h6535dbc_1
   - httpx=0.28.1=pyhd8ed1ab_0
+  - huey=2.5.4=pyhcf101f3_0
   - humanfriendly=10.0=pyh707e725_8
   - humanize=4.14.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
@@ -237,7 +238,7 @@ dependencies:
   - jaraco.context=6.0.1=pyhd8ed1ab_0
   - jaraco.functools=4.3.0=pyhd8ed1ab_0
   - jedi=0.19.2=pyhd8ed1ab_1
-  - jellyfish=1.1.3=py313hdde674f_0
+  - jellyfish=1.2.1=py313h0b74987_0
   - jinja2=3.1.6=pyhd8ed1ab_0
   - jmespath=1.0.1=pyhd8ed1ab_1
   - joblib=1.5.2=pyhd8ed1ab_0
@@ -292,10 +293,11 @@ dependencies:
   - libffi=3.5.2=he5f378a_0
   - libfreetype=2.14.1=hce30654_0
   - libfreetype6=2.14.1=h6da58f4_0
+  - libgcc=15.2.0=hcbb3090_12
   - libgd=2.3.3=hb2c3a21_11
   - libgdal-core=3.11.4=h269a1e0_0
-  - libgfortran=15.2.0=hfcf01ff_1
-  - libgfortran5=15.2.0=h742603c_1
+  - libgfortran=15.2.0=h07b0088_12
+  - libgfortran5=15.2.0=hdae7583_12
   - libglib=2.86.2=he69a767_0
   - libgoogle-cloud=2.39.0=head0a95_0
   - libgoogle-cloud-storage=2.39.0=hfa3a374_0
@@ -327,7 +329,7 @@ dependencies:
   - libssh2=1.11.1=h1590b86_0
   - libthrift=0.22.0=h14a376c_1
   - libtiff=4.7.1=h7dc4979_0
-  - libutf8proc=2.11.1=hd2415e0_0
+  - libutf8proc=2.11.2=hd2415e0_0
   - libuv=1.51.0=h6caf38d_1
   - libwebp-base=1.6.0=h07db88b_0
   - libxcb=1.17.0=hdb1d25a_0
@@ -354,9 +356,9 @@ dependencies:
   - memray=1.19.1=py313habfbdd3_1
   - minizip=4.0.10=hff1a8ea_0
   - mistune=3.1.4=pyhcf101f3_0
-  - mlflow=3.5.1=py313h8f79df9_1
-  - mlflow-skinny=3.5.1=py313h8f79df9_1
-  - mlflow-ui=3.5.1=py313h8f79df9_1
+  - mlflow=3.6.0=pyh707e725_0
+  - mlflow-skinny=3.6.0=pyh707e725_0
+  - mlflow-ui=3.6.0=pyh707e725_0
   - more-itertools=10.8.0=pyhd8ed1ab_0
   - msgpack-python=1.1.2=py313ha61f8ec_1
   - multidict=6.6.3=py313h6347b5a_0
@@ -371,7 +373,7 @@ dependencies:
   - nbformat=5.10.4=pyhd8ed1ab_1
   - ncurses=6.5=h5e97a16_3
   - nest-asyncio=1.6.0=pyhd8ed1ab_1
-  - networkx=3.5=pyhe01879c_0
+  - networkx=3.6=pyhcf101f3_0
   - nlohmann_json=3.12.0=h248ca61_1
   - nodeenv=1.9.1=pyhd8ed1ab_1
   - nodejs=24.4.1=hab9d20b_0
@@ -399,7 +401,7 @@ dependencies:
   - pandoc=3.8.2.1=hce30654_0
   - pandocfilters=1.5.0=pyhd8ed1ab_0
   - pango=1.56.4=h875632e_0
-  - parallel=20250822=hce30654_0
+  - parallel=20251122=hce30654_0
   - paramiko=4.0.0=pyhd8ed1ab_0
   - parsedatetime=2.4=py_1
   - parso=0.8.5=pyhcf101f3_0
@@ -418,7 +420,7 @@ dependencies:
   - pluggy=1.6.0=pyhd8ed1ab_0
   - polars=1.35.2=pyh6a1acc5_0
   - polars-runtime-32=1.35.2=py310h34bb384_0
-  - pre-commit=4.4.0=pyha770c72_0
+  - pre-commit=4.5.0=pyha770c72_0
   - prettier=3.6.2=h9907cc9_1
   - proj=9.6.2=hdbeaa80_2
   - prometheus-cpp=1.3.0=h0967b3e_0
@@ -450,7 +452,7 @@ dependencies:
   - pygraphviz=1.14=py313hbf151f7_2
   - pyicu=2.16=py313h9415d38_0
   - pyjwt=2.10.1=pyhd8ed1ab_0
-  - pynacl=1.6.0=py313h6535dbc_0
+  - pynacl=1.6.1=py313h6535dbc_0
   - pyobjc-core=12.1=py313h40b429f_0
   - pyobjc-framework-cocoa=12.1=py313hcc5defa_0
   - pyogrio=0.11.1=py313hd8ca31c_1

@@ -2,7 +2,6 @@
 
 import importlib.resources
 import itertools
-from pathlib import Path
 
 from dagster import (
     AssetKey,
@@ -25,7 +24,12 @@ from pudl.io_managers import (
     pudl_mixed_format_io_manager,
 )
 from pudl.metadata import PUDL_PACKAGE
-from pudl.resources import dataset_settings, datastore, ferc_to_sqlite_settings
+from pudl.resources import (
+    dataset_settings,
+    datastore,
+    ferc_to_sqlite_settings,
+    pudl_parquet_transformer,
+)
 from pudl.settings import EtlSettings
 
 from . import (
@@ -178,6 +182,7 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
+    "pudl_parquet_transformer": pudl_parquet_transformer,
 }
 
 # Limit the number of concurrent workers when launch assets that use a lot of memory.
