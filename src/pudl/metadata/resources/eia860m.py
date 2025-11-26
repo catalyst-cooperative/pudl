@@ -47,6 +47,7 @@ report_date."""
                 "planned_net_summer_capacity_derate_mw",
                 "planned_net_summer_capacity_uprate_mw",
                 "planned_uprate_date",
+                "planned_repower_date",
                 "prime_mover_code",
                 "sector_id_eia",
                 "state",
