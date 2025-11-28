@@ -175,7 +175,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "total_disposition_mcf": {
         "description": (
-            "Total disposition within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+            "Total disposition within the report state, as reported by the operator. "
+            "This includes disposition to consumers which is reported in core_eia176__yearly_gas_disposition_by_consumer. "
+            "Note that the reported total disposition and the sum of values in this table and core_eia176__yearly_gas_disposition_by_consumer often don't match as it would be expected. "
+            "Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
         "unit": "Mcf",
         "type": "number",
