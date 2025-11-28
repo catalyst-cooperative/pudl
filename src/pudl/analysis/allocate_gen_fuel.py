@@ -861,8 +861,7 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
         (gen_assoc.operational_status == "retired")
         & (
             (gen_assoc.report_date <= gen_assoc.generator_retirement_date)
-            | gen_assoc.filter(like="net_generation_mwh").notnull().any(axis=1)
-            | gen_assoc.filter(like="fuel_consumed").notnull().any(axis=1)
+            | (gen_assoc.net_generation_mwh_g_tbl.notnull())
         ),
         ["plant_id_eia", "generator_id", "report_year"],
     ].drop_duplicates()
