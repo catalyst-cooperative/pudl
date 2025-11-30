@@ -31,14 +31,14 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.6
+    rev: v0.14.7
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.6.2
+    rev: v3.7.2
     hooks:
       - id: prettier
         types_or: [yaml]
@@ -54,7 +54,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.39.2
+    rev: v1.40.0
     hooks:
       - id: typos
         exclude: |
