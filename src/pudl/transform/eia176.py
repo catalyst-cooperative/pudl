@@ -319,17 +319,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
     df = _core_eia176__yearly_company_data.filter(primary_key + keep)
 
-    # Normalize operating states, those that are missing in subdivisions will be NA
-    codes = (
-        core_pudl__codes_subdivisions.assign(
-            key=lambda d: d["subdivision_name"].str.strip().str.casefold()
-        )
-        .drop_duplicates("key")
-        .set_index("key")["subdivision_code"]
-    )
-    df["operating_state"] = (
-        df["operating_state"].str.strip().str.casefold().map(codes.get)
-    )
+    _normalize_operating_states(df, core_pudl__codes_subdivisions)
 
     df = pd.melt(
         df, id_vars=primary_key, var_name="metric", value_name="value"
@@ -359,3 +349,77 @@ def core_eia176__yearly_gas_disposition_by_consumer(
     df = df.dropna(subset=["consumers", "revenue", "volume_mcf"], how="all")
 
     return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_liquefied_natural_gas_inventory(
+    _core_eia176__yearly_company_data: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce annual information about an operator's LNG storage volume
+
+    Args:
+        _core_eia176__yearly_company_data: Wide company-level EIA-176 data with
+            per-metric columns.
+        core_pudl__codes_subdivisions: Mapping from ``subdivision_name`` to
+            ``subdivision_code`` used to normalize ``operating_state``.
+    """
+    other = ["operating_state"]
+
+    keep = [
+        "lng_inventory_at_end_of_year_volume",
+        "lng_facility_year_end_volume",
+        "marine_terminal_facility_year_end_volume",
+        "lng_facility_year_end_capacity",
+        "marine_terminal_facility_year_end_capacity",
+    ]
+
+    primary_key = ["operator_id_eia", "report_year"]
+
+    df = _core_eia176__yearly_company_data.filter(primary_key + other + keep)
+
+    # ensure uniueness
+    assert not df.duplicated(primary_key, keep=False).any()
+    df = df.set_index(primary_key).reset_index().dropna(subset=keep, how="all")
+
+    _normalize_operating_states(df, core_pudl__codes_subdivisions)
+    df = df.dropna(subset=["operating_state"])
+
+    df = df.rename(
+        columns={
+            "lng_inventory_at_end_of_year_volume": "lng_inventory_volume",
+            "lng_facility_year_end_volume": "lng_facility_volume",
+            "marine_terminal_facility_year_end_volume": (
+                "marine_terminal_facility_volume"
+            ),
+            "lng_facility_year_end_capacity": "lng_facility_capacity",
+            "marine_terminal_facility_year_end_capacity": (
+                "marine_terminal_facility_capacity"
+            ),
+        }
+    )
+
+    return df
+
+
+def _normalize_operating_states(
+    df: pd.DataFrame, core_pudl__codes_subdivisions: pd.DataFrame
+) -> None:
+    """Normalize operating states in-place, those that are missing in subdivisions will be NA
+
+    Args:
+        df: DataFrame with ``operating_state`` column to modify
+        core_pudl__codes_subdivisions: Mapping from ``subdivision_name`` to
+            ``subdivision_code`` used to normalize ``operating_state``.
+
+    """
+    codes = (
+        core_pudl__codes_subdivisions.assign(
+            key=lambda d: d["subdivision_name"].str.strip().str.casefold()
+        )
+        .drop_duplicates("key")
+        .set_index("key")["subdivision_code"]
+    )
+    df["operating_state"] = (
+        df["operating_state"].str.strip().str.casefold().map(codes.get)
+    )
