@@ -150,7 +150,7 @@ class TestExcelExtractor:
         extractor = pudl.extract.eia923.Extractor(pudl_datastore_fixture)
         page = "stocks"
         year = 2018
-        if "Oil\r\nJune" not in extractor.load_source(page=page, year=year).columns:
+        if "Oil\nJune" not in extractor.load_source(page=page, year=year).columns:
             raise AssertionError(f"page {page} not found in datastore for {year}")
 
 
