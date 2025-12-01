@@ -37,6 +37,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+import bottleneck as bn
 import numpy as np
 import pandas as pd
 import pandera.pandas as pa
@@ -882,7 +883,7 @@ def median_of_rolling_median_offset(
         warnings.filterwarnings(
             "ignore", category=RuntimeWarning, message="All-NaN slice encountered"
         )
-        return np.nanmedian(shifted, axis=0)
+        return bn.nanmedian(shifted, axis=0)
 
 
 def rolling_iqr_of_rolling_median_offset(
