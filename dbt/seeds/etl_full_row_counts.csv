@@ -1179,7 +1179,7 @@ core_eia861__yearly_utility_data_rto,2021,1564
 core_eia861__yearly_utility_data_rto,2022,1592
 core_eia861__yearly_utility_data_rto,2023,1621
 core_eia861__yearly_utility_data_rto,2024,1635
-core_eia923__entity_coalmine,,4501
+core_eia923__entity_coalmine,,4650
 core_eia923__monthly_boiler_fuel,2008,77537
 core_eia923__monthly_boiler_fuel,2009,79002
 core_eia923__monthly_boiler_fuel,2010,81197
@@ -2275,7 +2275,7 @@ core_phmsagas__yearly_distribution_operators,2024,1428
 core_pudl__assn_eia_pudl_plants,,18650
 core_pudl__assn_eia_pudl_utilities,,16760
 core_pudl__assn_ferc1_dbf_pudl_utilities,,411
-core_pudl__assn_ferc1_pudl_plants,,8101
+core_pudl__assn_ferc1_pudl_plants,,8100
 core_pudl__assn_ferc1_pudl_utilities,,432
 core_pudl__assn_ferc1_xbrl_pudl_utilities,,282
 core_pudl__assn_ferc714_csv_pudl_respondents,,213
