@@ -44,7 +44,7 @@ Description metadata
 
    * there are lots of tables. structured descriptions are important so that users can deal with that scale
    * for normal tables everything is optional
-   * priority fill order
+   * priority fill order: summary, usage warnings, additional details
    * link to api docs
 
 Because the description is not wholly legible in its structured state,
