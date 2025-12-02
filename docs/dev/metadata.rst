@@ -12,18 +12,79 @@ Metadata editing guide
    * when are new entries created
    * when are existing entries updated
 
-Source metadata
-----------------
+Dataset-level metadata
+----------------------
 
-Metadata for each data source is stored in sources.py.
+For each dataset we archive, we record information about the title, a description,
+who contributed to archiving the dataset, the segments into which the data files are
+partitioned, its license and keywords. This information is used to communicate about
+the dataset's usage and provenance to any future users:
 
-.. todo::
+   * Generating PUDL documentation for each dataset.
+   * Annotating long-term archives of the raw input data on Zenodo.
+   * Defining what data partitions can be processed using PUDL.
 
-   * new source metadata when we add a new source
-   * update source metadata to expand working partitions
+Defining metadata for a new dataset
+...................................
 
-Resource metadata
-------------------------
+Metadata for each data source is stored in :py:const:`pudl.metadata.sources.SOURCES`. 
+For each new dataset, add the following fields to the dictionary:
+
+   * **A short code**: Throughout the code, the dataset you choose will be referred to by
+      a shorthand code - e.g., ``eia860`` or ``nrelatb``. The standard format we use for
+      naming datasets is agency name + dataset name. E.g., Form 860 from EIA becomes
+      ``eia860``. When the name of the dataset is more ambiguous (e.g., MSHA's
+      mine datasets), we aim to choose a name that is as indicative as possible -
+      in this case, ``mshamines``. If you're unsure which name to choose, ask early in
+      the contribution process as this will get encoded in many locations. This short
+      code will be the key to the entry containing the relevant metadata.
+   * ``title``: The title of your dataset should clearly contain the agency publishing
+      the data and a non-abbreviated title (e.g., EIA Form 860 -- Annual Electric
+      Generator Report, not EIA 860).
+   * ``path``: The link to the dataset's "homepage", where information about the
+      dataset and the path to download it can be found.
+   * ``description``: A short 1-3 sentence description of the dataset.
+   * ``working_partitions``: A dictionary where the key is the name of the partition
+      (e.g., month, year, form), and the values are the actual available partitions
+      that we currently process in PUDL (e.g., 2002-2020). This should correspond to
+      the partitions in the datapackage of the dataset's raw archive.
+   * ``field_namespace``: **TODO** ????
+   * ``keywords``: Words that someone might use to search for this dataset. There are
+      collections of common keywords by theme (e.g., electricity, finance) in the
+      :py:const:`pudl.metadata.sources.KEYWORDS` dictionary.
+   * ``license_raw``: We only archive data with an open source license
+      (e.g., US Government Works or a Creative Commons License), so make sure any data
+      you're archiving is licensed for re-distribution. See the
+      :py:const:`pudl.metadata.sources.LICENSES` dictionary for licenses that should cover
+      most use cases.
+   * ``license_pudl``: What license we're releasing the data under. This should always
+      be ``LICENSES["cc-by-4.0"]``.
+   * ``contributors``: Who archived and processed this dataset? Typically this is
+      ``CONTRIBUTORS["catalyst-cooperative"]``, but you can add additional contributors
+      to the :py:const:`pudl.metadata.sources.CONTRIBUTORS` dictionary.
+
+Additional fields relating to the source data are tracked under a nested
+``source_file_dict`` key:
+
+   * ``respondents``: If the dataset is a form with required respondents, who fills out
+      this form?
+   * ``source_format``: What is the file format of the original data? (e.g., JSON, CSV)?
+
+Updating metadata for an existing dataset
+.........................................
+
+We rarely update metadata at the dataset level, other than updating the ``working_partitions``
+field to capture a new partition (e.g., year, month) of data. This process is described
+in the :doc:`existing_data_updates` documentation.
+
+Table-level metadata
+--------------------
+
+For each table we publish, we record information about the content, the schema, the 
+table's data sources, and usage warnings.
+
+Defining metadata for a new dataset
+...................................
 
 Metadata for each resource is stored in separate files for each source,
 with a few additional non-source affinity groups.
@@ -36,6 +97,18 @@ with a few additional non-source affinity groups.
      * fields added/removed/modified
      * discontinued
      * new caution or data effect discovered
+
+Updating metadata for an existing dataset
+.........................................
+
+As we update data, we might typically modify table-level metadata under one of the 
+following circumstances:
+   * Schema changes: a column has been added or removed in the underlying data, a column
+      has been renamed
+   * Description changes: a new usage warning, additional context, or to add details
+      about a new transformation or change.
+   * Availability changes: a table has been discontinued by us or by the original
+      provider.
 
 Description metadata
 ^^^^^^^^^^^^^^^^^^^^^
@@ -53,7 +126,7 @@ we have developed a few tools to help editors see what they are doing.
 Bare-bones preview at the command line
 ........................................
 
-For small edits, ``resource_description -n <resource_id>`` is usually sufficient.
+For small edits, ``resource_description -n <table_name>`` is usually sufficient.
 It does not render the description jinja template,
 but it will fully resolve each section and print out the results.
 
