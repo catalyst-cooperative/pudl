@@ -149,7 +149,6 @@ representative from EIA.""",
     "core_eia861__yearly_demand_side_management_ee_dr": {
         "description": {
             "additional_summary_text": "The impact of energy efficiency and load management programs on total energy sold (MWh) and peak demand (MW) by customer class.",
-            "availability_text": "2012",
             "usage_warnings": ["discontinued_data"],
             "additional_details_text": """The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
@@ -193,7 +192,6 @@ representative from EIA.""",
     "core_eia861__yearly_demand_side_management_misc": {
         "description": {
             "additional_summary_text": "demand-side management (DSM) program information.",
-            "availability_text": "2012",
             "usage_warnings": ["discontinued_data"],
             "additional_details_text": """Includes boolean fields about whether the energy savings estimates/calculations were
 independently verified and whether the utility runs time and or price responsive
@@ -232,7 +230,6 @@ representative from EIA.""",
     "core_eia861__yearly_demand_side_management_sales": {
         "description": {
             "additional_summary_text": "electricity sales related to demand-side management (DSM).",
-            "availability_text": "2012",
             "usage_warnings": ["discontinued_data"],
             "additional_details_text": """The raw EIA861 demand-side management (DSM) table (split into three normalized tables in
 PUDL) contain data through 2012. The form changed in 2013 and split the contents of the
@@ -259,7 +256,6 @@ representative from EIA.""",
     "core_eia861__yearly_distributed_generation_fuel": {
         "description": {
             "additional_summary_text": "the energy sources used for utility or customer-owned distributed generation capacity.",
-            "availability_text": "2015",
             "usage_warnings": ["discontinued_data"],
             "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
 PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
@@ -285,7 +281,6 @@ and convert capacity reported in DC units to AC units.""",
         # TODO: might want to rename this table to be _capacity
         "description": {
             "additional_summary_text": "the capacity and quantity of utility or customer-owned distributed generation.",
-            "availability_text": "2015",
             "usage_warnings": ["discontinued_data"],
             "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
 PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
@@ -314,7 +309,6 @@ and convert capacity reported in DC units to AC units.""",
     "core_eia861__yearly_distributed_generation_tech": {
         "description": {
             "additional_summary_text": "the technology used for utility or customer-owned distributed generation.",
-            "availability_text": "2015",
             "usage_warnings": ["discontinued_data"],
             "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
 PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
@@ -424,7 +418,6 @@ representative from EIA.""",
     "core_eia861__yearly_green_pricing": {
         "description": {
             "additional_summary_text": "green pricing program revenue, sales, and customer count by sector and state.",
-            "availability_text": "2012",
             "usage_warnings": ["discontinued_data"],
         },
         "schema": {
