@@ -27,7 +27,7 @@ the dataset's usage and provenance to any future users:
 Defining metadata for a new dataset
 ...................................
 
-Metadata for each data source is stored in :py:const:`pudl.metadata.sources.SOURCES`. 
+Metadata for each data source is stored in :py:const:`pudl.metadata.sources.SOURCES`.
 For each new dataset, add the following fields to the dictionary:
 
    * **A short code**: Throughout the code, the dataset you choose will be referred to by
@@ -80,7 +80,7 @@ in the :doc:`existing_data_updates` documentation.
 Table-level metadata
 --------------------
 
-For each table we publish, we record information about the content, the schema, the 
+For each table we publish, we record information about the content, the schema, the
 table's data sources, and usage warnings.
 
 Defining metadata for a new dataset
@@ -101,7 +101,7 @@ with a few additional non-source affinity groups.
 Updating metadata for an existing dataset
 .........................................
 
-As we update data, we might typically modify table-level metadata under one of the 
+As we update data, we might typically modify table-level metadata under one of the
 following circumstances:
    * Schema changes: a column has been added or removed in the underlying data, a column
       has been renamed
