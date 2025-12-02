@@ -113,8 +113,24 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_ferc714__hourly_estimated_state_demand": {
         "description": {
             "additional_summary_text": (
-                "estimated hourly electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861."
-            )
+                "estimated electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861."
+            ),
+            "usage_warnings": ["estimated_values", "multiple_inputs", "scale_hazard"],
+            "additional_details_text": """This table was compiled using hourly
+electricity demand reported at the balancing authority and utility level in
+the FERC 714, and service territories for utilities and balancing authorities inferred
+from the counties served by each utility, and the utilities that make up each balancing
+authority in the EIA 861, estimate the total hourly electricity demand for each US
+state.
+
+This table uses the total electricity sales by state reported in the EIA 861 as a
+scaling factor to ensure that the magnitude of electricity sales is roughly correct, and
+obtains the shape of the demand curve from the hourly planning area demand reported in
+the FERC 714.
+
+This table includes the state FIPS codes - see :ref:`out_censusdp1tract__states` for
+additional information about FIPS state codes.
+""",
         },
         "schema": {
             "fields": [
