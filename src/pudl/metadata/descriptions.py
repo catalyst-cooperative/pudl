@@ -30,8 +30,8 @@ layer_descriptions: dict = {
         "accompanied by human-readable names and descriptions."
     ),
     "out_narrow": (  # this is a pseudo layer that does not appear in table names, but
-                     # allows us to accurately describe the few out tables that remain in
-                     # normalized format.
+        # allows us to accurately describe the few out tables that remain in
+        # normalized format.
         "Data is ready for use in analyses, but for practical reasons has not been "
         "denormalized and remains in narrow format."
     ),
