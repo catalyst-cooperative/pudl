@@ -299,6 +299,21 @@ def _core_eia860__generators(
         )
         .pipe(pudl.helpers.convert_to_date, copy=False)
     )
+    # spot fix one assumed to be bad technology description. It's assumed to be wrong
+    # because we learned via pudl.output.eia.fill_generator_technology_description
+    # that all other combos of PM code and ESC have a different technology. See #4788
+    bad_tech_mask = (
+        (gens_df.technology_description == "All Other")
+        & (gens_df.prime_mover_code == "OT")
+        & (gens_df.energy_source_code_1 == "OG")
+    )
+    if len(gens_df[bad_tech_mask]) != 1:
+        raise AssertionError(
+            "Spot fixing: We expect to find one record which has what we assume "
+            "is an incorrect technology description, but we found: "
+            f"{len(gens_df[bad_tech_mask])}.\n{gens_df[bad_tech_mask]}"
+        )
+    gens_df.loc[bad_tech_mask, "technology_description"] = "Other Gases"
     # This manual fix is required before encoding because there's not a unique mapping
     # PA -> PACW in Oregon
     gens_df.loc[
