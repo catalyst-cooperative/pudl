@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 
 from pudl.metadata.sources import SOURCES
 from pudl.metadata.warnings import USAGE_WARNINGS
+from pudl.workspace.setup import DBT_DIR
 
 layer_descriptions: dict = {
     "raw": (
@@ -309,6 +310,25 @@ class ResourceDescriptionBuilder:
             f"Need to offset temporal availability ({availability}) from {source.name} but couldn't find a partition key we know how to offset"
         )
 
+    @staticmethod
+    def compute_rowcounts_availability(resource_id) -> str | None:
+        """Compute an availability date from the most recent available partition for a resource, according to the row counts file."""
+        rowcount_partition_lookups = (
+            pd.read_csv(
+                DBT_DIR / "seeds" / "etl_full_row_counts.csv",
+                # [kmm dec 2025] currently all non-null row count partitions are integer years.
+                # if we add other kinds of partitions to the row counts file, we'll need to revise this code.
+                dtype={"partition": "Int64", "table_name": "string"},
+            )
+            .set_index("table_name")
+            .loc[resource_id:resource_id]
+            .dropna()
+            .partition
+        )
+        if rowcount_partition_lookups.shape[0] > 0:
+            return str(rowcount_partition_lookups.max())
+        return None
+
     @component
     def summary(self, settings, defaults: "ResourceNameComponents") -> ResourceTrait:
         """Compute the summary component (first line) of the resource description.
@@ -357,25 +377,26 @@ class ResourceDescriptionBuilder:
     @component
     def availability(self, settings, defaults) -> ResourceTrait:
         """Compute the availability component of the resource description."""
-        most_recent_data = str(
-            first_non_none(
-                settings.get("availability_text"),
-                min(  # if availability differs between sources, use the *least* recent among them
-                    [
-                        str(avail)
-                        for avail in (
-                            self.offset_source_availability(
-                                source, settings.get("availability_offset", 0)
-                            )
-                            for source in settings.get("sources")
+        most_recent_data = first_non_none(
+            settings.get("availability_text"),
+            # first fallback: use row counts file
+            ResourceDescriptionBuilder.compute_rowcounts_availability(self.resource_id),
+            # second fallback: use source partitions
+            min(  # if availability differs between sources, use the *least* recent among them
+                [
+                    str(avail)
+                    for avail in (
+                        ResourceDescriptionBuilder.offset_source_availability(
+                            source, settings.get("availability_offset", 0)
                         )
-                        # skip sources with weird partitions (inner)
-                        if avail is not None
-                    ]
-                    or [None]  # skip sources with weird partitions (outer)
-                ),
-                "Unknown",
-            )
+                        for source in settings.get("sources")
+                    )
+                    # skip sources with weird partitions (inner)
+                    if avail is not None
+                ]
+                or [None]  # skip sources with weird partitions (outer)
+            ),
+            "Unknown",
         )
         return ResourceTrait(
             type=str(most_recent_data != "Unknown"), description=most_recent_data

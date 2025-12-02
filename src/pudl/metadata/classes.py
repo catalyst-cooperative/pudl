@@ -1252,14 +1252,21 @@ class PudlResourceDescriptor(PudlMeta):
         """Partition offset of most recent data available from that claimed by the data
         source.
 
-        Only consulted when ``availability_text`` is None or otherwise unset.
-        Useful in cases where a particular resource relies on a subset of source data that
-        is updated on a slower cadence than most other data in the source."""
+        Only permitted when ``availability_text`` is None or otherwise unset.
+        Useful in cases where a particular resource both has no natural date column
+        for row count partitioning, and is updated on a slower cadence than its
+        source. For example, EIA 923 has yearly partitions, but while the
+        monthly output tables receive data from the new year as soon as it is
+        added to the source, the annual output tables aren't updated until the
+        following year."""
 
         availability_text: str | None = None
-        """Most recent data available. If None or otherwise left unset, will be filled
-        in with the most recent partition listed for the data source, optionally offset
-        by ``availability_offset`` partitions.
+        """Most recent data available. If None or otherwise left unset, will be
+        filled in with the most recent partition listed in the row counts file
+        for this resource. If this is None/unset **and** the row counts
+        partition is null, then will be filled in with the most recent partition
+        listed for the data source, optionally offset by ``availability_offset``
+        partitions.
 
         Generally only set when one table from a data source has been discontinued, but
         the remaining tables continue being updated."""

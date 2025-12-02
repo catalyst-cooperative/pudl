@@ -13,7 +13,11 @@ from pudl.metadata.classes import (
     Resource,
     SnakeCase,
 )
-from pudl.metadata.descriptions import ResourceDescriptionBuilder, partition_offsets
+from pudl.metadata.descriptions import (
+    ResourceDescriptionBuilder,
+    ResourceTrait,
+    partition_offsets,
+)
 from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resources import RESOURCE_METADATA
@@ -273,6 +277,67 @@ def test_source_availability(source_id):
     assert (availability is None) or (availability > "1990")
 
 
+@pytest.mark.parametrize(
+    "given_name,given_settings,given_rowcounts,given_source,expected",
+    [
+        (  # manually specified
+            "test_eia__entity_test",
+            {"availability_text": "manual", "sources": []},
+            [None],
+            [],
+            ResourceTrait(type="True", description="manual"),
+        ),
+        (  # using row counts
+            "test_eia__entity_test",
+            {"sources": []},
+            ["row counts"],
+            [],
+            ResourceTrait(type="True", description="row counts"),
+        ),
+        (  # using source: least recent among at least one temporal partition
+            "test_eia__entity_test",
+            {"sources": ["1", "x", "2"]},
+            [None],
+            ["1 source", None, "2 source"],
+            ResourceTrait(type="True", description="1 source"),
+        ),
+        (  # using source; none temporal
+            "test_eia__entity_test",
+            {"sources": ["x", "y"]},
+            [None],
+            [None, None],
+            ResourceTrait(type="False", description="Unknown"),
+        ),
+        (  # nobody knows
+            "test_eia__entity_test",
+            {"sources": []},
+            [None],
+            [],
+            ResourceTrait(type="False", description="Unknown"),
+        ),
+    ],
+)
+def test_resolve_resource_availability(
+    mocker, given_name, given_settings, given_rowcounts, given_source, expected
+):
+    """Verify fallback flow is correct for resolving most recently available data."""
+    mocker.patch(
+        "pudl.metadata.descriptions.ResourceDescriptionBuilder.compute_rowcounts_availability",
+        mocker.Mock(side_effect=given_rowcounts, __is_component=False),
+    )
+    mocker.patch(
+        "pudl.metadata.descriptions.ResourceDescriptionBuilder.offset_source_availability",
+        mocker.Mock(side_effect=given_source, __is_component=False),
+    )
+    resolved = ResourceDescriptionBuilder(
+        resource_id=given_name, settings=given_settings
+    ).build()
+
+    assert (resolved.availability.type == expected.type) and (
+        resolved.availability.description == expected.description
+    )
+
+
 # TODO: flip this to true after we do the second pass to set description_primary_key
 # everywhere that needs it
 CHECK_DESCRIPTION_PRIMARY_KEYS = False
@@ -331,3 +396,15 @@ def test_description_compliance(resource_id):
     ), (
         f"Table {resource_id} has set both availability_text and availability_offset; you can't have both."
     )
+    if resource_id not in {
+        "core_gridpathratoolkit__assn_generator_aggregation_group",
+        "core_pudl__assn_utilities_plants",
+        "core_pudl__codes_datasources",
+        "core_pudl__codes_imputation_reasons",
+        "core_pudl__codes_subdivisions",
+        "core_pudl__entity_plants_pudl",
+        "core_pudl__entity_utilities_pudl",
+    }:
+        assert resolved.availability.type == "True", (
+            f"Missing availability for {resource_id}"
+        )
