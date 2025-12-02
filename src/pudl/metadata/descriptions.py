@@ -30,8 +30,8 @@ layer_descriptions: dict = {
         "accompanied by human-readable names and descriptions."
     ),
     "out_narrow": (
-        "Data is ready for use in analyses, but has not been denormalized and remains "
-        "in narrow format."
+        "Data is ready for use in analyses, but for practical reasons has not been "
+        "denormalized and remains in narrow format."
     ),
     "test": (
         "Only used in unit and integration testing; not intended for public "
