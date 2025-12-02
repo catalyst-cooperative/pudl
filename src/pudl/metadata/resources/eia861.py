@@ -871,6 +871,7 @@ they engage in wholesale and/or retail markets.""",
     "out_eia861__yearly_utility_service_territory": {
         "description": {
             "additional_summary_text": "counties in utility service territories.",
+            "layer_code": "out_narrow",
             "additional_details_text": "Contains additional information about counties.",
         },
         "schema": {
@@ -894,6 +895,7 @@ they engage in wholesale and/or retail markets.""",
     "out_eia861__yearly_balancing_authority_service_territory": {
         "description": {
             "additional_summary_text": "counties in balancing authority service territories.",
+            "layer_code": "out_narrow",
         },
         "schema": {
             "fields": [
