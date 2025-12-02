@@ -15,11 +15,9 @@ from dbt.contracts.graph.nodes import GenericTestNode
 
 import pudl.etl
 from pudl.logging_helpers import get_logger
-from pudl.workspace.setup import PUDL_ROOT_PATH, PudlPaths
+from pudl.workspace.setup import DBT_DIR, PUDL_ROOT_PATH, PudlPaths
 
 logger = get_logger(__name__)
-
-DBT_DIR: Path = PUDL_ROOT_PATH / "dbt"
 
 
 class NodeContext(NamedTuple):

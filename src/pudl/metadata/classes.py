@@ -983,6 +983,14 @@ class DataSource(PudlMeta):
             if value.get("etl_group") == self.name
         )
 
+    def get_temporal_partitions(self) -> list:
+        """Return a list of temporal partitions encoding the time span covered by the data source."""
+        partitions = self.working_partitions
+        for key in ["years", "half_years", "year_quarters", "year_months"]:
+            if key in partitions:
+                return partitions[key]
+        return []
+
     def get_temporal_coverage(self, partitions: dict = None) -> str:
         """Return a string describing the time span covered by the data source."""
         if partitions is None:
@@ -1239,6 +1247,29 @@ class PudlResourceDescriptor(PudlMeta):
 
         If None or otherwise left unset, will be filled in with auto warnings only. If
         no auto warnings apply, hides the Usage Warnings section entirely."""
+
+        availability_offset: int = 0
+        """Partition offset of most recent data available from that claimed by the data
+        source.
+
+        Only permitted when ``availability_text`` is None or otherwise unset.
+        Useful in cases where a particular resource both has no natural date column
+        for row count partitioning, and is updated on a slower cadence than its
+        source. For example, EIA 923 has yearly partitions, but while the
+        monthly output tables receive data from the new year as soon as it is
+        added to the source, the annual output tables aren't updated until the
+        following year."""
+
+        availability_text: str | None = None
+        """Most recent data available. If None or otherwise left unset, will be
+        filled in with the most recent partition listed in the row counts file
+        for this resource. If this is None/unset **and** the row counts
+        partition is null, then will be filled in with the most recent partition
+        listed for the data source, optionally offset by ``availability_offset``
+        partitions.
+
+        Generally only set when one table from a data source has been discontinued, but
+        the remaining tables continue being updated."""
 
         additional_summary_text: str | None = None
         """A brief (~one-line) description of the contents of this resource.
@@ -1538,11 +1569,11 @@ class Resource(PudlMeta):
         return Resource.dict_from_resource_descriptor(resource_id, descriptor)
 
     @staticmethod
-    def dict_from_resource_descriptor(  # noqa: C901
+    def _resolve_references_from_resource_descriptor(  # noqa: C901
         resource_id: str,
         descriptor: PudlResourceDescriptor,
     ) -> dict:
-        """Get a Resource-shaped dict from a PudlResourceDescriptor.
+        """Partially constructs a Resource-shaped dict from a PudlResourceDescriptor.
 
         * `schema.fields`
 
@@ -1556,7 +1587,8 @@ class Resource(PudlMeta):
           then expanded (:meth:`Contributor.from_id`).
         * `keywords`: Keywords are fetched by source ids.
         * `schema.foreign_keys`: Foreign keys are fetched by resource name.
-        * `description`: Full description text block is rendered from its component parts.
+
+        **Does not compute** resource description text and field encoders.
         """
         obj = descriptor.model_dump(by_alias=True)
         obj["name"] = resource_id
@@ -1605,6 +1637,33 @@ class Resource(PudlMeta):
         # Delete foreign key rules
         if "foreign_key_rules" in schema:
             del schema["foreign_key_rules"]
+        return obj
+
+    @staticmethod
+    def dict_from_resource_descriptor(  # noqa: C901
+        resource_id: str,
+        descriptor: PudlResourceDescriptor,
+    ) -> dict:
+        """Get a Resource-shaped dict from a PudlResourceDescriptor.
+
+        * `schema.fields`
+
+          * Field names are expanded (:meth:`Field.from_id`).
+          * Field attributes are replaced with any specific to the
+            `resource.group` and `field.name`.
+
+        * `sources`: Source ids are expanded (:meth:`Source.from_id`).
+        * `licenses`: License ids are expanded (:meth:`License.from_id`).
+        * `contributors`: Contributor ids are fetched by source ids,
+          then expanded (:meth:`Contributor.from_id`).
+        * `keywords`: Keywords are fetched by source ids.
+        * `schema.foreign_keys`: Foreign keys are fetched by resource name.
+        * `description`: Full description text block is rendered from its component parts.
+        """
+        # swap string names for proper objects
+        obj = Resource._resolve_references_from_resource_descriptor(
+            resource_id, descriptor
+        )
 
         # overwrite description components with rendered text block
         obj["description"] = (

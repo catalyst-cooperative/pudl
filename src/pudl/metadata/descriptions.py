@@ -6,12 +6,14 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Self
 
+import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
 
 from pudl.metadata.sources import SOURCES
 from pudl.metadata.warnings import USAGE_WARNINGS
+from pudl.workspace.setup import DBT_DIR
 
-layer_descriptions: dict = {
+LAYER_DESCRIPTIONS: dict = {
     "raw": (
         "Data has been extracted from original format, columns have been renamed for "
         "consistency, and multiple reporting periods have been concatenated, but no "
@@ -45,7 +47,7 @@ layer_descriptions: dict = {
 
 # TODO: add link to https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/{datasource_name}.html
 # if we have a data_sources page for it.
-source_descriptions: dict = {
+SOURCE_DESCRIPTIONS: dict = {
     source_name: SOURCES[source_name]["title"] for source_name in SOURCES
 } | {
     "eia": "EIA -- Mix of multiple EIA Forms",
@@ -58,7 +60,7 @@ source_descriptions: dict = {
 
 
 TableTypeFragments = namedtuple("TableTypeFragments", "subject conjunction")
-table_type_fragments: dict[str, TableTypeFragments] = {
+TABLE_TYPE_FRAGMENTS: dict[str, TableTypeFragments] = {
     "assn": TableTypeFragments("Association table", "providing connections between"),
     "changelog": TableTypeFragments("Changelog table", "tracking changes in"),
     "codes": TableTypeFragments(
@@ -91,13 +93,41 @@ Examples:
 """
 NONE_TABLETYPE_FRAGMENTS = TableTypeFragments(None, None)
 
-timeseries_resolution_fragments: dict = {
+TIMESERIES_RESOLUTION_FRAGMENTS: dict = {
     "quarterly": "Quarterly",
     "yearly": "Annual",
     "monthly": "Monthly",
     "hourly": "Hourly",
 }
 """More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources."""
+
+
+def half_year_offset(partition: str, offset: int) -> str:
+    """Offset a half_year partition by the specified number of half_years."""
+    yr, _, half = partition.partition("half")
+    offset = pd.Timestamp(
+        year=int(yr), month=(int(half) - 1) * 6 + 1, day=1
+    ) + pd.DateOffset(months=offset * 6)
+    return f"{offset.year}half{offset.month / 6 + 1:.0f}"
+
+
+PARTITION_OFFSETS: dict[str, Callable] = {
+    "years": lambda partition, offset: str(
+        pd.Period(pd.Timestamp(partition) + pd.DateOffset(years=offset), freq="Y")
+    ).lower(),
+    "year_quarters": lambda partition, offset: str(
+        pd.Period(pd.Timestamp(partition) + pd.DateOffset(months=offset * 3), freq="Q")
+    ).lower(),
+    "half_years": half_year_offset,
+    "year_months": lambda partition, offset: str(
+        pd.Period(pd.Timestamp(partition) + pd.DateOffset(months=offset), freq="M")
+    ).lower(),
+}
+"""Lookup table for computing offsets of temporal partitions.
+
+Maps each partition key to a function that, given a partition (2026, 2026q3,
+2026half1, 2026-07) and an integer offset, returns the partition ``offset``
+partition-units away from the input partition."""
 
 
 # [jul 2025 kmm] This is a mirror of pudl.metadata.PudlMeta, which can't be included here because it creates a circular import.
@@ -151,9 +181,10 @@ class ResolvedResourceDescription:
 
     This class stores the different components of a resource description, as computed by :class:`ResourceDescriptionBuilder`.
 
-    There are six description components:
+    There are seven description components:
 
     * summary
+    * availability
     * layer
     * source
     * primary_key
@@ -169,6 +200,7 @@ class ResolvedResourceDescription:
 
     resource_id: str
     summary: ResourceTrait
+    availability: ResourceTrait
     layer: ResourceTrait
     source: ResourceTrait
     primary_key: ResourceTrait
@@ -182,12 +214,13 @@ class ResolvedResourceDescription:
         """
         return f"""
 {self.resource_id}
-   Summary [{self.summary.type}]: {self.summary.description}
-     Layer [{self.layer.type}]: {self.layer.description}
-    Source [{self.source.type}]: {self.source.description}
-        PK [{self.primary_key.type}]: {self.primary_key.description}
-  Warnings [{len(self.usage_warnings)}]:{"\n\t".join([""] + [f"{uw.type} - {uw.description}" for uw in self.usage_warnings])}
-   Details [{self.details.type}]:
+     Summary [{self.summary.type}]: {self.summary.description}
+Availability [{self.availability.type}]: {self.availability.description}
+       Layer [{self.layer.type}]: {self.layer.description}
+      Source [{self.source.type}]: {self.source.description}
+          PK [{self.primary_key.type}]: {self.primary_key.description}
+    Warnings [{len(self.usage_warnings)}]:{"\n\t".join([""] + [f"{uw.type} - {uw.description}" for uw in self.usage_warnings])}
+     Details [{self.details.type}]:
 {self.details.description}
 """
 
@@ -258,6 +291,44 @@ class ResourceDescriptionBuilder:
             },
         )
 
+    @staticmethod
+    def offset_source_availability(source, offset: int) -> str | None:
+        """Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units."""
+        availability = max(source.get_temporal_partitions() or [None])
+        if availability is None:
+            # source availability isn't temporal so we don't care about it for offset purposes
+            return availability
+        availability = str(availability)
+        if offset == 0:
+            # we're not offsetting the source availability
+            return availability
+        for partition_key in source.working_partitions:
+            if partition_key in PARTITION_OFFSETS:
+                return PARTITION_OFFSETS[partition_key](availability, offset)
+        # we don't have an offset function configured for this key
+        raise AssertionError(
+            f"Need to offset temporal availability ({availability}) from {source.name} but couldn't find a partition key we know how to offset"
+        )
+
+    @staticmethod
+    def compute_rowcounts_availability(resource_id) -> str | None:
+        """Compute an availability date from the most recent available partition for a resource, according to the row counts file."""
+        rowcount_partition_lookups = (
+            pd.read_csv(
+                DBT_DIR / "seeds" / "etl_full_row_counts.csv",
+                # [kmm dec 2025] currently all non-null row count partitions are integer years.
+                # if we add other kinds of partitions to the row counts file, we'll need to revise this code.
+                dtype={"partition": "Int64", "table_name": "string"},
+            )
+            .set_index("table_name")
+            .loc[resource_id:resource_id]
+            .dropna()
+            .partition
+        )
+        if rowcount_partition_lookups.shape[0] > 0:
+            return str(rowcount_partition_lookups.max())
+        return None
+
     @component
     def summary(self, settings, defaults: "ResourceNameComponents") -> ResourceTrait:
         """Compute the summary component (first line) of the resource description.
@@ -276,14 +347,14 @@ class ResourceDescriptionBuilder:
         )
         additional_summary_text = settings.get("additional_summary_text")
         # permit a none tabletype for weirdos like core_ferc714__respondent_id
-        type_fragments = table_type_fragments.get(
+        type_fragments = TABLE_TYPE_FRAGMENTS.get(
             table_type_code, NONE_TABLETYPE_FRAGMENTS
         )
 
         # assemble the parts of the summary description in display order.
         # any or all of these may be none, depending on the resource name and manually specified information.
         components = [
-            timeseries_resolution_fragments.get(timeseries_resolution_code),
+            TIMESERIES_RESOLUTION_FRAGMENTS.get(timeseries_resolution_code),
             type_fragments.subject,
         ]
 
@@ -301,6 +372,34 @@ class ResourceDescriptionBuilder:
             type=f"{table_type_code}[{timeseries_resolution_code}]",
             # glue all the component parts into a single string, skipping any missing bits.
             description=" ".join(c for c in components if c is not None),
+        )
+
+    @component
+    def availability(self, settings, defaults) -> ResourceTrait:
+        """Compute the availability component of the resource description."""
+        most_recent_data = first_non_none(
+            settings.get("availability_text"),
+            # first fallback: use row counts file
+            ResourceDescriptionBuilder.compute_rowcounts_availability(self.resource_id),
+            # second fallback: use source partitions
+            min(  # if availability differs between sources, use the *least* recent among them
+                [
+                    str(avail)
+                    for avail in (
+                        ResourceDescriptionBuilder.offset_source_availability(
+                            source, settings.get("availability_offset", 0)
+                        )
+                        for source in settings.get("sources")
+                    )
+                    # skip sources with weird partitions (inner)
+                    if avail is not None
+                ]
+                or [None]  # skip sources with weird partitions (outer)
+            ),
+            "Unknown",
+        )
+        return ResourceTrait(
+            type=str(most_recent_data != "Unknown"), description=most_recent_data
         )
 
     def _generic_component(
@@ -349,13 +448,13 @@ class ResourceDescriptionBuilder:
                 settings.get("layer_code"), "out_narrow"
             )
 
-        return self._generic_component("layer", layer_descriptions, settings, defaults)
+        return self._generic_component("layer", LAYER_DESCRIPTIONS, settings, defaults)
 
     @component
     def source(self, settings, defaults):
         """Compute the data source component of the resource description."""
         return self._generic_component(
-            "source", source_descriptions, settings, defaults
+            "source", SOURCE_DESCRIPTIONS, settings, defaults
         )
 
     @component
@@ -436,12 +535,12 @@ class ResourceNameComponents(DescriptionMeta):
     """Resource name (aka table name)."""
 
     # define match groups for the different parts of a resource name
-    layer_options: str = "|".join(layer_descriptions.keys())
-    source_options: str = "|".join(source_descriptions.keys())
+    layer_options: str = "|".join(LAYER_DESCRIPTIONS.keys())
+    source_options: str = "|".join(SOURCE_DESCRIPTIONS.keys())
     timeseries_resolution_options: str = "|".join(
-        timeseries_resolution_fragments.keys()
+        TIMESERIES_RESOLUTION_FRAGMENTS.keys()
     )
-    table_type_options: str = "|".join(table_type_fragments.keys())
+    table_type_options: str = "|".join(TABLE_TYPE_FRAGMENTS.keys())
 
     resource_name_pattern: str = rf"^(?P<layer>{layer_options})_(?P<source>{source_options})__(?P<timeseries_resolution>{timeseries_resolution_options}|)(?:_|)(?P<table_type>{table_type_options}|)(?:_|)(?:_|)(?P<slug>.*)$"
 
