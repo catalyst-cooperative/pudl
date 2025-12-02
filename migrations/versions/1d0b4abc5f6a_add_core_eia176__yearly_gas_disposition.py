@@ -1,8 +1,8 @@
-"""Add _core_eia176__yearly_gas_disposition
+"""Add core_eia176__yearly_gas_disposition
 
-Revision ID: 5e1e7b90317d
+Revision ID: 1d0b4abc5f6a
 Revises: a08df6e8711c
-Create Date: 2025-11-28 08:42:04.776110
+Create Date: 2025-12-02 10:50:07.235228
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5e1e7b90317d'
+revision = '1d0b4abc5f6a'
 down_revision = 'a08df6e8711c'
 branch_labels = None
 depends_on = None
@@ -22,7 +22,7 @@ def upgrade() -> None:
     sa.Column('operator_id_eia', sa.Text(), nullable=False, comment='The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.'),
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('operating_state', sa.Text(), nullable=True, comment='State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.'),
-    sa.Column('delivered_gas_heat_content_mmbtu_per_mcf', sa.Float(), nullable=True, comment='The average annual heat content of gas delivered directly to consumers. Note: operator 17617651KY has several values that are slightly higher than 1.2'),
+    sa.Column('delivered_gas_heat_content_mmbtu_per_mcf', sa.Float(), nullable=True, comment='The average annual heat content of gas delivered directly to consumers.'),
     sa.Column('operational_consumption_facility_space_heat_mcf', sa.Float(), nullable=True, comment="Volume of natural gas consumed as fuel for space heat of the operator's own facilities within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),
     sa.Column('operational_consumption_new_pipeline_fill_mcf', sa.Float(), nullable=True, comment="Volume of natural gas consumed as fuel for the operator's new pipeline fill within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),
     sa.Column('operational_consumption_compressors_mcf', sa.Float(), nullable=True, comment="Volume of natural gas consumed as fuel for the operator's own pipeline distribution or storage compressor use within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),

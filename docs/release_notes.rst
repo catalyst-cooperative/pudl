@@ -9,6 +9,10 @@ v2025.12.x (2025-12-XX)
 New Data
 ^^^^^^^^
 
+ * contains cleaned company-wide natural gas disposition data from Part 6B
+   of the EIA 176 survey. See :pr:`4765`
+
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -45,9 +49,6 @@ run the full ETL locally. See below for all the details.
 
 New Data
 ^^^^^^^^
-
- * contains cleaned company-wide natural gas disposition data from Part 6B
-   of the EIA 176 survey. See :pr:`4765`
 
 EIA-176
 ~~~~~~~

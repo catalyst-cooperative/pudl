@@ -454,10 +454,10 @@ def core_eia176__yearly_gas_disposition(
     df.dropna(subset=["operating_state"])
     df = df.dropna(subset=keep, how="all")
 
-    # Replace 9999 values prior to 2012 with NA
+    # Replace 9999 and 0 values
     df.loc[
         (df["heat_content_of_delivered_gas_btu_cf"] == 9999)
-        & (df["report_year"] < 2012),
+        | (df["heat_content_of_delivered_gas_btu_cf"] == 0),
         "heat_content_of_delivered_gas_btu_cf",
     ] = pd.NA
 
@@ -532,7 +532,6 @@ def core_eia176__yearly_gas_disposition(
     ]
 
     df["losses_mcf"] = df["losses_mcf"].abs()
-
     return df
 
 

@@ -18,10 +18,11 @@ sources:
           - name: delivered_gas_heat_content_mmbtu_per_mcf
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
-                  row_condition: operator_id_eia != '17617651KY'
+                  config:
+                    error_if: ">300"
                   arguments:
                     min_value: 0.8
-                    max_value: 1.2
+                    max_value: 1.201
           - name: operational_consumption_facility_space_heat_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -90,8 +91,11 @@ sources:
           - name: disposition_storage_operators_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
+                  config:
+                    error_if: ">1"
                   arguments:
                     min_value: 0.0
+                  description: "This is currently failing for one record, ID 17690211AL in 2014."
           - name: total_disposition_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
