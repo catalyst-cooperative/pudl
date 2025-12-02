@@ -13,7 +13,7 @@ from pudl.metadata.sources import SOURCES
 from pudl.metadata.warnings import USAGE_WARNINGS
 from pudl.workspace.setup import DBT_DIR
 
-layer_descriptions: dict = {
+LAYER_DESCRIPTIONS: dict = {
     "raw": (
         "Data has been extracted from original format, columns have been renamed for "
         "consistency, and multiple reporting periods have been concatenated, but no "
@@ -47,7 +47,7 @@ layer_descriptions: dict = {
 
 # TODO: add link to https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/{datasource_name}.html
 # if we have a data_sources page for it.
-source_descriptions: dict = {
+SOURCE_DESCRIPTIONS: dict = {
     source_name: SOURCES[source_name]["title"] for source_name in SOURCES
 } | {
     "eia": "EIA -- Mix of multiple EIA Forms",
@@ -60,7 +60,7 @@ source_descriptions: dict = {
 
 
 TableTypeFragments = namedtuple("TableTypeFragments", "subject conjunction")
-table_type_fragments: dict[str, TableTypeFragments] = {
+TABLE_TYPE_FRAGMENTS: dict[str, TableTypeFragments] = {
     "assn": TableTypeFragments("Association table", "providing connections between"),
     "changelog": TableTypeFragments("Changelog table", "tracking changes in"),
     "codes": TableTypeFragments(
@@ -93,7 +93,7 @@ Examples:
 """
 NONE_TABLETYPE_FRAGMENTS = TableTypeFragments(None, None)
 
-timeseries_resolution_fragments: dict = {
+TIMESERIES_RESOLUTION_FRAGMENTS: dict = {
     "quarterly": "Quarterly",
     "yearly": "Annual",
     "monthly": "Monthly",
@@ -111,7 +111,7 @@ def half_year_offset(partition: str, offset: int) -> str:
     return f"{offset.year}half{offset.month / 6 + 1:.0f}"
 
 
-partition_offsets: dict[str, Callable] = {
+PARTITION_OFFSETS: dict[str, Callable] = {
     "years": lambda partition, offset: str(
         pd.Period(pd.Timestamp(partition) + pd.DateOffset(years=offset), freq="Y")
     ).lower(),
@@ -181,7 +181,7 @@ class ResolvedResourceDescription:
 
     This class stores the different components of a resource description, as computed by :class:`ResourceDescriptionBuilder`.
 
-    There are six description components:
+    There are seven description components:
 
     * summary
     * availability
@@ -303,8 +303,8 @@ class ResourceDescriptionBuilder:
             # we're not offsetting the source availability
             return availability
         for partition_key in source.working_partitions:
-            if partition_key in partition_offsets:
-                return partition_offsets[partition_key](availability, offset)
+            if partition_key in PARTITION_OFFSETS:
+                return PARTITION_OFFSETS[partition_key](availability, offset)
         # we don't have an offset function configured for this key
         raise AssertionError(
             f"Need to offset temporal availability ({availability}) from {source.name} but couldn't find a partition key we know how to offset"
@@ -347,14 +347,14 @@ class ResourceDescriptionBuilder:
         )
         additional_summary_text = settings.get("additional_summary_text")
         # permit a none tabletype for weirdos like core_ferc714__respondent_id
-        type_fragments = table_type_fragments.get(
+        type_fragments = TABLE_TYPE_FRAGMENTS.get(
             table_type_code, NONE_TABLETYPE_FRAGMENTS
         )
 
         # assemble the parts of the summary description in display order.
         # any or all of these may be none, depending on the resource name and manually specified information.
         components = [
-            timeseries_resolution_fragments.get(timeseries_resolution_code),
+            TIMESERIES_RESOLUTION_FRAGMENTS.get(timeseries_resolution_code),
             type_fragments.subject,
         ]
 
@@ -448,13 +448,13 @@ class ResourceDescriptionBuilder:
                 settings.get("layer_code"), "out_narrow"
             )
 
-        return self._generic_component("layer", layer_descriptions, settings, defaults)
+        return self._generic_component("layer", LAYER_DESCRIPTIONS, settings, defaults)
 
     @component
     def source(self, settings, defaults):
         """Compute the data source component of the resource description."""
         return self._generic_component(
-            "source", source_descriptions, settings, defaults
+            "source", SOURCE_DESCRIPTIONS, settings, defaults
         )
 
     @component
@@ -535,12 +535,12 @@ class ResourceNameComponents(DescriptionMeta):
     """Resource name (aka table name)."""
 
     # define match groups for the different parts of a resource name
-    layer_options: str = "|".join(layer_descriptions.keys())
-    source_options: str = "|".join(source_descriptions.keys())
+    layer_options: str = "|".join(LAYER_DESCRIPTIONS.keys())
+    source_options: str = "|".join(SOURCE_DESCRIPTIONS.keys())
     timeseries_resolution_options: str = "|".join(
-        timeseries_resolution_fragments.keys()
+        TIMESERIES_RESOLUTION_FRAGMENTS.keys()
     )
-    table_type_options: str = "|".join(table_type_fragments.keys())
+    table_type_options: str = "|".join(TABLE_TYPE_FRAGMENTS.keys())
 
     resource_name_pattern: str = rf"^(?P<layer>{layer_options})_(?P<source>{source_options})__(?P<timeseries_resolution>{timeseries_resolution_options}|)(?:_|)(?P<table_type>{table_type_options}|)(?:_|)(?:_|)(?P<slug>.*)$"
 

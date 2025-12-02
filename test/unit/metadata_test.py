@@ -14,9 +14,9 @@ from pudl.metadata.classes import (
     SnakeCase,
 )
 from pudl.metadata.descriptions import (
+    PARTITION_OFFSETS,
     ResourceDescriptionBuilder,
     ResourceTrait,
-    partition_offsets,
 )
 from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
 from pudl.metadata.helpers import format_errors
@@ -255,7 +255,7 @@ def test_frictionless_data_package_resources_populated():
 )
 def test_availability_offsets(partition_key, period, offset, expected):
     """Check edge cases for temporal partition arithmetic."""
-    assert partition_offsets[partition_key](period, offset) == expected
+    assert PARTITION_OFFSETS[partition_key](period, offset) == expected
 
 
 @pytest.mark.parametrize("source_id", sorted(r for r in SOURCES))
