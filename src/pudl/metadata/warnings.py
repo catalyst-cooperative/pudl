@@ -17,7 +17,7 @@ USAGE_WARNINGS = {
     "free_text": "Contains columns which may appear categorical, but are actually free text.",
     "early_release": "May contain early release data.",
     "aggregation_hazard": "Some columns contain subtotals; use caution when choosing columns to aggregate.",
-    "scale_hazard": "Extremely large table; do not attempt to open with Excel.",  # TODO: set a threshold
+    "scale_hazard": "Large table; do not attempt to open with Excel.",  # TODO: set a threshold
     "outliers": "Outliers present.",
     "missing_years": "Some years are missing from the data record.",
     "ferc_is_hard": (
