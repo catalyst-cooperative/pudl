@@ -29,6 +29,13 @@ layer_descriptions: dict = {
         "Data has been expanded into a wide/denormalized format, with IDs and codes "
         "accompanied by human-readable names and descriptions."
     ),
+    "out_narrow": (
+        # this is a pseudo layer that does not appear in table names, but
+        # allows us to accurately describe the few out tables that remain in
+        # normalized format.
+        "Data is ready for use in analyses, but for practical reasons has not been "
+        "denormalized and remains in narrow format."
+    ),
     "test": (
         "Only used in unit and integration testing; not intended for public "
         "consumption."
@@ -334,6 +341,14 @@ class ResourceDescriptionBuilder:
     @component
     def layer(self, settings, defaults):
         """Compute the processing layer component of the resource description."""
+        if (  # use narrow variant for hourly output tables
+            defaults.layer_code == "out"
+            and defaults.timeseries_resolution_code == "hourly"
+        ):
+            settings["layer_code"] = first_non_none(  # keep any manual overrides
+                settings.get("layer_code"), "out_narrow"
+            )
+
         return self._generic_component("layer", layer_descriptions, settings, defaults)
 
     @component

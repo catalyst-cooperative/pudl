@@ -251,11 +251,12 @@ the old and new company names have been swapped.""",
     "out_sec10k__changelog_company_name": {
         "description": {
             "additional_summary_text": "the names each SEC 10-K filer has used.",
+            "layer_code": "out_narrow",
             "additional_details_text": """
-We use the company name reported in association each name change block in the company
-information table to fill in the most recent value of ``company_name_new``. Roughly
-1,000 reported "name changes" in which the old and new names were identical have been
-dropped.""",
+We use the company name reported in association with each name change block in the
+company information table to fill in the most recent value of ``company_name_new``.
+Roughly 1,000 reported "name changes" in which the old and new names were identical
+have been dropped.""",
         },
         "schema": {
             "fields": [
