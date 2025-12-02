@@ -29,7 +29,8 @@ layer_descriptions: dict = {
         "Data has been expanded into a wide/denormalized format, with IDs and codes "
         "accompanied by human-readable names and descriptions."
     ),
-    "out_narrow": (  # this is a pseudo layer that does not appear in table names, but
+    "out_narrow": (
+        # this is a pseudo layer that does not appear in table names, but
         # allows us to accurately describe the few out tables that remain in
         # normalized format.
         "Data is ready for use in analyses, but for practical reasons has not been "
