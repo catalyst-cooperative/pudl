@@ -531,7 +531,11 @@ def core_eia176__yearly_gas_disposition(
         ]
     ]
 
-    df["losses_mcf"] = df["losses_mcf"].abs()
+    df.loc[
+        (df.operator_id_eia == "17617106KS") & (df.report_year == 2008), "losses_mcf"
+    ] = df.loc[
+        (df.operator_id_eia == "17617106KS") & (df.report_year == 2008), "losses_mcf"
+    ].abs()
     return df
 
 
