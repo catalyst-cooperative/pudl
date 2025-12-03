@@ -1,7 +1,7 @@
 """Add core_eia176__yearly_gas_disposition
 
 Revision ID: 94f669451682
-Revises: 5ba8ad3ad527
+Revises: aeb66b0b4481
 Create Date: 2025-12-03 15:27:46.520134
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '94f669451682'
-down_revision = '5ba8ad3ad527'
+down_revision = 'aeb66b0b4481'
 branch_labels = None
 depends_on = None
 
