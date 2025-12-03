@@ -678,6 +678,14 @@ columns.""",
                     ),
                 },
             ],
+            "additional_details_text": """This table contains information about
+cooling equipment installed at electric generation plants. A single plant can have
+several collections of cooling equipment, so each line in this table represents one
+cooling system at a given plant.
+
+EIA-860 respondents are required to submit information about cooling equipment for
+plants over 100 MW - including steam, combined cycle, nuclear or solar thermal
+generators.""",
         },
         "schema": {
             "fields": [
