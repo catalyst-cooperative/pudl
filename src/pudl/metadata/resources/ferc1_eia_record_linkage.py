@@ -131,6 +131,15 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "fraction_owned",
                 "ownership_record_type",
             ],
+            # These columns identify unique records, but can't be used as a PK because
+            # some of the utility_id_eia values are NA.
+            # "primary_key": [
+            #    "plant_id_eia",
+            #    "generator_id",
+            #    "utility_id_eia",
+            #    "report_date",
+            #    "ownership_record_type",
+            # ]
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
