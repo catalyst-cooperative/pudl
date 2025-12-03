@@ -46,6 +46,10 @@ calculated by summing the original granular data. Similarly, ``disposition_to_ot
 
 The ``delivered_gas_heat_content_mmbtu_per_mcf`` is expected to be between 0.8 and 1.2
 by the EIA. We find that less than 0.5 percent of data falls outside of these expected bounds.
+
+The ``total_disposition_mcf`` field includes disposition to consumers which is reported in core_eia176__yearly_gas_disposition_by_consumer.
+Note that the reported total disposition and the sum of values in this table and core_eia176__yearly_gas_disposition_by_consumer often don't match as would be expected.
+Thus, we have preserved both the total field and the sub-components in these two tables.
             """,
         },
         "schema": {

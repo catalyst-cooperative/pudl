@@ -109,7 +109,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operational_consumption_other_detail": {
         "description": (
-            "Free-text detail describing the operator’s specified “other purposes” for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf."
+            "Free-text detail describing the operator’s specified 'other purposes' for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf."
         ),
         "type": "string",
     },
@@ -158,7 +158,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "disposition_other_pipelines_mcf": {
         "description": (
             "Disposition to other pipelines within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
-            "(14.73 psia and 60° Fahrenheit)"
         ),
         "unit": "Mcf",
         "type": "number",
@@ -188,6 +187,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
     },
     "disposition_out_of_state_mcf": {
+        # TODO (12-03-2025): When we have created the disaggregated table, update this field description to point at it.
         "description": (
             "Total volume of the operator's deliveries across or to state lines or U.S. borders. This has been summed from the detailed data reported by each company on Line 14.0 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
@@ -195,6 +195,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
     },
     "other_disposition_all_other_mcf": {
+        # TODO (12-03-2025): When we have created the disaggregated table, update this field description to point at it.
         "description": (
             "Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
         ),
