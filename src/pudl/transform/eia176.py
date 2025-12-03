@@ -16,6 +16,12 @@ from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
 
+DROP_OPERATING_STATES = (
+    "fed. gulf of mexico",
+    "mexico",
+    "other",
+)
+
 
 @multi_asset(
     outs={
@@ -319,17 +325,7 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
     df = _core_eia176__yearly_company_data.filter(primary_key + keep)
 
-    # Normalize operating states, those that are missing in subdivisions will be NA
-    codes = (
-        core_pudl__codes_subdivisions.assign(
-            key=lambda d: d["subdivision_name"].str.strip().str.casefold()
-        )
-        .drop_duplicates("key")
-        .set_index("key")["subdivision_code"]
-    )
-    df["operating_state"] = (
-        df["operating_state"].str.strip().str.casefold().map(codes.get)
-    )
+    df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
 
     df = pd.melt(
         df, id_vars=primary_key, var_name="metric", value_name="value"
@@ -350,12 +346,203 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
     # Ensure all values in rows with null operating state are zeroes, and drop them
     assert (
-        df[df["operating_state"].isna()]
-        .sum()[["consumers", "revenue", "volume_mcf"]]
+        df[df["operating_state"].isna()][["consumers", "revenue", "volume_mcf"]]
+        .sum()
         .sum()
         == 0
     )
-    df = df.dropna(subset=["operating_state"])
     df = df.dropna(subset=["consumers", "revenue", "volume_mcf"], how="all")
 
+    return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_disposition(
+    _core_eia176__yearly_company_data: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0)."""
+    extras = ["operating_state"]
+
+    keep = [
+        # 9.0
+        "heat_content_of_delivered_gas_btu_cf",
+        # 12
+        "facility_space_heat",  # 1
+        "new_pipeline_fill_volume",  # 2
+        "pipeline_dist_storage_compressor_use",  # 3
+        "vaporization_liquefaction_lng_fuel",  # 4
+        "vehicle_fuel_used_in_company_fleet",  # 5
+        "other",  # 6
+        # 13
+        "underground_storage_injections_volume",  # 1
+        "lng_storage_injections_volume",  # 1
+        # 14
+        "deliveries_out_of_state_volume",
+        # 15
+        "lease_use_volume",
+        # 16
+        "returns_for_repress_reinjection_volume",
+        # 17
+        "losses_from_leaks_volume",
+        # 18
+        "disposition_to_distribution_companies_volume",  # 1
+        "disposition_to_other_pipelines_volume",  # 2
+        "disposition_to_storage_operators_volume",  # 3
+        "disposition_to_other_volume",  # 4
+        # 19
+        "total_disposition_volume",
+        # 20
+        "unaccounted_for",
+    ]
+
+    primary_key = ["operator_id_eia", "report_year"]
+
+    # Keep only the columns we need
+    df = _core_eia176__yearly_company_data.filter([*primary_key, *extras, *keep])
+
+    # Add freeform textual data
+    tl_text = raw_eia176__continuation_text_lines.filter(
+        [*primary_key, "line", "reference_company_or_line_description"]
+    )
+    tl_text = tl_text[tl_text["line"] == 1260]
+    tl_text = tl_text.drop("line", axis=1)
+    tl_text = tl_text.rename(
+        columns={
+            "reference_company_or_line_description": (
+                "operational_consumption_other_detail"
+            )
+        }
+    )
+    assert not tl_text[primary_key].duplicated().any(), (
+        'Found multiple values in "gas consumed in company\'s operations" "other" field (12.6)'
+    )
+    df = df.merge(tl_text, how="left", validate="1:1")
+
+    # Additionally, add granular data available for "Deliveries out of state" and "Disposition to other"
+    # These are getting grouped and summed by operator/state/year
+    # TODO (12/3/25): Breakout these unaggregated values into separate tables.
+    tl = raw_eia176__continuation_text_lines
+    tl = tl.groupby([*primary_key, "line"]).agg("sum").reset_index()
+    tl = tl.pivot(index=primary_key, columns="line", values="volume_mcf").reset_index()
+    tl = tl.filter([*primary_key, 1400, 1840])
+    df = df.merge(tl, how="left", validate="1:1")
+
+    # Ensure that the summed granular data generally matches relevant values in _core_eia176__yearly_company_data
+    deliveries_out_of_state_mismatch = (
+        (df["deliveries_out_of_state_volume"] != df[1400])
+        & (df["deliveries_out_of_state_volume"].notna() | df[1400].notna())
+    ).sum()
+    assert deliveries_out_of_state_mismatch <= 4, (
+        "More than 4 out of state deliveries total mismatches"
+    )
+
+    disposition_to_other_mismatch = (
+        (df["disposition_to_other_volume"] != df[1840])
+        & (df["disposition_to_other_volume"].notna() | df[1840].notna())
+    ).sum()
+    assert disposition_to_other_mismatch <= 2, (
+        "More than 2 disposition to other mismatches"
+    )
+
+    # We assume that the granular data is more accurate, so we'll use that
+    df = df.drop(
+        columns=["deliveries_out_of_state_volume", "disposition_to_other_volume"]
+    )
+    df = df.rename(
+        columns={
+            1400: "deliveries_out_of_state_volume",
+            1840: "disposition_to_other_volume",
+        }
+    )
+
+    # Normalize operating states, drop data from outside of 50 states and NA records
+    df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
+    df = df.dropna(subset=["operating_state"])
+    df = df.dropna(subset=keep, how="all")
+
+    # Replace 9999 and 0 values with nulls
+    df.loc[
+        (df["heat_content_of_delivered_gas_btu_cf"] == 9999)
+        | (df["heat_content_of_delivered_gas_btu_cf"] == 0),
+        "heat_content_of_delivered_gas_btu_cf",
+    ] = pd.NA
+
+    # Convert heat content of delivered gas to mmtbu/mcf
+    df["heat_content_of_delivered_gas_btu_cf"] /= 1000
+
+    # Renaming and reordering columns
+    df = df.rename(
+        columns={
+            "heat_content_of_delivered_gas_btu_cf": (
+                "delivered_gas_heat_content_mmbtu_per_mcf"
+            ),
+            "facility_space_heat": "operational_consumption_facility_space_heat_mcf",
+            "new_pipeline_fill_volume": "operational_consumption_new_pipeline_fill_mcf",
+            "pipeline_dist_storage_compressor_use": (
+                "operational_consumption_compressors_mcf"
+            ),
+            "vaporization_liquefaction_lng_fuel": (
+                "operational_consumption_lng_vaporization_liquefaction_mcf"
+            ),
+            "vehicle_fuel_used_in_company_fleet": (
+                "operational_consumption_vehicle_fuel_mcf"
+            ),
+            "other": "operational_consumption_other_mcf",
+            "underground_storage_injections_volume": (
+                "operational_storage_underground_mcf"
+            ),
+            "lng_storage_injections_volume": "operational_lng_storage_injections_mcf",
+            "lease_use_volume": "producer_lease_use_mcf",
+            "returns_for_repress_reinjection_volume": (
+                "producer_returned_for_repressuring_reinjection_mcf"
+            ),
+            "losses_from_leaks_volume": "losses_mcf",
+            "disposition_to_distribution_companies_volume": (
+                "disposition_distribution_companies_mcf"
+            ),
+            "disposition_to_other_pipelines_volume": "disposition_other_pipelines_mcf",
+            "disposition_to_storage_operators_volume": (
+                "disposition_storage_operators_mcf"
+            ),
+            "unaccounted_for": "unaccounted_for_mcf",
+            "deliveries_out_of_state_volume": "disposition_out_of_state_mcf",
+            "disposition_to_other_volume": "other_disposition_all_other_mcf",
+            "total_disposition_volume": "total_disposition_mcf",
+        }
+    )
+
+    # There is one instance where `losses_mcf` value is inverted
+    df.loc[
+        (df.operator_id_eia == "17617106KS") & (df.report_year == 2008), "losses_mcf"
+    ] = df.loc[
+        (df.operator_id_eia == "17617106KS") & (df.report_year == 2008), "losses_mcf"
+    ].abs()
+
+    return df
+
+
+def _normalize_operating_states(core_pudl__codes_subdivisions, df):
+    """Map full state names to their postal abbreviations.
+
+    This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.
+    """
+    df = df.copy()
+    codes = (
+        core_pudl__codes_subdivisions.assign(
+            key=lambda d: d["subdivision_name"].str.strip().str.casefold()
+        )
+        .drop_duplicates("key")
+        .set_index("key")["subdivision_code"]
+    )
+    norm = df["operating_state"].astype(str).str.strip().str.casefold()
+    mask_valid = norm.isin(codes.index)
+    mask_safe_drop = norm.isin(DROP_OPERATING_STATES)
+
+    invalid = norm[~(mask_valid | mask_safe_drop)].unique()
+    if len(invalid) > 0:
+        raise ValueError(f"Unknown operating_state values: {invalid!r}")
+
+    df["operating_state"] = norm.map(codes)
     return df
