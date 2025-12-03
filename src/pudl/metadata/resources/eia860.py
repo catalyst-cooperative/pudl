@@ -2,6 +2,14 @@
 
 from typing import Any
 
+HARVESTING_DETAIL_TEXT = """EIA reports many attributes in many different tables across
+EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
+collects all instances of these values and and chooses a canonical value. By default,
+PUDL chooses the most consistently reported value of a given attribute as long as it
+is at least 70% of the given instances reported. If an attribute was reported
+inconsistently across the original EIA tables, then it will show up as a
+null value."""
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860__scd_boilers": {
         "description": {
@@ -154,6 +162,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "generators which may vary from year to year. Compiled from across "
                 "EIA-860 and EIA-923 data."
             ),
+            "additional_details_text": f"""This table contains the attributes about
+EIA-860 generators. Many of these attributes usually do not change year-to-year but
+they occasionally do.
+
+{HARVESTING_DETAIL_TEXT} Most of these generator attributes come from EIA-860 but many
+of them are reported in both EIA-860 and EIA-923 so the values in this table are a
+blend of these two sources.
+
+The related table with the static attributes about generators is
+:ref:`core_eia860__entity_generators`.""",
         },
         "schema": {
             "fields": [
