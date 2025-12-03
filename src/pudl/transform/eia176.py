@@ -399,15 +399,10 @@ def core_eia176__yearly_gas_disposition(
 
     primary_key = ["operator_id_eia", "report_year"]
 
+    # Keep only the columns we need
     df = _core_eia176__yearly_company_data.filter([*primary_key, *extras, *keep])
 
-    tl = raw_eia176__continuation_text_lines
-    tl = tl.groupby([*primary_key, "line"]).agg("sum").reset_index()
-    tl = tl.pivot(index=primary_key, columns="line", values="volume_mcf").reset_index()
-    tl = tl.filter([*primary_key, 1400, 1840])
-
-    df = df.merge(tl, how="left", validate="1:1")
-
+    # Add freeform textual data
     tl_text = raw_eia176__continuation_text_lines.filter(
         [*primary_key, "line", "reference_company_or_line_description"]
     )
@@ -425,6 +420,14 @@ def core_eia176__yearly_gas_disposition(
     )
     df = df.merge(tl_text, how="left", validate="1:1")
 
+    # additional_ins granular data available for "Deliveries out of state" and "Disposition to other"
+    tl = raw_eia176__continuation_text_lines
+    tl = tl.groupby([*primary_key, "line"]).agg("sum").reset_index()
+    tl = tl.pivot(index=primary_key, columns="line", values="volume_mcf").reset_index()
+    tl = tl.filter([*primary_key, 1400, 1840])
+    df = df.merge(tl, how="left", validate="1:1")
+
+    # Ensure that the summed granular data generally matches relevant values in _core_eia176__yearly_company_data
     deliveries_out_of_state_mismatch = (
         (df["deliveries_out_of_state_volume"] != df[1400])
         & (df["deliveries_out_of_state_volume"].notna() | df[1400].notna())
@@ -440,6 +443,8 @@ def core_eia176__yearly_gas_disposition(
     assert disposition_to_other_mismatch <= 2, (
         "More than 2 disposition to other mismatches"
     )
+
+    # We assume that the granular data is more accurate, so we'll use that
     df = df.drop(
         columns=["deliveries_out_of_state_volume", "disposition_to_other_volume"]
     )
@@ -450,6 +455,7 @@ def core_eia176__yearly_gas_disposition(
         }
     )
 
+    # Normalize operating states
     df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
     df.dropna(subset=["operating_state"])
     df = df.dropna(subset=keep, how="all")
@@ -461,8 +467,10 @@ def core_eia176__yearly_gas_disposition(
         "heat_content_of_delivered_gas_btu_cf",
     ] = pd.NA
 
+    # Convert heat content of delivered gas to mmtbu/mcf
     df["heat_content_of_delivered_gas_btu_cf"] /= 1000
 
+    # Renaming and reordering columns
     df = df.rename(
         columns={
             "heat_content_of_delivered_gas_btu_cf": (
@@ -531,11 +539,13 @@ def core_eia176__yearly_gas_disposition(
         ]
     ]
 
+    # There is one instance where `losses_mcf` value is inverted
     df.loc[
         (df.operator_id_eia == "17617106KS") & (df.report_year == 2008), "losses_mcf"
     ] = df.loc[
         (df.operator_id_eia == "17617106KS") & (df.report_year == 2008), "losses_mcf"
     ].abs()
+
     return df
 
 

@@ -1,8 +1,8 @@
-"""Add core_eia176__yearly_gas_disposition
+"""Add core_eia176__yearly_gas_disposition table
 
-Revision ID: 1d0b4abc5f6a
+Revision ID: 06a524f6b316
 Revises: a08df6e8711c
-Create Date: 2025-12-02 10:50:07.235228
+Create Date: 2025-12-03 09:34:46.209132
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1d0b4abc5f6a'
+revision = '06a524f6b316'
 down_revision = 'a08df6e8711c'
 branch_labels = None
 depends_on = None
@@ -41,7 +41,7 @@ def upgrade() -> None:
     sa.Column('unaccounted_for_mcf', sa.Float(), nullable=True, comment='The difference between gas supply and disposition. A positive entry indicates supply in excess of accounted-for disposition. A negative entry indicates accounted-for disposition exceeds reported supply. This is calculated as the difference between Part 4 Line 7.0 and Part 6 Line 19.0, and is reported as Line 20.0 in the original form.'),
     sa.Column('disposition_out_of_state_mcf', sa.Float(), nullable=True, comment="Total volume of the operator's deliveries across or to state lines or U.S. borders. This has been summed from the detailed data reported by each company on Line 14.0 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),
     sa.Column('other_disposition_all_other_mcf', sa.Float(), nullable=True, comment='Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
-    sa.Column('operational_consumption_other_detail', sa.Text(), nullable=True, comment='Free-text detail describing the operator’s specified “other purposes” for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf'),
+    sa.Column('operational_consumption_other_detail', sa.Text(), nullable=True, comment='Free-text detail describing the operator’s specified “other purposes” for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf.'),
     sa.PrimaryKeyConstraint('operator_id_eia', 'report_year', name=op.f('pk_core_eia176__yearly_gas_disposition'))
     )
     # ### end Alembic commands ###
