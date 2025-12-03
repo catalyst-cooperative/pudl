@@ -299,6 +299,19 @@ def _core_eia860__generators(
         )
         .pipe(pudl.helpers.convert_to_date, copy=False)
     )
+    # This manual fix is required before encoding because there's not a unique mapping
+    # PA -> PACW in Oregon
+    gens_df.loc[
+        (gens_df.state == "OR") & (gens_df.balancing_authority_code_eia == "PA"),
+        "balancing_authority_code_eia",
+    ] = "PACW"
+    # PA -> PACE in Utah
+    gens_df.loc[
+        (gens_df.state == "UT") & (gens_df.balancing_authority_code_eia == "PA"),
+        "balancing_authority_code_eia",
+    ] = "PACE"
+    gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
+
     # spot fix one assumed to be bad technology description. It's assumed to be wrong
     # because we learned via pudl.output.eia.fill_generator_technology_description
     # that all other combos of PM code and ESC have a different technology. See #4788
@@ -314,18 +327,6 @@ def _core_eia860__generators(
             f"{len(gens_df[bad_tech_mask])}.\n{gens_df[bad_tech_mask]}"
         )
     gens_df.loc[bad_tech_mask, "technology_description"] = "Other Gases"
-    # This manual fix is required before encoding because there's not a unique mapping
-    # PA -> PACW in Oregon
-    gens_df.loc[
-        (gens_df.state == "OR") & (gens_df.balancing_authority_code_eia == "PA"),
-        "balancing_authority_code_eia",
-    ] = "PACW"
-    # PA -> PACE in Utah
-    gens_df.loc[
-        (gens_df.state == "UT") & (gens_df.balancing_authority_code_eia == "PA"),
-        "balancing_authority_code_eia",
-    ] = "PACE"
-    gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
 
     gens_df["fuel_type_code_pudl"] = gens_df.energy_source_code_1.str.upper().map(
         pudl.helpers.label_map(
