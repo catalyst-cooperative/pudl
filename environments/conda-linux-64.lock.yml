@@ -99,7 +99,7 @@ dependencies:
   - conda-package-streaming=0.12.0=pyhd8ed1ab_0
   - contourpy=1.3.3=py313h7037e92_3
   - coverage=7.12.0=py313h3dea7bd_0
-  - cpython=3.13.9=py313hd8ed1ab_101
+  - cpython=3.13.10=py313hd8ed1ab_100
   - crashtest=0.4.1=pyhd8ed1ab_1
   - cryptography=46.0.3=py313hafb0bba_0
   - curl=8.17.0=h4e3cde8_0
@@ -233,7 +233,7 @@ dependencies:
   - iniconfig=2.3.0=pyhd8ed1ab_0
   - invoke=2.2.1=pyhd8ed1ab_0
   - ipykernel=7.1.0=pyha191276_0
-  - ipython=9.7.0=pyh53cf698_0
+  - ipython=9.8.0=pyh53cf698_0
   - ipython_pygments_lexers=1.1.1=pyhd8ed1ab_0
   - ipywidgets=8.1.8=pyhd8ed1ab_0
   - isodate=0.6.1=pyhd8ed1ab_0
@@ -410,7 +410,7 @@ dependencies:
   - networkx=3.6=pyhcf101f3_0
   - nlohmann_json=3.12.0=h54a6638_1
   - nodeenv=1.9.1=pyhd8ed1ab_1
-  - nodejs=24.9.0=h8c692ec_1
+  - nodejs=24.10.0=h8c692ec_1
   - nomkl=1.0=h5ca1d4c_0
   - notebook=7.5.0=pyhcf101f3_0
   - notebook-shim=0.2.4=pyhd8ed1ab_1
@@ -457,7 +457,7 @@ dependencies:
   - polars=1.35.2=pyh6a1acc5_0
   - polars-runtime-32=1.35.2=py310hffdcd12_0
   - pre-commit=4.5.0=pyha770c72_0
-  - prettier=3.7.3=h7e4c9f4_0
+  - prettier=3.7.4=h7e4c9f4_0
   - proj=9.7.1=h99ae125_0
   - prometheus-cpp=1.3.0=ha5d0236_0
   - prometheus_client=0.23.1=pyhd8ed1ab_0
@@ -509,7 +509,7 @@ dependencies:
   - python-duckdb=1.4.2=py313h7033f15_0
   - python-fastjsonschema=2.21.2=pyhe01879c_0
   - python-flatbuffers=25.9.23=pyh1e1bc0e_0
-  - python-gil=3.13.9=h4df99d1_101
+  - python-gil=3.13.10=h4df99d1_100
   - python-igraph=1.0.0=py313h7033f15_0
   - python-installer=0.7.0=pyhff2d567_1
   - python-json-logger=2.0.7=pyhd8ed1ab_0
@@ -597,7 +597,7 @@ dependencies:
   - structlog=25.5.0=pyhcf101f3_0
   - tabulate=0.9.0=pyhd8ed1ab_2
   - terminado=0.18.1=pyh0d859eb_0
-  - terraform=1.14.0=h76a2195_0
+  - terraform=1.14.1=h76a2195_0
   - text-unidecode=1.3=pyhd8ed1ab_2
   - texttable=1.7.0=pyhd8ed1ab_1
   - textual=6.7.1=pyhd8ed1ab_0
@@ -628,8 +628,8 @@ dependencies:
   - tzdata=2025b=h78e105d_0
   - uc-micro-py=1.0.3=pyhd8ed1ab_1
   - ukkonen=1.0.1=py313h7037e92_6
-  - universal-pathlib=0.3.6=hd8ed1ab_0
-  - universal_pathlib=0.3.6=pyhd8ed1ab_0
+  - universal-pathlib=0.3.7=hd8ed1ab_0
+  - universal_pathlib=0.3.7=pyhd8ed1ab_0
   - uri-template=1.3.0=pyhd8ed1ab_1
   - uriparser=0.9.8=hac33072_0
   - urllib3=2.5.0=pyhd8ed1ab_0

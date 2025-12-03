@@ -139,7 +139,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
             #    "utility_id_eia",
             #    "report_date",
             #    "ownership_record_type",
-            # ]
+            # ],
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
