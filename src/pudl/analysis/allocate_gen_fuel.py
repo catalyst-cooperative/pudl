@@ -824,10 +824,13 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             tables. Output of :func:`associate_generator_tables`.
     """
     # identify whether a PM/ESC combo is unique to the generator_id at the plant
-    gen_assoc["gf_unique_to_gen"] = gen_assoc.groupby(
-        ["plant_id_eia", "report_date", "prime_mover_code", "energy_source_code"]
-    )["generator_id"].transform("nunique") == 1
-    
+    gen_assoc["gf_unique_to_gen"] = (
+        gen_assoc.groupby(
+            ["plant_id_eia", "report_date", "prime_mover_code", "energy_source_code"]
+        )["generator_id"].transform("nunique")
+        == 1
+    )
+
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
 
     retiring_generators = identify_retiring_generators(gen_assoc)
@@ -859,7 +862,7 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 
     These are "retired" generators that either:
     A) have a mid-year retirement date, OR
-    B) report generator-specific generation data in the g table for a month after the 
+    B) report generator-specific generation data in the g table for a month after the
         retirement date, OR
     C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
         is unique to that generator at the plant, for a month after the retirement date.
@@ -876,7 +879,8 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
                 | (
                     gen_assoc["gf_unique_to_gen"]
                     & (
-                        (gen_assoc.net_generation_mwh_gf_tbl > 0) | (gen_assoc.net_generation_mwh_gf_tbl < 0)
+                        (gen_assoc.net_generation_mwh_gf_tbl > 0)
+                        | (gen_assoc.net_generation_mwh_gf_tbl < 0)
                         | (gen_assoc.filter(like="fuel_consumed_") > 0).any(axis=1)
                     )
                 )
@@ -969,7 +973,8 @@ def identify_generators_coming_online(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             | (
                 gen_assoc["gf_unique_to_gen"]
                 & (
-                    (gen_assoc.net_generation_mwh_gf_tbl > 0) | (gen_assoc.net_generation_mwh_gf_tbl < 0)
+                    (gen_assoc.net_generation_mwh_gf_tbl > 0)
+                    | (gen_assoc.net_generation_mwh_gf_tbl < 0)
                     | ((gen_assoc.filter(like="fuel_consumed_") > 0).any(axis=1))
                 )
             )
