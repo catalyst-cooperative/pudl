@@ -22,7 +22,7 @@ sources:
                     error_if: ">300"
                   arguments:
                     min_value: 0.8
-                    max_value: 1.201
+                    max_value: 1.2
           - name: operational_consumption_facility_space_heat_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

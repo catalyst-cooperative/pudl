@@ -1,8 +1,8 @@
-"""Add core_eia176__yearly_gas_disposition table
+"""Add core_eia176__yearly_gas_disposition
 
-Revision ID: 06a524f6b316
-Revises: a08df6e8711c
-Create Date: 2025-12-03 09:34:46.209132
+Revision ID: 94f669451682
+Revises: 5ba8ad3ad527
+Create Date: 2025-12-03 15:27:46.520134
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '06a524f6b316'
-down_revision = 'a08df6e8711c'
+revision = '94f669451682'
+down_revision = '5ba8ad3ad527'
 branch_labels = None
 depends_on = None
 
@@ -29,25 +29,33 @@ def upgrade() -> None:
     sa.Column('operational_consumption_lng_vaporization_liquefaction_mcf', sa.Float(), nullable=True, comment='Volume of natural gas consumed by the operator for vaporization, liquefaction, and LNG fuel within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
     sa.Column('operational_consumption_vehicle_fuel_mcf', sa.Float(), nullable=True, comment="Volume of natural gas used in the operator's company-owned fleet within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),
     sa.Column('operational_consumption_other_mcf', sa.Float(), nullable=True, comment='Volume of natural gas consumed as fuel by the operator for other purposes within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
+    sa.Column('operational_consumption_other_detail', sa.Text(), nullable=True, comment='Free-text detail describing the operator’s specified “other purposes” for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf.'),
     sa.Column('operational_storage_underground_mcf', sa.Float(), nullable=True, comment='The total volume added to underground storage operated by the company within the report state, regardless of ownership of the gas. This includes new fields. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
     sa.Column('operational_lng_storage_injections_mcf', sa.Float(), nullable=True, comment='The total volume added to LNG storage operated by the company within the report state, regardless of ownership of the gas. For LNG import and export marine terminals, this should exclude injections of LNG during the course of routine operations for handling imports, as well as LNG held in storage for future use. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
     sa.Column('producer_lease_use_mcf', sa.Float(), nullable=True, comment="The total volume of gas used in the company's well, field and lease operations. This field should only be reported by producers. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),
     sa.Column('producer_returned_for_repressuring_reinjection_mcf', sa.Float(), nullable=True, comment="The volume of gas delivered directly from the operator's system to oil or gas fields located within the report state for repressuring, pressure maintenance, and cycling operations. This field should only be reported by producers. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),
-    sa.Column('losses_mcf', sa.Float(), nullable=True, comment='Known loss volumes as a result of leaks, damage, accidents, migration and blow down within the report state where the events took place, as well as estimated losses from leaks occurring during distribution activities. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
     sa.Column('disposition_distribution_companies_mcf', sa.Float(), nullable=True, comment='Disposition to distribution companies within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
-    sa.Column('disposition_other_pipelines_mcf', sa.Float(), nullable=True, comment='Disposition to other pipelines within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.(14.73 psia and 60° Fahrenheit)'),
     sa.Column('disposition_storage_operators_mcf', sa.Float(), nullable=True, comment='Disposition to storage operators within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
-    sa.Column('total_disposition_mcf', sa.Float(), nullable=True, comment="Total disposition within the report state, as reported by the operator. This includes disposition to consumers which is reported in core_eia176__yearly_gas_disposition_by_consumer. Note that the reported total disposition and the sum of values in this table and core_eia176__yearly_gas_disposition_by_consumer often don't match as it would be expected. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),
-    sa.Column('unaccounted_for_mcf', sa.Float(), nullable=True, comment='The difference between gas supply and disposition. A positive entry indicates supply in excess of accounted-for disposition. A negative entry indicates accounted-for disposition exceeds reported supply. This is calculated as the difference between Part 4 Line 7.0 and Part 6 Line 19.0, and is reported as Line 20.0 in the original form.'),
+    sa.Column('disposition_other_pipelines_mcf', sa.Float(), nullable=True, comment='Disposition to other pipelines within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.(14.73 psia and 60° Fahrenheit)'),
     sa.Column('disposition_out_of_state_mcf', sa.Float(), nullable=True, comment="Total volume of the operator's deliveries across or to state lines or U.S. borders. This has been summed from the detailed data reported by each company on Line 14.0 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),
     sa.Column('other_disposition_all_other_mcf', sa.Float(), nullable=True, comment='Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
-    sa.Column('operational_consumption_other_detail', sa.Text(), nullable=True, comment='Free-text detail describing the operator’s specified “other purposes” for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf.'),
+    sa.Column('total_disposition_mcf', sa.Float(), nullable=True, comment="Total disposition within the report state, as reported by the operator. This includes disposition to consumers which is reported in core_eia176__yearly_gas_disposition_by_consumer. Note that the reported total disposition and the sum of values in this table and core_eia176__yearly_gas_disposition_by_consumer often don't match as it would be expected. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."),
+    sa.Column('losses_mcf', sa.Float(), nullable=True, comment='Known loss volumes as a result of leaks, damage, accidents, migration and blow down within the report state where the events took place, as well as estimated losses from leaks occurring during distribution activities. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit.'),
+    sa.Column('unaccounted_for_mcf', sa.Float(), nullable=True, comment='The difference between gas supply and disposition. A positive entry indicates supply in excess of accounted-for disposition. A negative entry indicates accounted-for disposition exceeds reported supply. This is calculated as the difference between Part 4 Line 7.0 and Part 6 Line 19.0, and is reported as Line 20.0 in the original form.'),
     sa.PrimaryKeyConstraint('operator_id_eia', 'report_year', name=op.f('pk_core_eia176__yearly_gas_disposition'))
     )
+    with op.batch_alter_table('_core_eia923__yearly_fgd_operation_maintenance', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('fgd_sorbent_consumption_tons', sa.Float(), nullable=True, comment='Quantity of flue gas desulfurization sorbent used, to the nearest 100 ton.'))
+        batch_op.drop_column('fgd_sorbent_consumption_1000_tons')
+
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
+    with op.batch_alter_table('_core_eia923__yearly_fgd_operation_maintenance', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('fgd_sorbent_consumption_1000_tons', sa.FLOAT(), nullable=True))
+        batch_op.drop_column('fgd_sorbent_consumption_tons')
+
     op.drop_table('core_eia176__yearly_gas_disposition')
     # ### end Alembic commands ###

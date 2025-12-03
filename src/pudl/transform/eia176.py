@@ -390,7 +390,7 @@ def core_eia176__yearly_gas_disposition(
         "disposition_to_distribution_companies_volume",  # 1
         "disposition_to_other_pipelines_volume",  # 2
         "disposition_to_storage_operators_volume",  # 3
-        "disposition_to_other_volume",  # 4 (check)
+        "disposition_to_other_volume",  # 4
         # 19
         "total_disposition_volume",
         # 20
@@ -420,7 +420,9 @@ def core_eia176__yearly_gas_disposition(
     )
     df = df.merge(tl_text, how="left", validate="1:1")
 
-    # additional_ins granular data available for "Deliveries out of state" and "Disposition to other"
+    # Additionally, add granular data available for "Deliveries out of state" and "Disposition to other"
+    # These are getting grouped and summed by operator/state/year
+    # TODO (12/3/25): Breakout these unaggregated values into separate tables.
     tl = raw_eia176__continuation_text_lines
     tl = tl.groupby([*primary_key, "line"]).agg("sum").reset_index()
     tl = tl.pivot(index=primary_key, columns="line", values="volume_mcf").reset_index()
@@ -455,12 +457,12 @@ def core_eia176__yearly_gas_disposition(
         }
     )
 
-    # Normalize operating states
+    # Normalize operating states, drop data from outside of 50 states and NA records
     df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
-    df.dropna(subset=["operating_state"])
+    df = df.dropna(subset=["operating_state"])
     df = df.dropna(subset=keep, how="all")
 
-    # Replace 9999 and 0 values
+    # Replace 9999 and 0 values with nulls
     df.loc[
         (df["heat_content_of_delivered_gas_btu_cf"] == 9999)
         | (df["heat_content_of_delivered_gas_btu_cf"] == 0),
@@ -510,34 +512,6 @@ def core_eia176__yearly_gas_disposition(
             "total_disposition_volume": "total_disposition_mcf",
         }
     )
-
-    df = df[
-        [
-            "operator_id_eia",
-            "report_year",
-            "operating_state",
-            "delivered_gas_heat_content_mmbtu_per_mcf",
-            "operational_consumption_facility_space_heat_mcf",
-            "operational_consumption_new_pipeline_fill_mcf",
-            "operational_consumption_compressors_mcf",
-            "operational_consumption_lng_vaporization_liquefaction_mcf",
-            "operational_consumption_vehicle_fuel_mcf",
-            "operational_consumption_other_mcf",
-            "operational_consumption_other_detail",
-            "operational_storage_underground_mcf",
-            "operational_lng_storage_injections_mcf",
-            "producer_lease_use_mcf",
-            "producer_returned_for_repressuring_reinjection_mcf",
-            "disposition_distribution_companies_mcf",
-            "disposition_storage_operators_mcf",
-            "disposition_other_pipelines_mcf",
-            "disposition_out_of_state_mcf",
-            "other_disposition_all_other_mcf",
-            "total_disposition_mcf",
-            "losses_mcf",
-            "unaccounted_for_mcf",
-        ]
-    ]
 
     # There is one instance where `losses_mcf` value is inverted
     df.loc[
