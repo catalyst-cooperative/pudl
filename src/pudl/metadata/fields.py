@@ -109,7 +109,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "operational_consumption_other_detail": {
         "description": (
-            "Free-text detail describing the operator’s specified “other purposes” for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf"
+            "Free-text detail describing the operator’s specified “other purposes” for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf."
         ),
         "type": "string",
     },
