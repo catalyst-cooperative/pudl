@@ -17,6 +17,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "boilers which may vary from year to year. Compiled from across all "
                 "EIA-860 data."
             ),
+            "additional_details_text": HARVESTING_DETAIL_TEXT,
         },
         "schema": {
             "fields": [
@@ -345,6 +346,7 @@ The related table with the static attributes about generators is
                 "plants which may vary from year to year. Compiled from across all "
                 "EIA-860 and EIA-923 data."
             ),
+            "additional_details_text": HARVESTING_DETAIL_TEXT,
         },
         "schema": {
             "fields": [
@@ -430,6 +432,7 @@ The related table with the static attributes about generators is
             "additional_summary_text": (
                 "utilities which may vary from year to year. Compiled from all EIA data."
             ),
+            "additional_details_text": HARVESTING_DETAIL_TEXT,
         },
         "schema": {
             "fields": [
