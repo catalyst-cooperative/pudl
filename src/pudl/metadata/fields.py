@@ -3106,11 +3106,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Code corresponding to name of flue gas desulfurization equipment manufacturer."
         ),
     },
-    "fgd_sorbent_consumption_1000_tons": {
+    "fgd_sorbent_consumption_tons": {
         "type": "number",
-        "unit": "1000_tons",
+        "unit": "tons",
         "description": (
-            "Quantity of flue gas desulfurization sorbent used, to the nearest 0.1 thousand tons."
+            "Quantity of flue gas desulfurization sorbent used, to the nearest 100 ton."
         ),
     },
     "fgd_structure_cost": {
