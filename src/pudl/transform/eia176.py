@@ -406,7 +406,7 @@ def core_eia176__yearly_gas_disposition(
     tl = tl.pivot(index=primary_key, columns="line", values="volume_mcf").reset_index()
     tl = tl.filter([*primary_key, 1400, 1840])
 
-    df = df.merge(tl, how="left")
+    df = df.merge(tl, how="left", validate="1:1")
 
     tl_text = raw_eia176__continuation_text_lines.filter(
         [*primary_key, "line", "reference_company_or_line_description"]
@@ -423,7 +423,7 @@ def core_eia176__yearly_gas_disposition(
     assert not tl_text[primary_key].duplicated().any(), (
         'Found multiple values in "gas consumed in company\'s operations" "other" field (12.6)'
     )
-    df = df.merge(tl_text, how="left")
+    df = df.merge(tl_text, how="left", validate="1:1")
 
     deliveries_out_of_state_mismatch = (
         (df["deliveries_out_of_state_volume"] != df[1400])
