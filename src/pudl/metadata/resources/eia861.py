@@ -2,6 +2,11 @@
 
 from typing import Any
 
+DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION = """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
+PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
+the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
+and convert capacity reported in DC units to AC units."""
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia861__yearly_advanced_metering_infrastructure": {
         "description": {
@@ -256,10 +261,15 @@ representative from EIA.""",
     "core_eia861__yearly_distributed_generation_fuel": {
         "description": {
             "additional_summary_text": "the energy sources used for utility or customer-owned distributed generation capacity.",
-            "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units.""",
+            "usage_warnings": [
+                "discontinued_data",
+            ],
+            "additional_details_text": f"""From 2016 on, there's no great match for the data found in this table.
+You may be able to compute an analog for fuel percents using the capacity and tech class
+figures in :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`, but no
+corresponding consumption or generation information is available in the new format.
+
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
         },
         "schema": {
             "fields": [
@@ -280,10 +290,13 @@ and convert capacity reported in DC units to AC units.""",
         # TODO: might want to rename this table to be _capacity
         "description": {
             "additional_summary_text": "the capacity and quantity of utility or customer-owned distributed generation.",
-            "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units.""",
+            "usage_warnings": [
+                "discontinued_data",
+            ],
+            "additional_details_text": f"""From 2016 on, data similar to that found in this table can be found in
+:ref:`core_eia861__yearly_non_net_metering_misc`.
+
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
         },
         "schema": {
             "fields": [
@@ -307,10 +320,13 @@ and convert capacity reported in DC units to AC units.""",
     "core_eia861__yearly_distributed_generation_tech": {
         "description": {
             "additional_summary_text": "the technology used for utility or customer-owned distributed generation.",
-            "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units.""",
+            "usage_warnings": [
+                "discontinued_data",
+            ],
+            "additional_details_text": f"""From 2016 on, data similar to that found in this table can be found in
+:ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`.
+
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
         },
         "schema": {
             "fields": [
@@ -513,10 +529,10 @@ are broken down by sector and technology type.""",
     "core_eia861__yearly_non_net_metering_customer_fuel_class": {
         "description": {
             "additional_summary_text": "non-net metered distributed generation by sector and technology type.",
-            "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units.""",
+            "additional_details_text": f"""This table's data starts in 2016. For 2015 and earlier, data similar to that found in this table can be found in
+:ref:`core_eia861__yearly_distributed_generation_tech`.
+
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
         },
         "schema": {
             "fields": [
@@ -539,10 +555,10 @@ and convert capacity reported in DC units to AC units.""",
     "core_eia861__yearly_non_net_metering_misc": {
         "description": {
             "additional_summary_text": "non-net metered distributed generation generators, pv current flow type, backup capacity and utility owned capacity.",
-            "additional_details_text": """The raw EIA861 distributed generation (DG) table (split into three normalized tables in
-PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in
-the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
-and convert capacity reported in DC units to AC units.""",
+            "additional_details_text": f"""This table's data starts in 2016. For 2015 and earlier, data similar to that found in this table can be found in
+:ref:`core_eia861__yearly_distributed_generation_misc`.
+
+{DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION}""",
         },
         "schema": {
             "fields": [
@@ -871,6 +887,7 @@ they engage in wholesale and/or retail markets.""",
     "out_eia861__yearly_utility_service_territory": {
         "description": {
             "additional_summary_text": "counties in utility service territories.",
+            "layer_code": "out_narrow",
             "additional_details_text": "Contains additional information about counties.",
         },
         "schema": {
@@ -894,6 +911,7 @@ they engage in wholesale and/or retail markets.""",
     "out_eia861__yearly_balancing_authority_service_territory": {
         "description": {
             "additional_summary_text": "counties in balancing authority service territories.",
+            "layer_code": "out_narrow",
         },
         "schema": {
             "fields": [
