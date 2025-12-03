@@ -171,7 +171,7 @@ of them are reported in both EIA-860 and EIA-923 so the values in this table are
 blend of these two sources.
 
 The related table with the static attributes about generators is
-:ref:`core_eia860__entity_generators`.""",
+:ref:`core_eia__entity_generators`.""",
         },
         "schema": {
             "fields": [
