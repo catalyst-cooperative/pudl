@@ -4941,7 +4941,7 @@ TRANSFORM_PARAMS = {
         },
         "drop_invalid_rows": [
             {
-                "invalid_values": [np.nan],
+                "invalid_values": [np.nan, pd.NA, "", None],
                 "required_valid_cols": [
                     "sales_mwh",
                     "dollar_value",

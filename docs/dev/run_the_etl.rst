@@ -240,6 +240,11 @@ You can adjust the years to process for each dataset using the Launchpad tab::
           years:
           - 2021
 
+.. note::
+
+    We are experimenting with producing DuckDB outputs from the XBRL (and possibly DBF)
+    data that FERC publishes. For the time being, ``ferc_to_sqlite`` will produce both SQLite
+    and DuckDB outputs by default.
 
 ^^^^^^^^^^^^^^^^^^^^
 Running the PUDL ETL
