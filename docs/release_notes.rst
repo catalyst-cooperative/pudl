@@ -21,6 +21,11 @@ Enhancements
 New Data
 ^^^^^^^^
 
+ * Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
+   company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
+   :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
+
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
