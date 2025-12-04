@@ -529,7 +529,10 @@ class Encoder(PudlMeta):
         )
         rendered = template.render(
             Encoder=self,
-            description=RESOURCE_METADATA[self.name]["description"],
+            # just get the resolved resource summary & drop all the other sections of the description
+            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
+                "\n\n"
+            )[0],
             csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
             is_header=is_header,
         )
