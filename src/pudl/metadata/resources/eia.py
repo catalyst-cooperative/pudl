@@ -43,7 +43,7 @@ def inherits_harvested_values_details(entities: str) -> str:
     A table inherits harvested values from one of the eight core harvested tables
     if it is downstream of one or more tables ``core_eia__entity_{plants|utilities|boilers|generators}``
     or ``core_eia860__scd_{plants|utilities|boilers|generators}`` and includes one or
-    more columns from the static or annual column lists in :ref:`pudl.metadata.resources.ENTITIES`.
+    more columns from the static or annual column lists in :data:`pudl.metadata.resources.ENTITIES`.
 
     Args:
         entities: a prose string listing which harvested entities contributed
@@ -931,6 +931,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_utilities": {
         "description": {
             "additional_summary_text": "all EIA utility attributes.",
+            "additional_details_text": inherits_harvested_values_details("utilities"),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -971,6 +973,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_plants": {
         "description": {
             "additional_summary_text": "all EIA plant attributes.",
+            "additional_details_text": inherits_harvested_values_details("plants"),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -1038,6 +1042,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_boilers": {
         "description": {
             "additional_summary_text": "all EIA boiler attributes.",
+            "additional_details_text": inherits_harvested_values_details(
+                "boilers, plants, and utilities"
+            ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -1298,7 +1306,9 @@ and thus the fuel cost per MWh generated.
 Plant specific fuel prices are taken from the
 :ref:`core_eia923__monthly_fuel_receipts_costs` table, which only has ~70% coverage,
 leading to some generators with heat rate estimates still lacking fuel cost
-estimates.""",
+estimates.
+
+{inherits_harvested_values_details("generators, plants, and utilities")}""",
             "usage_warnings": [
                 "estimated_values",
                 {
@@ -1309,6 +1319,7 @@ estimates.""",
                     "type": "custom",
                     "description": "Not all columns are originally reported in or calculable from the input tables. Expect nulls.",
                 },
+                "harvested",
             ],
         },
         "schema": {

@@ -2,7 +2,10 @@
 
 from typing import Any
 
-from pudl.metadata.resources.eia import canonical_harvested_details
+from pudl.metadata.resources.eia import (
+    canonical_harvested_details,
+    inherits_harvested_values_details,
+)
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860__scd_boilers": {
@@ -526,10 +529,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operating status, retirement date, and install year."
             ),
             "additional_details_text": (
-                """Includes control ids for sulfur dioxide
+                f"""Includes control ids for sulfur dioxide
 (SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas
-monitoring."""
+monitoring.
+
+{inherits_harvested_values_details("plants and utilities")}"""
             ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
