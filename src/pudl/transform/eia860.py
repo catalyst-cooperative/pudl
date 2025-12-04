@@ -985,8 +985,6 @@ def _core_eia860__boilers(
         )
     )
 
-    # max_steam_flow_1000_lbs_per_hour
-
     # Convert max steam flow from '1000 lbs per hour' to 'lbs per hour'
     b_df["max_steam_flow_1000_lbs_per_hour"] *= 1000
     b_df.columns = b_df.columns.str.replace(
