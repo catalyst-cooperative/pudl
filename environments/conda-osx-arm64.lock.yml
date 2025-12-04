@@ -99,7 +99,7 @@ dependencies:
   - coverage=7.12.0=py313h7d74516_0
   - cpython=3.13.10=py313hd8ed1ab_100
   - crashtest=0.4.1=pyhd8ed1ab_1
-  - cryptography=46.0.3=py313h4d9e278_0
+  - cryptography=46.0.3=py313h76c770c_1
   - curl=8.17.0=hdece5d2_0
   - cycler=0.12.1=pyhcf101f3_2
   - cyrus-sasl=2.1.28=ha1cbb27_0
@@ -382,7 +382,7 @@ dependencies:
   - nodejs=24.10.0=h0ade15e_1
   - notebook=7.5.0=pyhcf101f3_0
   - notebook-shim=0.2.4=pyhd8ed1ab_1
-  - numba=0.62.1=py313h936dde2_0
+  - numba=0.62.1=py313h616ae7d_1
   - numexpr=2.14.1=py313h73ed539_1
   - numpy=2.3.5=py313h9771d21_0
   - oauthlib=3.3.1=pyhd8ed1ab_0

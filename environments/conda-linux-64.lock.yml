@@ -414,7 +414,7 @@ dependencies:
   - nomkl=1.0=h5ca1d4c_0
   - notebook=7.5.0=pyhcf101f3_0
   - notebook-shim=0.2.4=pyhd8ed1ab_1
-  - numba=0.62.1=py313hd8e3f9f_0
+  - numba=0.62.1=py313h7afe1cf_1
   - numexpr=2.14.1=py313h24ae7f9_101
   - numpy=2.3.5=py313hf6604e3_0
   - oauthlib=3.3.1=pyhd8ed1ab_0

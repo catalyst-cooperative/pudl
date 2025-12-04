@@ -4268,10 +4268,10 @@ package:
       openssl: ">=3.5.4,<4.0a0"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/cryptography-46.0.3-py313h0218d6d_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/cryptography-46.0.3-py313h36c3d76_1.conda
     hash:
-      md5: b06e881c4be90669c9970277600deee2
-      sha256: f976af7c05438267a1c9c435fee01afe0b78d7ce1c0522ce46419032be7c070a
+      md5: b168b30831ed35aeedf36adc4c148c1c
+      sha256: cb0ced5293955feebf09401bfa18ab4c4c136db0ad795e993131deba3b60dd4f
     category: main
     optional: false
   - name: cryptography
@@ -4284,10 +4284,10 @@ package:
       openssl: ">=3.5.4,<4.0a0"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/cryptography-46.0.3-py313h4d9e278_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/cryptography-46.0.3-py313h76c770c_1.conda
     hash:
-      md5: 34316e9a0ebb88bd7cc90d8a8c794a8d
-      sha256: a588b7209f3c854589adea2ca36c72bae2303957d32f0eecc4d5d02760f21509
+      md5: f6a4c9667a9994f3a499b4ce23e80959
+      sha256: ea8b464e53db32fb64fa22b736be8ee3b401d0395dc62e191d0cb8c36b7a86be
     category: main
     optional: false
   - name: curl
@@ -17883,14 +17883,14 @@ package:
       _openmp_mutex: ">=4.5"
       libgcc: ">=14"
       libstdcxx: ">=14"
-      llvmlite: ">=0.45.0,<0.46.0a0"
+      llvmlite: ">=0.45.1,<0.46.0a0"
       numpy: ">=1.24,<2.4"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/linux-64/numba-0.62.1-py313hd8e3f9f_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/numba-0.62.1-py313h7afe1cf_1.conda
     hash:
-      md5: 82ffdc573a667626351f4110605da846
-      sha256: 0b0ccf81ecd0cfb934818c3fb88404821904fe84e67815ab9958d37b0dca61e4
+      md5: 8353234828fed21236accd5a48e483a4
+      sha256: 98451cffbfb14e0b494b077eb16078fec56ef935b32288e243dbad7c5e9f0538
     category: main
     optional: false
   - name: numba
@@ -17900,15 +17900,15 @@ package:
     dependencies:
       __osx: ">=10.13"
       libcxx: ">=19"
-      llvm-openmp: ">=21.1.0"
-      llvmlite: ">=0.45.0,<0.46.0a0"
+      llvm-openmp: ">=21.1.7"
+      llvmlite: ">=0.45.1,<0.46.0a0"
       numpy: ">=1.24,<2.4"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-64/numba-0.62.1-py313h360c2eb_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/numba-0.62.1-py313h6620193_1.conda
     hash:
-      md5: 9a0413d8d6e36333a6ac0fffc5670ecb
-      sha256: ec7805dfffdbebc00cbc2473db2f3fc0d48bebbc4e5e801430e41545b8f499d2
+      md5: 0f6c1613ea21d15aa566b02d28d99254
+      sha256: 0dbb6952b95081e56e8022720a8049375172c091287a62556fd4a6ed39f8100d
     category: main
     optional: false
   - name: numba
@@ -17918,15 +17918,15 @@ package:
     dependencies:
       __osx: ">=11.0"
       libcxx: ">=19"
-      llvm-openmp: ">=21.1.0"
-      llvmlite: ">=0.45.0,<0.46.0a0"
+      llvm-openmp: ">=21.1.7"
+      llvmlite: ">=0.45.1,<0.46.0a0"
       numpy: ">=1.24,<2.4"
       python: ">=3.13,<3.14.0a0"
       python_abi: 3.13.*
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/numba-0.62.1-py313h936dde2_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/numba-0.62.1-py313h616ae7d_1.conda
     hash:
-      md5: 11cf03a4f080e058b28de25263003cd2
-      sha256: c8a504e95cc7fb45478c3bfbc648b00f089d5d0b08ff769f2751ef5a9afaafc4
+      md5: 3a6b7ba2a421d813b2ff8b22957f27a0
+      sha256: ae1426d6dd985731deed30c45c2aa707ce583eca310e32f2409848e6330192f8
     category: main
     optional: false
   - name: numexpr
