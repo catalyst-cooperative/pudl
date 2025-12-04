@@ -46,12 +46,12 @@ directory. For example the FERC Form 1 outputs will include:
 
  * ``$PUDL_OUTPUT/ferc1_dbf.sqlite``: Data from 1994-2020 (FoxPro/DBF)
  * ``$PUDL_OUTPUT/ferc1_xbrl.sqlite``: Data from 2021 onward (XBRL)
+ * ``$PUDL_OUTPUT/ferc1_xbrl.duckdb``: Experimental DuckDB output for 2021 and later.
  * ``$PUDL_OUTPUT/ferc1_xbrl_datapackage.json``: `Frictionless data package
    <https://specs.frictionlessdata.io/data-package/>`__ descriptor for the XBRL derived
    database.
  * ``pudl_output/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the
    XBRL Taxonomy, containing additional metadata.
 
-By default, the script pulls in all available years and tables of data. The output is
-roughly 1GB on disk. The ``ferc_to_sqlite`` jobs also extracts the XBRL data for FERC
-Form 1, 2, 6, 60 and 714.
+By default, the script pulls in all available years and tables of data.  The
+``ferc_to_sqlite`` jobs also extract the XBRL data for FERC Form 1, 2, 6, 60 and 714.
