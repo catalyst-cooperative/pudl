@@ -1218,9 +1218,22 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     f"out_eia__{freq}_generators": {
         "description": {
             "additional_summary_text": "all generator attributes including calculated capacity factor, heat rate, fuel cost per MMBTU and fuel cost per MWh.",
-            "additional_details_text": """These calculations are based on
-the allocation of net generation reported on the basis of plant, prime mover and energy
-source to individual generators. Heat rates by generator-month are estimated by using
+            "additional_details_text": f"""This table includes all {freq} attributes
+for all generators reported to EIA-860 and EIA-923.
+
+To provide a complete picture of generator data, this table compiles data from many
+different EIA tables, including directly reported, imputed and calculated columns.
+We suggest using this table if you want to explore {freq} attributes about generators
+and would rather use a more complete and denormalized table. If you are more interested
+in the originally reported values, we recommend searching for core_eia with the column
+you are most interested in.
+
+The calculations of capacity factor, heat rate, fuel cost per MMBTU and fuel cost per MWh
+are based on the allocation of net generation reported on the basis of plant, prime mover
+and energy source to individual generators - which comes from this table:
+:ref:`out_eia923__{freq}_generation_fuel_by_generator`.
+
+Heat rates by generator-{freq} are estimated by using
 allocated estimates for per-generator net generation and fuel consumption as well as the
 :ref:`core_eia923__monthly_boiler_fuel` table, which reports fuel consumed by boiler.
 Heat rates are necessary to estimate the amount of fuel consumed by a generation unit,
