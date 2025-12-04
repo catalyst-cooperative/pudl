@@ -29,5 +29,10 @@ USAGE_WARNINGS = {
     "discontinued_data": "The data is no longer being collected or reported in this way.",
     "discontinued_pudl": "PUDL does not currently update its copy of this data.",
     "experimental_wip": "This table is experimental and/or a work in progress and may change in the future.",
-    "harvested": "Contains results of the harvesting process.",
+    "harvested": (
+        "Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL has "
+        "overridden unusual entries in this table with a more consistent value. See "
+        "`Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ "
+        "for details."
+    ),
 }
