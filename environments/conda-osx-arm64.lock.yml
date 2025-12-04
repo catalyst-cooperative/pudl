@@ -32,7 +32,7 @@ dependencies:
   - asttokens=3.0.1=pyhd8ed1ab_0
   - async-lru=2.0.5=pyh29332c3_0
   - atk-1.0=2.38.0=hd03087b_2
-  - attrs=25.4.0=pyh71513ae_0
+  - attrs=25.4.0=pyhcf101f3_1
   - aws-c-auth=0.9.1=h753d554_5
   - aws-c-cal=0.9.8=hca30140_0
   - aws-c-common=0.12.5=hc919400_1
@@ -117,7 +117,7 @@ dependencies:
   - dbt-core=1.10.15=pyhd8ed1ab_0
   - dbt-duckdb=1.9.4=pyhd8ed1ab_0
   - dbt-extractor=0.6.0=py313h6e3aefc_1
-  - dbt-protos=1.0.397=pyhcf101f3_0
+  - dbt-protos=1.0.402=pyhcf101f3_0
   - dbt-semantic-interfaces=0.9.2=pyh3cfb1c2_0
   - debugpy=1.8.17=py313hc37fe24_0
   - decorator=5.2.1=pyhd8ed1ab_0
@@ -139,9 +139,9 @@ dependencies:
   - exceptiongroup=1.3.1=pyhd8ed1ab_0
   - execnet=2.1.2=pyhd8ed1ab_0
   - executing=2.2.1=pyhd8ed1ab_0
-  - fastapi=0.123.5=h6c771bf_0
+  - fastapi=0.123.8=h0694acc_0
   - fastapi-cli=0.0.16=pyhcf101f3_1
-  - fastapi-core=0.123.5=pyhcf101f3_0
+  - fastapi-core=0.123.8=pyhcf101f3_0
   - filelock=3.20.0=pyhd8ed1ab_0
   - flask=3.1.2=pyhd8ed1ab_0
   - flask-cors=6.0.1=pyhe01879c_0
@@ -196,7 +196,7 @@ dependencies:
   - graphql-core=3.2.7=pyhcf101f3_0
   - graphql-relay=3.2.0=pyhd8ed1ab_1
   - graphviz=13.1.2=hcd33d8b_0
-  - greenlet=3.2.4=py313hb4b7877_1
+  - greenlet=3.3.0=py313h0e822ff_0
   - grpcio=1.73.1=py313hb057f1c_1
   - grpcio-health-checking=1.73.1=pyhe01879c_0
   - grpcio-status=1.73.1=pyhd8ed1ab_0
@@ -217,7 +217,7 @@ dependencies:
   - humanfriendly=10.0=pyh707e725_8
   - humanize=4.14.0=pyhd8ed1ab_0
   - hyperframe=6.1.0=pyhd8ed1ab_0
-  - hypothesis=6.148.5=pyha770c72_0
+  - hypothesis=6.148.6=pyha770c72_0
   - icu=75.1=hfee45f7_0
   - identify=2.6.15=pyhd8ed1ab_0
   - idna=3.11=pyhd8ed1ab_0
@@ -278,11 +278,11 @@ dependencies:
   - libarrow-acero=20.0.0=hc317990_27_cpu
   - libarrow-dataset=20.0.0=hc317990_27_cpu
   - libarrow-substrait=20.0.0=h144af7f_27_cpu
-  - libblas=3.11.0=3_h51639a9_openblas
+  - libblas=3.11.0=4_h51639a9_openblas
   - libbrotlicommon=1.1.0=h6caf38d_4
   - libbrotlidec=1.1.0=h6caf38d_4
   - libbrotlienc=1.1.0=h6caf38d_4
-  - libcblas=3.11.0=3_hb0561ab_openblas
+  - libcblas=3.11.0=4_hb0561ab_openblas
   - libcrc32c=1.1.2=hbdafb3b_0
   - libcurl=8.17.0=hdece5d2_0
   - libcxx=21.1.7=hf598326_0
@@ -294,11 +294,11 @@ dependencies:
   - libffi=3.5.2=he5f378a_0
   - libfreetype=2.14.1=hce30654_0
   - libfreetype6=2.14.1=h6da58f4_0
-  - libgcc=15.2.0=hcbb3090_14
+  - libgcc=15.2.0=hcbb3090_15
   - libgd=2.3.3=hb2c3a21_11
   - libgdal-core=3.12.0=hd6dfbec_2
-  - libgfortran=15.2.0=h07b0088_14
-  - libgfortran5=15.2.0=hdae7583_14
+  - libgfortran=15.2.0=h07b0088_15
+  - libgfortran5=15.2.0=hdae7583_15
   - libglib=2.86.2=hfe11c1f_1
   - libgoogle-cloud=2.39.0=head0a95_0
   - libgoogle-cloud-storage=2.39.0=hfa3a374_0
@@ -309,7 +309,7 @@ dependencies:
   - libjpeg-turbo=3.1.2=hc919400_0
   - libjxl=0.11.1=h7274d02_4
   - libkml=1.3.0=hc33e383_1022
-  - liblapack=3.11.0=3_hd9741b5_openblas
+  - liblapack=3.11.0=4_hd9741b5_openblas
   - liblzma=5.8.1=h39f12f2_2
   - libmpdec=4.0.0=h5505292_0
   - libnghttp2=1.67.0=hc438710_0
@@ -515,7 +515,7 @@ dependencies:
   - rsa=4.9.1=pyhd8ed1ab_0
   - ruamel.yaml=0.18.16=py313h6535dbc_0
   - ruamel.yaml.clib=0.2.14=py313h6535dbc_0
-  - ruff=0.14.7=h382de68_0
+  - ruff=0.14.8=h382de68_0
   - ruff-lsp=0.0.62=pyhd8ed1ab_0
   - s3fs=2025.10.0=pyhd8ed1ab_0
   - s3transfer=0.14.0=pyhd8ed1ab_0
