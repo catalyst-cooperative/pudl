@@ -95,6 +95,9 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
         "description": {
             "additional_summary_text": "all EIA generators with ownership integrated.",
             "usage_warnings": ["aggregation_hazard"],
+            "additional_primary_key_text": "There are a handful of NULL Utility IDs in this table. "
+            "The natural primary key would be: "
+            "['plant_id_eia, 'generator_id', 'utility_id_eia', 'report_date', 'ownership_record_type'].",
         },
         "schema": {
             "fields": [

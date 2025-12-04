@@ -1136,7 +1136,7 @@ def _core_eia923__coalmine(
     # we need an mine id to associate this coalmine table with the frc
     # table. In order to do that, we need to create a clean index, like
     # an autoincremeted id column in a db, which will later be used as a
-    # primary key in the coalmine table and a forigen key in the frc table
+    # primary key in the coalmine table and a foreign key in the frc table
 
     # first we reset the index to get a clean index
     cmi_df = cmi_df.reset_index()
