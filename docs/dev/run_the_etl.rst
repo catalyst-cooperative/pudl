@@ -243,10 +243,8 @@ You can adjust the years to process for each dataset using the Launchpad tab::
 .. note::
 
     We are experimenting with producing DuckDB outputs from the XBRL (and possibly DBF)
-    data that FERC publishes, since DuckDB databases can be queried remotely, unlike
-    SQLite, have richer data types, and are generally smaller and much more performant.
-    For the time being, ``ferc_to_sqlite`` will produce both SQLite and DuckDB outputs
-    by default.
+    data that FERC publishes. For the time being, ``ferc_to_sqlite`` will produce both SQLite
+    and DuckDB outputs by default.
 
 ^^^^^^^^^^^^^^^^^^^^
 Running the PUDL ETL
