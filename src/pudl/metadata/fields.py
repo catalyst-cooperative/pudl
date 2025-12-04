@@ -4338,9 +4338,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "max_steam_flow_1000_lbs_per_hour": {
+    "max_steam_flow_lbs_per_hour": {
         "type": "number",
-        "unit": "1000_lbs_per_hour",
+        "unit": "lbs_per_hour",
         "description": "Maximum continuous steam flow at 100 percent load.",
     },
     "mercury_content_ppm": {

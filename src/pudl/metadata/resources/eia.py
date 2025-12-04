@@ -1024,7 +1024,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "hrsg",
                 "latitude",
                 "longitude",
-                "max_steam_flow_1000_lbs_per_hour",
+                "max_steam_flow_lbs_per_hour",
                 "mercury_control_existing_strategy_1",
                 "mercury_control_existing_strategy_2",
                 "mercury_control_existing_strategy_3",
