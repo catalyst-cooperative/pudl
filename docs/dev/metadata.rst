@@ -15,12 +15,13 @@ Metadata editing guide
 Dataset-level metadata
 ----------------------
 
-For each dataset we archive, we record information about the title, a description,
-who contributed to archiving the dataset, the segments into which the data files are
-partitioned, its license and keywords. This information is used to communicate about
-the dataset's usage and provenance to any future users:
+In PUDL, a dataset is called a source. For each source we archive, we record
+information about the title, a description, who contributed to archiving the source,
+the segments into which the data files are partitioned, its license and keywords.
+This information is used to communicate about the source's usage and provenance to any
+future users:
 
-   * Generating PUDL documentation for each dataset.
+   * Generating PUDL documentation for each source.
    * Annotating long-term archives of the raw input data on Zenodo.
    * Defining what data partitions can be processed using PUDL.
 
@@ -28,97 +29,163 @@ Defining metadata for a new dataset
 ...................................
 
 Metadata for each data source is stored in :py:const:`pudl.metadata.sources.SOURCES`.
-For each new dataset, add the following fields to the dictionary:
+For each new source, add the following fields to the dictionary:
 
-   * **A short code**: Throughout the code, the dataset you choose will be referred to by
+   * **A short code**: Throughout the code, the source you choose will be referred to by
       a shorthand code - e.g., ``eia860`` or ``nrelatb``. The standard format we use for
-      naming datasets is agency name + dataset name. E.g., Form 860 from EIA becomes
-      ``eia860``. When the name of the dataset is more ambiguous (e.g., MSHA's
-      mine datasets), we aim to choose a name that is as indicative as possible -
+      naming sources is agency name + source name. E.g., Form 860 from EIA becomes
+      ``eia860``. When the name of the source is more ambiguous (e.g., MSHA's
+      mine sources), we aim to choose a name that is as indicative as possible -
       in this case, ``mshamines``. If you're unsure which name to choose, ask early in
       the contribution process as this will get encoded in many locations. This short
       code will be the key to the entry containing the relevant metadata.
-   * ``title``: The title of your dataset should clearly contain the agency publishing
+   * ``title``: The title of your source should clearly contain the agency publishing
       the data and a non-abbreviated title (e.g., EIA Form 860 -- Annual Electric
       Generator Report, not EIA 860).
-   * ``path``: The link to the dataset's "homepage", where information about the
-      dataset and the path to download it can be found.
-   * ``description``: A short 1-3 sentence description of the dataset.
+   * ``path``: The link to the source's "homepage", where information about the
+      source and the path to download it can be found.
+   * ``description``: A short 1-3 sentence description of the source.
    * ``working_partitions``: A dictionary where the key is the name of the partition
       (e.g., month, year, form), and the values are the actual available partitions
       that we currently process in PUDL (e.g., 2002-2020). This should correspond to
-      the partitions in the datapackage of the dataset's raw archive.
+      the partitions in the datapackage of the source's raw archive.
    * ``field_namespace``: **TODO** ????
-   * ``keywords``: Words that someone might use to search for this dataset. There are
+   * ``keywords``: Words that someone might use to search for this source. There are
       collections of common keywords by theme (e.g., electricity, finance) in the
       :py:const:`pudl.metadata.sources.KEYWORDS` dictionary.
    * ``license_raw``: We only archive data with an open source license
       (e.g., US Government Works or a Creative Commons License), so make sure any data
       you're archiving is licensed for re-distribution. See the
-      :py:const:`pudl.metadata.sources.LICENSES` dictionary for licenses that should cover
-      most use cases.
+      :py:const:`pudl.metadata.sources.LICENSES` dictionary for licenses that should
+      cover most use cases.
    * ``license_pudl``: What license we're releasing the data under. This should always
       be ``LICENSES["cc-by-4.0"]``.
-   * ``contributors``: Who archived and processed this dataset? Typically this is
+   * ``contributors``: Who archived and processed this source? Typically this is
       ``CONTRIBUTORS["catalyst-cooperative"]``, but you can add additional contributors
       to the :py:const:`pudl.metadata.sources.CONTRIBUTORS` dictionary.
 
 Additional fields relating to the source data are tracked under a nested
 ``source_file_dict`` key:
 
-   * ``respondents``: If the dataset is a form with required respondents, who fills out
+   * ``respondents``: If the source is a form with required respondents, who fills out
       this form?
    * ``source_format``: What is the file format of the original data? (e.g., JSON, CSV)?
 
 Updating metadata for an existing dataset
 .........................................
 
-We rarely update metadata at the dataset level, other than updating the ``working_partitions``
-field to capture a new partition (e.g., year, month) of data. This process is described
-in the :doc:`existing_data_updates` documentation.
+Most updates to metadata at the source level occur when we update the
+``working_partitions`` field to capture a new partition (e.g., year, month) of data.
+This process is described in the :doc:`existing_data_updates` documentation.
+Other fields are rarely updated.
 
 Table-level metadata
 --------------------
 
-For each table we publish, we record information about the content, the schema, the
-table's data sources, and usage warnings.
+In PUDL, a table is called a resource. For each resource we publish, we record
+information about the content, the schema, the resource's data sources, and usage
+warnings. This information is used to write tables to disk, guide users to the correct
+table, convey caveats about the input data and our processing methods, and communicate
+clearly what each table contains:
 
-Defining metadata for a new dataset
+   * Generating PUDL documentation for each resource
+   * Defining primary and foreign key relationships
+   * Defining resource schema
+
+Defining metadata for a new table
 ...................................
 
-Metadata for each resource is stored in separate files for each source,
-with a few additional non-source affinity groups.
+Metadata for each resource is stored in separate files for each source, with a few
+additional files for association tables and imputed assets. If the table doesn't already
+have a source file, make a new file that mirrors the format of an existing source.
+Otherwise, find the correct file (e.g., :mod:`pudl.metadata.resources.eia860`) and
+add a new table into the ``RESOURCE_METADATA`` dictionary.
 
-.. todo::
+Each resource entry should contain the following elements:
 
-   * new resource metadata when we add a new resource
-   * update resource metadata rarely
+   * ``description``: A dictionary containing elements that will be compiled into a
+      resource description. See :ref:`resource_description` for more detail.
+   * ``schema``: A dictionary defining the structure of this dataset. This should
+      contain the following:
 
-     * fields added/removed/modified
-     * discontinued
-     * new caution or data effect discovered
+      * ``fields``: A list of all field names in the order you want them to be written
+        to disk in. These fields should each have their own metadata defined - see
+        :ref:`field_description`
+      * ``primary_key``: The fields that together define a unique primary key for the
+        resource. These fields are required to be never null, and will be tested for
+        uniqueness on writing to disk.
+      * ``foreign_key_rules`` (optional): Any fields for which a foreign key rule should
+        be created for all other resources containing these fields. For every field(s)
+        defined, an error will be raised if other resources contain values not
+        included in this table. See :func:`pudl.metadata.helpers.build_foreign_keys`.
 
-Updating metadata for an existing dataset
+   * ``field_namespace``: **TODO** ????
+   * ``sources``: **TODO** ????
+   * ``etl_group``: **TODO** ????
+
+Updating metadata for an existing table
 .........................................
 
-As we update data, we might typically modify table-level metadata under one of the
+As we update data, we might typically modify resource-level metadata under one of the
 following circumstances:
+
    * Schema changes: a column has been added or removed in the underlying data, a column
-      has been renamed
+     has been renamed
    * Description changes: a new usage warning, additional context, or to add details
-      about a new transformation or change.
+     about a new transformation or change.
    * Availability changes: a table has been discontinued by us or by the original
-      provider.
+     provider.
+   * Foreign key changes: adding a foreign key relationship, or excluding additional
+     tables as needed.
+
+.. _resource_description:
 
 Description metadata
 ^^^^^^^^^^^^^^^^^^^^^
 
-.. todo::
+To make sense of hundreds of resources, structured resource-level metadata is critical.
+The following fields should be filled out for each new resource:
 
-   * there are lots of tables. structured descriptions are important so that users can deal with that scale
-   * for normal tables everything is optional
-   * priority fill order: summary, usage warnings, additional details
-   * link to api docs
+* ``additional_summary_text``: A ~1 line brief description of the table's contents.
+   Based on the table type, this should be a fragment that completes the
+   corresponding phrase:
+
+      * assn - Association table providing connections between _
+      * changelog - Changelog table tracking changes in _
+      * codes - Code table containing descriptions of categorical codes for _
+      * entity - Entity table containing static information about _
+      * scd - Slowly changing dimension (SCD) table describing attributes of _
+      * timeseries - time series of _
+
+* ``additional_source_text``: A few word refinement on the source data for this table,
+   such as specifying what part of the form it refers to (e.g., "Schedule 8A").
+* ``usage_warnings``: Use as needed. A list of keys (for common warnings) or dicts
+   (for unique warnings) stating necessary precautions for using this table; see the
+   usage warnings guide for details. Reserve this field for severe and/or frequent
+   problems an unfamiliar user may encounter, and list lighter or edge-case problems
+   in ``additional_details_text``.
+
+      * A list of pre-defined usage warnings can be found in
+        :py.const:`pudl.metadata.warnings.USAGE_WARNINGS`.
+      * Custom-defined usage warnings should be formatted as a dictionary with two keys:
+        ``type``: a short code for the warning, which will only be used for internal
+        reference, and ``description``: a 1-2 sentence summary of the warning. E.g.,
+        (``{"type": ">50states", "description": "State column contains entries from
+        both Mexico and the US."}``)
+
+* ``additional_details_text``: All other information about the table's construction and
+   intended use, including guidelines and recommendations for best results. May also
+   include more-detailed explanations of listed usage warnings.
+
+The following fields are uncommon, but may be used for tables that require additional
+clarification:
+
+* ``additional_layer_text``: Usually not set. Use this to record unusual details about
+   this table's level of processing that doesn't fall into the normal definition of
+   raw/core/_core/out/_out, etc. This will be appended to the stock text for this layer.
+* ``additional_primary_key_text``: Only set if this table has no natural primary key.
+   In that case, this should be used to describe what each row contains and why a
+   primary key doesn't make sense for this table
 
 Because the description is not wholly legible in its structured state,
 we have developed a few tools to help editors see what they are doing.
@@ -159,7 +226,7 @@ Detailed preview using the wizard
 ...................................
 
 For significant edits, or writing a new description from scratch,
-it is better to use the PUDL Metadata Wizard.
+it is better to use the `PUDL Metadata Wizard <https://github.com/catalyst-cooperative/pudl-metadata-wizard#>`__.
 The wizard is a small webserver that looks at your source code and displays
 the structured metadata for the table you're working on,
 the resolved description sections,
@@ -171,16 +238,38 @@ refreshing the page is significantly faster than re-running the command line too
 If you're checking a single edit, use the command line,
 but if you need to iterate at all, use the wizard.
 
-.. todo::
+Instructions for using the wizard can be found `here <https://github.com/catalyst-cooperative/pudl-metadata-wizard/blob/main/README.md>`__.
 
-   * link to wizard repo
-   * add screenshot
+.. _field_description:
 
 Field metadata
 ---------------
 
-Metadata for each field is primarily stored in fields.py.
-This lets us ensure that fields with the same name share the same general definition,
-no matter where you find them.
-There are times when a table needs a more specific field definition
-than the one in fields.py. In those cases, we _.
+Metadata for each field is primarily stored in
+:py.const:`pudl.metadata.fields.FIELD_METADATA`. This lets us ensure that fields with
+the same name share the same general definition, no matter where you find them.
+
+Field names should:
+   * Be written as snake case (e.g., ``report_date``.)
+   * Include units at the end where not implied (e.g., ``volume_mcf``)
+   *
+
+To define metadata for a new field:
+
+   * First, search to make sure it doesn't already exist. Often there's an almost
+      identical field from a different table.
+   * To define a new field, add an entry to the dictionary with the following keys:
+      * ``type``: The data type - integer, string, number, or boolean.
+      * ``description``: No more than a few sentences describing what the field
+        contains.
+      * ``unit``: The unit of the column (when applicable).
+      * ``constraints``: Categorical columns should largely be encoded by coding tables,
+         but you can use this field to constrain a field to a short list of items
+         using the ``enum`` key, or a regex pattern using the ``pattern`` key.
+
+There are times when a table or source needs a more specific field definition
+than the one already existing in fields.py. In those cases, we can override the field
+description for just one resource by adding the resource and the field definition into
+:py.const:`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE` or
+:py.const:`pudl.metadata.fields.FIELD_METADATA_BY_GROUP`. For example, the valid
+definition for fuel units is defined differently for FERC and EIA tables.
