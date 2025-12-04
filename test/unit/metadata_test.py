@@ -17,6 +17,7 @@ from pudl.metadata.descriptions import ResourceDescriptionBuilder
 from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resources import RESOURCE_METADATA
+from pudl.metadata.resources.eia923 import merge_descriptions
 from pudl.metadata.sources import SOURCES
 
 PUDL_RESOURCES = {r.name: r for r in PUDL_PACKAGE.resources}
@@ -230,6 +231,28 @@ def test_frictionless_data_package_resources_populated():
             expected_resource["schema"].get("primary_key", [])
             == resource.schema.primary_key
         )
+
+
+def test_merge_descriptions():
+    "Ensure descriptions are merged properly."
+    left = {
+        "additional_summary_text": "one",
+        "additional_details_text": "two",
+        "usage_warnings": ["red"],
+    }
+    right = {
+        "additional_summary_text": "fish",
+        "additional_details_text": "poisson",
+        "usage_warnings": ["blue"],
+    }
+    result = {
+        "additional_summary_text": "one fish",
+        "additional_details_text": "two\n\npoisson",
+        "usage_warnings": ["red", "blue"],
+    }
+    assert merge_descriptions(left, right) == result
+    # make sure we didn't accidentally modify the source list during the merge
+    assert left["usage_warnings"] == ["red"]
 
 
 # TODO: flip this to true after we do the second pass to set description_primary_key
