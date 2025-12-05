@@ -112,6 +112,10 @@ EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_
 
 {inherits_harvested_values_details("generators, plants, and utilities")}""",
             "usage_warnings": ["aggregation_hazard", "harvested"],
+            "additional_primary_key_text": """This table would have a primary key of the
+following columns, except there are ~200 records without utility IDs:
+["plant_id_eia", "generator_id", "report_date", "utility_id_eia",
+"ownership_record_type"].""",
         },
         "schema": {
             "fields": [
@@ -147,14 +151,7 @@ EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_
                 "capacity_eoy_mw",
                 "fraction_owned",
                 "ownership_record_type",
-            ],
-            "primary_key": [
-                "plant_id_eia",
-                "generator_id",
-                "report_date",
-                "utility_id_eia",
-                "ownership_record_type",
-            ],
+            ]
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
