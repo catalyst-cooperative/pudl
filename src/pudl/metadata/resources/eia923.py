@@ -2,6 +2,26 @@
 
 from typing import Any
 
+from pudl.metadata.resources.eia import inherits_harvested_values_details
+
+
+def merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
+    """Merge two description dictionaries."""
+    result = {}
+    result.update(left)
+    for key in right:
+        if key in result:
+            if key == "usage_warnings":
+                result[key] = result[key] + right[key]
+            elif key == "additional_details_text":
+                result[key] = f"{result[key]}\n\n{right[key]}"
+            else:
+                result[key] = f"{result[key]} {right[key]}"
+        else:
+            result[key] = right[key]
+    return result
+
+
 TABLE_DESCRIPTIONS: dict[str, dict[str, Any]] = {
     "_core_eia923__yearly_fgd_operation_maintenance": {
         "additional_summary_text": "flue gas desulfurization (FGD) operation and maintenance expenses at generation facilities.",
@@ -214,7 +234,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "eia923",
     },
     "out_eia923__boiler_fuel": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -249,7 +277,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "out_eia923__yearly_boiler_fuel": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -284,7 +320,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "outputs",
     },
     "out_eia923__monthly_boiler_fuel": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -392,7 +436,15 @@ is for those supplies."""
         "etl_group": "eia923",
     },
     "out_eia923__fuel_receipts_costs": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -438,7 +490,15 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__yearly_fuel_receipts_costs": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -469,7 +529,15 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__monthly_fuel_receipts_costs": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -516,7 +584,15 @@ is for those supplies."""
         "etl_group": "eia923",
     },
     "out_eia923__generation": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         # TODO: Remove this table in favor of out_eia923__monthly_generation. See #2857
         "schema": {
             "fields": [
@@ -539,7 +615,15 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__monthly_generation": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -561,7 +645,15 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__yearly_generation": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -612,7 +704,15 @@ is for those supplies."""
         "etl_group": "eia923",
     },
     "out_eia923__generation_fuel_combined": {
-        "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -646,7 +746,15 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__yearly_generation_fuel_combined": {
-        "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
@@ -679,7 +787,15 @@ is for those supplies."""
         "etl_group": "outputs",
     },
     "out_eia923__monthly_generation_fuel_combined": {
-        "description": TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
         "schema": {
             "fields": [
                 "report_date",
