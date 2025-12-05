@@ -699,6 +699,19 @@ columns.""",
                     ),
                 },
             ],
+            "additional_details_text": """A single plant can have
+several collections of cooling equipment, so each line in this table represents one
+cooling system at a given plant. You can determine how to link each set of cooling
+equipment to specific boilers in a plant via :ref:`core_eia860__assn_boiler_cooling`.
+
+EIA-860 respondents are required to submit information about cooling equipment for
+plants over 100 MW - including steam, combined cycle, nuclear or solar thermal
+generators.
+
+This table has been cleaned, but not tidied/normalized with other EIA 923 or 860
+data. The same variables present in this table may show up in other
+tables and/or in other years. Once this table has been harvested, it will be converted
+into a``core`` table.""",
         },
         "schema": {
             "fields": [
