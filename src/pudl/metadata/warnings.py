@@ -1,4 +1,8 @@
-"""Standard usage warnings to reference in dynamic table descriptions."""
+"""Standard usage warnings to reference in dynamic table descriptions.
+
+For now, these texts are duplicated in ``docs/data_dictionaries/usage_warnings.rst`` --
+if you make an update here, be sure to update there as well!
+"""
 
 USAGE_WARNINGS = {
     "multiple_inputs": "Contains information from multiple raw inputs.",
