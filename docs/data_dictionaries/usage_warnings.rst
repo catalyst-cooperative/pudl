@@ -62,6 +62,8 @@ Harvested:
   * Generator operating date has an unusual pattern of missingness that permits
     the most recently reported operating date to be reliable when 70%
     consistency cannot otherwise be reached.
+  * We set the consistency threshold to 0% for a few columns so that we always
+    get a value: Plant name, utility name and prime mover code.
 
 Imputed values:
   Contains rows where missing values were imputed.
