@@ -964,7 +964,6 @@ class DataSource(PudlMeta):
     name: SnakeCase
     title: String | None = None
     description: String | None = None
-    field_namespace: String | None = None
     keywords: list[str] = []
     path: AnyHttpUrl | None = None
     contributors: list[Contributor] = []
@@ -1058,17 +1057,6 @@ class DataSource(PudlMeta):
             Path(output_path).write_text(rendered)
         else:
             sys.stdout.write(rendered)
-
-    @classmethod
-    def from_field_namespace(
-        cls, x: str, sources: dict[str, Any] = SOURCES
-    ) -> list["DataSource"]:
-        """Return list of DataSource objects by field namespace."""
-        return [
-            cls(**cls.dict_from_id(name, sources))
-            for name, val in sources.items()
-            if val.get("field_namespace") == x
-        ]
 
     @staticmethod
     def dict_from_id(x: str, sources: dict[str, Any]) -> dict:
