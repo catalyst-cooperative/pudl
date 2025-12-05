@@ -16,7 +16,7 @@ dependencies = [
     "bottleneck>=1.5.0", # pandas[performance]; 1.3.7 required for Python 3.12
     "build>=1.2",
     "catalystcoop.dbfread>=3.0,<3.1",
-    "catalystcoop.ferc-xbrl-extractor>=1.6.0,<1.7.0",
+    "catalystcoop.ferc-xbrl-extractor>=1.7.3,<2",
     "click>=8,<8.2.0",
     "coloredlogs>=14.0", # Dagster requires 14.0
     "conda-lock>=3",
@@ -35,7 +35,7 @@ dependencies = [
     "fsspec>=2025",
     "furo>=2024",
     "gcsfs>=2025",
-    "gdal==3.11.4", # pinned, because we need it to work with pudl-archiver
+    "gdal==3.12.0", # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.1",
     "geoarrow-pyarrow>=0.2",
     "grpcio==1.73.1", # Required by dagster, binary dependencies are flaky
@@ -56,7 +56,6 @@ dependencies = [
     "packaging>=25",
     "pandas>=2.3",
     "pandera>=0.27",
-    "pillow<12",
     "polars>=1.35",
     "pre-commit>=4",
     "pyarrow>=20,<21", # pandas[parquet]; <21 for Kaggle geopandas compatibility
