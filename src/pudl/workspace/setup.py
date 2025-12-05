@@ -86,6 +86,10 @@ class PudlPaths(BaseSettings):
         """Return path to locally stored SQLite DB file."""
         return self.output_dir / f"{name}.sqlite"
 
+    def duckdb_db_path(self, name: str) -> Path:
+        """Return path to locally stored SQLite DB file."""
+        return self.output_dir / f"{name}.duckdb"
+
     def output_file(self, filename: str) -> Path:
         """Path to file in PUDL output directory."""
         return self.output_dir / filename

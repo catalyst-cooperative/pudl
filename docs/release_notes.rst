@@ -6,8 +6,25 @@ PUDL Release Notes
 v2025.12.x (2025-12-XX)
 ---------------------------------------------------------------------------------------
 
+Enhancements
+^^^^^^^^^^^^
+
+* We are experimenting with distributing the XBRL-derived databases for FERC Forms 1, 2,
+  6, 60, and 714 using `DuckDB <https://duckdb.org/docs/stable/>`__, which (unlike
+  SQLite) can be queried remotely when stored in a cloud bucket. This will also let us
+  provide access to this relatively raw but complete FERC data through the `PUDL Data
+  Viewer <https://data.catalyst.coop>`__. Note that the XBRL data only covers 2021 to
+  the present. See PR :pr:`4782` for this change, which is mostly implemented in the
+  1.7.x releases of our
+  `FERC XBRL Extractor <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/releases>`__.
+
 New Data
 ^^^^^^^^
+
+ * Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
+   company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
+   :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
+
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -34,6 +51,12 @@ Bug Fixes
   file rather than uploading a zero-length file. Previously both types of errors
   (missing files and zero-length files) were only caught through manual inspection of
   draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Reduced peak memory usage for :ref:`core_eia860m__changelog_generators` from 22GB to
+  16GB. See issue :issue:`4686` and PR :pr:`4707`.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

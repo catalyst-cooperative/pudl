@@ -747,7 +747,9 @@ def organize_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df[organized_cols]
 
 
-def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+def simplify_strings(
+    df: pd.DataFrame, columns: list[str], copy: bool = True
+) -> pd.DataFrame:
     """Simplify the strings contained in a set of dataframe columns.
 
     Performs several operations to simplify strings for comparison and parsing purposes.
@@ -757,24 +759,31 @@ def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 
     Leaves null values unaltered. Casts other values with astype(str).
 
+    Running with ``copy=False`` is intended for memory-intensive data frames where no
+    upstream process retains a reference to the data. Use care with this option,
+    and keep an eye out for spooky data changes showing up in unexpected places.
+
     Args:
         df: DataFrame whose columns are being cleaned up.
         columns: The labels of the string columns to be simplified.
+        copy: (Default True) Return a copy, making no changes to the original data.
 
     Returns:
         The whole DataFrame that was passed in, with the string columns cleaned up.
     """
-    out_df = df.copy()
+    out_df = df.copy() if copy else df
     for col in columns:
         if col in out_df.columns:
-            out_df.loc[out_df[col].notnull(), col] = (
-                out_df.loc[out_df[col].notnull(), col]
-                .astype(str)
-                .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
-                .str.strip()
-                .str.lower()
-                .str.replace(r"\s+", " ", regex=True)
-            )
+            mask = out_df[col].notnull()
+            if mask.sum() > 0:
+                out_df.loc[mask, col] = (
+                    out_df.loc[mask, col]
+                    .astype(str)
+                    .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
+                    .str.strip()
+                    .str.lower()
+                    .str.replace(r"\s+", " ", regex=True)
+                )
     return out_df
 
 
@@ -977,9 +986,7 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
         month_year_date.append((month_col, year_col, date_col))
 
     for month_col, year_col, date_col in month_year_date:
-        df = fix_int_na(df, columns=[year_col, month_col])
-
-        date_mask = (df[year_col] != "") & (df[month_col] != "")
+        date_mask = df[[year_col, month_col]].notna().all(axis="columns")
         years = df.loc[date_mask, year_col]
         months = df.loc[date_mask, month_col]
 
@@ -1001,6 +1008,7 @@ def convert_to_date(
     day_col: str = "report_day",
     month_na_value: int = 1,
     day_na_value: int = 1,
+    copy: bool = True,
 ) -> pd.DataFrame:
     """Convert specified year, month or day columns into a datetime object.
 
@@ -1008,6 +1016,10 @@ def convert_to_date(
     conversion is applied, and the original dataframe is returned unchanged.
     Otherwise the constructed date is placed in that column, and the columns
     which were used to create the date are dropped.
+
+    Running with ``copy=False`` is intended for memory-intensive data frames where no
+    upstream process retains a reference to the data. Use care with this option,
+    and keep an eye out for spooky data changes showing up in unexpected places.
 
     Args:
         df: dataframe to convert
@@ -1018,12 +1030,14 @@ def convert_to_date(
         month_na_value: generated month if no month exists or if the month
             value is NA.
         day_na_value: generated day if no day exists or if the day value is NA.
+        copy: (default True) return a copy, making no changes to the original data.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted
         into datetime objects.
     """
-    df = df.copy()
+    if copy:
+        df = df.copy()
     if date_col in df.columns:
         return df
 
@@ -1039,8 +1053,10 @@ def convert_to_date(
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
-    df = df.drop(cols_to_drop, axis="columns")
 
+    if copy:
+        return df.drop(cols_to_drop, axis="columns")
+    df.drop(cols_to_drop, axis="columns", inplace=True)  # noqa: PD002
     return df
 
 
@@ -1897,6 +1913,7 @@ def convert_col_to_bool(
 def fix_boolean_columns(
     df: pd.DataFrame,
     boolean_columns_to_fix: list[str],
+    inplace: bool = False,
 ) -> pd.DataFrame:
     """Fix standard issues with EIA boolean columns.
 
@@ -1904,12 +1921,21 @@ def fix_boolean_columns(
     columns have "X" values which represents a False value. A subset of the columns
     have "U" values, presumably for "Unknown," which must be set to null in order to
     convert the columns to datatype Boolean.
+
+    If running with ``inplace=True``, will run in-place versions of the fill and
+    replace operations instead of returning a copy of the data frame. This mode is
+    useful for memory-intensive data frames, but be aware that upstream processes
+    retaining a reference to the data will see the changes made here.
     """
     fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {
         col: {"Y": True, "N": False, "X": False, "U": pd.NA}
         for col in boolean_columns_to_fix
     }
+    if inplace:
+        df.fillna(fillna_cols, inplace=True)  # noqa: PD002
+        df.replace(to_replace=boolean_replace_cols, inplace=True)  # noqa: PD002
+        return df
     return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)
 
 

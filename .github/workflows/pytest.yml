@@ -34,6 +34,7 @@ jobs:
           filters: |
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
+              - '!devtools/**'
               - '!docker/**'
               - '!docs/**'
               - '!.github/**.md'
