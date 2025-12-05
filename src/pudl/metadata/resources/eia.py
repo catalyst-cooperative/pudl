@@ -45,6 +45,9 @@ def inherits_harvested_values_details(entities: str) -> str:
     or ``core_eia860__scd_{plants|utilities|boilers|generators}`` and includes one or
     more columns from the static or annual column lists in :data:`pudl.metadata.resources.ENTITIES`.
 
+    We have chosen to only add this warning to tables that inherit 3 or more columns from harvested
+    tables.
+
     Args:
         entities: a prose string listing which harvested entities contributed
             columns to this table; e.g., "generators and plants" for a table with
