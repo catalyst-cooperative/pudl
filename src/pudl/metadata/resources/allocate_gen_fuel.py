@@ -163,10 +163,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "harvested",
                 ],
                 "additional_details_text": (
-                    "First, the net electricity generation and fuel consumption "
-                    "reported in the EIA-923 generation fuel are allocated to individual "
-                    "generators. Then, these allocations are aggregated to unique generator, "
-                    "prime mover, energy source code, and owner combinations. Note that the "
+                    f"{UPSTREAM_ALLOCATION_CONTEXT}\n\n"
+                    "In this table, PUDL has scaled the net electricity generation "
+                    "and fuel consumption from "
+                    ":ref:`core_eia923__monthly_generation_fuel` by ownership "
+                    "from :ref:`out_eia860__yearly_ownership`. Note that the "
                     "utility_id_eia in this table refers to the OWNER of the generator, not the "
                     f"operator.\n\n{KNOWN_DRAWBACKS_DESCRIPTION}"
                     f"\n\n{inherits_harvested_values_details('generators and plants')}"
