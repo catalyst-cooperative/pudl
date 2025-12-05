@@ -117,7 +117,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ),
             "usage_warnings": ["estimated_values", "multiple_inputs", "scale_hazard"],
             "additional_details_text": """This table uses hourly
-electricity demand and information about service territories to estimate the total 
+electricity demand and information about service territories to estimate the total
 hourly electricity demand for each US state. Hourly demand is drawn from the FERC
 714, which reports at the balancing authority and utility level. Service territories
 for utilities and balancing authorities are inferred from information in the EIA 861,
