@@ -10,7 +10,7 @@ and convert capacity reported in DC units to AC units."""
 EIA861_88888 = """Respondents are required to report this information to the EIA, but are not required
 to disclose utility-level data to the public. When a respondent chooses to keep its
 utility-level data proprietary, it files using EIA utility id 88888. For more details,
-see :ref:`EIA 861: Notable Irregularities <data_sources/eia861#notable-irregularities>_`."""
+see :ref:`EIA-861 Notable Irregularities <eia861-notable-irregularities>`."""
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia861__yearly_advanced_metering_infrastructure": {
@@ -595,7 +595,7 @@ losses.
 
 {EIA861_88888}
 
-Rows where ``data_observed``=False were labeled as imputed in the raw EIA data.
+Rows where ``data_observed`` is False were labeled as imputed in the raw EIA data.
 """
             ),
             "usage_warnings": ["redacted_values", "imputed_values"],
