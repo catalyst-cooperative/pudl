@@ -22,6 +22,7 @@ dependencies = [
     "conda-lock>=3",
     "coverage>=7.10",
     "dagster>=1.12.1",
+    "dagster-dg-cli",
     "dagster-dbt", # Needs to follow dagster, but RTD can't deal with epochs
     "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
     "dbt-core>=1.10.13",
