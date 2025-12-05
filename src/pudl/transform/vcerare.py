@@ -11,9 +11,16 @@ from dagster import (
 )
 
 import pudl
-from pudl.helpers import cleanstrings_snake, simplify_columns, zero_pad_numeric_string
+from pudl.helpers import (
+    ParquetData,
+    cleanstrings_snake,
+    df_from_parquet,
+    lf_from_parquet,
+    offload_table,
+    simplify_columns,
+    zero_pad_numeric_string,
+)
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
-from pudl.resources import PudlParquetTransformer
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -357,18 +364,21 @@ def _spot_fix_great_lakes_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def one_year_hourly_available_capacity_factor(
-    transformer: PudlParquetTransformer,
     year: int,
     fips_df_census: pd.DataFrame,
     raw_vcerare__fixed_solar_pv_lat_upv: pd.DataFrame,
     raw_vcerare__offshore_wind_power_140m: pd.DataFrame,
     raw_vcerare__onshore_wind_power_100m: pd.DataFrame,
-) -> dict[str, pd.DataFrame]:
+) -> dict[str, ParquetData]:
     """Transform raw Vibrant Clean Energy renewable generation profiles.
 
     Concatenates the solar and wind capacity factors into a single table and turns
     the columns for each county or subregion into a single place_name column.
     """
+
+    def _table_name(df_name: str) -> str:
+        return f"_core_vcerare__{df_name}"
+
     logger.info(
         f"Transforming the VCE RARE hourly available capacity factor tables for {year}."
     )
@@ -381,66 +391,69 @@ def one_year_hourly_available_capacity_factor(
         "offshore_wind": raw_vcerare__offshore_wind_power_140m,
         "onshore_wind": raw_vcerare__onshore_wind_power_100m,
     }
-    [
-        _spot_fix_great_lakes_columns(df)
-        .pipe(_check_for_valid_counties, fips_df_census, df_name)
-        .pipe(_add_time_cols, df_name)
-        .pipe(_drop_city_cols, df_name)
-        .pipe(_make_cap_fac_frac, df_name)
-        .pipe(_stack_cap_fac_df, df_name)
-        .pipe(_clip_unexpected_2016_pv_capacity, df_name, year)
-        .pipe(transformer.offload_table, f"_core_vcerare__{df_name}", year=year)
+    return {
+        _table_name(df_name): offload_table(
+            _spot_fix_great_lakes_columns(df)
+            .pipe(_check_for_valid_counties, fips_df_census, df_name)
+            .pipe(_add_time_cols, df_name)
+            .pipe(_drop_city_cols, df_name)
+            .pipe(_make_cap_fac_frac, df_name)
+            .pipe(_stack_cap_fac_df, df_name)
+            .pipe(_clip_unexpected_2016_pv_capacity, df_name, year),
+            table_name=_table_name(df_name),
+            partitions={"year": year},
+        )
         for df_name, df in raw_dict.items()
-    ]
+    }
 
 
 def merge_all_vce_tables(
-    transformer: PudlParquetTransformer, table_name: str, year: int
-):
+    transformed_tables: dict[str, ParquetData],
+    vce_fips_table: ParquetData,
+    table_name: str,
+    year: int,
+) -> ParquetData:
     """Merge cleaned VCE tables to create final ``out`` table and write as partitioned parquet file."""
     merge_keys = ["report_year", "datetime_utc", "hour_of_year", "county_state_names"]
 
     # Merge and write as partitioned parquet files to disk
-    transformer.offload_table(
-        transformer.get_lf("_core_vcerare__solar_pv", year=year)
+    return offload_table(
+        lf_from_parquet(transformed_tables["_core_vcerare__solar_pv"])
         .join(
-            transformer.get_lf("_core_vcerare__offshore_wind", year=year),
+            lf_from_parquet(transformed_tables["_core_vcerare__offshore_wind"]),
             on=merge_keys,
             how="full",
             coalesce=True,
         )
         .join(
-            transformer.get_lf("_core_vcerare__onshore_wind", year=year),
+            lf_from_parquet(transformed_tables["_core_vcerare__onshore_wind"]),
             on=merge_keys,
             how="full",
             coalesce=True,
         )
         .with_columns(pl.col("capacity_factor_solar_pv").fill_null(0))
         .join(
-            transformer.get_lf("_vce_fips_census"),
+            lf_from_parquet(vce_fips_table),
             on="county_state_names",
             how="left",
             validate="m:1",
         )
         .sort(by=["state", "place_name", "datetime_utc"])
         .drop(["index", "county_state_names"]),
-        table_name,
-        year=year,
+        table_name=table_name,
+        partitions={"year": year},
     )
 
 
 @asset(
     op_tags={"memory-use": "high"},
-    deps=[
-        "raw_vcerare__fixed_solar_pv_lat_upv",
-        "raw_vcerare__offshore_wind_power_140m",
-        "raw_vcerare__onshore_wind_power_100m",
-    ],
-    required_resource_keys={"pudl_parquet_transformer"},
     io_manager_key="parquet_io_manager",
 )
 def out_vcerare__hourly_available_capacity_factor(
     context,
+    raw_vcerare__fixed_solar_pv_lat_upv: dict[int, ParquetData],
+    raw_vcerare__offshore_wind_power_140m: dict[int, ParquetData],
+    raw_vcerare__onshore_wind_power_100m: dict[int, ParquetData],
     raw_vcerare__lat_lon_fips: pd.DataFrame,
     _core_censuspep__yearly_geocodes: pd.DataFrame,
 ) -> pl.LazyFrame:
@@ -450,18 +463,10 @@ def out_vcerare__hourly_available_capacity_factor(
     the columns for each county or subregion into a single place_name column.
     Asset will process 1 year of data at a time to limit peak memory usage.
     """
-    transformer: PudlParquetTransformer = context.resources.pudl_parquet_transformer
-    report_years = (
-        transformer.get_lf("raw_vcerare__fixed_solar_pv_lat_upv")
-        .select("report_year")
-        .unique()
-        .sort(by="report_year")
-        .collect()
-        .to_pandas()
-    )
+    report_years = raw_vcerare__fixed_solar_pv_lat_upv.keys()
     # Get census vintage to conform the data to.
-    assert int(_core_censuspep__yearly_geocodes.report_year.max()) >= int(
-        report_years.max()
+    assert int(_core_censuspep__yearly_geocodes.report_year.max()) >= max(
+        report_years
     )  # Check these are in sync
 
     # Only keep latest census data relating to the state-county level
@@ -482,33 +487,31 @@ def out_vcerare__hourly_available_capacity_factor(
     )
 
     # Write to disk for later merge with full VCE table
-    transformer.offload_table(
+    fips_table = offload_table(
         fips_df_census.reset_index().astype({"county_state_names": "category"}),
         "_vce_fips_census",
     )
 
     # Intermediate table name to write partitioned output parquet files
     partitioned_output_table = "mega_vce"
-    for year in report_years["report_year"]:
-        one_year_hourly_available_capacity_factor(
-            transformer=transformer,
-            year=int(year),
+    for year in report_years:
+        transformed_tables = one_year_hourly_available_capacity_factor(
+            year=year,
             fips_df_census=fips_df_census,
-            raw_vcerare__fixed_solar_pv_lat_upv=transformer.get_df(
-                "raw_vcerare__fixed_solar_pv_lat_upv",
-                filters=[("report_year", "=", year)],
+            raw_vcerare__fixed_solar_pv_lat_upv=df_from_parquet(
+                raw_vcerare__fixed_solar_pv_lat_upv[year],
             ),
-            raw_vcerare__offshore_wind_power_140m=transformer.get_df(
-                "raw_vcerare__offshore_wind_power_140m",
-                filters=[("report_year", "=", year)],
+            raw_vcerare__offshore_wind_power_140m=df_from_parquet(
+                raw_vcerare__offshore_wind_power_140m[year],
             ),
-            raw_vcerare__onshore_wind_power_100m=transformer.get_df(
-                "raw_vcerare__onshore_wind_power_100m",
-                filters=[("report_year", "=", year)],
+            raw_vcerare__onshore_wind_power_100m=df_from_parquet(
+                raw_vcerare__onshore_wind_power_100m[year],
             ),
         )
 
         # Merge table into final output table
-        merge_all_vce_tables(transformer, partitioned_output_table, year)
+        merged_table = merge_all_vce_tables(
+            transformed_tables, fips_table, partitioned_output_table, year
+        )
 
-    return transformer.get_lf(partitioned_output_table)
+    return lf_from_parquet(merged_table, use_all_partitions=True)

@@ -28,7 +28,6 @@ from pudl.resources import (
     dataset_settings,
     datastore,
     ferc_to_sqlite_settings,
-    pudl_parquet_transformer,
 )
 from pudl.settings import EtlSettings
 
@@ -182,7 +181,6 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
-    "pudl_parquet_transformer": pudl_parquet_transformer,
 }
 
 # Limit the number of concurrent workers when launch assets that use a lot of memory.

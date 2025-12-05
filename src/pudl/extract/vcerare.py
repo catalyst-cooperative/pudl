@@ -13,25 +13,27 @@ The drive also contains one more CSV file: vce_county_lat_long_fips_table.csv. T
 read in when the fips partition is set to True.
 """
 
+from collections import defaultdict
 from io import BytesIO
 from pathlib import Path
 
 import duckdb
 import pandas as pd
-from dagster import AssetSpec, asset, multi_asset
+from dagster import AssetOut, asset, multi_asset
 
 from pudl import logging_helpers
+from pudl.helpers import ParquetData, duckdb_extract_zipped_csv, offload_table
 
 logger = logging_helpers.get_logger(__name__)
 
 VCERARE_PAGES = {
-    "raw_vcerare__offshore_wind_power_140m": "Wind_Power_140m_Offshore_county.csv",
-    "raw_vcerare__onshore_wind_power_100m": "Wind_Power_100m_Onshore_county.csv",
-    "raw_vcerare__fixed_solar_pv_lat_upv": "Fixed_SolarPV_Lat_UPV_county.csv",
+    "Wind_Power_140m_Offshore_county.csv": "raw_vcerare__offshore_wind_power_140m",
+    "Wind_Power_100m_Onshore_county.csv": "raw_vcerare__onshore_wind_power_100m",
+    "Fixed_SolarPV_Lat_UPV_county.csv": "raw_vcerare__fixed_solar_pv_lat_upv",
 }
 
 
-def _clean_columns(
+def _clean_column_names(
     table_relation: duckdb.DuckDBPyRelation,
 ) -> duckdb.DuckDBPyRelation:
     """Apply basic cleaning to column names."""
@@ -40,7 +42,6 @@ def _clean_columns(
 
     # The first column is never named, but is always the ``hour_of_year`` column
     col_map[columns[0]] = "hour_of_year"
-    col_map["year"] = "report_year"
 
     # Rename all columns
     return table_relation.select(
@@ -49,26 +50,44 @@ def _clean_columns(
 
 
 @multi_asset(
-    specs=[AssetSpec(table_name) for table_name in VCERARE_PAGES],
+    outs={table_name: AssetOut() for table_name in VCERARE_PAGES.values()},
     required_resource_keys={
-        "pudl_parquet_transformer",
+        "datastore",
         "dataset_settings",
     },
 )
-def extract_vcerare(context):
+def extract_vcerare(
+    context,
+) -> tuple[dict[int, ParquetData], dict[int, ParquetData], dict[int, ParquetData]]:
     """Extract data from all vcerare pages and write to parquet files."""
-    dataset_settings = context.resources.dataset_settings
-    pudl_parquet_transformer = context.resources.pudl_parquet_transformer
-    pudl_parquet_transformer.extract_csv_to_parquet(
-        "vcerare",
-        VCERARE_PAGES,
-        partition_paths=[
-            ({"year": year}, Path(f"{year}/"))
-            for year in dataset_settings.vcerare.years
-        ],
-        add_partition_columns=["year"],
-        custom_transforms=_clean_columns,
-    )
+    extracted_tables = defaultdict(dict)
+
+    # Loop through all years in settings and extract
+    for year in context.resources.dataset_settings.vcerare.years:
+        partitions = {"year": year}
+
+        # Extract each raw table, clean column names, then offload to parquet
+        for page, relation in duckdb_extract_zipped_csv(
+            dataset="vcerare",
+            partitions=partitions,
+            pages=VCERARE_PAGES.keys(),
+            ds=context.resources.datastore,
+            zip_path=Path(f"{year}/"),
+        ):
+            # Collect ParquetData objects for each year/page combo
+            extracted_tables[VCERARE_PAGES[page]].update(
+                {
+                    year: offload_table(
+                        table_data=_clean_column_names(
+                            relation.select(f"*, {year} as report_year")
+                        ),
+                        table_name=VCERARE_PAGES[page],
+                        partitions=partitions,
+                    )
+                }
+            )
+    # For each raw table, return a dict mapping years to a ParquetData object
+    return tuple(extracted_tables.values())
 
 
 @asset(required_resource_keys={"datastore", "dataset_settings"})
