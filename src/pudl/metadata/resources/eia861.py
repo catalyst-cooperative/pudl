@@ -651,10 +651,36 @@ electric operating revenue.""",
     "core_eia861__yearly_reliability": {
         "description": {
             "additional_summary_text": "electricity system reliability and outage impacts.",
-            "additional_details_text": """Includes the system average interruption duration index (SAIDI), system average
+            "additional_source_text": "(Schedules 3B and 3C)",
+            "additional_details_text": """Contains information on non-momentary electrical interruptions.
+Includes the system average interruption duration index (SAIDI), system average
 interruption frequency index (SAIFI), and customer average interruption duration index
 (CAIDI) aka SAIDI/SAIFI with and without major event days and loss of service. Includes
-the standard (IEEE/other) and other relevant information.""",
+the standard (IEEE/other) and other relevant information.
+
+SAIDI is measured in minutes, and represents the sum over the year of all customers interrupted times
+the number of minutes they experienced an interruption, divided by total number of customers.
+
+SAIFI is measured in customers, and represents the sum over the year of the total number of customers that
+experienced an interruption, divided by the total number of customers.
+
+The IEEE standards which can be used to calculate SAIDI and SAIFI include IEEE 1366-2003 and IEEE 1366-2012.
+These standards define momentary interruptions as having a duration of five minutes or less.
+If one of these IEEE standards is used, respondents are required to specify:
+
+* SAIDI major event days minus loss of supply
+* SAIFI major event days minus loss of supply
+
+SAIDI and SAIFI major event days minus loss of supply excludes events where the reliability event resulted
+from an event on the distribution system, not from the high-voltage system. The voltage that distinguishes
+the distribution system from the supply system is given in ``highest_distribution_voltage_kv``.
+
+If a method other than these IEEE standards is used for calculating SAIDI and SAIFI indexes, respondents
+are required to specify:
+
+* whether inactive accounts are included
+* how they define a momentary interruption (less than 1 minute, less than or equal to 5 minutes, or other)
+""",
         },
         "schema": {
             "fields": [
