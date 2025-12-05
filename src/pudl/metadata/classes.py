@@ -529,7 +529,10 @@ class Encoder(PudlMeta):
         )
         rendered = template.render(
             Encoder=self,
-            description=RESOURCE_METADATA[self.name]["description"],
+            # just get the resolved resource summary & drop all the other sections of the description
+            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
+                "\n\n"
+            )[0],
             csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
             is_header=is_header,
         )
@@ -1184,7 +1187,9 @@ class PudlResourceDescriptor(PudlMeta):
         timeseries and this value is None or otherwise left unset, will be filled in
         with a default resolution parsed from the resource id string."""
 
-        layer_code: Literal["raw", "_core", "core", "out", "test"] | None = None
+        layer_code: (
+            Literal["raw", "_core", "core", "out", "out_narrow", "test"] | None
+        ) = None
         """Indicates the degree of processing applied to the data in this resource.  If
         None or otherwise left unset, will be filled in with a default layer parsed from
         the resource id string."""
@@ -1605,10 +1610,14 @@ class Resource(PudlMeta):
             del schema["foreign_key_rules"]
 
         # overwrite description components with rendered text block
-        obj["description"] = descriptions.ResourceDescriptionBuilder(
-            resource_id,
-            obj,
-        ).build(_get_jinja_environment())
+        obj["description"] = (
+            descriptions.ResourceDescriptionBuilder(
+                resource_id,
+                obj,
+            )
+            .build()
+            .jinja_render(_get_jinja_environment())
+        )
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
