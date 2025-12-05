@@ -1506,26 +1506,6 @@ def iterate_multivalue_dict(**kwargs):
         yield result
 
 
-def get_working_dates_by_datasource(datasource: str) -> pd.DatetimeIndex:
-    """Get all working dates of a datasource as a DatetimeIndex."""
-    import pudl.metadata.classes
-
-    dates = pd.DatetimeIndex([])
-    for data_source in pudl.metadata.classes.DataSource.from_field_namespace(
-        datasource
-    ):
-        working_partitions = data_source.working_partitions
-        if "years" in working_partitions:
-            dates = dates.append(
-                pd.to_datetime(working_partitions["years"], format="%Y")
-            )
-        if "year_months" in working_partitions:
-            dates = dates.append(
-                pd.DatetimeIndex(pd.to_datetime(working_partitions["year_months"]))
-            )
-    return dates
-
-
 def dedupe_on_category(
     dedup_df: pd.DataFrame, base_cols: list[str], category_name: str, sorter: list[str]
 ) -> pd.DataFrame:
