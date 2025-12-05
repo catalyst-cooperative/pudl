@@ -110,6 +110,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                 "additional_details_text": (
                     "Based on allocating net electricity generation and fuel consumption reported "
                     "in the EIA-923 generation and generation_fuel tables to individual generators.\n\n"
+                    f"{UPSTREAM_ALLOCATION_CONTEXT}\n\n"
+                    "In this table, PUDL aggregates the net generation and fuel consumption "
+                    "that has been allocated to the ``generator_id``/"
+                    "``energy_source_code``/``prime_mover_code`` level in the"
+                    f":ref:`out_eia923__{freq}_generation_fuel_by_generator_energy_source` "
+                    "to the generator level."
                     f"{KNOWN_DRAWBACKS_DESCRIPTION}"
                     f"\n\n{inherits_harvested_values_details('generators, plants, and utilities')}"
                 ),
