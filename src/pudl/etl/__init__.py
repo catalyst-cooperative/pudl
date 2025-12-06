@@ -57,6 +57,7 @@ raw_module_groups = {
     "raw_phmsagas": [pudl.extract.phmsagas],
     "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
+    "raw_ferceqr": [pudl.extract.ferceqr],
 }
 
 
@@ -181,6 +182,7 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
+    "ferceqr_extract_settings": pudl.extract.ferceqr.ExtractSettings(),
 }
 
 # Limit the number of concurrent workers when launch assets that use a lot of memory.
@@ -230,6 +232,7 @@ defs: Definitions = Definitions(
                     }
                 }
             },
+            selection="not group:raw_ferceqr",
         ),
         define_asset_job(
             name="etl_fast",
@@ -242,6 +245,12 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset.",
+            selection="not group:raw_ferceqr",
+        ),
+        define_asset_job(
+            name="ferceqr_etl",
+            description="This job executes the ferceqr ETL.",
+            selection="group:raw_ferceqr",
         ),
     ],
 )

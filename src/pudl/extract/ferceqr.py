@@ -1,0 +1,210 @@
+"""Extract FERC EQR data."""
+
+import io
+import tempfile
+import zipfile
+from pathlib import Path
+
+import dagster as dg
+import duckdb
+from duckdb import DuckDBPyConnection
+from upath import UPath
+
+from pudl.helpers import ParquetData, offload_table
+from pudl.logging_helpers import get_logger
+
+logger = get_logger(f"catalystcoop.{__name__}")
+year_quarters: dg.StaticPartitionsDefinition = dg.StaticPartitionsDefinition(
+    [
+        f"{year}q{quarter}"
+        for year in range(2013, 2026)
+        for quarter in range(1, 5)
+        if not ((year == 2013 and quarter < 3) or (year == 2025 and quarter > 2))
+    ]
+)
+
+
+class ExtractSettings(dg.ConfigurableResource):
+    """Dagster resource which defines which EQR data to extract and configuration for raw archive."""
+
+    archive: str = "gs://archives.catalyst.coop/ferceqr/published"
+
+    @property
+    def base_path(self) -> UPath:
+        """Return UPath pointing to archive base path."""
+        return UPath(self.archive)
+
+
+def _clean_csv_name(csv_path: Path) -> Path:
+    new_path = csv_path
+    if "'" in csv_path.name:
+        new_path = csv_path.rename(csv_path.parent / csv_path.name.replace("'", ""))
+    if '"' in csv_path.name:
+        new_path = csv_path.rename(csv_path.parent / csv_path.name.replace('"', ""))
+    return new_path
+
+
+def _get_table_name(table_type: str, year_quarter: str) -> str:
+    return f"raw_ferceqr__{table_type}_{year_quarter}"
+
+
+def _extract_ident(
+    ident_csv: str,
+    year_quarter: str,
+    duckdb_connection: DuckDBPyConnection,
+) -> str:
+    """Extract data from ident csv and write to parquet, returning CID from table."""
+    # Use duckdb to read CSV and write as parquet
+    csv_rel = duckdb_connection.read_csv(
+        ident_csv, all_varchar=True, store_rejects=True, ignore_errors=True
+    )
+    (cid,) = csv_rel.select("company_identifier").limit(1).fetchone()
+    offload_table(
+        csv_rel.select(f"*, '{year_quarter}' AS year_quarter"),
+        table_name=_get_table_name("ident", year_quarter),
+        partitions={"cid": cid},
+    )
+    return cid
+
+
+def _extract_other_table(
+    table_type: str,
+    csv_path: str,
+    year_quarter: str,
+    cid: str,
+    duckdb_connection: DuckDBPyConnection,
+):
+    """Extract data from ident csv and write to parquet, returning CID from table."""
+    # Use duckdb to read CSV and write as parquet
+    offload_table(
+        duckdb_connection.read_csv(
+            csv_path, all_varchar=True, store_rejects=True, ignore_errors=True
+        ).select(f"*, '{year_quarter}' AS year_quarter, '{cid}' as company_identifier"),
+        table_name=_get_table_name(table_type, year_quarter),
+        partitions={"cid": cid},
+    )
+
+
+def _csvs_to_parquet(
+    csv_path: Path,
+    year_quarter: str,
+    duckdb_connection: DuckDBPyConnection,
+):
+    """Mirror CSVs in filing to a parquet file.
+
+    Each filing contains a CSV for 4 EQR tables. These will each be extracted
+    to a separate parquet file.
+    """
+    # Clean csv filenames for duckdb compatibility, then get ident table path
+    csv_paths = [_clean_csv_name(csv_file) for csv_file in csv_path.iterdir()]
+    [ident_path] = [
+        csv_file for csv_file in csv_paths if csv_file.stem.endswith("ident")
+    ]
+    csv_paths.remove(ident_path)
+
+    try:
+        # Extract ident table and return CID
+        cid = _extract_ident(
+            ident_csv=str(ident_path),
+            year_quarter=year_quarter,
+            duckdb_connection=duckdb_connection,
+        )
+    except TypeError:
+        logger.warning(
+            f"Failed to parse ident table from {ident_path.name}."
+            " Skipping remaining tables for filing."
+        )
+        return
+
+    # Loop through remaining CSVs and extract, adding extracted CID as a column in each table
+    for file in csv_paths:
+        # Detect which table type CSV is and prep output directory
+        [table_type] = [
+            key
+            for key in ["contracts", "transactions", "indexPub"]
+            if file.stem.endswith(key)
+        ]
+
+        # Use duckdb to read CSV and write as parquet
+        _extract_other_table(
+            table_type=table_type,
+            csv_path=file,
+            year_quarter=year_quarter,
+            cid=cid,
+            duckdb_connection=duckdb_connection,
+        )
+
+
+def _save_extract_metadata(year_quarter: str, duckdb_connection: DuckDBPyConnection):
+    """Create parquet file with metadata on any CSV parsing errors."""
+    return offload_table(
+        duckdb_connection.table("reject_errors")
+        .join(
+            duckdb_connection.table("reject_scans"),
+            condition="reject_errors.scan_id=reject_scans.scan_id AND reject_errors.file_id=reject_scans.file_id",
+        )
+        .select(
+            f"reject_errors.*, parse_filename(reject_scans.file_path), '{year_quarter}' as year_quarter"
+        ),
+        table_name="raw_ferceqr__metadata",
+        partitions={"year_quarter": year_quarter},
+    )
+
+
+@dg.multi_asset(
+    partitions_def=year_quarters,
+    outs={
+        "raw_ferceqr__ident": dg.AssetOut(),
+        "raw_ferceqr__contracts": dg.AssetOut(),
+        "raw_ferceqr__transactions": dg.AssetOut(),
+        "raw_ferceqr__indexPub": dg.AssetOut(),
+        "raw_ferceqr__metadata": dg.AssetOut(),
+    },
+)
+def extract_eqr(
+    context: dg.AssetExecutionContext,
+    ferceqr_extract_settings: ExtractSettings = ExtractSettings(),
+) -> tuple[ParquetData, ParquetData, ParquetData, ParquetData, ParquetData]:
+    """Extract year quarter from CSVs and load to parquet files."""
+    # Get year/quarter from selected partition
+    year_quarter = context.partition_key
+    year, quarter = year_quarter.split("q")
+    quarter_zip_path = (
+        ferceqr_extract_settings.base_path / f"ferceqr-{year}q{quarter}.zip"
+    )
+
+    # Open top level zipfile
+    with (
+        zipfile.ZipFile(
+            io.BytesIO(quarter_zip_path.open(mode="rb").read())
+        ) as quarter_archive,
+        duckdb.connect() as conn,
+    ):
+        # Loop through all nested zipfiles (one for each filing in the quarter)
+        for filing in quarter_archive.namelist():
+            # Extract CSVs from filing to a temporary directory so duckdb can be used
+            # to parse CSVs and mirror to parquet
+            try:
+                with (
+                    zipfile.ZipFile(
+                        io.BytesIO(quarter_archive.read(filing))
+                    ) as filing_archive,
+                    tempfile.TemporaryDirectory() as tmp_dir,
+                ):
+                    logger.info(f"Extracting CSVs from {filing}.")
+                    filing_archive.extractall(path=tmp_dir)
+                    _csvs_to_parquet(
+                        csv_path=Path(tmp_dir),
+                        year_quarter=year_quarter,
+                        duckdb_connection=conn,
+                    )
+            except zipfile.BadZipfile:
+                logger.warning(f"Could not open filing: {filing}.")
+        metadata = _save_extract_metadata(year_quarter, conn)
+    return (
+        ParquetData(table_name=_get_table_name("ident", year_quarter)),
+        ParquetData(table_name=_get_table_name("contracts", year_quarter)),
+        ParquetData(table_name=_get_table_name("transactions", year_quarter)),
+        ParquetData(table_name=_get_table_name("indexPub", year_quarter)),
+        metadata,
+    )
