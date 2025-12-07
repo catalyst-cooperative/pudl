@@ -223,6 +223,7 @@ def allocate_gen_fuel_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         io_manager_key=io_manager_key,
+        op_tags={"memory-use": "high"},
         compute_kind="Python",
         config_schema={
             "debug": Field(
