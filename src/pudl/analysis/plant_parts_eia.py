@@ -171,7 +171,7 @@ from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
-from dagster import asset
+from dagster import AssetIn, AssetKey, AssetsDefinition, asset
 
 import pudl
 from pudl.metadata.classes import Resource
@@ -338,22 +338,57 @@ def out_eia__yearly_generators_by_ownership(
     )
 
 
+def plant_part_asset_factory(part_name: str) -> AssetsDefinition:
+    """Asset factory to create assets for each individual plant part."""
+    asset_name = f"_out_eia__plant_part_{part_name}"
+
+    @asset(
+        name=asset_name,
+        compute_kind="Python",
+    )
+    def plant_part_asset(
+        out_eia__yearly_generators_by_ownership: pd.DataFrame,
+    ) -> pd.DataFrame:
+        return MakePlantParts().create_one_plant_part(
+            part_name=part_name,
+            gens_mega=out_eia__yearly_generators_by_ownership,
+        )
+
+    return plant_part_asset
+
+
+plant_parts_assets = [
+    plant_part_asset_factory(part_name)
+    for part_name in PLANT_PARTS
+    if part_name != "plant_match_ferc1"
+]
+
+
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    op_tags={"memory-use": "high"},
+    ins={
+        part_name: AssetIn(key=AssetKey(f"_out_eia__plant_part_{part_name}"))
+        for part_name in PLANT_PARTS
+        if part_name != "plant_match_ferc1"
+    },
 )
 def out_eia__yearly_plant_parts(
-    out_eia__yearly_generators_by_ownership: pd.DataFrame,
     out_eia__yearly_plants: pd.DataFrame,
     out_eia__yearly_utilities: pd.DataFrame,
+    **part_dfs: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Create plant parts list asset."""
-    return MakePlantParts().execute(
-        gens_mega=out_eia__yearly_generators_by_ownership,
+    """Create plant parts list asset by concatenating all plant-part assets."""
+    # part_dfs is a mapping of {part_name: df}
+    concatenated_plant_parts = pd.concat(part_dfs.values(), ignore_index=True)
+
+    plant_parts_eia = MakePlantParts().execute(
+        concatenated_plant_parts=concatenated_plant_parts,
         plants_eia860=out_eia__yearly_plants,
         utils_eia860=out_eia__yearly_utilities,
     )
+
+    return plant_parts_eia
 
 
 class MakeMegaGenTbl:
@@ -576,38 +611,36 @@ class MakePlantParts:
         # for all of the plant parts
         self.id_cols_list = make_id_cols_list()
 
+    def create_one_plant_part(self, part_name: str, gens_mega: pd.DataFrame):
+        """Create a table of attributes for one plant part."""
+        if part_name == "plant_match_ferc1":
+            raise ValueError("plant_match_ferc1 handled separately")
+        part_df = PlantPart(part_name).execute(gens_mega)
+        # add in the attributes!
+        part_df = self.add_attributes(part_df, gens_mega, part_name)
+        # assert that all the plant part ID columns are now in part_df
+        assert {
+            col
+            for part in PLANT_PARTS
+            if part != "plant_match_ferc1"
+            for col in PLANT_PARTS[part]["id_cols"]
+        }.issubset(part_df.columns)
+        return part_df
+
     def execute(
         self,
-        gens_mega: pd.DataFrame,
+        concatenated_plant_parts: pd.DataFrame,
         plants_eia860: pd.DataFrame,
         utils_eia860: pd.DataFrame,
-    ) -> pd.DataFrame:
-        """Aggregate and slice data points by each plant part.
+    ):
+        """Add 1:m matches and additional columns to concatenated plant parts.
 
         Returns:
             The complete plant parts list
         """
-        # aggregate everything by each plant part
-        part_dfs = []
-        for part_name in PLANT_PARTS:
-            if part_name == "plant_match_ferc1":
-                continue
-            part_df = PlantPart(part_name).execute(gens_mega)
-            # add in the attributes!
-            part_df = self.add_attributes(part_df, gens_mega, part_name)
-            # assert that all the plant part ID columns are now in part_df
-            assert {
-                col
-                for part in PLANT_PARTS
-                if part != "plant_match_ferc1"
-                for col in PLANT_PARTS[part]["id_cols"]
-            }.issubset(part_df.columns)
-            part_dfs.append(part_df)
-        plant_parts_eia = pd.concat(part_dfs)
-
         # Add in 1:m matches.
         self.plant_parts_eia = self.add_one_to_many(
-            plant_parts_eia=plant_parts_eia,
+            plant_parts_eia=concatenated_plant_parts,
             part_name="plant_match_ferc1",
             path_to_one_to_many=resources.files("pudl.package_data.glue").joinpath(
                 "eia_ferc1_one_to_many.csv",
