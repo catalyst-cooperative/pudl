@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pudl.metadata.resources.eia import (
+from pudl.metadata.harvest_helpers import (
     canonical_harvested_details,
     inherits_harvested_values_details,
 )

@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pudl.metadata.resources.eia import inherits_harvested_values_details
+from pudl.metadata.harvest_helpers import inherits_harvested_values_details
 
 
 def merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
