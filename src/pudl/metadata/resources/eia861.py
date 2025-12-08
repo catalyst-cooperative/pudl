@@ -652,6 +652,7 @@ electric operating revenue.""",
         "description": {
             "additional_summary_text": "electricity system reliability and outage impacts.",
             "additional_source_text": "(Schedules 3B and 3C)",
+            "additional_primary_key_text": "\n\n  Note: ``standard`` is included because while respondents are asked to only fill out one of parts B or C, sometimes they fill out both.",
             "additional_details_text": """Contains information on non-momentary electrical interruptions.
 Includes the system average interruption duration index (SAIDI), system average
 interruption frequency index (SAIFI), and customer average interruption duration index
@@ -666,7 +667,7 @@ experienced an interruption, divided by the total number of customers.
 
 The IEEE standards which can be used to calculate SAIDI and SAIFI include IEEE 1366-2003 and IEEE 1366-2012.
 These standards define momentary interruptions as having a duration of five minutes or less.
-If one of these IEEE standards is used, respondents are required to specify:
+If one of these IEEE standards is used, respondents fill out part B and are required to specify:
 
 * SAIDI major event days minus loss of supply
 * SAIFI major event days minus loss of supply
@@ -676,10 +677,13 @@ from an event on the distribution system, not from the high-voltage system. The 
 the distribution system from the supply system is given in ``highest_distribution_voltage_kv``.
 
 If a method other than these IEEE standards is used for calculating SAIDI and SAIFI indexes, respondents
-are required to specify:
+fill out part C and are required to specify:
 
 * whether inactive accounts are included
 * how they define a momentary interruption (less than 1 minute, less than or equal to 5 minutes, or other)
+
+In this table, column ``standard`` is "ieee_standard" for respondents who have filled out part B, and
+"other_standard" for respondents who have filled out part C.
 """,
         },
         "schema": {
@@ -706,6 +710,12 @@ are required to specify:
                 "utility_id_eia",
                 "utility_name_eia",
                 "data_maturity",
+            ],
+            "primary_key": [
+                "utility_id_eia",
+                "state",
+                "report_date",
+                "standard",
             ],
         },
         "field_namespace": "eia",
