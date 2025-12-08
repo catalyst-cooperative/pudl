@@ -3,7 +3,7 @@
 from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.harvest_helpers import (
+from pudl.metadata.resource_helpers import (
     canonical_harvested_details,
     inherits_harvested_values_details,
 )

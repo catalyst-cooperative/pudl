@@ -2,25 +2,10 @@
 
 from typing import Any
 
-from pudl.metadata.harvest_helpers import inherits_harvested_values_details
-
-
-def merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
-    """Merge two description dictionaries."""
-    result = {}
-    result.update(left)
-    for key in right:
-        if key in result:
-            if key == "usage_warnings":
-                result[key] = result[key] + right[key]
-            elif key == "additional_details_text":
-                result[key] = f"{result[key]}\n\n{right[key]}"
-            else:
-                result[key] = f"{result[key]} {right[key]}"
-        else:
-            result[key] = right[key]
-    return result
-
+from pudl.metadata.resource_helpers import (
+    inherits_harvested_values_details,
+    merge_descriptions,
+)
 
 TABLE_DESCRIPTIONS: dict[str, dict[str, Any]] = {
     "_core_eia923__yearly_fgd_operation_maintenance": {

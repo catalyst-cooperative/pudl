@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pudl.metadata.harvest_helpers import inherits_harvested_values_details
+from pudl.metadata.resource_helpers import inherits_harvested_values_details
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_plant_parts": {

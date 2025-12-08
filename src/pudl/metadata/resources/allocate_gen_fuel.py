@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pudl.metadata.harvest_helpers import inherits_harvested_values_details
+from pudl.metadata.resource_helpers import inherits_harvested_values_details
 
 AGG_FREQS = ["yearly", "monthly"]
 

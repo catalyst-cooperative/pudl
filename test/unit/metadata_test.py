@@ -16,8 +16,8 @@ from pudl.metadata.classes import (
 from pudl.metadata.descriptions import ResourceDescriptionBuilder
 from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
 from pudl.metadata.helpers import format_errors
+from pudl.metadata.resource_helpers import merge_descriptions
 from pudl.metadata.resources import RESOURCE_METADATA
-from pudl.metadata.resources.eia923 import merge_descriptions
 from pudl.metadata.sources import SOURCES
 
 PUDL_RESOURCES = {r.name: r for r in PUDL_PACKAGE.resources}
