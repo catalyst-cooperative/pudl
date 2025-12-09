@@ -2,13 +2,10 @@
 
 from typing import Any
 
-HARVESTING_DETAIL_TEXT = """EIA reports many attributes in many different tables across
-EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
-collects all instances of these values and and chooses a canonical value. By default,
-PUDL chooses the most consistently reported value of a given attribute as long as it
-is at least 70% of the given instances reported. If an attribute was reported
-inconsistently across the original EIA tables, then it will show up as a
-null value."""
+from pudl.metadata.resource_helpers import (
+    canonical_harvested_details,
+    inherits_harvested_values_details,
+)
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860__scd_boilers": {
@@ -17,7 +14,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "boilers which may vary from year to year. Compiled from across all "
                 "EIA-860 data."
             ),
-            "additional_details_text": HARVESTING_DETAIL_TEXT,
+            "additional_details_text": canonical_harvested_details("boilers", False),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -163,16 +161,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "generators which may vary from year to year. Compiled from across "
                 "EIA-860 and EIA-923 data."
             ),
-            "additional_details_text": f"""This table contains the attributes about
-EIA-860 generators. Many of these attributes usually do not change year-to-year but
-they occasionally do.
-
-{HARVESTING_DETAIL_TEXT} Most of these generator attributes come from EIA-860 but many
-of them are reported in both EIA-860 and EIA-923 so the values in this table are a
-blend of these two sources.
-
-The related table with the static attributes about generators is
-:ref:`core_eia__entity_generators`.""",
+            "additional_details_text": canonical_harvested_details("generators", False),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -346,7 +336,8 @@ The related table with the static attributes about generators is
                 "plants which may vary from year to year. Compiled from across all "
                 "EIA-860 and EIA-923 data."
             ),
-            "additional_details_text": HARVESTING_DETAIL_TEXT,
+            "additional_details_text": canonical_harvested_details("plants", False),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -432,7 +423,8 @@ The related table with the static attributes about generators is
             "additional_summary_text": (
                 "utilities which may vary from year to year. Compiled from all EIA data."
             ),
-            "additional_details_text": HARVESTING_DETAIL_TEXT,
+            "additional_details_text": canonical_harvested_details("utilities", False),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -537,10 +529,13 @@ The related table with the static attributes about generators is
                 "operating status, retirement date, and install year."
             ),
             "additional_details_text": (
-                """Includes control ids for sulfur dioxide
+                f"""Includes control ids for sulfur dioxide
 (SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas
-monitoring."""
+monitoring.
+
+{inherits_harvested_values_details("plants and utilities")}"""
             ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
