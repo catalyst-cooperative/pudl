@@ -35,7 +35,7 @@ resource "google_storage_bucket" "tfstate" {
     enabled = true
   }
   labels = {
-    component   = "terraform-state"
+    component = "terraform-state"
   }
 }
 
@@ -132,7 +132,7 @@ resource "google_sql_database_instance" "mlflow_backend_store" {
       enable_password_policy      = true
     }
     user_labels = {
-      component   = "mlflow"
+      component = "mlflow"
     }
   }
   # set `deletion_protection` to true, will ensure that one cannot accidentally delete this instance by
@@ -145,7 +145,7 @@ resource "google_storage_bucket" "pudl_models_outputs" {
   location      = "US"
   storage_class = "STANDARD"
   labels = {
-    component   = "model-outputs"
+    component = "model-outputs"
   }
 }
 
@@ -180,7 +180,7 @@ resource "google_storage_bucket" "pudl_usage_metrics_archive_bucket" {
   storage_class               = "STANDARD"
   uniform_bucket_level_access = true
   labels = {
-    component   = "usage-metrics"
+    component = "usage-metrics"
   }
 }
 
@@ -219,7 +219,7 @@ resource "google_storage_bucket" "pudl_archive_bucket" {
   storage_class               = "STANDARD"
   uniform_bucket_level_access = true
   labels = {
-    component   = "archives"
+    component = "archives"
   }
 }
 

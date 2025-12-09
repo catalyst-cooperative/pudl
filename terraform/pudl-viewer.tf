@@ -63,7 +63,7 @@ resource "google_artifact_registry_repository" "pudl_viewer" {
   description   = "Docker repository for PUDL viewer"
   format        = "DOCKER"
   labels = {
-    component   = "pudl-viewer"
+    component = "pudl-viewer"
   }
 }
 
@@ -78,7 +78,7 @@ resource "google_sql_database_instance" "pudl_viewer_database" {
     edition   = "ENTERPRISE"
     disk_size = 10
     user_labels = {
-      component   = "pudl-viewer"
+      component = "pudl-viewer"
     }
   }
   deletion_protection = true
@@ -112,7 +112,7 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
   location            = "us-east1"
   deletion_protection = false
   labels = {
-    component   = "pudl-viewer"
+    component = "pudl-viewer"
   }
 
   scaling {
@@ -180,7 +180,7 @@ resource "google_cloud_run_v2_job" "pudl_viewer_db_migration" {
   location            = "us-east1"
   deletion_protection = false
   labels = {
-    component   = "pudl-viewer"
+    component = "pudl-viewer"
   }
 
   template {
@@ -247,7 +247,7 @@ resource "google_storage_bucket" "pudl_viewer_logs" {
   location      = "US"
   storage_class = "STANDARD"
   labels = {
-    component   = "pudl-viewer"
+    component = "pudl-viewer"
   }
 
   lifecycle_rule {
