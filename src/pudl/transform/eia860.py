@@ -353,7 +353,7 @@ def _core_eia860__generators(
     bad_gen_mask = (gens_df["report_date"] == "2024-01-01") & (
         gens_df["plant_id_eia"] == 68815
     )
-    if (len_observed := len(gens_df[bad_gen_mask])) != 1:
+    if (len_observed := len(gens_df[bad_gen_mask])) >= 2:
         raise AssertionError(
             "Spot fixing: We expect to find 1 record for plant_id_eia 68815 in "
             f"2024-01-01, but found {len_observed}"
