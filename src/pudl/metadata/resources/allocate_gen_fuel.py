@@ -13,6 +13,7 @@ USAGE_WARNING_DRAWBACK = {
 UPSTREAM_ALLOCATION_CONTEXT = """The net generation and fuel consumption allocation
 method PUDL employs begins with the following context of the originally reported
 EIA-860 and EIA-923 data:
+
 * The :ref:`core_eia923__monthly_generation_fuel` table is the authoritative source of
   information about how much generation and fuel consumption is attributable to an
   entire plant. This table has the most complete data coverage, but it is not the most
@@ -27,7 +28,9 @@ EIA-860 and EIA-923 data:
   :ref:`core_eia923__monthly_generation_fuel` table.
 * The :ref:`core_eia860__scd_generators` table provides an exhaustive list of all
   generators whose generation is being reported in the
-  :ref:`core_eia923__monthly_generation_fuel` table."""
+  :ref:`core_eia923__monthly_generation_fuel` table.
+
+"""
 KNOWN_DRAWBACKS_DESCRIPTION = (
     "This process does not distinguish between primary and secondary energy_sources for generators. "
     "Net generation is allocated equally between energy source codes, so if a "
