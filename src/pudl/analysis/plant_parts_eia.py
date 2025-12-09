@@ -367,6 +367,7 @@ plant_parts_assets = [
 @asset(
     io_manager_key="pudl_io_manager",
     compute_kind="Python",
+    op_tags={"memory-use": "high"},
     ins={
         part_name: AssetIn(key=AssetKey(f"_out_eia__plant_part_{part_name}"))
         for part_name in PLANT_PARTS
