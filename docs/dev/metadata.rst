@@ -98,7 +98,8 @@ Defining metadata for a new table
 Metadata for each resource is stored in separate files for each source, with a few
 additional files for association tables and imputed assets. If the table doesn't already
 have a source file, make a new file that mirrors the format of an existing source.
-Otherwise, find the correct file (e.g., :mod:`pudl.metadata.resources.eia860`) and
+Otherwise, find the file representing the primary source of the resource
+(e.g., :mod:`pudl.metadata.resources.eia860`) and
 add a new table into the ``RESOURCE_METADATA`` dictionary.
 
 Each resource entry should contain the following elements:
@@ -108,11 +109,11 @@ Each resource entry should contain the following elements:
    * ``schema``: A dictionary defining the structure of this dataset. This should
       contain the following:
 
-      * ``fields``: A list of all field names in the order you want them to be written
-        to disk in. These fields should each have their own metadata defined - see
+      * ``fields``: A list of all field names in the order you want them to appear in the
+        file on disk. These fields should each have their own metadata defined - see
         :ref:`field_description`
       * ``primary_key``: The fields that together define a unique primary key for the
-        resource. These fields are required to be never null, and will be tested for
+        resource. These fields are required to be non-null, and will be tested for
         uniqueness on writing to disk.
       * ``foreign_key_rules`` (optional): Any fields for which a foreign key rule should
         be created for all other resources containing these fields. For every field(s)
@@ -129,9 +130,8 @@ Updating metadata for an existing table
 As we update data, we might typically modify resource-level metadata under one of the
 following circumstances:
 
-   * Schema changes: a column has been added or removed in the underlying data, a column
-     has been renamed
-   * Description changes: a new usage warning, additional context, or to add details
+   * Schema changes: adding, removing, or renaming columns
+   * Description changes: adding a new usage warning, additional context, or details
      about a new transformation or change.
    * Availability changes: a table has been discontinued by us or by the original
      provider.
@@ -144,7 +144,8 @@ Description metadata
 ^^^^^^^^^^^^^^^^^^^^^
 
 To make sense of hundreds of resources, structured resource-level metadata is critical.
-The following fields should be filled out for each new resource:
+The following fields should be filled out for each new resource. You may wish to use
+:ref:`one of the preview methods <TBD>` to guide your edits.
 
 * ``additional_summary_text``: A ~1 line brief description of the table's contents.
    Based on the table type, this should be a fragment that completes the
@@ -157,11 +158,12 @@ The following fields should be filled out for each new resource:
       * scd - Slowly changing dimension (SCD) table describing attributes of _
       * timeseries - time series of _
 
-* ``additional_source_text``: A few word refinement on the source data for this table,
-   such as specifying what part of the form it refers to (e.g., "Schedule 8A").
+* ``additional_source_text``: Use as needed. A few word refinement on the source data
+   for this table, such as specifying what part of the form it refers to; usually as
+   a parenthetical (e.g., "(Schedule 8A)").
 * ``usage_warnings``: Use as needed. A list of keys (for common warnings) or dicts
-   (for unique warnings) stating necessary precautions for using this table; see the
-   usage warnings guide for details. Reserve this field for severe and/or frequent
+   (for unique warnings) stating necessary precautions for using this table.
+   Reserve this field for severe and/or frequent
    problems an unfamiliar user may encounter, and list lighter or edge-case problems
    in ``additional_details_text``.
 
@@ -252,7 +254,7 @@ the same name share the same general definition, no matter where you find them.
 Field names should:
    * Be written as snake case (e.g., ``report_date``.)
    * Include units at the end where not implied (e.g., ``volume_mcf``)
-   *
+   * Otherwise follow our established :ref:`naming_conventions`.
 
 To define metadata for a new field:
 
