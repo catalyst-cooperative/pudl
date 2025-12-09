@@ -2195,7 +2195,7 @@ def retry(
     return func(**kwargs)
 
 
-def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
+def get_parquet_table_polars(table_name: str, parquet_path: Path) -> pl.LazyFrame:
     """Read a table from a parquet file and return as a polars LazyFrame."""
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
@@ -2203,15 +2203,13 @@ def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
     resource = Resource.from_id(table_name)
     schema = resource.to_polars_dtypes()
 
-    # Get the Parquet file path
-    paths = PudlPaths()
-    parquet_path = paths.parquet_path(table_name)
-
+    # Scan Parquet file
     return pl.scan_parquet(parquet_path).cast(schema, strict=False)
 
 
 def get_parquet_table(
     table_name: str,
+    parquet_path: Path,
     columns: list[str] | None = None,
     filters: list[tuple[str, str, Any]]
     | list[list[tuple[str, str, Any]]]
@@ -2225,6 +2223,7 @@ def get_parquet_table(
 
     Args:
         table_name: Name of the table to read.
+        parquet_path: Path to parquet file on disk.
         columns: List of columns to read. If None, all columns are read.
         filters: Optional filters to apply when reading the Parquet file. See the
             :func:`pyarrow.parquet.read_table` documentation for details on filter
@@ -2245,10 +2244,6 @@ def get_parquet_table(
         columns = resource.get_field_names()
     # Get the schema for validation
     pyarrow_schema = resource.to_pyarrow()
-
-    # Get the Parquet file path
-    paths = PudlPaths()
-    parquet_path = paths.parquet_path(table_name)
 
     is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
 
