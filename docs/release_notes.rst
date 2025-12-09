@@ -52,6 +52,10 @@ Bug Fixes
   (missing files and zero-length files) were only caught through manual inspection of
   draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
 
+* Remove row with plant ID 68815 and generator ID GAPPV that was erroneously
+  included in the 2024 from the EIA 860 generators data. See :issue:`4769` and PR
+  :pr:`4824`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
