@@ -12,6 +12,7 @@ from upath import UPath
 
 from pudl.helpers import ParquetData, offload_table
 from pudl.logging_helpers import get_logger
+from pudl.settings import ferceqr_year_quarters
 
 logger = get_logger(f"catalystcoop.{__name__}")
 year_quarters: dg.StaticPartitionsDefinition = dg.StaticPartitionsDefinition(
@@ -152,7 +153,7 @@ def _save_extract_metadata(year_quarter: str, duckdb_connection: DuckDBPyConnect
 
 
 @dg.multi_asset(
-    partitions_def=year_quarters,
+    partitions_def=ferceqr_year_quarters,
     outs={
         "raw_ferceqr__ident": dg.AssetOut(),
         "raw_ferceqr__contracts": dg.AssetOut(),

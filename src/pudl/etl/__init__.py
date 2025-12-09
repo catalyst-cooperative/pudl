@@ -80,6 +80,7 @@ core_module_groups = {
     "core_epacems": [pudl.transform.epacems],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
+    "core_ferceqr": [pudl.transform.ferceqr],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_sec10k": [pudl.transform.sec10k],
     "core_nrelatb": [pudl.transform.nrelatb],
@@ -166,6 +167,7 @@ default_asset_checks += [
             not in [
                 "core_epacems__hourly_emissions",
                 "out_vcerare__hourly_available_capacity_factor",
+                "core_ferceqr__transactions",
             ]
         )
     )
@@ -232,7 +234,7 @@ defs: Definitions = Definitions(
                     }
                 }
             },
-            selection="not group:raw_ferceqr",
+            selection="not key:*_ferceqr*",
         ),
         define_asset_job(
             name="etl_fast",
@@ -245,12 +247,12 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset.",
-            selection="not group:raw_ferceqr",
+            selection="not key:*_ferceqr*",
         ),
         define_asset_job(
             name="ferceqr_etl",
             description="This job executes the ferceqr ETL.",
-            selection="group:raw_ferceqr",
+            selection="key:*_ferceqr*",
         ),
     ],
 )
