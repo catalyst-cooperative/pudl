@@ -99,7 +99,7 @@ resource "google_cloud_run_v2_service" "pudl_usage_metrics_dashboard" {
   invoker_iam_disabled = true
 
   scaling {
-    min_instance_count = 1
+    min_instance_count = 0
   }
 
   template {
@@ -107,6 +107,7 @@ resource "google_cloud_run_v2_service" "pudl_usage_metrics_dashboard" {
       "run.googleapis.com/client-name" = "terraform"
     }
 
+    timeout = "1200s"
 
     service_account = google_service_account.pudl_usage_metrics_dashboard_cloud_run.email
     volumes {
@@ -121,10 +122,11 @@ resource "google_cloud_run_v2_service" "pudl_usage_metrics_dashboard" {
 
       resources {
         limits = {
-          cpu    = "1000m"
-          memory = "4Gi"
+          cpu    = "4000m"
+          memory = "16Gi"
         }
-        cpu_idle = true
+        cpu_idle          = true
+        startup_cpu_boost = true
       }
 
       volume_mounts {
