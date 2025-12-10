@@ -16,7 +16,7 @@ from pudl.helpers import (
     cleanstrings_snake,
     df_from_parquet,
     lf_from_parquet,
-    offload_table,
+    persist_table_as_parquet,
     simplify_columns,
     zero_pad_numeric_string,
 )
@@ -392,7 +392,7 @@ def one_year_hourly_available_capacity_factor(
         "onshore_wind": raw_vcerare__onshore_wind_power_100m,
     }
     return {
-        _table_name(df_name): offload_table(
+        _table_name(df_name): persist_table_as_parquet(
             _spot_fix_great_lakes_columns(df)
             .pipe(_check_for_valid_counties, fips_df_census, df_name)
             .pipe(_add_time_cols, df_name)
@@ -417,7 +417,7 @@ def merge_all_vce_tables(
     merge_keys = ["report_year", "datetime_utc", "hour_of_year", "county_state_names"]
 
     # Merge and write as partitioned parquet files to disk
-    return offload_table(
+    return persist_table_as_parquet(
         lf_from_parquet(transformed_tables["_core_vcerare__solar_pv"])
         .join(
             lf_from_parquet(transformed_tables["_core_vcerare__offshore_wind"]),
@@ -487,7 +487,7 @@ def out_vcerare__hourly_available_capacity_factor(
     )
 
     # Write to disk for later merge with full VCE table
-    fips_table = offload_table(
+    fips_table = persist_table_as_parquet(
         fips_df_census.reset_index().astype({"county_state_names": "category"}),
         "_vce_fips_census",
     )
@@ -510,8 +510,10 @@ def out_vcerare__hourly_available_capacity_factor(
         )
 
         # Merge table into final output table
-        merged_table = merge_all_vce_tables(
+        merge_all_vce_tables(
             transformed_tables, fips_table, partitioned_output_table, year
         )
 
-    return lf_from_parquet(merged_table, use_all_partitions=True)
+    return lf_from_parquet(
+        ParquetData(table_name=partitioned_output_table), use_all_partitions=True
+    )

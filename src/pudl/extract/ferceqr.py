@@ -11,7 +11,7 @@ import duckdb
 from duckdb import DuckDBPyConnection
 from upath import UPath
 
-from pudl.helpers import ParquetData, offload_table
+from pudl.helpers import ParquetData, persist_table_as_parquet
 from pudl.logging_helpers import get_logger
 from pudl.settings import ferceqr_year_quarters
 
@@ -73,7 +73,7 @@ def _extract_ident(
         ident_csv, all_varchar=True, store_rejects=True, ignore_errors=True
     )
     (cid,) = csv_rel.select("company_identifier").limit(1).fetchone()
-    offload_table(
+    persist_table_as_parquet(
         csv_rel.select(f"*, '{year_quarter}' AS year_quarter"),
         table_name=_get_table_name("ident", year_quarter),
         partitions={"cid": cid},
@@ -90,7 +90,7 @@ def _extract_other_table(
 ):
     """Extract data from ident csv and write to parquet, returning CID from table."""
     # Use duckdb to read CSV and write as parquet
-    offload_table(
+    persist_table_as_parquet(
         duckdb_connection.read_csv(
             csv_path, all_varchar=True, store_rejects=True, ignore_errors=True
         ).select(f"*, '{year_quarter}' AS year_quarter, '{cid}' as company_identifier"),
@@ -151,7 +151,7 @@ def _csvs_to_parquet(
 
 def _save_extract_metadata(year_quarter: str, duckdb_connection: DuckDBPyConnection):
     """Create parquet file with metadata on any CSV parsing errors."""
-    return offload_table(
+    return persist_table_as_parquet(
         duckdb_connection.table("reject_errors")
         .join(
             duckdb_connection.table("reject_scans"),

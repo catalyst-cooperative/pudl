@@ -2334,9 +2334,7 @@ class ParquetData(BaseModel):
 
     Writing data to disk as parquet files enables the use of highly efficient
     processing/transforms with tools like Polars or duckdb. This class provides
-    helpers for managing paths to parquet data on disk. This class and the helper
-    methods that operate on it are meant explicitly for intermediate data to use
-    for transforms, not for output data.
+    helpers for managing paths to parquet data on disk.
     """
 
     table_name: str
@@ -2359,7 +2357,7 @@ class ParquetData(BaseModel):
         return self.parquet_directory / filename
 
 
-def offload_table(
+def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
     partitions: dict = {},
