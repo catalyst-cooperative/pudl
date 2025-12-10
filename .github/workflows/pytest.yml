@@ -55,6 +55,7 @@ jobs:
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
               - '!.mypy.ini'
+              - '!terraform/**'
               - '!test/unit/**'
       - name: print out components
         run: |
