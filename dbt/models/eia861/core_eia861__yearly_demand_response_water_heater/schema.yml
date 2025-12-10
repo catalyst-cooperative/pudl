@@ -15,4 +15,8 @@ sources:
           - name: state
           - name: utility_id_eia
           - name: num_water_heaters
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: data_maturity

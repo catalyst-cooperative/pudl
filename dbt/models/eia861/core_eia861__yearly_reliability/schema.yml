@@ -11,21 +11,65 @@ sources:
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: caidi_w_major_event_days_minus_loss_of_service_minutes
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: caidi_w_major_event_days_minutes
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: caidi_wo_major_event_days_minutes
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: entity_type
           - name: highest_distribution_voltage_kv
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: inactive_accounts_included
           - name: momentary_interruption_definition
           - name: outages_recorded_automatically
           - name: report_date
           - name: saidi_w_major_event_days_minus_loss_of_service_minutes
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: saidi_w_major_event_days_minutes
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: saidi_wo_major_event_days_minutes
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: saifi_w_major_event_days_customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: saifi_w_major_event_days_minus_loss_of_service_customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: saifi_wo_major_event_days_customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: short_form
           - name: standard
           - name: state

@@ -13,7 +13,15 @@ sources:
           - name: nerc_region
           - name: report_date
           - name: sales_for_resale_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: sales_to_ultimate_consumers_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: state
           - name: utility_id_eia
           - name: data_maturity

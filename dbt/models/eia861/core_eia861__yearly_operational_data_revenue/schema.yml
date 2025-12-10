@@ -13,6 +13,10 @@ sources:
           - name: nerc_region
           - name: report_date
           - name: revenue
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: revenue_class
           - name: state
           - name: utility_id_eia

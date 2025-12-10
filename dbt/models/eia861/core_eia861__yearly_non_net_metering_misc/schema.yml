@@ -9,13 +9,28 @@ sources:
               arguments:
                 table_name: core_eia861__yearly_non_net_metering_misc
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+            column_A: utility_owned_capacity_mw
+            column_B: backup_capacity_mw
         columns:
           - name: backup_capacity_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: balancing_authority_code_eia
           - name: generators_number
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: pv_current_flow_type
           - name: report_date
           - name: state
           - name: utility_id_eia
           - name: utility_owned_capacity_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: data_maturity

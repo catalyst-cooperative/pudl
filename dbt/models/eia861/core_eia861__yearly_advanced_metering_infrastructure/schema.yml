@@ -11,14 +11,38 @@ sources:
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: advanced_metering_infrastructure
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: automated_meter_reading
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: balancing_authority_code_eia
           - name: customer_class
           - name: daily_digital_access_customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: direct_load_control_customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: energy_served_ami_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: entity_type
           - name: home_area_network
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: non_amr_ami
           - name: report_date
           - name: short_form
