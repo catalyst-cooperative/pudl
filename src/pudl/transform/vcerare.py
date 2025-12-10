@@ -510,8 +510,10 @@ def out_vcerare__hourly_available_capacity_factor(
         )
 
         # Merge table into final output table
-        merged_table = merge_all_vce_tables(
+        merge_all_vce_tables(
             transformed_tables, fips_table, partitioned_output_table, year
         )
 
-    return lf_from_parquet(merged_table, use_all_partitions=True)
+    return lf_from_parquet(
+        ParquetData(table_name=partitioned_output_table), use_all_partitions=True
+    )
