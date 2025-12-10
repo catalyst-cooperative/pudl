@@ -10,9 +10,10 @@ sources:
                 table_name: core_eia861__yearly_distributed_generation_misc
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
-            column_A: generators_number
-            column_B: generators_num_less_1_mw
-            or_equal: True
+              arguments:
+                column_A: generators_number
+                column_B: generators_num_less_1_mw
+                or_equal: True
         columns:
           - name: backup_capacity_mw
             data_tests:
