@@ -1,0 +1,210 @@
+pudl.validate
+=============
+
+.. py:module:: pudl.validate
+
+.. autoapi-nested-parse::
+
+   PUDL data validation functions and test case specifications.
+
+   What defines a data validation?
+     * What data are we checking?
+       * What table or output does it come from?
+       * What selection criteria do we apply to that table or output?
+     * What are we checking it against?
+       * Itself (helps validate that the tests themselves are working)
+       * A processed version of itself (aggregation or derived values)
+       * A hard-coded external standard (e.g. heat rates, fuel heat content)
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.validate.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.validate.intersect_indexes
+   pudl.validate.check_date_freq
+   pudl.validate.no_null_rows
+   pudl.validate.no_null_cols
+   pudl.validate.group_mean_continuity_check
+   pudl.validate.weighted_quantile
+   pudl.validate.historical_distribution
+   pudl.validate.bounds_histogram
+   pudl.validate.historical_histogram
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: intersect_indexes(indexes: list[pandas.Index]) -> pandas.Index
+
+   Calculate the intersection of a collection of pandas Indexes.
+
+   :param indexes: a list of pandas.Index objects
+
+   :returns: The intersection of all values found in the input indexes.
+
+
+.. py:function:: check_date_freq(df1: pandas.DataFrame, df2: pandas.DataFrame, mult: int) -> None
+
+   Verify an expected relationship between time frequencies of two dataframes.
+
+   Identify all distinct values of ``report_date`` in each of the input
+   dataframes and check that the number of distinct ``report_date`` values in
+   ``df2`` is ``mult`` times the number of ``report_date`` values in ``df1``
+   across only those years which appear in both dataframes. This is primarily
+   aimed at comparing annual and monthly dataframes, but should
+   also work with e.g. annual (df1) and quarterly (df2) frequency data using
+   ``mult=4``.
+
+   Note the function assumes that a dataframe with sub-annual frequency will
+   cover the entire year it's part of. If you have a partial year of monthly
+   data in one dataframe that overlaps with annual data in another dataframe
+   you'll probably get unexpected behavior.
+
+   We use this method rather than attempting to infer a frequency from the
+   observed values because often we have only a single year of data, and you
+   need at least 3 values in a DatetimeIndex to infer the frequency.
+
+   :param df1: A dataframe with a column named ``report_date`` which contains dates.
+   :param df2: A dataframe with a column named ``report_date`` which contains dates.
+   :param mult: A multiplicative factor indicating the expected ratio between the number
+                of distinct date values found in ``df1`` and ``df2``.  E.g. if ``df1`` is
+                annual and ``df2`` is monthly, ``mult`` should be 12.
+
+   :returns: None
+
+   :raises AssertionError: if the number of distinct ``report_date`` values in
+       ``df2`` is not ``mult`` times the number of distinct
+       ``report_date`` values in ``df1``.
+   :raises ValueError: if either ``df1`` or ``df2`` does not have a
+       column named ``report_date``
+
+
+.. py:function:: no_null_rows(df, cols='all', df_name='', thresh=0.9)
+
+   Check for rows filled with NA values indicating bad merges.
+
+   Sum up the number of NA values in each row and the columns specified by
+   ``cols``. If the NA values make up more than ``thresh`` of the columns
+   overall, the row is considered Null and the check fails.
+
+   :param df: DataFrame to check for null rows.
+   :type df: pandas.DataFrame
+   :param cols: The labels of columns to check for
+                all-null values. If "all" check all columns.
+   :type cols: iterable or "all"
+
+   :returns: The input DataFrame, for use with DataFrame.pipe().
+   :rtype: pandas.DataFrame
+
+   :raises ValueError: If the fraction of NA values in any row is greater than
+   :raises `thresh``:
+
+
+.. py:function:: no_null_cols(df: pandas.DataFrame, cols: str = 'all', df_name: str = '') -> pandas.DataFrame
+
+   Check that a dataframe has no all-NaN columns.
+
+   Occasionally in the concatenation / merging of dataframes we get a label
+   wrong, and it results in a fully NaN column... which should probably never
+   actually happen. This is a quick verification.
+
+   :param df: DataFrame to check for null columns.
+   :type df: pandas.DataFrame
+   :param cols: The labels of columns to check for
+                all-null values. If "all" check all columns.
+   :type cols: iterable or "all"
+   :param df_name: Name of the dataframe, to aid in debugging/logging.
+   :type df_name: str
+
+   :returns:
+
+             The same DataFrame as was passed in, for use in
+                 DataFrame.pipe().
+   :rtype: pandas.DataFrame
+
+   :raises ValueError: If any completely NaN / Null valued columns are found.
+
+
+.. py:function:: group_mean_continuity_check(df: pandas.DataFrame, thresholds: dict[str, float], groupby_col: str, n_outliers_allowed: int = 0) -> dagster.AssetCheckResult
+
+   Check that certain variables don't vary by too much.
+
+   Groups and sorts the data by ``groupby_col``, then takes the mean across
+   each group. Useful for saying something like "the average water usage of
+   cooling systems didn't jump by 10x from 2012-2013."
+
+   :param df: the df with the actual data
+   :param thresholds: a mapping from column names to the ratio by which those
+                      columns are allowed to fluctuate from one group to the next.
+   :param groupby_col: the column by which we will group the data.
+   :param n_outliers_allowed: how many data points are allowed to be above the
+   :param threshold.:
+
+
+.. py:function:: weighted_quantile(data: pandas.Series, weights: pandas.Series, quantile: float) -> float
+
+   Calculate the weighted quantile of a Series or DataFrame column.
+
+   This function allows us to take two columns from a :class:`pandas.DataFrame` one of
+   which contains an observed value (data) like heat content per unit of fuel, and the
+   other of which (weights) contains a quantity like quantity of fuel delivered which
+   should be used to scale the importance of the observed value in an overall
+   distribution, and calculate the values that the scaled distribution will have at
+   various quantiles.
+
+   :param data: A series containing numeric data.
+   :param weights: Weights to use in scaling the data. Must have the same length as data.
+   :param quantile: A number between 0 and 1, representing the quantile at which we want
+                    to find the value of the weighted data.
+
+   :returns: The value in the weighted data corresponding to the given quantile. If there are
+             no values in the data, return :mod:`numpy.nan`.
+
+
+.. py:function:: historical_distribution(df: pandas.DataFrame, data_col: str, weight_col: str, quantile: float) -> list[float]
+
+   Calculate a historical distribution of weighted values of a column.
+
+   In order to know what a "reasonable" value of a particular column is in the
+   pudl data, we can use this function to see what the value in that column
+   has been in each of the years of data we have on hand, and a given
+   quantile. This population of values can then be used to set boundaries on
+   acceptable data distributions in the aggregated and processed data.
+
+   :param df: a dataframe containing historical data, with a
+              column named either ``report_date`` or ``report_year``.
+   :type df: pandas.DataFrame
+   :param data_col: Label of the column containing the data of interest.
+   :type data_col: str
+   :param weight_col: Label of the column containing the weights to be
+                      used in scaling the data.
+   :type weight_col: str
+
+   :returns: The weighted quantiles of data, for each of the years found in
+             the historical data of df.
+   :rtype: list
+
+
+.. py:function:: bounds_histogram(df, data_col, weight_col, query, low_q, hi_q, low_bound, hi_bound, title='')
+
+   Plot a weighted histogram showing acceptable bounds/actual values.
+
+
+.. py:function:: historical_histogram(orig_df, test_df, data_col, weight_col, query='', low_q=0.05, mid_q=0.5, hi_q=0.95, low_bound=None, hi_bound=None, title='')
+
+   Weighted histogram comparing distribution with historical subsamples.
+
+

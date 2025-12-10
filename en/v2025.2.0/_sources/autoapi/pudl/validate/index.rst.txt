@@ -1,0 +1,718 @@
+pudl.validate
+=============
+
+.. py:module:: pudl.validate
+
+.. autoapi-nested-parse::
+
+   PUDL data validation functions and test case specifications.
+
+   What defines a data validation?
+     * What data are we checking?
+       * What table or output does it come from?
+       * What selection criteria do we apply to that table or output?
+     * What are we checking it against?
+       * Itself (helps validate that the tests themselves are working)
+       * A processed version of itself (aggregation or derived values)
+       * A hard-coded external standard (e.g. heat rates, fuel heat content)
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.validate.logger
+   pudl.validate.core_ferc1__yearly_steam_plants_sched402_capacity
+   pudl.validate.core_ferc1__yearly_steam_plants_sched402_expenses
+   pudl.validate.core_ferc1__yearly_steam_plants_sched402_capacity_ratios
+   pudl.validate.core_ferc1__yearly_steam_plants_sched402_connected_hours
+   pudl.validate.core_ferc1__yearly_steam_plants_sched402_self
+   pudl.validate.fuel_ferc1_self
+   pudl.validate.fuel_ferc1_coal_mmbtu_per_unit_bounds
+   pudl.validate.fuel_ferc1_oil_mmbtu_per_unit_bounds
+   pudl.validate.fuel_ferc1_gas_mmbtu_per_unit_bounds
+   pudl.validate.fuel_ferc1_coal_cost_per_mmbtu_bounds
+   pudl.validate.fuel_ferc1_oil_cost_per_mmbtu_bounds
+   pudl.validate.fuel_ferc1_gas_cost_per_mmbtu_bounds
+   pudl.validate.fuel_ferc1_coal_cost_per_unit_bounds
+   pudl.validate.fuel_ferc1_oil_cost_per_unit_bounds
+   pudl.validate.fuel_ferc1_gas_cost_per_unit_bounds
+   pudl.validate.fbp_ferc1_self
+   pudl.validate.fbp_ferc1_gas_cost_per_mmbtu_bounds
+   pudl.validate.fbp_ferc1_oil_cost_per_mmbtu_bounds
+   pudl.validate.fbp_ferc1_coal_cost_per_mmbtu_bounds
+   pudl.validate.gf_eia923_coal_heat_content
+   pudl.validate.gf_eia923_gas_heat_content
+   pudl.validate.gf_eia923_oil_heat_content
+   pudl.validate.gf_eia923_agg
+   pudl.validate.bf_eia923_coal_heat_content
+   pudl.validate.bf_eia923_oil_heat_content
+   pudl.validate.bf_eia923_gas_heat_content
+   pudl.validate.bf_eia923_coal_ash_content
+   pudl.validate.bf_eia923_coal_sulfur_content
+   pudl.validate.bf_eia923_self
+   pudl.validate.bf_eia923_agg
+   pudl.validate.frc_eia923_coal_ant_heat_content
+   pudl.validate.frc_eia923_coal_bit_heat_content
+   pudl.validate.frc_eia923_coal_sub_heat_content
+   pudl.validate.frc_eia923_coal_lig_heat_content
+   pudl.validate.frc_eia923_coal_cc_heat_content
+   pudl.validate.frc_eia923_coal_wc_heat_content
+   pudl.validate.frc_eia923_oil_dfo_heat_content
+   pudl.validate.frc_eia923_gas_sgc_heat_content
+   pudl.validate.frc_eia923_oil_jf_heat_content
+   pudl.validate.frc_eia923_oil_ker_heat_content
+   pudl.validate.frc_eia923_petcoke_heat_content
+   pudl.validate.frc_eia923_rfo_heat_content
+   pudl.validate.frc_eia923_propane_heat_content
+   pudl.validate.frc_eia923_petcoke_syngas_heat_content
+   pudl.validate.frc_eia923_waste_oil_heat_content
+   pudl.validate.frc_eia923_blast_furnace_gas_heat_content
+   pudl.validate.frc_eia923_natural_gas_heat_content
+   pudl.validate.frc_eia923_other_gas_heat_content
+   pudl.validate.frc_eia923_ag_byproduct_heat_content
+   pudl.validate.frc_eia923_muni_solids_heat_content
+   pudl.validate.frc_eia923_biomass_solids_heat_content
+   pudl.validate.frc_eia923_wood_solids_heat_content
+   pudl.validate.frc_eia923_biomass_liquids_heat_content
+   pudl.validate.frc_eia923_sludge_heat_content
+   pudl.validate.frc_eia923_black_liquor_heat_content
+   pudl.validate.frc_eia923_wood_liquids_heat_content
+   pudl.validate.frc_eia923_landfill_gas_heat_content
+   pudl.validate.frc_eia923_biomass_gas_heat_content
+   pudl.validate.frc_eia923_coal_ash_content
+   pudl.validate.frc_eia923_coal_sulfur_content
+   pudl.validate.frc_eia923_coal_mercury_content
+   pudl.validate.frc_eia923_coal_moisture_content
+   pudl.validate.frc_eia923_self
+   pudl.validate.frc_eia923_agg
+   pudl.validate.mcoe_gas_capacity_factor
+   pudl.validate.mcoe_coal_capacity_factor
+   pudl.validate.mcoe_gas_heat_rate
+   pudl.validate.mcoe_coal_heat_rate
+   pudl.validate.mcoe_fuel_cost_per_mwh
+   pudl.validate.mcoe_fuel_cost_per_mmbtu
+   pudl.validate.mcoe_self_fuel_cost_per_mmbtu
+   pudl.validate.mcoe_self_fuel_cost_per_mwh
+   pudl.validate.mcoe_self
+   pudl.validate.gens_eia860_vs_bound
+   pudl.validate.gens_eia860_self
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.validate.intersect_indexes
+   pudl.validate.check_date_freq
+   pudl.validate.no_null_rows
+   pudl.validate.no_null_cols
+   pudl.validate.group_mean_continuity_check
+   pudl.validate.check_max_rows
+   pudl.validate.check_min_rows
+   pudl.validate.check_unique_rows
+   pudl.validate.weighted_quantile
+   pudl.validate.historical_distribution
+   pudl.validate.vs_bounds
+   pudl.validate.vs_self
+   pudl.validate.vs_historical
+   pudl.validate.bounds_histogram
+   pudl.validate.historical_histogram
+   pudl.validate.plot_vs_bounds
+   pudl.validate.plot_vs_self
+   pudl.validate.plot_vs_agg
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: intersect_indexes(indexes: list[pandas.Index]) -> pandas.Index
+
+   Calculate the intersection of a collection of pandas Indexes.
+
+   :param indexes: a list of pandas.Index objects
+
+   :returns: The intersection of all values found in the input indexes.
+
+
+.. py:function:: check_date_freq(df1: pandas.DataFrame, df2: pandas.DataFrame, mult: int) -> None
+
+   Verify an expected relationship between time frequencies of two dataframes.
+
+   Identify all distinct values of ``report_date`` in each of the input
+   dataframes and check that the number of distinct ``report_date`` values in
+   ``df2`` is ``mult`` times the number of ``report_date`` values in ``df1``
+   across only those years which appear in both dataframes. This is primarily
+   aimed at comparing annual and monthly dataframes, but should
+   also work with e.g. annual (df1) and quarterly (df2) frequency data using
+   ``mult=4``.
+
+   Note the function assumes that a dataframe with sub-annual frequency will
+   cover the entire year it's part of. If you have a partial year of monthly
+   data in one dataframe that overlaps with annual data in another dataframe
+   you'll probably get unexpected behavior.
+
+   We use this method rather than attempting to infer a frequency from the
+   observed values because often we have only a single year of data, and you
+   need at least 3 values in a DatetimeIndex to infer the frequency.
+
+   :param df1: A dataframe with a column named ``report_date`` which contains dates.
+   :param df2: A dataframe with a column named ``report_date`` which contains dates.
+   :param mult: A multiplicative factor indicating the expected ratio between the number
+                of distinct date values found in ``df1`` and ``df2``.  E.g. if ``df1`` is
+                annual and ``df2`` is monthly, ``mult`` should be 12.
+
+   :returns: None
+
+   :raises AssertionError: if the number of distinct ``report_date`` values in
+       ``df2`` is not ``mult`` times the number of distinct
+       ``report_date`` values in ``df1``.
+   :raises ValueError: if either ``df1`` or ``df2`` does not have a
+       column named ``report_date``
+
+
+.. py:function:: no_null_rows(df, cols='all', df_name='', thresh=0.9)
+
+   Check for rows filled with NA values indicating bad merges.
+
+   Sum up the number of NA values in each row and the columns specified by
+   ``cols``. If the NA values make up more than ``thresh`` of the columns
+   overall, the row is considered Null and the check fails.
+
+   :param df: DataFrame to check for null rows.
+   :type df: pandas.DataFrame
+   :param cols: The labels of columns to check for
+                all-null values. If "all" check all columns.
+   :type cols: iterable or "all"
+
+   :returns: The input DataFrame, for use with DataFrame.pipe().
+   :rtype: pandas.DataFrame
+
+   :raises ValueError: If the fraction of NA values in any row is greater than
+   :raises `thresh``:
+
+
+.. py:function:: no_null_cols(df: pandas.DataFrame, cols: str = 'all', df_name: str = '') -> pandas.DataFrame
+
+   Check that a dataframe has no all-NaN columns.
+
+   Occasionally in the concatenation / merging of dataframes we get a label
+   wrong, and it results in a fully NaN column... which should probably never
+   actually happen. This is a quick verification.
+
+   :param df: DataFrame to check for null columns.
+   :type df: pandas.DataFrame
+   :param cols: The labels of columns to check for
+                all-null values. If "all" check all columns.
+   :type cols: iterable or "all"
+   :param df_name: Name of the dataframe, to aid in debugging/logging.
+   :type df_name: str
+
+   :returns:
+
+             The same DataFrame as was passed in, for use in
+                 DataFrame.pipe().
+   :rtype: pandas.DataFrame
+
+   :raises ValueError: If any completely NaN / Null valued columns are found.
+
+
+.. py:function:: group_mean_continuity_check(df: pandas.DataFrame, thresholds: dict[str, float], groupby_col: str, n_outliers_allowed: int = 0) -> dagster.AssetCheckResult
+
+   Check that certain variables don't vary by too much.
+
+   Groups and sorts the data by ``groupby_col``, then takes the mean across
+   each group. Useful for saying something like "the average water usage of
+   cooling systems didn't jump by 10x from 2012-2013."
+
+   :param df: the df with the actual data
+   :param thresholds: a mapping from column names to the ratio by which those
+                      columns are allowed to fluctuate from one group to the next.
+   :param groupby_col: the column by which we will group the data.
+   :param n_outliers_allowed: how many data points are allowed to be above the
+   :param threshold.:
+
+
+.. py:function:: check_max_rows(df: pandas.DataFrame, expected_rows: int | float = np.inf, margin: float = 0.05, df_name: str = '') -> pandas.DataFrame
+
+   Validate that a dataframe has less than a maximum number of rows.
+
+
+.. py:function:: check_min_rows(df: pandas.DataFrame, expected_rows: int | float = 0, margin: float = 0.05, df_name: str = '') -> pandas.DataFrame
+
+   Validate that a dataframe has a certain minimum number of rows.
+
+
+.. py:function:: check_unique_rows(df: pandas.DataFrame, subset: list[str] | None = None, df_name: str = '') -> pandas.DataFrame
+
+   Test whether dataframe has unique records within a subset of columns.
+
+   :param df: DataFrame to check for duplicate records.
+   :param subset: Columns to consider in checking for dupes.
+   :param df_name: Name of the dataframe, to aid in debugging/logging.
+
+   :returns: The same DataFrame as was passed in, for use in DataFrame.pipe().
+
+   :raises ValueError: If there are duplicate records in the subset of selected
+       columns.
+
+
+.. py:function:: weighted_quantile(data: pandas.Series, weights: pandas.Series, quantile: float) -> float
+
+   Calculate the weighted quantile of a Series or DataFrame column.
+
+   This function allows us to take two columns from a :class:`pandas.DataFrame` one of
+   which contains an observed value (data) like heat content per unit of fuel, and the
+   other of which (weights) contains a quantity like quantity of fuel delivered which
+   should be used to scale the importance of the observed value in an overall
+   distribution, and calculate the values that the scaled distribution will have at
+   various quantiles.
+
+   :param data: A series containing numeric data.
+   :param weights: Weights to use in scaling the data. Must have the same length as data.
+   :param quantile: A number between 0 and 1, representing the quantile at which we want
+                    to find the value of the weighted data.
+
+   :returns: The value in the weighted data corresponding to the given quantile. If there are
+             no values in the data, return :mod:`numpy.nan`.
+
+
+.. py:function:: historical_distribution(df: pandas.DataFrame, data_col: str, weight_col: str, quantile: float) -> list[float]
+
+   Calculate a historical distribution of weighted values of a column.
+
+   In order to know what a "reasonable" value of a particular column is in the
+   pudl data, we can use this function to see what the value in that column
+   has been in each of the years of data we have on hand, and a given
+   quantile. This population of values can then be used to set boundaries on
+   acceptable data distributions in the aggregated and processed data.
+
+   :param df: a dataframe containing historical data, with a
+              column named either ``report_date`` or ``report_year``.
+   :type df: pandas.DataFrame
+   :param data_col: Label of the column containing the data of interest.
+   :type data_col: str
+   :param weight_col: Label of the column containing the weights to be
+                      used in scaling the data.
+   :type weight_col: str
+
+   :returns: The weighted quantiles of data, for each of the years found in
+             the historical data of df.
+   :rtype: list
+
+
+.. py:function:: vs_bounds(df, data_col, weight_col, query='', title='', low_q=False, low_bound=False, hi_q=False, hi_bound=False)
+
+   Test a distribution against an upper bound, lower bound, or both.
+
+
+.. py:function:: vs_self(df, data_col, weight_col, query='', title='', low_q=0.05, mid_q=0.5, hi_q=0.95)
+
+   Test a distribution against its own historical range.
+
+   This is a special case of the :func:`pudl.validate.vs_historical` function, in which
+   both the ``orig_df`` and ``test_df`` are the same. Mostly it helps ensure that the
+   test itself is valid for the given distribution.
+
+
+.. py:function:: vs_historical(orig_df, test_df, data_col, weight_col, query='', low_q=0.05, mid_q=0.5, hi_q=0.95, title='')
+
+   Validate aggregated distributions against original data.
+
+
+.. py:function:: bounds_histogram(df, data_col, weight_col, query, low_q, hi_q, low_bound, hi_bound, title='')
+
+   Plot a weighted histogram showing acceptable bounds/actual values.
+
+
+.. py:function:: historical_histogram(orig_df, test_df, data_col, weight_col, query='', low_q=0.05, mid_q=0.5, hi_q=0.95, low_bound=None, hi_bound=None, title='')
+
+   Weighted histogram comparing distribution with historical subsamples.
+
+
+.. py:function:: plot_vs_bounds(df, validation_cases)
+
+   Run through a data validation based on absolute bounds.
+
+
+.. py:function:: plot_vs_self(df, validation_cases)
+
+   Validate a bunch of distributions against themselves.
+
+
+.. py:function:: plot_vs_agg(orig_df, agg_df, validation_cases)
+
+   Validate a bunch of distributions against aggregated versions.
+
+
+.. py:data:: core_ferc1__yearly_steam_plants_sched402_capacity
+
+.. py:data:: core_ferc1__yearly_steam_plants_sched402_expenses
+
+.. py:data:: core_ferc1__yearly_steam_plants_sched402_capacity_ratios
+
+.. py:data:: core_ferc1__yearly_steam_plants_sched402_connected_hours
+
+.. py:data:: core_ferc1__yearly_steam_plants_sched402_self
+
+.. py:data:: fuel_ferc1_self
+
+.. py:data:: fuel_ferc1_coal_mmbtu_per_unit_bounds
+
+.. py:data:: fuel_ferc1_oil_mmbtu_per_unit_bounds
+
+.. py:data:: fuel_ferc1_gas_mmbtu_per_unit_bounds
+
+.. py:data:: fuel_ferc1_coal_cost_per_mmbtu_bounds
+
+.. py:data:: fuel_ferc1_oil_cost_per_mmbtu_bounds
+
+.. py:data:: fuel_ferc1_gas_cost_per_mmbtu_bounds
+
+.. py:data:: fuel_ferc1_coal_cost_per_unit_bounds
+
+.. py:data:: fuel_ferc1_oil_cost_per_unit_bounds
+
+.. py:data:: fuel_ferc1_gas_cost_per_unit_bounds
+
+.. py:data:: fbp_ferc1_self
+
+.. py:data:: fbp_ferc1_gas_cost_per_mmbtu_bounds
+
+.. py:data:: fbp_ferc1_oil_cost_per_mmbtu_bounds
+
+.. py:data:: fbp_ferc1_coal_cost_per_mmbtu_bounds
+
+.. py:data:: gf_eia923_coal_heat_content
+
+   Valid coal heat content values (all coal types).
+
+   The Generation Fuel table does not break different coal types out separately, so we can
+   only test the validity of the entire suite of coal records.
+
+.. py:data:: gf_eia923_gas_heat_content
+
+   Valid natural gas heat content values.
+
+   Focuses on natural gas proper. Lower bound excludes other types of gaseous fuels
+   intentionally.
+
+.. py:data:: gf_eia923_oil_heat_content
+
+   Valid petroleum based fuel heat content values.
+
+   Based on historically reported values in EIA 923 Fuel Receipts and Costs.
+
+.. py:data:: gf_eia923_agg
+
+   EIA923 Boiler Fuel data validation against aggregated data.
+
+.. py:data:: bf_eia923_coal_heat_content
+
+   Valid coal (bituminous, sub-bituminous, and lignite) heat content values.
+
+.. py:data:: bf_eia923_oil_heat_content
+
+   Valid petroleum based fuel heat content values.
+
+   Based on historically reported values in EIA 923 Fuel Receipts and Costs.
+
+.. py:data:: bf_eia923_gas_heat_content
+
+   Valid natural gas heat content values.
+
+   Based on historically reported values in EIA 923 Fuel Receipts and Costs. May fail
+   because of a population of bad data around 0.1 mmbtu/unit. This appears to be an off-
+   by-10x error, possibly due to reporting error in units used.
+
+.. py:data:: bf_eia923_coal_ash_content
+
+   Valid coal ash content (%).
+
+   Based on historical reporting in EIA 923.
+
+.. py:data:: bf_eia923_coal_sulfur_content
+
+   Valid coal sulfur content values.
+
+   Based on historically reported values in EIA 923 Fuel Receipts and Costs.
+
+.. py:data:: bf_eia923_self
+
+   EIA923 Boiler Fuel data validation against itself.
+
+.. py:data:: bf_eia923_agg
+
+   EIA923 Boiler Fuel data validation against aggregated data.
+
+.. py:data:: frc_eia923_coal_ant_heat_content
+
+   Check for reasonable anthracite coal heat content.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_coal_bit_heat_content
+
+   Check for reasonable bituminous coal heat content.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_coal_sub_heat_content
+
+   Check for reasonable Sub-bituminous coal heat content.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_coal_lig_heat_content
+
+   Check for reasonable lignite coal heat content.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_coal_cc_heat_content
+
+   Check for reasonable refined coal heat content.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_coal_wc_heat_content
+
+   Check for reasonable waste coal heat content.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_oil_dfo_heat_content
+
+   Check for reasonable diesel fuel oil heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_gas_sgc_heat_content
+
+   Check for reasonable coal syngas heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_oil_jf_heat_content
+
+   Check for reasonable jet fuel heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_oil_ker_heat_content
+
+   Check for reasonable kerosene heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_petcoke_heat_content
+
+   Check for reasonable petroleum coke heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_rfo_heat_content
+
+   Check for reasonable residual fuel oil heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_propane_heat_content
+
+   Check for reasonable propane heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_petcoke_syngas_heat_content
+
+   Check for reasonable petcoke syngas heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_waste_oil_heat_content
+
+   Check for reasonable waste oil heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_blast_furnace_gas_heat_content
+
+   Check for reasonable blast furnace gas heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_natural_gas_heat_content
+
+   Check for reasonable natural gas heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_other_gas_heat_content
+
+   Check for reasonable other gas heat contents.
+
+   Based on values given in the EIA 923 instructions, but with the lower bound set by the
+   expected lower bound of heat content on blast furnace gas (since there were "other"
+   gasses with bounds lower than the expected 0.32 in the data)
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_ag_byproduct_heat_content
+
+   Check for reasonable agricultural byproduct heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_muni_solids_heat_content
+
+   Check for reasonable municipal solid waste heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_biomass_solids_heat_content
+
+   Check for reasonable other biomass solids heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_wood_solids_heat_content
+
+   Check for reasonable wood solids heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_biomass_liquids_heat_content
+
+   Check for reasonable other biomass liquids heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_sludge_heat_content
+
+   Check for reasonable sludget waste heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_black_liquor_heat_content
+
+   Check for reasonable black liquor heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_wood_liquids_heat_content
+
+   Check for reasonable wood waste liquids heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_landfill_gas_heat_content
+
+   Check for reasonable landfill gas heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_biomass_gas_heat_content
+
+   Check for reasonable other biomass gas heat contents.
+
+   Based on values given in the EIA 923 instructions:
+   https://www.eia.gov/survey/form/eia_923/instructions.pdf
+
+.. py:data:: frc_eia923_coal_ash_content
+
+   Valid coal ash content (%).
+
+   Based on historical reporting in EIA 923.
+
+.. py:data:: frc_eia923_coal_sulfur_content
+
+   Valid coal sulfur content values.
+
+   Based on historically reported values in EIA 923 Fuel Receipts and Costs.
+
+.. py:data:: frc_eia923_coal_mercury_content
+
+   Valid coal mercury content limits.
+
+   Based on USGS FS095-01
+   https://pubs.usgs.gov/fs/fs095-01/fs095-01.html
+
+   Upper tail may fail because of a population of extremely high mercury content coal
+   (9.0ppm) which is likely a reporting error.
+
+.. py:data:: frc_eia923_coal_moisture_content
+
+   Valid coal moisture content, based on historical EIA 923 reporting.
+
+.. py:data:: frc_eia923_self
+
+   EIA923 fuel receipts & costs data validation against itself.
+
+.. py:data:: frc_eia923_agg
+
+   EIA923 fuel receipts & costs data validation against aggregated data.
+
+.. py:data:: mcoe_gas_capacity_factor
+
+   Static constraints on natural gas generator capacity factors.
+
+.. py:data:: mcoe_coal_capacity_factor
+
+   Static constraints on coal fired generator capacity factors.
+
+.. py:data:: mcoe_gas_heat_rate
+
+   Static constraints on gas fired generator heat rates.
+
+.. py:data:: mcoe_coal_heat_rate
+
+   Static constraints on coal fired generator heat rates.
+
+.. py:data:: mcoe_fuel_cost_per_mwh
+
+   Static constraints on fuel costs per MWh net generation.
+
+.. py:data:: mcoe_fuel_cost_per_mmbtu
+
+   Static constraints on fuel costs per mmbtu of fuel consumed.
+
+.. py:data:: mcoe_self_fuel_cost_per_mmbtu
+
+.. py:data:: mcoe_self_fuel_cost_per_mwh
+
+.. py:data:: mcoe_self
+
+.. py:data:: gens_eia860_vs_bound
+
+.. py:data:: gens_eia860_self
+

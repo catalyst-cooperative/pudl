@@ -1,0 +1,51 @@
+pudl.glue.ferc714
+=================
+
+.. py:module:: pudl.glue.ferc714
+
+.. autoapi-nested-parse::
+
+   Extract and transform glue tables between FERC Form 714's CSV and XBRL raw sources.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.glue.ferc714.logger
+   pudl.glue.ferc714.RESP_ID_FERC_MAP_CSV
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.glue.ferc714.get_respondent_map_ferc714
+   pudl.glue.ferc714.glue
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: RESP_ID_FERC_MAP_CSV
+
+   Path to the PUDL ID mapping sheet with the plant map.
+
+.. py:function:: get_respondent_map_ferc714() -> pandas.DataFrame
+
+   Read in the manual CSV to XBRL FERC714 respondent mapping data.
+
+
+.. py:function:: glue() -> dict[str:pd.DataFrame]
+
+   Make the FERC 714 glue tables out of stored CSVs of association tables.
+
+   This function was mirrored off of ferc1_eia.glue, but is much more
+   paired down.
+
+

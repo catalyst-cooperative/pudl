@@ -1,0 +1,32 @@
+pudl.metadata.resources.ferc1
+=============================
+
+.. py:module:: pudl.metadata.resources.ferc1
+
+.. autoapi-nested-parse::
+
+   Table definitions for the FERC Form 1 data group.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.ferc1.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   FERC Form 1 resource attributes by PUDL identifier (``resource.name``).
+
+   Keys are in alphabetical order.
+
+   See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of
+   ``foreign_key_rules``.
+

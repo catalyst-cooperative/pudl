@@ -1,0 +1,1433 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.io_managers &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/pudl/io_managers/index';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="pudl.logging_helpers" href="../logging_helpers/index.html" />
+    <link rel="prev" title="pudl.helpers" href="../helpers/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">pudl</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_version/index.html">pudl._version</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../analysis/index.html">pudl.analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../convert/index.html">pudl.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../etl/index.html">pudl.etl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../glue/index.html">pudl.glue</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">pudl.io_managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../metadata/index.html">pudl.metadata</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../metadata/resources/index.html">pudl.metadata.resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../output/index.html">pudl.output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../output/sql/index.html">pudl.output.sql</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../package_data/index.html">pudl.package_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/censuspep/index.html">pudl.package_data.censuspep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/eia176/index.html">pudl.package_data.eia176</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/eia191/index.html">pudl.package_data.eia191</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/eia757a/index.html">pudl.package_data.eia757a</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/eia860/index.html">pudl.package_data.eia860</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/eia860m/index.html">pudl.package_data.eia860m</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/eia861/index.html">pudl.package_data.eia861</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/eia923/index.html">pudl.package_data.eia923</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/eia930/index.html">pudl.package_data.eia930</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/ferc1/index.html">pudl.package_data.ferc1</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/rus12/index.html">pudl.package_data.rus12</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../package_data/test/index.html">pudl.package_data.test</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../resources/index.html">pudl.resources</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings/index.html">pudl.settings</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../transform/index.html">pudl.transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../transform/params/index.html">pudl.transform.params</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../validate/index.html">pudl.validate</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../workspace/index.html">pudl.workspace</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../dev/index.html">Development</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../code.html" class="nav-link">Code Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.io_managers</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-pudl.io_managers">
+<span id="pudl-io-managers"></span><h1>pudl.io_managers<a class="headerlink" href="#module-pudl.io_managers" title="Link to this heading">#</a></h1>
+<p>Dagster IO Managers.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.io_managers.logger" title="pudl.io_managers.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.io_managers.MINIMUM_SQLITE_VERSION" title="pudl.io_managers.MINIMUM_SQLITE_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MINIMUM_SQLITE_VERSION</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.io_managers.PudlMixedFormatIOManager" title="pudl.io_managers.PudlMixedFormatIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager</span></code></a></p></td>
+<td><p>Format switching IOManager that supports sqlite and parquet.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.io_managers.SQLiteIOManager" title="pudl.io_managers.SQLiteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SQLiteIOManager</span></code></a></p></td>
+<td><p>IO Manager that writes and retrieves dataframes from a SQLite database.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.io_managers.PudlParquetIOManager" title="pudl.io_managers.PudlParquetIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlParquetIOManager</span></code></a></p></td>
+<td><p>IOManager that writes pudl tables to pyarrow parquet files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.io_managers.PudlGeoParquetIOManager" title="pudl.io_managers.PudlGeoParquetIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlGeoParquetIOManager</span></code></a></p></td>
+<td><p>Do some extra work to output valid GeoParquet files when appropriate.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.io_managers.PudlSQLiteIOManager" title="pudl.io_managers.PudlSQLiteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlSQLiteIOManager</span></code></a></p></td>
+<td><p>IO Manager that writes and retrieves dataframes from a SQLite database.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.io_managers.FercSQLiteIOManager" title="pudl.io_managers.FercSQLiteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercSQLiteIOManager</span></code></a></p></td>
+<td><p>IO Manager for reading tables from FERC databases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.io_managers.FercDBFSQLiteIOManager" title="pudl.io_managers.FercDBFSQLiteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercDBFSQLiteIOManager</span></code></a></p></td>
+<td><p>IO Manager for only reading tables from the FERC 1 database.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.io_managers.FercXBRLSQLiteIOManager" title="pudl.io_managers.FercXBRLSQLiteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercXBRLSQLiteIOManager</span></code></a></p></td>
+<td><p>IO Manager for only reading tables from the XBRL database.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.io_managers.get_table_name_from_context" title="pudl.io_managers.get_table_name_from_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_table_name_from_context</span></code></a>(→ str)</p></td>
+<td><p>Retrieves the table name from the context object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.io_managers.pudl_mixed_format_io_manager" title="pudl.io_managers.pudl_mixed_format_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pudl_mixed_format_io_manager</span></code></a>(→ dagster.IOManager)</p></td>
+<td><p>Create a SQLiteManager dagster resource for the pudl database.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.io_managers.parquet_io_manager" title="pudl.io_managers.parquet_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parquet_io_manager</span></code></a>(→ dagster.IOManager)</p></td>
+<td><p>Create a Parquet only IO manager.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.io_managers.geoparquet_io_manager" title="pudl.io_managers.geoparquet_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geoparquet_io_manager</span></code></a>(→ dagster.IOManager)</p></td>
+<td><p>Create a GeoParquet only IO manager.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.io_managers.ferc1_dbf_sqlite_io_manager" title="pudl.io_managers.ferc1_dbf_sqlite_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_dbf_sqlite_io_manager</span></code></a>(→ FercDBFSQLiteIOManager)</p></td>
+<td><p>Create a SQLiteManager dagster resource for the ferc1 dbf database.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.io_managers.ferc1_xbrl_sqlite_io_manager" title="pudl.io_managers.ferc1_xbrl_sqlite_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_xbrl_sqlite_io_manager</span></code></a>(→ FercXBRLSQLiteIOManager)</p></td>
+<td><p>Create a SQLiteManager dagster resource for the ferc1 xbrl database.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.io_managers.ferc714_xbrl_sqlite_io_manager" title="pudl.io_managers.ferc714_xbrl_sqlite_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc714_xbrl_sqlite_io_manager</span></code></a>(→ FercXBRLSQLiteIOManager)</p></td>
+<td><p>Create a SQLiteManager dagster resource for the ferc714 xbrl database.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.io_managers.logger">
+<span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.logger" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.io_managers.MINIMUM_SQLITE_VERSION">
+<span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">MINIMUM_SQLITE_VERSION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'3.32.0'</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#MINIMUM_SQLITE_VERSION"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.MINIMUM_SQLITE_VERSION" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.io_managers.get_table_name_from_context">
+<span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">get_table_name_from_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#get_table_name_from_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.get_table_name_from_context" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves the table name from the context object.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlMixedFormatIOManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">PudlMixedFormatIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_to_parquet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_from_parquet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlMixedFormatIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlMixedFormatIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.IOManager" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.IOManager</span></code></a></p>
+<p>Format switching IOManager that supports sqlite and parquet.</p>
+<p>This IOManager provides for the use of parquet files along with the standard SQLite
+database produced by PUDL.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlMixedFormatIOManager.write_to_parquet">
+<span class="sig-name descname"><span class="pre">write_to_parquet</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlMixedFormatIOManager.write_to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlMixedFormatIOManager.write_to_parquet" title="Link to this definition">#</a></dt>
+<dd><p>If true, data will be written to parquet files.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlMixedFormatIOManager.read_from_parquet">
+<span class="sig-name descname"><span class="pre">read_from_parquet</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlMixedFormatIOManager.read_from_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlMixedFormatIOManager.read_from_parquet" title="Link to this definition">#</a></dt>
+<dd><p>If true, data will be read from parquet files instead of sqlite.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlMixedFormatIOManager._sqlite_io_manager">
+<span class="sig-name descname"><span class="pre">_sqlite_io_manager</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlMixedFormatIOManager._sqlite_io_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlMixedFormatIOManager._sqlite_io_manager" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlMixedFormatIOManager._parquet_io_manager">
+<span class="sig-name descname"><span class="pre">_parquet_io_manager</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlMixedFormatIOManager._parquet_io_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlMixedFormatIOManager._parquet_io_manager" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlMixedFormatIOManager.handle_output">
+<span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlMixedFormatIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlMixedFormatIOManager.handle_output" title="Link to this definition">#</a></dt>
+<dd><p>Passes the output to the appropriate IO manager instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlMixedFormatIOManager.load_input">
+<span class="sig-name descname"><span class="pre">load_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlMixedFormatIOManager.load_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlMixedFormatIOManager.load_input" title="Link to this definition">#</a></dt>
+<dd><p>Reads input from the appropriate IO manager instance.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">SQLiteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">md</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.IOManager" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.IOManager</span></code></a></p>
+<p>IO Manager that writes and retrieves dataframes from a SQLite database.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager.base_dir">
+<span class="sig-name descname"><span class="pre">base_dir</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager.base_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager.base_dir" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager.db_name">
+<span class="sig-name descname"><span class="pre">db_name</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager.db_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager.db_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager.md">
+<span class="sig-name descname"><span class="pre">md</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager.md"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager.md" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager.engine">
+<span class="sig-name descname"><span class="pre">engine</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager.engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager.engine" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager._setup_database">
+<span class="sig-name descname"><span class="pre">_setup_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlalchemy.Engine</span></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager._setup_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager._setup_database" title="Link to this definition">#</a></dt>
+<dd><p>Create database and metadata if they don’t exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> – How many seconds the connection should wait before raising an
+exception, if the database is locked by another connection.  If another
+connection opens a transaction to modify the database, it will be locked
+until that transaction is committed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL Alchemy engine that connects to a database in the base_dir.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pudl.io_managers.SQLiteIOManager.engine" title="pudl.io_managers.SQLiteIOManager.engine">engine</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager._get_sqlalchemy_table">
+<span class="sig-name descname"><span class="pre">_get_sqlalchemy_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlalchemy.Table</span></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager._get_sqlalchemy_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager._get_sqlalchemy_table" title="Link to this definition">#</a></dt>
+<dd><p>Get SQL Alchemy Table object from metadata given a table_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table_name</strong> – The name of the table to look up.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Corresponding SQL Alchemy Table in SQLiteIOManager metadata.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>table</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – if table_name does not exist in the SQLiteIOManager metadata.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager._handle_pandas_output">
+<span class="sig-name descname"><span class="pre">_handle_pandas_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager._handle_pandas_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager._handle_pandas_output" title="Link to this definition">#</a></dt>
+<dd><p>Write dataframe to the database.</p>
+<p>SQLite does not support concurrent writes to the database. Instead, SQLite
+queues write transactions and executes them one at a time.  This allows the
+assets to be processed in parallel. See the <a class="reference external" href="https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#database-locking-behavior-concurrency">SQLAlchemy docs</a> to learn more about SQLite concurrency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – dagster keyword that provides access to output information like
+asset name.</p></li>
+<li><p><strong>df</strong> – dataframe to write to the database.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager._handle_str_output">
+<span class="sig-name descname"><span class="pre">_handle_str_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager._handle_str_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager._handle_str_output" title="Link to this definition">#</a></dt>
+<dd><p>Execute a sql query on the database.</p>
+<p>This is used for creating output views in the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – dagster keyword that provides access output information like asset
+name.</p></li>
+<li><p><strong>query</strong> – sql query to execute in the database.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager.handle_output">
+<span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager.handle_output" title="Link to this definition">#</a></dt>
+<dd><p>Handle an op or asset output.</p>
+<p>If the output is a dataframe, write it to the database. If it is a string
+execute it as a SQL query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – dagster keyword that provides access output information like asset
+name.</p></li>
+<li><p><strong>obj</strong> – a sql query or dataframe to add to the database.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><strong>Exception</strong></a> – if an asset or op returns an unsupported datatype.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.SQLiteIOManager.load_input">
+<span class="sig-name descname"><span class="pre">load_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#SQLiteIOManager.load_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.SQLiteIOManager.load_input" title="Link to this definition">#</a></dt>
+<dd><p>Load a dataframe from a sqlite database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> – dagster keyword that provides access output information like asset
+name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlParquetIOManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">PudlParquetIOManager</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlParquetIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlParquetIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.IOManager" title="(in Dagster)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dagster.IOManager</span></code></a></p>
+<p>IOManager that writes pudl tables to pyarrow parquet files.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlParquetIOManager.handle_output">
+<span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">polars.LazyFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlParquetIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlParquetIOManager.handle_output" title="Link to this definition">#</a></dt>
+<dd><p>Writes pudl dataframe to parquet file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlParquetIOManager.load_input">
+<span class="sig-name descname"><span class="pre">load_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.3)"><span class="pre">geopandas.GeoDataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">polars.LazyFrame</span></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlParquetIOManager.load_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlParquetIOManager.load_input" title="Link to this definition">#</a></dt>
+<dd><p>Loads pudl table from parquet file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlGeoParquetIOManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">PudlGeoParquetIOManager</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlGeoParquetIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlGeoParquetIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.io_managers.PudlParquetIOManager" title="pudl.io_managers.PudlParquetIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PudlParquetIOManager</span></code></a></p>
+<p>Do some extra work to output valid GeoParquet files when appropriate.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlGeoParquetIOManager._create_geoparquet_metadata">
+<span class="sig-name descname"><span class="pre">_create_geoparquet_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.3)"><span class="pre">geopandas.GeoDataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../metadata/classes/index.html#pudl.metadata.classes.Resource" title="pudl.metadata.classes.Resource"><span class="pre">pudl.metadata.classes.Resource</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlGeoParquetIOManager._create_geoparquet_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlGeoParquetIOManager._create_geoparquet_metadata" title="Link to this definition">#</a></dt>
+<dd><p>Create GeoParquet metadata JSON string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlGeoParquetIOManager.handle_output">
+<span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.3)"><span class="pre">geopandas.GeoDataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlGeoParquetIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlGeoParquetIOManager.handle_output" title="Link to this definition">#</a></dt>
+<dd><p>Write a PUDL dataframe to GeoParquet.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlSQLiteIOManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">PudlSQLiteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../metadata/classes/index.html#pudl.metadata.classes.Package" title="pudl.metadata.classes.Package"><span class="pre">pudl.metadata.classes.Package</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlSQLiteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlSQLiteIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.io_managers.SQLiteIOManager" title="pudl.io_managers.SQLiteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SQLiteIOManager</span></code></a></p>
+<p>IO Manager that writes and retrieves dataframes from a SQLite database.</p>
+<p>This class extends the SQLiteIOManager class to manage database metadata and dtypes
+using the <a class="reference internal" href="../metadata/classes/index.html#pudl.metadata.classes.Package" title="pudl.metadata.classes.Package"><code class="xref py py-class docutils literal notranslate"><span class="pre">pudl.metadata.classes.Package</span></code></a> class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlSQLiteIOManager.package">
+<span class="sig-name descname"><span class="pre">package</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlSQLiteIOManager.package"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlSQLiteIOManager.package" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlSQLiteIOManager._handle_str_output">
+<span class="sig-name descname"><span class="pre">_handle_str_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlSQLiteIOManager._handle_str_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlSQLiteIOManager._handle_str_output" title="Link to this definition">#</a></dt>
+<dd><p>Execute a sql query on the database.</p>
+<p>This is used for creating output views in the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – dagster keyword that provides access output information like asset
+name.</p></li>
+<li><p><strong>query</strong> – sql query to execute in the database.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlSQLiteIOManager._handle_pandas_output">
+<span class="sig-name descname"><span class="pre">_handle_pandas_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlSQLiteIOManager._handle_pandas_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlSQLiteIOManager._handle_pandas_output" title="Link to this definition">#</a></dt>
+<dd><p>Enforce PUDL DB schema and write dataframe to SQLite.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.PudlSQLiteIOManager.load_input">
+<span class="sig-name descname"><span class="pre">load_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#PudlSQLiteIOManager.load_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.PudlSQLiteIOManager.load_input" title="Link to this definition">#</a></dt>
+<dd><p>Load a dataframe from a sqlite database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> – dagster keyword that provides access output information like asset
+name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.io_managers.pudl_mixed_format_io_manager">
+<span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">pudl_mixed_format_io_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/resources/#dagster.InitResourceContext" title="(in Dagster)"><span class="pre">dagster.InitResourceContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.IOManager" title="(in Dagster)"><span class="pre">dagster.IOManager</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#pudl_mixed_format_io_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.pudl_mixed_format_io_manager" title="Link to this definition">#</a></dt>
+<dd><p>Create a SQLiteManager dagster resource for the pudl database.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.io_managers.parquet_io_manager">
+<span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">parquet_io_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/resources/#dagster.InitResourceContext" title="(in Dagster)"><span class="pre">dagster.InitResourceContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.IOManager" title="(in Dagster)"><span class="pre">dagster.IOManager</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#parquet_io_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.parquet_io_manager" title="Link to this definition">#</a></dt>
+<dd><p>Create a Parquet only IO manager.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.io_managers.geoparquet_io_manager">
+<span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">geoparquet_io_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/resources/#dagster.InitResourceContext" title="(in Dagster)"><span class="pre">dagster.InitResourceContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.IOManager" title="(in Dagster)"><span class="pre">dagster.IOManager</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#geoparquet_io_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.geoparquet_io_manager" title="Link to this definition">#</a></dt>
+<dd><p>Create a GeoParquet only IO manager.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.io_managers.FercSQLiteIOManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercSQLiteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">md</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercSQLiteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercSQLiteIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.io_managers.SQLiteIOManager" title="pudl.io_managers.SQLiteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SQLiteIOManager</span></code></a></p>
+<p>IO Manager for reading tables from FERC databases.</p>
+<p>This class should be subclassed and the load_input and handle_output methods should
+be implemented.</p>
+<p>This IOManager expects the database to already exist.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.FercSQLiteIOManager._setup_database">
+<span class="sig-name descname"><span class="pre">_setup_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlalchemy.Engine</span></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercSQLiteIOManager._setup_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercSQLiteIOManager._setup_database" title="Link to this definition">#</a></dt>
+<dd><p>Create database engine and read the metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> – How many seconds the connection should wait before raising an
+exception, if the database is locked by another connection.  If another
+connection opens a transaction to modify the database, it will be locked
+until that transaction is committed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SQL Alchemy engine that connects to a database in the base_dir.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pudl.io_managers.SQLiteIOManager.engine" title="pudl.io_managers.SQLiteIOManager.engine">engine</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.FercSQLiteIOManager.handle_output">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercSQLiteIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercSQLiteIOManager.handle_output" title="Link to this definition">#</a></dt>
+<dd><p>Handle an op or asset output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.FercSQLiteIOManager.load_input">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">load_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercSQLiteIOManager.load_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercSQLiteIOManager.load_input" title="Link to this definition">#</a></dt>
+<dd><p>Load a dataframe from a sqlite database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> – dagster keyword that provides access output information like asset
+name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.io_managers.FercDBFSQLiteIOManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercDBFSQLiteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">md</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercDBFSQLiteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercDBFSQLiteIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.io_managers.FercSQLiteIOManager" title="pudl.io_managers.FercSQLiteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercSQLiteIOManager</span></code></a></p>
+<p>IO Manager for only reading tables from the FERC 1 database.</p>
+<p>This IO Manager is for reading data only. It does not handle outputs because the raw
+FERC tables are not known prior to running the ETL and are not recorded in our
+metadata.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.FercDBFSQLiteIOManager.handle_output">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercDBFSQLiteIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercDBFSQLiteIOManager.handle_output" title="Link to this definition">#</a></dt>
+<dd><p>Handle an op or asset output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.FercDBFSQLiteIOManager.load_input">
+<span class="sig-name descname"><span class="pre">load_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercDBFSQLiteIOManager.load_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercDBFSQLiteIOManager.load_input" title="Link to this definition">#</a></dt>
+<dd><p>Load a dataframe from a sqlite database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> – dagster keyword that provides access output information like asset
+name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.io_managers.ferc1_dbf_sqlite_io_manager">
+<span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">ferc1_dbf_sqlite_io_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_context</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.io_managers.FercDBFSQLiteIOManager" title="pudl.io_managers.FercDBFSQLiteIOManager"><span class="pre">FercDBFSQLiteIOManager</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#ferc1_dbf_sqlite_io_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.ferc1_dbf_sqlite_io_manager" title="Link to this definition">#</a></dt>
+<dd><p>Create a SQLiteManager dagster resource for the ferc1 dbf database.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.io_managers.FercXBRLSQLiteIOManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">FercXBRLSQLiteIOManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">md</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercXBRLSQLiteIOManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercXBRLSQLiteIOManager" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pudl.io_managers.FercSQLiteIOManager" title="pudl.io_managers.FercSQLiteIOManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercSQLiteIOManager</span></code></a></p>
+<p>IO Manager for only reading tables from the XBRL database.</p>
+<p>This IO Manager is for reading data only. It does not handle outputs because the raw
+FERC tables are not known prior to running the ETL and are not recorded in our
+metadata.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.FercXBRLSQLiteIOManager.refine_report_year">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">refine_report_year</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">xbrl_years</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercXBRLSQLiteIOManager.refine_report_year"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercXBRLSQLiteIOManager.refine_report_year" title="Link to this definition">#</a></dt>
+<dd><p>Set a fact’s report year by its actual dates.</p>
+<p>Sometimes a fact belongs to a context which has no ReportYear associated with
+it; other times there are multiple ReportYears associated with a single filing.
+In these cases the report year of a specific fact may be associated with the
+other years in the filing.</p>
+<p>In many cases we can infer the actual report year from the fact’s associated
+time period - either duration or instant.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.FercXBRLSQLiteIOManager.handle_output">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">handle_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.OutputContext" title="(in Dagster)"><span class="pre">dagster.OutputContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercXBRLSQLiteIOManager.handle_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercXBRLSQLiteIOManager.handle_output" title="Link to this definition">#</a></dt>
+<dd><p>Handle an op or asset output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.io_managers.FercXBRLSQLiteIOManager.load_input">
+<span class="sig-name descname"><span class="pre">load_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/sections/api/dagster/io-managers/#dagster.InputContext" title="(in Dagster)"><span class="pre">dagster.InputContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#FercXBRLSQLiteIOManager.load_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.FercXBRLSQLiteIOManager.load_input" title="Link to this definition">#</a></dt>
+<dd><p>Load a dataframe from a sqlite database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> – dagster keyword that provides access output information like asset
+name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.io_managers.ferc1_xbrl_sqlite_io_manager">
+<span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">ferc1_xbrl_sqlite_io_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_context</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.io_managers.FercXBRLSQLiteIOManager" title="pudl.io_managers.FercXBRLSQLiteIOManager"><span class="pre">FercXBRLSQLiteIOManager</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#ferc1_xbrl_sqlite_io_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.ferc1_xbrl_sqlite_io_manager" title="Link to this definition">#</a></dt>
+<dd><p>Create a SQLiteManager dagster resource for the ferc1 xbrl database.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.io_managers.ferc714_xbrl_sqlite_io_manager">
+<span class="sig-prename descclassname"><span class="pre">pudl.io_managers.</span></span><span class="sig-name descname"><span class="pre">ferc714_xbrl_sqlite_io_manager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_context</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.io_managers.FercXBRLSQLiteIOManager" title="pudl.io_managers.FercXBRLSQLiteIOManager"><span class="pre">FercXBRLSQLiteIOManager</span></a></span></span><a class="reference internal" href="../../../_modules/pudl/io_managers.html#ferc714_xbrl_sqlite_io_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.io_managers.ferc714_xbrl_sqlite_io_manager" title="Link to this definition">#</a></dt>
+<dd><p>Create a SQLiteManager dagster resource for the ferc714 xbrl database.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../helpers/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">pudl.helpers</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../logging_helpers/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pudl.logging_helpers</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.MINIMUM_SQLITE_VERSION"><code class="docutils literal notranslate"><span class="pre">MINIMUM_SQLITE_VERSION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.get_table_name_from_context"><code class="docutils literal notranslate"><span class="pre">get_table_name_from_context()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlMixedFormatIOManager"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlMixedFormatIOManager.write_to_parquet"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager.write_to_parquet</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlMixedFormatIOManager.read_from_parquet"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager.read_from_parquet</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlMixedFormatIOManager._sqlite_io_manager"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager._sqlite_io_manager</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlMixedFormatIOManager._parquet_io_manager"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager._parquet_io_manager</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlMixedFormatIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager.handle_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlMixedFormatIOManager.load_input"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager.load_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager.base_dir"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager.base_dir</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager.db_name"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager.db_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager.md"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager.md</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager.engine"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager.engine</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager._setup_database"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager._setup_database()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager._get_sqlalchemy_table"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager._get_sqlalchemy_table()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager._handle_pandas_output"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager._handle_pandas_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager._handle_str_output"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager._handle_str_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager.handle_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.SQLiteIOManager.load_input"><code class="docutils literal notranslate"><span class="pre">SQLiteIOManager.load_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlParquetIOManager"><code class="docutils literal notranslate"><span class="pre">PudlParquetIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlParquetIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">PudlParquetIOManager.handle_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlParquetIOManager.load_input"><code class="docutils literal notranslate"><span class="pre">PudlParquetIOManager.load_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlGeoParquetIOManager"><code class="docutils literal notranslate"><span class="pre">PudlGeoParquetIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlGeoParquetIOManager._create_geoparquet_metadata"><code class="docutils literal notranslate"><span class="pre">PudlGeoParquetIOManager._create_geoparquet_metadata()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlGeoParquetIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">PudlGeoParquetIOManager.handle_output()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlSQLiteIOManager"><code class="docutils literal notranslate"><span class="pre">PudlSQLiteIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlSQLiteIOManager.package"><code class="docutils literal notranslate"><span class="pre">PudlSQLiteIOManager.package</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlSQLiteIOManager._handle_str_output"><code class="docutils literal notranslate"><span class="pre">PudlSQLiteIOManager._handle_str_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlSQLiteIOManager._handle_pandas_output"><code class="docutils literal notranslate"><span class="pre">PudlSQLiteIOManager._handle_pandas_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.PudlSQLiteIOManager.load_input"><code class="docutils literal notranslate"><span class="pre">PudlSQLiteIOManager.load_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.pudl_mixed_format_io_manager"><code class="docutils literal notranslate"><span class="pre">pudl_mixed_format_io_manager()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.parquet_io_manager"><code class="docutils literal notranslate"><span class="pre">parquet_io_manager()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.geoparquet_io_manager"><code class="docutils literal notranslate"><span class="pre">geoparquet_io_manager()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercSQLiteIOManager"><code class="docutils literal notranslate"><span class="pre">FercSQLiteIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercSQLiteIOManager._setup_database"><code class="docutils literal notranslate"><span class="pre">FercSQLiteIOManager._setup_database()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercSQLiteIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">FercSQLiteIOManager.handle_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercSQLiteIOManager.load_input"><code class="docutils literal notranslate"><span class="pre">FercSQLiteIOManager.load_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercDBFSQLiteIOManager"><code class="docutils literal notranslate"><span class="pre">FercDBFSQLiteIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercDBFSQLiteIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">FercDBFSQLiteIOManager.handle_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercDBFSQLiteIOManager.load_input"><code class="docutils literal notranslate"><span class="pre">FercDBFSQLiteIOManager.load_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.ferc1_dbf_sqlite_io_manager"><code class="docutils literal notranslate"><span class="pre">ferc1_dbf_sqlite_io_manager()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercXBRLSQLiteIOManager"><code class="docutils literal notranslate"><span class="pre">FercXBRLSQLiteIOManager</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercXBRLSQLiteIOManager.refine_report_year"><code class="docutils literal notranslate"><span class="pre">FercXBRLSQLiteIOManager.refine_report_year()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercXBRLSQLiteIOManager.handle_output"><code class="docutils literal notranslate"><span class="pre">FercXBRLSQLiteIOManager.handle_output()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.FercXBRLSQLiteIOManager.load_input"><code class="docutils literal notranslate"><span class="pre">FercXBRLSQLiteIOManager.load_input()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.ferc1_xbrl_sqlite_io_manager"><code class="docutils literal notranslate"><span class="pre">ferc1_xbrl_sqlite_io_manager()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.io_managers.ferc714_xbrl_sqlite_io_manager"><code class="docutils literal notranslate"><span class="pre">ferc714_xbrl_sqlite_io_manager()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/autoapi/pudl/io_managers/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

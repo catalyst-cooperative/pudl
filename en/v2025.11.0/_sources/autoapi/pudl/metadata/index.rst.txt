@@ -1,0 +1,51 @@
+pudl.metadata
+=============
+
+.. py:module:: pudl.metadata
+
+.. autoapi-nested-parse::
+
+   Metadata constants and methods.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/metadata/classes/index
+   /autoapi/pudl/metadata/codes/index
+   /autoapi/pudl/metadata/constants/index
+   /autoapi/pudl/metadata/descriptions/index
+   /autoapi/pudl/metadata/dfs/index
+   /autoapi/pudl/metadata/enums/index
+   /autoapi/pudl/metadata/fields/index
+   /autoapi/pudl/metadata/helpers/index
+   /autoapi/pudl/metadata/labels/index
+   /autoapi/pudl/metadata/resources/index
+   /autoapi/pudl/metadata/sources/index
+   /autoapi/pudl/metadata/warnings/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.PUDL_PACKAGE
+
+
+Package Contents
+----------------
+
+.. py:data:: PUDL_PACKAGE
+
+   Define a global PUDL package object for use across the entire codebase.
+
+   This needs to happen after the definition of the Package class above, and it is used in
+   some of the class definitions below, but having it defined in the middle of this module
+   is kind of obscure, so it is imported in the __init__.py for this subpackage and then
+   imported in other modules from that more prominent location.
+

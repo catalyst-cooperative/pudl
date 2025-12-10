@@ -1,0 +1,1500 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.workspace.datastore &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/pudl/workspace/datastore/index';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="pudl.workspace.resource_cache" href="../resource_cache/index.html" />
+    <link rel="prev" title="pudl.workspace" href="../index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">pudl</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../_version/index.html">pudl._version</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../analysis/index.html">pudl.analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../convert/index.html">pudl.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../etl/index.html">pudl.etl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../glue/index.html">pudl.glue</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../metadata/index.html">pudl.metadata</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../metadata/resources/index.html">pudl.metadata.resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../output/index.html">pudl.output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../output/sql/index.html">pudl.output.sql</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../package_data/index.html">pudl.package_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/censuspep/index.html">pudl.package_data.censuspep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/eia176/index.html">pudl.package_data.eia176</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/eia191/index.html">pudl.package_data.eia191</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/eia757a/index.html">pudl.package_data.eia757a</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/eia860/index.html">pudl.package_data.eia860</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/eia860m/index.html">pudl.package_data.eia860m</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/eia861/index.html">pudl.package_data.eia861</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/eia923/index.html">pudl.package_data.eia923</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/eia930/index.html">pudl.package_data.eia930</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/ferc1/index.html">pudl.package_data.ferc1</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/rus12/index.html">pudl.package_data.rus12</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/test/index.html">pudl.package_data.test</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../resources/index.html">pudl.resources</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../settings/index.html">pudl.settings</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../transform/index.html">pudl.transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../transform/params/index.html">pudl.transform.params</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../validate/index.html">pudl.validate</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">pudl.workspace</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">pudl.workspace.datastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../dev/index.html">Development</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../code.html" class="nav-link">Code Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">pudl</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">pudl.workspace</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.workspace.datastore</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-pudl.workspace.datastore">
+<span id="pudl-workspace-datastore"></span><h1>pudl.workspace.datastore<a class="headerlink" href="#module-pudl.workspace.datastore" title="Link to this heading">#</a></h1>
+<p>Datastore manages file retrieval for PUDL datasets.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.workspace.datastore.logger" title="pudl.workspace.datastore.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZenodoDoi</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.workspace.datastore.ChecksumMismatchError" title="pudl.workspace.datastore.ChecksumMismatchError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ChecksumMismatchError</span></code></a></p></td>
+<td><p>Resource checksum (md5) does not match.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.workspace.datastore.DatapackageDescriptor" title="pudl.workspace.datastore.DatapackageDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatapackageDescriptor</span></code></a></p></td>
+<td><p>A simple wrapper providing access to datapackage.json contents.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoiSettings" title="pudl.workspace.datastore.ZenodoDoiSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZenodoDoiSettings</span></code></a></p></td>
+<td><p>Digital Object Identifiers pointing to currently used Zenodo archives.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.workspace.datastore.ZenodoFetcher" title="pudl.workspace.datastore.ZenodoFetcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZenodoFetcher</span></code></a></p></td>
+<td><p>API for fetching datapackage descriptors and resource contents from zenodo.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Datastore</span></code></a></p></td>
+<td><p>Handle connections and downloading of Zenodo Source archives.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.workspace.datastore.print_partitions" title="pudl.workspace.datastore.print_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_partitions</span></code></a>(→ None)</p></td>
+<td><p>Prints known partition keys and its values for each of the datasets.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.workspace.datastore.validate_cache" title="pudl.workspace.datastore.validate_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_cache</span></code></a>(→ None)</p></td>
+<td><p>Validate elements in the datastore cache.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.workspace.datastore.fetch_resources" title="pudl.workspace.datastore.fetch_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_resources</span></code></a>(→ None)</p></td>
+<td><p>Retrieve all matching resources and store them in the cache.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.workspace.datastore._parse_key_values" title="pudl.workspace.datastore._parse_key_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_key_values</span></code></a>(→ dict[str, str])</p></td>
+<td><p>Parse key-value pairs into a Python dictionary.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.workspace.datastore.pudl_datastore" title="pudl.workspace.datastore.pudl_datastore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pudl_datastore</span></code></a>(dataset, validate, list_partitions, ...)</p></td>
+<td><p>Manage the raw data inputs to the PUDL data processing pipeline.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.logger">
+<span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.logger" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoi">
+<span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">ZenodoDoi</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoi" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ChecksumMismatchError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">ChecksumMismatchError</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ChecksumMismatchError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ChecksumMismatchError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValueError</span></code></a></p>
+<p>Resource checksum (md5) does not match.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">DatapackageDescriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapackage_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">doi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor" title="Link to this definition">#</a></dt>
+<dd><p>A simple wrapper providing access to datapackage.json contents.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.datapackage_json">
+<span class="sig-name descname"><span class="pre">datapackage_json</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.datapackage_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.datapackage_json" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.dataset">
+<span class="sig-name descname"><span class="pre">dataset</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.dataset" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.doi">
+<span class="sig-name descname"><span class="pre">doi</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.doi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.doi" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor._get_resource_metadata">
+<span class="sig-name descname"><span class="pre">_get_resource_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor._get_resource_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor._get_resource_metadata" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.get_resource_path">
+<span class="sig-name descname"><span class="pre">get_resource_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.get_resource_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.get_resource_path" title="Link to this definition">#</a></dt>
+<dd><p>Returns zenodo url that holds contents of given named resource.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.get_download_size">
+<span class="sig-name descname"><span class="pre">get_download_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.get_download_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.get_download_size" title="Link to this definition">#</a></dt>
+<dd><p>Returns the total download size of all the resources in MB.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.validate_checksum">
+<span class="sig-name descname"><span class="pre">validate_checksum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.validate_checksum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.validate_checksum" title="Link to this definition">#</a></dt>
+<dd><p>Returns True if content matches checksum for given named resource.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor._matches">
+<span class="sig-name descname"><span class="pre">_matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor._matches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor._matches" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor._match_from_partition">
+<span class="sig-name descname"><span class="pre">_match_from_partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor._match_from_partition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor._match_from_partition" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.14)"><span class="pre">collections.abc.Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey" title="pudl.workspace.resource_cache.PudlResourceKey"><span class="pre">pudl.workspace.resource_cache.PudlResourceKey</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.get_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.get_resources" title="Link to this definition">#</a></dt>
+<dd><p>Returns series of PudlResourceKey identifiers for matching resources.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – if specified, find resource(s) with this name.</p></li>
+<li><p><strong>filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – if specified, find resource(s) matching these key=value
+constraints. The constraints are matched against the ‘parts’ field of
+the resource entry in the datapackage.json.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.get_partitions">
+<span class="sig-name descname"><span class="pre">get_partitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.get_partitions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.get_partitions" title="Link to this definition">#</a></dt>
+<dd><p>Return mapping of known partition keys to their allowed known values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.get_partition_filters">
+<span class="sig-name descname"><span class="pre">get_partition_filters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.14)"><span class="pre">collections.abc.Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.get_partition_filters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.get_partition_filters" title="Link to this definition">#</a></dt>
+<dd><p>Returns list of all known partition mappings.</p>
+<p>This can be used to iterate over all resources as the mappings can be directly
+used as filters and should map to unique resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filters</strong> – additional constraints for selecting relevant partitions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor._validate_datapackage">
+<span class="sig-name descname"><span class="pre">_validate_datapackage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapackage_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor._validate_datapackage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor._validate_datapackage" title="Link to this definition">#</a></dt>
+<dd><p>Checks the correctness of datapackage.json metadata.</p>
+<p>Throws ValueError if invalid.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.DatapackageDescriptor.get_json_string">
+<span class="sig-name descname"><span class="pre">get_json_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#DatapackageDescriptor.get_json_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.DatapackageDescriptor.get_json_string" title="Link to this definition">#</a></dt>
+<dd><p>Exports the underlying json as normalized (sorted, indented) json string.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">ZenodoDoiSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.pydantic.dev/latest/api/pydantic_settings/#pydantic_settings.BaseSettings" title="(in Pydantic Validation v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic_settings.BaseSettings</span></code></a></p>
+<p>Digital Object Identifiers pointing to currently used Zenodo archives.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.censusdp1tract">
+<span class="sig-name descname"><span class="pre">censusdp1tract</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.censusdp1tract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.censusdp1tract" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.censuspep">
+<span class="sig-name descname"><span class="pre">censuspep</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.censuspep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.censuspep" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eia176">
+<span class="sig-name descname"><span class="pre">eia176</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eia176"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia176" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eia191">
+<span class="sig-name descname"><span class="pre">eia191</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eia191"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia191" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eia757a">
+<span class="sig-name descname"><span class="pre">eia757a</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eia757a"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia757a" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eia860">
+<span class="sig-name descname"><span class="pre">eia860</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eia860"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia860" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eia860m">
+<span class="sig-name descname"><span class="pre">eia860m</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eia860m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia860m" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eia861">
+<span class="sig-name descname"><span class="pre">eia861</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eia861"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia861" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eia923">
+<span class="sig-name descname"><span class="pre">eia923</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eia923"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia923" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eia930">
+<span class="sig-name descname"><span class="pre">eia930</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eia930"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia930" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eiaaeo">
+<span class="sig-name descname"><span class="pre">eiaaeo</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eiaaeo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eiaaeo" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.eiaapi">
+<span class="sig-name descname"><span class="pre">eiaapi</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.eiaapi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.eiaapi" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.epacamd_eia">
+<span class="sig-name descname"><span class="pre">epacamd_eia</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.epacamd_eia"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.epacamd_eia" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.epacems">
+<span class="sig-name descname"><span class="pre">epacems</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.epacems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.epacems" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.ferc1">
+<span class="sig-name descname"><span class="pre">ferc1</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.ferc1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc1" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.ferc2">
+<span class="sig-name descname"><span class="pre">ferc2</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.ferc2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc2" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.ferc6">
+<span class="sig-name descname"><span class="pre">ferc6</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.ferc6"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc6" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.ferc60">
+<span class="sig-name descname"><span class="pre">ferc60</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.ferc60"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc60" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.ferc714">
+<span class="sig-name descname"><span class="pre">ferc714</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.ferc714"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc714" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.ferceqr">
+<span class="sig-name descname"><span class="pre">ferceqr</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.ferceqr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferceqr" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.ferccid">
+<span class="sig-name descname"><span class="pre">ferccid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.ferccid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferccid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.gridpathratoolkit">
+<span class="sig-name descname"><span class="pre">gridpathratoolkit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.gridpathratoolkit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.gridpathratoolkit" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.nrelatb">
+<span class="sig-name descname"><span class="pre">nrelatb</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.nrelatb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.nrelatb" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.phmsagas">
+<span class="sig-name descname"><span class="pre">phmsagas</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.phmsagas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.phmsagas" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.rus7">
+<span class="sig-name descname"><span class="pre">rus7</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.rus7"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.rus7" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.rus12">
+<span class="sig-name descname"><span class="pre">rus12</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.rus12"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.rus12" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.sec10k">
+<span class="sig-name descname"><span class="pre">sec10k</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.sec10k"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.sec10k" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.vcerare">
+<span class="sig-name descname"><span class="pre">vcerare</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.vcerare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.vcerare" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.model_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoDoiSettings.from_yaml">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoiSettings" title="pudl.workspace.datastore.ZenodoDoiSettings"><span class="pre">ZenodoDoiSettings</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoDoiSettings.from_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoDoiSettings.from_yaml" title="Link to this definition">#</a></dt>
+<dd><p>Create a ZenodoDoiSettings instance from a YAML file path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> – Path to a YAML file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A ZenodoDoiSettings object with DOIs loaded from the YAML file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">ZenodoFetcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zenodo_dois</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoiSettings" title="pudl.workspace.datastore.ZenodoDoiSettings"><span class="pre">ZenodoDoiSettings</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher" title="Link to this definition">#</a></dt>
+<dd><p>API for fetching datapackage descriptors and resource contents from zenodo.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher._descriptor_cache">
+<span class="sig-name descname"><span class="pre">_descriptor_cache</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.DatapackageDescriptor" title="pudl.workspace.datastore.DatapackageDescriptor"><span class="pre">DatapackageDescriptor</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher._descriptor_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher._descriptor_cache" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher.zenodo_dois">
+<span class="sig-name descname"><span class="pre">zenodo_dois</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoiSettings" title="pudl.workspace.datastore.ZenodoDoiSettings"><span class="pre">ZenodoDoiSettings</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher.zenodo_dois"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher.zenodo_dois" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher.timeout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher.timeout" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher.http">
+<span class="sig-name descname"><span class="pre">http</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher.http"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher.http" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher.get_doi">
+<span class="sig-name descname"><span class="pre">get_doi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher.get_doi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher.get_doi" title="Link to this definition">#</a></dt>
+<dd><p>Returns DOI for given dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher.get_known_datasets">
+<span class="sig-name descname"><span class="pre">get_known_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher.get_known_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher.get_known_datasets" title="Link to this definition">#</a></dt>
+<dd><p>Returns list of supported datasets.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher._get_url">
+<span class="sig-name descname"><span class="pre">_get_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.workspace.datastore.ZenodoDoi" title="pudl.workspace.datastore.ZenodoDoi"><span class="pre">ZenodoDoi</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.pydantic.dev/latest/api/networks/#pydantic.networks.HttpUrl" title="(in Pydantic Validation v0.0.0)"><span class="pre">pydantic.HttpUrl</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher._get_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher._get_url" title="Link to this definition">#</a></dt>
+<dd><p>Construct a Zenodo depsition URL based on its Zenodo DOI.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher._fetch_from_url">
+<span class="sig-name descname"><span class="pre">_fetch_from_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.pydantic.dev/latest/api/networks/#pydantic.networks.HttpUrl" title="(in Pydantic Validation v0.0.0)"><span class="pre">pydantic.HttpUrl</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">requests.Response</span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher._fetch_from_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher._fetch_from_url" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher.get_descriptor">
+<span class="sig-name descname"><span class="pre">get_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.workspace.datastore.DatapackageDescriptor" title="pudl.workspace.datastore.DatapackageDescriptor"><span class="pre">DatapackageDescriptor</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher.get_descriptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher.get_descriptor" title="Link to this definition">#</a></dt>
+<dd><p>Returns class:<cite>DatapackageDescriptor</cite> for given dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.ZenodoFetcher.get_resource">
+<span class="sig-name descname"><span class="pre">get_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey" title="pudl.workspace.resource_cache.PudlResourceKey"><span class="pre">pudl.workspace.resource_cache.PudlResourceKey</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#ZenodoFetcher.get_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.ZenodoFetcher.get_resource" title="Link to this definition">#</a></dt>
+<dd><p>Given resource key, retrieve contents of the file from zenodo.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">Datastore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_cache_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">upath.UPath</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloud_cache_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">upath.UPath</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'s3://pudl.catalyst.coop/zenodo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore" title="Link to this definition">#</a></dt>
+<dd><p>Handle connections and downloading of Zenodo Source archives.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore._cache">
+<span class="sig-name descname"><span class="pre">_cache</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore._cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore._cache" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore._datapackage_descriptors">
+<span class="sig-name descname"><span class="pre">_datapackage_descriptors</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pudl.workspace.datastore.DatapackageDescriptor" title="pudl.workspace.datastore.DatapackageDescriptor"><span class="pre">DatapackageDescriptor</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore._datapackage_descriptors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore._datapackage_descriptors" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.temporary_extraction_dir">
+<span class="sig-name descname"><span class="pre">temporary_extraction_dir</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.temporary_extraction_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.temporary_extraction_dir" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore._zenodo_fetcher">
+<span class="sig-name descname"><span class="pre">_zenodo_fetcher</span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore._zenodo_fetcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore._zenodo_fetcher" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.get_known_datasets">
+<span class="sig-name descname"><span class="pre">get_known_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.get_known_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.get_known_datasets" title="Link to this definition">#</a></dt>
+<dd><p>Returns list of supported datasets.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.get_datapackage_descriptor">
+<span class="sig-name descname"><span class="pre">get_datapackage_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.workspace.datastore.DatapackageDescriptor" title="pudl.workspace.datastore.DatapackageDescriptor"><span class="pre">DatapackageDescriptor</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.get_datapackage_descriptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.get_datapackage_descriptor" title="Link to this definition">#</a></dt>
+<dd><p>Fetch datapackage descriptor for dataset either from cache or Zenodo.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.get_resources">
+<span class="sig-name descname"><span class="pre">get_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cached_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_optimally_cached</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.14)"><span class="pre">collections.abc.Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey" title="pudl.workspace.resource_cache.PudlResourceKey"><span class="pre">pudl.workspace.resource_cache.PudlResourceKey</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.get_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.get_resources" title="Link to this definition">#</a></dt>
+<dd><p>Return content of the matching resources.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> – name of the dataset to query.</p></li>
+<li><p><strong>cached_only</strong> – if True, only retrieve resources that are present in the cache.</p></li>
+<li><p><strong>skip_optimally_cached</strong> – if True, only retrieve resources that are not optimally
+cached. This triggers attempt to optimally cache these resources.</p></li>
+<li><p><strong>filters</strong> (<em>key=val</em>) – only return resources that match the key-value mapping in their</p></li>
+<li><p><strong>metadata</strong><strong>[</strong><strong>&quot;parts&quot;</strong><strong>]</strong><strong>.</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p>(PudlResourceKey, io.BytesIO) holding content for each matching resource</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.remove_from_cache">
+<span class="sig-name descname"><span class="pre">remove_from_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey" title="pudl.workspace.resource_cache.PudlResourceKey"><span class="pre">pudl.workspace.resource_cache.PudlResourceKey</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.remove_from_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.remove_from_cache" title="Link to this definition">#</a></dt>
+<dd><p>Remove given resource from the associated cache.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.get_unique_resource">
+<span class="sig-name descname"><span class="pre">get_unique_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.get_unique_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.get_unique_resource" title="Link to this definition">#</a></dt>
+<dd><p>Returns content of a resource assuming there is exactly one that matches.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.get_zipfile_resource">
+<span class="sig-name descname"><span class="pre">get_zipfile_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile" title="(in Python v3.14)"><span class="pre">zipfile.ZipFile</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.get_zipfile_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.get_zipfile_resource" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves unique resource and opens it as a ZipFile.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.get_zipfile_resources">
+<span class="sig-name descname"><span class="pre">get_zipfile_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.14)"><span class="pre">collections.abc.Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey" title="pudl.workspace.resource_cache.PudlResourceKey"><span class="pre">pudl.workspace.resource_cache.PudlResourceKey</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile" title="(in Python v3.14)"><span class="pre">zipfile.ZipFile</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.get_zipfile_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.get_zipfile_resources" title="Link to this definition">#</a></dt>
+<dd><p>Iterates over resources that match filters and opens each as ZipFile.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.Datastore.get_zipfile_file_names">
+<span class="sig-name descname"><span class="pre">get_zipfile_file_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile" title="(in Python v3.14)"><span class="pre">zipfile.ZipFile</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#Datastore.get_zipfile_file_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.Datastore.get_zipfile_file_names" title="Link to this definition">#</a></dt>
+<dd><p>Given a zipfile, return a list of the file names in it.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.print_partitions">
+<span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">print_partitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dstore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#print_partitions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.print_partitions" title="Link to this definition">#</a></dt>
+<dd><p>Prints known partition keys and its values for each of the datasets.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.validate_cache">
+<span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">validate_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dstore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#validate_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.validate_cache" title="Link to this definition">#</a></dt>
+<dd><p>Validate elements in the datastore cache.</p>
+<p>Delete invalid entries from cache.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.fetch_resources">
+<span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">fetch_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dstore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloud_cache_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bypass_local_cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#fetch_resources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.fetch_resources" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve all matching resources and store them in the cache.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.workspace.datastore._parse_key_values">
+<span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">_parse_key_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">click.core.Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">click.Option</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#_parse_key_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore._parse_key_values" title="Link to this definition">#</a></dt>
+<dd><p>Parse key-value pairs into a Python dictionary.</p>
+<p>Transforms a command line argument of the form: k1=v1,k2=v2,k3=v3…
+into: {k1:v1, k2:v2, k3:v3, …}</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.workspace.datastore.pudl_datastore">
+<span class="sig-prename descclassname"><span class="pre">pudl.workspace.datastore.</span></span><span class="sig-name descname"><span class="pre">pudl_datastore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_partitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloud_cache_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bypass_local_cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loglevel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/workspace/datastore.html#pudl_datastore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.workspace.datastore.pudl_datastore" title="Link to this definition">#</a></dt>
+<dd><p>Manage the raw data inputs to the PUDL data processing pipeline.</p>
+<p>Download all the raw FERC Form 2 data:</p>
+<p>pudl_datastore –dataset ferc2</p>
+<p>Download the raw FERC Form 2 data only for 2021</p>
+<p>pudl_datastore –dataset ferc2 –partition year=2021</p>
+<p>Re-download the raw FERC Form 2 data for 2021 even if you already have it:</p>
+<p>pudl_datastore –dataset ferc2 –partition year=2021 –bypass-local-cache</p>
+<p>Validate all California EPA CEMS data in the local datastore:</p>
+<p>pudl_datastore –dataset epacems –validate –partition state=ca</p>
+<p>List the available partitions in the EIA-860 and EIA-923 datasets:</p>
+<p>pudl_datastore –dataset eia860 –dataset eia923 –list-partitions</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">pudl.workspace</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../resource_cache/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pudl.workspace.resource_cache</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exceptions">Exceptions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoi"><code class="docutils literal notranslate"><span class="pre">ZenodoDoi</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ChecksumMismatchError"><code class="docutils literal notranslate"><span class="pre">ChecksumMismatchError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.datapackage_json"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.datapackage_json</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.dataset"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.dataset</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.doi"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.doi</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor._get_resource_metadata"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor._get_resource_metadata()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_resource_path"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_resource_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_download_size"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_download_size()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.validate_checksum"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.validate_checksum()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor._matches"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor._matches()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor._match_from_partition"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor._match_from_partition()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_resources"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_resources()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_partitions"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_partitions()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_partition_filters"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_partition_filters()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor._validate_datapackage"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor._validate_datapackage()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.DatapackageDescriptor.get_json_string"><code class="docutils literal notranslate"><span class="pre">DatapackageDescriptor.get_json_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.censusdp1tract"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.censusdp1tract</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.censuspep"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.censuspep</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia176"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eia176</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia191"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eia191</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia757a"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eia757a</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia860"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eia860</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia860m"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eia860m</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia861"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eia861</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia923"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eia923</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eia930"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eia930</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eiaaeo"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eiaaeo</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.eiaapi"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.eiaapi</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.epacamd_eia"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.epacamd_eia</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.epacems"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.epacems</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc1"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.ferc1</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc2"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.ferc2</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc6"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.ferc6</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc60"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.ferc60</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferc714"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.ferc714</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferceqr"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.ferceqr</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.ferccid"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.ferccid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.gridpathratoolkit"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.gridpathratoolkit</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.nrelatb"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.nrelatb</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.phmsagas"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.phmsagas</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.rus7"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.rus7</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.rus12"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.rus12</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.sec10k"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.sec10k</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.vcerare"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.vcerare</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.model_config"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.model_config</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoDoiSettings.from_yaml"><code class="docutils literal notranslate"><span class="pre">ZenodoDoiSettings.from_yaml()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher._descriptor_cache"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher._descriptor_cache</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher.zenodo_dois"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher.zenodo_dois</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher.timeout"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher.timeout</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher.http"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher.http</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher.get_doi"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher.get_doi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher.get_known_datasets"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher.get_known_datasets()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher._get_url"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher._get_url()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher._fetch_from_url"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher._fetch_from_url()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher.get_descriptor"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher.get_descriptor()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.ZenodoFetcher.get_resource"><code class="docutils literal notranslate"><span class="pre">ZenodoFetcher.get_resource()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore"><code class="docutils literal notranslate"><span class="pre">Datastore</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore._cache"><code class="docutils literal notranslate"><span class="pre">Datastore._cache</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore._datapackage_descriptors"><code class="docutils literal notranslate"><span class="pre">Datastore._datapackage_descriptors</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.temporary_extraction_dir"><code class="docutils literal notranslate"><span class="pre">Datastore.temporary_extraction_dir</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore._zenodo_fetcher"><code class="docutils literal notranslate"><span class="pre">Datastore._zenodo_fetcher</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_known_datasets"><code class="docutils literal notranslate"><span class="pre">Datastore.get_known_datasets()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_datapackage_descriptor"><code class="docutils literal notranslate"><span class="pre">Datastore.get_datapackage_descriptor()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_resources"><code class="docutils literal notranslate"><span class="pre">Datastore.get_resources()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.remove_from_cache"><code class="docutils literal notranslate"><span class="pre">Datastore.remove_from_cache()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_unique_resource"><code class="docutils literal notranslate"><span class="pre">Datastore.get_unique_resource()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_zipfile_resource"><code class="docutils literal notranslate"><span class="pre">Datastore.get_zipfile_resource()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_zipfile_resources"><code class="docutils literal notranslate"><span class="pre">Datastore.get_zipfile_resources()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.Datastore.get_zipfile_file_names"><code class="docutils literal notranslate"><span class="pre">Datastore.get_zipfile_file_names()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.print_partitions"><code class="docutils literal notranslate"><span class="pre">print_partitions()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.validate_cache"><code class="docutils literal notranslate"><span class="pre">validate_cache()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.fetch_resources"><code class="docutils literal notranslate"><span class="pre">fetch_resources()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore._parse_key_values"><code class="docutils literal notranslate"><span class="pre">_parse_key_values()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.workspace.datastore.pudl_datastore"><code class="docutils literal notranslate"><span class="pre">pudl_datastore()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/autoapi/pudl/workspace/datastore/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

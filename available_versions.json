@@ -1,0 +1,63 @@
+[
+    {
+        "name": "latest",
+        "version": "latest",
+        "url": "https://docs.catalyst.coop/pudl/en/latest/"
+    },
+    {
+        "version": "nightly",
+        "url": "https://docs.catalyst.coop/pudl/en/nightly/"
+    },
+    {
+        "version": "stable",
+        "url": "https://docs.catalyst.coop/pudl/en/stable/"
+    },
+    {
+        "version": "v2026.3.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2026.3.0/"
+    },
+    {
+        "version": "v2026.2.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2026.2.0/"
+    },
+    {
+        "version": "v2026.1.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2026.1.0/"
+    },
+    {
+        "version": "v2025.12.1",
+        "url": "https://docs.catalyst.coop/pudl/en/v2025.12.1/"
+    },
+    {
+        "version": "v2025.11.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2025.11.0/"
+    },
+    {
+        "version": "v2025.10.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2025.10.0/"
+    },
+    {
+        "version": "v2025.9.1",
+        "url": "https://docs.catalyst.coop/pudl/en/v2025.9.1/"
+    },
+    {
+        "version": "v2025.8.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2025.8.0/"
+    },
+    {
+        "version": "v2025.7.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2025.7.0/"
+    },
+    {
+        "version": "v2025.5.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2025.5.0/"
+    },
+    {
+        "version": "v2025.2.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2025.2.0/"
+    },
+    {
+        "version": "v2024.11.0",
+        "url": "https://docs.catalyst.coop/pudl/en/v2024.11.0/"
+    }
+]

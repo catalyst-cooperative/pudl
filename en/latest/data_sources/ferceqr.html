@@ -1,0 +1,822 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>FERC Form 920 – Electric Quarterly Report (EQR) &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'data_sources/ferceqr';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="GridPath Resource Adequacy Toolkit Data" href="gridpathratoolkit.html" />
+    <link rel="prev" title="FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report" href="ferc714.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../data_dictionaries/index.html">Data Dictionaries</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Data Sources</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_access.html">Data Access</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../methodology/index.html">Methodology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../data.html" class="nav-link">Data Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Data Sources</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">FERC Form 920 – Electric Quarterly Report (EQR)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="ferc-form-920-electric-quarterly-report-eqr">
+<h1>FERC Form 920 – Electric Quarterly Report (EQR)<a class="headerlink" href="#ferc-form-920-electric-quarterly-report-eqr" title="Link to this heading">#</a></h1>
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><th class="stub"><p>Source URL</p></th>
+<td><p><a class="reference external" href="https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr">https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr</a></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Source Description</p></th>
+<td><p>The Electric Quarterly Report (EQR) is submitted by sellers participating in bilateral electricity market transactions. The reports summarize the contractual terms and conditions in agreements for all jurisdictional services, including cost-based sales, market-based rate sales, and transmission service, as well as transaction information for short-term and long-term market-based power sales and cost-based power sales.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Download Size</p></th>
+<td><p>109416 MB</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Temporal Coverage</p></th>
+<td><p>2013q3-2025q3</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>PUDL Code</p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">ferceqr</span></code></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Unprocessed Source Data Archive</p></th>
+<td><p><a class="reference external" href="https://doi.org/10.5281/zenodo.18251901">10.5281/zenodo.18251901</a></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Issues</p></th>
+<td><p><a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aopen+label%3Aferceqr">Open FERC Form 920 – Electric Quarterly Report (EQR) issues</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="pudl-database-tables">
+<h2>PUDL Database Tables<a class="headerlink" href="#pudl-database-tables" title="Link to this heading">#</a></h2>
+<p>We’ve segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Data Dictionary</p></th>
+<th class="head"><p>Browse Online</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferceqr-contracts"><span class="std std-ref">core_ferceqr__contracts</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferceqr__contracts">https://data.catalyst.coop/search?q=name:core_ferceqr__contracts</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferceqr-quarterly-identity"><span class="std std-ref">core_ferceqr__quarterly_identity</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferceqr__quarterly_identity">https://data.catalyst.coop/search?q=name:core_ferceqr__quarterly_identity</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferceqr-quarterly-index-pub"><span class="std std-ref">core_ferceqr__quarterly_index_pub</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferceqr__quarterly_index_pub">https://data.catalyst.coop/search?q=name:core_ferceqr__quarterly_index_pub</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferceqr-transactions"><span class="std std-ref">core_ferceqr__transactions</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferceqr__transactions">https://data.catalyst.coop/search?q=name:core_ferceqr__transactions</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
+<p>FERC’s Electric Quarterly Reports (EQR) record US electricity wholesale market activity
+in great detail - sellers report transactions and their contractual terms on timescales
+ranging from 5-minutes in real-time spot markets, up to multi-year PPAs. It’s a very
+large dataset, and the raw data is hard to access in its published form of quarterly
+nested zip files.</p>
+<p>Due to its size and inconvenient format, the EQR has typically been underutilized as a
+data source. PUDL makes the EQR accessible and applies a minimal set of transformations
+to enable use of EQR in analysis of renewable energy financing at scale. This provides a
+view into otherwise opaque terms of the contracts and transactions that make up energy
+markets. It is particularly valuable in regions like the intermountain west and
+southeastern US with vertically integrated regulated monopoly utilities that lack
+organized wholesale markets.</p>
+<section id="download-additional-documentation">
+<h3>Download additional documentation<a class="headerlink" href="#download-additional-documentation" title="Link to this heading">#</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference download internal" download="" href="../_downloads/db13fc3953f677cac1995f2d3674014f/ferceqr_data_dictionary_v30_2014-03-10.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferceqr</span> <span class="pre">Data</span> <span class="pre">Dictionary</span> <span class="pre">V30</span> <span class="pre">2014-03-10</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/c903304c9702fbd58a807b22e8b8748f/ferceqr_data_dictionary_v34_2017-01-12.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferceqr</span> <span class="pre">Data</span> <span class="pre">Dictionary</span> <span class="pre">V34</span> <span class="pre">2017-01-12</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/9aeea8d4e53377dae719d40559c31490/ferceqr_data_dictionary_v35_2020-11-23.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferceqr</span> <span class="pre">Data</span> <span class="pre">Dictionary</span> <span class="pre">V35</span> <span class="pre">2020-11-23</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/23d48956b7b5ab74ad7ebeb26eb5422c/ferceqr_filing_requirements_2023-11-08.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferceqr</span> <span class="pre">Filing</span> <span class="pre">Requirements</span> <span class="pre">2023-11-08</span></code></a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="data-available-through-pudl">
+<h3>Data available through PUDL<a class="headerlink" href="#data-available-through-pudl" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The processed outputs cover the period from 2013Q3 through the present. Typically the
+most recent data available is from the prior quarter.</p></li>
+<li><p>Past filings may be revised, sometimes even years after their initial submission.</p></li>
+<li><p>Older raw FERC EQR data from 2002-2013Q2 has been
+<a class="reference external" href="https://zenodo.org/records/10086109">archived on Zenodo</a> but is not currently
+being processed, as it is from a different reporting epoch, is far less detailed, and
+uses a different file format.</p></li>
+<li><p>We are currently updating the processed FERC EQR outputs once a quarter, based on fresh
+snapshots of the original data.</p></li>
+<li><p>Because the raw dataset is ~100 GB, we cannot archive it on Zenodo as we do with
+most of our other inputs, and cannot currently store multiple historical versions of
+the raw inputs. Instead, every new snapshot we take overwrites the previous one. These
+snapshots are saved directly to cloud storage.</p></li>
+<li><p>To handle the large scale of the data all of the FERC EQR tables are partitioned into
+files that each contain a single quarter of data. This is unlike any of the other data
+in PUDL.</p></li>
+<li><p>The <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferceqr-transactions"><span class="std std-ref">core_ferceqr__transactions</span></a> table is by far the largest of the FERC EQR
+tables, with the compressed Parquet outputs taking up ~80 GB on disk. Take care when
+querying it or you can easily run out of memory. The other tables are small enough
+that they can be loaded into memory in their entirety.</p></li>
+</ul>
+</section>
+<section id="who-submits-this-data">
+<h3>Who submits this data?<a class="headerlink" href="#who-submits-this-data" title="Link to this heading">#</a></h3>
+<p>The FERC EQR is filed by electricity sellers. As outlined by the <a class="reference external" href="https://cms.ferc.gov/media/eqr-filing-requirements-guide-0">EQR Filing Requirements
+Guide</a>, respondents are
+broken down into the following categories:</p>
+<ul class="simple">
+<li><p>Public utilities: Public utilities as defined in section 201(e) of the Federal Power Act,
+16 U.S.C. 824 (e) must file the EQR. If the utility has a Commission-jurisdictional
+contract, tariff or rate schedule, it must file the EQR.</p></li>
+<li><p>Non-public utilities: Non-public utilities must file the EQR if they make wholesale sales
+above the de minimis market presence threshold. However, certain sales made by non-public
+utilities above this threshold are not required to be reported in the EQR.</p></li>
+<li><p>Qualifying facilities: Qualifying Facilities (QF) that are required to file rates under FPA
+section 205 must file EQRs, unless their sales are exempted from FPA sections 205 and 206.</p></li>
+<li><p>Exempt Wholesale Generators: The term ‘exempt wholesale generator’ means any person
+engaged directly, or indirectly through one or more affiliates as defined in this subchapter,
+and exclusively in the business of owning or operating, or both owning and operating,
+all or part of one or more eligible facilities and selling electric energy at wholesale.</p></li>
+<li><p>Electric Cooperatives: Electric cooperatives that sell 4,000,000 MWh or more of annual
+wholesale sales must file EQRs.</p></li>
+</ul>
+<p>Notable exemptions are utilities located entirely in Alaska and Hawaii and utilities
+making sales within ERCOT boundaries, as these markets are not subject to FERC’s
+jurisdiction. See <a class="reference external" href="https://www.ecfr.gov/current/title-18/chapter-I/subchapter-B/part-35/subpart-A/section-35.10b">18 CFR 35.10b Electric Quarterly Reports</a>.</p>
+<ul class="simple">
+<li><p>The original data is published as a collection of nested zipfiles containing CSVs.</p></li>
+<li><p>Each outer zipfile contains one full quarter of reporting, across all tables and
+respondents.</p></li>
+<li><p>Each inner zipfile contains a single respondent’s filing for a given quarter, with one
+CSV file for each of the 4 tables.</p></li>
+<li><p>FERC provides an online <a class="reference external" href="https://eqrreportviewer.ferc.gov/">EQR Report Viewer</a>
+which allows users to download a single filing, and also provides download links for
+the bulk data. This is where we obtain the raw inputs.</p></li>
+<li><p>The same data is also available as XML documents. We rely on the CSVs as they are much
+easier to parse and turn into tables for analytical use.</p></li>
+<li><p>FERC has been engaged in a process to revise how the EQR data is collected and
+distributed, as part of their wider shift to using XBRL. If or when that change
+happens, we will need to revisit our FERC EQR archiving and processing, and may need
+to secure additional funding for the project. See these links for background:</p>
+<ul>
+<li><p><a class="reference external" href="https://www.ferc.gov/sites/default/files/2020-09/EQR_and_XBRL-CSV_Presentation.pdf">XBRL-US presentation to FERC</a> (2020-09-23).</p></li>
+<li><p><a class="reference external" href="https://www.ferc.gov/media/e-2-rm23-9-000">FERC Docket RM23-9-000</a> (2023-10-19)</p></li>
+<li><p><a class="reference external" href="https://cache.xbrl.us/wp-content/uploads/2023/10/XBRL-US-RE-Docket-No.RM23-9-000.pdf">XBRL-US letter to FERC</a> (2023-12-21)</p></li>
+<li><p><a class="reference external" href="https://xbrl.us/news/xbrlus-comment-ferc-eqr/">XBRL-US comments on FERC proposed rule revising FERC EQR</a> (2023-12-22)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="notable-irregularities">
+<h2>Notable Irregularities<a class="headerlink" href="#notable-irregularities" title="Link to this heading">#</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>As of 2026-01-15 integration of FERC EQR into PUDL is still underway, and the dataset
+should be considered a work in progress. You can check the status of issues linked
+below. See also tracking issues <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4850">#4850</a>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4786">#4786</a></p>
+</div>
+<ul class="simple">
+<li><p>A small percentage of the individual filing zip archives included in the quarterly
+FERC EQR bulk data are corrupted, and cannot be extracted. We assume this is due to
+errors in the filing process, and that these filings are likely revised and corrected
+later.</p></li>
+<li><p>There are a handful of cases in which reported categorical values do not match the
+allowed values defined in any version of the FERC EQR data dictionaries. See issue
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4853">#4853</a> for details.</p></li>
+<li><p>Roughly 0.6% of all EQR records contain CSV formatting or quoting errors that prevent
+the data from being extracted. These ~29 million rows are currently dropped. See
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4928">#4928</a>.</p></li>
+<li><p>Roughly 0.02% of all EQR records suffer from character encoding errors, and cannot
+currently be extracted. These 922,000 rows are currently dropped. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4927">#4927</a>.</p></li>
+<li><p>The <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferceqr-quarterly-identity"><span class="std std-ref">core_ferceqr__quarterly_identity</span></a> table contains a few hundred records that
+are either perfect duplicates, or that differ only in the formatting of values like
+addresses or phone numbers. For now, this prevents the table from having a natural
+primary key. See <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4863">#4863</a>.</p></li>
+<li><p>The FERC EQR data dictionaries published by FERC have evolved slightly since 2013,
+primarily in that the the allowable categorical values have changed over time. PUDL
+treats all values that have ever been allowed in any version of the EQR data
+dictionaries as acceptable.</p></li>
+<li><p>See individual table metadata for notes about primary key constraints.</p></li>
+<li><p>FERC’s assigned company IDs (CIDs) are intended to be permanent. However, the
+attributes (such as company name) associated with a given CID can change over time.</p></li>
+</ul>
+</section>
+<section id="pudl-data-transformations">
+<h2>PUDL Data Transformations<a class="headerlink" href="#pudl-data-transformations" title="Link to this heading">#</a></h2>
+<p>To see the transformations applied to the data in each table, you can read the
+docstrings for <a class="reference internal" href="../autoapi/pudl/transform/ferceqr/index.html#module-pudl.transform.ferceqr" title="pudl.transform.ferceqr"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.transform.ferceqr</span></code></a> created for each table’s
+respective transform function.</p>
+<p>Our initial version of the FERC EQR dataset applies minimal transformations required
+to prepare it for programmatic usage. This includes:</p>
+<ul class="simple">
+<li><p>Extracting the zipped, per-filing CSV files and concatenating them into Parquet files,
+each of which contains all data for a given table and quarter.</p></li>
+<li><p>Adding the FERC Company ID associated with the filer to every record, to avoid
+ambiguities that result from relying on the name as an identifier.</p></li>
+<li><p>Adding a column indicating what year and quarter each record was filed for.</p></li>
+<li><p>Standardizing the case used in string fields that have a fixed set of expected values
+to eliminate meaningless variation.</p></li>
+<li><p>Converting string values into appropriate rich data types (boolean, datetime, etc.)
+and standardizing null values.</p></li>
+<li><p>Renaming a handful of columns to ensure they are uniform across all tables, and
+compatible with column naming conventions throughout the rest of PUDL. E.g. renaming
+<code class="docutils literal notranslate"><span class="pre">company_id</span></code> to <code class="docutils literal notranslate"><span class="pre">seller_company_id_ferc</span></code> to make it explicit which company in the
+transaction the ID refers to, and to differentiate it from the many other company IDs
+that appear elsewhere in PUDL.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ferc714.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="gridpathratoolkit.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">GridPath Resource Adequacy Toolkit Data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-database-tables">PUDL Database Tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-additional-documentation">Download additional documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-available-through-pudl">Data available through PUDL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#who-submits-this-data">Who submits this data?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notable-irregularities">Notable Irregularities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-data-transformations">PUDL Data Transformations</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/data_sources/ferceqr.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,87 @@
+pudl.extract.csv
+================
+
+.. py:module:: pudl.extract.csv
+
+.. autoapi-nested-parse::
+
+   Extractor for CSV data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.csv.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.csv.CsvExtractor
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: CsvExtractor(ds: pudl.workspace.datastore.Datastore)
+
+   Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`
+
+
+   Class for extracting dataframes from CSV files.
+
+   The extraction logic is invoked by calling extract() method of this class.
+
+
+   .. py:attribute:: READ_CSV_KWARGS
+      :type:  dict[str, Any]
+
+      Keyword arguments that are passed to :meth:`pandas.read_csv`.
+
+      These allow customization of the CSV parsing process. For example, you can specify
+      the column delimiter, data types, date parsing, etc. This can greatly reduce peak
+      memory usage and speed up the extraction process. Unfortunately you must refer to
+      the column headers using their original names as they appear in the CSV.
+
+      TODO[zaneselvans] 2024-04-19: it would be useful to be able to specify different CSV
+      reading options for different pages within the same dataset. At the moment the same
+      arguments will be applied to all pages. This still allows some flexibility because
+      some :meth:`pandas.read_csv` arguments like ``dtype`` don't raise errors if the
+      columns they apply to aren't present.
+
+
+   .. py:method:: source_filename(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> str
+
+      Produce the source CSV file name as it will appear in the archive.
+
+      :param page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                   "data"
+      :param partition: partition to load. Examples:
+                        {'year': 2009}
+                        {'year_month': '2020-08'}
+
+      :returns: string name of the CSV file
+
+
+
+   .. py:method:: load_source(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> pandas.DataFrame
+
+      Produce the dataframe object for the given partition.
+
+      :param page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                   "data"
+      :param partition: partition to load. Examples:
+                        {'year': 2009}
+                        {'year_month': '2020-08'}
+
+      :returns: pd.DataFrame instance containing CSV data
+
+
+

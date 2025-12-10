@@ -1,0 +1,1277 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.glue.ferc1_eia &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/glue/ferc1_eia';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.glue.ferc1_eia</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.glue.ferc1_eia</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Extract and transform glue tables between FERC Form 1 and EIA 860/923.</span>
+
+<span class="sd">FERC1 and EIA report on many of the same plants and utilities, but have no embedded</span>
+<span class="sd">connection. We have combed through the FERC and EIA plants and utilities to generate</span>
+<span class="sd">id&#39;s which can connect these datasets. The resulting fields in the PUDL tables are</span>
+<span class="sd">``plant_id_pudl`` and ``utility_id_pudl``, respectively. This was done by hand in a</span>
+<span class="sd">spreadsheet which is in the ``package_data/glue`` directory. When mapping plants, we</span>
+<span class="sd">considered a plant a co-located collection of electricity generation equipment. If a</span>
+<span class="sd">coal plant was converted to a natural gas unit, our aim was to consider this the same</span>
+<span class="sd">plant.  This module simply reads in the mapping spreadsheet and converts it to a</span>
+<span class="sd">dictionary of dataframes.</span>
+
+<span class="sd">Because these mappings were done by hand and for every one of FERC Form 1&#39;s thousands of</span>
+<span class="sd">reported plants, we know there are probably some incorrect or incomplete mappings. If</span>
+<span class="sd">you see a ``plant_id_pudl`` or ``utility_id_pudl`` mapping that you think is incorrect,</span>
+<span class="sd">please open an issue on our Github!</span>
+
+<span class="sd">Note that the PUDL IDs may change over time. They are not guaranteed to be stable. If</span>
+<span class="sd">you need to find a particular plant or utility reliably, you should use its</span>
+<span class="sd">``plant_id_eia``, ``utility_id_eia``, or ``utility_id_ferc1``.</span>
+
+<span class="sd">Another note about these id&#39;s: these id&#39;s map our definition of plants, which is not the</span>
+<span class="sd">most granular level of plant unit. The generators are typically the smaller, more</span>
+<span class="sd">interesting unit. FERC does not typically report in units (although it sometimes does),</span>
+<span class="sd">but it does often break up gas units from coal units. EIA reports on the generator and</span>
+<span class="sd">boiler level. When trying to use these PUDL id&#39;s, consider the granularity that you</span>
+<span class="sd">desire and the potential implications of using a co-located set of plant infrastructure</span>
+<span class="sd">as an id.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetIn</span><span class="p">,</span> <span class="n">Definitions</span><span class="p">,</span> <span class="n">JobDefinition</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">define_asset_job</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.extract.ferc1</span><span class="w"> </span><span class="kn">import</span> <span class="n">raw_ferc1_assets</span><span class="p">,</span> <span class="n">raw_ferc1_xbrl__metadata_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parquet_table</span><span class="p">,</span> <span class="n">simplify_strings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.io_managers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferc1_dbf_sqlite_io_manager</span><span class="p">,</span> <span class="n">ferc1_xbrl_sqlite_io_manager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Package</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataset_settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringNormalization</span><span class="p">,</span> <span class="n">normalize_strings_multicol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.ferc1</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Ferc1AbstractTableTransformer</span><span class="p">,</span>
+    <span class="n">TableIdFerc1</span><span class="p">,</span>
+    <span class="n">_core_ferc1_xbrl__metadata_json</span><span class="p">,</span>
+    <span class="n">ferc1_transform_asset_factory</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.params.ferc1</span><span class="w"> </span><span class="kn">import</span> <span class="n">FERC1_STRING_NORM</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PUDL_ID_MAP_XLSX">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.PUDL_ID_MAP_XLSX">[docs]</a>
+<span class="n">PUDL_ID_MAP_XLSX</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.glue&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;pudl_id_mapping.xlsx&quot;</span>
+<span class="p">)</span></div>
+
+<span class="sd">&quot;&quot;&quot;Path to the PUDL ID mapping sheet with the plant map.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UTIL_ID_PUDL_MAP_CSV">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.UTIL_ID_PUDL_MAP_CSV">[docs]</a>
+<span class="n">UTIL_ID_PUDL_MAP_CSV</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.glue&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;utility_id_pudl.csv&quot;</span>
+<span class="p">)</span></div>
+
+<span class="sd">&quot;&quot;&quot;Path to the PUDL utility ID mapping CSV.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UTIL_ID_FERC_MAP_CSV">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.UTIL_ID_FERC_MAP_CSV">[docs]</a>
+<span class="n">UTIL_ID_FERC_MAP_CSV</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.glue&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;utility_id_ferc1.csv&quot;</span>
+<span class="p">)</span></div>
+
+<span class="sd">&quot;&quot;&quot;Path to the PUDL-assign FERC1 utility ID mapping CSV.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MIN_PLANT_CAPACITY_MW">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.MIN_PLANT_CAPACITY_MW">[docs]</a>
+<span class="n">MIN_PLANT_CAPACITY_MW</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span></div>
+
+<div class="viewcode-block" id="MAX_LOST_PLANTS_EIA">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.MAX_LOST_PLANTS_EIA">[docs]</a>
+<span class="n">MAX_LOST_PLANTS_EIA</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span></div>
+
+<div class="viewcode-block" id="MAX_LOST_UTILS_EIA">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.MAX_LOST_UTILS_EIA">[docs]</a>
+<span class="n">MAX_LOST_UTILS_EIA</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span></div>
+
+
+
+<span class="c1">#####################################</span>
+<span class="c1"># Stored Maps of plants and utilities</span>
+<span class="c1">#####################################</span>
+<div class="viewcode-block" id="get_plant_map">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_plant_map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_plant_map</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read in the manual FERC to EIA plant mapping data.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">PUDL_ID_MAP_XLSX</span><span class="p">,</span>
+        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;plants_output&quot;</span><span class="p">,</span>
+        <span class="n">na_values</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">keep_default_na</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">converters</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s2">&quot;plant_name_pudl&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;calamine&quot;</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">simplify_strings</span><span class="p">,</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;plant_name_pudl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_utility_map_pudl">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_utility_map_pudl">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_utility_map_pudl</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read in the manual FERC to EIA utility mapping data.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">UTIL_ID_PUDL_MAP_CSV</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">utility_name_pudl</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">utility_name_eia</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">utility_name_ferc1</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_utility_map_ferc1">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_utility_map_ferc1">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_utility_map_ferc1</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read in the manual XBRL to DBF FERC1 utility mapping data.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">UTIL_ID_FERC_MAP_CSV</span><span class="p">)</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="get_mapped_plants_eia">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_mapped_plants_eia">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_mapped_plants_eia</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a list of all EIA plants that have been assigned PUDL Plant IDs.</span>
+
+<span class="sd">    Read in the list of already mapped EIA plants from the FERC 1 / EIA plant</span>
+<span class="sd">    and utility mapping spreadsheet kept in the package_data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A DataFrame listing the plant_id_eia and plant_name_eia values for every EIA</span>
+<span class="sd">        plant which has already been assigned a PUDL Plant ID.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mapped_plants_eia</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">get_plant_map</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">mapped_plants_eia</span></div>
+
+
+
+<span class="c1">##########################</span>
+<span class="c1"># Raw Plants and Utilities</span>
+<span class="c1">##########################</span>
+<div class="viewcode-block" id="get_util_ids_ferc1_raw_xbrl">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_xbrl">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_util_ids_ferc1_raw_xbrl</span><span class="p">(</span><span class="n">ferc1_engine_xbrl</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Grab the utility ids (reported as `entity_id`) in the FERC1 XBRL database.&quot;&quot;&quot;</span>
+    <span class="n">all_utils_ferc1_xbrl</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
+            <span class="s2">&quot;SELECT entity_id, respondent_legal_name FROM identification_001_duration&quot;</span><span class="p">,</span>
+            <span class="n">ferc1_engine_xbrl</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;entity_id&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_legal_name&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">normalize_strings_multicol</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">:</span> <span class="n">StringNormalization</span><span class="p">(</span><span class="o">**</span><span class="n">FERC1_STRING_NORM</span><span class="p">)},</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">all_utils_ferc1_xbrl</span></div>
+
+
+
+<div class="viewcode-block" id="get_util_ids_ferc1_raw_dbf">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_util_ids_ferc1_raw_dbf">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_util_ids_ferc1_raw_dbf</span><span class="p">(</span><span class="n">ferc1_engine_dbf</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Grab the utility ids (reported as `respondent_id`) in the FERC1 DBF database.&quot;&quot;&quot;</span>
+    <span class="n">all_utils_ferc1_dbf</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">read_sql_table</span><span class="p">(</span><span class="s2">&quot;f1_respondent_id&quot;</span><span class="p">,</span> <span class="n">ferc1_engine_dbf</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;respondent_id&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_name&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">normalize_strings_multicol</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">:</span> <span class="n">StringNormalization</span><span class="p">(</span><span class="o">**</span><span class="n">FERC1_STRING_NORM</span><span class="p">)},</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">]]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">all_utils_ferc1_dbf</span></div>
+
+
+
+<div class="viewcode-block" id="GenericPlantFerc1TableTransformer">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.GenericPlantFerc1TableTransformer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GenericPlantFerc1TableTransformer</span><span class="p">(</span><span class="n">Ferc1AbstractTableTransformer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic plant table transformer.</span>
+
+<span class="sd">    Intended for use in compiling all plant names for manual ID mapping.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="n">TableIdFerc1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize generic table transformer with table_id.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="GenericPlantFerc1TableTransformer.table_id">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.GenericPlantFerc1TableTransformer.table_id">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">table_id</span></div>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GenericPlantFerc1TableTransformer.transform">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.GenericPlantFerc1TableTransformer.transform">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raw_dbf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">raw_xbrl_instant</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">raw_xbrl_duration</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Only apply the generic :meth:``transform_start``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_start</span><span class="p">(</span><span class="n">raw_dbf</span><span class="p">,</span> <span class="n">raw_xbrl_instant</span><span class="p">,</span> <span class="n">raw_xbrl_duration</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transform_main</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GenericPlantFerc1TableTransformer.transform_main">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.GenericPlantFerc1TableTransformer.transform_main">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Basic name normalization and dropping of invalid rows.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">normalize_strings</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drop_invalid_rows</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">plant_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table_id</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GenericPlantFerc1TableTransformer.drop_invalid_rows">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.GenericPlantFerc1TableTransformer.drop_invalid_rows">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_invalid_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add required valid columns before running standard drop_invalid_rows.</span>
+
+<span class="sd">        This parent classes&#39; method drops the whole df if all of the</span>
+<span class="sd">        ``require_valid_columns`` don&#39;t exist in the df. For the glue tests only, we add</span>
+<span class="sd">        in empty required columns because we know that the real ETL adds columns during</span>
+<span class="sd">        the full transform step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># ensure the required columns are actually in the df</span>
+        <span class="n">list_of_lists_of_required_valid_cols</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">required_valid_cols</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">drop_invalid_rows</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">required_valid_cols</span>
+        <span class="p">]</span>
+        <span class="n">required_valid_cols</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">dedupe_n_flatten_list_of_lists</span><span class="p">(</span>
+            <span class="n">list_of_lists_of_required_valid_cols</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">required_valid_cols</span><span class="p">:</span>
+            <span class="n">missing_required_cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">required_valid_cols</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">missing_required_cols</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">table_id</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">: Found required columns for &quot;</span>
+                    <span class="s2">&quot;`drop_invalid_rows`. Adding empty columns for: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">missing_required_cols</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="nb">list</span><span class="p">(</span><span class="n">missing_required_cols</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">drop_invalid_rows</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="get_plants_ferc1_raw_job">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_plants_ferc1_raw_job">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_plants_ferc1_raw_job</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">JobDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.</span>
+
+<span class="sd">    This job expects ferc1_dbf.sqlite and ferc_xbrl.sqlite databases to be populated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plant_tables</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;core_ferc1__yearly_hydroelectric_plants_sched406&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;core_ferc1__yearly_small_plants_sched410&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;core_ferc1__yearly_pumped_storage_plants_sched408&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;core_ferc1__yearly_steam_plants_sched402&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;core_ferc1__yearly_steam_plants_fuel_sched402&quot;</span><span class="p">,</span>  <span class="c1"># bc it has plants/is associated w/ the steam table</span>
+    <span class="p">]</span>
+
+    <span class="nd">@asset</span><span class="p">(</span><span class="n">ins</span><span class="o">=</span><span class="p">{</span><span class="n">table_name</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">()</span> <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">plant_tables</span><span class="p">})</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plants_ferc1_raw</span><span class="p">(</span><span class="o">**</span><span class="n">transformed_plant_tables</span><span class="p">):</span>
+        <span class="n">plant_dfs</span> <span class="o">=</span> <span class="n">transformed_plant_tables</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">all_plants</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">plant_dfs</span><span class="p">)</span>
+        <span class="c1"># add the utility_name_ferc1</span>
+        <span class="n">util_map</span> <span class="o">=</span> <span class="n">get_utility_map_pudl</span><span class="p">()</span>
+        <span class="n">unique_utils_ferc1</span> <span class="o">=</span> <span class="n">util_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">util_map</span><span class="o">.</span><span class="n">utility_id_ferc1</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span>
+            <span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">],</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">])</span>
+        <span class="n">all_plants</span> <span class="o">=</span> <span class="n">all_plants</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">unique_utils_ferc1</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># grab the most recent plant record</span>
+        <span class="n">all_plants</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">all_plants</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;report_year&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="p">:,</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;plant_table&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">([</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_plants</span>
+
+    <span class="n">transform_assets</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">ferc1_transform_asset_factory</span><span class="p">(</span>
+            <span class="n">table_name</span><span class="p">,</span>
+            <span class="n">GenericPlantFerc1TableTransformer</span><span class="p">,</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">convert_dtypes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">generic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">plant_tables</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">Definitions</span><span class="p">(</span>
+        <span class="n">assets</span><span class="o">=</span><span class="n">transform_assets</span>
+        <span class="o">+</span> <span class="n">raw_ferc1_assets</span>
+        <span class="o">+</span> <span class="p">[</span>
+            <span class="n">plants_ferc1_raw</span><span class="p">,</span>
+            <span class="n">raw_ferc1_xbrl__metadata_json</span><span class="p">,</span>
+            <span class="n">_core_ferc1_xbrl__metadata_json</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">resources</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;ferc1_dbf_sqlite_io_manager&quot;</span><span class="p">:</span> <span class="n">ferc1_dbf_sqlite_io_manager</span><span class="p">,</span>
+            <span class="s2">&quot;ferc1_xbrl_sqlite_io_manager&quot;</span><span class="p">:</span> <span class="n">ferc1_xbrl_sqlite_io_manager</span><span class="p">,</span>
+            <span class="s2">&quot;dataset_settings&quot;</span><span class="p">:</span> <span class="n">dataset_settings</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">jobs</span><span class="o">=</span><span class="p">[</span><span class="n">define_asset_job</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_plants_ferc1_raw&quot;</span><span class="p">)],</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">get_job_def</span><span class="p">(</span><span class="s2">&quot;get_plants_ferc1_raw&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="c1">###############################</span>
+<span class="c1"># Unmapped plants and utilities</span>
+<span class="c1">###############################</span>
+<div class="viewcode-block" id="get_missing_ids">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_missing_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_missing_ids</span><span class="p">(</span>
+    <span class="n">ids_left</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">ids_right</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">id_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Identify IDs that are missing from the left df but show up in the right df.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ids_left: table which contains ``id_cols`` to be used as left table in join.</span>
+<span class="sd">        ids_right: table which contains ``id_cols`` to be used as left table in join.</span>
+<span class="sd">        id_cols: list of ID column(s)</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        index of unique values in ``id_cols`` that exist in ``ids_right`` but not</span>
+<span class="sd">        ``ids_left``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ids_left</span> <span class="o">=</span> <span class="n">ids_left</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">id_cols</span><span class="p">)</span>
+    <span class="n">ids_right</span> <span class="o">=</span> <span class="n">ids_right</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">id_cols</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ids_right</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">ids_left</span><span class="o">.</span><span class="n">index</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="label_missing_ids_for_manual_mapping">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.label_missing_ids_for_manual_mapping">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label_missing_ids_for_manual_mapping</span><span class="p">(</span>
+    <span class="n">missing_ids</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span> <span class="n">label_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Label unmapped IDs for manual mapping.&quot;&quot;&quot;</span>
+    <span class="c1"># the index name for single indexes are accessed differently than for multi-indexes</span>
+    <span class="k">return</span> <span class="n">label_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">missing_ids</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">missing_ids</span><span class="o">.</span><span class="n">names</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">missing_ids</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="label_plants_eia">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.label_plants_eia">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label_plants_eia</span><span class="p">(</span>
+    <span class="n">out_eia__yearly_plants</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_eia__yearly_generators</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Label plants with columns helpful in manual mapping.&quot;&quot;&quot;</span>
+    <span class="c1"># generator table for capacity</span>
+    <span class="n">plant_capacity</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">out_eia__yearly_generators</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)[[</span><span class="s2">&quot;capacity_mw&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">plants_w_capacity</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">out_eia__yearly_plants</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">plant_capacity</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">link_to_ferc1</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">capacity_mw</span> <span class="o">&gt;=</span> <span class="n">MIN_PLANT_CAPACITY_MW</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;report_date&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="p">:,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;link_to_ferc1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">plants_w_capacity</span></div>
+
+
+
+<div class="viewcode-block" id="label_utilities_ferc1_dbf">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.label_utilities_ferc1_dbf">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label_utilities_ferc1_dbf</span><span class="p">(</span>
+    <span class="n">core_pudl__assn_ferc1_dbf_pudl_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">util_ids_ferc1_raw_dbf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the DBF FERC1 utilities with their names.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">core_pudl__assn_ferc1_dbf_pudl_utilities</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">util_ids_ferc1_raw_dbf</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;utility_id_ferc1_dbf&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="label_utilities_ferc1_xbrl">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.label_utilities_ferc1_xbrl">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label_utilities_ferc1_xbrl</span><span class="p">(</span>
+    <span class="n">core_pudl__assn_ferc1_xbrl_pudl_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">util_ids_ferc1_raw_xbrl</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the XBRL FERC1 utilities with their names.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">core_pudl__assn_ferc1_xbrl_pudl_utilities</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">util_ids_ferc1_raw_xbrl</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_utility_most_recent_capacity">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_utility_most_recent_capacity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_utility_most_recent_capacity</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate total generation capacity by utility in most recent reported year.&quot;&quot;&quot;</span>
+    <span class="n">gen_caps</span> <span class="o">=</span> <span class="n">get_parquet_table</span><span class="p">(</span>
+        <span class="s2">&quot;core_eia860__scd_generators&quot;</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">most_recent_gens_idx</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">gen_caps</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">)[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">)</span>
+        <span class="o">==</span> <span class="n">gen_caps</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">most_recent_gens</span> <span class="o">=</span> <span class="n">gen_caps</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">most_recent_gens_idx</span><span class="p">]</span>
+    <span class="n">utility_caps</span> <span class="o">=</span> <span class="n">most_recent_gens</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">)[</span><span class="s2">&quot;capacity_mw&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">utility_caps</span></div>
+
+
+
+<div class="viewcode-block" id="get_core_eia923_plant_ids">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_core_eia923_plant_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_core_eia923_plant_ids</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile Plant IDs for all plants that appear in core EIA-923 tables.&quot;&quot;&quot;</span>
+    <span class="n">pudl_pkg</span> <span class="o">=</span> <span class="n">Package</span><span class="o">.</span><span class="n">from_resource_ids</span><span class="p">()</span>
+    <span class="n">core_eia923_plants</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">pudl_pkg</span><span class="o">.</span><span class="n">resources</span>
+        <span class="k">if</span> <span class="s2">&quot;core_eia923&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">name</span>
+        <span class="ow">and</span> <span class="s2">&quot;plant_id_eia&quot;</span> <span class="ow">in</span> <span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">all_plant_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">core_eia923_plants</span><span class="p">:</span>
+        <span class="n">all_plant_ids</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">get_parquet_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">])[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">all_plant_ids</span></div>
+
+
+
+<div class="viewcode-block" id="get_util_ids_eia_unmapped">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.get_util_ids_eia_unmapped">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_util_ids_eia_unmapped</span><span class="p">(</span>
+    <span class="n">out_eia__yearly_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_eia__yearly_generators</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">utilities_eia_mapped</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.</span>
+
+<span class="sd">    Identify any EIA Utility that appears in the data but does not have a</span>
+<span class="sd">    utility_id_pudl associated with it in our ID mapping spreadsheet. Label some of</span>
+<span class="sd">    those utilities for potential linkage to FERC 1 utilities, but only if they have</span>
+<span class="sd">    plants which report data somewhere in the EIA-923 data tables. For those utilities</span>
+<span class="sd">    that do have plants reporting in EIA-923, sum up the total capacity of all of their</span>
+<span class="sd">    plants and include that in the output dataframe so that we can effectively</span>
+<span class="sd">    prioritize mapping them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">utilities_eia_db</span> <span class="o">=</span> <span class="n">out_eia__yearly_utilities</span><span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">([</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
+    <span class="n">unmapped_utils_eia_index</span> <span class="o">=</span> <span class="n">get_missing_ids</span><span class="p">(</span>
+        <span class="n">utilities_eia_mapped</span><span class="p">,</span> <span class="n">utilities_eia_db</span><span class="p">,</span> <span class="n">id_cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Get the most recent total capacity for the unmapped utils.</span>
+    <span class="n">utilities_eia_db</span> <span class="o">=</span> <span class="n">utilities_eia_db</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
+    <span class="n">unmapped_utils_eia</span> <span class="o">=</span> <span class="n">utilities_eia_db</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">unmapped_utils_eia_index</span><span class="p">]</span>
+    <span class="n">util_recent_cap</span> <span class="o">=</span> <span class="n">get_utility_most_recent_capacity</span><span class="p">()</span>
+
+    <span class="n">unmapped_utils_eia</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">unmapped_utils_eia</span><span class="p">,</span>
+        <span class="n">util_recent_cap</span><span class="p">,</span>
+        <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">plant_ids_in_eia923</span> <span class="o">=</span> <span class="n">get_core_eia923_plant_ids</span><span class="p">()</span>
+    <span class="n">utils_with_plants</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">out_eia__yearly_generators</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">utils_with_data_in_eia923</span> <span class="o">=</span> <span class="n">utils_with_plants</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">utils_with_plants</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">plant_ids_in_eia923</span><span class="p">),</span> <span class="s2">&quot;utility_id_eia&quot;</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+
+    <span class="c1"># Most unmapped utilities have no EIA 923 data and so don&#39;t need to be linked:</span>
+    <span class="n">unmapped_utils_eia</span><span class="p">[</span><span class="s2">&quot;link_to_ferc1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1"># Any utility ID that&#39;s both unmapped and has EIA 923 data should get linked:</span>
+    <span class="n">idx_to_link</span> <span class="o">=</span> <span class="n">unmapped_utils_eia</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
+        <span class="n">utils_with_data_in_eia923</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">unmapped_utils_eia</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_to_link</span><span class="p">,</span> <span class="s2">&quot;link_to_ferc1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">unmapped_utils_eia</span> <span class="o">=</span> <span class="n">unmapped_utils_eia</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+        <span class="n">by</span><span class="o">=</span><span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">unmapped_utils_eia</span></div>
+
+
+
+<span class="c1">#################</span>
+<span class="c1"># Glue Tables ETL</span>
+<span class="c1">#################</span>
+<div class="viewcode-block" id="glue">
+<a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc1_eia/index.html#pudl.glue.ferc1_eia.glue">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">glue</span><span class="p">(</span><span class="n">ferc1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">eia</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a dictionary of dataframes for glue tables between FERC1, EIA.</span>
+
+<span class="sd">    That data is primarily stored in the plant_output and</span>
+<span class="sd">    utility_output tabs of package_data/glue/pudl_id_mapping.xlsx in the</span>
+<span class="sd">    repository. There are a total of seven relations described in this data:</span>
+
+<span class="sd">        - utilities: Unique id and name for each utility for use across the</span>
+<span class="sd">          PUDL DB.</span>
+<span class="sd">        - plants: Unique id and name for each plant for use across the PUDL DB.</span>
+<span class="sd">        - core_pudl__assn_eia_pudl_utilities: EIA operator ids and names attached to a PUDL</span>
+<span class="sd">          utility id.</span>
+<span class="sd">        - core_pudl__assn_eia_pudl_plants: EIA plant ids and names attached to a PUDL plant id.</span>
+<span class="sd">        - utilities_ferc: FERC respondent ids &amp; names attached to a PUDL</span>
+<span class="sd">          utility id.</span>
+<span class="sd">        - plants_ferc: A combination of FERC plant names and respondent ids,</span>
+<span class="sd">          associated with a PUDL plant ID. This is necessary because FERC does</span>
+<span class="sd">          not provide plant ids, so the unique plant identifier is a</span>
+<span class="sd">          combination of the respondent id and plant name.</span>
+<span class="sd">        - core_pudl__assn_utilities_plants: An association table which describes which plants</span>
+<span class="sd">          have relationships with what utilities. If a record exists in this</span>
+<span class="sd">          table then combination of PUDL utility id &amp; PUDL plant id does have</span>
+<span class="sd">          an association of some kind. The nature of that association is</span>
+<span class="sd">          somewhat fluid, and more scrutiny will likely be required for use in</span>
+<span class="sd">          analysis.</span>
+
+<span class="sd">    Presently, the &#39;glue&#39; tables are a very basic piece of infrastructure for</span>
+<span class="sd">    the PUDL DB, because they contain the primary key fields for utilities and</span>
+<span class="sd">    plants in FERC1.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ferc1: Are we ingesting FERC Form 1 data?</span>
+<span class="sd">        eia: Are we ingesting EIA data?</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary of glue table DataFrames.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ferc glue tables are structurally entity tables w/ foreign key</span>
+    <span class="c1"># relationships to ferc datatables, so we need some of the eia/ferc &#39;glue&#39;</span>
+    <span class="c1"># even when only ferc is ingested into the database.</span>
+
+    <span class="c1"># We need to standardize plant names -- same capitalization and no leading</span>
+    <span class="c1"># or trailing white space... since this field is being used as a key in</span>
+    <span class="c1"># many cases. This also needs to be done any time plant_name is pulled in</span>
+    <span class="c1"># from other tables.</span>
+    <span class="n">plant_map</span> <span class="o">=</span> <span class="n">get_plant_map</span><span class="p">()</span>
+
+    <span class="n">core_pudl__entity_plants_pudl</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">plant_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_pudl&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">core_pudl__assn_eia_pudl_plants</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">plant_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">core_pudl__assn_ferc1_pudl_plants</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">plant_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">([</span><span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="n">utility_map_pudl</span> <span class="o">=</span> <span class="n">get_utility_map_pudl</span><span class="p">()</span>
+    <span class="n">core_pudl__entity_utilities_pudl</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">utility_map_pudl</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_pudl&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">core_pudl__assn_eia_pudl_utilities</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">utility_map_pudl</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">core_pudl__assn_ferc1_pudl_utilities</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">utility_map_pudl</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="n">utility_map_ferc1</span> <span class="o">=</span> <span class="n">get_utility_map_ferc1</span><span class="p">()</span>
+    <span class="n">core_pudl__assn_ferc1_dbf_pudl_utilities</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">utility_map_ferc1</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1_dbf&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">core_pudl__assn_ferc1_xbrl_pudl_utilities</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">utility_map_ferc1</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1_xbrl&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Now we need to create a table that indicates which plants are associated</span>
+    <span class="c1"># with every utility.</span>
+
+    <span class="c1"># These dataframes map our plant_id to FERC respondents and EIA</span>
+    <span class="c1"># operators -- the equivalents of our &quot;utilities&quot;</span>
+    <span class="n">plants_utilities_ferc1</span> <span class="o">=</span> <span class="n">plant_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">])</span>
+    <span class="n">plants_utilities_eia</span> <span class="o">=</span> <span class="n">plant_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Here we treat the dataframes like database tables, and join on the</span>
+    <span class="c1"># FERC respondent_id and EIA operator_id, respectively.</span>
+    <span class="c1"># Now we can concatenate the two dataframes, and get rid of all the columns</span>
+    <span class="c1"># except for plant_id and utility_id (which determine the  utility to plant</span>
+    <span class="c1"># association), and get rid of any duplicates or lingering NaN values...</span>
+    <span class="n">core_pudl__assn_utilities_plants</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">core_pudl__assn_eia_pudl_utilities</span><span class="p">,</span>
+                <span class="n">plants_utilities_eia</span><span class="p">,</span>
+                <span class="n">on</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">core_pudl__assn_ferc1_pudl_utilities</span><span class="p">,</span>
+                <span class="n">plants_utilities_ferc1</span><span class="p">,</span>
+                <span class="n">on</span><span class="o">=</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">core_pudl__assn_utilities_plants</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">core_pudl__assn_utilities_plants</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="c1"># At this point there should be at most one row in each of these data</span>
+    <span class="c1"># frames with NaN values after we drop_duplicates in each. This is because</span>
+    <span class="c1"># there will be some plants and utilities that only exist in FERC, or only</span>
+    <span class="c1"># exist in EIA, and while they will have PUDL IDs, they may not have</span>
+    <span class="c1"># FERC/EIA info (and it&#39;ll get pulled in as NaN)</span>
+    <span class="c1"># Is this check still meaningful with all the EIA plants and utilities that</span>
+    <span class="c1"># we&#39;re harvesting IDs for, with no names?</span>
+    <span class="k">for</span> <span class="n">df</span><span class="p">,</span> <span class="n">df_n</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">core_pudl__assn_eia_pudl_plants</span><span class="p">,</span>
+            <span class="n">core_pudl__assn_ferc1_pudl_plants</span><span class="p">,</span>
+            <span class="n">core_pudl__assn_eia_pudl_utilities</span><span class="p">,</span>
+            <span class="n">core_pudl__assn_ferc1_pudl_utilities</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="p">[</span><span class="s2">&quot;plants_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;plants_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utilities_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utilities_ferc1&quot;</span><span class="p">],</span>
+        <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;FERC to EIA glue breaking in </span><span class="si">{</span><span class="n">df_n</span><span class="si">}</span><span class="s2">. There are too many null &quot;</span>
+                <span class="s2">&quot;fields. Check the mapping spreadsheet.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+    <span class="c1"># Before we start inserting records into the database, let&#39;s do some basic</span>
+    <span class="c1"># sanity checks to ensure that it&#39;s (at least kind of) clean.</span>
+    <span class="c1"># INSERT SANITY HERE</span>
+
+    <span class="c1"># Any FERC respondent_id that appears in core_pudl__assn_ferc1_pudl_plants must also exist in</span>
+    <span class="c1"># core_pudl__assn_ferc1_pudl_utilities:</span>
+    <span class="c1"># INSERT MORE SANITY HERE</span>
+
+    <span class="n">glue_dfs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;core_pudl__entity_plants_pudl&quot;</span><span class="p">:</span> <span class="n">core_pudl__entity_plants_pudl</span><span class="p">,</span>
+        <span class="s2">&quot;core_pudl__entity_utilities_pudl&quot;</span><span class="p">:</span> <span class="n">core_pudl__entity_utilities_pudl</span><span class="p">,</span>
+        <span class="s2">&quot;core_pudl__assn_ferc1_pudl_plants&quot;</span><span class="p">:</span> <span class="n">core_pudl__assn_ferc1_pudl_plants</span><span class="p">,</span>
+        <span class="s2">&quot;core_pudl__assn_ferc1_pudl_utilities&quot;</span><span class="p">:</span> <span class="n">core_pudl__assn_ferc1_pudl_utilities</span><span class="p">,</span>
+        <span class="s2">&quot;core_pudl__assn_ferc1_dbf_pudl_utilities&quot;</span><span class="p">:</span> <span class="n">core_pudl__assn_ferc1_dbf_pudl_utilities</span><span class="p">,</span>
+        <span class="s2">&quot;core_pudl__assn_ferc1_xbrl_pudl_utilities&quot;</span><span class="p">:</span> <span class="n">core_pudl__assn_ferc1_xbrl_pudl_utilities</span><span class="p">,</span>
+        <span class="s2">&quot;core_pudl__assn_eia_pudl_plants&quot;</span><span class="p">:</span> <span class="n">core_pudl__assn_eia_pudl_plants</span><span class="p">,</span>
+        <span class="s2">&quot;core_pudl__assn_eia_pudl_utilities&quot;</span><span class="p">:</span> <span class="n">core_pudl__assn_eia_pudl_utilities</span><span class="p">,</span>
+        <span class="s2">&quot;core_pudl__assn_utilities_plants&quot;</span><span class="p">:</span> <span class="n">core_pudl__assn_utilities_plants</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">glue_dfs</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,778 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>SEC 10-K Ownership Data Extraction Modeling &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'methodology/sec10k_modeling';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Bibliography" href="../bibliography.html" />
+    <link rel="prev" title="Timeseries Imputation" href="timeseries_imputation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../data_dictionaries/index.html">Data Dictionaries</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../data_sources/index.html">Data Sources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_sources/future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_access.html">Data Access</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Methodology</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../data.html" class="nav-link">Data Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Methodology</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">SEC 10-K Ownership Data Extraction Modeling</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="sec-10-k-ownership-data-extraction-modeling">
+<h1>SEC 10-K Ownership Data Extraction Modeling<a class="headerlink" href="#sec-10-k-ownership-data-extraction-modeling" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Utilities are often part of a nested hierarchy of holding companies and their
+subsidiaries which makes it difficult to understand the complex web of political
+and economic incentives they are responding to. These subsidiary relationships
+are reported in the SEC’s Form 10-K, via an attachment called Exhibit 21, however
+the format and contents of this attachment is neither standardized nor structured.
+With support from The Mozilla Foundation, Catalyst built a machine learning model
+to extract ownership data from this Ex. 21 attachment and structures it into a
+table along with information about the 10-K filing companies. We also used
+probabilistic record linkage to connect these owner and subsidiary companies
+to utility companies that file with EIA. This connection in turn enables a
+connection to data reported to FERC and EIA contained in PUDL. We only conducted
+an initial round of modeling, so this dataset is a beta version and its
+contents and connections to other datasets are probabilistic in nature.</p>
+<p>The following output tables are created from this process:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-quarterly-filings"><span class="std std-ref">out_sec10k__quarterly_filings</span></a>: contains information about the filings
+themselves</p></li>
+<li><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-quarterly-company-information"><span class="std std-ref">out_sec10k__quarterly_company_information</span></a>: contains attributes
+describing the companies which file 10-K’s</p></li>
+<li><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-parents-and-subsidiaries"><span class="std std-ref">out_sec10k__parents_and_subsidiaries</span></a>: contains ownership information
+about parent companies and their subsidiary companies</p></li>
+<li><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-changelog-company-name"><span class="std std-ref">out_sec10k__changelog_company_name</span></a>: contains information about company
+name changes</p></li>
+</ul>
+</section>
+<section id="extracting-ownership-data-from-exhibit-21-attachments">
+<h2>Extracting Ownership Data From Exhibit 21 Attachments<a class="headerlink" href="#extracting-ownership-data-from-exhibit-21-attachments" title="Link to this heading">#</a></h2>
+<p>The ownership tables contained in the Exhibit 21 attachments are not consistently
+formatted and lack standardization in content and layout. Extracting this
+information required a machine learning model to generalize across the many
+different layouts. We used <a class="reference external" href="https://huggingface.co/microsoft/layoutlmv3-base">LayoutLMv3</a>,
+a pre-trained model from the Hugging Face
+Transformers library designed for document layout-aware information extraction.
+We fine-tuned LayoutLM for named entity recognition on 160 labeled Exhibit 21
+documents, classifying each word in the documents as one of four
+labels: subsidiary name, location of incorporation, ownership percentage, or other.
+After classifying the word tokens, we applied a set of heuristics to organize
+the data into structured tables. This rules-based model leveraged the position
+of bounding box coordinates and the order of entity tags assigned by LayoutLM.
+For example, one heuristic enforces that each row in the extracted table contains
+only one subsidiary name, location, and ownership fraction, so if two subsidiary
+names are adjacent in the extracted tokens, then they are placed on different rows
+of the output table. We validated the final extracted tables against a
+validation set of 72 manually transcribed tables.
+The extracted data is structured into the
+<a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-quarterly-exhibit-21-company-ownership"><span class="std std-ref">core_sec10k__quarterly_exhibit_21_company_ownership</span></a>
+table, and subsequently attributes about the subsidiary and parent companies are
+merged on in the <a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-parents-and-subsidiaries"><span class="std std-ref">out_sec10k__parents_and_subsidiaries</span></a> table.</p>
+</section>
+<section id="assigning-subsidiary-company-id-sec10k-to-extracted-subsidiary-companies">
+<h2>Assigning <code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code> to Extracted Subsidiary Companies<a class="headerlink" href="#assigning-subsidiary-company-id-sec10k-to-extracted-subsidiary-companies" title="Link to this heading">#</a></h2>
+<p>To track subsidiaries over time, we assign a unique identifier called
+<code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code> to each subsidiary extracted from an
+Exhibit 21 filing and reported in the
+<a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-quarterly-exhibit-21-company-ownership"><span class="std std-ref">core_sec10k__quarterly_exhibit_21_company_ownership</span></a> table. This identifier
+is constructed from three components: the filer company’s Central Index Key (CIK),
+the subsidiary company name, and the subsidiary’s location of incorporation.</p>
+<p>As a result, the same subsidiary reported by the same filer across multiple
+years will have a consistent <code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code>. However,
+if the same subsidiary appears in filings from different parent companies,
+it will receive a different identifier in each context.</p>
+<p>In short, <code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code> tracks subsidiaries consistently
+within a single filer’s history but should not be used to link the same
+subsidiary across different filers.</p>
+</section>
+<section id="matching-subsidiary-companies-to-a-central-index-key">
+<h2>Matching Subsidiary Companies to a Central Index Key<a class="headerlink" href="#matching-subsidiary-companies-to-a-central-index-key" title="Link to this heading">#</a></h2>
+<p>Some subsidiary companies reported in Ex. 21 attachments also file
+their own 10-K filing and thus have an implicit central index key.
+This CIK is not reported in the Ex. 21 attachments, so we connected the
+subsidiary companies in <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-quarterly-exhibit-21-company-ownership"><span class="std std-ref">core_sec10k__quarterly_exhibit_21_company_ownership</span></a>
+to the filing companies in <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-quarterly-company-information"><span class="std std-ref">core_sec10k__quarterly_company_information</span></a>.</p>
+<p>To do this, we match the subsidiary companies to 10-K filers on company name.
+If there are multiple matches with the same company name we choose
+the pair with the most overlap in location of incorporation and then nearest
+report years. This is a fairly conservative matching process, meaning that
+many subsidiaries are not matched to their CIK, but there are unlikely
+to be subsidiaries that are erroneously matched to a CIK. This process
+produces the <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-assn-exhibit-21-subsidiaries-and-filers"><span class="std std-ref">core_sec10k__assn_exhibit_21_subsidiaries_and_filers</span></a> table.</p>
+<p>In this table, 2% of unique <code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code> are matched to
+19% of the filers.</p>
+<p>The fact that on average there are ~3.5 <code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code>
+mapping to each <code class="docutils literal notranslate"><span class="pre">central_index_key</span></code> is due to the
+<code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code> tracking the same company
+across time, but not across different owners. Multiple
+<code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code> are assigned to the same subsidiary under
+different owners. Due to the ambiguities of <code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code>,
+these percentages point to a couple interpretations:</p>
+<ul class="simple">
+<li><p>most subsidiary companies don’t file their own 10-K filing (due to their
+relatively small size), so we have little information about subsidiary
+companies to work with in general.</p></li>
+<li><p>and/or a relatively high fraction of SEC 10-K filers are subsidiaries
+of other SEC 10-K filers – 1/5 of all filers are showing up in another
+company’s Ex. 21.</p></li>
+</ul>
+</section>
+<section id="matching-sec-filing-companies-to-eia-utilities">
+<h2>Matching SEC Filing Companies to EIA Utilities<a class="headerlink" href="#matching-sec-filing-companies-to-eia-utilities" title="Link to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-quarterly-company-information"><span class="std std-ref">core_sec10k__quarterly_company_information</span></a> table contains
+attributes about SEC 10-K filing companies, such as
+address information, that can be used to connect these companies
+to the companies that report to EIA using probabilistic record linkage
+We use a model built with the Python package
+<a class="reference external" href="https://github.com/moj-analytical-services/splink">Splink</a>
+to connect the <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-quarterly-company-information"><span class="std std-ref">core_sec10k__quarterly_company_information</span></a> to the
+<code class="docutils literal notranslate"><span class="pre">out_eia__yearly_utilities</span></code> table. The match between
+<code class="docutils literal notranslate"><span class="pre">central_index_key</span></code> and <code class="docutils literal notranslate"><span class="pre">utility_id_eia</span></code> is one-to-one and is not
+allowed to change over time. In cases where there were multiple candidate
+matches, the match with the highest probability is selected. This result
+of this match can be found in the
+<a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-assn-sec10k-filers-and-eia-utilities"><span class="std std-ref">core_sec10k__assn_sec10k_filers_and_eia_utilities</span></a> table.</p>
+</section>
+<section id="matching-sec-subsidiary-companies-to-eia-utilities">
+<h2>Matching SEC Subsidiary Companies to EIA Utilities<a class="headerlink" href="#matching-sec-subsidiary-companies-to-eia-utilities" title="Link to this heading">#</a></h2>
+<p>After constructing the <a class="reference internal" href="../data_dictionaries/pudl_db.html#core-sec10k-assn-sec10k-filers-and-eia-utilities"><span class="std std-ref">core_sec10k__assn_sec10k_filers_and_eia_utilities</span></a>
+table, we take the remaining EIA utilities which have not been matched
+to an SEC filer and match them to subsidiary companies reported in Ex. 21
+attachments. We don’t have all the additional attributes about these
+subsidiaries that we have about the filers, so we do this match
+based solely on shared company names.
+This matches an additional 1703 EIA utilities to Ex. 21
+subsidiaries. .04% of <code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code> are matched
+to an EIA utility in this table.</p>
+</section>
+<section id="assumptions">
+<h2>Assumptions<a class="headerlink" href="#assumptions" title="Link to this heading">#</a></h2>
+<p>Over the course of this process, we make several assumptions about the data:</p>
+<ul class="simple">
+<li><p>The filer company of an SEC 10-K filing is the parent company of the subsidiary
+companies listed in that filing’s Ex. 21. Several sets of information about
+companies may be reported in the header of a 10-K filing, as the filer may
+report one 10-K with other companies under its umbrella. General Instruction
+I(2)(b) of Form 10-K seems to back up this assumption that the subsidiaries
+reported in the Ex. 21 are those of the filing company. Records
+across many tables can be traced back to a unique filename, so we can see the
+filing-level information that’s associated with it in the
+<a class="reference internal" href="../data_dictionaries/pudl_db.html#out-sec10k-quarterly-filings"><span class="std std-ref">out_sec10k__quarterly_filings</span></a> table, including the CIK of the filer.</p></li>
+<li><p>When constructing <code class="docutils literal notranslate"><span class="pre">core_sec10k__quarterly_company_information</span></code> we assume
+that each block of company information in a 10-K header refers to a different
+company, and there should not be two different blocks of information about the
+same company within one 10-K filing. We have to drop 10 blocks of information
+(.002% of the data) which refer to the same company within one 10-K filing
+when creating this table.
+These duplicates have very minor differences (i.e. two blocks are exactly
+the same except they differ in their <code class="docutils literal notranslate"><span class="pre">film_number</span></code> attribute)
+and are interpreted as filing errors.</p></li>
+</ul>
+</section>
+<section id="future-improvements">
+<h2>Future Improvements<a class="headerlink" href="#future-improvements" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Due to limits with memory, record linkage between SEC 10-K filers and EIA
+utilities was initially only conducted on the most recent year of data.
+Future work will conduct the match on all years of data.</p></li>
+<li><p>The information extracted from Ex. 21 attachments is structured into
+tabular form using a set of heuristics. Future work will use a more
+generalized, robust model to structure this data into tabular form.</p></li>
+<li><p>While fine-tuning LayoutLMv3 doesn’t require a large corpus of labeled
+documents for training and we got an accuracy score of 95% fine-tuning
+with 160 labeled documents, labeling more documents may improve the
+performance of the word token classification model.</p></li>
+<li><p>We didn’t extract ownership data for the years 2018-2022 and plan to
+run the model to capture these years in the future.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="timeseries_imputation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Timeseries Imputation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../bibliography.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Bibliography</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extracting-ownership-data-from-exhibit-21-attachments">Extracting Ownership Data From Exhibit 21 Attachments</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assigning-subsidiary-company-id-sec10k-to-extracted-subsidiary-companies">Assigning <code class="docutils literal notranslate"><span class="pre">subsidiary_company_id_sec10k</span></code> to Extracted Subsidiary Companies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#matching-subsidiary-companies-to-a-central-index-key">Matching Subsidiary Companies to a Central Index Key</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#matching-sec-filing-companies-to-eia-utilities">Matching SEC Filing Companies to EIA Utilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#matching-sec-subsidiary-companies-to-eia-utilities">Matching SEC Subsidiary Companies to EIA Utilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assumptions">Assumptions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#future-improvements">Future Improvements</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/methodology/sec10k_modeling.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

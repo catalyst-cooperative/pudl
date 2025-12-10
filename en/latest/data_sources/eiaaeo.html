@@ -1,0 +1,761 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>EIA Annual Energy Outlook (AEO) &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'data_sources/eiaaeo';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="EPA CAMD to EIA Power Sector Data Crosswalk" href="epacamd_eia.html" />
+    <link rel="prev" title="EIA Form 930 – Hourly and Daily Balancing Authority Operations Report" href="eia930.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../data_dictionaries/index.html">Data Dictionaries</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Data Sources</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_access.html">Data Access</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../methodology/index.html">Methodology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../data.html" class="nav-link">Data Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Data Sources</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">EIA Annual Energy Outlook (AEO)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="eia-annual-energy-outlook-aeo">
+<h1>EIA Annual Energy Outlook (AEO)<a class="headerlink" href="#eia-annual-energy-outlook-aeo" title="Link to this heading">#</a></h1>
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><th class="stub"><p>Source URL</p></th>
+<td><p><a class="reference external" href="https://www.eia.gov/outlooks/aeo/">https://www.eia.gov/outlooks/aeo/</a></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Source Description</p></th>
+<td><p>The EIA Annual Energy Outlook provides projections of future fuel prices, energy supply and consumption, and carbon dioxide emissions by sector and region.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Source Format</p></th>
+<td><p>JSON</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Download Size</p></th>
+<td><p>449 MB</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Temporal Coverage</p></th>
+<td><p>2023-2025</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>PUDL Code</p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">eiaaeo</span></code></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Unprocessed Source Data Archive</p></th>
+<td><p><a class="reference external" href="https://doi.org/10.5281/zenodo.10838487">10.5281/zenodo.10838487</a></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Issues</p></th>
+<td><p><a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aopen+label%3Aeiaaeo">Open EIA Annual Energy Outlook (AEO) issues</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="pudl-database-tables">
+<h2>PUDL Database Tables<a class="headerlink" href="#pudl-database-tables" title="Link to this heading">#</a></h2>
+<p>We’ve segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Data Dictionary</p></th>
+<th class="head"><p>Browse Online</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-eiaaeo-yearly-projected-electric-sales"><span class="std std-ref">core_eiaaeo__yearly_projected_electric_sales</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_electric_sales">https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_electric_sales</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-eiaaeo-yearly-projected-energy-use-by-sector-and-type"><span class="std std-ref">core_eiaaeo__yearly_projected_energy_use_by_sector_and_type</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_energy_use_by_sector_and_type">https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_energy_use_by_sector_and_type</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-eiaaeo-yearly-projected-fuel-cost-in-electric-sector-by-type"><span class="std std-ref">core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type">https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-eiaaeo-yearly-projected-generation-in-electric-sector-by-technology"><span class="std std-ref">core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology">https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-eiaaeo-yearly-projected-generation-in-end-use-sectors-by-fuel-type"><span class="std std-ref">core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type">https://data.catalyst.coop/search?q=name:core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
+<p>The Annual Energy Outlook (AEO) is a report published by EIA detailing projections and
+trends of energy consumption and supply in the US stretching out to 2050. The EIA
+generates the data by running a suite of input data through their <a class="reference external" href="https://www.eia.gov/outlooks/aeo/nems/documentation/">National Energy
+Modeling System (NEMS)</a>
+(<a class="reference external" href="https://github.com/EIAgov/NEMS/tree/main">github</a>), actively updating the
+model to accommodate new scenarios and legislation. The resulting data represent
+a wide range of potential outcomes for the US energy sector based on a set of key
+assumptions.</p>
+<p>Projections are published annually with even years featuring full documentation
+and extensive supplemental scenarios and odd years offering simpler, more concise
+information. Typical scenarios include:</p>
+<ul class="simple">
+<li><p>Reference case</p></li>
+<li><p>Low and high economic growth</p></li>
+<li><p>Low and high oil and gas supply</p></li>
+<li><p>Low and high oil prices</p></li>
+<li><p>Low and high renewable costs</p></li>
+</ul>
+<p>Alternative scenarios may explore potential policy impacts or other relevant changes.
+However, it’s important to note that the energy system and accompanying policy
+landscape are changing rapidly, and neither NEMS or AEO can capture all the
+complexities. For instance, when designing model stipulations for a new year of AEO,
+only laws implemented before that year are taken into consideration.</p>
+<p>For more information about scenarios, policy assumptions, and more, visit <a class="reference external" href="https://www.eia.gov/outlooks/aeo/">EIA’s AEO webpage</a>.</p>
+<section id="download-additional-documentation">
+<h3>Download additional documentation<a class="headerlink" href="#download-additional-documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="../_downloads/c90c4e72fd54731ab93abc8be38b65a1/eiaaeo_2025_carbon_capture_allocation_transport_and_sequestration_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Carbon</span> <span class="pre">Capture</span> <span class="pre">Allocation</span> <span class="pre">Transport</span> <span class="pre">And</span> <span class="pre">Sequestration</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/5d7431fba21e3f5ae6a9e8c4ff4869db/eiaaeo_2025_case_descriptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Case</span> <span class="pre">Descriptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/73e00bc5b5d9a849704cc6bb9be54c1a/eiaaeo_2025_coal_market_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Coal</span> <span class="pre">Market</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/d92ddc3c3255d593915755d5e33d31c9/eiaaeo_2025_commercial_demand_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Commercial</span> <span class="pre">Demand</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/fcef77222b0e504440dfa03fa3984d08/eiaaeo_2025_electricity_market_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Electricity</span> <span class="pre">Market</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/fe375b9ff43bfe98d41823af35c3d491/eiaaeo_2025_emissions_policy_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Emissions</span> <span class="pre">Policy</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/252d2d500400b47b70c5692166a96d35/eiaaeo_2025_hydrocarbon_supply_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Hydrocarbon</span> <span class="pre">Supply</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/bdb8d5b44c0bda5cdb57ae6bf8265309/eiaaeo_2025_hydrogen_market_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Hydrogen</span> <span class="pre">Market</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/ccea91e4be7d818fa8cc23002ccfd8c9/eiaaeo_2025_industrial_demand_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Industrial</span> <span class="pre">Demand</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/cfe9068d3598e04a84ba021f5a41c96c/eiaaeo_2025_international_energy_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">International</span> <span class="pre">Energy</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/9c3ccd30529f6af4037ad2a477e94651/eiaaeo_2025_liquid_fuels_market_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Liquid</span> <span class="pre">Fuels</span> <span class="pre">Market</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/1785caec55593937c49d501665002ee6/eiaaeo_2025_macroeconomic_activity_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Macroeconomic</span> <span class="pre">Activity</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/737d5a9cbcaf293b3d74c1089ea96c94/eiaaeo_2025_narrative.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Narrative</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/a42e8e719e504619540e56982c78e626/eiaaeo_2025_natural_gas_market_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Natural</span> <span class="pre">Gas</span> <span class="pre">Market</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/ba8ae1e8264be8d75dc26d2043a42b85/eiaaeo_2025_renewable_fuels_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Renewable</span> <span class="pre">Fuels</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/4f6778d7575d1f108d94747a4522c324/eiaaeo_2025_residential_demand_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Residential</span> <span class="pre">Demand</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/d142fc1b8d5f135033cec12c568b62c7/eiaaeo_2025_summary_of_legislation_and_regulations.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Summary</span> <span class="pre">Of</span> <span class="pre">Legislation</span> <span class="pre">And</span> <span class="pre">Regulations</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/ed1d40a6540e5ea526a5884f1dcaf0cd/eiaaeo_2025_transportation_demand_assumptions.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eiaaeo</span> <span class="pre">2025</span> <span class="pre">Transportation</span> <span class="pre">Demand</span> <span class="pre">Assumptions</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/b5c53c053a6c984c898cac6b86302be0/nems_overview.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Nems</span> <span class="pre">Overview</span> <span class="pre">(PDF)</span></code></a></p></li>
+</ul>
+</section>
+<section id="data-available-through-pudl">
+<h3>Data available through PUDL<a class="headerlink" href="#data-available-through-pudl" title="Link to this heading">#</a></h3>
+<p>PUDL has incorporated data from a small subset of AEO table based on input from the energy
+modeling community. If there’s a table you don’t see but would like to, let us know or
+consider contributing! You can <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=new_dataset.md">open an issue</a>
+or email us at <a class="reference external" href="mailto:hello&#37;&#52;&#48;catalyst&#46;coop">hello<span>&#64;</span>catalyst<span>&#46;</span>coop</a>.</p>
+<p>PUDL hosts AEO data from 2023 onward. Each AEO release presents a fresh set of forward
+looking projections so we haven’t prioritized integrating the older data. For a look
+back at historic projections, poke around the <a class="reference external" href="https://www.eia.gov/outlooks/aeo/retrospective/">AEO Retrospective Review</a>
+published after each even year.</p>
+</section>
+<section id="who-submits-this-data">
+<h3>Who submits this data?<a class="headerlink" href="#who-submits-this-data" title="Link to this heading">#</a></h3>
+<p>AEO data is created by EIA staff using outputs from NEMS. It does not originate from utility or
+plant operator respondents like EIA or FERC form data.</p>
+</section>
+<section id="what-does-the-original-data-look-like">
+<h3>What does the original data look like?<a class="headerlink" href="#what-does-the-original-data-look-like" title="Link to this heading">#</a></h3>
+<p>EIA publishes AEO data in several ways:</p>
+<ul class="simple">
+<li><p>Excel files by case and scenario (<a class="reference external" href="https://www.eia.gov/outlooks/aeo/tables_ref_xls.php">reference case</a> and <a class="reference external" href="https://www.eia.gov/outlooks/aeo/tables_side_xls.php">other scenarios</a>)</p></li>
+<li><p>An <a class="reference external" href="https://www.eia.gov/outlooks/aeo/data/browser/#/?id=1-AEO2025&amp;region=0-0&amp;cases=ref2025~hm2025~lm2025~highprice~lowprice~highogs~lowogs~highZTC~lowZTC~nocaa111~alttrnp~aeo2023ref&amp;start=2023&amp;end=2050&amp;f=A&amp;sourcekey=0">interactive table viewer</a></p></li>
+<li><p>As <a class="reference external" href="https://www.eia.gov/opendata/bulk/manifest.txt">bulk JSON files</a>
+(<strong>this is the data integrated into PUDL</strong>)</p></li>
+</ul>
+</section>
+</section>
+<section id="notable-irregularities">
+<h2>Notable Irregularities<a class="headerlink" href="#notable-irregularities" title="Link to this heading">#</a></h2>
+<p>There are lots of subtotals embedded within the AEO data! Watch out when aggregating the data.
+We have checks in place to make sure the totals are accurate sums of their stated
+components <a class="reference internal" href="../autoapi/pudl/transform/eiaaeo/index.html#pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio" title="pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio()</span></code></a></p>
+</section>
+<section id="pudl-data-transformations">
+<h2>PUDL Data Transformations<a class="headerlink" href="#pudl-data-transformations" title="Link to this heading">#</a></h2>
+<p>To see the transformations applied to the data in each table, you can read the
+docstrings for <a class="reference internal" href="../autoapi/pudl/transform/eiaaeo/index.html#module-pudl.transform.eiaaeo" title="pudl.transform.eiaaeo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.transform.eiaaeo</span></code></a> created for each table’s
+respective transform function.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="eia930.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="epacamd_eia.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">EPA CAMD to EIA Power Sector Data Crosswalk</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-database-tables">PUDL Database Tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-additional-documentation">Download additional documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-available-through-pudl">Data available through PUDL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#who-submits-this-data">Who submits this data?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-does-the-original-data-look-like">What does the original data look like?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notable-irregularities">Notable Irregularities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-data-transformations">PUDL Data Transformations</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/data_sources/eiaaeo.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

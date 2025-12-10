@@ -1,0 +1,1157 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.output.eia923 &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/output/eia923';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.output.eia923</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.output.eia923</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Denormalized, aggregated, and filled versions of the basic EIA-923 tables.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetsDefinition</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">asset</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FIRST_COLS">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.FIRST_COLS">[docs]</a>
+<span class="n">FIRST_COLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+
+<span class="c1">#####################################################################################</span>
+<span class="c1"># Helper functions for these assets</span>
+<span class="c1">#####################################################################################</span>
+<div class="viewcode-block" id="denorm_by_plant">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.denorm_by_plant">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">denorm_by_plant</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pu</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">first_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalize a table that is reported on a per-plant basis.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">first_cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">first_cols</span> <span class="o">=</span> <span class="n">FIRST_COLS</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">date_merge</span><span class="p">(</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="n">pu</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;data_maturity&quot;</span><span class="p">]),</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">],</span>
+            <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">organize_cols</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="n">first_cols</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="denorm_by_gen">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.denorm_by_gen">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">denorm_by_gen</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">pu</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">bga</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">first_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalize a table that is reported on a per-generator basis.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">first_cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">first_cols</span> <span class="o">=</span> <span class="n">FIRST_COLS</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">]</span>
+    <span class="n">bga_gens</span> <span class="o">=</span> <span class="n">bga</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">denorm_by_plant</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pu</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">date_merge</span><span class="p">(</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="n">bga_gens</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
+            <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">organize_cols</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="n">first_cols</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="denorm_by_boil">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.denorm_by_boil">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">denorm_by_boil</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">pu</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">bga</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">first_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalize a table that is reported on a per-boiler basis.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">first_cols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">first_cols</span> <span class="o">=</span> <span class="n">FIRST_COLS</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">]</span>
+    <span class="n">bga_boils</span> <span class="o">=</span> <span class="n">bga</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">denorm_by_plant</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pu</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">date_merge</span><span class="p">(</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="n">bga_boils</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">],</span>
+            <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">organize_cols</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="n">first_cols</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="_fill_fuel_costs_by_state">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923._fill_fuel_costs_by_state">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_fill_fuel_costs_by_state</span><span class="p">(</span>
+    <span class="n">frc_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">fuel_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill in missing fuel costs with state-level averages.&quot;&quot;&quot;</span>
+    <span class="n">out_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">frc_df</span><span class="p">,</span>
+        <span class="n">fuel_costs</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">out_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+        <span class="n">out_df</span><span class="p">[</span><span class="s2">&quot;bulk_agg_fuel_cost_per_mmbtu&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out_df</span></div>
+
+
+
+<div class="viewcode-block" id="drop_ytd_for_annual_tables">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.drop_ytd_for_annual_tables">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">drop_ytd_for_annual_tables</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">freq</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop records in annual tables where data_maturity is incremental_ytd.</span>
+
+<span class="sd">    This avoids accidental aggregation errors due to sub-annually reported data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: A pd.DataFrame that contains a data_maturity column and for</span>
+<span class="sd">            which you want to drop values where data_maturity = incremental_ytd.</span>
+<span class="sd">        freq: either MS or YS to indicate the level of aggretation for a specific table.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: The same input pd.DataFrames but without any rows where</span>
+<span class="sd">            data_maturity = incremental_ytd.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">freq</span> <span class="o">==</span> <span class="s2">&quot;YS&quot;</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Removing rows where data_maturity is incremental_ytd to avoid &quot;</span>
+            <span class="s2">&quot;aggregation errors.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;data_maturity&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;incremental_ytd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="c1">#####################################################################################</span>
+<span class="c1"># Simple Denormalized Assets</span>
+<span class="c1">#####################################################################################</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="out_eia923__generation">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.out_eia923__generation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_eia923__generation</span><span class="p">(</span>
+    <span class="n">core_eia923__monthly_generation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_out_eia__plants_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia860__assn_boiler_generator</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalize the :ref:`core_eia923__monthly_generation` table.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">denorm_by_gen</span><span class="p">(</span>
+        <span class="n">core_eia923__monthly_generation</span><span class="p">,</span>
+        <span class="n">pu</span><span class="o">=</span><span class="n">_out_eia__plants_utilities</span><span class="p">,</span>
+        <span class="n">bga</span><span class="o">=</span><span class="n">core_eia860__assn_boiler_generator</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="out_eia923__generation_fuel_combined">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.out_eia923__generation_fuel_combined">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_eia923__generation_fuel_combined</span><span class="p">(</span>
+    <span class="n">core_eia923__monthly_generation_fuel</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia923__monthly_generation_fuel_nuclear</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_out_eia__plants_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalize the `generation_fuel_combined_eia923` table.</span>
+
+<span class="sd">    This asset first combines the :ref:`core_eia923__monthly_generation_fuel` and</span>
+<span class="sd">    :ref:`core_eia923__monthly_generation_fuel_nuclear` into a single table with a</span>
+<span class="sd">    uniform primary key (consolidating multiple nuclear unit IDs into a single plant</span>
+<span class="sd">    record) and then denormalizes it by merging in some addition plant and utility level</span>
+<span class="sd">    columns.</span>
+
+<span class="sd">    This table contains the records at their originally reported temporal resolution,</span>
+<span class="sd">    so it&#39;s outside of :func:`time_aggregated_eia923_asset_factory`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;energy_source_code&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">sum_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;fuel_consumed_for_electricity_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fuel_consumed_for_electricity_units&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fuel_consumed_units&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">other_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;nuclear_unit_id&quot;</span><span class="p">,</span>  <span class="c1"># dropped in the groupby / aggregation.</span>
+        <span class="s2">&quot;fuel_mmbtu_per_unit&quot;</span><span class="p">,</span>  <span class="c1"># recalculated based on aggregated sum_cols.</span>
+    <span class="p">]</span>
+    <span class="c1"># Rather than enumerating all of the non-data columns, identify them by process of</span>
+    <span class="c1"># elimination, in case they change in the future.</span>
+    <span class="n">non_data_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="nb">set</span><span class="p">(</span><span class="n">core_eia923__monthly_generation_fuel_nuclear</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">primary_key</span> <span class="o">+</span> <span class="n">sum_cols</span> <span class="o">+</span> <span class="n">other_cols</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">gfn_gb</span> <span class="o">=</span> <span class="n">core_eia923__monthly_generation_fuel_nuclear</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">primary_key</span><span class="p">)</span>
+    <span class="c1"># Ensure that all non-data columns are homogeneous within groups</span>
+    <span class="k">if</span> <span class="n">gfn_gb</span><span class="p">[</span><span class="n">non_data_cols</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="o">.</span><span class="n">ne</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Found inhomogeneous non-data cols while aggregating nuclear generation. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Non-data cols: </span><span class="si">{</span><span class="n">non_data_cols</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">gfn_agg</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">gfn_gb</span><span class="p">[</span><span class="n">non_data_cols</span><span class="p">]</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span>
+            <span class="n">gfn_gb</span><span class="p">[</span><span class="n">sum_cols</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Nuclear plants don&#39;t report units of fuel consumed, so fuel heat content ends up</span>
+    <span class="c1"># being calculated as infinite. However, some nuclear plants report using small</span>
+    <span class="c1"># amounts of DFO. Ensure infinite heat contents are set to NA instead:</span>
+    <span class="n">gfn_agg</span> <span class="o">=</span> <span class="n">gfn_agg</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">fuel_mmbtu_per_unit</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">gfn_agg</span><span class="o">.</span><span class="n">fuel_consumed_units</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">gfn_agg</span><span class="o">.</span><span class="n">fuel_consumed_mmbtu</span> <span class="o">/</span> <span class="n">gfn_agg</span><span class="o">.</span><span class="n">fuel_consumed_units</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">gf</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">gfn_agg</span><span class="p">,</span> <span class="n">core_eia923__monthly_generation_fuel</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">primary_key</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">denorm_by_plant</span><span class="p">(</span><span class="n">gf</span><span class="p">,</span> <span class="n">pu</span><span class="o">=</span><span class="n">_out_eia__plants_utilities</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="out_eia923__boiler_fuel">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.out_eia923__boiler_fuel">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_eia923__boiler_fuel</span><span class="p">(</span>
+    <span class="n">core_eia923__monthly_boiler_fuel</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_out_eia__plants_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia860__assn_boiler_generator</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalize the :ref:`core_eia923__monthly_boiler_fuel` table.</span>
+
+<span class="sd">    The total heat content is also calculated as it&#39;s useful in its own right and</span>
+<span class="sd">    required later to calculate average heat content per unit of fuel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">core_eia923__monthly_boiler_fuel</span><span class="p">[</span><span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">core_eia923__monthly_boiler_fuel</span><span class="p">[</span><span class="s2">&quot;fuel_consumed_units&quot;</span><span class="p">]</span>
+        <span class="o">*</span> <span class="n">core_eia923__monthly_boiler_fuel</span><span class="p">[</span><span class="s2">&quot;fuel_mmbtu_per_unit&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">denorm_by_boil</span><span class="p">(</span>
+        <span class="n">core_eia923__monthly_boiler_fuel</span><span class="p">,</span>
+        <span class="n">pu</span><span class="o">=</span><span class="n">_out_eia__plants_utilities</span><span class="p">,</span>
+        <span class="n">bga</span><span class="o">=</span><span class="n">core_eia860__assn_boiler_generator</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
+    <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;If True, attempt to fill missing fuel prices from aggregate EIA data.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;roll&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;If True, use rolling averages to fill missing fuel prices.&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="out_eia923__fuel_receipts_costs">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.out_eia923__fuel_receipts_costs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_eia923__fuel_receipts_costs</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">,</span>
+    <span class="n">core_eia923__monthly_fuel_receipts_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia923__entity_coalmine</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_out_eia__plants_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_out_eia__monthly_state_fuel_prices</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia__entity_plants</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalize the :ref:`core_eia923__monthly_fuel_receipts_costs` table.&quot;&quot;&quot;</span>
+    <span class="n">core_eia923__entity_coalmine</span> <span class="o">=</span> <span class="n">core_eia923__entity_coalmine</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;data_maturity&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">plant_states</span> <span class="o">=</span> <span class="n">core_eia__entity_plants</span><span class="p">[[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">]]</span>
+    <span class="n">frc_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">core_eia923__monthly_fuel_receipts_costs</span><span class="p">,</span>
+            <span class="n">core_eia923__entity_coalmine</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="s2">&quot;mine_state&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;county_id_fips&quot;</span><span class="p">:</span> <span class="s2">&quot;coalmine_county_id_fips&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="s2">&quot;mine_id_pudl&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">plant_states</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mine_id_pudl&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_fuel_cost_per_mmbtu_source_col</span><span class="p">(</span>
+        <span class="n">frc_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;original&quot;</span><span class="p">,</span> <span class="s2">&quot;eiaapi&quot;</span><span class="p">,</span> <span class="s2">&quot;rolling_avg&quot;</span><span class="p">]</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a source column indicator.</span>
+
+<span class="sd">        Assumes all non-null fuel costs that are not labeled with a source comes from</span>
+<span class="sd">        the input source. Apply to the original source before any imputations have been</span>
+<span class="sd">        applied and apply this directly after a new source of fuel cost has been added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frc_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">frc_df</span><span class="p">[</span><span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+        <span class="n">frc_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">frc_df</span><span class="p">[</span><span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+            <span class="o">&amp;</span> <span class="n">frc_df</span><span class="p">[</span><span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span>
+            <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">source</span>
+        <span class="k">return</span> <span class="n">frc_df</span>
+
+    <span class="n">frc_df</span> <span class="o">=</span> <span class="n">_add_fuel_cost_per_mmbtu_source_col</span><span class="p">(</span><span class="n">frc_df</span><span class="p">,</span> <span class="s2">&quot;original&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;fill&quot;</span><span class="p">]:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;filling in fuel cost NaNs&quot;</span><span class="p">)</span>
+        <span class="n">frc_df</span> <span class="o">=</span> <span class="n">_fill_fuel_costs_by_state</span><span class="p">(</span>
+            <span class="n">frc_df</span><span class="p">,</span> <span class="n">fuel_costs</span><span class="o">=</span><span class="n">_out_eia__monthly_state_fuel_prices</span>
+        <span class="p">)</span>
+        <span class="n">frc_df</span> <span class="o">=</span> <span class="n">_add_fuel_cost_per_mmbtu_source_col</span><span class="p">(</span><span class="n">frc_df</span><span class="p">,</span> <span class="s2">&quot;eiaapi&quot;</span><span class="p">)</span>
+    <span class="c1"># this next step smooths fuel_cost_per_mmbtu as a rolling monthly average.</span>
+    <span class="c1"># for each month where there is any data make weighted averages of each</span>
+    <span class="c1"># plant/fuel/month.</span>
+    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;roll&quot;</span><span class="p">]:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;filling in fuel cost NaNs with rolling averages&quot;</span><span class="p">)</span>
+        <span class="n">frc_df</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">fillna_w_rolling_avg</span><span class="p">(</span>
+            <span class="n">frc_df</span><span class="p">,</span>
+            <span class="n">group_cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;energy_source_code&quot;</span><span class="p">],</span>
+            <span class="n">data_col</span><span class="o">=</span><span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
+            <span class="n">window</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+            <span class="n">min_periods</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">win_type</span><span class="o">=</span><span class="s2">&quot;triang&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">frc_df</span> <span class="o">=</span> <span class="n">_add_fuel_cost_per_mmbtu_source_col</span><span class="p">(</span><span class="n">frc_df</span><span class="p">,</span> <span class="s2">&quot;rolling_avg&quot;</span><span class="p">)</span>
+    <span class="c1"># Calculate useful frequency-independent totals:</span>
+    <span class="n">frc_df</span><span class="p">[</span><span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">frc_df</span><span class="p">[</span><span class="s2">&quot;fuel_mmbtu_per_unit&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">frc_df</span><span class="p">[</span><span class="s2">&quot;fuel_received_units&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">frc_df</span><span class="p">[</span><span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">frc_df</span><span class="p">[</span><span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">frc_df</span><span class="p">[</span><span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">denorm_by_plant</span><span class="p">(</span><span class="n">frc_df</span><span class="p">,</span> <span class="n">pu</span><span class="o">=</span><span class="n">_out_eia__plants_utilities</span><span class="p">)</span></div>
+
+
+
+<span class="c1">#####################################################################################</span>
+<span class="c1"># Time Aggregated Assets</span>
+<span class="c1">#####################################################################################</span>
+<div class="viewcode-block" id="time_aggregated_eia923_asset_factory">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.time_aggregated_eia923_asset_factory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">time_aggregated_eia923_asset_factory</span><span class="p">(</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;YS&quot;</span><span class="p">,</span> <span class="s2">&quot;MS&quot;</span><span class="p">],</span>
+    <span class="n">io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build EIA-923 asset definitions, aggregated by year or month.&quot;&quot;&quot;</span>
+    <span class="n">agg_freqs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;YS&quot;</span><span class="p">:</span> <span class="s2">&quot;yearly&quot;</span><span class="p">,</span> <span class="s2">&quot;MS&quot;</span><span class="p">:</span> <span class="s2">&quot;monthly&quot;</span><span class="p">}</span>
+
+    <span class="nd">@asset</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_generation&quot;</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generation_agg_eia923</span><span class="p">(</span>
+        <span class="n">out_eia923__generation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">_out_eia__plants_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">core_eia860__assn_boiler_generator</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Aggregate :ref:`out_eia923__generation` monthly or annually.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="c1"># Create a date index for grouping based on freq</span>
+            <span class="n">out_eia923__generation</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">out_eia923__generation</span><span class="o">.</span><span class="n">report_date</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">drop_ytd_for_annual_tables</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">)],</span>
+                <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span> <span class="s2">&quot;data_maturity&quot;</span><span class="p">:</span> <span class="s2">&quot;first&quot;</span><span class="p">})</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+                <span class="n">denorm_by_gen</span><span class="p">,</span>
+                <span class="n">pu</span><span class="o">=</span><span class="n">_out_eia__plants_utilities</span><span class="p">,</span>
+                <span class="n">bga</span><span class="o">=</span><span class="n">core_eia860__assn_boiler_generator</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@asset</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_generation_fuel_combined&quot;</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generation_fuel_combined_agg_eia923</span><span class="p">(</span>
+        <span class="n">out_eia923__generation_fuel_combined</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">_out_eia__plants_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Aggregate :ref:`generation_fuel_combined_eia923` monthly or annually.&quot;&quot;&quot;</span>
+        <span class="n">gf_both</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="c1"># Create a date index for temporal resampling:</span>
+            <span class="n">out_eia923__generation_fuel_combined</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">out_eia923__generation_fuel_combined</span><span class="o">.</span><span class="n">report_date</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">drop_ytd_for_annual_tables</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="n">by</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_source_code&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">),</span>
+                <span class="p">],</span>
+                <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="c1"># Sum up these values so we can calculate quantity weighted averages</span>
+                    <span class="s2">&quot;fuel_consumed_units&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_consumed_for_electricity_units&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_consumed_for_electricity_mmbtu&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;data_maturity&quot;</span><span class="p">:</span> <span class="s2">&quot;first&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="c1"># Nuclear plants don&#39;t report units of fuel consumed, so fuel heat content ends</span>
+        <span class="c1"># up being calculated as infinite. However, some nuclear plants report using</span>
+        <span class="c1"># small amounts of DFO. Ensure infinite heat contents are set to NA instead:</span>
+        <span class="c1"># Duplicates pudl.output.eia923.generation_fuel_all_eia923(). Should figure out</span>
+        <span class="c1"># how to consolidate.</span>
+        <span class="n">gf</span> <span class="o">=</span> <span class="n">gf_both</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gf_both</span><span class="o">.</span><span class="n">energy_source_code</span> <span class="o">!=</span> <span class="s2">&quot;NUC&quot;</span><span class="p">]</span>
+        <span class="n">gfn</span> <span class="o">=</span> <span class="n">gf_both</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gf_both</span><span class="o">.</span><span class="n">energy_source_code</span> <span class="o">==</span> <span class="s2">&quot;NUC&quot;</span><span class="p">]</span>
+
+        <span class="n">gf</span><span class="p">[</span><span class="s2">&quot;fuel_mmbtu_per_unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gf</span><span class="o">.</span><span class="n">fuel_consumed_mmbtu</span> <span class="o">/</span> <span class="n">gf</span><span class="o">.</span><span class="n">fuel_consumed_units</span>
+
+        <span class="n">gfn</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">fuel_mmbtu_per_unit</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">gfn</span><span class="o">.</span><span class="n">fuel_consumed_units</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="n">gfn</span><span class="o">.</span><span class="n">fuel_consumed_mmbtu</span> <span class="o">/</span> <span class="n">gfn</span><span class="o">.</span><span class="n">fuel_consumed_units</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">gf</span><span class="p">,</span> <span class="n">gfn</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_source_code&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">denorm_by_plant</span><span class="p">,</span> <span class="n">pu</span><span class="o">=</span><span class="n">_out_eia__plants_utilities</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@asset</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_boiler_fuel&quot;</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">boiler_fuel_agg_eia923</span><span class="p">(</span>
+        <span class="n">out_eia923__boiler_fuel</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">_out_eia__plants_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">core_eia860__assn_boiler_generator</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Aggregate :ref:`core_eia923__monthly_boiler_fuel` monthly or annually.&quot;&quot;&quot;</span>
+        <span class="c1"># In order to calculate the weighted average sulfur</span>
+        <span class="c1"># content and ash content we need to calculate these totals.</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">out_eia923__boiler_fuel</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">total_sulfur_content</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_units</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">sulfur_content_pct</span>
+                <span class="p">),</span>
+                <span class="n">total_ash_content</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_units</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">ash_content_pct</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">out_eia923__boiler_fuel</span><span class="o">.</span><span class="n">report_date</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">drop_ytd_for_annual_tables</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="n">by</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;energy_source_code&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">),</span>
+                <span class="p">],</span>
+                <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Sum up these totals within each group, and recalculate the per-unit</span>
+            <span class="c1"># values (weighted in this case by fuel_consumed_units)</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_consumed_units&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;total_sulfur_content&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;total_ash_content&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;data_maturity&quot;</span><span class="p">:</span> <span class="s2">&quot;first&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">fuel_mmbtu_per_unit</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_mmbtu</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_units</span>
+                <span class="p">),</span>
+                <span class="n">sulfur_content_pct</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">total_sulfur_content</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_units</span>
+                <span class="p">),</span>
+                <span class="n">ash_content_pct</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">total_ash_content</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_units</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;total_ash_content&quot;</span><span class="p">,</span> <span class="s2">&quot;total_sulfur_content&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+                <span class="n">denorm_by_boil</span><span class="p">,</span>
+                <span class="n">pu</span><span class="o">=</span><span class="n">_out_eia__plants_utilities</span><span class="p">,</span>
+                <span class="n">bga</span><span class="o">=</span><span class="n">core_eia860__assn_boiler_generator</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@asset</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_fuel_receipts_costs&quot;</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fuel_receipts_costs_agg_eia923</span><span class="p">(</span>
+        <span class="n">out_eia923__fuel_receipts_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">_out_eia__plants_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Aggregate the :ref:`core_eia923__monthly_fuel_receipts_costs` table monthly or annually.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">out_eia923__fuel_receipts_costs</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">out_eia923__fuel_receipts_costs</span><span class="o">.</span><span class="n">report_date</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">total_ash_content</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">ash_content_pct</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span><span class="p">,</span>
+                <span class="n">total_sulfur_content</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">sulfur_content_pct</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span>
+                <span class="p">),</span>
+                <span class="n">total_mercury_content</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">mercury_content_ppm</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span>
+                <span class="p">),</span>
+                <span class="n">total_moisture_content</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">moisture_content_pct</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span>
+                <span class="p">),</span>
+                <span class="n">total_chlorine_content</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">chlorine_content_ppm</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">drop_ytd_for_annual_tables</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">)],</span>
+                <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;fuel_received_units&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;total_sulfur_content&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;total_ash_content&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;total_mercury_content&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;total_moisture_content&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;total_chlorine_content&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+                    <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">groupby_agg_label_unique_source_or_mixed</span><span class="p">,</span>
+                    <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="s2">&quot;first&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;data_maturity&quot;</span><span class="p">:</span> <span class="s2">&quot;first&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">fuel_cost_per_mmbtu</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">total_fuel_cost</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_mmbtu</span><span class="p">,</span>
+                <span class="n">fuel_mmbtu_per_unit</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_mmbtu</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span>
+                <span class="p">),</span>
+                <span class="n">ash_content_pct</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">total_ash_content</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span><span class="p">,</span>
+                <span class="n">sulfur_content_pct</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">total_sulfur_content</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span>
+                <span class="p">),</span>
+                <span class="n">mercury_content_ppm</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">total_mercury_content</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span>
+                <span class="p">),</span>
+                <span class="n">moisture_content_pct</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">total_moisture_content</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span>
+                <span class="p">),</span>
+                <span class="n">chlorine_content_ppm</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">total_chlorine_content</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_received_units</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;total_ash_content&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;total_sulfur_content&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;total_moisture_content&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;total_chlorine_content&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;total_mercury_content&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">denorm_by_plant</span><span class="p">,</span> <span class="n">pu</span><span class="o">=</span><span class="n">_out_eia__plants_utilities</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">boiler_fuel_agg_eia923</span><span class="p">,</span>
+        <span class="n">fuel_receipts_costs_agg_eia923</span><span class="p">,</span>
+        <span class="n">generation_agg_eia923</span><span class="p">,</span>
+        <span class="n">generation_fuel_combined_agg_eia923</span><span class="p">,</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="generation_fuel_agg_eia923_assets">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/eia923/index.html#pudl.output.eia923.generation_fuel_agg_eia923_assets">[docs]</a>
+<span class="n">generation_fuel_agg_eia923_assets</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ass</span>
+    <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;YS&quot;</span><span class="p">,</span> <span class="s2">&quot;MS&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">ass</span> <span class="ow">in</span> <span class="n">time_aggregated_eia923_asset_factory</span><span class="p">(</span>
+        <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span>
+    <span class="p">)</span>
+<span class="p">]</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

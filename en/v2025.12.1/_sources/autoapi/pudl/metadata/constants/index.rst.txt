@@ -1,0 +1,79 @@
+pudl.metadata.constants
+=======================
+
+.. py:module:: pudl.metadata.constants
+
+.. autoapi-nested-parse::
+
+   Metadata and operational constants.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.constants.FIELD_DTYPES_POLARS
+   pudl.metadata.constants.FIELD_DTYPES_PANDAS
+   pudl.metadata.constants.FIELD_DTYPES_PYARROW
+   pudl.metadata.constants.FIELD_DTYPES_SQL
+   pudl.metadata.constants.CONSTRAINT_DTYPES
+   pudl.metadata.constants.LICENSES
+   pudl.metadata.constants.PERIODS
+   pudl.metadata.constants.CONTRIBUTORS
+   pudl.metadata.constants.KEYWORDS
+   pudl.metadata.constants.XBRL_TABLES
+
+
+Module Contents
+---------------
+
+.. py:data:: FIELD_DTYPES_POLARS
+   :type:  dict[str, str]
+
+   Polars data type by PUDL field type (Data Package `field.type`).
+
+.. py:data:: FIELD_DTYPES_PANDAS
+   :type:  dict[str, str]
+
+   Pandas data type by PUDL field type (Data Package `field.type`).
+
+.. py:data:: FIELD_DTYPES_PYARROW
+   :type:  dict[str, pyarrow.DataType]
+
+.. py:data:: FIELD_DTYPES_SQL
+   :type:  dict[str, type]
+
+   SQLAlchemy column types by PUDL field type (Data Package `field.type`).
+
+.. py:data:: CONSTRAINT_DTYPES
+   :type:  dict[str, type]
+
+   Python types for field constraints by PUDL field type (Data Package `field.type`).
+
+.. py:data:: LICENSES
+   :type:  dict[str, dict[str, str]]
+
+   License attributes.
+
+.. py:data:: PERIODS
+   :type:  dict[str, collections.abc.Callable[[pandas.Series], pandas.Series]]
+
+   Functions converting datetimes to period start times, by time period.
+
+.. py:data:: CONTRIBUTORS
+   :type:  dict[str, dict[str, str]]
+
+   //specs.frictionlessdata.io/data-package/#metadata
+   for examples. For zenodo_role, see the contributor types in the Zenodo documentation https://developers.zenodo.org/#representation.
+
+   :type: PUDL Contributors for attribution. See the Data Package metadata https
+
+.. py:data:: KEYWORDS
+   :type:  dict[str, list[str]]
+
+.. py:data:: XBRL_TABLES
+   :value: ['corporate_officer_certification_001_duration', 'corporate_officer_certification_001_instant',...
+
+

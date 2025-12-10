@@ -1,0 +1,147 @@
+pudl.workspace.setup
+====================
+
+.. py:module:: pudl.workspace.setup
+
+.. autoapi-nested-parse::
+
+   Tools for setting up and managing PUDL workspaces.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.workspace.setup.logger
+   pudl.workspace.setup.PotentialDirectoryPath
+   pudl.workspace.setup.PUDL_ROOT_PATH
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.workspace.setup.PudlPaths
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: PotentialDirectoryPath
+
+.. py:data:: PUDL_ROOT_PATH
+
+.. py:class:: PudlPaths(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, **values: Any)
+
+   Bases: :py:obj:`pydantic_settings.BaseSettings`
+
+
+   These settings provide access to various PUDL directories.
+
+   It is primarily configured via PUDL_INPUT and PUDL_OUTPUT environment
+   variables. Other paths of relevance are derived from these.
+
+
+   .. py:attribute:: pudl_input
+      :type:  PotentialDirectoryPath
+
+
+   .. py:attribute:: pudl_output
+      :type:  PotentialDirectoryPath
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:method:: create_directories()
+
+      Create PUDL input and output directories if they don't already exist.
+
+
+
+   .. py:property:: input_dir
+      :type: pathlib.Path
+
+
+      Path to PUDL input directory.
+
+
+   .. py:property:: output_dir
+      :type: pathlib.Path
+
+
+      Path to PUDL output directory.
+
+
+   .. py:property:: settings_dir
+      :type: pathlib.Path
+
+
+      Path to directory containing settings files.
+
+
+   .. py:property:: data_dir
+      :type: pathlib.Path
+
+
+      Path to PUDL data directory.
+
+
+   .. py:property:: pudl_db
+      :type: str
+
+
+      Returns url of locally stored pudl sqlite database.
+
+
+   .. py:method:: sqlite_db_uri(name: str) -> str
+
+      Returns url of locally stored pudl sqlite database with given name.
+
+      The name is expected to be the name of the database without the .sqlite
+      suffix. E.g. pudl, ferc1 and so on.
+
+
+
+   .. py:method:: parquet_path(table_name: str | None = None) -> pathlib.Path
+
+      Return path to parquet file for given database and table.
+
+
+
+   .. py:method:: sqlite_db_path(name: str) -> pathlib.Path
+
+      Return path to locally stored SQLite DB file.
+
+
+
+   .. py:method:: duckdb_db_path(name: str) -> pathlib.Path
+
+      Return path to locally stored SQLite DB file.
+
+
+
+   .. py:method:: output_file(filename: str) -> pathlib.Path
+
+      Path to file in PUDL output directory.
+
+
+
+   .. py:method:: set_path_overrides(input_dir: str | None = None, output_dir: str | None = None) -> None
+      :staticmethod:
+
+
+      Set PUDL_INPUT and/or PUDL_OUTPUT env variables.
+
+      :param input_dir: if set, overrides PUDL_INPUT env variable.
+      :param output_dir: if set, overrides PUDL_OUTPUT env variable.
+
+
+

@@ -1,0 +1,92 @@
+pudl.analysis.epacamd_eia
+=========================
+
+.. py:module:: pudl.analysis.epacamd_eia
+
+.. autoapi-nested-parse::
+
+   Helper functions for filtering the EPA CAMD crosswalk table.
+
+   This filtering was originally designed to filter the crosswalk before making a
+   ``subplant_id`` so that the only ``subplant_id`` s that are generated are for records
+   that show up in EPA CAMD.
+
+   Usage Example:
+
+   epacems = pudl.output.epacems.epacems(states=['ID'], years=[2020]) # subset for test
+   core_epa__assn_eia_epacamd = pudl_out.epacamd_eia()
+   filtered_crosswalk = filter_crosswalk(core_epa__assn_eia_epacamd, epacems)
+   crosswalk_with_subplant_ids = pudl.etl.make_subplant_ids(filtered_crosswalk)
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.epacamd_eia._get_unique_keys
+   pudl.analysis.epacamd_eia.filter_crosswalk_by_epacems
+   pudl.analysis.epacamd_eia.filter_out_boiler_rows
+   pudl.analysis.epacamd_eia.filter_crosswalk
+
+
+Module Contents
+---------------
+
+.. py:function:: _get_unique_keys(epacems: pandas.DataFrame | dask.dataframe.DataFrame) -> pandas.DataFrame
+
+   Get unique unit IDs from CEMS data.
+
+   :param epacems: epacems dataset from
+                   pudl.output.epacems.epacems
+   :type epacems: Union[pd.DataFrame, dd.DataFrame]
+
+   :returns: unique keys from the epacems dataset
+   :rtype: pd.DataFrame
+
+
+.. py:function:: filter_crosswalk_by_epacems(crosswalk: pandas.DataFrame, epacems: pandas.DataFrame | dask.dataframe.DataFrame) -> pandas.DataFrame
+
+   Inner join unique CEMS units with the core_epa__assn_eia_epacamd crosswalk.
+
+   This is essentially an empirical filter on EPA units. Instead of filtering by
+   construction/retirement dates in the crosswalk (thus assuming they are accurate),
+   use the presence/absence of CEMS data to filter the units.
+
+   :param crosswalk: core_epa__assn_eia_epacamd crosswalk
+   :param unique_epacems_ids: unique ids from _get_unique_keys
+   :type unique_epacems_ids: pd.DataFrame
+
+   :returns: The inner join of the core_epa__assn_eia_epacamd crosswalk and unique epacems units. Adds
+             the global ID column unit_id_epa.
+
+
+.. py:function:: filter_out_boiler_rows(crosswalk: pandas.DataFrame) -> pandas.DataFrame
+
+   Remove rows that represent graph edges between generators and boilers.
+
+   :param crosswalk: core_epa__assn_eia_epacamd crosswalk
+   :type crosswalk: pd.DataFrame
+
+   :returns:
+
+             the core_epa__assn_eia_epacamd crosswalk with boiler rows (many/one-to-many)
+                 removed
+   :rtype: pd.DataFrame
+
+
+.. py:function:: filter_crosswalk(crosswalk: pandas.DataFrame, epacems: pandas.DataFrame | dask.dataframe.DataFrame) -> pandas.DataFrame
+
+   Remove unmapped crosswalk rows or duplicates due to m2m boiler relationships.
+
+   :param crosswalk: The core_epa__assn_eia_epacamd crosswalk.
+   :type crosswalk: pd.DataFrame
+   :param epacems: Emissions data. Must contain
+                   columns named ["plant_id_eia", "emissions_unit_id_epa"]
+   :type epacems: Union[pd.DataFrame, dd.DataFrame]
+
+   :returns: A filtered copy of core_epa__assn_eia_epacamd crosswalk
+   :rtype: pd.DataFrame
+
+

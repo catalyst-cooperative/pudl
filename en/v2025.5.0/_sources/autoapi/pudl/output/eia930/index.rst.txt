@@ -1,0 +1,58 @@
+pudl.output.eia930
+==================
+
+.. py:module:: pudl.output.eia930
+
+.. autoapi-nested-parse::
+
+   Functions for compiling derived aspects of the EIA 930 data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.output.eia930.imputed_subregion_demand_assets
+   pudl.output.eia930.imputed_ba_demand_assets
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.output.eia930._add_timezone
+   pudl.output.eia930._out_eia930__hourly_operations
+   pudl.output.eia930._out_eia930__hourly_subregion_demand
+   pudl.output.eia930._years_from_context
+   pudl.output.eia930.out_eia930__hourly_aggregated_demand
+
+
+Module Contents
+---------------
+
+.. py:function:: _add_timezone(df: pandas.DataFrame, core_eia__codes_balancing_authorities: pandas.DataFrame) -> pandas.DataFrame
+
+.. py:function:: _out_eia930__hourly_operations(core_eia930__hourly_operations: pandas.DataFrame, core_eia__codes_balancing_authorities: pandas.DataFrame) -> pandas.DataFrame
+
+   Adds timezone column and combined ID with BA/subregion used for imputation.
+
+
+.. py:function:: _out_eia930__hourly_subregion_demand(core_eia930__hourly_subregion_demand: pandas.DataFrame, core_eia__codes_balancing_authorities: pandas.DataFrame) -> pandas.DataFrame
+
+   Adds timezone column and combined ID with BA/subregion used for imputation.
+
+
+.. py:function:: _years_from_context(context) -> list[int]
+
+.. py:data:: imputed_subregion_demand_assets
+
+.. py:data:: imputed_ba_demand_assets
+
+.. py:function:: out_eia930__hourly_aggregated_demand(out_eia930__hourly_operations: pandas.DataFrame, core_eia__codes_balancing_authorities: pandas.DataFrame) -> pandas.DataFrame
+
+   Aggregate imputed demand from the BA level to region, interconnect, and contiguous US.
+
+

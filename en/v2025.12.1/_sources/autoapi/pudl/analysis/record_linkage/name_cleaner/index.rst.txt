@@ -1,0 +1,287 @@
+pudl.analysis.record_linkage.name_cleaner
+=========================================
+
+.. py:module:: pudl.analysis.record_linkage.name_cleaner
+
+.. autoapi-nested-parse::
+
+   This module contains the implementation of CompanyNameCleaner class from OS-Climate's financial-entity-cleaner package.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.name_cleaner.logger
+   pudl.analysis.record_linkage.name_cleaner.CLEANING_RULES_DICT
+   pudl.analysis.record_linkage.name_cleaner.DEFAULT_CLEANING_RULES_LIST
+   pudl.analysis.record_linkage.name_cleaner.NAME_LEGAL_TERMS_DICT_FILE
+   pudl.analysis.record_linkage.name_cleaner.NAME_JSON_ENTRY_LEGAL_TERMS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.name_cleaner.LegalTermLocation
+   pudl.analysis.record_linkage.name_cleaner.Lettercase
+   pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms
+   pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.name_cleaner._get_legal_terms_dict
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: CLEANING_RULES_DICT
+
+.. py:data:: DEFAULT_CLEANING_RULES_LIST
+   :value: ['remove_word_the_from_the_end', 'remove_word_the_from_the_beginning',...
+
+
+.. py:data:: NAME_LEGAL_TERMS_DICT_FILE
+   :value: 'us_legal_forms.json'
+
+
+.. py:data:: NAME_JSON_ENTRY_LEGAL_TERMS
+   :value: 'legal_forms'
+
+
+.. py:class:: LegalTermLocation(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The location of the legal terms within the name string.
+
+
+   .. py:attribute:: AT_THE_END
+      :value: 1
+
+
+
+   .. py:attribute:: ANYWHERE
+      :value: 2
+
+
+
+.. py:class:: Lettercase(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Allowed cases for output strings.
+
+
+   .. py:attribute:: LOWER
+      :value: 1
+
+
+
+   .. py:attribute:: TITLE
+      :value: 2
+
+
+
+   .. py:attribute:: UPPER
+      :value: 3
+
+
+
+.. py:class:: HandleLegalTerms(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Whether to leave, remove, or normalize legal terms.
+
+
+   .. py:attribute:: NORMALIZE
+      :value: 3
+
+
+
+   .. py:attribute:: LEAVE_AS_IS
+      :value: 1
+
+
+
+   .. py:attribute:: REMOVE
+      :value: 2
+
+
+
+.. py:function:: _get_legal_terms_dict() -> dict[str, list]
+
+.. py:class:: CompanyNameCleaner(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Class to normalize/clean up text based company names.
+
+
+   .. py:attribute:: cleaning_rules_list
+      :type:  list[str]
+      :value: ['remove_word_the_from_the_end', 'remove_word_the_from_the_beginning',...
+
+
+      A list of cleaning rules that the CompanyNameCleaner should apply.
+
+      Will be validated to ensure rules comply to allowed cleaning functions.
+
+
+   .. py:attribute:: handle_legal_terms
+      :type:  HandleLegalTerms
+
+      A flag to indicate how to habndle legal terms.
+
+      Options are to remove, normalize, or keep them as is.
+
+
+   .. py:attribute:: place_word_the_at_beginning
+      :type:  bool
+      :value: False
+
+
+      A flag to indicate whether to move 'the' to the start of a string.
+
+      If True, then if the word 'the' appears at the end of a string,
+      remove it and place 'the' at the beginning of the string.
+
+
+   .. py:attribute:: remove_unicode
+      :type:  bool
+      :value: False
+
+
+      Define if unicode characters should be removed from text's name.
+
+      This cleaning rule is treated separated from the regex rules because it
+      depends on the language of the text's name. For instance, Russian or
+      Japanese text's may contain unicode characters, while Portuguese and
+      French companies may not.
+
+
+   .. py:attribute:: output_lettercase
+      :type:  Lettercase
+
+      Define the letter case of the cleaning output.
+
+
+   .. py:attribute:: legal_term_location
+      :type:  LegalTermLocation
+
+      Indicates where in the string legal terms are found.
+
+
+   .. py:attribute:: remove_accents
+      :type:  bool
+      :value: False
+
+
+      Flag to indicate whether to remove accents from strings.
+
+      If True, replace letters with accents with non-accented ones.
+
+
+   .. py:attribute:: legal_terms_dict
+      :type:  dict[str, list]
+      :value: None
+
+
+
+   .. py:method:: _validate_cleaning_rules() -> Self
+
+
+   .. py:method:: _apply_regex_rules(col: pandas.Series, dict_regex_rules: dict[str, list[str]]) -> pandas.Series
+
+      Applies several cleaning rules based on a custom dictionary.
+
+      The dictionary must contain cleaning rules written in regex format.
+
+      :param col: The column that needs to be cleaned.
+      :type col: pd.Series
+      :param dict_regex_rules: a dictionary of cleaning rules written in regex with the format
+                               [rule name] : ['replacement', 'regex rule']
+      :type dict_regex_rules: dict
+
+      :returns: the modified/cleaned column.
+      :rtype: (pd.Series)
+
+
+
+   .. py:method:: _remove_unicode_chars(col: pandas.Series) -> pandas.Series
+
+      Removes unicode characters that are unreadable in ASCII format.
+
+      :param col: series containing unicode characters.
+      :type col: pd.Series
+
+      :returns: the corresponding input series without unicode characters.
+      :rtype: (pd.Series)
+
+
+
+   .. py:method:: _move_the_to_beginning(col: pandas.Series) -> pandas.Series
+
+
+   .. py:method:: _apply_cleaning_rules(col: pandas.Series) -> pandas.Series
+
+      Apply the cleaning rules from the dictionary of regex rules.
+
+
+
+   .. py:method:: _apply_normalization_of_legal_terms(col: pandas.Series) -> pandas.Series
+
+      Apply the normalization of legal terms according to dictionary of regex rules.
+
+
+
+   .. py:method:: _apply_removal_of_legal_terms(col: pandas.Series) -> pandas.Series
+
+      Remove legal terms from a string.
+
+
+
+   .. py:method:: get_clean_data(col: pandas.Series) -> pandas.Series
+
+      Clean names and normalize legal terms.
+
+      :param col: the column that is to be cleaned
+      :type col: pd.Series
+
+      :returns: the clean version of the column
+      :rtype: clean_col (pd.Series)
+
+
+
+   .. py:method:: apply_name_cleaning(df: pandas.DataFrame, return_as_dframe: bool = False) -> pandas.DataFrame
+
+      Clean up text names in a dataframe.
+
+      :param df: the input dataframe that contains the text's name to be cleaned
+      :type df: dataframe
+      :param return_as_dframe: whether to return the cleaned data as a dataframe or series.
+                               Useful to return as a dataframe if used in a cleaning pipeline with no
+                               vectorization step after name cleaning. If multiple columns are passed in for
+                               cleaning then output will be a dataframe regardless of this parameter.
+      :type return_as_dframe: bool
+
+      :returns: the clean version of the input dataframe
+      :rtype: df (dataframe)
+
+
+

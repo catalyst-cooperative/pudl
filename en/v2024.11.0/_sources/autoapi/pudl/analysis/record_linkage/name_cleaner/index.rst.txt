@@ -1,0 +1,179 @@
+pudl.analysis.record_linkage.name_cleaner
+=========================================
+
+.. py:module:: pudl.analysis.record_linkage.name_cleaner
+
+.. autoapi-nested-parse::
+
+   This module contains the implementation of CompanyNameCleaner class from OS-Climate's financial-entity-cleaner package.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.name_cleaner.logger
+   pudl.analysis.record_linkage.name_cleaner.CLEANING_RULES_DICT
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.name_cleaner.LegalTermLocation
+   pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: CLEANING_RULES_DICT
+
+.. py:class:: LegalTermLocation(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   The location of the legal terms within the name string.
+
+
+   .. py:attribute:: AT_THE_END
+      :value: 1
+
+
+
+   .. py:attribute:: ANYWHERE
+      :value: 2
+
+
+
+.. py:class:: CompanyNameCleaner(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Class to normalize/clean up text based company names.
+
+
+   .. py:attribute:: __NAME_LEGAL_TERMS_DICT_FILE
+      :value: 'us_legal_forms.json'
+
+
+
+   .. py:attribute:: __NAME_JSON_ENTRY_LEGAL_TERMS
+      :value: 'legal_forms'
+
+
+
+   .. py:attribute:: cleaning_rules_list
+      :type:  list[str]
+      :value: ['remove_word_the_from_the_end', 'remove_word_the_from_the_beginning',...
+
+
+
+   .. py:attribute:: normalize_legal_terms
+      :type:  bool
+      :value: True
+
+
+
+   .. py:attribute:: remove_unicode
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: output_lettercase
+      :type:  Literal['lower', 'title']
+      :value: 'lower'
+
+
+
+   .. py:attribute:: legal_term_location
+      :type:  LegalTermLocation
+
+
+   .. py:attribute:: remove_accents
+      :type:  bool
+      :value: False
+
+
+
+   .. py:method:: _apply_regex_rules(str_value: str, dict_regex_rules: dict[str, list[str]]) -> str
+
+      Applies several cleaning rules based on a custom dictionary.
+
+      The dictionary must contain cleaning rules written in regex format.
+
+      :param str_value: any value as string to be cleaned up.
+      :type str_value: str
+      :param dict_regex_rules: a dictionary of cleaning rules writen in regex with the format
+                               [rule name] : ['replacement', 'regex rule']
+      :type dict_regex_rules: dict
+
+      :returns: the modified/cleaned value.
+      :rtype: (str)
+
+
+
+   .. py:method:: _remove_unicode_chars(value: str) -> str
+
+      Removes unicode character that is unreadable when converted to ASCII format.
+
+      :param value: any string containing unicode characters.
+      :type value: str
+
+      :returns: the corresponding input string without unicode characters.
+      :rtype: (str)
+
+
+
+   .. py:method:: _apply_cleaning_rules(company_name: str) -> str
+
+      Apply the cleaning rules from the dictionary of regex rules.
+
+
+
+   .. py:method:: _apply_normalization_of_legal_terms(company_name: str) -> str
+
+      Apply the normalizattion of legal terms according to dictionary of regex rules.
+
+
+
+   .. py:method:: get_clean_data(company_name: str) -> str
+
+      Clean a name and normalize legal terms.
+
+      If ``company_name`` is null or not a string value, pd.NA
+      will be returned.
+
+      :param company_name: the original text
+      :type company_name: str
+
+      :returns: the clean version of the text
+      :rtype: clean_company_name (str)
+
+
+
+   .. py:method:: apply_name_cleaning(df: pandas.DataFrame, return_as_dframe: bool = False) -> pandas.DataFrame
+
+      Clean up text names in a dataframe.
+
+      :param df: the input dataframe that contains the text's name to be cleaned
+      :type df: dataframe
+      :param return_as_dframe: whether to return the cleaned data as a dataframe or series.
+                               Useful to return as a dataframe if used in a cleaning pipeline with no
+                               vectorization step after name cleaning. If multiple columns are passed in for
+                               cleaning then output will be a dataframe regardless of this parameter.
+      :type return_as_dframe: bool
+
+      :returns: the clean version of the input dataframe
+      :rtype: df (dataframe)
+
+
+

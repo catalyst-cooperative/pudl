@@ -1,0 +1,11 @@
+pudl.__main__
+=============
+
+.. py:module:: pudl.__main__
+
+.. autoapi-nested-parse::
+
+   Entrypoint module for the PUDL ETL script.
+
+
+

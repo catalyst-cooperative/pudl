@@ -1,0 +1,101 @@
+pudl.dbt_wrapper
+================
+
+.. py:module:: pudl.dbt_wrapper
+
+.. autoapi-nested-parse::
+
+   Wrap DBT invocations so we can get custom behavior.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.dbt_wrapper.NodeContext
+   pudl.dbt_wrapper.BuildResult
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.dbt_wrapper.get_failed_nodes
+   pudl.dbt_wrapper.get_context_for_nodes
+   pudl.dbt_wrapper.build_with_context
+
+
+Module Contents
+---------------
+
+.. py:function:: get_failed_nodes(results: dbt.artifacts.schemas.run.RunExecutionResult) -> list[dbt.contracts.graph.nodes.GenericTestNode]
+
+   Get test node output from tests that failed.
+
+
+.. py:class:: NodeContext
+
+   Bases: :py:obj:`NamedTuple`
+
+
+   Associate a node's *name* with information describing what went wrong.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: context
+      :type:  pandas.DataFrame
+
+
+   .. py:method:: pretty_print()
+
+      Nice output for logging to stdout.
+
+
+
+.. py:function:: get_context_for_nodes(nodes: list[dbt.contracts.graph.nodes.GenericTestNode]) -> list[NodeContext]
+
+   Post-process node output to figure out failure context.
+
+   For most tests, just run the compiled code in the node.
+
+   (TODO 2025-06-09) for weighted quantile tests, run the "debug quantiles" DBT
+   operation.
+
+
+.. py:class:: BuildResult
+
+   Bases: :py:obj:`NamedTuple`
+
+
+   Combine overall result with any useful failure context.
+
+
+   .. py:attribute:: success
+      :type:  bool
+
+
+   .. py:attribute:: failure_contexts
+      :type:  list[NodeContext]
+
+
+   .. py:method:: format_failure_contexts() -> str
+
+      Nice legible output for logs.
+
+
+
+.. py:function:: build_with_context(node_selection: str, dbt_target: str, node_exclusion: str | None = None) -> BuildResult
+
+   Run the DBT build and get failure information back.
+
+   * run the DBT build using our selection, returning test failures
+   * get extra context for each test failure
+   * print out test failure context
+
+

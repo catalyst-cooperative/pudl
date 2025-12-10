@@ -1,0 +1,674 @@
+pudl.analysis.timeseries_cleaning
+=================================
+
+.. py:module:: pudl.analysis.timeseries_cleaning
+
+.. autoapi-nested-parse::
+
+   Screen timeseries for anomalies and impute missing and anomalous values.
+
+   The screening methods were originally designed to identify unrealistic data in the
+   electricity demand timeseries reported to EIA on Form 930, and have also been
+   applied to the FERC Form 714, and various historical demand timeseries
+   published by regional grid operators like MISO, PJM, ERCOT, and SPP.
+
+   They are adapted from code published and modified by:
+
+   * Tyler Ruggles <truggles@carnegiescience.edu>
+   * Greg Schivley <greg.schivley@princeton.edu>
+
+   And described at:
+
+   * https://doi.org/10.1038/s41597-020-0483-x
+   * https://zenodo.org/record/3737085
+   * https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
+
+   The imputation methods were designed for multivariate time series forecasting.
+
+   They are adapted from code published by:
+
+   * Xinyu Chen <chenxy346@gmail.com>
+
+   And described at:
+
+   * https://arxiv.org/abs/2006.10436
+   * https://arxiv.org/abs/2008.03194
+   * https://github.com/xinychen/tensor-learning
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.analysis.timeseries_cleaning.Timeseries
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.timeseries_cleaning.slice_axis
+   pudl.analysis.timeseries_cleaning.array_diff
+   pudl.analysis.timeseries_cleaning.encode_run_length
+   pudl.analysis.timeseries_cleaning.insert_run_length
+   pudl.analysis.timeseries_cleaning._mat2ten
+   pudl.analysis.timeseries_cleaning._ten2mat
+   pudl.analysis.timeseries_cleaning._svt_tnn
+   pudl.analysis.timeseries_cleaning.impute_latc_tnn
+   pudl.analysis.timeseries_cleaning._tsvt
+   pudl.analysis.timeseries_cleaning.impute_latc_tubal
+
+
+Module Contents
+---------------
+
+.. py:function:: slice_axis(x: numpy.ndarray, start: int = None, end: int = None, step: int = None, axis: int = 0) -> tuple[slice, Ellipsis]
+
+   Return an index that slices an array along an axis.
+
+   :param x: Array to slice.
+   :param start: Start index of slice.
+   :param end: End index of slice.
+   :param step: Step size of slice.
+   :param axis: Axis along which to slice.
+
+   :returns: Tuple of :class:`slice` that slices array `x` along axis `axis`
+             (`x[..., start:stop:step]`).
+
+   .. rubric:: Examples
+
+   >>> x = np.random.random((3, 4, 5))
+   >>> np.all(x[1:] == x[slice_axis(x, start=1, axis=0)])
+   np.True_
+   >>> np.all(x[:, 1:] == x[slice_axis(x, start=1, axis=1)])
+   np.True_
+   >>> np.all(x[:, :, 1:] == x[slice_axis(x, start=1, axis=2)])
+   np.True_
+
+
+.. py:function:: array_diff(x: numpy.ndarray, periods: int = 1, axis: int = 0, fill: Any = np.nan) -> numpy.ndarray
+
+   First discrete difference of array elements.
+
+   This is a fast numpy implementation of :meth:`pd.DataFrame.diff`.
+
+   :param periods: Periods to shift for calculating difference, accepts negative values.
+   :param axis: Array axis along which to calculate the difference.
+   :param fill: Value to use at the margins where a difference cannot be calculated.
+
+   :returns: Array of same shape and type as `x` with discrete element differences.
+
+   .. rubric:: Examples
+
+   >>> x = np.random.random((4, 2))
+   >>> np.all(array_diff(x, 1)[1:] == pd.DataFrame(x).diff(1).to_numpy()[1:])
+   np.True_
+   >>> np.all(array_diff(x, 2)[2:] == pd.DataFrame(x).diff(2).to_numpy()[2:])
+   np.True_
+   >>> np.all(array_diff(x, -1)[:-1] == pd.DataFrame(x).diff(-1).to_numpy()[:-1])
+   np.True_
+
+
+.. py:function:: encode_run_length(x: collections.abc.Sequence | numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+
+   Encode vector with run-length encoding.
+
+   :param x: Vector to encode.
+
+   :returns: Values and their run lengths.
+
+   .. rubric:: Examples
+
+   >>> x = np.array([0, 1, 1, 0, 1])
+   >>> encode_run_length(x)
+   (array([0, 1, 0, 1]), array([1, 2, 1, 1]))
+   >>> encode_run_length(x.astype('bool'))
+   (array([False,  True, False,  True]), array([1, 2, 1, 1]))
+   >>> encode_run_length(x.astype('<U1'))
+   (array(['0', '1', '0', '1'], dtype='<U1'), array([1, 2, 1, 1]))
+   >>> encode_run_length(np.where(x == 0, np.nan, x))
+   (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))
+
+
+.. py:function:: insert_run_length(x: collections.abc.Sequence | numpy.ndarray, values: collections.abc.Sequence | numpy.ndarray, lengths: collections.abc.Sequence[int], mask: collections.abc.Sequence[bool] = None, padding: int = 0, intersect: bool = False) -> numpy.ndarray
+
+   Insert run-length encoded values into a vector.
+
+   :param x: Vector to insert values into.
+   :param values: Values to insert.
+   :param lengths: Length of run to insert for each value in `values`.
+   :param mask: Boolean mask, of the same length as `x`, where values can be inserted.
+                By default, values can be inserted anywhere in `x`.
+   :param padding: Minimum space between inserted runs and,
+                   if `mask` is provided, the edges of masked-out areas.
+   :param intersect: Whether to allow inserted runs to intersect each other.
+
+   :raises ValueError: Padding must zero or greater.
+   :raises ValueError: Run length must be greater than zero.
+   :raises ValueError: Cound not find space for run of length {length}.
+
+   :returns: Copy of array `x` with values inserted.
+
+   .. rubric:: Example
+
+   >>> x = [0, 0, 0, 0]
+   >>> mask = [True, False, True, True]
+   >>> insert_run_length(x, values=[1, 2], lengths=[1, 2], mask=mask)
+   array([1, 0, 2, 2])
+
+   If we use unique values for the background and each inserted run,
+   the run length encoding of the result (ignoring the background)
+   is the same as the inserted run, albeit in a different order.
+
+   >>> x = np.zeros(10, dtype=int)
+   >>> values = [1, 2, 3]
+   >>> lengths = [1, 2, 3]
+   >>> x = insert_run_length(x, values=values, lengths=lengths)
+   >>> rvalues, rlengths = encode_run_length(x[x != 0])
+   >>> order = np.argsort(rvalues)
+   >>> all(rvalues[order] == values) and all(rlengths[order] == lengths)
+   True
+
+   Null values can be inserted into a vector such that the new null runs
+   match the run length encoding of the existing null runs.
+
+   >>> x = [1, 2, np.nan, np.nan, 5, 6, 7, 8, np.nan]
+   >>> is_nan = np.isnan(x)
+   >>> rvalues, rlengths = encode_run_length(is_nan)
+   >>> xi = insert_run_length(
+   ...     x,
+   ...     values=[np.nan] * rvalues.sum(),
+   ...     lengths=rlengths[rvalues],
+   ...     mask=~is_nan
+   ... )
+   >>> np.isnan(xi).sum() == 2 * is_nan.sum()
+   np.True_
+
+   The same as above, with non-zero `padding`, yields a unique solution:
+
+   >>> insert_run_length(
+   ...     x,
+   ...     values=[np.nan] * rvalues.sum(),
+   ...     lengths=rlengths[rvalues],
+   ...     mask=~is_nan,
+   ...     padding=1
+   ... )
+   array([nan,  2., nan, nan,  5., nan, nan,  8., nan])
+
+
+.. py:function:: _mat2ten(matrix: numpy.ndarray, shape: numpy.ndarray, mode: int) -> numpy.ndarray
+
+   Fold matrix into a tensor.
+
+
+.. py:function:: _ten2mat(tensor: numpy.ndarray, mode: int) -> numpy.ndarray
+
+   Unfold tensor into a matrix.
+
+
+.. py:function:: _svt_tnn(matrix: numpy.ndarray, tau: float, theta: int) -> numpy.ndarray
+
+   Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization.
+
+
+.. py:function:: impute_latc_tnn(tensor: numpy.ndarray, lags: collections.abc.Sequence[int] = [1], alpha: collections.abc.Sequence[float] = [1 / 3, 1 / 3, 1 / 3], rho0: float = 1e-07, lambda0: float = 2e-07, theta: int = 20, epsilon: float = 1e-07, maxiter: int = 300) -> numpy.ndarray
+
+   Impute tensor values with LATC-TNN method by Chen and Sun (2020).
+
+   Uses low-rank autoregressive tensor completion (LATC) with
+   truncated nuclear norm (TNN) minimization.
+
+   * description: https://arxiv.org/abs/2006.10436
+   * code: https://github.com/xinychen/tensor-learning/blob/master/mats
+
+   :param tensor: Observational series in the form (series, groups, periods).
+                  Null values are replaced with zeros, so any zeros will be treated as null.
+   :param lags:
+   :param alpha:
+   :param rho0:
+   :param lambda0:
+   :param theta:
+   :param epsilon: Convergence criterion. A smaller number will result in more iterations.
+   :param maxiter: Maximum number of iterations.
+
+   :returns: Tensor with missing values in `tensor` replaced by imputed values.
+
+
+.. py:function:: _tsvt(tensor: numpy.ndarray, phi: numpy.ndarray, tau: float) -> numpy.ndarray
+
+   Tensor singular value thresholding (TSVT).
+
+
+.. py:function:: impute_latc_tubal(tensor: numpy.ndarray, lags: collections.abc.Sequence[int] = [1], rho0: float = 1e-07, lambda0: float = 2e-07, epsilon: float = 1e-07, maxiter: int = 300) -> numpy.ndarray
+
+   Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).
+
+   Uses low-tubal-rank autoregressive tensor completion (LATC-Tubal).
+   It is much faster than :func:`impute_latc_tnn` for very large datasets,
+   with comparable accuracy.
+
+   * description: https://arxiv.org/abs/2008.03194
+   * code: https://github.com/xinychen/tensor-learning/blob/master/mats
+
+   :param tensor: Observational series in the form (series, groups, periods).
+                  Null values are replaced with zeros, so any zeros will be treated as null.
+   :param lags:
+   :param rho0:
+   :param lambda0:
+   :param epsilon: Convergence criterion. A smaller number will result in more iterations.
+   :param maxiter: Maximum number of iterations.
+
+   :returns: Tensor with missing values in `tensor` replaced by imputed values.
+
+
+.. py:class:: Timeseries(x: numpy.ndarray | pandas.DataFrame)
+
+   Multivariate timeseries for anomaly detection and imputation.
+
+
+   .. py:attribute:: xi
+      :type:  numpy.ndarray
+
+      Reference to the original values (can be null).
+
+      Many methods assume that these represent chronological, regular timeseries.
+
+
+   .. py:attribute:: index
+      :type:  pandas.Index
+
+      Row index.
+
+
+   .. py:attribute:: columns
+      :type:  pandas.Index
+
+      Column names.
+
+
+   .. py:attribute:: x
+      :type:  numpy.ndarray
+
+      Copy of :attr:`xi` with any flagged values replaced with null.
+
+
+   .. py:attribute:: flags
+      :type:  numpy.ndarray
+
+      Flag label for each value, or null if not flagged.
+
+
+   .. py:attribute:: flagged
+      :type:  list[str]
+      :value: []
+
+
+      Running list of flags that have been checked so far.
+
+
+   .. py:method:: to_dataframe(array: numpy.ndarray = None, copy: bool = True) -> pandas.DataFrame
+
+      Return multivariate timeseries as a :class:`pandas.DataFrame`.
+
+      :param array: Two-dimensional array to use. If `None`, uses :attr:`x`.
+      :param copy: Whether to use a copy of `array`.
+
+
+
+   .. py:method:: flag(mask: numpy.ndarray, flag: str) -> None
+
+      Flag values.
+
+      Flags values (if not already flagged) and nulls flagged values.
+
+      :param mask: Boolean mask of the values to flag.
+      :param flag: Flag name.
+
+
+
+   .. py:method:: unflag(flags: collections.abc.Iterable[str] = None) -> None
+
+      Unflag values.
+
+      Unflags values by restoring their original values and removing their flag.
+
+      :param flags: Flag names. If `None`, all flags are removed.
+
+
+
+   .. py:method:: flag_negative_or_zero() -> None
+
+      Flag negative or zero values (NEGATIVE_OR_ZERO).
+
+
+
+   .. py:method:: flag_identical_run(length: int = 3) -> None
+
+      Flag the last values in identical runs (IDENTICAL_RUN).
+
+      :param length: Run length to flag.
+                     If `3`, the third (and subsequent) identical values are flagged.
+
+      :raises ValueError: Run length must be 2 or greater.
+
+
+
+   .. py:method:: flag_global_outlier(medians: float = 9) -> None
+
+      Flag values greater or less than n times the global median (GLOBAL_OUTLIER).
+
+      :param medians: Number of times the median the value must exceed the median.
+
+
+
+   .. py:method:: flag_global_outlier_neighbor(neighbors: int = 1) -> None
+
+      Flag values neighboring global outliers (GLOBAL_OUTLIER_NEIGHBOR).
+
+      :param neighbors: Number of neighbors to flag on either side of each outlier.
+
+      :raises ValueError: Global outliers must be flagged first.
+
+
+
+   .. py:method:: rolling_median(window: int = 48) -> numpy.ndarray
+
+      Rolling median of values.
+
+      :param window: Number of values in the moving window.
+
+
+
+   .. py:method:: rolling_median_offset(window: int = 48) -> numpy.ndarray
+
+      Values minus the rolling median.
+
+      Estimates the local cycle in cyclical data by removing longterm trends.
+
+      :param window: Number of values in the moving window.
+
+
+
+   .. py:method:: median_of_rolling_median_offset(window: int = 48, shifts: collections.abc.Sequence[int] = range(-240, 241, 24)) -> numpy.ndarray
+
+      Median of the offset from the rolling median.
+
+      Calculated by shifting the rolling median offset (:meth:`rolling_median_offset`)
+      by different numbers of values, then taking the median at each position.
+      Estimates the typical local cycle in cyclical data.
+
+      :param window: Number of values in the moving window for the rolling median.
+      :param shifts: Number of values to shift the rolling median offset by.
+
+
+
+   .. py:method:: rolling_iqr_of_rolling_median_offset(window: int = 48, iqr_window: int = 240) -> numpy.ndarray
+
+      Rolling interquartile range (IQR) of rolling median offset.
+
+      Estimates the spread of the local cycles in cyclical data.
+
+      :param window: Number of values in the moving window for the rolling median.
+      :param iqr_window: Number of values in the moving window for the rolling IQR.
+
+
+
+   .. py:method:: median_prediction(window: int = 48, shifts: collections.abc.Sequence[int] = range(-240, 241, 24), long_window: int = 480) -> numpy.ndarray
+
+      Values predicted from local and regional rolling medians.
+
+      Calculated as `{ local median } +
+      { median of local median offset } * { local median } / { regional median }`.
+
+      :param window: Number of values in the moving window for the local rolling median.
+      :param shifts: Positions to shift the local rolling median offset by,
+                     for computing its median.
+      :param long_window: Number of values in the moving window
+                          for the regional (long) rolling median.
+
+
+
+   .. py:method:: flag_local_outlier(window: int = 48, shifts: collections.abc.Sequence[int] = range(-240, 241, 24), long_window: int = 480, iqr_window: int = 240, multiplier: tuple[float, float] = (3.5, 2.5)) -> None
+
+      Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).
+
+      Flags values which are above or below the :meth:`median_prediction` by more than
+      a `multiplier` times the :meth:`rolling_iqr_of_rolling_median_offset`.
+
+      :param window: Number of values in the moving window for the local rolling median.
+      :param shifts: Positions to shift the local rolling median offset by,
+                     for computing its median.
+      :param long_window: Number of values in the moving window
+                          for the regional (long) rolling median.
+      :param iqr_window: Number of values in the moving window
+                         for the rolling interquartile range (IQR).
+      :param multiplier: Number of times the :meth:`rolling_iqr_of_rolling_median_offset`
+                         the value must be above (HIGH) and below (LOW)
+                         the :meth:`median_prediction` to be flagged.
+
+
+
+   .. py:method:: diff(shift: int = 1) -> numpy.ndarray
+
+      Values minus the value of their neighbor.
+
+      :param shift: Positions to shift for calculating the difference.
+                    Positive values select a preceding (left) neighbor.
+
+
+
+   .. py:method:: rolling_iqr_of_diff(shift: int = 1, window: int = 240) -> numpy.ndarray
+
+      Rolling interquartile range (IQR) of difference between neighboring values.
+
+      :param shift: Positions to shift for calculating the difference.
+      :param window: Number of values in the moving window for the rolling IQR.
+
+
+
+   .. py:method:: flag_double_delta(iqr_window: int = 240, multiplier: float = 2) -> None
+
+      Flag values very different from neighbors on either side (DOUBLE_DELTA).
+
+      Flags values whose differences to both neighbors on either side exceeds a
+      `multiplier` times the rolling interquartile range (IQR) of neighbor difference.
+
+      :param iqr_window: Number of values in the moving window for the rolling IQR
+                         of neighbor difference.
+      :param multiplier: Number of times the rolling IQR of neighbor difference
+                         the value's difference to its neighbors must exceed
+                         for the value to be flagged.
+
+
+
+   .. py:method:: relative_median_prediction(**kwargs: Any) -> numpy.ndarray
+
+      Values divided by their value predicted from medians.
+
+      :param kwargs: Arguments to :meth:`median_prediction`.
+
+
+
+   .. py:method:: iqr_of_diff_of_relative_median_prediction(shift: int = 1, **kwargs: Any) -> numpy.ndarray
+
+      Interquartile range of running difference of relative median prediction.
+
+      :param shift: Positions to shift for calculating the difference.
+                    Positive values select a preceding (left) neighbor.
+      :param kwargs: Arguments to :meth:`relative_median_prediction`.
+
+
+
+   .. py:method:: _find_single_delta(relative_median_prediction: numpy.ndarray, relative_median_prediction_long: numpy.ndarray, rolling_iqr_of_diff: numpy.ndarray, iqr_of_diff_of_relative_median_prediction: numpy.ndarray, reverse: bool = False) -> numpy.ndarray
+
+
+   .. py:method:: flag_single_delta(window: int = 48, shifts: collections.abc.Sequence[int] = range(-240, 241, 24), long_window: int = 480, iqr_window: int = 240, multiplier: float = 5, rel_multiplier: float = 15) -> None
+
+      Flag values very different from the nearest unflagged value (SINGLE_DELTA).
+
+      Flags values whose difference to the nearest unflagged value,
+      with respect to value and relative median prediction,
+      differ by less than a multiplier times the rolling interquartile range (IQR)
+      of the difference -
+      `multiplier` times :meth:`rolling_iqr_of_diff` and
+      `rel_multiplier` times :meth:`iqr_of_diff_of_relative_mean_prediction`,
+      respectively.
+
+      :param window: Number of values in the moving window for the rolling median
+                     (for the relative median prediction).
+      :param shifts: Positions to shift the local rolling median offset by,
+                     for computing its median (for the relative median prediction).
+      :param long_window: Number of values in the moving window for the long rolling
+                          median (for the relative median prediction).
+      :param iqr_window: Number of values in the moving window for the rolling IQR
+                         of neighbor difference.
+      :param multiplier: Number of times the rolling IQR of neighbor difference
+                         the value's difference to its neighbor must exceed
+                         for the value to be flagged.
+      :param rel_multiplier: Number of times the rolling IQR of relative median
+                             prediction the value's prediction difference to its neighbor must exceed
+                             for the value to be flagged.
+
+
+
+   .. py:method:: flag_anomalous_region(window: int = 48, threshold: float = 0.15) -> None
+
+      Flag values surrounded by flagged values (ANOMALOUS_REGION).
+
+      Original null values are not considered flagged values.
+
+      :param window: Width of regions.
+      :param threshold: Fraction of flagged values required for a region to be flagged.
+
+
+
+   .. py:method:: flag_ruggles() -> None
+
+      Flag values following the method of Ruggles and others (2020).
+
+      Assumes values are hourly electricity demand.
+
+      * description: https://doi.org/10.1038/s41597-020-0483-x
+      * code: https://github.com/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Code
+
+
+
+   .. py:method:: summarize_flags() -> pandas.DataFrame
+
+      Summarize flagged values by flag, count and median.
+
+
+
+   .. py:method:: plot_flags(name: Any = 0) -> None
+
+      Plot cleaned series and anomalous values colored by flag.
+
+      :param name: Series to plot, as either an integer index or name in :attr:`columns`.
+
+
+
+   .. py:method:: simulate_nulls(lengths: collections.abc.Sequence[int] = None, padding: int = 1, intersect: bool = False, overlap: bool = False) -> numpy.ndarray
+
+      Find non-null values to null to match a run-length distribution.
+
+      :param length: Length of null runs to simulate for each series.
+                     By default, uses the run lengths of null values in each series.
+      :param padding: Minimum number of non-null values between simulated null runs
+                      and between simulated and existing null runs.
+      :param intersect: Whether simulated null runs can intersect each other.
+      :param overlap: Whether simulated null runs can overlap existing null runs.
+                      If `True`, `padding` is ignored.
+
+      :returns: Boolean mask of current non-null values to set to null.
+
+      :raises ValueError: Cound not find space for run of length {length}.
+
+      .. rubric:: Examples
+
+      >>> x = np.column_stack([[1, 2, np.nan, 4, 5, 6, 7, np.nan, np.nan]])
+      >>> s = Timeseries(x)
+      >>> s.simulate_nulls().ravel()
+      array([ True, False, False, False, True, True, False, False, False])
+      >>> s.simulate_nulls(lengths=[4], padding=0).ravel()
+      array([False, False, False, True, True, True, True, False, False])
+
+
+
+   .. py:method:: fold_tensor(x: numpy.ndarray = None, periods: int = 24) -> numpy.ndarray
+
+      Fold into a 3-dimensional tensor representation.
+
+      Folds the series `x` (number of observations, number of series)
+      into a 3-d tensor (number of series, number of groups, number of periods),
+      splitting observations into groups of length `periods`.
+      For example, each group may represent a day and each period the hour of the day.
+
+      :param x: Series array to fold. Uses :attr:`x` by default.
+      :param periods: Number of consecutive values in each series to fold into a group.
+
+      :returns: >>> x = np.column_stack([[1, 2, 3, 4, 5, 6], [10, 20, 30, 40, 50, 60]])
+                >>> s = Timeseries(x)
+                >>> tensor = s.fold_tensor(periods=3)
+                >>> tensor[0]
+                array([[1, 2, 3],
+                       [4, 5, 6]])
+                >>> np.all(x == s.unfold_tensor(tensor))
+                np.True_
+
+
+
+   .. py:method:: unfold_tensor(tensor: numpy.ndarray) -> numpy.ndarray
+
+      Unfold a 3-dimensional tensor representation.
+
+      Performs the reverse of :meth:`fold_tensor`.
+
+
+
+   .. py:method:: impute(mask: numpy.ndarray = None, periods: int = 24, blocks: int = 1, method: str = 'tubal', **kwargs: Any) -> numpy.ndarray
+
+      Impute null values.
+
+      .. note::
+          The imputation method requires that nulls be replaced by zeros,
+          so the series cannot already contain zeros.
+
+      :param mask: Boolean mask of values to impute in addition to
+                   any null values in :attr:`x`.
+      :param periods: Number of consecutive values in each series to fold into a group.
+                      See :meth:`fold_tensor`.
+      :param blocks: Number of blocks into which to split the series for imputation.
+                     This has been found to reduce processing time for `method='tnn'`.
+      :param method: Imputation method to use
+                     ('tubal': :func:`impute_latc_tubal`, 'tnn': :func:`impute_latc_tnn`).
+      :param kwargs: Optional arguments to `method`.
+
+      :returns: Array of same shape as :attr:`x` with all null values
+                (and those selected by `mask`) replaced with imputed values.
+
+      :raises ValueError: Zero values present. Replace with very small value.
+
+
+
+   .. py:method:: summarize_imputed(imputed: numpy.ndarray, mask: numpy.ndarray) -> pandas.DataFrame
+
+      Summarize the fit of imputed values to actual values.
+
+      Summarizes the agreement between actual and imputed values with the
+      following statistics:
+
+      * `mpe`: Mean percent error, `(actual - imputed) / actual`.
+      * `mape`: Mean absolute percent error, `abs(mpe)`.
+
+      :param imputed: Series of same shape as :attr:`x` with imputed values.
+                      See :meth:`impute`.
+      :param mask: Boolean mask of imputed values that were not null in :attr:`x`.
+                   See :meth:`simulate_nulls`.
+
+      :returns: Table of imputed value statistics for each series.
+
+
+

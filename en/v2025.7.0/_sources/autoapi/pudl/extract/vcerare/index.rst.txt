@@ -1,0 +1,178 @@
+pudl.extract.vcerare
+====================
+
+.. py:module:: pudl.extract.vcerare
+
+.. autoapi-nested-parse::
+
+   Extract VCE Resource Adequacy Renewable Energy (RARE) Power Dataset.
+
+   This dataset has 1,000s of columns, so we don't want to manually specify a rename on
+   import because we'll pivot these to a column in the transform step. We adapt the
+   standard extraction infrastructure to simply read in the data.
+
+   Each annual zip folder contains a folder with three files:
+   Wind_Power_140m_Offshore_county.csv
+   Wind_Power_100m_Onshore_county.csv
+   Fixed_SolarPV_Lat_UPV_county.csv
+
+   The drive also contains one more CSV file: vce_county_lat_long_fips_table.csv. This gets
+   read in when the fips partition is set to True.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.vcerare.logger
+   pudl.extract.vcerare.VCERARE_PAGES
+   pudl.extract.vcerare.raw_vcerare__all_dfs
+   pudl.extract.vcerare.raw_vcerare_assets
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.vcerare.VCERareMetadata
+   pudl.extract.vcerare.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.vcerare.raw_vcerare_asset_factory
+   pudl.extract.vcerare.raw_vcerare__lat_lon_fips
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: VCERARE_PAGES
+   :value: ['offshore_wind_power_140m', 'onshore_wind_power_100m', 'fixed_solar_pv_lat_upv']
+
+
+.. py:class:: VCERareMetadata(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.extractor.GenericMetadata`
+
+
+   Special metadata class for VCE RARE Power Dataset.
+
+
+   .. py:attribute:: _file_name
+      :value: None
+
+
+
+   .. py:method:: _load_column_maps(column_map_pkg) -> dict
+
+      There are no column maps to load, so return an empty dictionary.
+
+
+
+   .. py:method:: get_all_pages() -> list[str]
+
+      Hard code the page names, which usually are pulled from column rename spreadsheets.
+
+
+
+   .. py:method:: get_file_name(page, **partition)
+
+      Returns file name of given partition and page.
+
+
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.csv.CsvExtractor`
+
+
+   Extractor for VCE RARE Power Dataset.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:method:: get_column_map(page, **partition)
+
+      Return empty dictionary, we don't rename these files.
+
+
+
+   .. py:method:: source_filename(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> str
+
+      Produce the CSV file name as it will appear in the archive.
+
+      The files are nested in an additional folder with the year name inside of the
+      zipfile, so we add a prefix folder based on the yearly partition to the source
+      filename.
+
+      :param page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                   "coal_stocks"
+      :param partition: partition to load. Examples:
+                        {'year': 2009}
+                        {'year_month': '2020-08'}
+
+      :returns: string name of the CSV file
+
+
+
+   .. py:method:: load_source(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> pandas.DataFrame
+
+      Produce the dataframe object for the given partition.
+
+      :param page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                   "data"
+      :param partition: partition to load. Examples:
+                        {'year': 2009}
+                        {'year_month': '2020-08'}
+
+      :returns: pd.DataFrame instance containing CSV data
+
+
+
+   .. py:method:: process_raw(df: pandas.DataFrame, page: str, **partition: pudl.extract.extractor.PartitionSelection) -> pandas.DataFrame
+
+      Append report year to df to distinguish data from other years.
+
+
+
+   .. py:method:: validate(df: pandas.DataFrame, page: str, **partition: pudl.extract.extractor.PartitionSelection) -> pandas.DataFrame
+
+      Skip this step, as we aren't renaming any columns.
+
+
+
+   .. py:method:: combine(dfs: list[pandas.DataFrame], page: str) -> pandas.DataFrame
+
+      Concatenate dataframes into one, take any special steps for processing final page.
+
+
+
+.. py:data:: raw_vcerare__all_dfs
+
+.. py:function:: raw_vcerare_asset_factory(part: str) -> dagster.AssetsDefinition
+
+   An asset factory for VCE RARE Power Dataset.
+
+
+.. py:data:: raw_vcerare_assets
+
+.. py:function:: raw_vcerare__lat_lon_fips(context) -> pandas.DataFrame
+
+   Extract lat/lon to FIPS and county mapping CSV.
+
+   This dataframe is static, so it has a distinct partition from the other datasets and
+   its extraction is controlled by a boolean in the ETL run.
+
+

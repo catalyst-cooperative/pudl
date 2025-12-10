@@ -1,0 +1,53 @@
+pudl.ferc_to_sqlite.cli
+=======================
+
+.. py:module:: pudl.ferc_to_sqlite.cli
+
+.. autoapi-nested-parse::
+
+   A script using Dagster to convert FERC data from DBF and XBRL to SQLite databases.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.ferc_to_sqlite.cli.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.ferc_to_sqlite.cli.ferc_to_sqlite_job_factory
+   pudl.ferc_to_sqlite.cli.main
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: ferc_to_sqlite_job_factory(logfile: str | None = None, loglevel: str = 'INFO', dataset_only: str | None = None) -> collections.abc.Callable[[], dagster.JobDefinition]
+
+   Factory for parameterizing a reconstructable ferc_to_sqlite job.
+
+   :param logfile: Path to a log file for the job's execution.
+   :param loglevel: The log level for the job's execution.
+
+   :returns: The job definition to be executed.
+
+
+.. py:function:: main(etl_settings_yml: pathlib.Path, batch_size: int, workers: int | None, dagster_workers: int, gcs_cache_path: str, logfile: pathlib.Path, loglevel: str, dataset_only: str)
+
+   Use Dagster to convert FERC data from DBF and XBRL to SQLite databases.
+
+   Reads settings specifying which forms and years to convert from ETL_SETTINGS_YML.
+
+   Also produces JSON versions of XBRL taxonomies and datapackage descriptors which
+   annotate the XBRL derived SQLite databases.
+
+

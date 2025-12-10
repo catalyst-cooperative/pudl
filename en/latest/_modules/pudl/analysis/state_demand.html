@@ -1,0 +1,826 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.analysis.state_demand &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/analysis/state_demand';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.analysis.state_demand</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.analysis.state_demand</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Estimate historical hourly state-level electricity demand.</span>
+
+<span class="sd">Using hourly electricity demand reported at the balancing authority and utility level in</span>
+<span class="sd">the FERC 714, and service territories for utilities and balancing authorities inferred</span>
+<span class="sd">from the counties served by each utility, and the utilities that make up each balancing</span>
+<span class="sd">authority in the EIA 861, estimate the total hourly electricity demand for each US</span>
+<span class="sd">state.</span>
+
+<span class="sd">This analysis uses the total electricity sales by state reported in the EIA 861 as a</span>
+<span class="sd">scaling factor to ensure that the magnitude of electricity sales is roughly correct, and</span>
+<span class="sd">obtains the shape of the demand curve from the hourly planning area demand reported in</span>
+<span class="sd">the FERC 714.</span>
+
+<span class="sd">The compilation of historical service territories based on the EIA 861 data is somewhat</span>
+<span class="sd">manual and could certainly be improved, but overall the results seem reasonable.</span>
+<span class="sd">Additional predictive spatial variables will be required to obtain more granular</span>
+<span class="sd">electricity demand estimates (e.g. at the county level).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">asset</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dfs</span><span class="w"> </span><span class="kn">import</span> <span class="n">POLITICAL_SUBDIVISIONS</span>
+
+<span class="c1"># --- Constants --- #</span>
+
+<div class="viewcode-block" id="STATES">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/state_demand/index.html#pudl.analysis.state_demand.STATES">[docs]</a>
+<span class="n">STATES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">subdivision_name</span><span class="p">,</span>
+        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">subdivision_code</span><span class="p">,</span>
+        <span class="s2">&quot;fips&quot;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">state_id_fips</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">state_id_fips</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+<span class="p">]</span></div>
+
+
+<span class="c1"># --- Helpers --- #</span>
+
+
+<div class="viewcode-block" id="lookup_state">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/state_demand/index.html#pudl.analysis.state_demand.lookup_state">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lookup_state</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lookup US state by state identifier.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        state: State name, two-letter abbreviation, or FIPS code.</span>
+<span class="sd">          String matching is case-insensitive.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        State identifiers.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; lookup_state(&#39;alabama&#39;)</span>
+<span class="sd">        {&#39;name&#39;: &#39;Alabama&#39;, &#39;code&#39;: &#39;AL&#39;, &#39;fips&#39;: &#39;01&#39;}</span>
+<span class="sd">        &gt;&gt;&gt; lookup_state(&#39;AL&#39;)</span>
+<span class="sd">        {&#39;name&#39;: &#39;Alabama&#39;, &#39;code&#39;: &#39;AL&#39;, &#39;fips&#39;: &#39;01&#39;}</span>
+<span class="sd">        &gt;&gt;&gt; lookup_state(1)</span>
+<span class="sd">        {&#39;name&#39;: &#39;Alabama&#39;, &#39;code&#39;: &#39;AL&#39;, &#39;fips&#39;: &#39;01&#39;}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Try to cast state as an integer to deal with &quot;02&quot;, &quot;2&quot;, 2.0, np.int64(2)...</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">is_fips</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">state</span><span class="p">),</span> <span class="nb">int</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">is_fips</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">is_fips</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">state</span><span class="p">))</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;fips&quot;</span><span class="p">]:</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">STATES</span><span class="p">}[</span><span class="n">state</span><span class="p">]</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;code&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;name&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">x</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">STATES</span><span class="p">}[</span><span class="n">state</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span></div>
+
+
+
+<span class="c1"># --- Datasets: Counties --- #</span>
+
+
+<div class="viewcode-block" id="county_assignments_ferc714">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/state_demand/index.html#pudl.analysis.state_demand.county_assignments_ferc714">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">county_assignments_ferc714</span><span class="p">(</span>
+    <span class="n">out_ferc714__respondents_with_fips</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load FERC 714 county assignments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        out_ferc714__respondents_with_fips: From `pudl.output.ferc714`, FERC 714 respondents</span>
+<span class="sd">            with county FIPS IDs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dataframe with columns</span>
+<span class="sd">        `respondent_id_ferc714`, report `year` (int), and `county_id_fips`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">out_ferc714__respondents_with_fips</span><span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="c1"># Drop rows where county is blank or a duplicate</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="c1"># Convert date to year</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="census_counties">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/state_demand/index.html#pudl.analysis.state_demand.census_counties">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">census_counties</span><span class="p">(</span>
+    <span class="n">out_censusdp1tract__counties</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load county attributes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        out_censusdp1tract__counties: The county layer of the Census DP1 geodatabase.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dataframe with columns `county_id_fips` and `population`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">out_censusdp1tract__counties</span><span class="p">[[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;dp0010001&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dp0010001&quot;</span><span class="p">:</span> <span class="s2">&quot;population&quot;</span><span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># --- Allocation --- #</span>
+
+
+<div class="viewcode-block" id="total_state_sales_eia861">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/state_demand/index.html#pudl.analysis.state_demand.total_state_sales_eia861">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_state_sales_eia861</span><span class="p">(</span>
+    <span class="n">core_eia861__yearly_sales</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read and format EIA 861 sales by state and year.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        core_eia861__yearly_sales: Electricity sales data from EIA 861.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dataframe with columns `state_id_fips`, `year`, `demand_mwh`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">core_eia861__yearly_sales</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span>
+        <span class="s2">&quot;sales_mwh&quot;</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="c1"># Convert report_date to year</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
+    <span class="c1"># Convert state abbreviations to FIPS codes</span>
+    <span class="n">fips</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;fips&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">STATES</span><span class="p">}</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fips</span><span class="p">)</span>
+    <span class="c1"># Drop records with zero sales</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sales_mwh&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_mwh&quot;</span><span class="p">})</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;demand_mwh&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_mwh&quot;</span><span class="p">]]</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">,</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+    <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;mean_overlaps&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Whether to mean the demands predicted for a county in cases when a &quot;</span>
+                <span class="s2">&quot;county is assigned to multiple respondents. By default, demands are &quot;</span>
+                <span class="s2">&quot;summed.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="out_ferc714__hourly_estimated_state_demand">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/state_demand/index.html#pudl.analysis.state_demand.out_ferc714__hourly_estimated_state_demand">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_ferc714__hourly_estimated_state_demand</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">,</span>
+    <span class="n">out_ferc714__hourly_planning_area_demand</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span>
+    <span class="n">out_censusdp1tract__counties</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">out_ferc714__respondents_with_fips</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__yearly_sales</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimate hourly electricity demand by state.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        out_ferc714__hourly_planning_area_demand: Hourly demand timeseries, with imputed demand.</span>
+<span class="sd">        out_censusdp1tract__counties: The county layer of the Census DP1 shapefile.</span>
+<span class="sd">        out_ferc714__respondents_with_fips: Annual respondents with the county FIPS IDs</span>
+<span class="sd">            for their service territories.</span>
+<span class="sd">        core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly</span>
+<span class="sd">            demand is scaled to match these totals.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        LazyFrame with columns ``state_id_fips``, ``datetime_utc``, ``demand_mwh``, and</span>
+<span class="sd">        (if ``state_totals`` was provided) ``scaled_demand_mwh``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_county_respondents_with_demand</span><span class="p">(</span>
+        <span class="n">county_assign_ferc714</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">out_censusdp1tract__counties</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">hourly_demand</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connect respondent- and state-county assignments to additional county data, keeping only respondent-years with nonzero demand.&quot;&quot;&quot;</span>
+        <span class="n">with_demand</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">hourly_demand</span><span class="o">.</span><span class="n">group_by</span><span class="p">([</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;demand_imputed_pudl_mwh&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;demand_imputed_pudl_mwh&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">counties</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">census_counties</span><span class="p">(</span><span class="n">out_censusdp1tract__counties</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">lazy</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">state_id_fips</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">county_assign_ferc714</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">lazy</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">with_demand</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">counties</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">weight_counties</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Weight counties by population fraction within each respondent-year.</span>
+
+<span class="sd">        TODO: Use more county attributes in the calculation of their weights.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">respondent_population</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">group_by</span><span class="p">([</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">respondent_population</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;population&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_population&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">respondent_population</span><span class="p">,</span>
+                <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">],</span>
+                <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
+                <span class="n">weight</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;population&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;respondent_population&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;respondent_population&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">normalize_overlaps</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optionally normalize county weights by county occurrences (by year).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;mean_overlaps&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">df</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">group_by</span><span class="p">([</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">()),</span>
+                <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">distribute_demand_to_states</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span>
+        <span class="n">hourly_demand</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Distribute respondent-year demand among states by weight.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">group_by</span><span class="p">([</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;state_id_fips&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">hourly_demand</span><span class="p">,</span>
+                <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
+                <span class="n">demand_mwh</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;demand_imputed_pudl_mwh&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;demand_imputed_pudl_mwh&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rescale_using_sales</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span>
+        <span class="n">core_eia861__yearly_sales</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optionally scale estimates using state sales data.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">core_eia861__yearly_sales</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="c1"># compute scale factor between current and target state totals</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">group_by</span><span class="p">([</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;demand_mwh&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">pl</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span>
+                    <span class="n">total_state_sales_eia861</span><span class="p">(</span><span class="n">core_eia861__yearly_sales</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">lazy</span><span class="p">(),</span>
+                <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">],</span>
+                <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;_sales&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;demand_mwh_sales&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;demand_mwh&quot;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">]),</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">],</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">scaled_demand_mwh</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;demand_mwh&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">))</span>
+
+    <span class="c1"># demand outputs depend on whether we&#39;re doing sales adjustments</span>
+    <span class="n">demand_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;demand_mwh&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">core_eia861__yearly_sales</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">demand_cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;scaled_demand_mwh&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Switch to polars for the gnarly bits</span>
+    <span class="n">hourly_demand</span> <span class="o">=</span> <span class="n">out_ferc714__hourly_planning_area_demand</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
+        <span class="n">year</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;datetime_utc&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">estimated_state_demand</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">prepare_county_respondents_with_demand</span><span class="p">(</span>
+            <span class="n">county_assignments_ferc714</span><span class="p">(</span><span class="n">out_ferc714__respondents_with_fips</span><span class="p">),</span>
+            <span class="n">out_censusdp1tract__counties</span><span class="p">,</span>
+            <span class="n">hourly_demand</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">weight_counties</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">normalize_overlaps</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">distribute_demand_to_states</span><span class="p">,</span> <span class="n">hourly_demand</span><span class="o">=</span><span class="n">hourly_demand</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">rescale_using_sales</span><span class="p">,</span>
+            <span class="n">core_eia861__yearly_sales</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># sum by state-hour to yield hourly estimates</span>
+        <span class="o">.</span><span class="n">group_by</span><span class="p">([</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">demand_cols</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">demand_cols</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">estimated_state_demand</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+pudl.etl.epacems_assets
+=======================
+
+.. py:module:: pudl.etl.epacems_assets
+
+.. autoapi-nested-parse::
+
+   EPA CEMS Hourly Emissions assets.
+
+   The :func:`core_epacems__hourly_emissions` asset defined in this module uses a dagster pattern
+   that is unique from other PUDL assets. The underlying architecture uses ops to create a
+   dynamic graph
+   which is wrapped by a special asset called a graph backed asset that creates an asset
+   from a graph of ops. The dynamic graph will allow dagster to dynamically generate an op
+   for processing each year of EPA CEMS data and execute these ops in parallel. For more information
+   see: https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs and https://docs.dagster.io/concepts/assets/graph-backed-assets.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.etl.epacems_assets.logger
+   pudl.etl.epacems_assets.YearPartitions
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.etl.epacems_assets._partitioned_path
+   pudl.etl.epacems_assets.get_years_from_settings
+   pudl.etl.epacems_assets.process_single_year
+   pudl.etl.epacems_assets.consolidate_partitions
+   pudl.etl.epacems_assets.core_epacems__hourly_emissions
+   pudl.etl.epacems_assets._core_epacems__emissions_unit_ids
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: YearPartitions
+
+.. py:function:: _partitioned_path() -> pathlib.Path
+
+.. py:function:: get_years_from_settings(context)
+
+   Return set of years in settings.
+
+   These will be used to kick off worker processes to process each year of data in
+   parallel.
+
+
+.. py:function:: process_single_year(context, year, core_epa__assn_eia_epacamd: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame) -> YearPartitions
+
+   Process a single year of EPA CEMS data.
+
+   :param context: dagster keyword that provides access to resources and config.
+   :param year: Year of data to process.
+   :param core_epa__assn_eia_epacamd: The EPA EIA crosswalk table used for harmonizing the
+                                      ORISPL code with EIA.
+   :param core_eia__entity_plants: The EIA Plant entities used for aligning timezones.
+
+
+.. py:function:: consolidate_partitions(context, partitions: list[YearPartitions]) -> None
+
+   Read partitions into memory and write to a single monolithic output.
+
+   :param context: dagster keyword that provides access to resources and config.
+   :param partitions: Year and state combinations in the output database.
+
+
+.. py:function:: core_epacems__hourly_emissions(_core_epa__assn_eia_epacamd_unique: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame) -> None
+
+   Extract, transform and load CSVs for EPA CEMS.
+
+   This asset creates a dynamic graph of ops to process EPA CEMS data in parallel. It
+   will create both a partitioned and single monolithic parquet output. For more
+   information see:
+   https://docs.dagster.io/concepts/ops-jobs-graphs/dynamic-graphs.
+
+
+.. py:function:: _core_epacems__emissions_unit_ids(core_epacems__hourly_emissions: dask.dataframe.DataFrame) -> pandas.DataFrame
+
+   Make unique annual plant_id_eia and emissions_unit_id_epa.
+
+   :returns: "plant_id_eia", "year" and "emissions_unit_id_epa"
+   :rtype: dataframe with unique set of
+
+

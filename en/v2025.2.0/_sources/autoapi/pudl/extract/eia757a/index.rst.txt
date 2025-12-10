@@ -1,0 +1,75 @@
+pudl.extract.eia757a
+====================
+
+.. py:module:: pudl.extract.eia757a
+
+.. autoapi-nested-parse::
+
+   Extract EIA Form 757a data from CSVs.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.eia757a.raw_eia757a__all_dfs
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.eia757a.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.eia757a.raw_eia757a__data
+
+
+Module Contents
+---------------
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.csv.CsvExtractor`
+
+
+   Extractor for EIA form 757a.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:method:: get_page_cols(page: str, partition_key: str) -> list[str]
+
+      Get the columns for a particular page and partition key.
+
+      EIA 757a data has the same set of columns for all years,
+      so regardless of the partition key provided we select the same columns here.
+
+
+
+   .. py:method:: process_raw(df: pandas.DataFrame, page: str, **partition: pudl.extract.extractor.PartitionSelection) -> pandas.DataFrame
+
+      Append report year to df to distinguish data from other years.
+
+
+
+.. py:data:: raw_eia757a__all_dfs
+
+.. py:function:: raw_eia757a__data(raw_eia757a__all_dfs)
+
+   Extract raw EIA company data from CSV sheets into dataframes.
+
+   :returns: An extracted EIA 757a dataframe.
+
+

@@ -1,0 +1,1064 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.transform.vcerare &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/transform/vcerare';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.transform.vcerare</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.transform.vcerare</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Transformations of the Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset.</span>
+
+<span class="sd">Wind and solar profiles are extracted separately, but concatenated into a single table</span>
+<span class="sd">in this module, as they have exactly the same structure.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">asset</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ParquetData</span><span class="p">,</span>
+    <span class="n">cleanstrings_snake</span><span class="p">,</span>
+    <span class="n">df_from_parquet</span><span class="p">,</span>
+    <span class="n">lf_from_parquet</span><span class="p">,</span>
+    <span class="n">persist_table_as_parquet</span><span class="p">,</span>
+    <span class="n">simplify_columns</span><span class="p">,</span>
+    <span class="n">zero_pad_numeric_string</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dfs</span><span class="w"> </span><span class="kn">import</span> <span class="n">POLITICAL_SUBDIVISIONS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_prep_lat_long_fips_df">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._prep_lat_long_fips_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prep_lat_long_fips_df</span><span class="p">(</span><span class="n">raw_vcerare__lat_lon_fips</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prep the lat_long_fips table to merge into the capacity factor tables.</span>
+
+<span class="sd">    Prep entails making sure the formatting and column names match those in the</span>
+<span class="sd">    capacity factor tables, adding 0s to the beginning of FIPS codes with 4 values,</span>
+<span class="sd">    and making separate county/subregion and state columns. Instead of pulling state</span>
+<span class="sd">    from the county_state column, we use the first two digits of the county FIPS ID</span>
+<span class="sd">    to pull in state code values from the census data stored in POLITICAL_SUBDIVISIONS.</span>
+
+<span class="sd">    The county portion of the county_state column does not map directly to FIPS ID.</span>
+<span class="sd">    Some of the county names are actually subregions like cities or lakes. For this</span>
+<span class="sd">    reason we&#39;ve named the column place_name and it should be considered</span>
+<span class="sd">    part of the primary key. There are several instances of multiple subregions that</span>
+<span class="sd">    map to a single county_id_fips value.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Prepping Lat-Long-FIPS table for merging with the capacity factor tables&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ps_usa_df</span> <span class="o">=</span> <span class="n">POLITICAL_SUBDIVISIONS</span><span class="p">[</span><span class="n">POLITICAL_SUBDIVISIONS</span><span class="p">[</span><span class="s2">&quot;country_code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;USA&quot;</span><span class="p">]</span>
+    <span class="n">state_names</span> <span class="o">=</span> <span class="n">cleanstrings_snake</span><span class="p">(</span>
+        <span class="n">ps_usa_df</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;subdivision_name&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">subdivision_name</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="c1"># Handle west virginia as a special case</span>
+    <span class="n">state_names</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;west_virginia&quot;</span><span class="p">)</span>
+    <span class="n">state_names</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;west-virginia&quot;</span><span class="p">)</span>
+
+    <span class="n">state_pattern</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">state_names</span><span class="p">)</span>
+    <span class="n">lat_long_fips</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="c1"># Making the county_state_names lowercase to match the values in the capacity factor tables</span>
+        <span class="n">raw_vcerare__lat_lon_fips</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">simplify_columns</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">county_state_names</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">county_state_names</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="sa">r</span><span class="s2">&quot;\.&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span> <span class="s2">&quot;_&quot;</span><span class="p">},</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_spot_fix_great_lakes_values</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># Fix FIPS codes with no leading zeros</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">county_id_fips</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">zero_pad_numeric_string</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">fips</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                <span class="s2">&quot;category&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># Add a state FIPS code so we can merge in the state code</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">state_id_fips</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">county_id_fips</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d</span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                <span class="s2">&quot;category&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># Extract the county or lake name from the county_state_name field</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">place_name</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">county_state_names</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s2">&quot;west_virginia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;west-virginia&quot;</span><span class="p">,</span>  <span class="c1"># Temporary workaround to make sure we don&#39;t split &#39;west&#39; from &#39;virginia&#39;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;([a-z_]+)_(</span><span class="si">{</span><span class="n">state_pattern</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># Add state column: e.g.: MA, RI, CA, TX</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">ps_usa_df</span><span class="p">[[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;subdivision_code&quot;</span><span class="p">]],</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;lat_county&quot;</span><span class="p">:</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;long_county&quot;</span><span class="p">:</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">subdivision_code</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">))</span>
+        <span class="c1"># Remove state FIPS code column in favor of the newly added state column.</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;fips&quot;</span><span class="p">,</span> <span class="s2">&quot;subdivision_code&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Nulling FIPS IDs for non-county regions.&quot;</span><span class="p">)</span>
+    <span class="n">lake_county_state_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;lake_erie_ohio&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_huron_michigan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_michigan_illinois&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_michigan_indiana&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_michigan_michigan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_michigan_wisconsin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_ontario_new_york&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_st_clair_michigan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_superior_minnesota&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_superior_michigan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lake_superior_wisconsin&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">lat_long_fips</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lat_long_fips</span><span class="o">.</span><span class="n">county_state_names</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">lake_county_state_names</span><span class="p">),</span> <span class="s2">&quot;county_id_fips&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+    <span class="k">return</span> <span class="n">lat_long_fips</span></div>
+
+
+
+<div class="viewcode-block" id="_add_time_cols">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._add_time_cols">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_time_cols</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add datetime and hour_of_year columns.</span>
+
+<span class="sd">    This function adds a datetime column and a hour_of_year column.</span>
+<span class="sd">    The datetime column is important for merging the data with other</span>
+<span class="sd">    data, and the hour_of_year 1-8760 column is important for modeling</span>
+<span class="sd">    purposes. The report_year column is also helpful for filtering,</span>
+<span class="sd">    so we keep all three!</span>
+
+<span class="sd">    For leap years (2020), December 31st is excluded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding time columns for </span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2"> table&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">report_year</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># Ensure this is getting read as an int</span>
+
+    <span class="c1"># This data is compiled for modeling purposes and skips the last</span>
+    <span class="c1"># day of a leap year. When adding a datetime column, we need</span>
+    <span class="c1"># to make sure that we skip the 31st of December, 2020 and that</span>
+    <span class="c1"># every year has exactly 8760 hours in it.</span>
+    <span class="n">all_years</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">datetime8760_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">-01-01&quot;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">8760</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">all_years</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">new_time_col</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;datetime_utc&quot;</span><span class="p">:</span> <span class="n">datetime8760_index</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">new_time_col</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="_drop_city_cols">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._drop_city_cols">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_drop_city_cols</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop city columns from the capacity factor tables before stacking.</span>
+
+<span class="sd">    We do this early since the columns can be dropped by name here, and we don&#39;t have to</span>
+<span class="sd">    search through all of the stacked rows to find matching records.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">city_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">x</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bedford_city_virginia&quot;</span><span class="p">,</span> <span class="s2">&quot;clifton_forge_city_virginia&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+    <span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dropping </span><span class="si">{</span><span class="n">city_cols</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2"> table.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">city_cols</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_stack_cap_fac_df">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._stack_cap_fac_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_stack_cap_fac_df</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function to transform each capacity factor table individually to save memory.</span>
+
+<span class="sd">    The main transforms are turning county/subregion columns into county/subregion rows</span>
+<span class="sd">    and renaming columns to be more human-readable and compatible with the FIPS df</span>
+<span class="sd">    that will get merged in.</span>
+
+<span class="sd">    This function is intended to save memory by being applied to each individual</span>
+<span class="sd">    capacity factor table rather than the giant combined one.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stacking the county/subregion columns for </span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2"> table.&quot;</span><span class="p">)</span>
+    <span class="n">df_stacked</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span> <span class="s2">&quot;hour_of_year&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;level_3&quot;</span><span class="p">:</span> <span class="s2">&quot;county_state_names&quot;</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;capacity_factor_</span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">county_state_names</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">county_state_names</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_stacked</span></div>
+
+
+
+<div class="viewcode-block" id="_make_cap_fac_frac">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._make_cap_fac_frac">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_cap_fac_frac</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make the capacity factor column a fraction instead of a percentage.</span>
+
+<span class="sd">    This step happens before the table gets stacked to save memory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converting capacity factor into a fraction for </span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2"> table.&quot;</span><span class="p">)</span>
+    <span class="n">county_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">x</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;hour_of_year&quot;</span><span class="p">,</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">county_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">county_cols</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="_check_for_valid_counties">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._check_for_valid_counties">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_for_valid_counties</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">clean_fips_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make sure the state_county values show up in the FIPS table.</span>
+
+<span class="sd">    This step happens before the table gets stacked to save memory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Checking for valid counties in the </span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2"> table.&quot;</span><span class="p">)</span>
+    <span class="n">county_state_names_fips</span> <span class="o">=</span> <span class="n">clean_fips_df</span><span class="o">.</span><span class="n">county_state_names</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">county_state_names_cap_fac</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">expected_non_counties</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;hour_of_year&quot;</span><span class="p">]</span>
+    <span class="n">non_county_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">x</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">county_state_names_fips</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">county_state_names_cap_fac</span> <span class="o">+</span> <span class="n">expected_non_counties</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">non_county_cols</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;found unexpected columns that aren&#39;t in the FIPS table:</span>
+<span class="si">{</span><span class="n">non_county_cols</span><span class="si">}</span><span class="s2">.&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="_standardize_census_names">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._standardize_census_names">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_standardize_census_names</span><span class="p">(</span><span class="n">vce_fips_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">census_pep_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make sure that the VCE place names correspond to the latest census vintage.</span>
+
+<span class="sd">    This function solves a problem of slight inconsistencies between Census PEP data and</span>
+<span class="sd">    the county names provided by VCE RARE. We join the latest version of the Census PEP</span>
+<span class="sd">    data onto the VCE RARE lat lon FIPS dataframe by FIPS ID, and then we take the</span>
+<span class="sd">    Census PEP version of the county name wherever these values differ.</span>
+
+<span class="sd">    Because the county_state_name column corresponds to the column names of each</span>
+<span class="sd">    spreadsheet, we avoid altering it and only update the place_name column.</span>
+<span class="sd">    In the final dataframe, we join all the dataframes on the original county_state_name</span>
+<span class="sd">    value and drop this column, leaving only an updated place_name value in the final</span>
+<span class="sd">    output.</span>
+
+<span class="sd">    The function returns the cleaned VCE FIPS dataframe with updated place_name,</span>
+<span class="sd">    as compared to the original VCE RARE values. Lakes and city names are not updated,</span>
+<span class="sd">    as lakes don&#39;t have comparable values in the Census PEP data and we drop the city values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">census_fips</span> <span class="o">=</span> <span class="n">census_pep_data</span><span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;area_name&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+
+    <span class="n">census_fips</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">census_fips</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="c1"># VCE RARE data does not include the place type,</span>
+    <span class="c1"># so we drop these from the census data</span>
+    <span class="n">census_fips</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">census_fips</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;parish&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Drop lakes and two cities we&#39;re going to remove from our dataset later</span>
+    <span class="n">vce_fips_df_sub</span> <span class="o">=</span> <span class="n">vce_fips_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="o">~</span><span class="n">vce_fips_df</span><span class="o">.</span><span class="n">county_state_names</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;bedford_city_virginia&quot;</span><span class="p">,</span> <span class="s2">&quot;clifton_forge_city_virginia&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Combine both dataframes on FIPS ID and state</span>
+    <span class="n">names_df</span> <span class="o">=</span> <span class="n">vce_fips_df_sub</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">census_fips</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;one_to_one&quot;</span><span class="p">,</span>
+        <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;_census&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add back in our weirdos</span>
+    <span class="n">lakes_and_cities</span> <span class="o">=</span> <span class="n">vce_fips_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="o">~</span><span class="n">vce_fips_df</span><span class="o">.</span><span class="n">county_state_names</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">names_df</span><span class="o">.</span><span class="n">county_state_names</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">names_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">names_df</span><span class="p">,</span> <span class="n">lakes_and_cities</span><span class="p">])</span>
+
+    <span class="c1"># Where there is no county data, fill in with VCE data</span>
+    <span class="n">names_df</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">names_df</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+        <span class="n">names_df</span><span class="p">[</span><span class="s2">&quot;place_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">names_df</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">names_df</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span>
+    <span class="p">)</span>  <span class="c1"># Clean up the place name</span>
+
+    <span class="c1"># Log differences, but only show ones that don&#39;t have a difference of &quot;_&quot;</span>
+    <span class="c1"># to make this actually informative when debugging</span>
+    <span class="n">log_df</span> <span class="o">=</span> <span class="n">names_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">names_df</span><span class="o">.</span><span class="n">place_name</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">names_df</span><span class="o">.</span><span class="n">area_name</span><span class="p">,</span>
+        <span class="p">[</span><span class="s2">&quot;place_name&quot;</span><span class="p">,</span> <span class="s2">&quot;area_name&quot;</span><span class="p">],</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;place_name&quot;</span><span class="p">:</span> <span class="s2">&quot;vce_place_name&quot;</span><span class="p">,</span> <span class="s2">&quot;area_name&quot;</span><span class="p">:</span> <span class="s2">&quot;census_place_name&quot;</span><span class="p">})</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating the following place names:</span><span class="se">\n</span><span class="si">{</span><span class="n">log_df</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Identified 74 replacements in 2025-06, expect this shouldn&#39;t change much.</span>
+    <span class="c1"># If it does, manually inspect the debug log above and make sure name changes</span>
+    <span class="c1"># are reasonable and expected.</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">log_df</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">74</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expected 74 replacements, found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">log_df</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">names_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">names_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;place_name&quot;</span><span class="p">,</span> <span class="s2">&quot;state_census&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;area_name&quot;</span><span class="p">:</span> <span class="s2">&quot;place_name&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="c1"># This gets converted to a string in the merge, so we reconvert to categorical</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">county_id_fips</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">county_id_fips</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">place_name</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">place_name</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">names_df</span></div>
+
+
+
+<div class="viewcode-block" id="_clip_unexpected_2016_pv_capacity">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._clip_unexpected_2016_pv_capacity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clip_unexpected_2016_pv_capacity</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle unexpectedly large PV capacity values in 2016.</span>
+
+<span class="sd">    In 2016, there are a few values for PV capacity factors that exceed the maximum</span>
+<span class="sd">    allowed values noted in the read-me (110%).</span>
+<span class="sd">    should be zeroed out, according to correspondence with the data provider.</span>
+<span class="sd">    This function narrowly zeroes out these nulls, expecting that the rest of the</span>
+<span class="sd">    data should conform to the expectation of no-null values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">year</span> <span class="o">==</span> <span class="mi">2016</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">df_name</span> <span class="o">==</span> <span class="s2">&quot;solar_pv&quot;</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">capacity_factor_solar_pv</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1.10</span><span class="p">])</span><span class="si">}</span><span class="s2"> out-of-bounds PV capacity factor values found in the 2016 data. Clipping these values.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">capacity_factor_solar_pv</span> <span class="o">&gt;</span> <span class="mf">1.10</span><span class="p">])</span> <span class="o">==</span> <span class="mi">365</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">capacity_factor_solar_pv</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1.10</span><span class="p">])</span><span class="si">}</span><span class="s2"> solar capacity values over 1.10, expected 365.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">capacity_factor_solar_pv</span> <span class="o">&gt;</span> <span class="mf">1.10</span><span class="p">,</span> <span class="s2">&quot;capacity_factor_solar_pv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.10</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="_get_parquet_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._get_parquet_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_parquet_path</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="s2">&quot;out_vcerare__hourly_available_capacity_factor&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_spot_fix_great_lakes_values">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._spot_fix_great_lakes_values">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_spot_fix_great_lakes_values</span><span class="p">(</span><span class="n">sr</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize spelling of great lakes in cell values.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">sr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;lake_hurron_michigan&quot;</span><span class="p">,</span> <span class="s2">&quot;lake_huron_michigan&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_spot_fix_great_lakes_columns">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare._spot_fix_great_lakes_columns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_spot_fix_great_lakes_columns</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize spelling of great lakes in column names.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;lake_hurron_michigan&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_huron_michigan&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="one_year_hourly_available_capacity_factor">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare.one_year_hourly_available_capacity_factor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">one_year_hourly_available_capacity_factor</span><span class="p">(</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fips_df_census</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_vcerare__fixed_solar_pv_lat_upv</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_vcerare__offshore_wind_power_140m</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">raw_vcerare__onshore_wind_power_100m</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform raw Vibrant Clean Energy renewable generation profiles.</span>
+
+<span class="sd">    Concatenates the solar and wind capacity factors into a single table and turns</span>
+<span class="sd">    the columns for each county or subregion into a single place_name column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_table_name</span><span class="p">(</span><span class="n">df_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_core_vcerare__</span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Transforming the VCE RARE hourly available capacity factor tables for </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Apply the same transforms to all the capacity factor tables. This is slower</span>
+    <span class="c1"># than doing it to a concatenated table but less memory intensive because</span>
+    <span class="c1"># it doesn&#39;t need to process the ginormous table all at once.</span>
+    <span class="n">raw_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;solar_pv&quot;</span><span class="p">:</span> <span class="n">raw_vcerare__fixed_solar_pv_lat_upv</span><span class="p">,</span>
+        <span class="s2">&quot;offshore_wind&quot;</span><span class="p">:</span> <span class="n">raw_vcerare__offshore_wind_power_140m</span><span class="p">,</span>
+        <span class="s2">&quot;onshore_wind&quot;</span><span class="p">:</span> <span class="n">raw_vcerare__onshore_wind_power_100m</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">_table_name</span><span class="p">(</span><span class="n">df_name</span><span class="p">):</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
+            <span class="n">_spot_fix_great_lakes_columns</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_check_for_valid_counties</span><span class="p">,</span> <span class="n">fips_df_census</span><span class="p">,</span> <span class="n">df_name</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_add_time_cols</span><span class="p">,</span> <span class="n">df_name</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_drop_city_cols</span><span class="p">,</span> <span class="n">df_name</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_make_cap_fac_frac</span><span class="p">,</span> <span class="n">df_name</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_stack_cap_fac_df</span><span class="p">,</span> <span class="n">df_name</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_clip_unexpected_2016_pv_capacity</span><span class="p">,</span> <span class="n">df_name</span><span class="p">,</span> <span class="n">year</span><span class="p">),</span>
+            <span class="n">table_name</span><span class="o">=</span><span class="n">_table_name</span><span class="p">(</span><span class="n">df_name</span><span class="p">),</span>
+            <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">year</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">df_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="merge_all_vce_tables">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare.merge_all_vce_tables">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_all_vce_tables</span><span class="p">(</span>
+    <span class="n">transformed_tables</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">],</span>
+    <span class="n">vce_fips_table</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">,</span>
+    <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParquetData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge cleaned VCE tables to create final ``out`` table and write as partitioned parquet file.&quot;&quot;&quot;</span>
+    <span class="n">merge_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span> <span class="s2">&quot;hour_of_year&quot;</span><span class="p">,</span> <span class="s2">&quot;county_state_names&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Merge and write as partitioned parquet files to disk</span>
+    <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
+        <span class="n">lf_from_parquet</span><span class="p">(</span><span class="n">transformed_tables</span><span class="p">[</span><span class="s2">&quot;_core_vcerare__solar_pv&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">lf_from_parquet</span><span class="p">(</span><span class="n">transformed_tables</span><span class="p">[</span><span class="s2">&quot;_core_vcerare__offshore_wind&quot;</span><span class="p">]),</span>
+            <span class="n">on</span><span class="o">=</span><span class="n">merge_keys</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span>
+            <span class="n">coalesce</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">lf_from_parquet</span><span class="p">(</span><span class="n">transformed_tables</span><span class="p">[</span><span class="s2">&quot;_core_vcerare__onshore_wind&quot;</span><span class="p">]),</span>
+            <span class="n">on</span><span class="o">=</span><span class="n">merge_keys</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span>
+            <span class="n">coalesce</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;capacity_factor_solar_pv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">lf_from_parquet</span><span class="p">(</span><span class="n">vce_fips_table</span><span class="p">),</span>
+            <span class="n">on</span><span class="o">=</span><span class="s2">&quot;county_state_names&quot;</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;place_name&quot;</span><span class="p">,</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;county_state_names&quot;</span><span class="p">]),</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
+        <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">year</span><span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="out_vcerare__hourly_available_capacity_factor">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/vcerare/index.html#pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_vcerare__hourly_available_capacity_factor</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">,</span>
+    <span class="n">raw_vcerare__fixed_solar_pv_lat_upv</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">],</span>
+    <span class="n">raw_vcerare__offshore_wind_power_140m</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">],</span>
+    <span class="n">raw_vcerare__onshore_wind_power_100m</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">],</span>
+    <span class="n">raw_vcerare__lat_lon_fips</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_core_censuspep__yearly_geocodes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform raw Vibrant Clean Energy renewable generation profiles.</span>
+
+<span class="sd">    Concatenates the solar and wind capacity factors into a single table and turns</span>
+<span class="sd">    the columns for each county or subregion into a single place_name column.</span>
+<span class="sd">    Asset will process 1 year of data at a time to limit peak memory usage.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">report_years</span> <span class="o">=</span> <span class="n">raw_vcerare__fixed_solar_pv_lat_upv</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="c1"># Get census vintage to conform the data to.</span>
+    <span class="k">assert</span> <span class="nb">int</span><span class="p">(</span><span class="n">_core_censuspep__yearly_geocodes</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="n">report_years</span>
+    <span class="p">)</span>  <span class="c1"># Check these are in sync</span>
+
+    <span class="c1"># Only keep latest census data relating to the state-county level</span>
+    <span class="c1"># See: https://www.census.gov/programs-surveys/geography/technical-documentation/naming-convention/cartographic-boundary-file/carto-boundary-summary-level.html</span>
+    <span class="n">census_pep_data</span> <span class="o">=</span> <span class="n">_core_censuspep__yearly_geocodes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span>
+            <span class="n">_core_censuspep__yearly_geocodes</span><span class="o">.</span><span class="n">report_year</span>
+            <span class="o">==</span> <span class="n">_core_censuspep__yearly_geocodes</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="n">_core_censuspep__yearly_geocodes</span><span class="o">.</span><span class="n">fips_level</span> <span class="o">==</span> <span class="s2">&quot;050&quot;</span>
+        <span class="p">)</span>  <span class="c1"># Only keep state-county level records</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Clean up the FIPS table and update state_county names to match Census data</span>
+    <span class="n">fips_df_census</span> <span class="o">=</span> <span class="n">_prep_lat_long_fips_df</span><span class="p">(</span><span class="n">raw_vcerare__lat_lon_fips</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">_standardize_census_names</span><span class="p">,</span> <span class="n">census_pep_data</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Write to disk for later merge with full VCE table</span>
+    <span class="n">fips_table</span> <span class="o">=</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
+        <span class="n">fips_df_census</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;county_state_names&quot;</span><span class="p">:</span> <span class="s2">&quot;category&quot;</span><span class="p">}),</span>
+        <span class="s2">&quot;_vce_fips_census&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Intermediate table name to write partitioned output parquet files</span>
+    <span class="n">partitioned_output_table</span> <span class="o">=</span> <span class="s2">&quot;mega_vce&quot;</span>
+    <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">report_years</span><span class="p">:</span>
+        <span class="n">transformed_tables</span> <span class="o">=</span> <span class="n">one_year_hourly_available_capacity_factor</span><span class="p">(</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+            <span class="n">fips_df_census</span><span class="o">=</span><span class="n">fips_df_census</span><span class="p">,</span>
+            <span class="n">raw_vcerare__fixed_solar_pv_lat_upv</span><span class="o">=</span><span class="n">df_from_parquet</span><span class="p">(</span>
+                <span class="n">raw_vcerare__fixed_solar_pv_lat_upv</span><span class="p">[</span><span class="n">year</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">raw_vcerare__offshore_wind_power_140m</span><span class="o">=</span><span class="n">df_from_parquet</span><span class="p">(</span>
+                <span class="n">raw_vcerare__offshore_wind_power_140m</span><span class="p">[</span><span class="n">year</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">raw_vcerare__onshore_wind_power_100m</span><span class="o">=</span><span class="n">df_from_parquet</span><span class="p">(</span>
+                <span class="n">raw_vcerare__onshore_wind_power_100m</span><span class="p">[</span><span class="n">year</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Merge table into final output table</span>
+        <span class="n">merge_all_vce_tables</span><span class="p">(</span>
+            <span class="n">transformed_tables</span><span class="p">,</span> <span class="n">fips_table</span><span class="p">,</span> <span class="n">partitioned_output_table</span><span class="p">,</span> <span class="n">year</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lf_from_parquet</span><span class="p">(</span>
+        <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">partitioned_output_table</span><span class="p">),</span> <span class="n">use_all_partitions</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

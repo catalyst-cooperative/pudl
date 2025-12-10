@@ -1,0 +1,814 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.metadata.resources.ferc714 &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/resources/ferc714';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../../pudl.html" class="nav-link">pudl</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../resources.html" class="nav-link">pudl.metadata.resources</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.metadata.resources.ferc714</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.metadata.resources.ferc714</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Tables definitions for data coming from the FERC Form 714.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<div class="viewcode-block" id="RESOURCE_METADATA">
+<a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/ferc714/index.html#pudl.metadata.resources.ferc714.RESOURCE_METADATA">[docs]</a>
+<span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;core_ferc714__respondent_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Respondent identification.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part I, Schedule 1)&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id_ferc714_csv&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_name_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;eia_code&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc714&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_ferc714__hourly_planning_area_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity demand by planning area.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part III, Schedule 2a)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The datetime_utc timestamps have been cleaned due to inconsistent datetime reporting. See below for additional details.&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;This table includes data from the pre-2021 CSV raw source &quot;</span>
+                <span class="s2">&quot;as well as the newer 2021 through present XBRL raw source.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;This table includes three respondent ID columns: one from the &quot;</span>
+                <span class="s2">&quot;CSV raw source, one from the XBRL raw source and another that is PUDL-derived &quot;</span>
+                <span class="s2">&quot;that links those two source ID&#39;s together. This table has filled in source IDs &quot;</span>
+                <span class="s2">&quot;for all records so you can select the full timeseries for a given respondent from &quot;</span>
+                <span class="s2">&quot;any of these three IDs.</span><span class="se">\n\n</span><span class="s2">An important &quot;</span>
+                <span class="s2">&quot;caveat to note is that there was some cleaning done to the datetime_utc &quot;</span>
+                <span class="s2">&quot;timestamps. The Form 714 includes sparse documentation for respondents &quot;</span>
+                <span class="s2">&quot;for how to interpret timestamps - the form asks respondents to provide &quot;</span>
+                <span class="s2">&quot;24 instances of hourly demand for each day. The form is labeled with hour &quot;</span>
+                <span class="s2">&quot;1-24. There is no indication if hour 1 begins at midnight.</span><span class="se">\n\n</span><span class="s2">The XBRL data &quot;</span>
+                <span class="s2">&quot;contained several formats of timestamps. Most records corresponding to hour &quot;</span>
+                <span class="s2">&quot;1 of the Form have a timestamp with hour 1 as T1. About two thirds of the records &quot;</span>
+                <span class="s2">&quot;in the hour 24 location of the form have a timestamp with an hour reported as &quot;</span>
+                <span class="s2">&quot;T24 while the remaining third report this as T00 of the next day. T24 is not a &quot;</span>
+                <span class="s2">&quot;valid format for the hour of a datetime, so we convert these T24 hours into &quot;</span>
+                <span class="s2">&quot;T00 of the next day. A smaller subset of the respondents reports the 24th hour &quot;</span>
+                <span class="s2">&quot;as the last second of the day - we also convert these records to the T00 of the &quot;</span>
+                <span class="s2">&quot;next day.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id_ferc714_csv&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;timezone&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;demand_mwh&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc714&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_ferc714__hourly_planning_area_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity demand by planning area.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part III, Schedule 2a)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;imputed_values&quot;</span><span class="p">,</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                            <span class="s2">&quot;The datetime_utc timestamps have been cleaned due to &quot;</span>
+                            <span class="s2">&quot;inconsistent datetime reporting. See :ref:`core_ferc714__hourly_planning_area_demand` for additional details.&quot;</span>
+                        <span class="p">),</span>
+                    <span class="p">},</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;This table is based on :ref:`core_ferc714__hourly_planning_area_demand`, but adds &quot;</span>
+                    <span class="s2">&quot;imputed demand values where the original data was missing or anomalous. &quot;</span>
+                    <span class="s2">&quot;Codes explaining why values have been imputed can be found in the &quot;</span>
+                    <span class="s2">&quot;:ref:`core_pudl__codes_imputation_reasons` table.&quot;</span>
+                <span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id_ferc714_csv&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;timezone&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;demand_reported_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;demand_imputed_pudl_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;demand_imputed_pudl_mwh_imputation_code&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc714&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_ferc714__respondents_with_fips&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Annual respondents with the county FIPS IDs for their service territories.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Note that the state and county FIPS columns can be null. Otherwise &quot;</span>
+                <span class="s2">&quot;the natural primary key would be: &quot;</span>
+                <span class="s2">&quot;[&#39;respondent_id_ferc714&#39;, &#39;report_date&#39;, &#39;county_id_fips&#39;]. The state &quot;</span>
+                <span class="s2">&quot;FIPS code is not part of the primary key because the first two digits &quot;</span>
+                <span class="s2">&quot;of the county FIPS code indicate the state.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;eia_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_name_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span> <span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_ferc714__georeferenced_respondents&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;An annual summary of demand and other information about FERC-714 respondents.</span>
+
+<span class="s2">This table differs from :ref:`out_ferc714__summarized_demand` in that it also</span>
+<span class="s2">includes a geometry column describing the respondent&#39;s service territory in each year.</span>
+<span class="s2">These service territories are based on the counties that the corresponding EIA-861</span>
+<span class="s2">respondent reported serving in that year. There is sometimes ambiguity as to</span>
+<span class="s2">whether a FERC-714 respondent should be interpreted as an individual utility or a</span>
+<span class="s2">balancing authority. The ``respodent_type`` column indicates which type of entity has</span>
+<span class="s2">been assumed in determining the service territory from EIA-861 data.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;eia_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_name_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;population&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;area_km2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;demand_annual_mwh&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span> <span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_ferc714__summarized_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Summarized demand statistics and FERC-714 respondent attributes by respondent-year.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;demand_annual_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;population&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;area_km2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;population_density_km2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;demand_annual_per_capita_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;demand_density_mwh_km2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;eia_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_type&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;respondent_name_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc714&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_ferc714__yearly_planning_area_demand_forecast&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;10-year forecasted summer and winter peak demand and annual net energy &quot;</span>
+            <span class="s2">&quot;per planning area.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part III, Schedule 2b)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">&quot;This table &quot;</span>
+                        <span class="s2">&quot;includes data from the pre-2021 CSV raw source as well as the newer 2021 &quot;</span>
+                        <span class="s2">&quot;through present XBRL raw source. We created the respondent_id_ferc714 &quot;</span>
+                        <span class="s2">&quot;field to blend disparate IDs from the CSV and XBRL data over time. See &quot;</span>
+                        <span class="s2">&quot;the :ref:`core_ferc714__respondent_id` table for links to the original source IDs.&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;There is a small handful of respondents (~11) that report more than 10 &quot;</span>
+                    <span class="s2">&quot;years and an even smaller handful that report less than 10 (~9).&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;This table contains forecasted net demand (MWh) as well as summer and winter &quot;</span>
+                <span class="s2">&quot;peak demand (MW) for the next ten years after after the report_year.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;forecast_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;summer_peak_demand_forecast_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;winter_peak_demand_forecast_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;net_demand_forecast_mwh&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;forecast_year&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc714&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_pudl__assn_ferc714_pudl_respondents&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;table_type_code&quot;</span><span class="p">:</span> <span class="s2">&quot;entity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL-derived FERC 714 respondent IDs.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;These IDs are used to connect &quot;</span>
+                <span class="s2">&quot;older CSV data which uses different respondent IDs than the newer XBRL entity IDs. &quot;</span>
+                <span class="s2">&quot;These IDs are manually assigned when new FERC 714 data is integrated, and any &quot;</span>
+                <span class="s2">&quot;newly found utilities are added to &quot;</span>
+                <span class="s2">&quot;the list with a new ID. &quot;</span>
+                <span class="s2">&quot;This table is read in from a CSV stored in the PUDL &quot;</span>
+                <span class="s2">&quot;repository: src/pudl/package_data/glue/respondent_id_ferc714.xlsx&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">]]},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_pudl__assn_ferc714_csv_pudl_respondents&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL-assigned FERC714 respondent IDs and native FERC714 CSV respondent IDs originally reported as ``respondent_id``.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714_csv&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714_csv&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;core_pudl__assn_ferc714_xbrl_pudl_respondents&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL-assigned FERC714 respondent IDs and native FERC714 XBRL respondent IDs originally reported as ``entity_id``.&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;FERC Form 714 resource attributes by PUDL identifier (``resource.name``).</span>
+
+<span class="sd">See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of</span>
+<span class="sd">``foreign_key_rules``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,113 @@
+pudl.transform.rus
+==================
+
+.. py:module:: pudl.transform.rus
+
+.. autoapi-nested-parse::
+
+   Code for transforming RUS data that pertains to more than one RUS Form.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.rus.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.rus.early_check_pk
+   pudl.transform.rus.early_transform
+   pudl.transform.rus.multi_index_stack
+   pudl.transform.rus.convert_units
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: early_check_pk(df: pandas.DataFrame, pk_early: list[str] = ['report_date', 'borrower_id_rus'], raise_fail=True) -> None
+
+   Check the expected primary key of the table.
+
+   By default the expected primary key is ["report_date", "borrower_id_rus"].
+
+
+.. py:function:: early_transform(raw_df: pandas.DataFrame, boolean_columns_to_fix=[]) -> pandas.DataFrame
+
+   Standard transforms for raw RUS data.
+
+
+.. py:function:: multi_index_stack(df: pandas.DataFrame, idx_ish: list[str], pattern, data_cols: list[str], match_names: list[str], unstack_level: list[str], drop_zero_rows: bool = False) -> pandas.DataFrame
+
+   Stack multiple data columns - create categorical columns and data columns.
+
+   Many RUS tables are reported in a wide format, with several columns reporting
+   the same type of value, but within different categories. E.g. electricity sales by
+   customer class, with each customer class in a separate column, and separate sets of
+   customer class columns for the dollar value of sales, and the MWh of electricity
+   sold.
+
+   This function takes those groups of columns and stacks each of them into a single
+   data column creating another categorical column describing the class to which each
+   record pertains.
+
+   :param df: table to edit.
+   :param idx_ish: columns in df you want to set as index of stacked table.
+   :param pattern: a regex pattern of the df's column names you want to stack. This
+                   pattern should have match groups that correspond to the levels of the
+                   multi-index that will be created. One of these match groups must include
+                   the string values of the ``data_cols``. For example, the
+                   ``raw_rus7__power_requirements`` table contains a set of columns which
+                   have sales_kwh and revenue pertaining to many different customer
+                   classifications. The raw columns always have many different types of
+                   customer_classifications at the beginning and either the sales or revenue
+                   at the end. So the pattern for this table is:
+                   ``rf"^(.+)_(sales_kwh|revenue)$"``
+   :param data_cols: names of data columns - these are strings within the df's original
+                     column names that you will leave unstacked. The resulting dataframe will
+                     include these columns. Using the same ``raw_rus7__power_requirements``
+                     example, the data columns would be: ``["sales_kwh", "revenue"]``
+   :param match_names: the assigned names of each of the match groups in the regex
+                       pattern - in the order they appear in the pattern. The match group's name
+                       we won't use is the group containing the data_cols values - this can be
+                       named anything but for clarity name this 'data_cols'. Using the same
+                       ``raw_rus7__power_requirements`` example, the ``match_names`` would be
+                       ``["customer_classification", "data_cols"]`` because the customer
+                       classification is the first match in the ``pattern`` and the data columns
+                       are the second match in the pattern.
+   :param unstack_level: list of match_names to unstack. These are the names of the
+                         matches that get unstacked - these end up as columns in the resulting
+                         table. Presumably this will be all of the match_names except 'data_cols'.
+   :param drop_zero_rows: if True, drop rows where all data_cols are 0. Function
+                          already drops rows where data_cols are all NaN.
+
+
+.. py:function:: convert_units(df: pandas.DataFrame, old_unit: str, new_unit: str | None, converter: float | int) -> pandas.DataFrame
+
+   Convert units within a column and rename column with new units.
+
+   This function assumes that the old units are suffixes in the snake-cased column
+   names, separated by an underscore.
+
+   Ex: if you want to convert from kWh's to MWh's the df must have column names like
+   ``electric_sales_kwh`` or ``purchased_kwh``, the old unit would be ``kwh``, the new
+   unit would be ``mwh`` and the converter would be ``0.001``.
+
+   :param df: data table with units you'd like to convert.
+   :param old_unit: the unit in the df. This must be the suffix of the column
+                    names you'd like to convert.
+   :param new_unit: the new unit label you want as the new suffix of the resulting
+                    dataframe. If you want no new unit added, this value can be None or an
+                    empty string ()"").
+   :param converter: the float or integer you need to multiply the old values by to
+                     convert the units.
+
+

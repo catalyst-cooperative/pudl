@@ -1,0 +1,233 @@
+===========================================================================================
+EIA Form 923 -- Power Plant Operations Report
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.eia.gov/electricity/data/eia923
+   * - Source Description
+     - The EIA Form 923 collects detailed monthly and annual electric power data on electricity generation, fuel consumption, fossil fuel stocks, and receipts at the power plant and prime mover level.
+   * - Respondents
+     - Electric, CHP plants, and sometimes fuel transfer terminals with either 1MW+ or the ability to receive and deliver power to the grid.
+   * - Records Liberated
+     - ~5 million
+   * - Source Format
+     - Microsoft Excel (.xls/.xlsx)
+   * - Download Size
+     - 361 MB
+   * - Temporal Coverage
+     - 2001-2025
+   * - PUDL Code
+     - ``eia923``
+   * - Issues
+     - `Open EIA Form 923 -- Power Plant Operations Report issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia923>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+We've segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`i_core_eia923__monthly_cooling_system_information`
+     - https://data.catalyst.coop/search?q=name:_core_eia923__monthly_cooling_system_information
+   
+   * - :ref:`i_core_eia923__yearly_byproduct_disposition`
+     - https://data.catalyst.coop/search?q=name:_core_eia923__yearly_byproduct_disposition
+   
+   * - :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`
+     - https://data.catalyst.coop/search?q=name:_core_eia923__yearly_byproduct_expenses_and_revenues
+   
+   * - :ref:`i_core_eia923__yearly_fgd_operation_maintenance`
+     - https://data.catalyst.coop/search?q=name:_core_eia923__yearly_fgd_operation_maintenance
+   
+   * - :ref:`core_eia923__entity_coalmine`
+     - https://data.catalyst.coop/search?q=name:core_eia923__entity_coalmine
+   
+   * - :ref:`core_eia923__monthly_boiler_fuel`
+     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_boiler_fuel
+   
+   * - :ref:`core_eia923__monthly_energy_storage`
+     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_energy_storage
+   
+   * - :ref:`core_eia923__monthly_fuel_receipts_costs`
+     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_fuel_receipts_costs
+   
+   * - :ref:`core_eia923__monthly_generation`
+     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_generation
+   
+   * - :ref:`core_eia923__monthly_generation_fuel`
+     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_generation_fuel
+   
+   * - :ref:`core_eia923__monthly_generation_fuel_nuclear`
+     - https://data.catalyst.coop/search?q=name:core_eia923__monthly_generation_fuel_nuclear
+   
+
+
+Background
+^^^^^^^^^^
+
+Form EIA-923 is known as the **Power Plant Operations Report**. The data include
+electric power generation, energy source consumption, end of reporting period fossil
+fuel stocks, as well as the quality and cost of fossil fuel receipts at the power
+plant and prime mover level (with a subset of +10MW steam-electric plants reporting
+at the boiler and generator level). Information is available for non-utility plants
+starting in 1970 and utility plants beginning in 1999. The Form EIA-923 has evolved
+over the years, beginning as an environmental add-on in 2007 and ultimately eclipsing
+the information previously recorded in EIA-906, EIA-920, FERC 423, and EIA-423 by 2008.
+
+As of 2019, the EIA-923 Form is organized into the following schedules:
+
+* **Schedule 2:** fuel receipts and costs
+* **Schedules 3A & 5A:** generator data including generation, fuel consumption and stocks
+* **Schedule 4:** fossil fuel stocks
+* **Schedules 6 & 7:** non-utility source and disposition of electricity
+* **Schedules 8A-F:** environmental data
+
+
+
+
+Download additional documentation
+---------------------------------
+
+
+
+* :download:`Eia923 Instructions 2013-10-31 (PDF) <eia923/eia923_instructions_2013-10-31.pdf>`
+
+* :download:`Eia923 Instructions 2015-12-31 (PDF) <eia923/eia923_instructions_2015-12-31.pdf>`
+
+* :download:`Eia923 Instructions 2017-05-31 (PDF) <eia923/eia923_instructions_2017-05-31.pdf>`
+
+* :download:`Eia923 Instructions 2020-03-31 (PDF) <eia923/eia923_instructions_2020-03-31.pdf>`
+
+* :download:`Eia923 Instructions 2023-05-31 (PDF) <eia923/eia923_instructions_2023-05-31.pdf>`
+
+
+
+
+Data available through PUDL
+---------------------------
+
+
+Some form of EIA-923 data stretches all the way back to 1970. PUDL coverage starts in
+2001. Before 2001, the data like that contained in the EIA-923 was collected via
+EIA-867, EIA-906, and EIA-920. Prior to 2008 fuel receipts and costs data were reported
+in `EIA Form 423 <https://www.eia.gov/electricity/data/eia423>`__ (which in turn
+replaced the earlier FERC Form 423). If you're interested in this earlier data, get in
+touch with us!
+
+Monthly interim EIA-923 data are periodically integrated into PUDL as well. Incomplete
+year-to-date data are excluded from the annualized tables to avoid confusion. We
+have not yet integrated tables reporting fuel stocks, data from Puerto Rico, or EIA-923
+schedules 6, 7, and 8.
+
+
+
+Who submits this data?
+----------------------
+
+
+Respondents include all all electric and CHP plants, and in some cases fuel transfer
+terminals, that have a total generator nameplate capacity (sum for generators at a
+single site) of 1 Megawatt (MW) or greater and are connected to the local or regional
+electric power grid.
+
+Selected plants may be permitted to report schedules 1-4B monthly and 6-8 annually so as
+to lighten their reporting burden. All other respondents must respond to the Form in its
+entirety once a year.
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+
+Once the respondents have submitted their responses, the EIA creates a series of
+spreadsheets that reflect themes within the form. These spreadsheets have changed over
+the years as the form itself evolves. They are accessible on the `EIA website <https://www.eia.gov/electricity/data/eia923>`__ as downloadable ZIP files categorized by year. The internal data are
+organized into excel spreadsheets. To gain greater insight into year-to-year nuances of
+the form, we recommend downloading multiple years of EIA-923 ZIP files and comparing
+both the Form and the Form Instructions files.
+
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+File Naming Conventions
+-----------------------
+The naming conventions for the raw files are confusing and difficult to trace year to
+year. Subtle and not so subtle changes to the form and published spreadsheets make
+aggregating pre-2009 data difficult from a programmatic standpoint.
+
+Protected Data
+--------------
+In accordance with the Freedom of Information Act and the Trade Secrets Act, certain
+information reported to EIA-923 may remain undisclosed to the public until three months
+after its collection date. The fields subject to this legislation include: total
+delivered cost of coal, natural gas, and petroleum received at non-utility power plants
+and the commodity cost information for all plants (Schedule 2).
+
+Net generation & fuel consumed reported in two separate tables
+--------------------------------------------------------------
+Net generation and fuel consumption are reported in two separate tables in EIA-923: in
+the :ref:`core_eia923__monthly_generation` and :ref:`core_eia923__monthly_generation_fuel` tables. The
+:ref:`core_eia923__monthly_generation_fuel` table is more complete (the
+:ref:`core_eia923__monthly_generation` table includes only ~55% of the reported MWh), but the
+:ref:`core_eia923__monthly_generation` table is more granular (it is reported at the generator level).
+
+Data Estimates
+--------------
+Plants that did not respond or reported unverified data were recorded as estimates
+rolled in with the state/fuel aggregates values reported under the plant id 99999.
+
+Boiler Fuel Primary Keys
+------------------------
+The :ref:`core_eia923__monthly_boiler_fuel` table has several sneaky primary keys and duplicate rows.
+The main primary keys for the table are: ``plant_id_eia, boiler_id, energy_source_code, prime_mover_code,
+report_date``. There are some rows that also differ based on ``associated_combined_heat_power``, due
+to mid-year retirement of units that are associated with combined heat and power systems, and
+``operator_name``, due to lenient standards for string columns (the all have the same ``operator_id``
+value). We drop both the ``associated_combined_heat_power`` and ``operator_name`` fields from the final
+normalized table, causing duplicate rows. Luckily, these rows don't provide any conflicting information.
+Because they are the same plant, when one row contains an NA value, the other contains a numeric value.
+We can easily drop duplicates based on which rows contain NA values with no duplicate value reconciling
+necessary.
+
+There are still more duplicate rows with identical qualitative plant information. Luckily, none of these
+duplicates contain conflicting information either. All duplicate rows have at least one row containing
+solely NA and 0 values.
+
+To address both issues at once, we drop all the duplicate rows with NA or 0 values in the non primary
+key columns. One side affect of this is that duplicate rows where both rows contain NA and 0 values will
+both get dropped. This leads to gaps in the data where certain months are missing. These values can be
+assumed to be 0 or NA.
+
+Boiler Fuel Years
+-----------------
+The :ref:`core_eia923__monthly_boiler_fuel` table reports all months in a given year, even if there is
+no data. At present, we haven't truncated the data after the most recently integrated month, so you will
+see all months.
+
+Fluctuations in row count between each quarterly update are therefore due to changes in primary key
+quirks as described above.
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.eia923` created for each table's
+respective transform function.

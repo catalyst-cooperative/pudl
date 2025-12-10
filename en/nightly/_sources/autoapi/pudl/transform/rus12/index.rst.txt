@@ -1,0 +1,116 @@
+pudl.transform.rus12
+====================
+
+.. py:module:: pudl.transform.rus12
+
+.. autoapi-nested-parse::
+
+   Transform the RUS12 tables.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.rus12.core_rus12__yearly_meeting_and_board
+   pudl.transform.rus12.core_rus12__yearly_balance_sheet_assets
+   pudl.transform.rus12.core_rus12__yearly_balance_sheet_liabilities
+   pudl.transform.rus12.core_rus12__scd_borrowers
+   pudl.transform.rus12.core_rus12__yearly_renewable_plants
+   pudl.transform.rus12.core_rus12__yearly_long_term_debt
+   pudl.transform.rus12.core_rus12__yearly_lines_stations_labor_materials_cost
+   pudl.transform.rus12.core_rus12__yearly_loans
+   pudl.transform.rus12.core_rus12__yearly_plant_labor
+   pudl.transform.rus12.core_rus12__yearly_sources_and_distribution_by_plant_type
+   pudl.transform.rus12.core_rus12__yearly_sources_and_distribution
+   pudl.transform.rus12.core_rus12__yearly_statement_of_operations
+
+
+Module Contents
+---------------
+
+.. py:function:: core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board)
+
+   Transform the core_rus12__yearly_meeting_and_board table.
+
+
+.. py:function:: core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet)
+
+   Transform the core_rus12__yearly_balance_sheet_assets table.
+
+
+.. py:function:: core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet)
+
+   Transform the core_rus12__yearly_balance_sheet_liabilities table.
+
+
+.. py:function:: core_rus12__scd_borrowers(raw_rus12__borrowers)
+
+   Transform the core_rus12__scd_borrowers table.
+
+
+.. py:function:: core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants)
+
+   Transform the core_rus12__yearly_renewable_plants table.
+
+
+.. py:function:: core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt)
+
+   Transform the core_rus12__yearly_long_term_debt table.
+
+
+.. py:function:: core_rus12__yearly_lines_stations_labor_materials_cost(raw_rus12__lines_and_stations_labor_materials)
+
+   Transform the raw_rus12__lines_and_stations_labor_materials table.
+
+
+.. py:function:: core_rus12__yearly_loans(raw_rus12__loans)
+
+   Transform the raw_rus12__loans table.
+
+
+.. py:function:: core_rus12__yearly_plant_labor(raw_rus12__plant_labor)
+
+   Transform the raw_rus12__plant_labor table.
+
+
+.. py:function:: core_rus12__yearly_sources_and_distribution_by_plant_type(raw_rus12__sources_and_distribution)
+
+   Transform the raw_rus12__sources_and_distribution table.
+
+   This function pivots the cost, capacity, net-energy, and plant num data by plant type
+   from the Sources and Distribution table. The rest of the table contents are in
+   core_rus12__yearly_sources_and_distribution.
+
+
+.. py:function:: core_rus12__yearly_sources_and_distribution(raw_rus12__sources_and_distribution)
+
+   Transform the raw_rus12__sources_and_distribution table.
+
+   This function process all columns from the Sources and Distribution table
+   that are not plant type specific. The plant type specific columns are processed
+   in core_rus12__yearly_sources_and_distribution_by_plant_type.
+
+   The multi_index_stack function intentionally drops a few columns that don't
+   show up in other tables. This include:
+   - ``total_energy_losses_pct`` (calculable with other cols, dropped because pct value
+   was an outlier column and not easily stacked with other columns).
+   - ``total_plant_num`` (calculable with the sources_and_distribution_by_plant_type table).
+   - ``total_capacity_kw`` (calculable with the sources_and_distribution_by_plant_type table).
+
+   This function keeps the ``total_plant_cost`` and ``total_plant_mwh`` columns even though
+   they are also calculable with the other table, because they are components of other
+   totals included in this table.
+
+
+.. py:function:: core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations)
+
+   Transform the raw_rus12__statement_of_operations table.
+
+   This function drops a number of columns that contain per_kwh values that are
+   entirely NA through all years. It then reshapes the table by stacking expense
+   types by the name of the total column for which they are calculation components.
+
+

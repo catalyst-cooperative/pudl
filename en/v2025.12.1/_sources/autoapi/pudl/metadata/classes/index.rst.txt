@@ -1,0 +1,2102 @@
+pudl.metadata.classes
+=====================
+
+.. py:module:: pudl.metadata.classes
+
+.. autoapi-nested-parse::
+
+   Metadata data classes.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.classes.logger
+   pudl.metadata.classes.String
+   pudl.metadata.classes.SnakeCase
+   pudl.metadata.classes.PositiveInt
+   pudl.metadata.classes.PositiveFloat
+   pudl.metadata.classes.T
+   pudl.metadata.classes.StrictList
+   pudl.metadata.classes.PUDL_PACKAGE
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.metadata.classes.PudlMeta
+   pudl.metadata.classes.FieldConstraints
+   pudl.metadata.classes.FieldHarvest
+   pudl.metadata.classes.Encoder
+   pudl.metadata.classes.Field
+   pudl.metadata.classes.ForeignKeyReference
+   pudl.metadata.classes.ForeignKey
+   pudl.metadata.classes.Schema
+   pudl.metadata.classes.License
+   pudl.metadata.classes.Contributor
+   pudl.metadata.classes.DataSource
+   pudl.metadata.classes.ResourceHarvest
+   pudl.metadata.classes.PudlResourceDescriptor
+   pudl.metadata.classes.Resource
+   pudl.metadata.classes.Package
+   pudl.metadata.classes.CodeMetadata
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.metadata.classes._unique
+   pudl.metadata.classes._format_for_sql
+   pudl.metadata.classes._get_jinja_environment
+   pudl.metadata.classes._check_unique
+   pudl.metadata.classes._validator
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: _unique(*args: collections.abc.Iterable) -> list
+
+   Return a list of all unique values, in order of first appearance.
+
+   :param args: Iterables of values.
+
+   .. rubric:: Examples
+
+   >>> _unique([0, 2], (2, 1))
+   [0, 2, 1]
+   >>> _unique([{'x': 0, 'y': 1}, {'y': 1, 'x': 0}], [{'z': 2}])
+   [{'x': 0, 'y': 1}, {'z': 2}]
+
+
+.. py:function:: _format_for_sql(x: Any, identifier: bool = False) -> str
+
+   Format value for use in raw SQL(ite).
+
+   :param x: Value to format.
+   :param identifier: Whether `x` represents an identifier
+                      (e.g. table, column) name.
+
+   .. rubric:: Examples
+
+   >>> _format_for_sql('table_name', identifier=True)
+   '"table_name"'
+   >>> _format_for_sql('any string')
+   "'any string'"
+   >>> _format_for_sql("Single's quote")
+   "'Single''s quote'"
+   >>> _format_for_sql(None)
+   'null'
+   >>> _format_for_sql(1)
+   '1'
+   >>> _format_for_sql(True)
+   'True'
+   >>> _format_for_sql(False)
+   'False'
+   >>> _format_for_sql(re.compile("^[^']*$"))
+   "'^[^'']*$'"
+   >>> _format_for_sql(datetime.date(2020, 1, 2))
+   "'2020-01-02'"
+   >>> _format_for_sql(datetime.datetime(2020, 1, 2, 3, 4, 5, 6))
+   "'2020-01-02 03:04:05'"
+
+
+.. py:function:: _get_jinja_environment(template_dir: pydantic.DirectoryPath = None)
+
+.. py:data:: String
+
+   Non-empty :class:`str` with no trailing or leading whitespace.
+
+.. py:data:: SnakeCase
+
+   Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860').
+
+.. py:data:: PositiveInt
+
+   Positive :class:`int`.
+
+.. py:data:: PositiveFloat
+
+   Positive :class:`float`.
+
+.. py:data:: T
+
+.. py:data:: StrictList
+
+   Non-empty :class:`list`.
+
+   Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
+   :class:`collections.deque`, or generators and casts to a :class:`list`.
+
+.. py:function:: _check_unique(value: list = None) -> list | None
+
+   Check that input list has unique values.
+
+
+.. py:function:: _validator(*names, fn: collections.abc.Callable) -> collections.abc.Callable
+
+   Construct reusable Pydantic validator.
+
+   :param names: Names of attributes to validate.
+   :param fn: Validation function (see :meth:`pydantic.field_validator`).
+
+   .. rubric:: Examples
+
+   >>> class Class(BaseModel):
+   ...     x: list = None
+   ...     _check_unique = _validator("x", fn=_check_unique)
+   >>> Class(x=[0, 0])
+   Traceback (most recent call last):
+   ValidationError: ...
+
+
+.. py:class:: PudlMeta(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   A base model that configures some options for PUDL metadata classes.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+.. py:class:: FieldConstraints(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Field constraints (`resource.schema.fields[...].constraints`).
+
+   See https://specs.frictionlessdata.io/table-schema/#constraints.
+
+
+   .. py:attribute:: required
+      :type:  pydantic.StrictBool
+      :value: False
+
+
+
+   .. py:attribute:: unique
+      :type:  pydantic.StrictBool
+      :value: False
+
+
+
+   .. py:attribute:: min_length
+      :type:  PositiveInt | None
+      :value: None
+
+
+
+   .. py:attribute:: max_length
+      :type:  PositiveInt | None
+      :value: None
+
+
+
+   .. py:attribute:: minimum
+      :type:  pydantic.StrictInt | pydantic.StrictFloat | datetime.date | datetime.datetime | None
+      :value: None
+
+
+
+   .. py:attribute:: maximum
+      :type:  pydantic.StrictInt | pydantic.StrictFloat | datetime.date | datetime.datetime | None
+      :value: None
+
+
+
+   .. py:attribute:: pattern
+      :type:  re.Pattern | None
+      :value: None
+
+
+
+   .. py:attribute:: enum
+      :type:  StrictList[String | pydantic.StrictInt | pydantic.StrictFloat | pydantic.StrictBool | datetime.date | datetime.datetime] | None
+      :value: None
+
+
+
+   .. py:attribute:: _check_unique
+
+
+   .. py:method:: _check_max_length(value, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+
+   .. py:method:: _check_max(value, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+
+   .. py:method:: to_pandera_checks() -> list[pandera.pandas.Check]
+
+      Convert these constraints to pandera Column checks.
+
+
+
+.. py:class:: FieldHarvest(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Field harvest parameters (`resource.schema.fields[...].harvest`).
+
+
+   .. py:attribute:: aggregate
+      :type:  collections.abc.Callable[[pandas.Series], pandas.Series]
+      :value: None
+
+
+      Computes a single value from all field values in a group.
+
+
+   .. py:attribute:: tolerance
+      :type:  PositiveFloat
+      :value: 0.0
+
+
+      Fraction of invalid groups above which result is considered invalid.
+
+
+.. py:class:: Encoder(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   A class that allows us to standardize reported categorical codes.
+
+   Often the original data we are integrating uses short codes to indicate a
+   categorical value, like ``ST`` in place of "steam turbine" or ``LIG`` in place of
+   "lignite coal". Many of these coded fields contain non-standard codes due to
+   data-entry errors. The codes have also evolved over the years.
+
+   In order to allow easy comparison of records across all years and tables, we define
+   a standard set of codes, a mapping from non-standard codes to standard codes (where
+   possible), and a set of known but unfixable codes which will be ignored and replaced
+   with NA values. These definitions can be found in :mod:`pudl.metadata.codes` and we
+   refer to these as coding tables.
+
+   In our metadata structures, each coding table is defined just like any other DB
+   table, with the addition of an associated ``Encoder`` object defining the standard,
+   fixable, and ignored codes.
+
+   In addition, a :class:`Package` class that has been instantiated using the
+   :meth:`Package.from_resource_ids` method will associate an `Encoder` object with any
+   column that has a foreign key constraint referring to a coding table (This
+   column-level encoder is same as the encoder associated with the referenced table).
+   This `Encoder` can be used to standardize the codes found within the column.
+
+   :class:`Field` and :class:`Resource` objects have ``encode()`` methods that will
+   use the column-level encoders to recode the original values, either for a single
+   column or for all coded columns within a Resource, given either a corresponding
+   :class:`pandas.Series` or :class:`pandas.DataFrame` containing actual values.
+
+   If any unrecognized values are encountered, an exception will be raised, alerting
+   us that a new code has been identified, and needs to be classified as fixable or
+   to be ignored.
+
+
+   .. py:attribute:: df
+      :type:  pandas.DataFrame
+
+      A table associating short codes with long descriptions and other information.
+
+      Each coding table contains at least a ``code`` column containing the standard codes
+      and a ``description`` column with a human readable explanation of what the code
+      stands for. Additional metadata pertaining to the codes and their categories may
+      also appear in this dataframe, which will be loaded into the PUDL DB as a static
+      table. The ``code`` column is a natural primary key and must contain no duplicate
+      values.
+
+
+   .. py:attribute:: ignored_codes
+      :type:  list[pydantic.StrictInt | str]
+      :value: []
+
+
+      A list of non-standard codes which appear in the data, and will be set to NA.
+
+      These codes may be the result of data entry errors, and we are unable to map them to
+      the appropriate canonical code. They are discarded from the raw input data.
+
+
+   .. py:attribute:: code_fixes
+      :type:  dict[pydantic.StrictInt | String, pydantic.StrictInt | String]
+
+      A dictionary mapping non-standard codes to canonical, standardized codes.
+
+      The intended meanings of some non-standard codes are clear, and therefore they can
+      be mapped to the standardized, canonical codes with confidence. Sometimes these are
+      the result of data entry errors or changes in the standard codes over time.
+
+
+   .. py:attribute:: name
+      :type:  String | None
+      :value: None
+
+
+      The name of the code.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:method:: _df_is_encoding_table(df: pandas.DataFrame)
+      :classmethod:
+
+
+      Verify that the coding table provides both codes and descriptions.
+
+
+
+   .. py:method:: _good_and_ignored_codes_are_disjoint(ignored_codes, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+      Check that there's no overlap between good and ignored codes.
+
+
+
+   .. py:method:: _good_and_fixable_codes_are_disjoint(code_fixes, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+      Check that there's no overlap between the good and fixable codes.
+
+
+
+   .. py:method:: _fixable_and_ignored_codes_are_disjoint(code_fixes, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+      Check that there's no overlap between the ignored and fixable codes.
+
+
+
+   .. py:method:: _check_fixed_codes_are_good_codes(code_fixes, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+      Check that every every fixed code is also one of the good codes.
+
+
+
+   .. py:property:: code_map
+      :type: dict[str, str | pandas._libs.missing.NAType]
+
+
+      A mapping of all known codes to their standardized values, or NA.
+
+
+   .. py:method:: encode(col: pandas.Series, dtype: type | None = None) -> pandas.Series
+
+      Apply the stored code mapping to an input Series.
+
+
+
+   .. py:method:: dict_from_id(x: str) -> dict
+      :staticmethod:
+
+
+      Look up the encoder by coding table name in the metadata.
+
+
+
+   .. py:method:: from_id(x: str) -> Encoder
+      :classmethod:
+
+
+      Construct an Encoder based on `Resource.name` of a coding table.
+
+
+
+   .. py:method:: from_code_id(x: str) -> Encoder
+      :classmethod:
+
+
+      Construct an Encoder by looking up name of coding table in codes metadata.
+
+
+
+   .. py:method:: to_rst(top_dir: pydantic.DirectoryPath, csv_subdir: pydantic.DirectoryPath, is_header: pydantic.StrictBool) -> String
+
+      Output dataframe to a csv for use in jinja template.
+
+      Then output to an RST file.
+
+
+
+   .. py:method:: generate_encodable_data(size: int = 10) -> pandas.Series
+
+      Produce a series of data which can be encoded by this encoder.
+
+      Selects values randomly from valid, ignored, and fixable codes.
+
+
+
+.. py:class:: Field(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Field (`resource.schema.fields[...]`).
+
+   See https://specs.frictionlessdata.io/table-schema/#field-descriptors.
+
+   .. rubric:: Examples
+
+   >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
+   >>> field.to_pandas_dtype()
+   CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
+   >>> field.to_sql()
+   Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
+   >>> field = Field.from_id('utility_id_eia')
+   >>> field.name
+   'utility_id_eia'
+
+
+   .. py:attribute:: name
+      :type:  SnakeCase
+
+
+   .. py:attribute:: type
+      :type:  Literal['string', 'number', 'integer', 'boolean', 'date', 'datetime', 'year', 'geometry']
+
+
+   .. py:attribute:: title
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: format_
+      :type:  Literal['default']
+      :value: None
+
+
+
+   .. py:attribute:: description
+      :type:  String
+
+
+   .. py:attribute:: unit
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: constraints
+      :type:  FieldConstraints
+
+
+   .. py:attribute:: harvest
+      :type:  FieldHarvest
+
+
+   .. py:attribute:: encoder
+      :type:  Encoder | None
+      :value: None
+
+
+
+   .. py:method:: _check_constraints(value, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+
+   .. py:method:: _check_encoder(value, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+
+   .. py:method:: dict_from_id(x: str) -> dict
+      :staticmethod:
+
+
+      Construct dictionary from PUDL identifier (`Field.name`).
+
+
+
+   .. py:method:: from_id(x: str) -> Field
+      :classmethod:
+
+
+      Construct from PUDL identifier (`Field.name`).
+
+
+
+   .. py:method:: to_polars_dtype() -> polars.DataType
+
+      Return polars data type.
+
+
+
+   .. py:method:: to_pandas_dtype(compact: bool = False) -> str | pandas.CategoricalDtype
+
+      Return Pandas data type.
+
+      :param compact: Whether to return a low-memory data type (32-bit integer or float).
+
+
+
+   .. py:method:: to_sql_dtype() -> type
+
+      Return SQLAlchemy data type.
+
+
+
+   .. py:method:: to_pyarrow_dtype() -> pyarrow.DataType
+
+      Return PyArrow data type.
+
+
+
+   .. py:method:: to_pyarrow() -> pyarrow.Field
+
+      Return a PyArrow Field appropriate to the field.
+
+
+
+   .. py:method:: to_sql(dialect: Literal['sqlite'] = 'sqlite', check_types: bool = True, check_values: bool = True) -> sqlalchemy.Column
+
+      Return equivalent SQL column.
+
+
+
+   .. py:method:: encode(col: pandas.Series, dtype: type | None = None) -> pandas.Series
+
+      Recode the Field if it has an associated encoder.
+
+
+
+   .. py:method:: to_pandera_column() -> pandera.pandas.Column
+
+      Encode this field def as a Pandera column.
+
+
+
+.. py:class:: ForeignKeyReference(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Foreign key reference (`resource.schema.foreign_keys[...].reference`).
+
+   See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
+
+
+   .. py:attribute:: resource
+      :type:  SnakeCase
+
+
+   .. py:attribute:: fields
+      :type:  StrictList[SnakeCase]
+
+
+   .. py:attribute:: _check_unique
+
+
+.. py:class:: ForeignKey(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Foreign key (`resource.schema.foreign_keys[...]`).
+
+   See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
+
+
+   .. py:attribute:: fields
+      :type:  StrictList[SnakeCase]
+
+
+   .. py:attribute:: reference
+      :type:  ForeignKeyReference
+
+
+   .. py:attribute:: _check_unique
+
+
+   .. py:method:: _check_fields_equal_length(value, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+
+   .. py:method:: is_simple() -> bool
+
+      Indicate whether the FK relationship contains a single column.
+
+
+
+   .. py:method:: to_sql() -> sqlalchemy.ForeignKeyConstraint
+
+      Return equivalent SQL Foreign Key.
+
+
+
+.. py:class:: Schema(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Table schema (`resource.schema`).
+
+   See https://specs.frictionlessdata.io/table-schema.
+
+
+   .. py:attribute:: fields
+      :type:  StrictList[Field]
+
+
+   .. py:attribute:: missing_values
+      :type:  list[pydantic.StrictStr]
+      :value: ['']
+
+
+
+   .. py:attribute:: primary_key
+      :type:  list[SnakeCase]
+      :value: []
+
+
+
+   .. py:attribute:: foreign_keys
+      :type:  list[ForeignKey]
+      :value: []
+
+
+
+   .. py:attribute:: _check_unique
+
+
+   .. py:method:: _check_field_names_unique(fields: list[Field])
+      :classmethod:
+
+
+
+   .. py:method:: _check_primary_key_in_fields(pk, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+      Verify that all primary key elements also appear in the schema fields.
+
+
+
+   .. py:method:: _check_foreign_key_in_fields()
+
+      Verify that all foreign key elements also appear in the schema fields.
+
+
+
+   .. py:method:: to_pandera() -> pandera.pandas.DataFrameSchema
+
+      Turn PUDL Schema into Pandera schema, so dagster can understand it.
+
+
+
+.. py:class:: License(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Data license (`package|resource.licenses[...]`).
+
+   See https://specs.frictionlessdata.io/data-package/#licenses.
+
+
+   .. py:attribute:: name
+      :type:  String
+
+
+   .. py:attribute:: title
+      :type:  String
+
+
+   .. py:attribute:: path
+      :type:  pydantic.AnyHttpUrl
+
+
+   .. py:method:: dict_from_id(x: str) -> dict
+      :staticmethod:
+
+
+      Construct dictionary from PUDL identifier.
+
+
+
+   .. py:method:: from_id(x: str) -> License
+      :classmethod:
+
+
+      Construct from PUDL identifier.
+
+
+
+.. py:class:: Contributor(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Data contributor (`package.contributors[...]`).
+
+   See https://specs.frictionlessdata.io/data-package/#contributors.
+
+
+   .. py:attribute:: title
+      :type:  String
+
+
+   .. py:attribute:: path
+      :type:  pydantic.AnyHttpUrl | None
+      :value: None
+
+
+
+   .. py:attribute:: email
+      :type:  pydantic.EmailStr | None
+      :value: None
+
+
+
+   .. py:attribute:: role
+      :type:  Literal['author', 'contributor', 'maintainer', 'publisher', 'wrangler']
+      :value: 'contributor'
+
+
+
+   .. py:attribute:: zenodo_role
+      :type:  Literal['contact person', 'data collector', 'data curator', 'data manager', 'distributor', 'editor', 'hosting institution', 'other', 'producer', 'project leader', 'project member', 'registration agency', 'registration authority', 'related person', 'researcher', 'rights holder', 'sponsor', 'supervisor', 'work package leader']
+      :value: 'project member'
+
+
+
+   .. py:attribute:: organization
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: orcid
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:method:: dict_from_id(x: str) -> dict
+      :staticmethod:
+
+
+      Construct dictionary from PUDL identifier.
+
+
+
+   .. py:method:: from_id(x: str) -> Contributor
+      :classmethod:
+
+
+      Construct from PUDL identifier.
+
+
+
+   .. py:method:: __hash__()
+
+      Implements simple hash method.
+
+      Allows use of `set()` on a list of Contributor
+
+
+
+.. py:class:: DataSource(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   A data source that has been integrated into PUDL.
+
+   This metadata is used for:
+
+   * Generating PUDL documentation.
+   * Annotating long-term archives of the raw input data on Zenodo.
+   * Defining what data partitions can be processed using PUDL.
+
+   It can also be used to populate the "source" fields of frictionless
+   data packages and data resources (`package|resource.sources[...]`).
+
+   See https://specs.frictionlessdata.io/data-package/#sources.
+
+
+   .. py:attribute:: name
+      :type:  SnakeCase
+
+
+   .. py:attribute:: title
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: description
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: field_namespace
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: keywords
+      :type:  list[str]
+      :value: []
+
+
+
+   .. py:attribute:: path
+      :type:  pydantic.AnyHttpUrl | None
+      :value: None
+
+
+
+   .. py:attribute:: contributors
+      :type:  list[Contributor]
+      :value: []
+
+
+
+   .. py:attribute:: license_raw
+      :type:  License
+
+
+   .. py:attribute:: license_pudl
+      :type:  License
+
+
+   .. py:attribute:: concept_doi
+      :type:  pudl.workspace.datastore.ZenodoDoi | None
+      :value: None
+
+
+
+   .. py:attribute:: working_partitions
+      :type:  dict[SnakeCase, Any]
+
+
+   .. py:attribute:: source_file_dict
+      :type:  dict[SnakeCase, Any]
+
+
+   .. py:attribute:: email
+      :type:  pydantic.EmailStr | None
+      :value: None
+
+
+
+   .. py:method:: get_resource_ids() -> list[str]
+
+      Compile list of resource IDs associated with this data source.
+
+
+
+   .. py:method:: get_temporal_coverage(partitions: dict = None) -> str
+
+      Return a string describing the time span covered by the data source.
+
+
+
+   .. py:method:: add_datastore_metadata() -> None
+
+      Get source file metadata from the datastore.
+
+
+
+   .. py:method:: to_rst(docs_dir: pydantic.DirectoryPath, source_resources: list, extra_resources: list, output_path: str = None) -> None
+
+      Output a representation of the data source in RST for documentation.
+
+
+
+   .. py:method:: from_field_namespace(x: str, sources: dict[str, Any] = SOURCES) -> list[DataSource]
+      :classmethod:
+
+
+      Return list of DataSource objects by field namespace.
+
+
+
+   .. py:method:: dict_from_id(x: str, sources: dict[str, Any]) -> dict
+      :staticmethod:
+
+
+      Look up the source by source name in the metadata.
+
+
+
+   .. py:method:: from_id(x: str, sources: dict[str, Any] = SOURCES) -> DataSource
+      :classmethod:
+
+
+      Construct Source by source name in the metadata.
+
+
+
+.. py:class:: ResourceHarvest(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Resource harvest parameters (`resource.harvest`).
+
+
+   .. py:attribute:: harvest
+      :type:  pydantic.StrictBool
+      :value: False
+
+
+      Whether to harvest from dataframes based on field names.
+
+      If `False`, the dataframe with the same name is used and the process is limited to
+      dropping unwanted fields.
+
+
+   .. py:attribute:: tolerance
+      :type:  PositiveFloat
+      :value: 0.0
+
+
+      Fraction of invalid fields above which result is considered invalid.
+
+
+.. py:class:: PudlResourceDescriptor(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   The form we expect the RESOURCE_METADATA elements to take.
+
+   This differs from :class:`Resource` and :class:`Schema`, etc., in that we represent
+   many complex types (:class:`Field`, :class:`DataSource`, etc.) with string IDs that
+   we then turn into instances of those types with lookups. We also use
+   ``foreign_key_rules`` to generate the actual ``foreign_key`` relationships that are
+   represented in a :class:`Schema`.
+
+   This is all very useful in that we can describe the resources more concisely!
+
+   TODO: In the future, we could convert from a :class:`PudlResourceDescriptor` to
+   various standard formats, such as a Frictionless resource or a :mod:`pandera`
+   schema. This would require some of the logic currently in :class:`Resource` to move
+   into this class.
+
+
+   .. py:class:: PudlSchemaDescriptor(/, **data: Any)
+
+      Bases: :py:obj:`PudlMeta`
+
+
+      Container to hold the schema shape.
+
+
+      .. py:class:: PudlForeignKeyRules(/, **data: Any)
+
+         Bases: :py:obj:`PudlMeta`
+
+
+         Container to describe what foreign key rules look like.
+
+
+         .. py:attribute:: field_id_lists
+            :type:  list[list[str]]
+            :value: None
+
+
+
+         .. py:attribute:: exclude_ids
+            :type:  list[str]
+            :value: None
+
+
+
+
+      .. py:attribute:: field_ids
+         :type:  list[str]
+         :value: None
+
+
+
+      .. py:attribute:: primary_key_ids
+         :type:  list[str]
+         :value: None
+
+
+
+      .. py:attribute:: foreign_key_rules
+         :type:  PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules
+
+
+
+   .. py:class:: PudlCodeMetadata(/, **data: Any)
+
+      Bases: :py:obj:`PudlMeta`
+
+
+      Describes a bunch of codes.
+
+
+      .. py:class:: CodeDataFrame
+
+         Bases: :py:obj:`pandera.pandas.DataFrameModel`
+
+
+         The DF we use to represent code/label/description associations.
+
+
+         .. py:attribute:: code
+            :type:  pandera.pandas.typing.Series[Any]
+
+
+         .. py:attribute:: label
+            :type:  pandera.pandas.typing.Series[str] | None
+
+
+         .. py:attribute:: description
+            :type:  pandera.pandas.typing.Series[str]
+
+
+         .. py:attribute:: operational_status
+            :type:  pandera.pandas.typing.Series[str] | None
+
+
+
+      .. py:attribute:: df
+         :type:  pandera.pandas.typing.DataFrame[PudlResourceDescriptor.PudlCodeMetadata.CodeDataFrame]
+
+
+      .. py:attribute:: code_fixes
+         :type:  dict
+
+
+      .. py:attribute:: ignored_codes
+         :type:  list
+         :value: []
+
+
+
+      .. py:attribute:: model_config
+
+         Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+      .. py:method:: serialize_df(df: pandera.pandas.typing.DataFrame[CodeDataFrame], _info) -> pandas.DataFrame
+
+         Return DataFrame to avoid warnings from default serializer.
+
+
+
+
+   .. py:class:: PudlDescriptionComponents(/, **data: Any)
+
+      Bases: :py:obj:`PudlMeta`
+
+
+      Container to hold description configuration information.
+
+      All of these parameters have reasonable defaults for most resources if left
+      unset.  You must specify :attr:`PudlResourceDescriptor.description` as a
+      dictionary, but you do not have to put anything in it so long as the resource id
+      follows the standard pattern.
+
+
+      .. py:attribute:: table_type_code
+         :type:  Literal['assn', 'codes', 'entity', 'scd', 'timeseries'] | None
+         :value: None
+
+
+         Indicates the type of asset stored in this resource.
+
+         If None or otherwise left unset, will be filled in with a default type parsed
+         from the resource id string.
+
+
+      .. py:attribute:: timeseries_resolution_code
+         :type:  Literal['quarterly', 'yearly', 'monthly', 'hourly'] | None
+         :value: None
+
+
+         If this resource has
+         :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+         timeseries, indicates the temporal resolution, otherwise None.  If
+         :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code` is
+         timeseries and this value is None or otherwise left unset, will be filled in
+         with a default resolution parsed from the resource id string.
+
+
+      .. py:attribute:: layer_code
+         :type:  Literal['raw', '_core', 'core', 'out', 'test'] | None
+         :value: None
+
+
+         Indicates the degree of processing applied to the data in this resource.  If
+         None or otherwise left unset, will be filled in with a default layer parsed from
+         the resource id string.
+
+
+      .. py:attribute:: source_code
+         :type:  str | None
+         :value: None
+
+
+         Indicates the source we wish to display for this resource; distinct from
+         :attr:`PudlResourceDescriptor.source_ids` because here we want the majority
+         source (or grouped source if truly mixed) and not a complete list of all sources
+         used for this resource.  If set, should be a known data source shortcode like
+         "eia923" or one of the grouped shortcodes from
+         :data:`~pudl.metadata.descriptions.source_descriptions`.  If None or otherwise
+         left unset, will be filled in with a default source parsed from the resource id
+         string.
+
+
+      .. py:attribute:: usage_warnings
+         :type:  list[str | dict] | None
+         :value: None
+
+
+         List of string keys (for common warnings; see :mod:`warnings`) and dicts (for
+         custom warnings) stating necessary precautions for using this resource.
+
+         Usage Warnings are a way for us to quickly and skim-ably tell users about
+         analysis hazards when using a particular table.  It has two goals:
+
+         1. help users quickly reach a point of success in their use of our data, and
+         2. reduce the incidence of repeated questions and bug-like reports due to these
+            inescapable hazards.
+
+         Reserve this field for severe and/or frequent problems an unfamiliar user may
+         encounter, and list lighter or edge-case problems in
+         :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_details_text`.
+
+         The list can contain two kinds of entries:
+
+         * a string, which should match one of the keys in
+           :data:`~pudl.metadata.warnings.USAGE_WARNINGS`
+         * a dict, which should contain two keys:
+
+           * "type" - a short code for the warning, which doesn't need to be unique and
+             will only appear in preview & debugging tooling, not to users
+           * "description" - the one-to-two-sentence summary of a warning used only on
+             this particular resource
+
+         The system will automatically detect and include the following warnings based on
+         the resource id string and schema information (see
+         :meth:`~pudl.metadata.descriptions.ResourceDescriptionBuilder._assemble_usage_warnings`):
+
+         * multiple_inputs
+         * ferc_is_hard
+
+         Any items provided here will be listed before the automatically detected
+         warnings.
+
+         If None or otherwise left unset, will be filled in with auto warnings only. If
+         no auto warnings apply, hides the Usage Warnings section entirely.
+
+
+      .. py:attribute:: additional_summary_text
+         :type:  str | None
+         :value: None
+
+
+         A brief (~one-line) description of the contents of this resource.
+         If None or otherwise left unset, will be left blank.
+
+         If filled, should support whichever of the following scenarios is most
+         appropriate for this resource:
+
+         * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+           is set or can be automatically detected: this value should complete the
+           sentence corresponding to
+           :data:`~pudl.metadata.descriptions.table_type_fragments` for this resource's
+           :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+         * the :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.table_type_code`
+           is None/unset *and* the resource is not named according to a standard table
+           type listed in :data:`~pudl.metadata.descriptions.table_type_fragments`: this
+           value should be a complete sentence summarizing the contents of this resource
+           at a similar level of detail.
+
+
+      .. py:attribute:: additional_layer_text
+         :type:  str | None
+         :value: None
+
+
+         Unusual details about this resource's level of processing that don't fall
+         into the normal definition of raw/core/_core/out/etc.  If None or otherwise left
+         unset, will be left blank.  This should only be set in truly obscure situations.
+         If set, should be a complete sentence.
+
+
+      .. py:attribute:: additional_source_text
+         :type:  str | None
+         :value: None
+
+
+         A brief refinement on the source data for this table, such as indicating the
+         Schedule or other section number.  If None or otherwise left unset, will be left
+         blank.  If set, should make sense when displayed directly after the title of a
+         datasource (see :data:`~pudl.metadata.descriptions.source_descriptions`);
+         parentheticals work best here.
+
+
+      .. py:attribute:: additional_primary_key_text
+         :type:  str | None
+         :value: None
+
+
+         For resources with no primary key, a brief summary of what each row contains,
+         and perhaps why a primary key doesn't make sense for this table.  If None or
+         otherwise left unset, will be left blank.  If set, should be a complete sentence
+         or two.
+
+         This is generally not set when there is a primary key for the table.  If a
+         primary key is available,
+         :attr:`~PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text`
+         will appear after the comma-delimited list of primary key columns.
+
+
+      .. py:attribute:: additional_details_text
+         :type:  str | None
+         :value: None
+
+
+         All other information about this resource's construction and intended use,
+         including guidelines and recommendations for best results.  If None or otherwise
+         left unset, will be left blank; hides the Additional Details section entirely.
+
+         Q3 2025 Migration Mode variance: if :attr:`PudlResourceDescriptor.description`
+         is a string, it gets moved here so you can see the old description content in
+         the Additional Details section of the preview.
+
+         May also include more-detailed explanations of listed usage warnings.
+
+
+
+   .. py:attribute:: title
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: description
+      :type:  PudlResourceDescriptor.PudlDescriptionComponents | str
+
+
+   .. py:attribute:: schema_
+      :type:  PudlResourceDescriptor.PudlSchemaDescriptor
+      :value: None
+
+
+
+   .. py:attribute:: encoder
+      :type:  PudlResourceDescriptor.PudlCodeMetadata | None
+      :value: None
+
+
+
+   .. py:attribute:: source_ids
+      :type:  list[str]
+      :value: None
+
+
+
+   .. py:attribute:: etl_group_id
+      :type:  str
+      :value: None
+
+
+
+   .. py:attribute:: field_namespace_id
+      :type:  str
+      :value: None
+
+
+
+   .. py:attribute:: create_database_schema
+      :type:  bool
+      :value: True
+
+
+
+.. py:class:: Resource(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Tabular data resource (`package.resources[...]`).
+
+   See https://specs.frictionlessdata.io/tabular-data-resource.
+
+   .. rubric:: Examples
+
+   A simple example illustrates the conversion to SQLAlchemy objects.
+
+   >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
+   >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
+   >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
+   >>> resource = Resource(name='a', schema=schema, description='A')
+   >>> table = resource.to_sql()
+   >>> table.columns.x
+   Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
+   >>> table.columns.y
+   Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>, comment='Y')
+
+   To illustrate harvesting operations,
+   say we have a resource with two fields - a primary key (`id`) and a data field -
+   which we want to harvest from two different dataframes.
+
+   >>> from pudl.metadata.helpers import unique, as_dict
+   >>> fields = [
+   ...     {'name': 'id', 'type': 'integer', 'description': 'ID'},
+   ...     {'name': 'x', 'type': 'integer', 'harvest': {'aggregate': unique, 'tolerance': 0.25}, 'description': 'X'}
+   ... ]
+   >>> resource = Resource(**{
+   ...     'name': 'a',
+   ...     'harvest': {'harvest': True},
+   ...     'schema': {'fields': fields, 'primary_key': ['id']},
+   ...     'description': 'A',
+   ... })
+   >>> dfs = {
+   ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
+   ...     'b': pd.DataFrame({'id': [2, 3, 3], 'x': [3, 4, 4]})
+   ... }
+
+   Skip aggregation to access all the rows concatenated from the input dataframes.
+   The names of the input dataframes are used as the index.
+
+   >>> df, _ = resource.harvest_dfs(dfs, aggregate=False)
+   >>> df
+       id  x
+   df
+   a    1  1
+   a    1  1
+   a    2  2
+   a    2  2
+   b    2  3
+   b    3  4
+   b    3  4
+
+   Field names and data types are enforced.
+
+   >>> resource.to_pandas_dtypes() == df.dtypes.apply(str).to_dict()
+   True
+
+   Alternatively, aggregate by primary key
+   (the default when :attr:`harvest`. `harvest=True`)
+   and report aggregation errors.
+
+   >>> df, report = resource.harvest_dfs(dfs)
+   >>> df
+          x
+   id
+   1      1
+   2   <NA>
+   3      4
+   >>> report['stats']
+   {'all': 2, 'invalid': 1, 'tolerance': 0.0, 'actual': 0.5}
+   >>> report['fields']['x']['stats']
+   {'all': 3, 'invalid': 1, 'tolerance': 0.25, 'actual': 0.33...}
+   >>> report['fields']['x']['errors']
+   id
+   2    Not unique.
+   Name: x, dtype: object
+
+   Customize the error values in the error report.
+
+   >>> error = lambda x, e: as_dict(x)
+   >>> df, report = resource.harvest_dfs(
+   ...    dfs, aggregate_kwargs={'raised': False, 'error': error}
+   ... )
+   >>> report['fields']['x']['errors']
+   id
+   2    {'a': [2, 2], 'b': [3]}
+   Name: x, dtype: object
+
+   Limit harvesting to the input dataframe of the same name
+   by setting :attr:`harvest`. `harvest=False`.
+
+   >>> resource.harvest.harvest = False
+   >>> df, _ = resource.harvest_dfs(dfs, aggregate_kwargs={'raised': False})
+   >>> df
+       id  x
+   df
+   a    1  1
+   a    1  1
+   a    2  2
+   a    2  2
+
+   Harvesting can also handle conversion to longer time periods.
+   Period harvesting requires primary key fields with a `datetime` data type,
+   except for `year` fields which can be integer.
+
+   >>> fields = [{'name': 'report_year', 'type': 'year', 'description': 'Report year'}]
+   >>> resource = Resource(**{
+   ...     'name': 'table', 'harvest': {'harvest': True},
+   ...     'schema': {'fields': fields, 'primary_key': ['report_year']},
+   ...     'description': 'Table',
+   ... })
+   >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
+   >>> resource.format_df(df)
+     report_year
+   0  2000-01-01
+   1  2000-01-01
+   >>> df = pd.DataFrame({'report_year': [2000, 2000]})
+   >>> resource.format_df(df)
+     report_year
+   0  2000-01-01
+   1  2000-01-01
+
+
+   .. py:attribute:: name
+      :type:  SnakeCase
+
+
+   .. py:attribute:: title
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: description
+      :type:  String
+
+
+   .. py:attribute:: harvest
+      :type:  ResourceHarvest
+
+
+   .. py:attribute:: schema
+      :type:  Schema
+
+
+   .. py:attribute:: format_
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: mediatype
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: path
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: dialect
+      :type:  dict[str, str] | None
+      :value: None
+
+
+
+   .. py:attribute:: profile
+      :type:  String
+      :value: 'tabular-data-resource'
+
+
+
+   .. py:attribute:: contributors
+      :type:  list[Contributor]
+      :value: []
+
+
+
+   .. py:attribute:: licenses
+      :type:  list[License]
+      :value: []
+
+
+
+   .. py:attribute:: sources
+      :type:  list[DataSource]
+      :value: []
+
+
+
+   .. py:attribute:: keywords
+      :type:  list[String]
+      :value: []
+
+
+
+   .. py:attribute:: encoder
+      :type:  Encoder | None
+      :value: None
+
+
+
+   .. py:attribute:: field_namespace
+      :type:  Literal['censusdp1tract', 'eia', 'eiaaeo', 'eiaapi', 'epacems', 'ferc1', 'ferc714', 'glue', 'gridpathratoolkit', 'ppe', 'pudl', 'nrelatb', 'vcerare', 'phmsagas', 'sec'] | None
+      :value: None
+
+
+
+   .. py:attribute:: etl_group
+      :type:  Literal['censusdp1tract', 'eia176', 'eia860', 'eia861', 'eia861_disabled', 'eia923', 'eia930', 'eiaaeo', 'entity_eia', 'epacems', 'ferc1', 'ferc1_disabled', 'ferc714', 'glue', 'gridpathratoolkit', 'outputs', 'static_ferc1', 'static_eia', 'static_eia_disabled', 'eiaapi', 'state_demand', 'static_pudl', 'service_territories', 'nrelatb', 'vcerare', 'phmsagas', 'sec10k'] | None
+      :value: None
+
+
+
+   .. py:attribute:: create_database_schema
+      :type:  bool
+      :value: True
+
+
+
+   .. py:attribute:: _check_unique
+
+
+   .. py:property:: sphinx_ref_name
+
+      Get legal Sphinx ref name.
+
+      Sphinx throws an error when creating a cross ref target for
+      a resource that has a preceding underscore. It is
+      also possible for resources to have identical names
+      when the preceding underscore is removed. This function
+      adds a preceding 'i' to cross ref targets for resources
+      with preceding underscores. The 'i' will not be rendered
+      in the docs, only in the .rst files the hyperlinks.
+
+
+   .. py:method:: _check_harvest_primary_key(value, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+
+   .. py:method:: dict_from_id(resource_id: str) -> dict
+      :staticmethod:
+
+
+      Construct dictionary from PUDL identifier (`resource.name`).
+
+
+
+   .. py:method:: dict_from_resource_descriptor(resource_id: str, descriptor: PudlResourceDescriptor) -> dict
+      :staticmethod:
+
+
+      Get a Resource-shaped dict from a PudlResourceDescriptor.
+
+      * `schema.fields`
+
+        * Field names are expanded (:meth:`Field.from_id`).
+        * Field attributes are replaced with any specific to the
+          `resource.group` and `field.name`.
+
+      * `sources`: Source ids are expanded (:meth:`Source.from_id`).
+      * `licenses`: License ids are expanded (:meth:`License.from_id`).
+      * `contributors`: Contributor ids are fetched by source ids,
+        then expanded (:meth:`Contributor.from_id`).
+      * `keywords`: Keywords are fetched by source ids.
+      * `schema.foreign_keys`: Foreign keys are fetched by resource name.
+      * `description`: Full description text block is rendered from its component parts.
+
+
+
+   .. py:method:: from_id(x: str) -> Resource
+      :classmethod:
+
+
+      Construct from PUDL identifier (`resource.name`).
+
+
+
+   .. py:method:: get_field(name: str) -> Field
+
+      Return field with the given name if it's part of the Resources.
+
+
+
+   .. py:method:: get_field_names() -> list[str]
+
+      Return a list of all the field names in the resource schema.
+
+
+
+   .. py:method:: to_sql(metadata: sqlalchemy.MetaData = None, check_types: bool = True, check_values: bool = True) -> sqlalchemy.Table
+
+      Return equivalent SQL Table.
+
+
+
+   .. py:method:: to_frictionless() -> frictionless.Resource
+
+      Convert to a Frictionless Resource.
+
+
+
+   .. py:method:: to_pyarrow() -> pyarrow.Schema
+
+      Construct a PyArrow schema for the resource.
+
+
+
+   .. py:method:: to_polars_dtypes() -> dict[str, polars.DataType]
+
+      Return Polars data type of each field by field name.
+
+
+
+   .. py:method:: to_pandas_dtypes(**kwargs: Any) -> dict[str, str | pandas.CategoricalDtype]
+
+      Return Pandas data type of each field by field name.
+
+      :param kwargs: Arguments to :meth:`Field.to_pandas_dtype`.
+
+
+
+   .. py:method:: match_primary_key(names: collections.abc.Iterable[str]) -> dict[str, str] | None
+
+      Match primary key fields to input field names.
+
+      An exact match is required unless :attr:`harvest` .`harvest=True`,
+      in which case periodic names may also match a basename with a smaller period.
+
+      :param names: Field names.
+
+      :raises ValueError: Field names are not unique.
+      :raises ValueError: Multiple field names match primary key field.
+
+      :returns: The name matching each primary key field (if any) as a :class:`dict`,
+                or `None` if not all primary key fields have a match.
+
+      .. rubric:: Examples
+
+      >>> fields = [{'name': 'x_year', 'type': 'year', 'description': 'Year'}]
+      >>> schema = {'fields': fields, 'primary_key': ['x_year']}
+      >>> resource = Resource(name='r', schema=schema, description='R')
+
+      By default, when :attr:`harvest` .`harvest=False`,
+      exact matches are required.
+
+      >>> resource.harvest.harvest
+      False
+      >>> resource.match_primary_key(['x_month']) is None
+      True
+      >>> resource.match_primary_key(['x_year', 'x_month'])
+      {'x_year': 'x_year'}
+
+      When :attr:`harvest` .`harvest=True`,
+      in the absence of an exact match,
+      periodic names may also match a basename with a smaller period.
+
+      >>> resource.harvest.harvest = True
+      >>> resource.match_primary_key(['x_year', 'x_month'])
+      {'x_year': 'x_year'}
+      >>> resource.match_primary_key(['x_month'])
+      {'x_month': 'x_year'}
+      >>> resource.match_primary_key(['x_month', 'x_date'])
+      Traceback (most recent call last):
+      ValueError: ... {'x_month', 'x_date'} match primary key field 'x_year'
+
+
+
+   .. py:method:: format_df(df: pandas.DataFrame | geopandas.GeoDataFrame | None = None, **kwargs: Any) -> pandas.DataFrame | geopandas.GeoDataFrame
+
+      Format a dataframe according to the resources's table schema.
+
+      * DataFrame columns not in the schema are dropped.
+      * Any columns missing from the DataFrame are added with the right dtype, but
+        will be empty.
+      * All columns are cast to their specified pandas dtypes.
+      * Primary key columns must be present and non-null.
+      * Periodic primary key fields are snapped to the start of the desired period.
+      * If the primary key fields could not be matched to columns in `df`
+        (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
+
+      :param df: Dataframe to format.
+      :param kwargs: Arguments to :meth:`Field.to_pandas_dtypes`.
+
+      :returns: Dataframe with column names and data types matching the resource fields.
+
+
+
+   .. py:method:: enforce_schema(df: pandas.DataFrame | geopandas.GeoDataFrame) -> pandas.DataFrame | geopandas.GeoDataFrame
+
+      Drop columns not in the DB schema and enforce specified types.
+
+
+
+   .. py:method:: aggregate_df(df: pandas.DataFrame, raised: bool = False, error: collections.abc.Callable = None) -> tuple[pandas.DataFrame, dict]
+
+      Aggregate dataframe by primary key.
+
+      The dataframe is grouped by primary key fields
+      and aggregated with the aggregate function of each field
+      (:attr:`schema_`. `fields[*].harvest.aggregate`).
+
+      The report is formatted as follows:
+
+      * `valid` (bool): Whether resource is valid.
+      * `stats` (dict): Error statistics for resource fields.
+      * `fields` (dict):
+
+        * `<field_name>` (str)
+
+          * `valid` (bool): Whether field is valid.
+          * `stats` (dict): Error statistics for field groups.
+          * `errors` (:class:`pandas.Series`): Error values indexed by primary key.
+
+        * ...
+
+      Each `stats` (dict) contains the following:
+
+      * `all` (int): Number of entities (field or field group).
+      * `invalid` (int): Invalid number of entities.
+      * `tolerance` (float): Fraction of invalid entities below which
+        parent entity is considered valid.
+      * `actual` (float): Actual fraction of invalid entities.
+
+      :param df: Dataframe to aggregate. It is assumed to have column names and
+                 data types matching the resource fields.
+      :param raised: Whether aggregation errors are raised or
+                     replaced with :obj:`np.nan` and returned in an error report.
+      :param error: A function with signature `f(x, e) -> Any`,
+                    where `x` are the original field values as a :class:`pandas.Series`
+                    and `e` is the original error.
+                    If provided, the returned value is reported instead of `e`.
+
+      :raises ValueError: A primary key is required for aggregating.
+
+      :returns: The aggregated dataframe indexed by primary key fields,
+                and an aggregation report (descripted above)
+                that includes all aggregation errors and whether the result
+                meets the resource's and fields' tolerance.
+
+
+
+   .. py:method:: _build_aggregation_report(df: pandas.DataFrame, errors: dict) -> dict
+
+      Build report from aggregation errors.
+
+      :param df: Harvested dataframe (see :meth:`harvest_dfs`).
+      :param errors: Aggregation errors (see :func:`groupby_aggregate`).
+
+      :returns: Aggregation report, as described in :meth:`aggregate_df`.
+
+
+
+   .. py:method:: harvest_dfs(dfs: dict[str, pandas.DataFrame], aggregate: bool = None, aggregate_kwargs: dict[str, Any] = {}, format_kwargs: dict[str, Any] = {}) -> tuple[pandas.DataFrame, dict]
+
+      Harvest from named dataframes.
+
+      For standard resources (:attr:`harvest`. `harvest=False`), the columns
+      matching all primary key fields and any data fields are extracted from
+      the input dataframe of the same name.
+
+      For harvested resources (:attr:`harvest`. `harvest=True`), the columns
+      matching all primary key fields and any data fields are extracted from
+      each compatible input dataframe, and concatenated into a single
+      dataframe.  Periodic key fields (e.g. 'report_month') are matched to any
+      column of the same name with an equal or smaller period (e.g.
+      'report_day') and snapped to the start of the desired period.
+
+      If `aggregate=False`, rows are indexed by the name of the input dataframe.
+      If `aggregate=True`, rows are indexed by primary key fields.
+
+      :param dfs: Dataframes to harvest.
+      :param aggregate: Whether to aggregate the harvested rows by their primary key.
+                        By default, this is `True` if `self.harvest.harvest=True` and
+                        `False` otherwise.
+      :param aggregate_kwargs: Optional arguments to :meth:`aggregate_df`.
+      :param format_kwargs: Optional arguments to :meth:`format_df`.
+
+      :returns: A dataframe harvested from the dataframes, with column names and
+                data types matching the resource fields, alongside an aggregation
+                report.
+
+
+
+   .. py:method:: to_rst(docs_dir: pydantic.DirectoryPath, path: str) -> None
+
+      Output to an RST file.
+
+
+
+   .. py:method:: encode(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Standardize coded columns using the foreign column they refer to.
+
+
+
+.. py:class:: Package(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   Tabular data package.
+
+   See https://specs.frictionlessdata.io/data-package.
+
+   .. rubric:: Examples
+
+   Foreign keys between resources are checked for completeness and consistency.
+
+   >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
+   >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
+   >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
+   >>> a = Resource(name='a', schema=schema, description='A')
+   >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), description='B')
+   >>> Package(name='ab', resources=[a, b])
+   Traceback (most recent call last):
+   ValidationError: ...
+   >>> b.schema.primary_key = ['x', 'y']
+   >>> package = Package(name='ab', resources=[a, b])
+
+   SQL Alchemy can sort tables, based on foreign keys,
+   in the order in which they need to be loaded into a database.
+
+   >>> metadata = package.to_sql()
+   >>> [table.name for table in metadata.sorted_tables]
+   ['b', 'a']
+
+
+   .. py:attribute:: name
+      :type:  String
+
+
+   .. py:attribute:: title
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: description
+      :type:  String | None
+      :value: None
+
+
+
+   .. py:attribute:: keywords
+      :type:  list[String]
+      :value: []
+
+
+
+   .. py:attribute:: homepage
+      :type:  pydantic.AnyHttpUrl
+
+
+   .. py:attribute:: created
+      :type:  datetime.datetime
+
+
+   .. py:attribute:: contributors
+      :type:  list[Contributor]
+      :value: []
+
+
+
+   .. py:attribute:: sources
+      :type:  list[DataSource]
+      :value: []
+
+
+
+   .. py:attribute:: licenses
+      :type:  list[License]
+      :value: []
+
+
+
+   .. py:attribute:: resources
+      :type:  StrictList[Resource]
+
+
+   .. py:attribute:: profile
+      :type:  String
+      :value: 'tabular-data-package'
+
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:method:: _check_foreign_keys(resources: list[Resource])
+      :classmethod:
+
+
+
+   .. py:method:: _populate_from_resources()
+
+      Populate Package attributes from similar deduplicated Resource attributes.
+
+      Resources and Packages share some descriptive attributes. When building a
+      Package out of a collection of Resources, we want the Package to reflect the
+      union of all the analogous values found in the Resources, but we don't want
+      any duplicates. We may also get values directly from the Package inputs.
+
+
+
+   .. py:method:: from_resource_ids(resource_ids: tuple[str] = tuple(sorted(RESOURCE_METADATA)), resolve_foreign_keys: bool = False, excluded_etl_groups: tuple[str] = ()) -> Package
+      :classmethod:
+
+
+      Construct a collection of Resources from PUDL identifiers (`resource.name`).
+
+      Identify any fields that have foreign key relationships referencing the
+      coding tables defined in :mod:`pudl.metadata.codes` and if so, associate the
+      coding table's encoder with those columns for later use cleaning them up.
+
+      The result is cached, since we so often need to generate the metadata for
+      the full collection of PUDL tables.
+
+      :param resource_ids: Resource PUDL identifiers (`resource.name`). Needs to
+                           be a Tuple so that the set of identifiers is hashable, allowing
+                           return value caching through lru_cache.
+      :param resolve_foreign_keys: Whether to add resources as needed based on
+                                   foreign keys.
+      :param excluded_etl_groups: Collection of ETL groups used to filter resources
+                                  out of Package.
+
+
+
+   .. py:method:: get_etl_group_tables(etl_group: str) -> tuple[str]
+      :staticmethod:
+
+
+      Get a sorted tuple of table names for an etl_group.
+
+      :param etl_group: the etl_group key.
+
+      :returns: A sorted tuple of table names for the etl_group.
+
+
+
+   .. py:method:: get_resource(name: str) -> Resource
+
+      Return the resource with the given name if it is in the Package.
+
+
+
+   .. py:method:: to_rst(docs_dir: pydantic.DirectoryPath, path: str) -> None
+
+      Output to an RST file.
+
+
+
+   .. py:method:: to_sql(check_types: bool = True, check_values: bool = True) -> sqlalchemy.MetaData
+
+      Return equivalent SQL MetaData.
+
+
+
+   .. py:method:: get_sorted_resources() -> StrictList[Resource]
+
+      Get a list of sorted Resources.
+
+      Currently Resources are listed in reverse alphabetical order based
+      on their name which results in the following order to promote output
+      tables to users and push intermediate tables to the bottom of the
+      docs: output, core, intermediate.
+      In the future we might want to have more fine grain control over how
+      Resources are sorted.
+
+      :returns: A sorted list of resources.
+
+
+
+   .. py:property:: encoders
+      :type: dict[SnakeCase, Encoder]
+
+
+      Compile a mapping of field names to their encoders, if they exist.
+
+      This dictionary will be used many times, so it makes sense to build it once
+      when the Package is instantiated so it can be reused.
+
+
+   .. py:method:: encode(df: pandas.DataFrame, copy: bool = True) -> pandas.DataFrame
+
+      Clean up all coded columns in a dataframe based on PUDL coding tables.
+
+      Running with ``copy=False`` is intended for memory-intensive data frames where no
+      upstream process retains a reference to the data. Use care with this option,
+      and keep an eye out for spooky data changes showing up in unexpected places.
+
+      :param df: DataFrame whose code columns are being cleaned up.
+      :param copy: (Default True) Return a copy, making no changes to the original data.
+
+      :returns: A dataframe with clean code columns.
+
+
+
+   .. py:method:: to_frictionless() -> frictionless.Package
+
+      Convert to a Frictionless Datapackage.
+
+
+
+.. py:data:: PUDL_PACKAGE
+
+   Define a global PUDL package object for use across the entire codebase.
+
+   This needs to happen after the definition of the Package class above, and it is used in
+   some of the class definitions below, but having it defined in the middle of this module
+   is kind of obscure, so it is imported in the __init__.py for this subpackage and then
+   imported in other modules from that more prominent location.
+
+.. py:class:: CodeMetadata(/, **data: Any)
+
+   Bases: :py:obj:`PudlMeta`
+
+
+   A list of Encoders for standardizing and documenting categorical codes.
+
+   Used to export static coding metadata to PUDL documentation automatically
+
+
+   .. py:attribute:: encoder_list
+      :type:  list[Encoder]
+      :value: []
+
+
+
+   .. py:method:: from_code_ids(code_ids: collections.abc.Iterable[str]) -> CodeMetadata
+      :classmethod:
+
+
+      Construct a list of encoders from code dictionaries.
+
+      :param code_ids: A list of Code PUDL identifiers, keys to entries in the
+                       CODE_METADATA dictionary.
+
+
+
+   .. py:method:: to_rst(top_dir: pydantic.DirectoryPath, csv_subdir: pydantic.DirectoryPath, rst_path: str) -> None
+
+      Iterate through encoders and output to an RST file.
+
+
+

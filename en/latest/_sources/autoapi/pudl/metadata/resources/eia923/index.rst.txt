@@ -1,0 +1,36 @@
+pudl.metadata.resources.eia923
+==============================
+
+.. py:module:: pudl.metadata.resources.eia923
+
+.. autoapi-nested-parse::
+
+   Definitions of data tables primarily coming from EIA-923.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.eia923.TABLE_DESCRIPTIONS
+   pudl.metadata.resources.eia923.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: TABLE_DESCRIPTIONS
+   :type:  dict[str, dict[str, Any]]
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
+
+   Keys are in alphabetical order.
+
+   See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of
+   ``foreign_key_rules``.
+

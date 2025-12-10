@@ -1,0 +1,359 @@
+pudl.metadata.descriptions
+==========================
+
+.. py:module:: pudl.metadata.descriptions
+
+.. autoapi-nested-parse::
+
+   Mechanisms and constants for setting standard resource descriptions.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.descriptions.layer_descriptions
+   pudl.metadata.descriptions.source_descriptions
+   pudl.metadata.descriptions.table_type_fragments
+   pudl.metadata.descriptions.NONE_TABLETYPE_FRAGMENTS
+   pudl.metadata.descriptions.timeseries_resolution_fragments
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.metadata.descriptions.TableTypeFragments
+   pudl.metadata.descriptions.DescriptionMeta
+   pudl.metadata.descriptions.ResourceTrait
+   pudl.metadata.descriptions.ResourceDescriptionBuilder
+   pudl.metadata.descriptions.ResourceNameComponents
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.metadata.descriptions.first_non_none
+
+
+Module Contents
+---------------
+
+.. py:data:: layer_descriptions
+   :type:  dict
+
+   Standard descriptive text to appear in the Processing section of resource descriptions.
+
+.. py:data:: source_descriptions
+   :type:  dict
+
+   Standard descriptive text to appear in the Source section of resource descriptions.
+
+.. py:class:: TableTypeFragments
+
+   Bases: :py:obj:`tuple`
+
+
+   .. py:attribute:: subject
+
+
+   .. py:attribute:: conjunction
+
+
+.. py:data:: table_type_fragments
+   :type:  dict[str, TableTypeFragments]
+
+   Standard descriptive text to appear in the Summary (first line) of resource descriptions.
+
+   These are split into fragments to permit some resources to do without any additional descriptive text beyond the basic table type.
+   Such resources should not provide :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`,
+   and the system will apply only the first fragment here.
+   If a resource provides :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`,
+   the system will apply both fragments from the corresponding :data:`table_type_fragments` entry, so that the summary starts with standardized text but finishes with more specific information.
+
+   .. rubric:: Examples
+
+   * Rendered summary: "Association table"
+
+     * resource name: [layer]_[source]__assn_[slug]
+     * :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`: not specified
+
+   * Rendered summary: "Association table providing connections between cats and Catalysters."
+
+     * resource name: [layer]_[source]__assn_[slug]
+     * :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`: "cats and Catalysters."
+
+.. py:data:: NONE_TABLETYPE_FRAGMENTS
+
+.. py:data:: timeseries_resolution_fragments
+   :type:  dict
+
+   More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources.
+
+.. py:class:: DescriptionMeta(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   A base model that configures some options for PUDL description classes.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+.. py:class:: ResourceTrait(/, **data: Any)
+
+   Bases: :py:obj:`DescriptionMeta`
+
+
+   Keeps the categorical information for one facet of a resource together with its prose description.
+
+   * type - the category code; one of the keys from the dictionaries above
+   * description - the text which will be included in the resource description block. This could be
+     one of the values from the dictionaries above, or a more complex string composed of multiple
+     pieces of standardized and manually-provided text.
+
+
+   .. py:attribute:: type
+      :type:  str
+
+      Category code for this aspect of the resource.
+
+      Primarily used for debugging descriptions; not shown to users.
+
+
+   .. py:attribute:: description
+      :type:  str
+
+      Text to be included in the rendered resource description.
+
+
+.. py:function:: first_non_none(*args)
+
+   Return the first argument which is not None.
+
+   Useful when you have multiple candidates for a value, some of which are preferred but rarely available.
+   Call with candidates in order of descending preference, and you'll get the most-preferred value available.
+
+   Returns None only if no such argument is found.
+
+
+.. py:class:: ResourceDescriptionBuilder(resource_id: str, settings: dict)
+
+   Generate the static text of a resource description from its decomposed parts.
+
+   Information for deciding what descriptive text to display in a resource description comes from several places:
+
+   * The resource metadata dictionary, containing manually-specified description codes and text in the "description" section
+   * :class:`ResourceNameComponents`, which automatically extracts appropriate description codes from the resource id
+   * The \*_descriptions and \*_fragments dictionaries in this file, which set standardized text for each code
+   * Some limited logic in this class which detects automatic usage warnings and primary key information
+
+   In order to keep manually-specified and -maintained components to a minimum, most keys in the
+   resource metadata dictionary's description section are optional. Keys which have not been manually specified are filled
+   in using :class:`ResourceNameComponents` or left blank. See :class:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents` for
+   complete documentation on manually-specifiable keys.
+
+   This class computes and stores "final" description components from all available inputs.
+   There are six final description components:
+
+   * summary
+   * layer
+   * source
+   * primary_key
+   * details
+   * usage_warnings
+
+   Each takes the form of a :class:`ResourceTrait` (or list of :class:`ResourceTrait`, in the case of usage_warnings),
+   which include the description text along with any types/categories extracted along the way.
+
+   This class then serves as the input to the resource_description template, which assembles the components into a static text block
+   appropriate for including in a data dictionary, datapackage export, or sqlachemy operation.
+
+
+   .. py:attribute:: resource_id
+
+
+   .. py:method:: _create_summary_description(settings, defaults: ResourceNameComponents)
+
+      Compute the summary component (first line) of the resource description.
+
+      The summary is standardized based on table type, and if the table type is timeseries, the timeseries resolution.
+      Any :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`, if present, is included after the standard text for the timeseries resolution and table type.
+      If the timeseries resolution and table type aren't set manually and can't be auto detected, fall back to
+      the :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text` key and use it as a complete sentence instead of just a predicate fragment.
+
+
+
+   .. py:method:: _create_x_description(attr: str, lookup: dict[str, str], settings: dict, defaults: ResourceNameComponents)
+
+      Compute a generic component of the resource description.
+
+      This function applies to any component whose computation is a straightforward cascade:
+
+      1. Use the manually-specified category code
+      2. If that's not available, use the auto-extracted category code
+      3. Fetch the standard text for the computed category code
+      4. Follow up with any additional manually-specified description text
+
+      :param attr: name of the key (exclude the _code suffix) for the category code for this component (shared with :class:`ResourceNameComponents`)
+      :param lookup: dictionary containing the mapping from the category code to the corresponding display text
+      :param settings: a dictionary of resource metadata, lightly-processed by the constructor to make description keys easier to access
+      :param defaults: a :class:`ResourceNameComponents` instance for this resource, containing the default category codes as extracted from the resource id
+
+
+
+   .. py:method:: _create_layer_description(settings, defaults)
+
+      Compute the processing layer component of the resource description.
+
+
+
+   .. py:method:: _create_source_description(settings, defaults)
+
+      Compute the data source component of the resource description.
+
+
+
+   .. py:method:: _create_primary_key_description(settings, defaults)
+
+      Compute the primary key component of the resource description.
+
+      If a primary key is available in the resource schema, include a list of the primary key columns.
+
+      If a primary key is not available, include standardized text and any manually-specified description
+      text from :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text`
+      for what each row contains and perhaps why a primary key is not appropriate for the resource.
+
+      If the primary key is available, *and* :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text` is specified,
+      the manually-specified text will be placed after the primary key listing.
+
+
+
+   .. py:method:: _create_details_description(settings, defaults)
+
+      Compute the details component of the resource description.
+
+      There is no standardized text for this component, and manually specifying it is optional.
+
+
+
+   .. py:method:: _assemble_usage_warnings(settings, defaults)
+
+      Combine manually-provided warnings and automatically-detected warnings for the requested resource.
+
+      We automatically detect and include the following usage warnings:
+
+      * multiple_inputs - for all resources that specify more than one source_id as part of their toplevel metadata (not description.source, that's meant to be more summative)
+      * ferc_is_hard - for all resources that include the string "ferc" in the resource id
+
+
+
+   .. py:method:: summarize() -> str
+
+      Show all computed description components, including type/category information.
+
+      This is suitable for low-overhead previews and debugging.
+
+
+
+   .. py:method:: build(jinja_environment)
+
+      Render all description components into the full static description text block using the resource_description template.
+
+
+
+.. py:class:: ResourceNameComponents(/, **data: Any)
+
+   Bases: :py:obj:`DescriptionMeta`
+
+
+   Extract basic information from the name of a resource.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+      Resource name (aka table name).
+
+
+   .. py:attribute:: layer_options
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: source_options
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: timeseries_resolution_options
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: table_type_options
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: resource_name_pattern
+      :type:  str
+      :value: '^(?P<layer>)_(?P<source>)__(?P<timeseries_resolution>|)(?:_|)(?P<table_type>|)(?:_|)(?:_|)(?P<slug>.*)$'
+
+
+
+   .. py:attribute:: _match
+      :value: None
+
+
+
+   .. py:property:: match
+
+      Return the regex match for the resource name.
+
+
+   .. py:property:: layer_code
+
+      Layer extracted from resource name.
+
+
+   .. py:property:: source_code
+
+      Source extracted from resource name.
+
+
+   .. py:property:: table_type_code
+
+      Table type extracted from resource name.
+
+
+   .. py:property:: timeseries_resolution_code
+
+      Timeseries resolution extracted from resource name.
+
+
+   .. py:property:: slug_text
+
+      Slug extracted from resource name.
+
+      Possible use case: extract what is being associated from an assn table.
+
+
+   .. py:method:: table_name_check()
+
+      Check the expected pattern of the resource name.
+
+
+

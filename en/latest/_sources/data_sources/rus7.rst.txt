@@ -1,0 +1,147 @@
+===========================================================================================
+USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.rd.usda.gov/resources/forms/rus-forms
+   * - Source Description
+     - The United States Department of Agriculture (USDA) Financial and Operating Report for Electric Distribution (formerly known as Form 7) is an annual report submitted by rural electric utilities that receive funding from the USDA Rural Utilities Service (RUS) for distribution services. This data was obtained through multiple Freedom of Information Access (FOIA) requests.
+   * - Respondents
+     - Rural electric utilities borrowing from USDA RUS.
+   * - Source Format
+     - Comma Separated Value (.csv)
+   * - Download Size
+     - 27 MB
+   * - Temporal Coverage
+     - 2006-2021
+   * - PUDL Code
+     - ``rus7``
+   * - Unprocessed Source Data Archive
+     - `10.5281/zenodo.18248545 <https://doi.org/10.5281/zenodo.18248545>`__
+   * - Issues
+     - `Open USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Arus7>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_rus7__scd_borrowers`
+     - https://data.catalyst.coop/search?q=name:core_rus7__scd_borrowers
+   
+   * - :ref:`core_rus7__yearly_balance_sheet_assets`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_balance_sheet_assets
+   
+   * - :ref:`core_rus7__yearly_balance_sheet_liabilities`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_balance_sheet_liabilities
+   
+   * - :ref:`core_rus7__yearly_employee_statistics`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_employee_statistics
+   
+   * - :ref:`core_rus7__yearly_energy_efficiency`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_energy_efficiency
+   
+   * - :ref:`core_rus7__yearly_investments`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_investments
+   
+   * - :ref:`core_rus7__yearly_long_term_debt`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_long_term_debt
+   
+   * - :ref:`core_rus7__yearly_meeting_and_board`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_meeting_and_board
+   
+   * - :ref:`core_rus7__yearly_patronage_capital`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_patronage_capital
+   
+   * - :ref:`core_rus7__yearly_power_requirements`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_power_requirements
+   
+   * - :ref:`core_rus7__yearly_power_requirements_electric_customers`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_power_requirements_electric_customers
+   
+   * - :ref:`core_rus7__yearly_power_requirements_electric_sales`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_power_requirements_electric_sales
+   
+   * - :ref:`core_rus7__yearly_statement_of_operations`
+     - https://data.catalyst.coop/search?q=name:core_rus7__yearly_statement_of_operations
+   
+
+
+Background
+^^^^^^^^^^
+
+The United States Department of Agriculture (USDA) Rural Utilities Service (RUS)
+`Form 7 <https://www.rd.usda.gov/resources/forms/rus-forms>`__, now known as
+the **Financial and Operating Report - Distribution**, collects detailed annual financial
+and operational data about rural electric distribution utilities. The form was created to
+provide financial oversight to loan officers lending money to rural cooperatives. RUS
+does not publish the responses to these forms it collects - this data was obtained by
+submitting annual FOIA requests. The resulting data provides financial and operational
+insight into utilities that are otherwise excluded from the FERC Form 1 filings due to
+their limited service territory, lack of wholesale power sales subject to federal
+jurisdiction, and classification as non-public utilities.
+
+
+
+
+Download additional documentation
+---------------------------------
+
+
+* :download:`Rus7 Blank 2014 (PDF) <rus7/rus7_blank_2014.pdf>`
+* :download:`Rus7 Blank Pre2014 (PDF) <rus7/rus7_blank_pre2014.pdf>`
+* :download:`Uep Bulletin 1717B-2 2002-02-14 (PDF) <rus7/uep_bulletin_1717B-2_2002-02-14.pdf>`
+
+
+
+
+What data is available through PUDL?
+------------------------------------
+
+
+We've integrated all RUS 12 tables with the exception of six totals tables
+containing aggregated versions of values present in other tables.
+
+
+
+
+Who is required to fill out the form?
+-------------------------------------
+
+
+RUS-7 is completed by rural electric distribution utilities that receive loans or financial support
+from the USDA Rural Utilities Service (RUS) program.
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+The raw data are accessed via FOIA request and are formatted as a collection of
+annualized CSVs. Each file in the collection corresponds to a different part of
+the original form.
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.rus7` created for each table's
+respective transform function.

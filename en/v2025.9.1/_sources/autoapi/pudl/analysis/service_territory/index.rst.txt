@@ -1,0 +1,258 @@
+pudl.analysis.service_territory
+===============================
+
+.. py:module:: pudl.analysis.service_territory
+
+.. autoapi-nested-parse::
+
+   Compile historical utility and balancing area territories.
+
+   Use the mapping of utilities to counties, and balancing areas to utilities, available
+   within the EIA 861, in conjunction with the US Census geometries for counties, to infer
+   the historical spatial extent of utility and balancing area territories. Output the
+   resulting geometries for use in other applications.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.service_territory.logger
+   pudl.analysis.service_territory.MAP_CRS
+   pudl.analysis.service_territory.CALC_CRS
+   pudl.analysis.service_territory.service_territory_eia861_assets
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.service_territory.utility_ids_all_eia
+   pudl.analysis.service_territory.get_territory_fips
+   pudl.analysis.service_territory.add_geometries
+   pudl.analysis.service_territory.get_territory_geometries
+   pudl.analysis.service_territory._save_geoparquet
+   pudl.analysis.service_territory.compile_geoms
+   pudl.analysis.service_territory.service_territory_asset_factory
+   pudl.analysis.service_territory.plot_historical_territory
+   pudl.analysis.service_territory.plot_all_territories
+   pudl.analysis.service_territory.pudl_service_territories
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: MAP_CRS
+   :value: 'EPSG:3857'
+
+
+.. py:data:: CALC_CRS
+   :value: 'ESRI:102003'
+
+
+.. py:function:: utility_ids_all_eia(out_eia__yearly_utilities: pandas.DataFrame, core_eia861__yearly_service_territory: pandas.DataFrame) -> pandas.DataFrame
+
+   Compile IDs and Names of all known EIA Utilities.
+
+   Grab all EIA utility names and IDs from both the EIA 861 Service Territory table and
+   the EIA 860 Utility entity table. This is a temporary function that's only needed
+   because we haven't integrated the EIA 861 information into the entity harvesting
+   process and PUDL database yet.
+
+   :param out_eia__yearly_utilities: De-normalized EIA 860 utility attributes table.
+   :param core_eia861__yearly_service_territory: Normalized EIA 861 Service Territory table.
+
+   :returns: A DataFrame having 2 columns ``utility_id_eia`` and ``utility_name_eia``.
+
+
+.. py:function:: get_territory_fips(ids: collections.abc.Iterable[int], assn: pandas.DataFrame, assn_col: str, core_eia861__yearly_service_territory: pandas.DataFrame, limit_by_state: bool = True) -> pandas.DataFrame
+
+   Compile county FIPS codes associated with an entity's service territory.
+
+   For each entity identified by ids, look up the set of counties associated
+   with that entity on an annual basis. Optionally limit the set of counties
+   to those within states where the selected entities reported activity elsewhere
+   within the EIA 861 data.
+
+   :param ids: A collection of EIA utility or balancing authority IDs.
+   :param assn: Association table, relating ``report_date``,
+   :param ``state``: column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.
+   :param and ``utility_id_eia`` to each other: column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.
+   :param as well as the: column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.
+   :param assn_col: Label of the dataframe column in ``assn`` that contains
+                    the ID of the entities of interest. Should probably be either
+                    ``balancing_authority_id_eia`` or ``utility_id_eia``.
+   :param core_eia861__yearly_service_territory: The EIA 861 Service Territory table.
+   :param limit_by_state: Whether to require that the counties associated
+                          with the balancing authority are inside a state that has also been
+                          seen in association with the balancing authority and the utility
+                          whose service territory contains the county.
+
+   :returns: A table associating the entity IDs with a collection of
+             counties annually, identifying counties both by name and county_id_fips
+             (both state and state_id_fips are included for clarity).
+
+
+.. py:function:: add_geometries(df: pandas.DataFrame, census_gdf: geopandas.GeoDataFrame, dissolve: bool = False, dissolve_by: list[str] | None = None) -> geopandas.GeoDataFrame
+
+   Merge census geometries into dataframe on county_id_fips, optionally dissolving.
+
+   Merge the US Census county-level geospatial information into the DataFrame df
+   based on the the column county_id_fips (in df), which corresponds to the column
+   GEOID10 in census_gdf. Also bring in the population and area of the counties,
+   summing as necessary in the case of dissolved geometries.
+
+   :param df: A DataFrame containing a county_id_fips column.
+   :param census_gdf: A GeoDataFrame based on the US Census
+                      demographic profile (DP1) data at county resolution, with the original
+                      column names as published by US Census.
+   :param dissolve: If True, dissolve individual county geometries into larger
+                    service territories.
+   :param dissolve_by: The columns to group by in the dissolve. For example,
+                       dissolve_by=["report_date", "utility_id_eia"] might provide annual utility
+                       service territories, while ["report_date", "balancing_authority_id_eia"]
+                       would provide annual balancing authority territories.
+
+   :returns: A GeoDataFrame with the merged census geometries.
+
+
+.. py:function:: get_territory_geometries(ids: collections.abc.Iterable[int], assn: pandas.DataFrame, assn_col: str, core_eia861__yearly_service_territory: pandas.DataFrame, census_gdf: geopandas.GeoDataFrame, limit_by_state: bool = True, dissolve: bool = False) -> geopandas.GeoDataFrame
+
+   Compile service territory geometries based on county_id_fips.
+
+   Calls ``get_territory_fips`` to generate the list of counties associated with
+   each entity identified by ``ids``, and then merges in the corresponding county
+   geometries from the US Census DP1 data passed in via ``census_gdf``.
+
+   Optionally dissolve all of the county level geometries into a single geometry for
+   each combination of entity and year.
+
+   .. note::
+
+      Dissolving geometires is a costly operation, and may take half an hour or more
+      if you are processing all entities for all years. Dissolving also means that all
+      the per-county information will be lost, rendering the output inappropriate for
+      use in many analyses. Dissolving is mostly useful for generating visualizations.
+
+   :param ids: A collection of EIA balancing authority IDs.
+   :param assn: Association table, relating ``report_date``,
+   :param ``state``: column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.
+   :param and ``utility_id_eia`` to each other: column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.
+   :param as well as the: column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.
+   :param assn_col: Label of the dataframe column in ``assn`` that contains
+                    the ID of the entities of interest. Should probably be either
+                    ``balancing_authority_id_eia`` or ``utility_id_eia``.
+   :param core_eia861__yearly_service_territory: The EIA 861 Service Territory table.
+   :param census_gdf: The US Census DP1 county-level geometries.
+   :param limit_by_state: Whether to require that the counties associated
+                          with the balancing authority are inside a state that has also been
+                          seen in association with the balancing authority and the utility
+                          whose service territory contains the county.
+   :param dissolve: If False, each record in the compiled territory will correspond
+                    to a single county, with a county-level geometry, and there will be many
+                    records enumerating all the counties associated with a given
+                    balancing_authority_id_eia in each year. If dissolve=True, all of the
+                    county-level geometries for each utility in each year will be merged
+                    together ("dissolved") resulting in a single geometry and record for each
+                    balancing_authority-year.
+
+   :returns: A GeoDataFrame with service territory geometries for each entity.
+
+
+.. py:function:: _save_geoparquet(gdf: geopandas.GeoDataFrame, entity_type: Literal['utility', 'balancing_authority'], dissolve: bool, limit_by_state: bool, output_dir: pathlib.Path | None = None) -> None
+
+   Save utility or balancing authority service territory geometries to GeoParquet.
+
+   In order to prevent the geometry data from exceeding the 2GB maximum size of an
+   Arrow object, we need to keep the row groups small. Sort the dataframe by the
+   primary key columns to minimize the number of values in any row group.  Output
+   filename is constructed based on input arguments.
+
+   :param gdf: GeoDataframe containing utility or balancing authority geometries.
+   :param entity_type: string indicating whether we're outputting utility or balancing
+                       authority geometries.
+   :param dissolve: Whether the individual county geometries making up the service
+                    territories have been merged together. Used to construct filename.
+   :param limit_by_state: Whether service territories have been limited to include only
+                          counties in states where the utilities reported sales. Used to construct
+                          filename.
+   :param output_dir: Path to the directory where the GeoParquet file will be written.
+
+
+.. py:function:: compile_geoms(core_eia861__yearly_balancing_authority: pandas.DataFrame, core_eia861__assn_balancing_authority: pandas.DataFrame, out_eia__yearly_utilities: pandas.DataFrame, core_eia861__yearly_service_territory: pandas.DataFrame, core_eia861__assn_utility: pandas.DataFrame, census_counties: pandas.DataFrame, entity_type: Literal['balancing_authority', 'utility'], save_format: Literal['geoparquet', 'geodataframe', 'dataframe'], output_dir: pathlib.Path | None = None, dissolve: bool = False, limit_by_state: bool = True, years: list[int] = []) -> pandas.DataFrame
+
+   Compile all available utility or balancing authority geometries.
+
+   Returns a geoparquet file, geopandas GeoDataFrame or a pandas DataFrame with the
+   geometry column removed depending on the value of the save_format parameter. By
+   default, this returns only counties with observed EIA 861 data for a utility or
+   balancing authority, with geometries available at the county level.
+
+
+.. py:function:: service_territory_asset_factory(entity_type: Literal['balancing_authority', 'utility'], io_manager_key: str | None = None) -> list[dagster.AssetsDefinition]
+
+   Build asset definitions for balancing authority and utility territories.
+
+
+.. py:data:: service_territory_eia861_assets
+
+.. py:function:: plot_historical_territory(gdf: geopandas.GeoDataFrame, id_col: str, id_val: str | int) -> None
+
+   Plot all the historical geometries defined for the specified entity.
+
+   This is useful for exploring how a particular entity's service territory has evolved
+   over time, or for identifying individual missing or inaccurate territories.
+
+   :param gdf: A geodataframe containing geometries pertaining electricity planning areas.
+               Can be broken down by county FIPS code, or have a single record containing a
+               geometry for each combination of report_date and the column being used to
+               select planning areas (see below).
+   :param id_col: The label of a column in gdf that identifies the planning area to be
+                  visualized, like ``utility_id_eia``, ``balancing_authority_id_eia``, or
+                  ``balancing_authority_code_eia``.
+   :param id_val: The ID of the entity whose territory should be plotted.
+
+
+.. py:function:: plot_all_territories(gdf: geopandas.GeoDataFrame, report_date: str, respondent_type: str | collections.abc.Iterable[str] = ('balancing_authority', 'utility'), color: str = 'black', alpha: float = 0.25)
+
+   Plot all of the planning areas of a given type for a given report date.
+
+   .. todo::
+
+      This function needs to be made more general purpose, and less
+      entangled with the FERC 714 data.
+
+   :param gdf: GeoDataFrame containing planning area geometries, organized by
+               ``respondent_id_ferc714`` and ``report_date``.
+   :param report_date: A string representing a datetime that indicates what year's
+                       planning areas should be displayed.
+   :param respondent_type: Type of respondent whose planning
+                           areas should be displayed. Either "utility" or
+                           "balancing_authority" or an iterable collection containing both.
+   :param color: Color to use for the planning areas.
+   :param alpha: Transparency to use for the planning areas.
+
+   :returns: matplotlib.axes.Axes
+
+
+.. py:function:: pudl_service_territories(entity_type: Literal['utility', 'balancing_authority'], dissolve: bool, output_dir: pathlib.Path, limit_by_state: bool, years: list[int], logfile: pathlib.Path, loglevel: str)
+
+   Compile historical utility and balancing area service territory geometries.
+
+   This script produces GeoParquet files describing the historical service territories
+   of utilities and balancing authorities based on data reported in the EIA Form 861
+   and county geometries from the US Census DP1 geodatabase.
+
+   See: https://geoparquet.org/ for more on the GeoParquet file format.
+
+   Usage examples:
+
+   pudl_service_territories --entity-type balancing_authority --dissolve --limit-by-state
+   pudl_service_territories --entity-type utility
+
+

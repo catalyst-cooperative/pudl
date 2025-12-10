@@ -1,0 +1,23 @@
+pudl.scripts
+============
+
+.. py:module:: pudl.scripts
+
+.. autoapi-nested-parse::
+
+   Command line tools for use in PUDL development and testing.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/scripts/dbt_helper/index
+   /autoapi/pudl/scripts/pudl_null_cols/index
+   /autoapi/pudl/scripts/resource_description/index
+   /autoapi/pudl/scripts/zenodo_data_release/index
+
+

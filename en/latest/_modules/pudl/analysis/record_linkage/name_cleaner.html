@@ -1,0 +1,964 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.analysis.record_linkage.name_cleaner &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/analysis/record_linkage/name_cleaner';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.analysis.record_linkage.name_cleaner</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.analysis.record_linkage.name_cleaner</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module contains the implementation of CompanyNameCleaner class from OS-Climate&#39;s financial-entity-cleaner package.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">model_validator</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CLEANING_RULES_DICT">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CLEANING_RULES_DICT">[docs]</a>
+<span class="n">CLEANING_RULES_DICT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;remove_email&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\S*@\S*\s?&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_url&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;https*\S+&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_word_the_from_the_end&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\s+the$&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_word_the_from_the_beginning&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;^the\s+&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_www_address&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;https?://[.\w]{3,}|www.[.\w]{3,}&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;enforce_single_space_between_words&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;replace_ampersand_in_spaces_by_AND&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; and &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\s+&amp;\s+&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;replace_ampersand_by_AND&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; and &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\s*&amp;\s*&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;add_space_between_ampersand&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &amp; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&amp;&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;add_space_before_opening_parentheses&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; (&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\(&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;add_space_after_closing_parentheses&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;) &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\)&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;replace_hyphen_by_space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\s*-\s*&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;replace_underscore_by_space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\s*_\s*&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_all_punctuation&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;([^\w\s])&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_punctuation_except_dot&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;([^\w\s.])&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;replace_dot_with_nothing&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\.&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_mentions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;@\S+&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_hashtags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;#\S+&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_numbers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\w*\d+\w*&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_text_punctuation&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\;|\:|\,|\.|\?|\!|&quot;|</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_text_punctuation_except_dot&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\;|\:|\,|\?|\!|&quot;</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_math_symbols&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\+|\-|\*|\&gt;|\&lt;|\=|\%&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_math_symbols_except_dash&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\+|\*|\&gt;|\&lt;|\=|\%&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_parentheses&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\(|\)&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_brackets&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\[|\]&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_curly_brackets&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\{|\}&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_single_quote_next_character&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&#39;\w+&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_single_quote&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;&#39;&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_double_quote&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;&quot;&#39;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_words_in_parentheses&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\([^()]*\)&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;remove_words_between_slashes&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot; &quot;</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;/.*?/&quot;</span><span class="p">,</span>
+    <span class="p">],</span>  <span class="c1"># commonly comes up in SEC company names</span>
+    <span class="s2">&quot;repeat_remove_words_in_parentheses&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;remove_words_in_parentheses&quot;</span><span class="p">],</span>
+<span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="DEFAULT_CLEANING_RULES_LIST">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.DEFAULT_CLEANING_RULES_LIST">[docs]</a>
+<span class="n">DEFAULT_CLEANING_RULES_LIST</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;remove_word_the_from_the_end&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remove_word_the_from_the_beginning&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;replace_ampersand_by_AND&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;replace_hyphen_by_space&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;replace_underscore_by_space&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remove_all_punctuation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remove_numbers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remove_math_symbols&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remove_words_in_parentheses&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remove_parentheses&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remove_brackets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remove_curly_brackets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;enforce_single_space_between_words&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="NAME_LEGAL_TERMS_DICT_FILE">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.NAME_LEGAL_TERMS_DICT_FILE">[docs]</a>
+<span class="n">NAME_LEGAL_TERMS_DICT_FILE</span> <span class="o">=</span> <span class="s2">&quot;us_legal_forms.json&quot;</span></div>
+
+<div class="viewcode-block" id="NAME_JSON_ENTRY_LEGAL_TERMS">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.NAME_JSON_ENTRY_LEGAL_TERMS">[docs]</a>
+<span class="n">NAME_JSON_ENTRY_LEGAL_TERMS</span> <span class="o">=</span> <span class="s2">&quot;legal_forms&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="LegalTermLocation">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.LegalTermLocation">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LegalTermLocation</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The location of the legal terms within the name string.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LegalTermLocation.AT_THE_END">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.LegalTermLocation.AT_THE_END">[docs]</a>
+    <span class="n">AT_THE_END</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="LegalTermLocation.ANYWHERE">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.LegalTermLocation.ANYWHERE">[docs]</a>
+    <span class="n">ANYWHERE</span> <span class="o">=</span> <span class="mi">2</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Lettercase">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.Lettercase">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Lettercase</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Allowed cases for output strings.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Lettercase.LOWER">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.Lettercase.LOWER">[docs]</a>
+    <span class="n">LOWER</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Lettercase.TITLE">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.Lettercase.TITLE">[docs]</a>
+    <span class="n">TITLE</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="Lettercase.UPPER">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.Lettercase.UPPER">[docs]</a>
+    <span class="n">UPPER</span> <span class="o">=</span> <span class="mi">3</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HandleLegalTerms">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HandleLegalTerms</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether to leave, remove, or normalize legal terms.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HandleLegalTerms.NORMALIZE">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms.NORMALIZE">[docs]</a>
+    <span class="n">NORMALIZE</span> <span class="o">=</span> <span class="mi">3</span></div>
+
+<div class="viewcode-block" id="HandleLegalTerms.LEAVE_AS_IS">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms.LEAVE_AS_IS">[docs]</a>
+    <span class="n">LEAVE_AS_IS</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="HandleLegalTerms.REMOVE">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms.REMOVE">[docs]</a>
+    <span class="n">REMOVE</span> <span class="o">=</span> <span class="mi">2</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="_get_legal_terms_dict">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner._get_legal_terms_dict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_legal_terms_dict</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+    <span class="n">json_source</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.settings&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+        <span class="n">NAME_LEGAL_TERMS_DICT_FILE</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">json_source</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">legal_terms_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)[</span><span class="n">NAME_JSON_ENTRY_LEGAL_TERMS</span><span class="p">][</span><span class="s2">&quot;en&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">legal_terms_dict</span></div>
+
+
+
+<div class="viewcode-block" id="CompanyNameCleaner">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompanyNameCleaner</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to normalize/clean up text based company names.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CompanyNameCleaner.cleaning_rules_list">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.cleaning_rules_list">[docs]</a>
+    <span class="n">cleaning_rules_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_CLEANING_RULES_LIST</span></div>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A list of cleaning rules that the CompanyNameCleaner should apply.</span>
+
+<span class="sd">    Will be validated to ensure rules comply to allowed cleaning functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CompanyNameCleaner.handle_legal_terms">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.handle_legal_terms">[docs]</a>
+    <span class="n">handle_legal_terms</span><span class="p">:</span> <span class="n">HandleLegalTerms</span> <span class="o">=</span> <span class="n">HandleLegalTerms</span><span class="o">.</span><span class="n">NORMALIZE</span></div>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A flag to indicate how to habndle legal terms.</span>
+
+<span class="sd">    Options are to remove, normalize, or keep them as is.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CompanyNameCleaner.place_word_the_at_beginning">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.place_word_the_at_beginning">[docs]</a>
+    <span class="n">place_word_the_at_beginning</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A flag to indicate whether to move &#39;the&#39; to the start of a string.</span>
+
+<span class="sd">    If True, then if the word &#39;the&#39; appears at the end of a string,</span>
+<span class="sd">    remove it and place &#39;the&#39; at the beginning of the string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CompanyNameCleaner.remove_unicode">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.remove_unicode">[docs]</a>
+    <span class="n">remove_unicode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define if unicode characters should be removed from text&#39;s name.</span>
+
+<span class="sd">    This cleaning rule is treated separated from the regex rules because it</span>
+<span class="sd">    depends on the language of the text&#39;s name. For instance, Russian or</span>
+<span class="sd">    Japanese text&#39;s may contain unicode characters, while Portuguese and</span>
+<span class="sd">    French companies may not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CompanyNameCleaner.output_lettercase">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.output_lettercase">[docs]</a>
+    <span class="n">output_lettercase</span><span class="p">:</span> <span class="n">Lettercase</span> <span class="o">=</span> <span class="n">Lettercase</span><span class="o">.</span><span class="n">LOWER</span></div>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define the letter case of the cleaning output.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CompanyNameCleaner.legal_term_location">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.legal_term_location">[docs]</a>
+    <span class="n">legal_term_location</span><span class="p">:</span> <span class="n">LegalTermLocation</span> <span class="o">=</span> <span class="n">LegalTermLocation</span><span class="o">.</span><span class="n">AT_THE_END</span></div>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Indicates where in the string legal terms are found.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CompanyNameCleaner.remove_accents">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.remove_accents">[docs]</a>
+    <span class="n">remove_accents</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag to indicate whether to remove accents from strings.</span>
+
+<span class="sd">    If True, replace letters with accents with non-accented ones.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CompanyNameCleaner.legal_terms_dict">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.legal_terms_dict">[docs]</a>
+    <span class="n">legal_terms_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">_get_legal_terms_dict</span><span class="p">)</span></div>
+
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="CompanyNameCleaner._validate_cleaning_rules">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._validate_cleaning_rules">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_cleaning_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="n">cleaning_rules_list_valid</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">rule</span> <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaning_rules_list</span> <span class="k">if</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">CLEANING_RULES_DICT</span>
+        <span class="p">]</span>
+        <span class="n">invalid_rules</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cleaning_rules_list</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">cleaning_rules_list_valid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">invalid_rules</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The following cleaning rules have not been implemented </span><span class="se">\</span>
+<span class="s2">                        in the CompanyNameCleaner class and will have no effect: </span><span class="se">\</span>
+<span class="s2">                        </span><span class="si">{</span><span class="n">invalid_rules</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;remove_all_punctuation_except_dot&quot;</span> <span class="ow">in</span> <span class="n">cleaning_rules_list_valid</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="s2">&quot;remove_all_punctuation&quot;</span> <span class="ow">in</span> <span class="n">cleaning_rules_list_valid</span>
+        <span class="p">):</span>
+            <span class="n">cleaning_rules_list_valid</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;remove_all_punctuation&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;remove_text_punctuation&quot;</span> <span class="ow">in</span> <span class="n">cleaning_rules_list_valid</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="s2">&quot;remove_text_punctuation_except_dot&quot;</span> <span class="ow">in</span> <span class="n">cleaning_rules_list_valid</span>
+        <span class="p">):</span>
+            <span class="n">cleaning_rules_list_valid</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;remove_text_punctuation&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;remove_math_symbols&quot;</span> <span class="ow">in</span> <span class="n">cleaning_rules_list_valid</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="s2">&quot;remove_math_symbols_except_dash&quot;</span> <span class="ow">in</span> <span class="n">cleaning_rules_list_valid</span>
+        <span class="p">):</span>
+            <span class="n">cleaning_rules_list_valid</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;remove_math_symbols&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleaning_rules_list</span> <span class="o">=</span> <span class="n">cleaning_rules_list_valid</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="CompanyNameCleaner._apply_regex_rules">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._apply_regex_rules">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_regex_rules</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">dict_regex_rules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Applies several cleaning rules based on a custom dictionary.</span>
+
+<span class="sd">        The dictionary must contain cleaning rules written in regex format.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            col: The column that needs to be cleaned.</span>
+<span class="sd">            dict_regex_rules: a dictionary of cleaning rules written in regex with the</span>
+<span class="sd">                format [rule name] : [&#39;replacement&#39;, &#39;regex rule&#39;]</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The modified/cleaned column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">col</span>
+        <span class="c1"># Iterate through the dictionary and apply each regex rule</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">cleaning_rule</span> <span class="ow">in</span> <span class="n">dict_regex_rules</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># First element is the replacement</span>
+            <span class="n">replacement</span> <span class="o">=</span> <span class="n">cleaning_rule</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Second element is the regex rule</span>
+            <span class="n">regex_rule</span> <span class="o">=</span> <span class="n">cleaning_rule</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Check if the regex rule is actually a reference to another regex rule.</span>
+            <span class="c1"># By adding a name of another regex rule in the place of the rule itself allows the execution</span>
+            <span class="c1"># of a regex rule twice</span>
+            <span class="k">if</span> <span class="n">regex_rule</span> <span class="ow">in</span> <span class="n">dict_regex_rules</span><span class="p">:</span>
+                <span class="n">replacement</span> <span class="o">=</span> <span class="n">dict_regex_rules</span><span class="p">[</span><span class="n">cleaning_rule</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">regex_rule</span> <span class="o">=</span> <span class="n">dict_regex_rules</span><span class="p">[</span><span class="n">cleaning_rule</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Make sure to use raw string</span>
+            <span class="n">regex_rule</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">regex_rule</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># Apply the regex rule</span>
+            <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">regex_rule</span><span class="p">,</span> <span class="n">replacement</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">clean_col</span></div>
+
+
+<div class="viewcode-block" id="CompanyNameCleaner._remove_unicode_chars">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._remove_unicode_chars">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_unicode_chars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes unicode characters that are unreadable in ASCII format.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            col: series containing unicode characters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            the corresponding input series without unicode characters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">,</span> <span class="s2">&quot;ignore&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CompanyNameCleaner._move_the_to_beginning">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._move_the_to_beginning">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_move_the_to_beginning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="n">remove_the_from_end_regex_rule</span> <span class="o">=</span> <span class="n">CLEANING_RULES_DICT</span><span class="p">[</span>
+            <span class="s2">&quot;remove_word_the_from_the_end&quot;</span>
+        <span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">remove_the_from_end_replacement</span> <span class="o">=</span> <span class="n">CLEANING_RULES_DICT</span><span class="p">[</span>
+            <span class="s2">&quot;remove_word_the_from_the_end&quot;</span>
+        <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># find matches with the at end</span>
+        <span class="n">the_at_end_matches</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>
+            <span class="n">remove_the_from_end_regex_rule</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="c1"># remove the from end of strings</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">remove_the_from_end_regex_rule</span><span class="p">,</span>
+            <span class="n">remove_the_from_end_replacement</span><span class="p">,</span>
+            <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">the_at_end_matches</span><span class="p">,</span> <span class="s2">&quot;the &quot;</span> <span class="o">+</span> <span class="n">clean_col</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clean_col</span></div>
+
+
+<div class="viewcode-block" id="CompanyNameCleaner._apply_cleaning_rules">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._apply_cleaning_rules">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_cleaning_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the cleaning rules from the dictionary of regex rules.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">place_word_the_at_beginning</span><span class="p">:</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_the_to_beginning</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+        <span class="n">cleaning_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">rule_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaning_rules_list</span><span class="p">:</span>
+            <span class="n">cleaning_dict</span><span class="p">[</span><span class="n">rule_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">CLEANING_RULES_DICT</span><span class="p">[</span><span class="n">rule_name</span><span class="p">]</span>
+
+        <span class="c1"># Apply all the cleaning rules</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_regex_rules</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">cleaning_dict</span><span class="p">)</span>
+        <span class="c1"># Enforce single spaces again in case some where created</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">CLEANING_RULES_DICT</span><span class="p">[</span><span class="s2">&quot;enforce_single_space_between_words&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">CLEANING_RULES_DICT</span><span class="p">[</span><span class="s2">&quot;enforce_single_space_between_words&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">clean_col</span></div>
+
+
+<div class="viewcode-block" id="CompanyNameCleaner._apply_normalization_of_legal_terms">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._apply_normalization_of_legal_terms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_normalization_of_legal_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the normalization of legal terms according to dictionary of regex rules.&quot;&quot;&quot;</span>
+        <span class="c1"># Make sure to remove extra spaces, so legal terms can be found in the end (if requested)</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1"># Apply normalization for legal terms</span>
+        <span class="c1"># Iterate through the dictionary of legal terms</span>
+        <span class="k">for</span> <span class="n">replacement</span><span class="p">,</span> <span class="n">legal_terms</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_terms_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Each replacement has a list of possible terms to be searched for</span>
+            <span class="n">replacement</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">replacement</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
+            <span class="k">for</span> <span class="n">legal_term</span> <span class="ow">in</span> <span class="n">legal_terms</span><span class="p">:</span>
+                <span class="c1"># Make sure to use raw string</span>
+                <span class="n">legal_term</span> <span class="o">=</span> <span class="n">legal_term</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="c1"># If the legal term has . (dots), then apply regex directly on the legal term</span>
+                <span class="c1"># Otherwise, if it&#39;s a legal term with only letters in sequence, make sure</span>
+                <span class="c1"># that regex find the legal term as a word (\\bLEGAL_TERM\\b)</span>
+                <span class="k">if</span> <span class="n">legal_term</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">legal_term</span> <span class="o">=</span> <span class="n">legal_term</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">legal_term</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">b&quot;</span> <span class="o">+</span> <span class="n">legal_term</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">b&quot;</span>
+                <span class="c1"># Check if the legal term should be found only at the end of the string</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_term_location</span> <span class="o">==</span> <span class="n">LegalTermLocation</span><span class="o">.</span><span class="n">AT_THE_END</span><span class="p">:</span>
+                    <span class="n">legal_term</span> <span class="o">=</span> <span class="n">legal_term</span> <span class="o">+</span> <span class="s2">&quot;$&quot;</span>
+                <span class="c1"># ...and it&#39;s a raw string</span>
+                <span class="n">regex_rule</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">legal_term</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="c1"># Apply the replacement</span>
+                <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">regex_rule</span><span class="p">,</span> <span class="n">replacement</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clean_col</span></div>
+
+
+<div class="viewcode-block" id="CompanyNameCleaner._apply_removal_of_legal_terms">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._apply_removal_of_legal_terms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_removal_of_legal_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove legal terms from a string.&quot;&quot;&quot;</span>
+        <span class="n">full_terms_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legal_terms_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_terms_dict</span><span class="p">:</span>
+            <span class="n">full_terms_list</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_terms_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">full_terms_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">regex_rule</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;\b(?:&quot;</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">full_terms_list</span><span class="p">)</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;)\b&quot;</span>
+        <span class="p">)</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">regex_rule</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1"># strip commas or other special chars that might be at the end of the name</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;.,!?()&#39;:;[]* </span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clean_col</span></div>
+
+
+<div class="viewcode-block" id="CompanyNameCleaner.get_clean_data">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.get_clean_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_clean_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean names and normalize legal terms.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            col: the column that is to be cleaned</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A the clean version of the column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># remove unicode characters</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_unicode_chars</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_unicode</span> <span class="k">else</span> <span class="n">col</span>
+
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_cleaning_rules</span><span class="p">(</span><span class="n">clean_col</span><span class="p">)</span>
+
+        <span class="c1"># Handle legal terms</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_legal_terms</span> <span class="o">==</span> <span class="n">HandleLegalTerms</span><span class="o">.</span><span class="n">REMOVE</span><span class="p">:</span>
+            <span class="n">clean_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_removal_of_legal_terms</span><span class="p">(</span><span class="n">clean_col</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_legal_terms</span> <span class="o">==</span> <span class="n">HandleLegalTerms</span><span class="o">.</span><span class="n">NORMALIZE</span><span class="p">:</span>
+            <span class="n">clean_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_normalization_of_legal_terms</span><span class="p">(</span><span class="n">clean_col</span><span class="p">)</span>
+
+        <span class="c1"># Apply the letter case, if different from &#39;lower&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_lettercase</span> <span class="o">==</span> <span class="n">Lettercase</span><span class="o">.</span><span class="n">UPPER</span><span class="p">:</span>
+            <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_lettercase</span> <span class="o">==</span> <span class="n">Lettercase</span><span class="o">.</span><span class="n">TITLE</span><span class="p">:</span>
+            <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+        <span class="c1"># Remove excess of white space that might be introduced during previous cleaning</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">clean_col</span> <span class="o">=</span> <span class="n">clean_col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">clean_col</span></div>
+
+
+<div class="viewcode-block" id="CompanyNameCleaner.apply_name_cleaning">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_name_cleaning</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">return_as_dframe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean up text names in a dataframe.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            df: the input dataframe that contains the text&#39;s name to be cleaned.</span>
+<span class="sd">            return_as_dframe: whether to return the cleaned data as a dataframe or</span>
+<span class="sd">                series. Useful to return as a dataframe if used in a cleaning pipeline</span>
+<span class="sd">                with no vectorization step after name cleaning. If multiple columns are</span>
+<span class="sd">                passed in for cleaning then output will be a dataframe regardless of</span>
+<span class="sd">                this parameter.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A clean version of the input dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">clean_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">clean_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">clean_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clean_data</span><span class="p">(</span><span class="n">clean_df</span><span class="p">[</span><span class="n">col</span><span class="p">])],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">clean_df</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clean_data</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">return_as_dframe</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

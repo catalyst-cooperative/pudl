@@ -1,0 +1,777 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'data_sources/eia176';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="EIA Form 860 – Annual Electric Generator Report" href="eia860.html" />
+    <link rel="prev" title="EIA Bulk API Data" href="eiaapi.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../data_dictionaries/index.html">Data Dictionaries</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Data Sources</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_access.html">Data Access</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../methodology/index.html">Methodology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../data.html" class="nav-link">Data Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Data Sources</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="eia-form-176-annual-report-of-natural-and-supplemental-gas-supply-and-disposition">
+<h1>EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition<a class="headerlink" href="#eia-form-176-annual-report-of-natural-and-supplemental-gas-supply-and-disposition" title="Link to this heading">#</a></h1>
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><th class="stub"><p>Source URL</p></th>
+<td><p><a class="reference external" href="https://www.eia.gov/naturalgas/ngqs/">https://www.eia.gov/naturalgas/ngqs/</a></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Source Description</p></th>
+<td><p>The EIA Form 176, also known as the Annual Report of Natural and Supplemental Gas Supply and Disposition, describes the origins, suppliers, and disposition of natural gas on a yearly and state by state basis.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Respondents</p></th>
+<td><p>Interstate natural gas pipeline companies; intrastate natural gas pipeline companies; natural gas distribution companies; underground natural gas storage (UNG) operators; synthetic natural gas plant operators; field, well, or processing plant operators that deliver natural gas directly to consumers (including their own industrial facilities) other than for lease or plant use or processing; field, well, or processing plant operators that transport gas to, across, or from a State border through field or gathering facilities; liquefied natural gas (LNG) storage operators.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Source Format</p></th>
+<td><p>Comma Separated Value (.csv)</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Download Size</p></th>
+<td><p>32 MB</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Temporal Coverage</p></th>
+<td><p>1997-2024</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>PUDL Code</p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">eia176</span></code></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Unprocessed Source Data Archive</p></th>
+<td><p><a class="reference external" href="https://doi.org/10.5281/zenodo.7682357">10.5281/zenodo.7682357</a></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Issues</p></th>
+<td><p><a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aopen+label%3Aeia176">Open EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition issues</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="pudl-database-tables">
+<h2>PUDL Database Tables<a class="headerlink" href="#pudl-database-tables" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Data Dictionary</p></th>
+<th class="head"><p>Browse Online</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-eia176-yearly-gas-disposition"><span class="std std-ref">core_eia176__yearly_gas_disposition</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_eia176__yearly_gas_disposition">https://data.catalyst.coop/search?q=name:core_eia176__yearly_gas_disposition</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-eia176-yearly-gas-disposition-by-consumer"><span class="std std-ref">core_eia176__yearly_gas_disposition_by_consumer</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_eia176__yearly_gas_disposition_by_consumer">https://data.catalyst.coop/search?q=name:core_eia176__yearly_gas_disposition_by_consumer</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
+<p>EIA <a class="reference external" href="https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176">Form 176</a>, also
+known as the <strong>Annual Report of Natural and Supplemental Gas Supply and Disposition</strong>,
+describes the origins, suppliers, and disposition of natural gas on a yearly and state
+by state basis.</p>
+<p>As of 2025, the EIA-176 Form is organized into the following parts:</p>
+<ul class="simple">
+<li><p><strong>Part 1:</strong> Identification</p></li>
+<li><p><strong>Part 3:</strong> Company characteristics</p></li>
+<li><p><strong>Part 4:</strong> Natural and supplemental gas supply</p></li>
+<li><p><strong>Part 5:</strong> Liquefied natural gas (LNG) storage inventory</p></li>
+<li><p><strong>Part 6:</strong> Natural and supplemental gas disposition</p></li>
+<li><p><strong>Part 7:</strong> Comments, footnotes and continuation text lines</p></li>
+</ul>
+<section id="download-additional-documentation">
+<h3>Download additional documentation<a class="headerlink" href="#download-additional-documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference download internal" download="" href="../_downloads/5748f663d917fb556248961d0b7123cf/eia176_blank_2011-12-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Blank</span> <span class="pre">2011-12-31</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/334d05b12c553ab360ab5f4388f24325/eia176_blank_2015-02-28.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Blank</span> <span class="pre">2015-02-28</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/343d002b6566137e5068841650751aaf/eia176_blank_2017-12-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Blank</span> <span class="pre">2017-12-31</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/2ff3d69b6888bef691d2c6cb7da6c041/eia176_blank_2021-01-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Blank</span> <span class="pre">2021-01-31</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/711138f6a157285b4dfc826b559eaae0/eia176_blank_2024-06-30.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Blank</span> <span class="pre">2024-06-30</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/008a64e20b0fec5c7f08357ac590f61f/eia176_blank_2027-07-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Blank</span> <span class="pre">2027-07-31</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/bbc3bfc78f1da3212a6513d848c64b79/eia176_instructions_2011-12-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Instructions</span> <span class="pre">2011-12-31</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/f598d77c2d39b385dcb23ef8f85c5de1/eia176_instructions_2015-02-28.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Instructions</span> <span class="pre">2015-02-28</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/d3ab38308a23e0cf6e438a69516196b5/eia176_instructions_2017-12-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Instructions</span> <span class="pre">2017-12-31</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/fe89976e6d65d5be9f6ab4c851ff94b2/eia176_instructions_2021-01-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Instructions</span> <span class="pre">2021-01-31</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/f848dd1ab39cbaffa1597860f73b594d/eia176_instructions_2024-06-30.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Instructions</span> <span class="pre">2024-06-30</span> <span class="pre">(PDF)</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/a19477b7bd485dc854c16a4e14d1a149/eia176_instructions_2027-07-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Eia176</span> <span class="pre">Instructions</span> <span class="pre">2027-07-31</span> <span class="pre">(PDF)</span></code></a></p></li>
+</ul>
+</section>
+<section id="what-data-is-available-through-pudl">
+<h3>What data is available through PUDL?<a class="headerlink" href="#what-data-is-available-through-pudl" title="Link to this heading">#</a></h3>
+<p>We are actively integrating EIA-176 data into PUDL with support from external contributors.
+Currently, Part 6 of the form is the only one that has been fully integrated.</p>
+</section>
+<section id="who-is-required-to-fill-out-the-form">
+<h3>Who is required to fill out the form?<a class="headerlink" href="#who-is-required-to-fill-out-the-form" title="Link to this heading">#</a></h3>
+<p>According to the EIA, the Form EIA‐176 must be completed by:</p>
+<ul class="simple">
+<li><p>Interstate natural gas pipeline companies</p></li>
+<li><p>Intrastate natural gas pipeline companies</p></li>
+<li><p>Natural gas distribution companies</p></li>
+<li><p>Underground natural gas storage operators</p></li>
+<li><p>Synthetic natural gas plant operators</p></li>
+<li><p>Field, well, or processing plant operators that deliver natural gas directly to
+consumers (including their own industrial facilities) other than for lease or
+plant use or processing.</p></li>
+<li><p>Field, well, or processing plant operators that transport gas to, across, or from a
+state border through field or gathering facilities</p></li>
+<li><p>Liquefied natural gas (LNG) storage operators, both peaking facilities and marine
+terminals</p></li>
+<li><p>Producers of high‐Btu renewable natural gas that inject into an interstate or
+intra‐state pipeline, or who deliver to a natural gas distributor.</p></li>
+</ul>
+<p>Data is collected annually from approximately 2,000 respondents, with a March 1st
+filing deadline. Each operator must file <strong>one report per state</strong> in which they are doing
+any of the following activities:</p>
+<ul class="simple">
+<li><p>Gas (natural, commingled natural and supplemental gas, or LNG) transportation using
+respondent‐operated facilities other than field or gathering lines</p></li>
+<li><p>Gas transportation to, from, or across a state border using respondent‐operated field
+or gathering lines</p></li>
+<li><p>Gas delivery directly to consumers using respondent‐operated facilities other than
+field, well, or plant operators delivering solely for lease and plant use or processing</p></li>
+<li><p>Gas storage in respondent‐operated underground storage reservoirs, or LNG storage
+facilities</p></li>
+<li><p>Synthetic natural gas production in respondent‐operated facilities</p></li>
+</ul>
+<p>Subsidiary companies are required to file separate reports if they meet these filing
+requirements, but can specifically request permission from the EIA to consolidate
+filing.</p>
+</section>
+<section id="what-does-the-original-data-look-like">
+<h3>What does the original data look like?<a class="headerlink" href="#what-does-the-original-data-look-like" title="Link to this heading">#</a></h3>
+<p>We archive EIA-176 data from two sources: CSV files that are exported from the <a class="reference external" href="https://www.eia.gov/naturalgas/ngqs">EIA
+Natural Gas Query System</a> by iterating through
+all predefined reports related to Form 176, as well as a custom report that includes
+every numerical series related to Form 176. We also archive but do not currently process
+the bulk CSV download of all available natural gas data, since it is less well
+structured than the exports from the Natural Gas Query System.</p>
+</section>
+</section>
+<section id="notable-irregularities">
+<h2>Notable Irregularities<a class="headerlink" href="#notable-irregularities" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Offshore gas reporting:</strong> For the purposes of Form 176 filings, a state is defined
+as including adjacent offshore Federal Domain areas. This means that any offshore gas
+operations will be reported under the relevant state.</p></li>
+<li><p><strong>Adjustment companies:</strong> The original company-level data contains a number of “adjustment companies”
+that do not appear to be documented in the Natural Gas Query System <a class="reference external" href="https://www.eia.gov/naturalgas/ngqs/ngqs_user_guide.pdf">user guide</a>.
+These companies all have “adjustment company” in their name and IDs beginning with 176999.
+These records are included in the company-level data where they report values.</p></li>
+</ul>
+</section>
+<section id="pudl-data-transformations">
+<h2>PUDL Data Transformations<a class="headerlink" href="#pudl-data-transformations" title="Link to this heading">#</a></h2>
+<p>To see the transformations applied to the data in each table, you can read the
+docstrings for <a class="reference internal" href="../autoapi/pudl/transform/eia176/index.html#module-pudl.transform.eia176" title="pudl.transform.eia176"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.transform.eia176</span></code></a> created for each table’s
+respective transform function.</p>
+<section id="validating-and-dropping-duplicated-data">
+<h3>Validating and dropping duplicated data<a class="headerlink" href="#validating-and-dropping-duplicated-data" title="Link to this heading">#</a></h3>
+<p>The original data includes aggregated data at the U.S. and state-wide scale, which we
+validate against the company-level data but do not publish to avoid data duplication.</p>
+<p>Similarly, the original data includes totals fields (e.g., sales totals) that are sums
+of other fields and are calculated by the EIA, not directly reported by companies filling
+out the form. We validate these totals fields against their components and drop them
+during transformation to avoid duplicating values during aggregation.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="eiaapi.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">EIA Bulk API Data</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="eia860.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">EIA Form 860 – Annual Electric Generator Report</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-database-tables">PUDL Database Tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-additional-documentation">Download additional documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-data-is-available-through-pudl">What data is available through PUDL?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#who-is-required-to-fill-out-the-form">Who is required to fill out the form?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-does-the-original-data-look-like">What does the original data look like?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notable-irregularities">Notable Irregularities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-data-transformations">PUDL Data Transformations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validating-and-dropping-duplicated-data">Validating and dropping duplicated data</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/data_sources/eia176.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

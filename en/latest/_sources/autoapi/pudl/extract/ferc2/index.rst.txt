@@ -1,0 +1,88 @@
+pudl.extract.ferc2
+==================
+
+.. py:module:: pudl.extract.ferc2
+
+.. autoapi-nested-parse::
+
+   Extract FERC Form 2 data from SQLite DBs derived from original DBF files.
+
+   The Form No. 2 is a compilation of financial and operational information from major
+   interstate natural gas pipelines subject to the jurisdiction of the FERC. The form
+   contains data for a calendar year. Among other things, the form contains a Comparative
+   Balance Sheet, Statement of Income, Statement of Retained Earnings, Statement of Cash
+   Flows, and Notes to Financial Statements.
+
+   Major is defined as having combined gas transported or stored for a fee that exceeds 50
+   million dekatherms.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.ferc2.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.ferc2.Ferc2DbfExtractor
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Ferc2DbfExtractor(datastore: pudl.workspace.datastore.Datastore, settings: pudl.settings.FercToSqliteSettings, output_path: pathlib.Path)
+
+   Bases: :py:obj:`pudl.extract.dbf.FercDbfExtractor`
+
+
+   Wrapper for running the foxpro to sqlite conversion of FERC1 dataset.
+
+
+   .. py:attribute:: DATASET
+      :value: 'ferc2'
+
+
+
+   .. py:attribute:: DATABASE_NAME
+      :value: 'ferc2_dbf.sqlite'
+
+
+
+   .. py:method:: get_settings(global_settings: pudl.settings.FercToSqliteSettings) -> pudl.settings.GenericDatasetSettings
+
+      Returns settings for FERC Form 1 DBF dataset.
+
+
+
+   .. py:method:: finalize_schema(meta: sqlalchemy.MetaData) -> sqlalchemy.MetaData
+
+      Add primary and foreign keys for respondent_id.
+
+
+
+   .. py:method:: is_valid_partition(fl: dict[str, Any])
+      :staticmethod:
+
+
+      Drops partition with non-empty `part` fields.
+
+
+
+   .. py:method:: aggregate_table_frames(table_name: str, dfs: list[pudl.extract.dbf.PartitionedDataFrame]) -> pandas.DataFrame | None
+
+      Runs the deduplication on f2_s0_respondent_id table.
+
+      Other tables are aggregated as usual, meaning that the partial frames are simply
+      concatenated.
+
+
+

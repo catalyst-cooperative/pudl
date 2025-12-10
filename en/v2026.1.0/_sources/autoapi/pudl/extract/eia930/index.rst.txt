@@ -1,0 +1,97 @@
+pudl.extract.eia930
+===================
+
+.. py:module:: pudl.extract.eia930
+
+.. autoapi-nested-parse::
+
+   Extract EIA Form 930 data from CSVs.
+
+   EIA Form 930 is reported in half-year increments. Each half-year has three
+   separate pages, which are stored as separate CSVs:
+   "balance", "interchange", and "subregion." See
+   https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/eia930.html for
+   more information.
+
+   We extract these CSVs into DuckDB, rename the columns as per the column map, and
+   dump out the concatenated pages to Parquet.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.eia930.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.eia930.raw_eia930__balance
+   pudl.extract.eia930.raw_eia930__interchange
+   pudl.extract.eia930.raw_eia930__subregion
+   pudl.extract.eia930.extract_page
+   pudl.extract.eia930.extract_half_year_page
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: raw_eia930__balance(context) -> pathlib.Path
+
+   Raw balance page.
+
+
+.. py:function:: raw_eia930__interchange(context) -> pathlib.Path
+
+   Raw interchange page.
+
+
+.. py:function:: raw_eia930__subregion(context) -> pathlib.Path
+
+   Raw subregion page - only exists after 2018h2.
+
+
+.. py:function:: extract_page(datastore: pudl.workspace.datastore.Datastore, page: str, half_years: list[str]) -> pathlib.Path
+
+   Pull data for a page across many half-years into a Parquet file.
+
+   This involves reading each half-year, of course, but also concatenating them
+   together and expanding the schema to fit all the columns we see.
+
+   If we were to return the `con.query()` and use an IOManager to manage
+   the Parquet IO, we would have to manage the DuckDB connection lifetime
+   to avoid trying to write out from a closed DuckDB connection. So, we just
+   write out directly in this asset and return a Path that we can pass to
+   ``pd.read_parquet``, ``pl.scan_parquet``, or any other Parquet reading
+   strategy.
+
+   :param datastore: the Datastore we use to actually access the raw data.
+   :param page: the name of the page we're extracting.
+   :param half_years: the set of half-year segments we're extracting.
+
+   :returns: The path to the resulting Parquet file.
+
+
+.. py:function:: extract_half_year_page(con: duckdb.DuckDBPyConnection, datastore: pudl.workspace.datastore.Datastore, half_year: str, page: str) -> str
+
+   Extract data from a single CSV.
+
+   Reads into DuckDB for speed and memory use. To avoid reading the whole CSV
+   into memory, we're extracting directly to a temporary directory.
+
+   :param con: DuckDB connection.
+   :param datastore: the Datastore we use to actually access the input data.
+   :param half_year: the half-year we're reading in.
+   :param page: the name of the page we're reading.
+
+   :returns: name of DuckDB view that represents the read & renamed CSV.
+   :rtype: view_name
+
+

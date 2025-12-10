@@ -1,0 +1,589 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.metadata.labels &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/labels';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.metadata.labels</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.metadata.labels</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Descriptive labels for coded field values.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ESTIMATED_OR_ACTUAL">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.ESTIMATED_OR_ACTUAL">[docs]</a>
+<span class="n">ESTIMATED_OR_ACTUAL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="s2">&quot;estimated&quot;</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="s2">&quot;actual&quot;</span><span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Descriptive labels for EIA estimated or actual codes.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="POWER_PURCHASE_TYPES_FERC1">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.POWER_PURCHASE_TYPES_FERC1">[docs]</a>
+<span class="n">POWER_PURCHASE_TYPES_FERC1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;RQ&quot;</span><span class="p">:</span> <span class="s2">&quot;requirement&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LF&quot;</span><span class="p">:</span> <span class="s2">&quot;long_firm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;IF&quot;</span><span class="p">:</span> <span class="s2">&quot;intermediate_firm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SF&quot;</span><span class="p">:</span> <span class="s2">&quot;short_firm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LU&quot;</span><span class="p">:</span> <span class="s2">&quot;long_unit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;IU&quot;</span><span class="p">:</span> <span class="s2">&quot;intermediate_unit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EX&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity_exchange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OS&quot;</span><span class="p">:</span> <span class="s2">&quot;other_service&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AD&quot;</span><span class="p">:</span> <span class="s2">&quot;adjustment&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Descriptive labels for FERC 1 power purchase type codes.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="COALMINE_TYPES_EIA">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.COALMINE_TYPES_EIA">[docs]</a>
+<span class="n">COALMINE_TYPES_EIA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="s2">&quot;preparation_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;U&quot;</span><span class="p">:</span> <span class="s2">&quot;underground&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;US&quot;</span><span class="p">:</span> <span class="s2">&quot;underground_and_surface&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SU&quot;</span><span class="p">:</span> <span class="s2">&quot;surface_and_underground&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Descriptive labels for coal mine type codes used in EIA 923 reporting.</span>
+
+<span class="sd">These codes and descriptions come from Page 7 of the EIA 923.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CENSUS_REGIONS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.CENSUS_REGIONS">[docs]</a>
+<span class="n">CENSUS_REGIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;NEW&quot;</span><span class="p">:</span> <span class="s2">&quot;New England&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MAT&quot;</span><span class="p">:</span> <span class="s2">&quot;Middle Atlantic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SAT&quot;</span><span class="p">:</span> <span class="s2">&quot;South Atlantic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ESC&quot;</span><span class="p">:</span> <span class="s2">&quot;East South Central&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WSC&quot;</span><span class="p">:</span> <span class="s2">&quot;West South Central&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ENC&quot;</span><span class="p">:</span> <span class="s2">&quot;East North Central&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WNC&quot;</span><span class="p">:</span> <span class="s2">&quot;West North Central&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MTN&quot;</span><span class="p">:</span> <span class="s2">&quot;Mountain&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PACC&quot;</span><span class="p">:</span> <span class="s2">&quot;Pacific Contiguous (OR, WA, CA)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PACN&quot;</span><span class="p">:</span> <span class="s2">&quot;Pacific Non-Contiguous (AK, HI)&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Descriptive labels for Census Region codes.</span>
+
+<span class="sd">Not currently being used.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RTO_ISO">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.RTO_ISO">[docs]</a>
+<span class="n">RTO_ISO</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;CAISO&quot;</span><span class="p">:</span> <span class="s2">&quot;California ISO&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ERCOT&quot;</span><span class="p">:</span> <span class="s2">&quot;Electric Reliability Council of Texas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ISONE&quot;</span><span class="p">:</span> <span class="s2">&quot;ISO New England&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MISO&quot;</span><span class="p">:</span> <span class="s2">&quot;Midcontinent ISO&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NYISO&quot;</span><span class="p">:</span> <span class="s2">&quot;New York ISO&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PJM&quot;</span><span class="p">:</span> <span class="s2">&quot;PJM Interconnection&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SPP&quot;</span><span class="p">:</span> <span class="s2">&quot;Southwest Power Pool&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Descriptive labels for RTO/ISO short codes.</span>
+
+<span class="sd">Not currently being used.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FUEL_UNITS_EIA">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.FUEL_UNITS_EIA">[docs]</a>
+<span class="n">FUEL_UNITS_EIA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;mcf&quot;</span><span class="p">:</span> <span class="s2">&quot;Thousands of cubic feet (for gases)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;short_tons&quot;</span><span class="p">:</span> <span class="s2">&quot;Short tons (for solids)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;barrels&quot;</span><span class="p">:</span> <span class="s2">&quot;Barrels (for liquids)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mwh&quot;</span><span class="p">:</span> <span class="s2">&quot;Megawatt hours (for electricity)&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Descriptive labels for the units of measure EIA uses for fuels.</span>
+
+<span class="sd">The physical units fuel consumption is reported in.  All consumption is reported in</span>
+<span class="sd">either short tons for solids, thousands of cubic feet for gases, and barrels for</span>
+<span class="sd">liquids.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

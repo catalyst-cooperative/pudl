@@ -1,0 +1,199 @@
+pudl.transform.rus12
+====================
+
+.. py:module:: pudl.transform.rus12
+
+.. autoapi-nested-parse::
+
+   Transform the RUS12 tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.rus12.logger
+   pudl.transform.rus12._CORE_RUS12_TABLES
+   pudl.transform.rus12.finished_rus_assets
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.rus12._core_rus12__yearly_meeting_and_board
+   pudl.transform.rus12._core_rus12__yearly_balance_sheet_assets
+   pudl.transform.rus12._core_rus12__yearly_balance_sheet_liabilities
+   pudl.transform.rus12._core_rus12__scd_borrowers
+   pudl.transform.rus12._core_rus12__yearly_external_financial_risk_ratio
+   pudl.transform.rus12._core_rus12__yearly_investments
+   pudl.transform.rus12._core_rus12__yearly_renewable_plants
+   pudl.transform.rus12._core_rus12__yearly_long_term_debt
+   pudl.transform.rus12._core_rus12__yearly_lines_stations_labor_materials_cost
+   pudl.transform.rus12._core_rus12__yearly_loans
+   pudl.transform.rus12._core_rus12__yearly_plant_labor
+   pudl.transform.rus12._core_rus12__yearly_sources_and_distribution_by_plant_type
+   pudl.transform.rus12._core_rus12__yearly_sources_and_distribution
+   pudl.transform.rus12._core_rus12__yearly_statement_of_operations
+   pudl.transform.rus12._core_rus12__yearly_plant_costs
+   pudl.transform.rus12.drop_bad_ownership_plant
+   pudl.transform.rus12.fix_string_unit_id_rus
+   pudl.transform.rus12._core_rus12__yearly_plant_operations
+   pudl.transform.rus12.core_rus12__entity_borrowers
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: _core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board)
+
+   Transform the core_rus12__yearly_meeting_and_board table.
+
+
+.. py:function:: _core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet)
+
+   Transform the core_rus12__yearly_balance_sheet_assets table.
+
+
+.. py:function:: _core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet)
+
+   Transform the core_rus12__yearly_balance_sheet_liabilities table.
+
+
+.. py:function:: _core_rus12__scd_borrowers(raw_rus12__borrowers)
+
+   Transform the core_rus12__scd_borrowers table.
+
+
+.. py:function:: _core_rus12__yearly_external_financial_risk_ratio(raw_rus12__external_financial_risk_ratio: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the raw_rus12__external_financial_risk_ratio table.
+
+
+.. py:function:: _core_rus12__yearly_investments(raw_rus12__investments: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the investments table.
+
+
+.. py:function:: _core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants)
+
+   Transform the core_rus12__yearly_renewable_plants table.
+
+
+.. py:function:: _core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt)
+
+   Transform the core_rus12__yearly_long_term_debt table.
+
+
+.. py:function:: _core_rus12__yearly_lines_stations_labor_materials_cost(raw_rus12__lines_and_stations_labor_materials)
+
+   Transform the raw_rus12__lines_and_stations_labor_materials table.
+
+
+.. py:function:: _core_rus12__yearly_loans(raw_rus12__loans, raw_rus12__loan_guarantees)
+
+   Transform the raw_rus12__loans and raw_rus12__loan_guarantees tables.
+
+
+.. py:function:: _core_rus12__yearly_plant_labor(raw_rus12__plant_labor)
+
+   Transform the raw_rus12__plant_labor table.
+
+
+.. py:function:: _core_rus12__yearly_sources_and_distribution_by_plant_type(raw_rus12__sources_and_distribution)
+
+   Transform the raw_rus12__sources_and_distribution table.
+
+   This function pivots the cost, capacity, net-energy, and plant num data by plant type
+   from the Sources and Distribution table. The rest of the table contents are in
+   core_rus12__yearly_sources_and_distribution.
+
+
+.. py:function:: _core_rus12__yearly_sources_and_distribution(raw_rus12__sources_and_distribution)
+
+   Transform the raw_rus12__sources_and_distribution table.
+
+   This function process all columns from the Sources and Distribution table
+   that are not plant type specific. The plant type specific columns are processed
+   in core_rus12__yearly_sources_and_distribution_by_plant_type.
+
+   The multi_index_stack function intentionally drops a few columns that don't
+   show up in other tables. This include:
+   - ``total_energy_losses_pct`` (calculable with other cols, dropped because pct value
+   was an outlier column and not easily stacked with other columns).
+   - ``total_plant_num`` (calculable with the sources_and_distribution_by_plant_type table).
+   - ``total_capacity_kw`` (calculable with the sources_and_distribution_by_plant_type table).
+
+   This function keeps the ``total_plant_cost`` and ``total_plant_mwh`` columns even though
+   they are also calculable with the other table, because they are components of other
+   totals included in this table.
+
+
+.. py:function:: _core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations)
+
+   Transform the raw_rus12__statement_of_operations table.
+
+   This function drops a number of columns that contain per_kwh values that are
+   entirely NA through all years. It then reshapes the table by stacking expense
+   types by the name of the total column for which they are calculation components.
+
+
+.. py:function:: _core_rus12__yearly_plant_costs(raw_rus12__combined_cycle_plant_costs: pandas.DataFrame, raw_rus12__hydro_plant_costs: pandas.DataFrame, raw_rus12__internal_combustion_plant_costs: pandas.DataFrame, raw_rus12__nuclear_plant_costs: pandas.DataFrame, raw_rus12__steam_plant_costs: pandas.DataFrame)
+
+   Transform the plant cost tables.
+
+   This transform takes all of the plant production cost tables, processes
+   them similarly and combines them into one plant cost table.
+
+
+.. py:function:: drop_bad_ownership_plant(df)
+
+   Drop 1 plant record with unexpected ownership label and duplicate data.
+
+   There is a Wisdom steam plant record that is labeled to be both fully owned by
+   borrower and partly owned for one year. Which is an unexpected combo based on the
+   `_OR_PowerSupply Plant File Documentation.rst` documentation file in the rus12
+   archive. Luckily this plant has exactly the same records as the other Wisdom steam
+   plant that year with more expected ownership labels.
+
+   So we check if the two plant records for that year have the same data, then
+   drop the one badly labeled ownership record.
+
+
+.. py:function:: fix_string_unit_id_rus(df)
+
+   Fix unit_id_rus's bad string IDs.
+
+   There are two instances of unit_id_rus's that have string values in them.
+   Based on pre-cleaned data, we were able to clearly identify that we can use
+   just the numeric values in these bad strings. This enables us to have an integer
+   type for this unit_id_rus column.
+
+
+.. py:function:: _core_rus12__yearly_plant_operations(raw_rus12__combined_cycle_plant_operations: pandas.DataFrame, raw_rus12__hydro_plant_operations: pandas.DataFrame, raw_rus12__internal_combustion_plant_operations: pandas.DataFrame, raw_rus12__nuclear_plant_operations: pandas.DataFrame, raw_rus12__steam_plant_operations: pandas.DataFrame)
+
+   Transform the plant operations tables.
+
+   This transform takes all of the plant operations tables, processes
+   them similarly and combines them into one plant table. Which is then
+   split out into two tables: by borrower and by plant. The details of
+   which record should end up in which output table are documented in
+   these tables' resource metadata.
+
+
+.. py:data:: _CORE_RUS12_TABLES
+   :value: ['_core_rus12__scd_borrowers', '_core_rus12__yearly_balance_sheet_assets',...
+
+
+.. py:function:: core_rus12__entity_borrowers(context, **clean_dfs)
+
+   Harvesting IDs & consistent static attributes for RUS12 entity.
+
+
+.. py:data:: finished_rus_assets
+

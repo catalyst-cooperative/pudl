@@ -1,0 +1,658 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>High Priority Target Datasets &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'data_sources/future_data';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data Access" href="../data_access.html" />
+    <link rel="prev" title="Other Data in PUDL" href="other_data.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../data_dictionaries/index.html">Data Dictionaries</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Data Sources</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">High Priority Target Datasets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_access.html">Data Access</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../methodology/index.html">Methodology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../data.html" class="nav-link">Data Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Data Sources</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">High Priority Target Datasets</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="high-priority-target-datasets">
+<span id="future-data"></span><h1>High Priority Target Datasets<a class="headerlink" href="#high-priority-target-datasets" title="Link to this heading">#</a></h1>
+<p>This page lists datasets that we’ve identified for future integration into PUDL,
+including some which we’ve started work on but are not yet to the point of being
+available in the main PUDL database which we distribute.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Looking for a specific dataset?</p>
+<p>If you <strong>need data that’s not in PUDL</strong>, <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?assignees=&amp;labels=new-data&amp;projects=&amp;template=new_dataset.md&amp;title=">open an issue</a>
+to tell us more about it!</p>
+<p>If you’ve <strong>already spent a bunch of time wrangling a dataset</strong>, we welcome
+“knowledge contributions” in our <a class="reference external" href="https://github.com/catalyst-cooperative/pudl-knowledge">pudl-knowledge</a> repository!</p>
+<p>If you’re <strong>looking to help us integrate a specific dataset into PUDL</strong>, find us at
+<a class="reference external" href="https://calend.ly/catalyst-cooperative/pudl-office-hours">office hours</a> and we
+can talk through next steps.</p>
+</div>
+<p>There’s a huge variety and quantity of data about the US electric utility system
+available to the public. The data we have integrated is just the beginning! Other data
+we’ve heard demand for are listed below. If you’re interested in using one of them and
+would like to add it to PUDL check out <a class="reference internal" href="../CONTRIBUTING.html"><span class="doc">our contribution guidelines</span></a>. If there are other datasets you think we should be looking at
+integration, don’t hesitate to <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues">open an issue on Github</a> requesting the data and
+explaining why it would be useful.</p>
+<section id="transmission-and-distribution-systems">
+<span id="data-tds"></span><h2>Transmission and Distribution Systems<a class="headerlink" href="#transmission-and-distribution-systems" title="Link to this heading">#</a></h2>
+<p>In order to run electricity system operations models and cost optimizations, you need
+some kind of model of the interconnections between generation and loads. There doesn’t
+appear to be a generally accepted, publicly available set of these network descriptions
+(yet!).</p>
+</section>
+<section id="eia-thermoelectric-water-usage">
+<span id="data-eiawater"></span><h2>EIA Thermoelectric Water Usage<a class="headerlink" href="#eia-thermoelectric-water-usage" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="https://www.eia.gov/electricity/data/water/">EIA Water</a> records water use by thermal
+generating stations in the US.</p>
+</section>
+<section id="msha-mines-and-production">
+<span id="data-msha"></span><h2>MSHA Mines and Production<a class="headerlink" href="#msha-mines-and-production" title="Link to this heading">#</a></h2>
+<p>The <a class="reference external" href="https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp">MSHA Mines &amp; Production</a>
+dataset describes coal production by mine and operating company along with statistics
+about labor productivity and safety. This is a smaller dataset (100s of MB) available as
+relatively clean and well structured CSV files.
+.. _data-ces:</p>
+</section>
+<section id="machine-readable-clean-energy-standards">
+<h2>Machine Readable Clean Energy Standards<a class="headerlink" href="#machine-readable-clean-energy-standards" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="https://www.ncsl.org/research/energy/renewable-portfolio-standards.aspx">Renewable Portfolio Standards (RPS)</a>
+and Clean Energy Standards (CES) have emerged as one of the primary policy tools to
+decarbonize the US electricity supply. Researchers who model future electricity systems
+need to include these binding regulations as constraints on their models to ensure that
+the systems they explore are legally compliant. Unfortunately for modelers, RPS and CES
+regulations vary from state to state. Sometimes there are carve outs for different types
+of generation, and sometimes there are different requirements for different types of
+utilities or distributed resources. Our goal is to compile a programmatically usable
+database of RPS/CES policies in the US for quick and easy reference by modelers.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="other_data.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Other Data in PUDL</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../data_access.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Data Access</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transmission-and-distribution-systems">Transmission and Distribution Systems</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eia-thermoelectric-water-usage">EIA Thermoelectric Water Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#msha-mines-and-production">MSHA Mines and Production</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#machine-readable-clean-energy-standards">Machine Readable Clean Energy Standards</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/data_sources/future_data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

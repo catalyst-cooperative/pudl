@@ -1,0 +1,81 @@
+pudl.extract.phmsagas
+=====================
+
+.. py:module:: pudl.extract.phmsagas
+
+.. autoapi-nested-parse::
+
+   Retrieves data from PHMSA natural gas spreadsheets for analysis.
+
+   This modules pulls data from PHMSA's published Excel spreadsheets.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.phmsagas.logger
+   pudl.extract.phmsagas.raw_phmsagas__all_dfs
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.phmsagas.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.phmsagas.extract_phmsagas
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.excel.ExcelExtractor`
+
+
+   Extractor for the excel dataset PHMSA.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: cols_added
+      :value: []
+
+
+
+   .. py:method:: process_renamed(newdata: pandas.DataFrame, page: str, **partition)
+
+      Drop columns that get mapped to other assets and columns with unstructured data.
+
+      Older years of PHMSA data have one Excel tab in the raw data, while newer data
+      has multiple tabs. To extract data into tables that follow the newer data format
+      without duplicating the older data, we need to split older pages into multiple
+      tables by column. To prevent each table from containing all columns from these
+      older years, filter by the list of columns specified for the page, with a
+      warning.
+
+
+
+.. py:data:: raw_phmsagas__all_dfs
+
+.. py:function:: extract_phmsagas(raw_phmsagas__all_dfs)
+
+   Extract raw PHMSA gas data from excel sheets into dataframes.
+
+

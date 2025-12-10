@@ -1,0 +1,1247 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.analysis.service_territory &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/analysis/service_territory';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.analysis.service_territory</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.analysis.service_territory</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Compile historical utility and balancing area territories.</span>
+
+<span class="sd">Use the mapping of utilities to counties, and balancing areas to utilities, available</span>
+<span class="sd">within the EIA 861, in conjunction with the US Census geometries for counties, to infer</span>
+<span class="sd">the historical spatial extent of utility and balancing area territories. Output the</span>
+<span class="sd">resulting geometries for use in other applications.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetsDefinition</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">asset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parquet_table</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Coordinate Reference Systems used in different contexts</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="MAP_CRS">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.MAP_CRS">[docs]</a>
+<span class="n">MAP_CRS</span> <span class="o">=</span> <span class="s2">&quot;EPSG:3857&quot;</span>  <span class="c1"># For mapping w/ OSM baselayer tiles</span></div>
+
+<div class="viewcode-block" id="CALC_CRS">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.CALC_CRS">[docs]</a>
+<span class="n">CALC_CRS</span> <span class="o">=</span> <span class="s2">&quot;ESRI:102003&quot;</span>  <span class="c1"># For accurate area calculations</span></div>
+
+
+
+<div class="viewcode-block" id="utility_ids_all_eia">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.utility_ids_all_eia">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">utility_ids_all_eia</span><span class="p">(</span>
+    <span class="n">out_eia__yearly_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile IDs and Names of all known EIA Utilities.</span>
+
+<span class="sd">    Grab all EIA utility names and IDs from both the EIA 861 Service Territory table and</span>
+<span class="sd">    the EIA 860 Utility entity table. This is a temporary function that&#39;s only needed</span>
+<span class="sd">    because we haven&#39;t integrated the EIA 861 information into the entity harvesting</span>
+<span class="sd">    process and PUDL database yet.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        out_eia__yearly_utilities: De-normalized EIA 860 utility attributes table.</span>
+<span class="sd">        core_eia861__yearly_service_territory: Normalized EIA 861 Service Territory table.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A DataFrame having 2 columns ``utility_id_eia`` and ``utility_name_eia``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">out_eia__yearly_utilities</span><span class="p">[[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">]],</span>
+                <span class="n">core_eia861__yearly_service_territory</span><span class="p">[</span>
+                    <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">]</span>
+                <span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Functions that compile geometries based on EIA 861 data tables:</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="get_territory_fips">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.get_territory_fips">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_territory_fips</span><span class="p">(</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">assn</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">assn_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile county FIPS codes associated with an entity&#39;s service territory.</span>
+
+<span class="sd">    For each entity identified by ids, look up the set of counties associated</span>
+<span class="sd">    with that entity on an annual basis. Optionally limit the set of counties</span>
+<span class="sd">    to those within states where the selected entities reported activity elsewhere</span>
+<span class="sd">    within the EIA 861 data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ids: A collection of EIA utility or balancing authority IDs.</span>
+<span class="sd">        assn: Association table, relating ``report_date``,</span>
+<span class="sd">        ``state``, and ``utility_id_eia`` to each other, as well as the</span>
+<span class="sd">            column indicated by ``assn_col`` -- if it&#39;s not ``utility_id_eia``.</span>
+<span class="sd">        assn_col: Label of the dataframe column in ``assn`` that contains</span>
+<span class="sd">            the ID of the entities of interest. Should probably be either</span>
+<span class="sd">            ``balancing_authority_id_eia`` or ``utility_id_eia``.</span>
+<span class="sd">        core_eia861__yearly_service_territory: The EIA 861 Service Territory table.</span>
+<span class="sd">        limit_by_state: Whether to require that the counties associated</span>
+<span class="sd">            with the balancing authority are inside a state that has also been</span>
+<span class="sd">            seen in association with the balancing authority and the utility</span>
+<span class="sd">            whose service territory contains the county.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A table associating the entity IDs with a collection of</span>
+<span class="sd">        counties annually, identifying counties both by name and county_id_fips</span>
+<span class="sd">        (both state and state_id_fips are included for clarity).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Limit the association table to only the relevant values:</span>
+    <span class="n">assn</span> <span class="o">=</span> <span class="n">assn</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">assn</span><span class="p">[</span><span class="n">assn_col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ids</span><span class="p">)]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">limit_by_state</span><span class="p">:</span>
+        <span class="n">assn</span> <span class="o">=</span> <span class="n">assn</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">assn</span><span class="p">,</span> <span class="n">core_eia861__yearly_service_territory</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="p">:,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="n">assn_col</span><span class="p">,</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_geometries">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.add_geometries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_geometries</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">census_gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">dissolve_by</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge census geometries into dataframe on county_id_fips, optionally dissolving.</span>
+
+<span class="sd">    Merge the US Census county-level geospatial information into the DataFrame df</span>
+<span class="sd">    based on the the column county_id_fips (in df), which corresponds to the column</span>
+<span class="sd">    GEOID10 in census_gdf. Also bring in the population and area of the counties,</span>
+<span class="sd">    summing as necessary in the case of dissolved geometries.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: A DataFrame containing a county_id_fips column.</span>
+<span class="sd">        census_gdf: A GeoDataFrame based on the US Census</span>
+<span class="sd">            demographic profile (DP1) data at county resolution, with the original</span>
+<span class="sd">            column names as published by US Census.</span>
+<span class="sd">        dissolve: If True, dissolve individual county geometries into larger</span>
+<span class="sd">            service territories.</span>
+<span class="sd">        dissolve_by: The columns to group by in the dissolve. For example,</span>
+<span class="sd">            dissolve_by=[&quot;report_date&quot;, &quot;utility_id_eia&quot;] might provide annual utility</span>
+<span class="sd">            service territories, while [&quot;report_date&quot;, &quot;balancing_authority_id_eia&quot;]</span>
+<span class="sd">            would provide annual balancing authority territories.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A GeoDataFrame with the merged census geometries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out_gdf</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">census_gdf</span><span class="p">[[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;dp0010001&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;county&quot;</span><span class="p">:</span> <span class="s2">&quot;county_name_census&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dp0010001&quot;</span><span class="p">:</span> <span class="s2">&quot;population&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="c1"># Calculate county areas using cylindrical equal area projection:</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">area_km2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">epsg</span><span class="o">=</span><span class="mi">6933</span><span class="p">)</span><span class="o">.</span><span class="n">area</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">dissolve</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Don&#39;t double-count duplicated counties, if any.</span>
+        <span class="n">out_gdf</span> <span class="o">=</span> <span class="n">out_gdf</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">dissolve_by</span> <span class="ow">or</span> <span class="p">[]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">])</span>
+        <span class="c1"># Sum these numerical columns so we can merge with dissolved geometries</span>
+        <span class="n">summed</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">out_gdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">dissolve_by</span><span class="p">)[[</span><span class="s2">&quot;population&quot;</span><span class="p">,</span> <span class="s2">&quot;area_km2&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">out_gdf</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">out_gdf</span><span class="o">.</span><span class="n">dissolve</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">dissolve_by</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;county&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;county_name_census&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;population&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;area_km2&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">summed</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out_gdf</span></div>
+
+
+
+<div class="viewcode-block" id="get_territory_geometries">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.get_territory_geometries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_territory_geometries</span><span class="p">(</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">assn</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">assn_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">census_gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile service territory geometries based on county_id_fips.</span>
+
+<span class="sd">    Calls ``get_territory_fips`` to generate the list of counties associated with</span>
+<span class="sd">    each entity identified by ``ids``, and then merges in the corresponding county</span>
+<span class="sd">    geometries from the US Census DP1 data passed in via ``census_gdf``.</span>
+
+<span class="sd">    Optionally dissolve all of the county level geometries into a single geometry for</span>
+<span class="sd">    each combination of entity and year.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Dissolving geometires is a costly operation, and may take half an hour or more</span>
+<span class="sd">        if you are processing all entities for all years. Dissolving also means that all</span>
+<span class="sd">        the per-county information will be lost, rendering the output inappropriate for</span>
+<span class="sd">        use in many analyses. Dissolving is mostly useful for generating visualizations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ids: A collection of EIA balancing authority IDs.</span>
+<span class="sd">        assn: Association table, relating ``report_date``,</span>
+<span class="sd">        ``state``, and ``utility_id_eia`` to each other, as well as the</span>
+<span class="sd">            column indicated by ``assn_col`` -- if it&#39;s not ``utility_id_eia``.</span>
+<span class="sd">        assn_col: Label of the dataframe column in ``assn`` that contains</span>
+<span class="sd">            the ID of the entities of interest. Should probably be either</span>
+<span class="sd">            ``balancing_authority_id_eia`` or ``utility_id_eia``.</span>
+<span class="sd">        core_eia861__yearly_service_territory: The EIA 861 Service Territory table.</span>
+<span class="sd">        census_gdf: The US Census DP1 county-level geometries.</span>
+<span class="sd">        limit_by_state: Whether to require that the counties associated</span>
+<span class="sd">            with the balancing authority are inside a state that has also been</span>
+<span class="sd">            seen in association with the balancing authority and the utility</span>
+<span class="sd">            whose service territory contains the county.</span>
+<span class="sd">        dissolve: If False, each record in the compiled territory will correspond</span>
+<span class="sd">            to a single county, with a county-level geometry, and there will be many</span>
+<span class="sd">            records enumerating all the counties associated with a given</span>
+<span class="sd">            balancing_authority_id_eia in each year. If dissolve=True, all of the</span>
+<span class="sd">            county-level geometries for each utility in each year will be merged</span>
+<span class="sd">            together (&quot;dissolved&quot;) resulting in a single geometry and record for each</span>
+<span class="sd">            balancing_authority-year.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A GeoDataFrame with service territory geometries for each entity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_territory_fips</span><span class="p">(</span>
+        <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
+        <span class="n">assn</span><span class="o">=</span><span class="n">assn</span><span class="p">,</span>
+        <span class="n">assn_col</span><span class="o">=</span><span class="n">assn_col</span><span class="p">,</span>
+        <span class="n">core_eia861__yearly_service_territory</span><span class="o">=</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">,</span>
+        <span class="n">limit_by_state</span><span class="o">=</span><span class="n">limit_by_state</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">add_geometries</span><span class="p">,</span>
+        <span class="n">census_gdf</span><span class="p">,</span>
+        <span class="n">dissolve</span><span class="o">=</span><span class="n">dissolve</span><span class="p">,</span>
+        <span class="n">dissolve_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="n">assn_col</span><span class="p">],</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_save_geoparquet">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory._save_geoparquet">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_geoparquet</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;utility&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">],</span>
+    <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save utility or balancing authority service territory geometries to GeoParquet.</span>
+
+<span class="sd">    In order to prevent the geometry data from exceeding the 2GB maximum size of an</span>
+<span class="sd">    Arrow object, we need to keep the row groups small. Sort the dataframe by the</span>
+<span class="sd">    primary key columns to minimize the number of values in any row group.  Output</span>
+<span class="sd">    filename is constructed based on input arguments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf: GeoDataframe containing utility or balancing authority geometries.</span>
+<span class="sd">        entity_type: string indicating whether we&#39;re outputting utility or balancing</span>
+<span class="sd">            authority geometries.</span>
+<span class="sd">        dissolve: Whether the individual county geometries making up the service</span>
+<span class="sd">            territories have been merged together. Used to construct filename.</span>
+<span class="sd">        limit_by_state: Whether service territories have been limited to include only</span>
+<span class="sd">            counties in states where the utilities reported sales. Used to construct</span>
+<span class="sd">            filename.</span>
+<span class="sd">        output_dir: Path to the directory where the GeoParquet file will be written.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dissolved</span> <span class="o">=</span> <span class="s2">&quot;_dissolved&quot;</span> <span class="k">if</span> <span class="n">dissolve</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">limited</span> <span class="o">=</span> <span class="s2">&quot;_limited&quot;</span> <span class="k">if</span> <span class="n">limit_by_state</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2">_geometry</span><span class="si">{</span><span class="n">limited</span><span class="si">}{</span><span class="n">dissolved</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+    <span class="n">gdf</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2">_id_eia&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">row_group_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;snappy&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="compile_geoms">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.compile_geoms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compile_geoms</span><span class="p">(</span>
+    <span class="n">core_eia861__yearly_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__assn_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_eia__yearly_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__assn_utility</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">census_counties</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span> <span class="s2">&quot;utility&quot;</span><span class="p">],</span>
+    <span class="n">save_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;geoparquet&quot;</span><span class="p">,</span> <span class="s2">&quot;geodataframe&quot;</span><span class="p">,</span> <span class="s2">&quot;dataframe&quot;</span><span class="p">],</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile all available utility or balancing authority geometries.</span>
+
+<span class="sd">    Returns a geoparquet file, geopandas GeoDataFrame or a pandas DataFrame with the</span>
+<span class="sd">    geometry column removed depending on the value of the save_format parameter. By</span>
+<span class="sd">    default, this returns only counties with observed EIA 861 data for a utility or</span>
+<span class="sd">    balancing authority, with geometries available at the county level.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Compiling </span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2"> geometries with </span><span class="si">{</span><span class="n">dissolve</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">limit_by_state</span><span class="si">=}</span><span class="s2">, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;and </span><span class="si">{</span><span class="n">years</span><span class="si">=}</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">save_format</span> <span class="o">==</span> <span class="s2">&quot;geoparquet&quot;</span> <span class="ow">and</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No output_dir provided while writing geoparquet.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">years</span><span class="p">:</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_limit_years</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">years</span><span class="p">)]</span>
+
+        <span class="n">core_eia861__yearly_balancing_authority</span> <span class="o">=</span> <span class="n">_limit_years</span><span class="p">(</span>
+            <span class="n">core_eia861__yearly_balancing_authority</span>
+        <span class="p">)</span>
+        <span class="n">core_eia861__assn_balancing_authority</span> <span class="o">=</span> <span class="n">_limit_years</span><span class="p">(</span>
+            <span class="n">core_eia861__assn_balancing_authority</span>
+        <span class="p">)</span>
+        <span class="n">out_eia__yearly_utilities</span> <span class="o">=</span> <span class="n">_limit_years</span><span class="p">(</span><span class="n">out_eia__yearly_utilities</span><span class="p">)</span>
+        <span class="n">core_eia861__yearly_service_territory</span> <span class="o">=</span> <span class="n">_limit_years</span><span class="p">(</span>
+            <span class="n">core_eia861__yearly_service_territory</span>
+        <span class="p">)</span>
+        <span class="n">core_eia861__assn_utility</span> <span class="o">=</span> <span class="n">_limit_years</span><span class="p">(</span><span class="n">core_eia861__assn_utility</span><span class="p">)</span>
+
+    <span class="n">utilids_all_eia</span> <span class="o">=</span> <span class="n">utility_ids_all_eia</span><span class="p">(</span>
+        <span class="n">out_eia__yearly_utilities</span><span class="p">,</span> <span class="n">core_eia861__yearly_service_territory</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">:</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">core_eia861__yearly_balancing_authority</span><span class="o">.</span><span class="n">balancing_authority_id_eia</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">assn</span> <span class="o">=</span> <span class="n">core_eia861__assn_balancing_authority</span>
+        <span class="n">assn_col</span> <span class="o">=</span> <span class="s2">&quot;balancing_authority_id_eia&quot;</span>
+    <span class="k">elif</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">&quot;utility&quot;</span><span class="p">:</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">utilids_all_eia</span><span class="o">.</span><span class="n">utility_id_eia</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">assn</span> <span class="o">=</span> <span class="n">core_eia861__assn_utility</span>
+        <span class="n">assn_col</span> <span class="o">=</span> <span class="s2">&quot;utility_id_eia&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">entity_type</span><span class="si">=}</span><span class="s2">, but need either &#39;balancing_authority&#39; or &#39;utility&#39;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Identify all Utility IDs with service territory information</span>
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">get_territory_geometries</span><span class="p">(</span>
+        <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
+        <span class="n">assn</span><span class="o">=</span><span class="n">assn</span><span class="p">,</span>
+        <span class="n">assn_col</span><span class="o">=</span><span class="n">assn_col</span><span class="p">,</span>
+        <span class="n">core_eia861__yearly_service_territory</span><span class="o">=</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">,</span>
+        <span class="n">census_gdf</span><span class="o">=</span><span class="n">census_counties</span><span class="p">,</span>
+        <span class="n">limit_by_state</span><span class="o">=</span><span class="n">limit_by_state</span><span class="p">,</span>
+        <span class="n">dissolve</span><span class="o">=</span><span class="n">dissolve</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">save_format</span> <span class="o">==</span> <span class="s2">&quot;geoparquet&quot;</span><span class="p">:</span>
+        <span class="c1"># TODO[dagster]: update to use IO Manager.</span>
+        <span class="n">_save_geoparquet</span><span class="p">(</span>
+            <span class="n">geom</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="n">entity_type</span><span class="p">,</span>
+            <span class="n">dissolve</span><span class="o">=</span><span class="n">dissolve</span><span class="p">,</span>
+            <span class="n">limit_by_state</span><span class="o">=</span><span class="n">limit_by_state</span><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">save_format</span> <span class="o">==</span> <span class="s2">&quot;dataframe&quot;</span><span class="p">:</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">geom</span></div>
+
+
+
+<div class="viewcode-block" id="service_territory_asset_factory">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.service_territory_asset_factory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">service_territory_asset_factory</span><span class="p">(</span>
+    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span> <span class="s2">&quot;utility&quot;</span><span class="p">],</span>
+    <span class="n">io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build asset definitions for balancing authority and utility territories.&quot;&quot;&quot;</span>
+
+    <span class="nd">@asset</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia861__yearly_</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2">_service_territory&quot;</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">,</span>
+        <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;dissolve&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+                <span class="nb">bool</span><span class="p">,</span>
+                <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;If True, dissolve the compiled geometries to the entity level. If False, leave them as counties.&quot;</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;limit_by_state&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+                <span class="nb">bool</span><span class="p">,</span>
+                <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;If True, only include counties with observed EIA 861 data in association with the state and utility/balancing authority.&quot;</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;save_format&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">,</span>
+                <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;Format of output in PUDL. One of: geoparquet, geodataframe, dataframe.&quot;</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_service_territory</span><span class="p">(</span>
+        <span class="n">context</span><span class="p">,</span>
+        <span class="n">core_eia861__yearly_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">core_eia861__assn_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">out_eia__yearly_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">core_eia861__assn_utility</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">out_censusdp1tract__counties</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compile all available utility or balancing authority geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dataframe compiling all available utility or balancing authority geometries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get options from dagster</span>
+        <span class="n">dissolve</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;dissolve&quot;</span><span class="p">]</span>
+        <span class="n">limit_by_state</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;limit_by_state&quot;</span><span class="p">]</span>
+        <span class="n">save_format</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;save_format&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">compile_geoms</span><span class="p">(</span>
+            <span class="n">core_eia861__yearly_balancing_authority</span><span class="o">=</span><span class="n">core_eia861__yearly_balancing_authority</span><span class="p">,</span>
+            <span class="n">core_eia861__assn_balancing_authority</span><span class="o">=</span><span class="n">core_eia861__assn_balancing_authority</span><span class="p">,</span>
+            <span class="n">out_eia__yearly_utilities</span><span class="o">=</span><span class="n">out_eia__yearly_utilities</span><span class="p">,</span>
+            <span class="n">core_eia861__yearly_service_territory</span><span class="o">=</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">,</span>
+            <span class="n">core_eia861__assn_utility</span><span class="o">=</span><span class="n">core_eia861__assn_utility</span><span class="p">,</span>
+            <span class="n">census_counties</span><span class="o">=</span><span class="n">out_censusdp1tract__counties</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="n">entity_type</span><span class="p">,</span>
+            <span class="n">dissolve</span><span class="o">=</span><span class="n">dissolve</span><span class="p">,</span>
+            <span class="n">limit_by_state</span><span class="o">=</span><span class="n">limit_by_state</span><span class="p">,</span>
+            <span class="n">save_format</span><span class="o">=</span><span class="n">save_format</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_service_territory</span></div>
+
+
+
+<div class="viewcode-block" id="service_territory_eia861_assets">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.service_territory_eia861_assets">[docs]</a>
+<span class="n">service_territory_eia861_assets</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">service_territory_asset_factory</span><span class="p">(</span>
+        <span class="n">entity_type</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span> <span class="s2">&quot;utility&quot;</span><span class="p">]</span>
+<span class="p">]</span></div>
+
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Functions for visualizing the service territory geometries</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="plot_historical_territory">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.plot_historical_territory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_historical_territory</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">id_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">id_val</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot all the historical geometries defined for the specified entity.</span>
+
+<span class="sd">    This is useful for exploring how a particular entity&#39;s service territory has evolved</span>
+<span class="sd">    over time, or for identifying individual missing or inaccurate territories.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf: A geodataframe containing geometries pertaining electricity planning areas.</span>
+<span class="sd">            Can be broken down by county FIPS code, or have a single record containing a</span>
+<span class="sd">            geometry for each combination of report_date and the column being used to</span>
+<span class="sd">            select planning areas (see below).</span>
+<span class="sd">        id_col: The label of a column in gdf that identifies the planning area to be</span>
+<span class="sd">            visualized, like ``utility_id_eia``, ``balancing_authority_id_eia``, or</span>
+<span class="sd">            ``balancing_authority_code_eia``.</span>
+<span class="sd">        id_val: The ID of the entity whose territory should be plotted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">id_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The input id_col </span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> doesn&#39;t exist in this GDF.&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Plotting historical territories for </span><span class="si">%s</span><span class="s2">==</span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">id_col</span><span class="p">,</span> <span class="n">id_val</span><span class="p">)</span>
+
+    <span class="c1"># Pare down the GDF so this all goes faster</span>
+    <span class="n">entity_gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="n">id_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">id_val</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;county_id_fips&quot;</span> <span class="ow">in</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">entity_gdf</span> <span class="o">=</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;county_id_fips&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="n">entity_gdf</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Plotting service territories of </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> records.&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">entity_gdf</span><span class="p">),</span> <span class="n">id_col</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create a grid of subplots sufficient to hold all the years:</span>
+    <span class="n">years</span> <span class="o">=</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">nrows</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">years</span><span class="p">)</span> <span class="o">/</span> <span class="n">ncols</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span>
+        <span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span>
+        <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> == </span><span class="si">{</span><span class="n">id_val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">axes</span><span class="o">.</span><span class="n">flat</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+        <span class="n">year_gdf</span> <span class="o">=</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">entity_gdf</span><span class="o">.</span><span class="n">report_year</span> <span class="o">==</span> <span class="n">year</span><span class="p">]</span>
+        <span class="n">year_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="plot_all_territories">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.plot_all_territories">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_all_territories</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">report_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">respondent_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span> <span class="s2">&quot;utility&quot;</span><span class="p">),</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot all of the planning areas of a given type for a given report date.</span>
+
+<span class="sd">    Todo:</span>
+<span class="sd">        This function needs to be made more general purpose, and less</span>
+<span class="sd">        entangled with the FERC 714 data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf: GeoDataFrame containing planning area geometries, organized by</span>
+<span class="sd">            ``respondent_id_ferc714`` and ``report_date``.</span>
+<span class="sd">        report_date: A string representing a datetime that indicates what year&#39;s</span>
+<span class="sd">            planning areas should be displayed.</span>
+<span class="sd">        respondent_type: Type of respondent whose planning</span>
+<span class="sd">            areas should be displayed. Either &quot;utility&quot; or</span>
+<span class="sd">            &quot;balancing_authority&quot; or an iterable collection containing both.</span>
+<span class="sd">        color: Color to use for the planning areas.</span>
+<span class="sd">        alpha: Transparency to use for the planning areas.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        matplotlib.axes.Axes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unwanted_respondent_ids</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa: F841 variable is used, in df.query() below</span>
+        <span class="mi">112</span><span class="p">,</span>  <span class="c1"># Alaska</span>
+        <span class="mi">133</span><span class="p">,</span>  <span class="c1"># Alaska</span>
+        <span class="mi">178</span><span class="p">,</span>  <span class="c1"># Hawaii</span>
+        <span class="mi">301</span><span class="p">,</span>  <span class="c1"># PJM Dupe</span>
+        <span class="mi">302</span><span class="p">,</span>  <span class="c1"># PJM Dupe</span>
+        <span class="mi">303</span><span class="p">,</span>  <span class="c1"># PJM Dupe</span>
+        <span class="mi">304</span><span class="p">,</span>  <span class="c1"># PJM Dupe</span>
+        <span class="mi">305</span><span class="p">,</span>  <span class="c1"># PJM Dupe</span>
+        <span class="mi">306</span><span class="p">,</span>  <span class="c1"># PJM Dupe</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">respondent_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">respondent_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">respondent_type</span><span class="p">,)</span>
+
+    <span class="n">plot_gdf</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;report_date==@report_date&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;respondent_id_ferc714 not in @unwanted_respondent_ids&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;respondent_type in @respondent_type&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FERC 714 </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">respondent_type</span><span class="p">)</span><span class="si">}</span><span class="s2"> planning areas for </span><span class="si">{</span><span class="n">report_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Provide a CLI for generating service territories</span>
+<span class="c1">################################################################################</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]},</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--entity-type&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;utility&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">]),</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;util&quot;</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;What kind of entity&#39;s service territories should be generated?&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--limit-by-state/--no-limit-by-state&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Limit service territories to including only counties located in states where &quot;</span>
+        <span class="s2">&quot;the utility or balancing authority also reported electricity sales in EIA-861 &quot;</span>
+        <span class="s2">&quot;in the year that the geometry pertains to. In theory a utility could serve a &quot;</span>
+        <span class="s2">&quot;county, but not sell any electricity there, but that seems like an unusual &quot;</span>
+        <span class="s2">&quot;situation.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--year&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;years&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">IntRange</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">2001</span><span class="p">),</span>
+    <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Limit service territories generated to those from the given year. This can &quot;</span>
+        <span class="s2">&quot;dramatically reduce the memory and CPU intensity of the geospatial &quot;</span>
+        <span class="s2">&quot;operations. Especially useful for testing. Option can be used multiple times &quot;</span>
+        <span class="s2">&quot;toselect multiple years.&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--dissolve/--no-dissolve&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Dissolve county level geometries to the utility or balancing authority &quot;</span>
+        <span class="s2">&quot;boundaries. The dissolve operation may take several minutes and is quite &quot;</span>
+        <span class="s2">&quot;memory intensive, but results in significantly smaller files, in which each &quot;</span>
+        <span class="s2">&quot;record contains the whole geometry of a utility or balancing authority. The &quot;</span>
+        <span class="s2">&quot;un-dissolved geometries use many records to describe each service territory, &quot;</span>
+        <span class="s2">&quot;with each record containing the geometry of a single constituent county.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
+        <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">writable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">dir_okay</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">file_okay</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">resolve_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">path_type</span><span class="o">=</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">(),</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Path to the directory where the service territory geometries should be saved. &quot;</span>
+        <span class="s2">&quot;Defaults to the current working directory. Filenames are constructed based on &quot;</span>
+        <span class="s2">&quot;the other flags provided.&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--logfile&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If specified, write logs to this file.&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
+        <span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">resolve_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">path_type</span><span class="o">=</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--loglevel&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">),</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="pudl_service_territories">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.pudl_service_territories">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pudl_service_territories</span><span class="p">(</span>
+    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;utility&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">],</span>
+    <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">logfile</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">loglevel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile historical utility and balancing area service territory geometries.</span>
+
+<span class="sd">    This script produces GeoParquet files describing the historical service territories</span>
+<span class="sd">    of utilities and balancing authorities based on data reported in the EIA Form 861</span>
+<span class="sd">    and county geometries from the US Census DP1 geodatabase.</span>
+
+<span class="sd">    See: https://geoparquet.org/ for more on the GeoParquet file format.</span>
+
+<span class="sd">    Usage examples:</span>
+
+<span class="sd">    pudl_service_territories --entity-type balancing_authority --dissolve --limit-by-state</span>
+<span class="sd">    pudl_service_territories --entity-type utility</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Display logged output from the PUDL package:</span>
+    <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">configure_root_logger</span><span class="p">(</span><span class="n">logfile</span><span class="o">=</span><span class="n">logfile</span><span class="p">,</span> <span class="n">loglevel</span><span class="o">=</span><span class="n">loglevel</span><span class="p">)</span>
+
+    <span class="n">_</span> <span class="o">=</span> <span class="n">compile_geoms</span><span class="p">(</span>
+        <span class="n">core_eia861__yearly_balancing_authority</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span>
+            <span class="s2">&quot;core_eia861__yearly_balancing_authority&quot;</span>
+        <span class="p">),</span>
+        <span class="n">core_eia861__assn_balancing_authority</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span>
+            <span class="s2">&quot;core_eia861__assn_balancing_authority&quot;</span>
+        <span class="p">),</span>
+        <span class="n">out_eia__yearly_utilities</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span><span class="s2">&quot;out_eia__yearly_utilities&quot;</span><span class="p">),</span>
+        <span class="n">core_eia861__yearly_service_territory</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span>
+            <span class="s2">&quot;core_eia861__yearly_service_territory&quot;</span>
+        <span class="p">),</span>
+        <span class="n">core_eia861__assn_utility</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span><span class="s2">&quot;core_eia861__assn_utility&quot;</span><span class="p">),</span>
+        <span class="n">census_counties</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span>
+            <span class="s2">&quot;out_censusdp1tract__counties&quot;</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;dp0010001&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">dissolve</span><span class="o">=</span><span class="n">dissolve</span><span class="p">,</span>
+        <span class="n">save_format</span><span class="o">=</span><span class="s2">&quot;geoparquet&quot;</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+        <span class="n">entity_type</span><span class="o">=</span><span class="n">entity_type</span><span class="p">,</span>
+        <span class="n">limit_by_state</span><span class="o">=</span><span class="n">limit_by_state</span><span class="p">,</span>
+        <span class="n">years</span><span class="o">=</span><span class="n">years</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">pudl_service_territories</span><span class="p">())</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

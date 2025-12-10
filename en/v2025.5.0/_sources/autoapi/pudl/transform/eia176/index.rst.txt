@@ -1,0 +1,51 @@
+pudl.transform.eia176
+=====================
+
+.. py:module:: pudl.transform.eia176
+
+.. autoapi-nested-parse::
+
+   Module to perform data cleaning functions on EIA176 data tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.eia176.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.eia176._core_eia176__data
+   pudl.transform.eia176.get_wide_table
+   pudl.transform.eia176.validate_totals
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: _core_eia176__data(raw_eia176__data: pandas.DataFrame) -> tuple[dagster.Output, dagster.Output]
+
+   Take raw list and return two wide tables with primary keys and one column per variable.
+
+   One table with data for each year and company, one with state- and US-level aggregates per year.
+
+
+.. py:function:: get_wide_table(long_table: pandas.DataFrame, primary_key: list[str]) -> pandas.DataFrame
+
+   Take a 'long' or entity-attribute-value table and return a wide table with one column per attribute/variable.
+
+
+.. py:function:: validate_totals(_core_eia176__yearly_company_data: pandas.DataFrame, _core_eia176__yearly_aggregate_data: pandas.DataFrame) -> dagster.AssetCheckResult
+
+   Compare reported and calculated totals for different geographical aggregates, report any differences.
+
+

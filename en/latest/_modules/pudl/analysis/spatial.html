@@ -1,0 +1,812 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.analysis.spatial &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/analysis/spatial';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.analysis.spatial</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.analysis.spatial</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Spatial operations for demand allocation.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely.ops</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeometryCollection</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseGeometry</span>
+
+
+<div class="viewcode-block" id="check_gdf">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.check_gdf">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_gdf</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf: GeoDataFrame.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: Object is not a GeoDataFrame.</span>
+<span class="sd">        AttributeError: GeoDataFrame has no geometry.</span>
+<span class="sd">        TypeError: Geometry is not a GeoSeries.</span>
+<span class="sd">        ValueError: Geometry contains null geometries.</span>
+<span class="sd">        ValueError: Geometry contains non-(Multi)Polygon geometries.</span>
+<span class="sd">        ValueError: Geometry contains (Multi)Polygon geometries with zero area.</span>
+<span class="sd">        ValueError: MultiPolygon contains Polygon geometries with zero area.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Object is not a GeoDataFrame&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;GeoDataFrame has no geometry&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Geometry is not a GeoSeries&quot;</span><span class="p">)</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="s2">&quot;GeoSeries.isna&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Geometry contains null geometries&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Geometry contains non-(Multi)Polygon geometries&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">area</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Geometry contains (Multi)Polygon geometries with zero area&quot;</span><span class="p">)</span>
+    <span class="n">is_mpoly</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;MultiPolygon&quot;</span>
+    <span class="k">for</span> <span class="n">mpoly</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="n">is_mpoly</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">mpoly</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">poly</span><span class="o">.</span><span class="n">area</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;MultiPolygon contains Polygon geometries with zero area&quot;</span>
+                <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="polygonize">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.polygonize">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">polygonize</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="n">BaseGeometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polygon</span> <span class="o">|</span> <span class="n">MultiPolygon</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert geometry to (Multi)Polygon.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        geom: Geometry to convert to (Multi)Polygon.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Geometry converted to (Multi)Polygon, with all zero-area components removed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Geometry has zero area.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">polys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Explode geometries to polygons</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">GeometryCollection</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">):</span>
+                <span class="n">polys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">):</span>
+                <span class="n">polys</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">):</span>
+        <span class="n">polys</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">):</span>
+        <span class="n">polys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+    <span class="c1"># Remove zero-area polygons</span>
+    <span class="n">polys</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">polys</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">area</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">polys</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Geometry has zero area&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">polys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">MultiPolygon</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="explode">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.explode">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">explode</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">ratios</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Explode MultiPolygon to multiple Polygon geometries.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf: GeoDataFrame with non-zero-area (Multi)Polygon geometries.</span>
+<span class="sd">        ratios: Names of columns to rescale by the area fraction of the Polygon</span>
+<span class="sd">            relative to the MultiPolygon.</span>
+<span class="sd">            If provided, MultiPolygon cannot self-intersect.</span>
+<span class="sd">            By default, the original value is used unchanged.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Geometry contains self-intersecting MultiPolygon.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        GeoDataFrame with each Polygon as a separate row in the GeoDataFrame.</span>
+<span class="sd">        The index is the number of the source row in the input GeoDataFrame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_gdf</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">is_mpoly</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;MultiPolygon&quot;</span>
+    <span class="k">if</span> <span class="n">ratios</span> <span class="ow">and</span> <span class="n">is_mpoly</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">union_area</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="n">is_mpoly</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">unary_union</span><span class="p">)</span><span class="o">.</span><span class="n">area</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">union_area</span> <span class="o">!=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="n">is_mpoly</span><span class="p">]</span><span class="o">.</span><span class="n">area</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Geometry contains self-intersecting MultiPolygon&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">index_parts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ratios</span><span class="p">:</span>
+        <span class="n">fraction</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">area</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">/</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">area</span><span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">ratios</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">ratios</span><span class="p">]</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">fraction</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="self_union">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.self_union">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">self_union</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">ratios</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the geometric union of a feature layer with itself.</span>
+
+<span class="sd">    Areas of overlap are split into two or more geometrically-identical features:</span>
+<span class="sd">    one for each of the original overlapping features.</span>
+<span class="sd">    Each split feature contains the attributes of the original feature.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf: GeoDataFrame with non-zero-area MultiPolygon geometries.</span>
+<span class="sd">        ratios: Names of columns to rescale by the area fraction of the split feature</span>
+<span class="sd">            relative to the original. By default, the original value is used unchanged.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        GeoDataFrame representing the union of the input features with themselves.</span>
+<span class="sd">        Its index contains tuples of the index of the original overlapping features.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        NotImplementedError: MultiPolygon geometries are not yet supported.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_gdf</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">is_mpoly</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;MultiPolygon&quot;</span>
+    <span class="k">if</span> <span class="n">is_mpoly</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;MultiPolygon geometries are not yet supported&quot;</span><span class="p">)</span>
+    <span class="c1"># Calculate all pairwise intersections</span>
+    <span class="c1"># https://nbviewer.jupyter.org/gist/jorisvandenbossche/3a55a16fda9b3c37e0fb48b1d4019e65</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">intersections</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">])</span>
+    <span class="c1"># Form polygons from the boundaries of the original polygons and their intersections</span>
+    <span class="n">boundaries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">intersections</span><span class="p">])</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">union_all</span><span class="p">()</span>
+    <span class="n">polygons</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">polygonize</span><span class="p">(</span><span class="n">boundaries</span><span class="p">))</span>
+    <span class="c1"># Determine origin of each polygon by a spatial join on representative points</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">polygons</span><span class="o">.</span><span class="n">representative_point</span><span class="p">())</span>
+    <span class="n">oids</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span>
+        <span class="n">points</span><span class="p">,</span>
+        <span class="n">gdf</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;within&quot;</span><span class="p">,</span>
+    <span class="p">)[</span><span class="s2">&quot;index_right&quot;</span><span class="p">]</span>
+    <span class="c1"># Build new dataframe</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">get_data_columns</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">oids</span><span class="p">,</span> <span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="n">polygons</span><span class="p">[</span><span class="n">oids</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">ratios</span><span class="p">:</span>
+        <span class="n">fraction</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">area</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">/</span> <span class="n">gdf</span><span class="o">.</span><span class="n">area</span><span class="p">[</span><span class="n">oids</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">ratios</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">ratios</span><span class="p">]</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">fraction</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+    <span class="c1"># Add original row indices to index</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">oids</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">oids</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)[</span><span class="n">oids</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Return with original column order</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="dissolve">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.dissolve">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dissolve</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">by</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">how</span><span class="p">:</span> <span class="p">(</span>
+        <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;union&quot;</span><span class="p">,</span> <span class="s2">&quot;first&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">],</span> <span class="n">BaseGeometry</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="s2">&quot;union&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dissolve layer by aggregating features based on common attributes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf: GeoDataFrame with non-empty (Multi)Polygon geometries.</span>
+<span class="sd">        by: Names of columns to group features by.</span>
+<span class="sd">        func: Aggregation function for data columns (see :meth:`pd.DataFrame.groupby`).</span>
+<span class="sd">        how: Aggregation function for geometry column.</span>
+<span class="sd">            Either &#39;union&#39; (:meth:`gpd.GeoSeries.union_all()`),</span>
+<span class="sd">            &#39;first&#39; (first geometry in group),</span>
+<span class="sd">            or a function aggregating multiple geometries into one.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        GeoDataFrame with dissolved geometry and data columns,</span>
+<span class="sd">        and grouping columns set as the index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_gdf</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">merges</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;union&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">union_all</span><span class="p">(),</span> <span class="s2">&quot;first&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">geometry</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">,</span> <span class="n">group_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+        <span class="n">merges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">how</span><span class="p">,</span> <span class="n">how</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">data</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="overlay">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.overlay">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">overlay</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">gdfs</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">how</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
+        <span class="s2">&quot;intersection&quot;</span><span class="p">,</span> <span class="s2">&quot;union&quot;</span><span class="p">,</span> <span class="s2">&quot;identity&quot;</span><span class="p">,</span> <span class="s2">&quot;symmetric_difference&quot;</span><span class="p">,</span> <span class="s2">&quot;difference&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;intersection&quot;</span><span class="p">,</span>
+    <span class="n">ratios</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Overlay multiple layers incrementally.</span>
+
+<span class="sd">    When a feature from one layer overlaps the feature of another layer,</span>
+<span class="sd">    the area of overlap is split into two geometrically-identical features:</span>
+<span class="sd">    one for each of the original overlapping features.</span>
+<span class="sd">    Each split feature contains the attributes of the original feature.</span>
+
+<span class="sd">    TODO: To identify the source of output features, the user can ensure that each</span>
+<span class="sd">    layer contains a column to index by.</span>
+<span class="sd">    Alternatively, tuples of indices of the overlapping</span>
+<span class="sd">    feature from each layer (null if none) could be returned as the index.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdfs: GeoDataFrames with non-empty (Multi)Polygon geometries</span>
+<span class="sd">            assumed to contain no self-overlaps (see :func:`self_union`).</span>
+<span class="sd">            Names of (non-geometry) columns cannot be used more than once.</span>
+<span class="sd">            Any index columns are ignored.</span>
+<span class="sd">        how: Spatial overlay method (see :func:`gpd.overlay`).</span>
+<span class="sd">        ratios: Names of columns to rescale by the area fraction of the split feature</span>
+<span class="sd">            relative to the original. By default, the original value is used unchanged.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Duplicate column names in layers.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        GeoDataFrame with the geometries and attributes resulting from the overlay.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="n">gdfs</span><span class="p">:</span>
+        <span class="n">check_gdf</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ratios</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ratios</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Check for duplicate non-geometry column names</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">duplicates</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">c</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">gdfs</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">get_data_columns</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">seen</span> <span class="ow">or</span> <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">duplicates</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Duplicate column names in layers: </span><span class="si">{</span><span class="n">duplicates</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Drop index columns and replace with default index of known name</span>
+    <span class="c1"># NOTE: Assumes that default index name not already names of columns</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;__id</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">__&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdfs</span><span class="p">))]</span>
+    <span class="n">gdfs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">df</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">gdfs</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">overlay</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdfs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">overlay</span> <span class="k">if</span> <span class="n">i</span> <span class="k">else</span> <span class="n">gdfs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">gdfs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># Perform overlay with geometry and constant fields</span>
+        <span class="n">constants</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="n">df</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ratios</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">overlay</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">constants</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span> <span class="n">b</span><span class="p">[</span><span class="n">constants</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span> <span class="n">how</span><span class="o">=</span><span class="n">how</span>
+        <span class="p">)</span>
+        <span class="c1"># For uniform fields, compute area fraction of originals and merge by index</span>
+        <span class="c1"># new_value = (old_value / old_area) * new_area</span>
+        <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)):</span>
+            <span class="n">df_ratios</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">df</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ratios</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">df_ratios</span><span class="p">:</span>
+                <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">df_ratios</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">area</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">overlay</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">j</span><span class="p">]])</span>
+                    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">overlay</span><span class="o">.</span><span class="n">area</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">dfs</span><span class="p">:</span>
+            <span class="c1"># Assumed to be faster than incremental concat</span>
+            <span class="n">overlay</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">overlay</span><span class="p">]</span> <span class="o">+</span> <span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">overlay</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">keys</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_data_columns">
+<a class="viewcode-back" href="../../../autoapi/pudl/analysis/spatial/index.html#pudl.analysis.spatial.get_data_columns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_data_columns</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return list of columns, ignoring geometry.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="n">df</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

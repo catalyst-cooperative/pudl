@@ -1,0 +1,24 @@
+pudl.metadata.warnings
+======================
+
+.. py:module:: pudl.metadata.warnings
+
+.. autoapi-nested-parse::
+
+   Standard usage warnings to reference in dynamic table descriptions.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.warnings.USAGE_WARNINGS
+
+
+Module Contents
+---------------
+
+.. py:data:: USAGE_WARNINGS
+

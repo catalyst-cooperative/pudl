@@ -1,0 +1,144 @@
+pudl.metadata.resources
+=======================
+
+.. py:module:: pudl.metadata.resources
+
+.. autoapi-nested-parse::
+
+   A subpackage to define and organize PUDL database tables by data group.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/metadata/resources/allocate_gen_fuel/index
+   /autoapi/pudl/metadata/resources/censusdp1tract/index
+   /autoapi/pudl/metadata/resources/eia/index
+   /autoapi/pudl/metadata/resources/eia176/index
+   /autoapi/pudl/metadata/resources/eia860/index
+   /autoapi/pudl/metadata/resources/eia860m/index
+   /autoapi/pudl/metadata/resources/eia861/index
+   /autoapi/pudl/metadata/resources/eia923/index
+   /autoapi/pudl/metadata/resources/eia930/index
+   /autoapi/pudl/metadata/resources/eiaaeo/index
+   /autoapi/pudl/metadata/resources/eiaapi/index
+   /autoapi/pudl/metadata/resources/epacems/index
+   /autoapi/pudl/metadata/resources/ferc1/index
+   /autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index
+   /autoapi/pudl/metadata/resources/ferc714/index
+   /autoapi/pudl/metadata/resources/glue/index
+   /autoapi/pudl/metadata/resources/gridpathratoolkit/index
+   /autoapi/pudl/metadata/resources/nrelatb/index
+   /autoapi/pudl/metadata/resources/phmsagas/index
+   /autoapi/pudl/metadata/resources/pudl/index
+   /autoapi/pudl/metadata/resources/sec10k/index
+   /autoapi/pudl/metadata/resources/vcerare/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.RESOURCE_METADATA
+   pudl.metadata.resources.module
+   pudl.metadata.resources.FOREIGN_KEYS
+   pudl.metadata.resources.ENTITIES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.build_foreign_keys
+
+
+Package Contents
+----------------
+
+.. py:function:: build_foreign_keys(resources: dict[str, dict], prune: bool = True) -> dict[str, list[dict]]
+
+   Build foreign keys for each resource.
+
+   A resource's `foreign_key_rules` (if present) determines which other resources will
+   be assigned a foreign key (`foreign_keys`) to the reference's primary key:
+
+   * `fields` (list[list[str]]): Sets of field names for which to create a foreign key.
+     These are assumed to match the order of the reference's primary key fields.
+   * `exclude` (Optional[list[str]]): Names of resources to exclude.
+
+   :param resources: Resource descriptors by name.
+   :param prune: Whether to prune redundant foreign keys.
+
+   :returns: Foreign keys for each resource (if any), by resource name.
+
+             * `fields` (list[str]): Field names.
+             * `reference['resource']` (str): Reference resource name.
+             * `reference['fields']` (list[str]): Reference resource field names.
+
+   .. rubric:: Examples
+
+   >>> resources = {
+   ...     'x': {
+   ...         'schema': {
+   ...             'fields': ['z'],
+   ...             'primary_key': ['z'],
+   ...             'foreign_key_rules': {'fields': [['z']]}
+   ...         }
+   ...     },
+   ...     'y': {
+   ...         'schema': {
+   ...             'fields': ['z', 'yy'],
+   ...             'primary_key': ['z', 'yy'],
+   ...             'foreign_key_rules': {'fields': [['z', 'zz']]}
+   ...         }
+   ...     },
+   ...     'z': {'schema': {'fields': ['z', 'zz']}}
+   ... }
+   >>> keys = build_foreign_keys(resources)
+   >>> keys['z']
+   [{'fields': ['z', 'zz'], 'reference': {'resource': 'y', 'fields': ['z', 'yy']}}]
+   >>> keys['y']
+   [{'fields': ['z'], 'reference': {'resource': 'x', 'fields': ['z']}}]
+   >>> keys = build_foreign_keys(resources, prune=False)
+   >>> keys['z'][0]
+   {'fields': ['z'], 'reference': {'resource': 'x', 'fields': ['z']}}
+
+
+.. py:data:: RESOURCE_METADATA
+
+.. py:data:: module
+
+.. py:data:: FOREIGN_KEYS
+   :type:  dict[str, list[dict]]
+
+   Generated foreign key constraints by resource name.
+
+   See :func:`pudl.metadata.helpers.build_foreign_keys`.
+
+.. py:data:: ENTITIES
+   :type:  dict[str, dict[str, list[str] | dict[str, str]]]
+
+   Columns kept for either entity or annual EIA tables in the harvesting process.
+
+   For each entity type (key), the ID columns, static columns, annual columns, and mapped
+   columns.
+
+   The order of the entities matters. Plants must be harvested before utilities, since
+   plant location must be removed before the utility locations are harvested.
+
+   ``mapped_schemas`` allows for harvesting an entity ID / value relationship
+   from multiple columns in the same input dataframe. Each item in ``mapped_schemas`` is a
+   dictionary mapping column names in one of the cleaned tables to the standard column names
+   for that entity.  This is useful if a table has entities that should be harvested,
+   but whose column names don't have the same name as those in the ``id_cols``, ``static_cols``,
+   or ``annual_cols`` list. For example, in the ownership table the owner and operator utility
+   columns map to different column names in the other tables, i.e. "owner_utility_id_eia": "utility_id_eia".
+   In the harvesting process, a copy of the clean dataframe is made, and these columns are
+   renamed so the relationship can be harvested and added to the normalized entity tables.
+

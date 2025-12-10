@@ -1,0 +1,227 @@
+===========================================================================================
+FERC Form 920 -- Electric Quarterly Report (EQR)
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr
+   * - Source Description
+     - The Electric Quarterly Report (EQR) is submitted by sellers participating in bilateral electricity market transactions. The reports summarize the contractual terms and conditions in agreements for all jurisdictional services, including cost-based sales, market-based rate sales, and transmission service, as well as transaction information for short-term and long-term market-based power sales and cost-based power sales.
+   * - Download Size
+     - 109416 MB
+   * - Temporal Coverage
+     - 2013q3-2025q4
+   * - PUDL Code
+     - ``ferceqr``
+   * - Unprocessed Source Data Archive
+     - `10.5281/zenodo.18251901 <https://doi.org/10.5281/zenodo.18251901>`__
+   * - Issues
+     - `Open FERC Form 920 -- Electric Quarterly Report (EQR) issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aferceqr>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+We've segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_ferceqr__contracts`
+     - https://data.catalyst.coop/search?q=name:core_ferceqr__contracts
+   
+   * - :ref:`core_ferceqr__quarterly_identity`
+     - https://data.catalyst.coop/search?q=name:core_ferceqr__quarterly_identity
+   
+   * - :ref:`core_ferceqr__quarterly_index_pub`
+     - https://data.catalyst.coop/search?q=name:core_ferceqr__quarterly_index_pub
+   
+   * - :ref:`core_ferceqr__transactions`
+     - https://data.catalyst.coop/search?q=name:core_ferceqr__transactions
+   
+
+
+Background
+^^^^^^^^^^
+
+FERC's Electric Quarterly Reports (EQR) record US electricity wholesale market activity
+in great detail - sellers report transactions and their contractual terms on timescales
+ranging from 5-minutes in real-time spot markets, up to multi-year PPAs. It’s a very
+large dataset, and the raw data is hard to access in its published form of quarterly
+nested zip files.
+
+Due to its size and inconvenient format, the EQR has typically been underutilized as a
+data source. PUDL makes the EQR accessible and applies a minimal set of transformations
+to enable use of EQR in analysis of renewable energy financing at scale. This provides a
+view into otherwise opaque terms of the contracts and transactions that make up energy
+markets. It is particularly valuable in regions like the intermountain west and
+southeastern US with vertically integrated regulated monopoly utilities that lack
+organized wholesale markets.
+
+
+
+
+Download additional documentation
+---------------------------------
+
+
+
+    * :download:`Ferceqr Data Dictionary V30 2014-03-10 <ferceqr/ferceqr_data_dictionary_v30_2014-03-10.pdf>`
+
+    * :download:`Ferceqr Data Dictionary V34 2017-01-12 <ferceqr/ferceqr_data_dictionary_v34_2017-01-12.pdf>`
+
+    * :download:`Ferceqr Data Dictionary V35 2020-11-23 <ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`
+
+    * :download:`Ferceqr Filing Requirements 2023-11-08 <ferceqr/ferceqr_filing_requirements_2023-11-08.pdf>`
+
+
+
+
+Data available through PUDL
+---------------------------
+
+
+* The processed outputs cover the period from 2013Q3 through the present. Typically the
+  most recent data available is from the prior quarter.
+* Past filings may be revised, sometimes even years after their initial submission.
+* Older raw FERC EQR data from 2002-2013Q2 has been
+  `archived on Zenodo <https://zenodo.org/records/10086109>`__ but is not currently
+  being processed, as it is from a different reporting epoch, is far less detailed, and
+  uses a different file format.
+* We are currently updating the processed FERC EQR outputs once a quarter, based on fresh
+  snapshots of the original data.
+* Because the raw dataset is ~100 GB, we cannot archive it on Zenodo as we do with
+  most of our other inputs, and cannot currently store multiple historical versions of
+  the raw inputs. Instead, every new snapshot we take overwrites the previous one. These
+  snapshots are saved directly to cloud storage.
+* To handle the large scale of the data all of the FERC EQR tables are partitioned into
+  files that each contain a single quarter of data. This is unlike any of the other data
+  in PUDL.
+* The :ref:`core_ferceqr__transactions` table is by far the largest of the FERC EQR
+  tables, with the compressed Parquet outputs taking up ~80 GB on disk. Take care when
+  querying it or you can easily run out of memory. The other tables are small enough
+  that they can be loaded into memory in their entirety.
+
+
+
+Who submits this data?
+----------------------
+
+
+The FERC EQR is filed by electricity sellers. As outlined by the `EQR Filing Requirements
+Guide <https://cms.ferc.gov/media/eqr-filing-requirements-guide-0>`__, respondents are
+broken down into the following categories:
+
+* Public utilities: Public utilities as defined in section 201(e) of the Federal Power Act,
+  16 U.S.C. 824 (e) must file the EQR. If the utility has a Commission-jurisdictional
+  contract, tariff or rate schedule, it must file the EQR.
+* Non-public utilities: Non-public utilities must file the EQR if they make wholesale sales
+  above the de minimis market presence threshold. However, certain sales made by non-public
+  utilities above this threshold are not required to be reported in the EQR.
+* Qualifying facilities: Qualifying Facilities (QF) that are required to file rates under FPA
+  section 205 must file EQRs, unless their sales are exempted from FPA sections 205 and 206.
+* Exempt Wholesale Generators: The term ‘exempt wholesale generator’ means any person
+  engaged directly, or indirectly through one or more affiliates as defined in this subchapter,
+  and exclusively in the business of owning or operating, or both owning and operating,
+  all or part of one or more eligible facilities and selling electric energy at wholesale.
+* Electric Cooperatives: Electric cooperatives that sell 4,000,000 MWh or more of annual
+  wholesale sales must file EQRs.
+
+Notable exemptions are utilities located entirely in Alaska and Hawaii and utilities
+making sales within ERCOT boundaries, as these markets are not subject to FERC's
+jurisdiction. See `18 CFR 35.10b Electric Quarterly Reports <https://www.ecfr.gov/current/title-18/chapter-I/subchapter-B/part-35/subpart-A/section-35.10b>`__.
+
+
+
+
+* The original data is published as a collection of nested zipfiles containing CSVs.
+* Each outer zipfile contains one full quarter of reporting, across all tables and
+  respondents.
+* Each inner zipfile contains a single respondent's filing for a given quarter, with one
+  CSV file for each of the 4 tables.
+* FERC provides an online `EQR Report Viewer <https://eqrreportviewer.ferc.gov/>`__
+  which allows users to download a single filing, and also provides download links for
+  the bulk data. This is where we obtain the raw inputs.
+* The same data is also available as XML documents. We rely on the CSVs as they are much
+  easier to parse and turn into tables for analytical use.
+* FERC has been engaged in a process to revise how the EQR data is collected and
+  distributed, as part of their wider shift to using XBRL. If or when that change
+  happens, we will need to revisit our FERC EQR archiving and processing, and may need
+  to secure additional funding for the project. See these links for background:
+
+  * `XBRL-US presentation to FERC <https://www.ferc.gov/sites/default/files/2020-09/EQR_and_XBRL-CSV_Presentation.pdf>`__ (2020-09-23).
+  * `FERC Docket RM23-9-000 <https://www.ferc.gov/media/e-2-rm23-9-000>`__ (2023-10-19)
+  * `XBRL-US letter to FERC <https://cache.xbrl.us/wp-content/uploads/2023/10/XBRL-US-RE-Docket-No.RM23-9-000.pdf>`__ (2023-12-21)
+  * `XBRL-US comments on FERC proposed rule revising FERC EQR <https://xbrl.us/news/xbrlus-comment-ferc-eqr/>`__ (2023-12-22)
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+.. warning::
+
+   As of 2026-01-15 integration of FERC EQR into PUDL is still underway, and the dataset
+   should be considered a work in progress. You can check the status of issues linked
+   below. See also tracking issues :issue:`4850,4786`
+
+* A small percentage of the individual filing zip archives included in the quarterly
+  FERC EQR bulk data are corrupted, and cannot be extracted. We assume this is due to
+  errors in the filing process, and that these filings are likely revised and corrected
+  later.
+* There are a handful of cases in which reported categorical values do not match the
+  allowed values defined in any version of the FERC EQR data dictionaries. See issue
+  :issue:`4853` for details.
+* Roughly 0.6% of all EQR records contain CSV formatting or quoting errors that prevent
+  the data from being extracted. These ~29 million rows are currently dropped. See
+  :issue:`4928`.
+* Roughly 0.02% of all EQR records suffer from character encoding errors, and cannot
+  currently be extracted. These 922,000 rows are currently dropped. See :issue:`4927`.
+* The :ref:`core_ferceqr__quarterly_identity` table contains a few hundred records that
+  are either perfect duplicates, or that differ only in the formatting of values like
+  addresses or phone numbers. For now, this prevents the table from having a natural
+  primary key. See :issue:`4863`.
+* The FERC EQR data dictionaries published by FERC have evolved slightly since 2013,
+  primarily in that the the allowable categorical values have changed over time. PUDL
+  treats all values that have ever been allowed in any version of the EQR data
+  dictionaries as acceptable.
+* See individual table metadata for notes about primary key constraints.
+* FERC's assigned company IDs (CIDs) are intended to be permanent. However, the
+  attributes (such as company name) associated with a given CID can change over time.
+
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.ferceqr` created for each table's
+respective transform function.
+
+Our initial version of the FERC EQR dataset applies minimal transformations required
+to prepare it for programmatic usage. This includes:
+
+* Extracting the zipped, per-filing CSV files and concatenating them into Parquet files,
+  each of which contains all data for a given table and quarter.
+* Adding the FERC Company ID associated with the filer to every record, to avoid
+  ambiguities that result from relying on the name as an identifier.
+* Adding a column indicating what year and quarter each record was filed for.
+* Standardizing the case used in string fields that have a fixed set of expected values
+  to eliminate meaningless variation.
+* Converting string values into appropriate rich data types (boolean, datetime, etc.)
+  and standardizing null values.
+* Renaming a handful of columns to ensure they are uniform across all tables, and
+  compatible with column naming conventions throughout the rest of PUDL. E.g. renaming
+  ``company_id`` to ``seller_company_id_ferc`` to make it explicit which company in the
+  transaction the ID refers to, and to differentiate it from the many other company IDs
+  that appear elsewhere in PUDL.
+

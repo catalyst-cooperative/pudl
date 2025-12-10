@@ -1,0 +1,323 @@
+pudl.analysis.state_demand
+==========================
+
+.. py:module:: pudl.analysis.state_demand
+
+.. autoapi-nested-parse::
+
+   Estimate historical hourly state-level electricity demand.
+
+   Using hourly electricity demand reported at the balancing authority and utility level in
+   the FERC 714, and service territories for utilities and balancing autorities inferred
+   from the counties served by each utility, and the utilities that make up each balancing
+   authority in the EIA 861, estimate the total hourly electricity demand for each US
+   state.
+
+   This analysis uses the total electricity sales by state reported in the EIA 861 as a
+   scaling factor to ensure that the magnitude of electricity sales is roughly correct, and
+   obtains the shape of the demand curve from the hourly planning area demand reported in
+   the FERC 714.
+
+   The compilation of historical service territories based on the EIA 861 data is somewhat
+   manual and could certainly be improved, but overall the results seem reasonable.
+   Additional predictive spatial variables will be required to obtain more granular
+   electricity demand estimates (e.g. at the county level).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.state_demand.logger
+   pudl.analysis.state_demand.STATES
+   pudl.analysis.state_demand.STANDARD_UTC_OFFSETS
+   pudl.analysis.state_demand.UTC_OFFSETS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.state_demand.lookup_state
+   pudl.analysis.state_demand.local_to_utc
+   pudl.analysis.state_demand.utc_to_local
+   pudl.analysis.state_demand.load_ventyx_hourly_state_demand
+   pudl.analysis.state_demand.load_hourly_demand_matrix_ferc714
+   pudl.analysis.state_demand.clean_ferc714_hourly_demand_matrix
+   pudl.analysis.state_demand.filter_ferc714_hourly_demand_matrix
+   pudl.analysis.state_demand.impute_ferc714_hourly_demand_matrix
+   pudl.analysis.state_demand.melt_ferc714_hourly_demand_matrix
+   pudl.analysis.state_demand._out_ferc714__hourly_demand_matrix
+   pudl.analysis.state_demand._out_ferc714__hourly_imputed_demand
+   pudl.analysis.state_demand.county_assignments_ferc714
+   pudl.analysis.state_demand.census_counties
+   pudl.analysis.state_demand.total_state_sales_eia861
+   pudl.analysis.state_demand.out_ferc714__hourly_estimated_state_demand
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: STATES
+   :type:  list[dict[str, str]]
+
+.. py:data:: STANDARD_UTC_OFFSETS
+   :type:  dict[str, str]
+
+   Hour offset from Coordinated Universal Time (UTC) by time zone.
+
+   Time zones are canonical names (e.g. 'America/Denver') from tzdata (
+   https://www.iana.org/time-zones)
+   mapped to their standard-time UTC offset.
+
+.. py:data:: UTC_OFFSETS
+   :type:  dict[str, int]
+
+   Hour offset from Coordinated Universal Time (UTC) by time zone.
+
+   Time zones are either standard or daylight-savings time zone abbreviations (e.g. 'MST').
+
+.. py:function:: lookup_state(state: str | int) -> dict
+
+   Lookup US state by state identifier.
+
+   :param state: State name, two-letter abbreviation, or FIPS code.
+                 String matching is case-insensitive.
+
+   :returns: State identifers.
+
+   .. rubric:: Examples
+
+   >>> lookup_state('alabama')
+   {'name': 'Alabama', 'code': 'AL', 'fips': '01'}
+   >>> lookup_state('AL')
+   {'name': 'Alabama', 'code': 'AL', 'fips': '01'}
+   >>> lookup_state(1)
+   {'name': 'Alabama', 'code': 'AL', 'fips': '01'}
+
+
+.. py:function:: local_to_utc(local: pandas.Series, tz: collections.abc.Iterable, **kwargs: Any) -> pandas.Series
+
+   Convert local times to UTC.
+
+   :param local: Local times (tz-naive ``datetime64[ns]``).
+   :param tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
+              or UTC offset in hours (``int`` or ``float``).
+   :param kwargs: Optional arguments to :meth:`DatetimeIndex.tz_localize`.
+
+   :returns: UTC times (tz-naive ``datetime64[ns]``).
+
+   .. rubric:: Examples
+
+   >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
+   >>> local_to_utc(s, [-7, -6])
+   0   2020-01-01 07:00:00
+   1   2020-01-01 06:00:00
+   dtype: datetime64[ns]
+   >>> local_to_utc(s, ['America/Denver', 'America/Chicago'])
+   0   2020-01-01 07:00:00
+   1   2020-01-01 06:00:00
+   dtype: datetime64[ns]
+
+
+.. py:function:: utc_to_local(utc: pandas.Series, tz: collections.abc.Iterable) -> pandas.Series
+
+   Convert UTC times to local.
+
+   :param utc: UTC times (tz-naive ``datetime64[ns]`` or ``datetime64[ns, UTC]``).
+   :param tz: For each time, a timezone (see :meth:`DatetimeIndex.tz_localize`)
+              or UTC offset in hours (``int`` or ``float``).
+
+   :returns: Local times (tz-naive ``datetime64[ns]``).
+
+   .. rubric:: Examples
+
+   >>> s = pd.Series([pd.Timestamp(2020, 1, 1), pd.Timestamp(2020, 1, 1)])
+   >>> utc_to_local(s, [-7, -6])
+   0   2019-12-31 17:00:00
+   1   2019-12-31 18:00:00
+   dtype: datetime64[ns]
+   >>> utc_to_local(s, ['America/Denver', 'America/Chicago'])
+   0   2019-12-31 17:00:00
+   1   2019-12-31 18:00:00
+   dtype: datetime64[ns]
+
+
+.. py:function:: load_ventyx_hourly_state_demand(path: str) -> pandas.DataFrame
+
+   Read and format Ventyx hourly state-level demand.
+
+   After manual corrections of the listed time zone, ambiguous time zone issues remain.
+   Below is a list of transmission zones (by `Transmission Zone ID`)
+   with one or more missing timestamps at transitions to or from daylight-savings:
+
+   * 615253 (Indiana)
+   * 615261 (Michigan)
+   * 615352 (Wisconsin)
+   * 615357 (Missouri)
+   * 615377 (Saskatchewan)
+   * 615401 (Minnesota, Wisconsin)
+   * 615516 (Missouri)
+   * 615529 (Oklahoma)
+   * 615603 (Idaho, Washington)
+   * 1836089 (California)
+
+   :param path: Path to the data file (published as 'state_level_load_2007_2018.csv').
+
+   :returns: Dataframe with hourly state-level demand.
+             * ``state_id_fips``: FIPS code of US state.
+             * ``datetime_utc``: UTC time of the start of each hour.
+             * ``demand_mwh``: Hourly demand in MWh.
+
+
+.. py:function:: load_hourly_demand_matrix_ferc714(out_ferc714__hourly_planning_area_demand: pandas.DataFrame) -> tuple[pandas.DataFrame, pandas.DataFrame]
+
+   Read and format FERC 714 hourly demand into matrix form.
+
+   :param out_ferc714__hourly_planning_area_demand: FERC 714 hourly demand time series by
+                                                    planning area.
+
+   :returns: Hourly demand as a matrix with a `datetime` row index
+             (e.g. '2006-01-01 00:00:00', ..., '2019-12-31 23:00:00')
+             in local time ignoring daylight-savings,
+             and a `respondent_id_ferc714` column index (e.g. 101, ..., 329).
+             A second Dataframe lists the UTC offset in hours
+             of each `respondent_id_ferc714` and reporting `year` (int).
+
+
+.. py:function:: clean_ferc714_hourly_demand_matrix(df: pandas.DataFrame) -> pandas.DataFrame
+
+   Detect and null anomalous values in FERC 714 hourly demand matrix.
+
+   .. note::
+       Takes about 10 minutes.
+
+   :param df: FERC 714 hourly demand matrix,
+              as described in :func:`load_ferc714_hourly_demand_matrix`.
+
+   :returns: Copy of `df` with nulled anomalous values.
+
+
+.. py:function:: filter_ferc714_hourly_demand_matrix(df: pandas.DataFrame, min_data: int = 100, min_data_fraction: float = 0.9) -> pandas.DataFrame
+
+   Filter incomplete years from FERC 714 hourly demand matrix.
+
+   Nulls respondent-years with too few data and
+   drops respondents with no data across all years.
+
+   :param df: FERC 714 hourly demand matrix,
+              as described in :func:`load_ferc714_hourly_demand_matrix`.
+   :param min_data: Minimum number of non-null hours in a year.
+   :param min_data_fraction: Minimum fraction of non-null hours between the first and last
+                             non-null hour in a year.
+
+   :returns: Hourly demand matrix `df` modified in-place.
+
+
+.. py:function:: impute_ferc714_hourly_demand_matrix(df: pandas.DataFrame, years: list[int]) -> pandas.DataFrame
+
+   Impute null values in FERC 714 hourly demand matrix.
+
+   Imputation is performed separately for each year,
+   with only the respondents reporting data in that year.
+
+   .. note::
+       Takes about 15 minutes.
+
+   :param df: FERC 714 hourly demand matrix,
+              as described in :func:`load_ferc714_hourly_demand_matrix`.
+   :param years: list of years to input
+
+   :returns: Copy of `df` with imputed values.
+
+
+.. py:function:: melt_ferc714_hourly_demand_matrix(df: pandas.DataFrame, tz: pandas.DataFrame) -> pandas.DataFrame
+
+   Melt FERC 714 hourly demand matrix to long format.
+
+   :param df: FERC 714 hourly demand matrix,
+              as described in :func:`load_ferc714_hourly_demand_matrix`.
+   :param tz: FERC 714 respondent time zones,
+              as described in :func:`load_ferc714_hourly_demand_matrix`.
+
+   :returns: Long-format hourly demand with columns ``respondent_id_ferc714``, report
+             ``year`` (int), ``datetime_utc``, and ``demand_mwh``.
+
+
+.. py:function:: _out_ferc714__hourly_demand_matrix(context, _out_ferc714__hourly_pivoted_demand_matrix: pandas.DataFrame) -> pandas.DataFrame
+
+   Cleaned and nulled FERC 714 hourly demand matrix.
+
+   :param _out_ferc714__hourly_pivoted_demand_matrix: FERC 714 hourly demand data in a
+                                                      matrix form.
+
+   :returns: Matrix with nulled anomalous values, where respondent-years with too few
+             responses are nulled and respondents with no data across all years are dropped.
+
+
+.. py:function:: _out_ferc714__hourly_imputed_demand(context, _out_ferc714__hourly_demand_matrix: pandas.DataFrame, _out_ferc714__utc_offset: pandas.DataFrame) -> pandas.DataFrame
+
+   Imputed FERC714 hourly demand in long format.
+
+   Impute null values for FERC 714 hourly demand matrix, performing imputation
+   separately for each year using only respondents reporting data in that year. Then,
+   melt data into a long format.
+
+   :param _out_ferc714__hourly_demand_matrix: Cleaned hourly demand matrix from FERC 714.
+   :param _out_ferc714__utc_offset: Timezone by year for each respondent.
+
+   :returns: DataFrame with imputed FERC714 hourly demand.
+   :rtype: df
+
+
+.. py:function:: county_assignments_ferc714(out_ferc714__respondents_with_fips) -> pandas.DataFrame
+
+   Load FERC 714 county assignments.
+
+   :param out_ferc714__respondents_with_fips: From `pudl.output.ferc714`, FERC 714 respondents
+                                              with county FIPS IDs.
+
+   :returns: Dataframe with columns
+             `respondent_id_ferc714`, report `year` (int), and `county_id_fips`.
+
+
+.. py:function:: census_counties(_core_censusdp1tract__counties: geopandas.GeoDataFrame) -> geopandas.GeoDataFrame
+
+   Load county attributes.
+
+   :param county_censusdp: The county layer of the Census DP1 geodatabase.
+
+   :returns: Dataframe with columns `county_id_fips` and `population`.
+
+
+.. py:function:: total_state_sales_eia861(core_eia861__yearly_sales) -> pandas.DataFrame
+
+   Read and format EIA 861 sales by state and year.
+
+   :param core_eia861__yearly_sales: Electricity sales data from EIA 861.
+
+   :returns: Dataframe with columns `state_id_fips`, `year`, `demand_mwh`.
+
+
+.. py:function:: out_ferc714__hourly_estimated_state_demand(context, _out_ferc714__hourly_imputed_demand: pandas.DataFrame, _core_censusdp1tract__counties: pandas.DataFrame, out_ferc714__respondents_with_fips: pandas.DataFrame, core_eia861__yearly_sales: pandas.DataFrame = None) -> pandas.DataFrame
+
+   Estimate hourly electricity demand by state.
+
+   :param _out_ferc714__hourly_imputed_demand: Hourly demand timeseries, with columns
+                                               ``respondent_id_ferc714``, report ``year``, ``datetime_utc``, and
+                                               ``demand_mwh``.
+   :param _core_censusdp1tract__counties: The county layer of the Census DP1 shapefile.
+   :param out_ferc714__respondents_with_fips: Annual respondents with the county FIPS IDs
+                                              for their service territories.
+   :param core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly
+                                     demand is scaled to match these totals.
+
+   :returns: Dataframe with columns ``state_id_fips``, ``datetime_utc``, ``demand_mwh``, and
+             (if ``state_totals`` was provided) ``scaled_demand_mwh``.
+
+

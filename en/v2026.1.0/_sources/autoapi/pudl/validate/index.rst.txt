@@ -1,0 +1,110 @@
+pudl.validate
+=============
+
+.. py:module:: pudl.validate
+
+.. autoapi-nested-parse::
+
+   PUDL data validation functions and test case specifications.
+
+   Note that this module is being cannibalized and translated into dbt tests.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.validate.logger
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   pudl.validate.ExcessiveNullRowsError
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.validate.no_null_rows
+   pudl.validate.group_mean_continuity_check
+   pudl.validate.weighted_quantile
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:exception:: ExcessiveNullRowsError(message: str, null_rows: pandas.DataFrame)
+
+   Bases: :py:obj:`ValueError`
+
+
+   Exception raised when rows have excessive null values.
+
+
+   .. py:attribute:: null_rows
+
+
+.. py:function:: no_null_rows(df: pandas.DataFrame, cols: list[str] | str = 'all', df_name: str = '', max_null_fraction: float = 0.9) -> pandas.DataFrame
+
+   Check for rows with excessive missing values, usually due to a merge gone wrong.
+
+   Sum up the number of NA values in each row and the columns specified by ``cols``.
+   If the NA values make up more than ``max_null_fraction`` of the columns overall, the
+   row is considered Null and the check fails.
+
+   :param df: Table to check for null rows.
+   :param cols: Columns to check for excessive null value. If "all" check all columns.
+   :param df_name: Name of the dataframe, to aid in debugging/logging.
+   :param max_null_fraction: The maximum fraction of NA values allowed in any row.
+
+   :returns: The input DataFrame, for use with DataFrame.pipe().
+
+   :raises ExcessiveNullRowsError: If the fraction of NA values in any row is greater than
+   :raises `max_null_fraction``:
+
+
+.. py:function:: group_mean_continuity_check(df: pandas.DataFrame, thresholds: dict[str, float], groupby_col: str, n_outliers_allowed: int = 0) -> dagster.AssetCheckResult
+
+   Check that certain variables don't vary too much on average between groups.
+
+   Groups and sorts the data by ``groupby_col``, then takes the mean across
+   each group. Useful for saying something like "the average water usage of
+   cooling systems didn't jump by 10x from 2012-2013."
+
+   :param df: the df with the actual data
+   :param thresholds: a mapping from column names to the ratio by which those
+                      columns are allowed to fluctuate from one group to the next.
+   :param groupby_col: the column by which we will group the data.
+   :param n_outliers_allowed: how many data points are allowed to be above the
+                              threshold.
+
+
+.. py:function:: weighted_quantile(data: pandas.Series, weights: pandas.Series, quantile: float) -> float
+
+   Calculate the weighted quantile of a Series or DataFrame column.
+
+   This function allows us to take two columns from a :class:`pandas.DataFrame` one of
+   which contains an observed value (data) like heat content per unit of fuel, and the
+   other of which (weights) contains a quantity like quantity of fuel delivered which
+   should be used to scale the importance of the observed value in an overall
+   distribution, and calculate the values that the scaled distribution will have at
+   various quantiles.
+
+   :param data: A series containing numeric data.
+   :param weights: Weights to use in scaling the data. Must have the same length as data.
+   :param quantile: A number between 0 and 1, representing the quantile at which we want
+                    to find the value of the weighted data.
+
+   :returns: The value in the weighted data corresponding to the given quantile. If there are
+             no values in the data, return :mod:`numpy.nan`.
+
+

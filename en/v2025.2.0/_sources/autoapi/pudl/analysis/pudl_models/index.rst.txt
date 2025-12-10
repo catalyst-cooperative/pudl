@@ -1,0 +1,60 @@
+pudl.analysis.pudl_models
+=========================
+
+.. py:module:: pudl.analysis.pudl_models
+
+.. autoapi-nested-parse::
+
+   Implement utilities for working with data produced in the pudl modelling repo.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.pudl_models._load_table_from_gcs
+   pudl.analysis.pudl_models._compute_fraction_owned
+   pudl.analysis.pudl_models._year_quarter_to_date
+   pudl.analysis.pudl_models.core_sec10k__quarterly_company_information
+   pudl.analysis.pudl_models.core_sec10k__quarterly_exhibit_21_company_ownership
+   pudl.analysis.pudl_models.core_sec10k__quarterly_filings
+   pudl.analysis.pudl_models.out_sec10k__parents_and_subsidiaries
+
+
+Module Contents
+---------------
+
+.. py:function:: _load_table_from_gcs(table_name: str) -> pandas.DataFrame
+
+.. py:function:: _compute_fraction_owned(percent_ownership: pandas.Series) -> pandas.Series
+
+   Clean percent ownership, convert to float, then convert percent to ratio.
+
+
+.. py:function:: _year_quarter_to_date(year_quarter: pandas.Series) -> pandas.Series
+
+   Convert a year quarter in the format '2024q1' to date type.
+
+
+.. py:function:: core_sec10k__quarterly_company_information() -> pandas.DataFrame
+
+   Basic company information extracted from SEC10k filings.
+
+
+.. py:function:: core_sec10k__quarterly_exhibit_21_company_ownership() -> pandas.DataFrame
+
+   Company ownership information extracted from sec10k exhibit 21 attachments.
+
+
+.. py:function:: core_sec10k__quarterly_filings() -> pandas.DataFrame
+
+   Metadata on all 10k filings submitted to SEC.
+
+
+.. py:function:: out_sec10k__parents_and_subsidiaries() -> pandas.DataFrame
+
+   Denormalized output table with sec10k info and company ownership linked to EIA.
+
+

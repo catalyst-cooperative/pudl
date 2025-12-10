@@ -1,0 +1,136 @@
+pudl.analysis.spatial
+=====================
+
+.. py:module:: pudl.analysis.spatial
+
+.. autoapi-nested-parse::
+
+   Spatial operations for demand allocation.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.spatial.check_gdf
+   pudl.analysis.spatial.polygonize
+   pudl.analysis.spatial.explode
+   pudl.analysis.spatial.self_union
+   pudl.analysis.spatial.dissolve
+   pudl.analysis.spatial.overlay
+   pudl.analysis.spatial.get_data_columns
+
+
+Module Contents
+---------------
+
+.. py:function:: check_gdf(gdf: geopandas.GeoDataFrame) -> None
+
+   Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.
+
+   :param gdf: GeoDataFrame.
+
+   :raises TypeError: Object is not a GeoDataFrame.
+   :raises AttributeError: GeoDataFrame has no geometry.
+   :raises TypeError: Geometry is not a GeoSeries.
+   :raises ValueError: Geometry contains null geometries.
+   :raises ValueError: Geometry contains non-(Multi)Polygon geometries.
+   :raises ValueError: Geometry contains (Multi)Polygon geometries with zero area.
+   :raises ValueError: MultiPolygon contains Polygon geometries with zero area.
+
+
+.. py:function:: polygonize(geom: shapely.geometry.base.BaseGeometry) -> shapely.geometry.Polygon | shapely.geometry.MultiPolygon
+
+   Convert geometry to (Multi)Polygon.
+
+   :param geom: Geometry to convert to (Multi)Polygon.
+
+   :returns: Geometry converted to (Multi)Polygon, with all zero-area components removed.
+
+   :raises ValueError: Geometry has zero area.
+
+
+.. py:function:: explode(gdf: geopandas.GeoDataFrame, ratios: collections.abc.Iterable[str] = None) -> geopandas.GeoDataFrame
+
+   Explode MultiPolygon to multiple Polygon geometries.
+
+   :param gdf: GeoDataFrame with non-zero-area (Multi)Polygon geometries.
+   :param ratios: Names of columns to rescale by the area fraction of the Polygon
+                  relative to the MultiPolygon.
+                  If provided, MultiPolygon cannot self-intersect.
+                  By default, the original value is used unchanged.
+
+   :raises ValueError: Geometry contains self-intersecting MultiPolygon.
+
+   :returns: GeoDataFrame with each Polygon as a separate row in the GeoDataFrame.
+             The index is the number of the source row in the input GeoDataFrame.
+
+
+.. py:function:: self_union(gdf: geopandas.GeoDataFrame, ratios: collections.abc.Iterable[str] = None) -> geopandas.GeoDataFrame
+
+   Calculate the geometric union of a feature layer with itself.
+
+   Areas of overlap are split into two or more geometrically-identical features:
+   one for each of the original overlapping features.
+   Each split feature contains the attributes of the original feature.
+
+   :param gdf: GeoDataFrame with non-zero-area MultiPolygon geometries.
+   :param ratios: Names of columns to rescale by the area fraction of the split feature
+                  relative to the original. By default, the original value is used unchanged.
+
+   :returns: GeoDataFrame representing the union of the input features with themselves.
+             Its index contains tuples of the index of the original overlapping features.
+
+   :raises NotImplementedError: MultiPolygon geometries are not yet supported.
+
+
+.. py:function:: dissolve(gdf: geopandas.GeoDataFrame, by: collections.abc.Iterable[str], func: collections.abc.Callable | str | list | dict, how: Literal['union', 'first'] | collections.abc.Callable[[geopandas.GeoSeries], shapely.geometry.base.BaseGeometry] = 'union') -> geopandas.GeoDataFrame
+
+   Dissolve layer by aggregating features based on common attributes.
+
+   :param gdf: GeoDataFrame with non-empty (Multi)Polygon geometries.
+   :param by: Names of columns to group features by.
+   :param func: Aggregation function for data columns (see :meth:`pd.DataFrame.groupby`).
+   :param how: Aggregation function for geometry column.
+               Either 'union' (:meth:`gpd.GeoSeries.union_all()`),
+               'first' (first geometry in group),
+               or a function aggregating multiple geometries into one.
+
+   :returns: GeoDataFrame with dissolved geometry and data columns,
+             and grouping columns set as the index.
+
+
+.. py:function:: overlay(*gdfs: geopandas.GeoDataFrame, how: Literal['intersection', 'union', 'identity', 'symmetric_difference', 'difference'] = 'intersection', ratios: collections.abc.Iterable[str] = None) -> geopandas.GeoDataFrame
+
+   Overlay multiple layers incrementally.
+
+   When a feature from one layer overlaps the feature of another layer,
+   the area of overlap is split into two geometrically-identical features:
+   one for each of the original overlapping features.
+   Each split feature contains the attributes of the original feature.
+
+   TODO: To identify the source of output features, the user can ensure that each
+   layer contains a column to index by.
+   Alternatively, tuples of indices of the overlapping
+   feature from each layer (null if none) could be returned as the index.
+
+   :param gdfs: GeoDataFrames with non-empty (Multi)Polygon geometries
+                assumed to contain no self-overlaps (see :func:`self_union`).
+                Names of (non-geometry) columns cannot be used more than once.
+                Any index columns are ignored.
+   :param how: Spatial overlay method (see :func:`gpd.overlay`).
+   :param ratios: Names of columns to rescale by the area fraction of the split feature
+                  relative to the original. By default, the original value is used unchanged.
+
+   :raises ValueError: Duplicate column names in layers.
+
+   :returns: GeoDataFrame with the geometries and attributes resulting from the overlay.
+
+
+.. py:function:: get_data_columns(df: pandas.DataFrame) -> list
+
+   Return list of columns, ignoring geometry.
+
+

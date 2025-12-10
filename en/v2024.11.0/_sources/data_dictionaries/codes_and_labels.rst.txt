@@ -1,0 +1,925 @@
+
+=====================================================================================================
+PUDL Code Metadata
+=====================================================================================================
+The following tables map from codes used in raw data to labels used in the PUDL database.
+Also included is a table of non-standard codes that are mapped to canonical, standardized codes.
+
+
+.. _core_eia__codes_averaging_periods_:
+
+---------------------------------------------------------------
+core_eia__codes_averaging_periods
+---------------------------------------------------------------
+
+A coding table describing the averaging period specified by emissions statutes and regulation for in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_averaging_periods.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_balancing_authorities_:
+
+---------------------------------------------------------------
+core_eia__codes_balancing_authorities
+---------------------------------------------------------------
+
+A coding table describing balancing authorities in EIA-860, EIA-923, and EIA-930
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_balancing_authorities.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - CA
+    - CISO
+  * - CI
+    - CISO
+  * - CP
+    - CPLE
+  * - DU
+    - DUK
+  * - EP
+    - EPE
+  * - ER
+    - ERCO
+  * - IP
+    - IPCO
+  * - IS
+    - ISNE
+  * - MI
+    - MISO
+  * - NE
+    - NEVP
+  * - NVE
+    - NEVP
+  * - NY
+    - NYIS
+  * - PJ
+    - PJM
+  * - PS
+    - PSCO
+  * - SE
+    - SEC
+  * - SR
+    - SRP
+  * - SW
+    - SWPP
+  * - TEN
+    - TVA
+  * - TEX
+    - ERCO
+  * - TIC
+    - TIDC
+  * - TID
+    - TIDC
+
+
+.. _core_eia__codes_boiler_generator_assn_types_:
+
+---------------------------------------------------------------
+core_eia__codes_boiler_generator_assn_types
+---------------------------------------------------------------
+
+A coding table describing different types of boiler-generator associations in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_boiler_generator_assn_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - t
+    - T
+  * - a
+    - A
+
+
+.. _core_eia__codes_boiler_status_:
+
+---------------------------------------------------------------
+core_eia__codes_boiler_status
+---------------------------------------------------------------
+
+A coding table describing different types of boiler status in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_boiler_status.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - op
+    - OP
+  * - re
+    - RE
+  * - OA
+    - OP
+  * - IP
+    - CN
+  * - R
+    - RE
+  * - P
+    - PL
+  * - V
+    - CO
+  * - ts
+    - TS
+
+
+.. _core_eia__codes_boiler_types_:
+
+---------------------------------------------------------------
+core_eia__codes_boiler_types
+---------------------------------------------------------------
+
+A coding table describing different types of boiler regulatory types in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_boiler_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_coalmine_types_:
+
+---------------------------------------------------------------
+core_eia__codes_coalmine_types
+---------------------------------------------------------------
+
+A coding table describing different types of coalmines reported as fuel sources in the EIA-923.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_coalmine_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - p
+    - P
+  * - U/S
+    - US
+  * - S/U
+    - SU
+  * - Su
+    - S
+
+
+.. _core_eia__codes_contract_types_:
+
+---------------------------------------------------------------
+core_eia__codes_contract_types
+---------------------------------------------------------------
+
+A coding table describing the various types of fuel supply contracts reported in EIA-923.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_contract_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - N
+    - NC
+
+
+.. _core_eia__codes_cooling_system_types_:
+
+---------------------------------------------------------------
+core_eia__codes_cooling_system_types
+---------------------------------------------------------------
+
+A coding table for cooling system types.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_cooling_system_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - RECIRCULATING WITH INDUCED DRAFT COOLING TOWER
+    - RI
+  * - DRY (AIR) COOLING SYSTEM
+    - DC
+  * - ONCE THROUGH WITHOUT COOLING POND(S) OR CANAL(S)
+    - ON
+  * - RECIRCULATING WITH COOLING PONDS
+    - RC
+  * - RECIRCULATING
+    - R
+  * - RECIRCULATING WITH NATURAL DRAFT COOLING TOWER
+    - RN
+  * - ONCE THROUGH
+    - O
+  * - ONCE THROUGH WITH COOLING PONDS
+    - OC
+  * - HYBRID: RECIRCULATING WITH INDUCED DRAFT COOLING TOWER(S) WITH DRY COOLING
+    - HRI
+  * - ONCE THROUGH AND RECIRCULATING
+    - O + R
+  * - RECIRCULATING WITH FORCED DRAFT COOLING TOWER
+    - RF
+  * - HYBRID (DRY AND WET COOLING)
+    - H
+  * - OTHER - SPECIFY IN FOOTNOTE
+    - OT
+  * - HYBRID: RECIRCULATING WITH FORCED DRAFT COOLING TOWER(S) WITH DRY COOLING
+    - HRF
+
+
+.. _core_eia__codes_cooling_tower_types_:
+
+---------------------------------------------------------------
+core_eia__codes_cooling_tower_types
+---------------------------------------------------------------
+
+A coding table for cooling tower types.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_cooling_tower_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_cooling_water_sources_:
+
+---------------------------------------------------------------
+core_eia__codes_cooling_water_sources
+---------------------------------------------------------------
+
+A coding table describing different types of cooling water sources in EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_cooling_water_sources.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_cooling_water_types_:
+
+---------------------------------------------------------------
+core_eia__codes_cooling_water_types
+---------------------------------------------------------------
+
+A coding table for cooling water types.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_cooling_water_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_emission_control_equipment_types_:
+
+---------------------------------------------------------------
+core_eia__codes_emission_control_equipment_types
+---------------------------------------------------------------
+
+A coding table describing the type of emissions control equipment installed on a boiler.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_emission_control_equipment_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - SR-2
+    - SR
+  * - sn
+    - SN
+  * - LN
+    - LNB
+  * - DP
+    - DSI
+
+
+.. _core_eia__codes_energy_sources_:
+
+---------------------------------------------------------------
+core_eia__codes_energy_sources
+---------------------------------------------------------------
+
+Codes and metadata pertaining to energy sources reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_energy_sources.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - BL
+    - BLQ
+  * - HPS
+    - WAT
+  * - ng
+    - NG
+  * - WOC
+    - WC
+  * - OW
+    - WO
+  * - WT
+    - WND
+  * - H2
+    - OG
+  * - OOG
+    - OG
+  * - Sun
+    - SUN
+  * - sub
+    - SUB
+
+
+.. _core_eia__codes_environmental_equipment_manufacturers_:
+
+---------------------------------------------------------------
+core_eia__codes_environmental_equipment_manufacturers
+---------------------------------------------------------------
+
+A coding table describing manufacturers of boilers and environmental control equipment in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_environmental_equipment_manufacturers.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_firing_types_:
+
+---------------------------------------------------------------
+core_eia__codes_firing_types
+---------------------------------------------------------------
+
+A coding table describing different boiler firing types in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_firing_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - AF
+    - VF
+  * - CF
+    - TF
+  * - FF
+    - WF
+  * - OF
+    - WF
+  * - RF
+    - WF
+  * - SF
+    - WF
+
+
+.. _core_eia__codes_fuel_transportation_modes_:
+
+---------------------------------------------------------------
+core_eia__codes_fuel_transportation_modes
+---------------------------------------------------------------
+
+Long descriptions of the fuel transportation modes reported in the EIA-860 and EIA-923.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_fuel_transportation_modes.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - TK
+    - TR
+  * - tk
+    - TR
+  * - tr
+    - TR
+  * - WA
+    - WT
+  * - wa
+    - WT
+  * - CV
+    - TC
+  * - cv
+    - TC
+  * - rr
+    - RR
+  * - pl
+    - PL
+  * - rv
+    - RV
+
+
+.. _core_eia__codes_fuel_types_agg_:
+
+---------------------------------------------------------------
+core_eia__codes_fuel_types_agg
+---------------------------------------------------------------
+
+Descriptive labels for aggregated fuel types used in the Annual Energy Review or Monthly Energy Review. See EIA-923 Fuel Code table for additional information.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_fuel_types_agg.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_mercury_compliance_strategies_:
+
+---------------------------------------------------------------
+core_eia__codes_mercury_compliance_strategies
+---------------------------------------------------------------
+
+A coding table describing different compliance strategies used to control mercury in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_mercury_compliance_strategies.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_momentary_interruptions_:
+
+---------------------------------------------------------------
+core_eia__codes_momentary_interruptions
+---------------------------------------------------------------
+
+A coding table for utility definitions of momentary service interruptions.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_momentary_interruptions.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - 5
+    - F
+
+
+.. _core_eia__codes_nox_compliance_strategies_:
+
+---------------------------------------------------------------
+core_eia__codes_nox_compliance_strategies
+---------------------------------------------------------------
+
+A coding table describing different compliance strategies used to control nitrogen oxide in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_nox_compliance_strategies.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - H2
+    - H2O
+  * - NH
+    - NH3
+  * - ST
+    - STM
+  * - ln
+    - LN
+
+
+.. _core_eia__codes_nox_control_status_:
+
+---------------------------------------------------------------
+core_eia__codes_nox_control_status
+---------------------------------------------------------------
+
+A coding table describing the operational status of nitrogen oxide control units associated with boilers in the EIA-860 data.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_nox_control_status.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_nox_units_:
+
+---------------------------------------------------------------
+core_eia__codes_nox_units
+---------------------------------------------------------------
+
+A coding table describing different units of measurement for nitrogen oxide in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_nox_units.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_operational_status_:
+
+---------------------------------------------------------------
+core_eia__codes_operational_status
+---------------------------------------------------------------
+
+Codes and metadata pertaining to operational status reported to EIA. Compiled from EIA-860 instructions and EIA-923 file layout spreadsheets.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_operational_status.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - (L) Regulatory approvals pending. Not under construction
+    - L
+  * - (OA) Out of service but expected to return to service in next calendar year
+    - OA
+  * - (OP) Operating
+    - OP
+  * - (OS) Out of service and NOT expected to return to service in next calendar year
+    - OS
+  * - (OT) Other
+    - OT
+  * - (P) Planned for installation, but regulatory approvals not initiated
+    - P
+  * - (SB) Standby/Backup: available for service but not normally used
+    - SB
+  * - (T) Regulatory approvals received. Not under construction
+    - T
+  * - (TS) Construction complete, but not yet in commercial operation
+    - TS
+  * - (U) Under construction, less than or equal to 50 percent complete
+    - U
+  * - (V) Under construction, more than 50 percent complete
+    - V
+  * - BU
+    - SB
+
+
+.. _core_eia__codes_particulate_compliance_strategies_:
+
+---------------------------------------------------------------
+core_eia__codes_particulate_compliance_strategies
+---------------------------------------------------------------
+
+A coding table describing different compliance strategies used to control particulate matter in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_particulate_compliance_strategies.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_particulate_units_:
+
+---------------------------------------------------------------
+core_eia__codes_particulate_units
+---------------------------------------------------------------
+
+A coding table describing different units of measurement for particulate matter in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_particulate_units.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - DP
+    - PB
+
+
+.. _core_eia__codes_prime_movers_:
+
+---------------------------------------------------------------
+core_eia__codes_prime_movers
+---------------------------------------------------------------
+
+Long descriptions explaining the short prime mover codes reported in the EIA-860 and EIA-923.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_prime_movers.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - ic
+    - IC
+  * - WY
+    - WT
+
+
+.. _core_eia__codes_regulations_:
+
+---------------------------------------------------------------
+core_eia__codes_regulations
+---------------------------------------------------------------
+
+A coding table describing the different levels of statutes and codes under which boilers operate in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_regulations.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - St
+    - ST
+
+
+.. _core_eia__codes_reporting_frequencies_:
+
+---------------------------------------------------------------
+core_eia__codes_reporting_frequencies
+---------------------------------------------------------------
+
+A coding table describing different types of reporting frequencies in plants in the EIA-923.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_reporting_frequencies.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_sector_consolidated_:
+
+---------------------------------------------------------------
+core_eia__codes_sector_consolidated
+---------------------------------------------------------------
+
+Long descriptions for the EIA consolidated NAICS sector codes. Codes and descriptions taken from the EIA-923 File Layout spreadsheet.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_sector_consolidated.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_so2_compliance_strategies_:
+
+---------------------------------------------------------------
+core_eia__codes_so2_compliance_strategies
+---------------------------------------------------------------
+
+A coding table describing different compliance strategies used to control sulfur dioxide in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_so2_compliance_strategies.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - NC
+    - NP
+
+
+.. _core_eia__codes_so2_units_:
+
+---------------------------------------------------------------
+core_eia__codes_so2_units
+---------------------------------------------------------------
+
+A coding table describing different units of measurement for sulfur dioxide in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_so2_units.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_sorbent_types_:
+
+---------------------------------------------------------------
+core_eia__codes_sorbent_types
+---------------------------------------------------------------
+
+A coding table describing different flue gas desulfurization sorbent types used in EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_sorbent_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+.. list-table:: Fixed Codes
+  :widths: auto
+  :header-rows: 1
+
+  * - **Non Standard Code**
+    - **Standard Code**
+  * - CS
+    - CSH
+  * - CE
+    - CEF
+
+
+.. _core_eia__codes_steam_plant_types_:
+
+---------------------------------------------------------------
+core_eia__codes_steam_plant_types
+---------------------------------------------------------------
+
+A coding table describing different types of steam plants in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_steam_plant_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_storage_enclosure_types_:
+
+---------------------------------------------------------------
+core_eia__codes_storage_enclosure_types
+---------------------------------------------------------------
+
+A coding table for energy storage enclosure types.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_storage_enclosure_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_storage_technology_types_:
+
+---------------------------------------------------------------
+core_eia__codes_storage_technology_types
+---------------------------------------------------------------
+
+A coding table for energy storage technology types.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_storage_technology_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_wet_dry_bottom_:
+
+---------------------------------------------------------------
+core_eia__codes_wet_dry_bottom
+---------------------------------------------------------------
+
+A coding table describing whether boiler has a wet or dry bottom in the EIA-860.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_wet_dry_bottom.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_eia__codes_wind_quality_class_:
+
+---------------------------------------------------------------
+core_eia__codes_wind_quality_class
+---------------------------------------------------------------
+
+A coding table for wind quality classes.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_eia__codes_wind_quality_class.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_ferc1__codes_power_purchase_types_:
+
+---------------------------------------------------------------
+core_ferc1__codes_power_purchase_types
+---------------------------------------------------------------
+
+Coding table defining different types of electricity power purchases.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_ferc1__codes_power_purchase_types.csv
+  :header-rows: 1
+  :widths: auto
+
+
+
+.. _core_pudl__codes_data_maturities_:
+
+---------------------------------------------------------------
+core_pudl__codes_data_maturities
+---------------------------------------------------------------
+
+Level of maturities of data records. Some data sources report less-than-final data. PUDL sometimes includes this data, but use at your own risk.
+
+.. csv-table:: Code Mappings
+  :file: /data_dictionaries/code_csvs/core_pudl__codes_data_maturities.csv
+  :header-rows: 1
+  :widths: auto
+

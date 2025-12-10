@@ -1,0 +1,35 @@
+pudl.metadata.resources.mcoe
+============================
+
+.. py:module:: pudl.metadata.resources.mcoe
+
+.. autoapi-nested-parse::
+
+   Resource metadata for the generator table with derived attributes.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.mcoe.AGG_FREQS
+   pudl.metadata.resources.mcoe.FILTERING_WARNING
+   pudl.metadata.resources.mcoe.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: AGG_FREQS
+   :value: ['yearly', 'monthly']
+
+
+.. py:data:: FILTERING_WARNING
+   :value: 'Note that the values in this table are unfiltered and we expect some of the values are...
+
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

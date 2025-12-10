@@ -1,0 +1,517 @@
+pudl.extract.dbf
+================
+
+.. py:module:: pudl.extract.dbf
+
+.. autoapi-nested-parse::
+
+   Generalized DBF extractor for FERC data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.dbf.logger
+   pudl.extract.dbf.DBF_TYPES
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   pudl.extract.dbf.DbcFileMissingError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.dbf.DbfTableSchema
+   pudl.extract.dbf.FercDbfArchive
+   pudl.extract.dbf.AbstractFercDbfReader
+   pudl.extract.dbf.FercFieldParser
+   pudl.extract.dbf.PartitionedDataFrame
+   pudl.extract.dbf.FercDbfReader
+   pudl.extract.dbf.FercDbfExtractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.dbf.add_key_constraints
+   pudl.extract.dbf.deduplicate_by_year
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:exception:: DbcFileMissingError
+
+   Bases: :py:obj:`Exception`
+
+
+   This is raised when the DBC index file is missing.
+
+
+.. py:class:: DbfTableSchema(table_name: str)
+
+   Simple data-wrapper for the fox-pro table schema.
+
+
+   .. py:attribute:: name
+
+
+   .. py:attribute:: _columns
+      :value: []
+
+
+
+   .. py:attribute:: _column_types
+
+
+   .. py:attribute:: _short_name_map
+
+
+   .. py:method:: add_column(col_name: str, col_type: sqlalchemy.types.TypeEngine, short_name: str | None = None)
+
+      Adds a new column to this table schema.
+
+
+
+   .. py:method:: get_columns() -> collections.abc.Iterator[tuple[str, sqlalchemy.types.TypeEngine]]
+
+      Iterates over the (column_name, column_type) pairs.
+
+
+
+   .. py:method:: get_column_names() -> set[str]
+
+      Returns set of long column names.
+
+
+
+   .. py:method:: get_column_rename_map() -> dict[str, str]
+
+      Returns dictionary that maps from short to long column names.
+
+
+
+   .. py:method:: create_sa_table(sa_meta: sqlalchemy.MetaData) -> sqlalchemy.Table
+
+      Creates SQLAlchemy table described by this instance.
+
+      :param sa_meta: new table will be written to this MetaData object.
+
+
+
+.. py:class:: FercDbfArchive(zipfile: FercDbfArchive.__init__.zipfile, dbc_path: pathlib.Path, table_file_map: dict[str, str], partition: dict[str, Any], field_parser: dbfread.FieldParser)
+
+   Represents API for accessing files within a single DBF archive.
+
+   Typically, archive contains data for a single year and single FERC form dataset
+   (e.g. FERC Form 1 or FERC Form 2).
+
+
+   .. py:attribute:: zipfile
+
+
+   .. py:attribute:: partition
+
+
+   .. py:attribute:: root_path
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: dbc_path
+      :type:  pathlib.Path
+
+
+   .. py:attribute:: _table_file_map
+
+
+   .. py:attribute:: field_parser
+
+
+   .. py:attribute:: _table_schemas
+      :type:  dict[str, list[str]]
+
+
+   .. py:method:: get_file(filename: str) -> IO[bytes]
+
+      Opens the file within this archive.
+
+
+
+   .. py:method:: get_db_schema() -> dict[str, list[str]]
+
+      Returns dict with table names as keys, and list of column names as values.
+
+
+
+   .. py:method:: get_table_dbf(table_name: str) -> dbfread.DBF
+
+      Opens the DBF for a given table.
+
+
+
+   .. py:method:: get_table_schema(table_name: str) -> DbfTableSchema
+
+      Returns TableSchema for a given table and a given year.
+
+
+
+   .. py:method:: load_table(table_name: str) -> pandas.DataFrame
+
+      Returns dataframe that holds data for a table contained within this archive.
+
+      :param table_name: name of the table.
+
+
+
+.. py:class:: AbstractFercDbfReader
+
+   Bases: :py:obj:`Protocol`
+
+
+   This is the interface definition for dealing with fox-pro datastores.
+
+
+   .. py:method:: get_dataset() -> str
+
+      Returns name of the dataset that this datastore provides access to.
+
+
+
+   .. py:method:: get_table_names() -> list[str]
+
+      Returns list of all available table names.
+
+
+
+   .. py:method:: get_archive(**filters) -> FercDbfArchive
+
+      Returns single archive matching specific filters.
+
+
+
+   .. py:method:: get_table_schema(table_name: str, year: int) -> DbfTableSchema
+
+      Returns schema for a given table and a given year.
+
+
+
+   .. py:method:: load_table_dfs(table_name: str, partitions: list[dict[str, Any]]) -> pandas.DataFrame | None
+
+      Returns dataframe that contains data for a given table across given years.
+
+
+
+.. py:class:: FercFieldParser(table, memofile=None)
+
+   Bases: :py:obj:`dbfread.FieldParser`
+
+
+   A custom DBF parser to deal with bad FERC data types.
+
+
+   .. py:method:: parseN(field, data: bytes) -> int | float | None
+
+      Augments the Numeric DBF parser to account for bad FERC data.
+
+      There are a small number of bad entries in the backlog of FERC Form 1
+      data. They take the form of leading/trailing zeroes or null characters
+      in supposedly numeric fields, and occasionally a naked '.'
+
+      Accordingly, this custom parser strips leading and trailing zeros and
+      null characters, and replaces a bare '.' character with zero, allowing
+      all these fields to be cast to numeric values.
+
+      :param field: The DBF field being parsed.
+      :param data: Binary data (bytes) read from the DBF file.
+
+
+
+.. py:data:: DBF_TYPES
+
+   A mapping of DBF field types to SQLAlchemy Column types.
+
+   This dictionary maps the strings which are used to denote field types in the DBF objects
+   to the corresponding generic SQLAlchemy Column types: These definitions come from a
+   combination of the dbfread example program dbf2sqlite and this DBF file format
+   documentation page:
+   http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm
+   : http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as 'XXX'
+   which should result in an error if encountered.
+
+   :type: Dict
+
+.. py:class:: PartitionedDataFrame(df: pandas.DataFrame, partition: dict[str, Any])
+
+   This class bundles pandas.DataFrame with partition information.
+
+
+   .. py:attribute:: df
+
+
+   .. py:attribute:: partition
+
+
+.. py:class:: FercDbfReader(datastore: pudl.workspace.datastore.Datastore, dataset: str, field_parser: dbfread.FieldParser = FercFieldParser)
+
+   Wrapper to provide standardized access to FERC DBF databases.
+
+
+   .. py:attribute:: _cache
+
+
+   .. py:attribute:: datastore
+
+
+   .. py:attribute:: dataset
+
+
+   .. py:attribute:: field_parser
+
+
+   .. py:attribute:: _dbc_path
+
+
+   .. py:attribute:: _table_file_map
+
+
+   .. py:method:: get_dataset() -> str
+
+      Return the name of the dataset this datastore works with.
+
+
+
+   .. py:method:: _open_csv_resource(base_filename: str) -> csv.DictReader
+
+      Open the given resource file as :class:`csv.DictReader`.
+
+
+
+   .. py:method:: get_archive(year: int, **filters) -> FercDbfArchive
+
+      Returns single dbf archive matching given filters.
+
+
+
+   .. py:method:: get_table_names() -> list[str]
+
+      Returns list of tables that this datastore provides access to.
+
+
+
+   .. py:method:: _normalize(filters: dict[str, Any]) -> dict[str, str]
+      :staticmethod:
+
+
+      Casts partition values to lowercase strings.
+
+
+
+   .. py:method:: valid_partition_filter(fl: dict[str, Any]) -> bool
+
+      Returns True if a given filter fl is considered to be valid.
+
+      This can be used to eliminate partitions that are not suitable for processing,
+      e.g. for early years of FERC Form 2, databases marked with part=1 or part=2 are
+      not suitable.
+
+
+
+   .. py:method:: load_table_dfs(table_name: str, partitions: list[dict[str, Any]]) -> list[PartitionedDataFrame]
+
+      Returns all data for a given table.
+
+      Merges data for a given table across all partitions.
+
+      :param table_name: name of the table to load.
+      :param partitions: list of partition filters to use
+
+
+
+.. py:class:: FercDbfExtractor(datastore: pudl.workspace.datastore.Datastore, settings: pudl.settings.FercToSqliteSettings, output_path: pathlib.Path)
+
+   Generalized class for loading data from foxpro databases into SQLAlchemy.
+
+   When subclassing from this generic extractor, one should implement dataset specific
+   logic in the following manner:
+
+   1. set DATABASE_NAME class attribute. This controls what filename is used for the output
+   sqlite database.
+   2. Implement get_dbf_reader() method to return the right kind of dataset specific
+   AbstractDbfReader instance.
+
+   Dataset specific logic and transformations can be injected by overriding:
+
+   1. finalize_schema() in order to modify sqlite schema. This is called just before
+   the schema is written into the sqlite database. This is good place for adding
+   primary and/or foreign key constraints to tables.
+   2. aggregate_table_frames() is responsible for concatenating individual data frames
+   (one par input partition) into single one. This is where deduplication can take place.
+   3. transform_table(table_name, df) will be invoked after dataframe is loaded from
+   the foxpro database and before it's written to sqlite. This is good place for
+   table-specific preprocessing and/or cleanup.
+   4. postprocess() is called after data is written to sqlite. This can be used for
+   database level final cleanup and transformations (e.g. injecting missing
+   respondent_ids).
+
+   The extraction logic is invoked by calling execute() method of this class.
+
+
+   .. py:attribute:: DATABASE_NAME
+      :value: None
+
+
+
+   .. py:attribute:: DATASET
+      :value: None
+
+
+
+   .. py:attribute:: settings
+      :type:  pudl.settings.GenericDatasetSettings
+
+
+   .. py:attribute:: output_path
+
+
+   .. py:attribute:: datastore
+
+
+   .. py:attribute:: dbf_reader
+
+
+   .. py:attribute:: sqlite_engine
+      :value: None
+
+
+
+   .. py:attribute:: sqlite_meta
+
+
+   .. py:method:: get_settings(global_settings: pudl.settings.FercToSqliteSettings) -> pudl.settings.GenericDatasetSettings
+
+      Returns dataset relevant settings from the global_settings.
+
+
+
+   .. py:method:: get_dbf_reader(datastore: pudl.workspace.datastore.Datastore) -> AbstractFercDbfReader
+
+      Returns appropriate instance of AbstractFercDbfReader to access the data.
+
+
+
+   .. py:method:: get_db_path() -> str
+
+      Returns the connection string for the sqlite database.
+
+
+
+   .. py:method:: get_dagster_op() -> collections.abc.Callable
+      :classmethod:
+
+
+      Returns dagstger op that runs this extractor.
+
+
+
+   .. py:method:: execute()
+
+      Runs the extraction of the data from dbf to sqlite.
+
+
+
+   .. py:method:: delete_schema()
+
+      Drops all tables from the existing sqlite database.
+
+
+
+   .. py:method:: create_sqlite_tables()
+
+      Creates database schema based on the input tables.
+
+
+
+   .. py:method:: transform_table(table_name: str, in_df: pandas.DataFrame) -> pandas.DataFrame
+
+      Transforms the content of a single table.
+
+      This method can be used to modify contents of the dataframe after it has
+      been loaded from fox pro database and before it's written to sqlite database.
+
+      :param table_name: name of the table that the dataframe is associated with
+      :param in_df: dataframe that holds all records.
+
+
+
+   .. py:method:: is_valid_partition(fl: dict[str, Any]) -> bool
+      :staticmethod:
+
+
+      Returns True if the partition filter should be considered for processing.
+
+
+
+   .. py:method:: aggregate_table_frames(table_name: str, dfs: list[PartitionedDataFrame]) -> pandas.DataFrame | None
+
+      Function to aggregate partitioned data frames into a single one.
+
+      By default, this simply concatenates the frames, but custom dataset specific
+      behaviors can be implemented.
+
+
+
+   .. py:method:: load_table_data()
+
+      Loads all tables from fox pro database and writes them to sqlite.
+
+
+
+   .. py:method:: finalize_schema(meta: sqlalchemy.MetaData) -> sqlalchemy.MetaData
+
+      This method is called just before the schema is written to sqlite.
+
+      You can use this method to apply dataset specific alterations to the schema,
+      such as adding primary and foreign key constraints.
+
+
+
+   .. py:method:: postprocess()
+
+      This method is called after all the data is loaded into sqlite.
+
+
+
+.. py:function:: add_key_constraints(meta: sqlalchemy.MetaData, pk_table: str, column: str, pk_column: str | None = None) -> sqlalchemy.MetaData
+
+   Adds primary and foreign key to tables present in meta.
+
+   :param meta: constraints will be applied to this metadata instance
+   :param pk_table: name of the table that contains primary-key
+   :param column: foreign key column name. Tables that contain this column will
+                  have foreign-key constraint added.
+   :param pk_column: (optional) if specified, this is the primary key column name in
+                     the table. If not specified, it is assumed that this is the same as pk_column.
+
+
+.. py:function:: deduplicate_by_year(dfs: list[PartitionedDataFrame], pk_column: str) -> pandas.DataFrame | None
+
+   Deduplicate records by year, keeping the most recent version of each record.
+
+   It will use pk_column as the primary key column. report_yr column is expected to
+   either be present, or it will be derived from partition["year"].
+
+

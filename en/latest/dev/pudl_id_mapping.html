@@ -1,0 +1,1101 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>PUDL ID Mapping &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'dev/pudl_id_mapping';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Naming Conventions" href="naming_conventions.html" />
+    <link rel="prev" title="Run a Versioned Release" href="run_a_release.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/pudl/index.html">pudl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/_version/index.html">pudl._version</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/index.html">pudl.analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/convert/index.html">pudl.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/etl/index.html">pudl.etl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/extract/index.html">pudl.extract</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/glue/index.html">pudl.glue</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/metadata/index.html">pudl.metadata</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/metadata/resources/index.html">pudl.metadata.resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/output/index.html">pudl.output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/output/sql/index.html">pudl.output.sql</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/index.html">pudl.package_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/censuspep/index.html">pudl.package_data.censuspep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia176/index.html">pudl.package_data.eia176</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia191/index.html">pudl.package_data.eia191</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia757a/index.html">pudl.package_data.eia757a</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia860/index.html">pudl.package_data.eia860</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia860m/index.html">pudl.package_data.eia860m</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia861/index.html">pudl.package_data.eia861</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia923/index.html">pudl.package_data.eia923</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia930/index.html">pudl.package_data.eia930</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/ferc1/index.html">pudl.package_data.ferc1</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/rus12/index.html">pudl.package_data.rus12</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/test/index.html">pudl.package_data.test</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/resources/index.html">pudl.resources</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/settings/index.html">pudl.settings</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/transform/index.html">pudl.transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/transform/params/index.html">pudl.transform.params</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/pudl/validate/index.html">pudl.validate</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/workspace/index.html">pudl.workspace</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Development</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">Licensing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../code.html" class="nav-link">Code Resources</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Development</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PUDL ID Mapping</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="pudl-id-mapping">
+<h1>PUDL ID Mapping<a class="headerlink" href="#pudl-id-mapping" title="Link to this heading">#</a></h1>
+<section id="the-status-of-ferc-1-and-eia-ids">
+<h2>The Status of FERC 1 and EIA IDs<a class="headerlink" href="#the-status-of-ferc-1-and-eia-ids" title="Link to this heading">#</a></h2>
+<p>Many of the same utilities are reporting data to FERC and EIA, but there is no official
+crosswalk file or universal ID to connect the records and obtain information from both
+sources in one table. The EIA assigns their own IDs to distinguish the utilities and
+plants that report to them over time. These IDs are useful for parsing EIA data, but
+they are not connected to utility and plant data reported by FERC. FERC Form 1 uses a
+respondent ID to keep track of utilities, but it does not have an ID system in place to
+keep track of unique plants or records over time.</p>
+<p>Why is this significant? Without plant IDs, you can’t track plant characteristics over
+time. Without shared plant IDs, you can’t develop a holistic understanding of individual
+plants based on the data they report to different entities. Linking the financial
+information from FERC 1 with the operational data from EIA923 and EIA860 for instance
+helps us cultivate a more complete picture of the marginal cost of electricity.</p>
+</section>
+<section id="pudl-ids">
+<h2>PUDL IDs<a class="headerlink" href="#pudl-ids" title="Link to this heading">#</a></h2>
+<p>To make the data from FERC 1 and EIA more usable and interchangeable, we have developed
+universal <code class="docutils literal notranslate"><span class="pre">plant_id_pudl</span></code> and <code class="docutils literal notranslate"><span class="pre">utility_id_pudl</span></code> values that are the same across
+datasets. The plant IDs are assigned via a manual mapping process that is codified in a
+spreadsheet located at <code class="docutils literal notranslate"><span class="pre">pudl/package_data/glue/pudl_id_mapping.xlsx</span></code>. The utility IDs
+are assigned in a CSV located at <code class="docutils literal notranslate"><span class="pre">pudl/package_data/glue/utility_id_pudl.csv</span></code>.
+These maps contain all unique plant and utility names reported to FERC and EIA from the
+oldest to the newest year of data we’ve collected for each data source.</p>
+<p>We assign plant and utility PUDL IDs to each record first by giving each record a
+unique ID and then by identifying and fixing records that should share an ID. See below
+for more detailed instructions.</p>
+<p>Plants, as defined by this mapping process, are considered co-located generation assets.
+Records that have the same <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> should also have the same <code class="docutils literal notranslate"><span class="pre">plant_id_pudl</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>PUDL IDs should never be hard-coded into any analysis or transformation functions as
+they may come to represent different plants or utilities as new records are added
+and mapped.</p>
+</div>
+<p>PUDL IDs are not static. They identify unique plants/utilities in a given iteration of
+the data, but they may not remain exactly the same over time. The spreadsheet assigns
+<code class="docutils literal notranslate"><span class="pre">plant_id_pudl</span></code>’s based on a record’s position in the spreadsheet, so if you change
+the PUDL ID of a record in the middle, it will change the PUDL ID of all those below it
+(unless they are referencing a PUDL ID that already exists).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>No more than one person should ever update the PUDL ID mapping spreadsheet at a
+time. Two people updating PUDL IDs simultaneously will lead to discrepancies in the
+PUDL ID values.</p>
+</div>
+<p>The <a class="reference internal" href="../autoapi/pudl/glue/ferc1_eia/index.html#module-pudl.glue.ferc1_eia" title="pudl.glue.ferc1_eia"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.glue.ferc1_eia</span></code></a> module is where most of the ID coordination happens
+after the records are manually mapped. It also contains the functions that determine
+whether plants/utilities have or haven’t been mapped.</p>
+</section>
+<section id="ferc1-utility-ids">
+<h2>FERC1 Utility IDs<a class="headerlink" href="#ferc1-utility-ids" title="Link to this heading">#</a></h2>
+<p>The FERC1 data source is actually a nesting doll of two data sources. Before 2021, the
+FERC1 was reported as a FoxPro database DBF. 2021 and on, FERC1 is reported in XBRL
+files. The DBF and XBRL data do not share IDs for the reporting utilities. DBF reports
+utility respondents with <code class="docutils literal notranslate"><span class="pre">respondent_id</span></code>’s while XBRL reports utility respondents
+with <code class="docutils literal notranslate"><span class="pre">entity_id</span></code>’s, which we rename to <code class="docutils literal notranslate"><span class="pre">utility_id_ferc1_dbf</span></code> and
+<code class="docutils literal notranslate"><span class="pre">utility_id_ferc1_xbrl</span></code>. We needed a way to link these disparate IDs, so we created
+<code class="docutils literal notranslate"><span class="pre">utility_id_ferc1</span></code>. These IDs are assigned and stored in
+<code class="docutils literal notranslate"><span class="pre">pudl/package_data/glue/utility_id_ferc1.csv</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When there are new FERC1 utilities to be mapped, you will probably need to map the
+utility ID’s before the tables will be able to be transformed because the
+PUDL-assigned utility ID is used as a merge key.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>To fully map the FERC1 utilities you’ll need to run the unmapped IDs
+check - documented below - twice because there are two layers of ID’s as
+described above.</p>
+</div>
+</section>
+<section id="checking-for-unmapped-records">
+<h2>Checking for Unmapped Records<a class="headerlink" href="#checking-for-unmapped-records" title="Link to this heading">#</a></h2>
+<p>With every new year of data comes the possibility of new plants and utilities. Once
+you’ve integrated the new data into PUDL <a class="reference internal" href="existing_data_updates.html"><span class="doc">(see instructions)</span></a>, you’ll need to check for unmapped utility and plants. To do
+this, run the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>unmapped-ids
+</pre></div>
+</div>
+<p>This invokes a script that identifies plants and utilities which exist in the updated
+FERC 1 and EIA datasets that do not yet appear in the stored ID maps. This will generate
+a complete database based on the settings files stored in
+<code class="docutils literal notranslate"><span class="pre">pudl/package_data/settings/etl_full.yml</span></code> without foreign-key constraints and save any
+unmapped IDs to the <code class="docutils literal notranslate"><span class="pre">devtools/ferc1-eia-glue</span></code> directory that correspond to unmapped
+plants and utilities from FERC 1 and EIA.</p>
+<p>If you have already generated a database without foreign-key constraints, you can run
+just the script that extracts the unmapped IDs with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>test/integration/glue_test.py<span class="w"> </span>--live-dbs<span class="w"> </span>--save-unmapped-ids
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--save-unmapped-ids</span></code> flag saves unmapped plants and utilities in the
+<code class="docutils literal notranslate"><span class="pre">devtools/ferc1-eia-glue</span></code> folder by default.</p>
+</section>
+<section id="assigning-pudl-ids-to-unmapped-records">
+<h2>Assigning PUDL IDs to Unmapped Records<a class="headerlink" href="#assigning-pudl-ids-to-unmapped-records" title="Link to this heading">#</a></h2>
+<p>Here comes the manually intensive part of the process! Now we must ensure that 1) every
+record gets assigned a PUDL ID and 2) that records pertaining to the same plant have the
+same PUDL ID.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The ordering of the rows in the mapping spreadsheet is important. <strong>YOU MUST NOT
+SORT THE PUDL ID MAPPING SPREADSHEET</strong>, as it will change the values of many
+assigned IDs. If you need to view only a subset of the data in the sheet for ease of
+mapping you can filter it.</p>
+</div>
+<section id="mapping-plants">
+<h3>Mapping Plants<a class="headerlink" href="#mapping-plants" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">missing_plant_id_in_plants_ferc1/eia.csv</span></code> files should display basic plant
+information such as the facility name, utility name, and capacity. We show capacity here
+so that we can prioritize which plants to map. The larger the capacity, the more
+important it is to get it mapped. Sort the records by capacity so the highest priority
+records at the top.</p>
+<p>From the FERC and EIA unmapped plants spreadsheets, copy the <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code> (only in
+EIA), <code class="docutils literal notranslate"><span class="pre">plant_name_ferc1/eia</span></code>, <code class="docutils literal notranslate"><span class="pre">utility_id_ferc1/eia</span></code>, and <code class="docutils literal notranslate"><span class="pre">utility_name_ferc1/eia</span></code>
+columns and paste them at the bottom of the corresponding columns in the plants tab of
+the <code class="docutils literal notranslate"><span class="pre">pudl_id_mapping.xlsx</span></code> spreadsheet. Next drag the auto-incrementing formula in the
+<code class="docutils literal notranslate"><span class="pre">plant_id_pudl</span></code> column and the naming formula in the <code class="docutils literal notranslate"><span class="pre">plant_name_pudl</span></code> column so
+that all new records are automatically assigned PUDL plant names and unique PUDL IDs.
+You should also drag the <code class="docutils literal notranslate"><span class="pre">find_plant_id_eia_matches</span></code> formula down, which we’ll use in
+the next step.</p>
+<p>In previous iterations of the spreadsheet, matching FERC and EIA records were placed in
+the same row with the FERC version in the FERC columns and the EIA version in the EIA
+columns. This is not necessary. As long as matching FERC and EIA records (and same-plant
+records within a data source) have the same PUDL ID in the <code class="docutils literal notranslate"><span class="pre">plant_id_pudl</span></code> column,
+you’re good to go!</p>
+<section id="linking-ferc1-eia-records">
+<h4>Linking FERC1-EIA Records<a class="headerlink" href="#linking-ferc1-eia-records" title="Link to this heading">#</a></h4>
+<p>Now that all of the unmapped plants have been added to the spreadsheet and given an ID,
+we need to check whether they should actually be linked to, and share PUDL IDS with,
+another record. Because utilities may spell plant names differently year to year (EX:
+<code class="docutils literal notranslate"><span class="pre">La</span> <span class="pre">Cygne</span></code> and <code class="docutils literal notranslate"><span class="pre">lacygne</span></code>) or report subcomponents of a single plant (EX: <code class="docutils literal notranslate"><span class="pre">Hancock</span></code>
+and <code class="docutils literal notranslate"><span class="pre">Hancock</span> <span class="pre">Peaker</span></code>), it is not uncommon for multiple records to share a PUDL ID. As
+mentioned above, plants with the same EIA ID should also have the same PUDL ID. The cell
+formula that assigns PUDL IDs does not account for this, but there is a column,
+<code class="docutils literal notranslate"><span class="pre">find_plant_id_eia_matches</span></code>, in the <code class="docutils literal notranslate"><span class="pre">pudl_id_mapping</span></code> spreadsheet that will look for
+past instances of the same <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code>. If you haven’t already, drag this formula
+down so that it checks all the new records. If it finds a match, update the newer record
+to have the same PUDL ID.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To save time, we’re only linking plants with a capacity of 5 MW or higher. Because
+you sorted the records by capacity, this should be easy. Just look at the unmapped
+plants csv for the first plant under 5 MW and everything below that can remain
+unlinked.</p>
+</div>
+<p>For each new record, search the <code class="docutils literal notranslate"><span class="pre">pudl_id_mapping</span></code> spreadsheet for a piece of the
+plant name string (e.g. for <code class="docutils literal notranslate"><span class="pre">chenango</span> <span class="pre">solar</span></code>, you could search for <code class="docutils literal notranslate"><span class="pre">chen</span></code>,
+or <code class="docutils literal notranslate"><span class="pre">chenan</span></code>). If the new records you’re mapping come from FERC, look for matches
+in the <code class="docutils literal notranslate"><span class="pre">plant_name_eia</span></code> column (and vice versa for EIA). Searching
+for a piece can help catch misspellings in the plant name, which are more common
+in the FERC records. You can also use the <code class="docutils literal notranslate"><span class="pre">devtools/pudl_id_mapping_help.ipynb</span></code>
+notebook to speed up this process.</p>
+<ul class="simple">
+<li><p><strong>If co-located EIA plants have distinct EIA plant IDs and no FERC 1 plant:</strong>
+they should <em>not</em> be lumped under a single PUDL Plant ID, as that artificially reduces
+the granularity of data without providing any additional linkage to other datasets.</p></li>
+<li><p><strong>If a record has the same plant and utility name as another record:</strong>
+assign it the same PUDL ID as the other record <strong>by reference</strong> to the cell in which
+the first instance of that PUDL ID appears. <strong>Never simply enter the PUDL ID as a
+number</strong>, as it will not update automatically when IDs change due to re-mapping or
+other alterations. If the new plant name is similar in that it’s a different unit or a
+part of a facility that uses a different fuel type (e.g.  <code class="docutils literal notranslate"><span class="pre">Conemaugh</span> <span class="pre">(Steam)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Conemaugh</span> <span class="pre">(CT)</span></code>, they should still share the same PUDL ID. That’s because
+co-located fossil-fueled generators are considered parts of the same plant.</p></li>
+<li><p><strong>If the plant name looks similar but there are discrepancies:</strong>
+such as different operators (e.g. a facility <code class="docutils literal notranslate"><span class="pre">keystone</span></code> with operators <code class="docutils literal notranslate"><span class="pre">baltimore</span>
+<span class="pre">gas</span> <span class="pre">and</span> <span class="pre">electric</span></code> and <code class="docutils literal notranslate"><span class="pre">atlantic</span> <span class="pre">gas</span> <span class="pre">and</span> <span class="pre">electric</span></code>), then it’s best to look at the
+capacity first to see if the facilities are the same. If that’s indeterminate, you can
+Google the plant to see if it has the same location or if there is ownership or
+construction history that helps determine if the facilities are the same or
+co-located. Presuming you’ve run the ETL with the <code class="docutils literal notranslate"><span class="pre">--ignore-foreign-key-constraints</span></code>
+flag, you can also look at the PUDL <code class="docutils literal notranslate"><span class="pre">plants_eia860</span></code> and <code class="docutils literal notranslate"><span class="pre">plants_all_ferc1</span></code> tables
+to compare the records’ location information.</p></li>
+</ul>
+</section>
+</section>
+<section id="mapping-utilities">
+<h3>Mapping Utilities<a class="headerlink" href="#mapping-utilities" title="Link to this heading">#</a></h3>
+<p>Both FERC and EIA have utility IDs, so we’re fairly confident that they don’t require
+intra-dataset mapping. For this reason, we only focus on connecting utilities between
+datasets.</p>
+<section id="id1">
+<h4>Linking FERC1-EIA Records<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following section needs to be updated to include new steps for mapping FERC1
+XBRL utilities with DBF utilities.</p>
+</div>
+<p>Copy the information output to the <code class="docutils literal notranslate"><span class="pre">missing_utility_id_in_utilities_eia/ferc1.csv</span></code>
+files and paste it in the appropriate columns at the bottom of the
+<code class="docutils literal notranslate"><span class="pre">utility_id_pudl.csv</span></code>  sheet. Note that FERC 1 utility information goes in the
+left-hand columns and EIA utility information goes in the right-hand columns.</p>
+<p>Next, you’ll have to manually assign <code class="docutils literal notranslate"><span class="pre">utility_id_pudl</span></code> values to each row. There is no
+formula you can drag down, so just find the largest <code class="docutils literal notranslate"><span class="pre">utility_id_pudl</span></code> and create new
+values incrementing from there.</p>
+<p>Next, run the auto-matching script to automatically match utilities with identical
+names (after some light cleaning to remove variations in Inc. vs Incorporated, etc.).
+To test this match without overwriting the existing matching spreadsheet, run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>auto_match_utilities<span class="w"> </span>--test-run
+</pre></div>
+</div>
+<p>The console will output information about the number of matches made, which utilities
+are mapped to more than one ID, and which warrant additional manual review. Once you
+are satisfied with the proposed changes, run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>auto_match_utilities
+</pre></div>
+</div>
+<p>Make sure to save the file when you’re done!</p>
+</section>
+</section>
+</section>
+<section id="testing-newly-mapped-records">
+<h2>Testing Newly Mapped Records<a class="headerlink" href="#testing-newly-mapped-records" title="Link to this heading">#</a></h2>
+<p>Before you integrate these newly mapped records into the PUDL database, you’ll want to
+run some basic tests in the command line to make sure you’ve covered all of the unmapped
+entities. This command assumes that you have all of the new EIA data loaded into your
+live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pytest<span class="w"> </span>--live-dbs<span class="w"> </span>test/integration/glue_test.py
+</pre></div>
+</div>
+</section>
+<section id="integrating-newly-mapped-records-into-pudl">
+<h2>Integrating Newly Mapped Records into PUDL<a class="headerlink" href="#integrating-newly-mapped-records-into-pudl" title="Link to this heading">#</a></h2>
+<p>Once you’ve successfully mapped all unmapped PUDL IDs, you’ll want to rerun the ETL!
+This ensures that the newly mapped IDs get integrated into the PUDL database and output
+tables that folks are using. Make sure to tell everyone else to do so as well so that
+you can all use the newly mapped PUDL IDs. But first, make sure to head back to the
+<a class="reference internal" href="existing_data_updates.html"><span class="doc">Existing Data Updates</span></a> page to wrap up the validation tests!</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="run_a_release.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Run a Versioned Release</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="naming_conventions.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Naming Conventions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-status-of-ferc-1-and-eia-ids">The Status of FERC 1 and EIA IDs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl-ids">PUDL IDs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ferc1-utility-ids">FERC1 Utility IDs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-for-unmapped-records">Checking for Unmapped Records</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assigning-pudl-ids-to-unmapped-records">Assigning PUDL IDs to Unmapped Records</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mapping-plants">Mapping Plants</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#linking-ferc1-eia-records">Linking FERC1-EIA Records</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mapping-utilities">Mapping Utilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Linking FERC1-EIA Records</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-newly-mapped-records">Testing Newly Mapped Records</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integrating-newly-mapped-records-into-pudl">Integrating Newly Mapped Records into PUDL</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/dev/pudl_id_mapping.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

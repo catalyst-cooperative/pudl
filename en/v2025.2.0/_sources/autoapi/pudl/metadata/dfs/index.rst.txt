@@ -1,0 +1,64 @@
+pudl.metadata.dfs
+=================
+
+.. py:module:: pudl.metadata.dfs
+
+.. autoapi-nested-parse::
+
+   Static database tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.dfs.FERC_ACCOUNTS
+   pudl.metadata.dfs.BALANCING_AUTHORITY_SUBREGIONS_EIA
+   pudl.metadata.dfs.EIA_SECTOR_AGGREGATE_ASSN
+   pudl.metadata.dfs.EIA_FUEL_AGGREGATE_ASSN
+   pudl.metadata.dfs.POLITICAL_SUBDIVISIONS
+
+
+Module Contents
+---------------
+
+.. py:data:: FERC_ACCOUNTS
+   :type:  pandas.DataFrame
+
+   FERC electric plant account IDs with associated row numbers and descriptions.
+   From FERC Form 1 pages 204-207, Electric Plant in Service. Descriptions from:
+   https://www.law.cornell.edu/cfr/text/18/part-101
+
+.. py:data:: BALANCING_AUTHORITY_SUBREGIONS_EIA
+   :type:  pandas.DataFrame
+
+.. py:data:: EIA_SECTOR_AGGREGATE_ASSN
+   :value: None
+
+
+   Association table describing the many-to-many relationships between plant sectors and
+   various aggregates in core_eia__yearly_fuel_receipts_costs_aggs.
+
+.. py:data:: EIA_FUEL_AGGREGATE_ASSN
+   :value: None
+
+
+   Association table describing the many-to-many relationships between fuel types and
+   various aggregates in core_eia__yearly_fuel_receipts_costs_aggs.
+
+   Missing from these aggregates are all the "other" categories of gases: OG, BFG, SGP, SC,
+   PG. But those gases combine for about 0.2% of total MMBTU of reported fuel receipts.
+
+.. py:data:: POLITICAL_SUBDIVISIONS
+   :type:  pandas.DataFrame
+   :value: None
+
+
+   Static attributes of sub-national political jurisdictions.
+
+   Note AK and PR have incomplete EPA CEMS data, and so are excluded from is_epacems_state:
+   See
+   https://github.com/catalyst-cooperative/pudl/issues/1264
+

@@ -1,0 +1,95 @@
+===========================================================================================
+Population Estimates Program&#39;s (PEP) Federal Information Processing Series (FIPS) Codes
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html
+   * - Source Description
+     - Reference files for Federal Information Processing Series (FIPS) Geographic Codes. These FIPS Codes are a subset of a broader Population Estimates dataset.
+   * - Download Size
+     - 21 MB
+   * - Temporal Coverage
+     - 2009-2024
+   * - PUDL Code
+     - ``censuspep``
+   * - Issues
+     - `Open Population Estimates Program&#39;s (PEP) Federal Information Processing Series (FIPS) Codes issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Acensuspep>`__
+
+
+
+
+Background
+^^^^^^^^^^
+
+The Census Bureau's Population Estimates Program (PEP) produces estimates of the population for the United States, its states, counties, cities, and towns, as well as for the Commonwealth of Puerto Rico and its municipios.
+Demographic components of population change (births, deaths, and migration) are produced at the national, state, and county levels of geography.
+
+PUDL uses Census PEP as a source of geographic identifiers only, and does not currently make use of any population information.
+The primary method though which Census PEP geographic identifiers are added to PUDL data is string matching on county and state names.
+
+
+
+
+
+
+
+
+What data is available through PUDL?
+------------------------------------
+
+
+While there are no tables published in PUDL whose sole source is ``censuspep``, many tables include geographic identifiers drawn from this source.
+When, e.g., EIA or FERC materials differ in the name or spelling of a region, we use the name or spelling from ``censuspep``.
+
+Geographic identifiers include:
+
+* Area name ("United States", "California", "Warren County", "Athens-Clarke County unified government")
+* Consolidated city FIPS ("00000", "03436")
+* County ID FIPS ("00000", "06000", "42143")
+* County subdivision FIPS ("00000", "09850")
+* Place FIPS ("00000", "67880")
+* State ID FIPS ("00", "06", "42")
+
+
+
+What parts of the United States are included?
+---------------------------------------------
+
+
+Census PEP covers the 50 U.S. states, the District of Columbia, and Puerto Rico.
+The remaining U.S. territories are not included.
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+The original data is published annually and takes the form of a spreadsheet with a column for each type of identifier and a row for each region (~130k in total).
+PUDL imports three vintages: 2009, 2013, and 2023.
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+* Raw data on U.S. territories other than Puerto Rico is not included in Census PEP.
+  PUDL uses other U.S. Census sources to fill in the geographic identifiers for the remaining territories.
+  See :mod:`pudl.transform.censuspep._core_censuspep__yearly_geocodes` for details.
+* We use the most recent name from Census PEP when denormalizing tables, and this may not always match the name used in the original filing.
+  From time to time, counties change names, split, or merge.
+  A geographic region which is valid in 2009 may not be valid in 2024.
+  Some filings may spell out the word "Saint" and some may abbreviate it.
+  We have found it is more important to use consistent geographic names across all our data outputs than to preserve the diversity of names and spellings from source filings.
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.censuspep` created for each table's
+respective transform function.

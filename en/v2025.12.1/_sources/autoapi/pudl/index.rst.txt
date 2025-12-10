@@ -1,0 +1,145 @@
+pudl
+====
+
+.. py:module:: pudl
+
+.. autoapi-nested-parse::
+
+   The Public Utility Data Liberation (PUDL) Project.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/__main__/index
+   /autoapi/pudl/analysis/index
+   /autoapi/pudl/convert/index
+   /autoapi/pudl/dbt_wrapper/index
+   /autoapi/pudl/etl/index
+   /autoapi/pudl/extract/index
+   /autoapi/pudl/ferc_to_sqlite/index
+   /autoapi/pudl/glue/index
+   /autoapi/pudl/helpers/index
+   /autoapi/pudl/io_managers/index
+   /autoapi/pudl/logging_helpers/index
+   /autoapi/pudl/metadata/index
+   /autoapi/pudl/output/index
+   /autoapi/pudl/package_data/index
+   /autoapi/pudl/resources/index
+   /autoapi/pudl/scripts/index
+   /autoapi/pudl/settings/index
+   /autoapi/pudl/transform/index
+   /autoapi/pudl/validate/index
+   /autoapi/pudl/workspace/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.__author__
+   pudl.__contact__
+   pudl.__maintainer__
+   pudl.__license__
+   pudl.__maintainer_email__
+   pudl.__version__
+   pudl.__docformat__
+   pudl.__description__
+   pudl.__long_description__
+   pudl.__projecturl__
+   pudl.__downloadurl__
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.configure_root_logger
+
+
+Package Contents
+----------------
+
+.. py:function:: configure_root_logger(logfile: str | None = None, loglevel: str = 'INFO', dependency_loglevels: dict[str, int] | None = None, propagate: bool = False) -> None
+
+   Configure the root catalystcoop logger.
+
+   :param logfile: Path to logfile or None.
+   :param loglevel: Level of detail at which to log, by default INFO.
+   :param dependency_loglevels: Dictionary mapping dependency name to desired loglevel.
+                                This allows us to filter excessive logs from dependencies.
+   :param propagate: Whether to propagate logs to ancestor loggers. Useful for ensuring
+                     that pytest has access to PUDL logs during testing.
+
+
+.. py:data:: __author__
+   :value: 'Catalyst Cooperative'
+
+
+.. py:data:: __contact__
+   :value: 'pudl@catalyst.coop'
+
+
+.. py:data:: __maintainer__
+   :value: 'Catalyst Cooperative'
+
+
+.. py:data:: __license__
+   :value: 'MIT License'
+
+
+.. py:data:: __maintainer_email__
+   :value: 'zane.selvans@catalyst.coop'
+
+
+.. py:data:: __version__
+
+.. py:data:: __docformat__
+   :value: 'restructuredtext en'
+
+
+.. py:data:: __description__
+   :value: 'Tools for liberating public US electric utility data.'
+
+
+.. py:data:: __long_description__
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """
+      This Public Utility Data Liberation (PUDL) project is a collection of tools
+      that allow programmatic access to and manipulation of many public data sets
+      related to electric utilities in the United States. These data sets are
+      often collected by state and federal agencies, but are publicized in ways
+      that are not well standardized, or intended for interoperability. PUDL
+      seeks to allow more transparent and useful access to this important public
+      data, with the goal of enabling climate advocates, academic researchers, and
+      data journalists to better understand the electricity system and its impacts
+      on climate.
+      """
+
+   .. raw:: html
+
+      </details>
+
+
+
+.. py:data:: __projecturl__
+   :value: 'https://catalyst.coop/pudl/'
+
+
+.. py:data:: __downloadurl__
+   :value: 'https://github.com/catalyst-cooperative/pudl/'
+
+

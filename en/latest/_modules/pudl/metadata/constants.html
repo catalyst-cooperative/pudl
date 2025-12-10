@@ -1,0 +1,1299 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.metadata.constants &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/constants';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.metadata.constants</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.metadata.constants</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Metadata and operational constants.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geoarrow.pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ga</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.dialects.sqlite</span><span class="w"> </span><span class="kn">import</span> <span class="n">DATETIME</span> <span class="k">as</span> <span class="n">SQLITE_DATETIME</span>
+
+<div class="viewcode-block" id="FIELD_DTYPES_POLARS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_POLARS">[docs]</a>
+<span class="n">FIELD_DTYPES_POLARS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">(</span><span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;ms&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Polars data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FIELD_DTYPES_DUCKDB">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_DUCKDB">[docs]</a>
+<span class="n">FIELD_DTYPES_DUCKDB</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DATE</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP_MS</span><span class="p">,</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">INTEGER</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">VARCHAR</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP_MS</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;DuckDB data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FIELD_DTYPES_PANDAS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_PANDAS">[docs]</a>
+<span class="n">FIELD_DTYPES_PANDAS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[s]&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[s]&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="s2">&quot;Int64&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[s]&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Pandas data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FIELD_DTYPES_PYARROW">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_PYARROW">[docs]</a>
+<span class="n">FIELD_DTYPES_PYARROW</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">bool_</span><span class="p">(),</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">date32</span><span class="p">(),</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">timestamp</span><span class="p">(</span><span class="s2">&quot;ms&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">ga</span><span class="o">.</span><span class="n">wkb</span><span class="p">(),</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int32</span><span class="p">(),</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">float32</span><span class="p">(),</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">string</span><span class="p">(),</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int32</span><span class="p">(),</span>
+<span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="FIELD_DTYPES_SQL">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_SQL">[docs]</a>
+<span class="n">FIELD_DTYPES_SQL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="c1"># Ensure SQLite&#39;s string representation of datetime uses only whole seconds:</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">SQLITE_DATETIME</span><span class="p">(</span>
+        <span class="n">storage_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(year)04d</span><span class="s2">-</span><span class="si">%(month)02d</span><span class="s2">-</span><span class="si">%(day)02d</span><span class="s2"> </span><span class="si">%(hour)02d</span><span class="s2">:</span><span class="si">%(minute)02d</span><span class="s2">:</span><span class="si">%(second)02d</span><span class="s2">&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;SQLAlchemy column types by simplified PUDL field type.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CONSTRAINT_DTYPES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.CONSTRAINT_DTYPES">[docs]</a>
+<span class="n">CONSTRAINT_DTYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">GeometryDtype</span><span class="p">,</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Python types for field constraints by simplified PUDL field type.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LICENSES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.LICENSES">[docs]</a>
+<span class="n">LICENSES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;cc-by-4.0&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;CC-BY-4.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Creative Commons Attribution 4.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;https://creativecommons.org/licenses/by/4.0&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;us-govt&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;other-pd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;U.S. Government Works&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.usa.gov/publicdomain/label/1.0/&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;License attributes.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PERIODS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.PERIODS">[docs]</a>
+<span class="n">PERIODS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[Y]&quot;</span><span class="p">)),</span>
+    <span class="s2">&quot;quarter&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">offsets</span><span class="o">.</span><span class="n">QuarterBegin</span><span class="p">(</span><span class="n">startingMonth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rollback</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;month&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[M]&quot;</span><span class="p">)),</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[D]&quot;</span><span class="p">)),</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Functions converting datetimes to period start times, by time period.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CONTRIBUTORS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.CONTRIBUTORS">[docs]</a>
+<span class="n">CONTRIBUTORS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;catalyst-cooperative&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;https://catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;publisher&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;distributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;zane-selvans&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Zane Selvans&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;zane.selvans@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;https://amateurearthling.org&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;wrangler&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;orcid&quot;</span><span class="p">:</span> <span class="s2">&quot;0000-0002-9961-7208&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;christina-gosnell&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Christina Gosnell&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;christina.gosnell@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;orcid&quot;</span><span class="p">:</span> <span class="s2">&quot;0009-0004-2979-6142&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;steven-winter&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Steven Winter&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;steven.winter@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;alana-wilson&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Alana Wilson&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;alana.wilson@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;karl-dunkle-werner&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Karl Dunkle Werner&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;karldw@berkeley.edu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;https://karldw.org&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;UC Berkeley&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;orcid&quot;</span><span class="p">:</span> <span class="s2">&quot;0000-0003-0523-7309&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;greg-schivley&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Greg Schivley&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;https://gschivley.github.io&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Carbon Impact Consulting&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;orcid&quot;</span><span class="p">:</span> <span class="s2">&quot;0000-0002-8947-694X&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;austen-sharpe&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Austen Sharpe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;austen.sharpe@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;katherine-lamb&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Katherine Lamb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;katherine.lamb@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;bennett-norman&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Bennett Norman&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;bennett.norman@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;trenton-bush&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Trenton Bush&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;trenton.bush@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ethan-welty&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Ethan Welty&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;ethan.welty@gmail.com&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;orcid&quot;</span><span class="p">:</span> <span class="s2">&quot;0000-0001-8046-2210&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;dazhong-xia&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Dazhong Xia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;dazhong.xia@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ella-belfer&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Ella Belfer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;ella.belfer@catalyst.coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;project member&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Catalyst Cooperative&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;orcid&quot;</span><span class="p">:</span> <span class="s2">&quot;0000-0001-9784-8531&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;vibrant-clean-energy&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Vibrant Clean Energy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;info@vibrantcleanenergy.com&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;https://vibrantcleanenergy.com/&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;author&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;producer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Vibrant Clean Energy&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;elaine-hart&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Elaine Hart&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;elaine@momentenergyinsights.com&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.momentenergyinsights.com/&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;author&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;producer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;Moment Energy Insights&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;matthew-grimley&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Matthew Grimley&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;griml011@umn.edu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.hhh.umn.edu/directory/matthew-grimley&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;contributor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zenodo_role&quot;</span><span class="p">:</span> <span class="s2">&quot;data collector&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;organization&quot;</span><span class="p">:</span> <span class="s2">&quot;University of Minnesota&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;orcid&quot;</span><span class="p">:</span> <span class="s2">&quot;0000-0003-3969-505X&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;PUDL Contributors for attribution.</span>
+
+<span class="sd">See the Data Package spec https://specs.frictionlessdata.io/data-package/#metadata</span>
+<span class="sd">For ``zenodo_role`` see the Zenodo documentation</span>
+<span class="sd">https://developers.zenodo.org/#representation.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="KEYWORDS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.KEYWORDS">[docs]</a>
+<span class="n">KEYWORDS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;electricity&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;electricity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electric&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;generation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;energy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;utility&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;transmission&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;distribution&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kWh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MWh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kW&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MW&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kilowatt hours&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kilowatts&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;megawatts&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;megawatt hours&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;power&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;fuels&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;fuel&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bituminous&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lignite&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;natural gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;solar&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;wind&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hydro&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subbituminous&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;heat content&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fuel cost&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fuel price&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;plants&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;plant&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;boilers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;generators&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;steam&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;turbine&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;combined_cycle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;retirement&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;planned&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;proposed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;combustion&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;prime mover&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;capacity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;heat rate&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;finance&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;finance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;debt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;accounting&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;capital&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cost&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;contract&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;price&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;receipts&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ownership&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;depreciation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;plant in service&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;capex&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;opex&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operating expenses&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;capital expenses&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;emissions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pollution&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ash&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sulfur&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mercury&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;chlorine&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sox&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;so2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nox&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ghg&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;co2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;carbon dioxide&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;particulate&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pm2.5&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;eia&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;energy information administration&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;ferc&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;ferc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;federal energy regulatory commission&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;epa&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;epa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;environmental protection agency&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;us_govt&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;united states&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;us&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;usa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;government&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;federal&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;msha&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;msha&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mshamines&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mine safety and health administration&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mines&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mining&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;department of labor&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;phmsa&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;phmsa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pipelines and hazardous materials safety administration&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pipelines&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;natural gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;transmission&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;distribution&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gathering&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;liquified natural gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lng&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;underground natural gas storage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;department of transportation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;us dot&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;sec&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;securities and exchange commission&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;eia_water&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;eia thermoelectric cooling water&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eia waterthermoelectric&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cooling water&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;water usage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;water energy nexus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;energy water nexus&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;rus&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;usda&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rural&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rural utility&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rural utilities service&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;department of agriculture&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;coop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cooperative&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="XBRL_TABLES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.XBRL_TABLES">[docs]</a>
+<span class="n">XBRL_TABLES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;corporate_officer_certification_001_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;corporate_officer_certification_001_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;identification_001_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;identification_001_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;list_of_schedules_002_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;list_of_schedules_002_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;general_information_101_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;general_information_101_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;control_over_respondent_102_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;control_over_respondent_102_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;corporations_controlled_by_respondent_103_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;corporations_controlled_by_respondent_103_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;officers_104_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;officers_104_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;directors_105_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;directors_105_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;information_on_formula_rates_106_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;information_on_formula_rates_106_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;information_on_formula_rates_106a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;information_on_formula_rates_106a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;information_on_formula_rates_106b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;information_on_formula_rates_106b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;important_changes_during_the_quarter_year_108_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;important_changes_during_the_quarter_year_108_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;comparative_balance_sheet_assets_and_other_debits_110_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;comparative_balance_sheet_assets_and_other_debits_110_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;comparative_balance_sheet_liabilities_and_other_credits_110_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;comparative_balance_sheet_liabilities_and_other_credits_110_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_income_114_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_income_114_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_118_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_118_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_appropriated_118_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_appropriated_118_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_appropriations_118_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_appropriations_118_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_common_stock_118_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_common_stock_118_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_credit_118_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_credit_118_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_debit_118_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_debit_118_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_preferred_stock_118_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_preferred_stock_118_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_unappropriated_undistributed_subsidiary_earnings_118_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings_unappropriated_undistributed_subsidiary_earnings_118_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_120_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_120_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_other_payment_for_retirement_to_financing_acitivities_120_duration&quot;</span><span class="p">,</span>  <span class="c1"># spellchecker:ignore</span>
+    <span class="s2">&quot;statement_of_cash_flows_other_payment_for_retirement_to_financing_acitivities_120_instant&quot;</span><span class="p">,</span>  <span class="c1"># spellchecker:ignore</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_adjustments_by_outside_forces_to_financing_cash_flows_120_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_adjustments_by_outside_forces_to_financing_cash_flows_120_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_adjustments_to_financing_cash_flows_120_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_adjustments_to_financing_cash_flows_120_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_adjustments_to_investing_cash_flows_120_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_adjustments_to_investing_cash_flows_120_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_adjustments_to_operating_cash_flows_120_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_adjustments_to_operating_cash_flows_120_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_items_for_investing_cash_flows_120_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_items_for_investing_cash_flows_120_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_operating_cash_flows_120_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_cash_flows_sequence_other_operating_cash_flows_120_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_to_financial_statements_122_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_to_financial_statements_122_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_accumulated_other_comprehensive_income_comprehensive_income_and_hedging_activities_122a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;statement_of_accumulated_other_comprehensive_income_comprehensive_income_and_hedging_activities_122a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;summary_of_utility_plant_and_accumulated_provisions_for_depreciation_amortization_and_depletion_200_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_fuel_materials_202_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_fuel_materials_202_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_in_service_204_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_in_service_204_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_leased_to_others_213_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_leased_to_others_213_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_leased_to_others_totals_213_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_leased_to_others_totals_213_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_held_for_future_use_214_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_held_for_future_use_214_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_held_for_future_use_totals_214_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_plant_held_for_future_use_totals_214_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;construction_work_in_progress_electric_216_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;construction_work_in_progress_electric_216_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;construction_work_in_progress_electric_total_216_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;construction_work_in_progress_electric_total_216_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_219_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_sequence_other_accounts_219_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_sequence_other_accounts_219_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_sequence_other_items_219_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_of_electric_utility_plant_changes_section_a_sequence_other_items_219_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_of_electric_utility_plant_functional_classification_section_b_219_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_in_subsidiary_companies_224_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_in_subsidiary_companies_224_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_in_subsidiary_companies_totals_224_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_in_subsidiary_companies_totals_224_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;materials_and_supplies_227_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;materials_and_supplies_227_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;materials_and_supplies_other_classes_227_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;materials_and_supplies_other_classes_227_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_228a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_228a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_cost_of_sales_and_transfers_228a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_cost_of_sales_and_transfers_228a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_other_relinquished_228a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_other_relinquished_228a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_purchases_and_transfers_228a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_purchases_and_transfers_228a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_cost_of_sales_and_transfers_section_b_228b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_cost_of_sales_and_transfers_section_b_228b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_other_relinquished_section_b_228b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_other_relinquished_section_b_228b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_purchases_and_transfers_section_b_228b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_purchases_and_transfers_section_b_228b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_section_b_228b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowances_accounts_1581_and_1582_section_b_228b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extraordinary_property_losses_230a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extraordinary_property_losses_230a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extraordinary_property_losses_totals_230a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extraordinary_property_losses_totals_230a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unrecovered_plant_and_regulatory_study_costs_230b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unrecovered_plant_and_regulatory_study_costs_230b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unrecovered_plant_and_regulatory_study_costs_totals_230b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unrecovered_plant_and_regulatory_study_costs_totals_230b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_service_and_generation_interconnection_study_costs_231_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_service_and_generation_interconnection_study_costs_231_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_service_and_generation_interconnection_study_costs_totals_231_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_service_and_generation_interconnection_study_costs_totals_231_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_assets_account_1823_232_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_assets_account_1823_232_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_assets_account_1823_totals_232_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_assets_account_1823_totals_232_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_deferred_debits_account_186_233_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_deferred_debits_account_186_233_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_deferred_debits_account_186_totals_233_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_deferred_debits_account_186_totals_233_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_234_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_234_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_electric_234_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_electric_234_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_gas_234_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_gas_234_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_notes_234_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_notes_234_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_other_234_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_account_190_other_234_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_account_201_and_204_250_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_account_201_and_204_250_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_account_201_and_204_totals_250_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_account_201_and_204_totals_250_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_common_stock_account_201_250_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_common_stock_account_201_250_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_common_stock_account_201_totals_250_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_common_stock_account_201_totals_250_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_preferred_stock_account_204_250_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_preferred_stock_account_204_250_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_preferred_stock_account_204_totals_250_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_preferred_stock_account_204_totals_250_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_253_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_253_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_donations_received_from_stockholders_253_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_donations_received_from_stockholders_253_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_miscellaneous_paid_in_capital_253_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_miscellaneous_paid_in_capital_253_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_reduction_in_par_or_stated_value_of_capital_stock_253_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_reduction_in_par_or_stated_value_of_capital_stock_253_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_required_capital_stock_253_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_required_capital_stock_253_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_total_253_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital_accounts_208211_total_253_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_expense_account_214_254b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_expense_account_214_254b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_expense_account_214_totals_254b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_expense_account_214_totals_254b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_account_221_222_223_and_224_256_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_account_221_222_223_and_224_256_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_account_221_222_223_and_224_subtotals_256_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_account_221_222_223_and_224_subtotals_256_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_account_221_222_223_and_224_totals_256_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_account_221_222_223_and_224_totals_256_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_advances_from_associated_companies_223_256_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_advances_from_associated_companies_223_256_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_bonds_221_256_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_bonds_221_256_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_other_long_term_debt_224_256_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_other_long_term_debt_224_256_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_reacquired_bonds_222_256_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_reacquired_bonds_222_256_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_261_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_261_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_deductions_recorded_on_books_not_deducted_for_return_261_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_deductions_recorded_on_books_not_deducted_for_return_261_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_deductions_on_return_not_charged_against_book_income_261_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_deductions_on_return_not_charged_against_book_income_261_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_income_recorded_on_books_not_included_in_return_261_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_income_recorded_on_books_not_included_in_return_261_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_show_computation_of_tax_261_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_show_computation_of_tax_261_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_taxable_income_not_reported_on_books_261_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconciliation_of_reported_net_income_with_taxable_income_for_federal_income_taxes_taxable_income_not_reported_on_books_261_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;taxes_accrued_prepaid_and_charged_during_year_262_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;taxes_accrued_prepaid_and_charged_during_year_262_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;taxes_accrued_prepaid_and_charged_during_year_totals_262_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;taxes_accrued_prepaid_and_charged_during_year_totals_262_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_investment_tax_credits_account_255_266_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_investment_tax_credits_account_255_266_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_investment_tax_credits_account_255_total_266_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_investment_tax_credits_account_255_total_266_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_deferred_credits_account_253_269_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_deferred_credits_account_253_269_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_deferred_credits_account_253_totals_269_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_deferred_credits_account_253_totals_269_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_classified_by_tax_types_272_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_classified_by_tax_types_272_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_classified_by_utility_types_272_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_classified_by_utility_types_272_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_272_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_272_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_electric_272_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_electric_272_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_gas_272_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property_account_281_other_gas_272_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_property_account_282_classified_by_business_activities_274_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_property_account_282_classified_by_business_activities_274_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_property_account_282_classified_by_tax_types_274_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_property_account_282_classified_by_tax_types_274_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_property_account_282_non_utility_details_274_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_property_account_282_non_utility_details_274_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_classified_by_business_activities_276_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_classified_by_business_activities_276_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_classified_by_business_activities_total_276_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_classified_by_business_activities_total_276_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_classified_by_tax_types_276_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_classified_by_tax_types_276_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_classified_by_tax_types_notes_276_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_classified_by_tax_types_notes_276_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_electric_276_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_electric_276_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_gas_276_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_account_283_gas_276_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_liabilities_account_254_278_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_liabilities_account_254_278_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_liabilities_account_254_totals_278_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_liabilities_account_254_totals_278_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_operating_revenues_300_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_operating_revenues_300_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_operating_revenues_other_300_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_operating_revenues_other_300_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_operating_revenues_unbilled_revenues_300_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_operating_revenues_unbilled_revenues_300_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regional_transmission_service_revenues_account_4571_302_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regional_transmission_service_revenues_account_4571_302_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regional_transmission_service_revenues_account_4571_totals_302_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regional_transmission_service_revenues_account_4571_totals_302_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_440_residential_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_440_residential_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_442_commercial_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_442_commercial_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_442_industrial_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_442_industrial_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_442_total_commercial_and_industrial_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_442_total_commercial_and_industrial_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_444_public_street_and_highway_lighting_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_445_other_sales_to_public_authorities_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_446_sales_to_railroads_and_railways_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_448_interdepartmental_sales_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_4491_provision_for_rate_refunds_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_totals_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_account_totals_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_historical_data_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_historical_data_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_historical_data_totals_304_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_of_electricity_by_rate_schedules_historical_data_totals_304_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_for_resale_account_447_310_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_for_resale_account_447_310_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_for_resale_account_447_total_310_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_for_resale_account_447_total_310_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_operations_and_maintenance_expenses_320_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_operations_and_maintenance_expenses_320_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purchased_power_326_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purchased_power_326_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purchased_power_totals_326_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purchased_power_totals_326_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_for_others_328_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_for_others_328_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_for_others_totals_328_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_for_others_totals_328_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_by_iso_rtos_331_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_by_iso_rtos_331_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_by_iso_rtos_totals_331_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_by_iso_rtos_totals_331_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_by_others_332_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_by_others_332_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_by_others_totals_332_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_of_electricity_by_others_totals_332_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_general_expenses_335_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_general_expenses_335_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_general_expenses_totals_335_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_general_expenses_totals_335_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;basis_for_amortization_changes_section_b_336_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;basis_for_amortization_changes_section_b_336_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;factors_used_in_estimating_depreciation_charges_section_c_336_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;factors_used_in_estimating_depreciation_charges_section_c_336_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;summary_of_depreciation_and_amortization_charges_section_a_336_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;summary_of_depreciation_and_amortization_charges_section_a_336_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regulatory_commission_expenses_350_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regulatory_commission_expenses_350_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regulatory_commission_expenses_total_350_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regulatory_commission_expenses_total_350_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;research_development_and_demonstration_activities_352_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;research_development_and_demonstration_activities_352_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;distribution_of_salaries_and_wages_354_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;distribution_of_salaries_and_wages_354_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;distribution_of_salaries_and_wages_other_accounts_354_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;distribution_of_salaries_and_wages_other_accounts_354_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;common_utility_plant_and_expenses_356_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;common_utility_plant_and_expenses_356_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amounts_included_in_iso_rto_settlement_statements_397_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amounts_included_in_iso_rto_settlement_statements_397_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amounts_included_in_iso_rto_settlement_statements_other_397_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amounts_included_in_iso_rto_settlement_statements_other_397_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purchases_and_sales_of_ancillary_services_398_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purchases_and_sales_of_ancillary_services_398_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monthly_transmission_system_peak_load_400_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monthly_transmission_system_peak_load_400_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monthly_iso_rto_transmission_system_peak_load_400a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monthly_iso_rto_transmission_system_peak_load_400a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_energy_account_401a_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_energy_account_401a_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monthly_peaks_and_output_401b_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;monthly_peaks_and_output_401b_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;steam_electric_generating_plant_statistics_large_plants_402_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;steam_electric_generating_plant_statistics_large_plants_402_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydroelectric_generating_plant_statistics_large_plants_406_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydroelectric_generating_plant_statistics_large_plants_406_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pumped_storage_generating_plant_statistics_large_plants_408_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pumped_storage_generating_plant_statistics_large_plants_408_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;generating_plant_statistics_410_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;generating_plant_statistics_410_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_storage_operations_large_plants_414_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_storage_operations_large_plants_414_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_storage_operations_large_plants_totals_414_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_storage_operations_large_plants_totals_414_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_line_statistics_422_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_line_statistics_422_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_line_statistics_totals_422_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_line_statistics_totals_422_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_lines_added_during_year_424_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_lines_added_during_year_424_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_lines_added_during_year_total_424_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_lines_added_during_year_total_424_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;substations_426_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;substations_426_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;substations_total_426_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;substations_total_426_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transactions_with_associated_affiliated_companies_provided_by_429_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transactions_with_associated_affiliated_companies_provided_by_429_instant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transactions_with_associated_affiliated_companies_provided_for_429_duration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transactions_with_associated_affiliated_companies_provided_for_429_instant&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;List of all known to be valid FERC Form 1 XBRL tables.&quot;&quot;&quot;</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

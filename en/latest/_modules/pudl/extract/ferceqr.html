@@ -1,0 +1,772 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.extract.ferceqr &#8212; PUDL 2025.11.1.dev115 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=cfa5581b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=e171a6ab"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/extract/ferceqr';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://krivard.github.io/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b></div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2025.11.1.dev115 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    About PUDL
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Code
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.extract.ferceqr</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.extract.ferceqr</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Extract FERC EQR data.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">duckdb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DuckDBPyConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">upath</span><span class="w"> </span><span class="kn">import</span> <span class="n">UPath</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">persist_table_as_parquet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;catalystcoop.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ExtractSettings">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.ExtractSettings">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExtractSettings</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dagster resource which defines which EQR data to extract and configuration for raw archive.&quot;&quot;&quot;</span>
+
+    <span class="c1">#: Valid fsspec compatible path pointing to directory of archived EQR filings</span>
+<div class="viewcode-block" id="ExtractSettings.ferceqr_archive_uri">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.ExtractSettings.ferceqr_archive_uri">[docs]</a>
+    <span class="n">ferceqr_archive_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gs://archives.catalyst.coop/ferceqr/published&quot;</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ExtractSettings.ferceqr_archive_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.ExtractSettings.ferceqr_archive_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ferceqr_archive_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return UPath pointing to archive base path.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">UPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ferceqr_archive_uri</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="_get_csv">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._get_csv">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_csv</span><span class="p">(</span><span class="n">base_path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download CSV to a tempmorary directory to avoid reading into memory.&quot;&quot;&quot;</span>
+    <span class="n">zip_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ferceqr-</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">.zip&quot;</span>
+    <span class="n">remote_path</span> <span class="o">=</span> <span class="n">base_path</span> <span class="o">/</span> <span class="n">zip_name</span>
+
+    <span class="c1"># Create temp directory to download zip to</span>
+    <span class="k">with</span> <span class="p">(</span>
+        <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># Download file to local path</span>
+        <span class="n">local_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">zip_name</span>
+        <span class="n">local_path</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">remote_path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
+        <span class="c1"># Yield open zipfile</span>
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">zf</span></div>
+
+
+
+<div class="viewcode-block" id="_clean_csv_name">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._clean_csv_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clean_csv_name</span><span class="p">(</span><span class="n">csv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standardize zip file names to avoid errors when opening.&quot;&quot;&quot;</span>
+    <span class="n">new_path</span> <span class="o">=</span> <span class="n">csv_path</span>
+    <span class="k">if</span> <span class="s2">&quot;&#39;&quot;</span> <span class="ow">in</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+        <span class="n">new_path</span> <span class="o">=</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">csv_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+        <span class="n">new_path</span> <span class="o">=</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">csv_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">new_path</span></div>
+
+
+
+<div class="viewcode-block" id="_get_table_name">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._get_table_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_table_name</span><span class="p">(</span><span class="n">table_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">table_type</span> <span class="o">!=</span> <span class="s2">&quot;indexPub&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;raw_ferceqr__</span><span class="si">{</span><span class="n">table_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;raw_ferceqr__index_pub_</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="_extract_ident">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._extract_ident">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_ident</span><span class="p">(</span>
+    <span class="n">ident_csv</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">filing_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract data from ident csv, write to parquet, and return CID from table.</span>
+
+<span class="sd">    This table is always extracted first so we can pull the CID from it and include</span>
+<span class="sd">    a CID column in all other tables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Use duckdb to read CSV and write as parquet</span>
+    <span class="n">csv_rel</span> <span class="o">=</span> <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">ident_csv</span><span class="p">,</span> <span class="n">all_varchar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">store_rejects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="p">(</span><span class="n">cid</span><span class="p">,)</span> <span class="o">=</span> <span class="n">csv_rel</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;company_identifier&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+    <span class="n">persist_table_as_parquet</span><span class="p">(</span>
+        <span class="n">csv_rel</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*, &#39;</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&#39; AS year_quarter&quot;</span><span class="p">),</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">&quot;ident&quot;</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">),</span>
+        <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;filing&quot;</span><span class="p">:</span> <span class="n">filing_name</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">cid</span></div>
+
+
+
+<div class="viewcode-block" id="_extract_other_table">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._extract_other_table">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_other_table</span><span class="p">(</span>
+    <span class="n">table_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">filing_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract data from a table other than ident and add year_quarter and CID columns.&quot;&quot;&quot;</span>
+    <span class="c1"># Use duckdb to read CSV and write as parquet</span>
+    <span class="n">persist_table_as_parquet</span><span class="p">(</span>
+        <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">csv_path</span><span class="p">,</span> <span class="n">all_varchar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">store_rejects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*, &#39;</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&#39; AS year_quarter, &#39;</span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2">&#39; as company_identifier&quot;</span><span class="p">),</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="n">table_type</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">),</span>
+        <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;filing&quot;</span><span class="p">:</span> <span class="n">filing_name</span><span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_csvs_to_parquet">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._csvs_to_parquet">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_csvs_to_parquet</span><span class="p">(</span>
+    <span class="n">csv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">filing_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mirror CSVs in filing to a parquet file.</span>
+
+<span class="sd">    Each filing contains a CSV for 4 EQR tables. These will each be extracted</span>
+<span class="sd">    to a separate parquet file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Clean csv filenames for duckdb compatibility, then get ident table path</span>
+    <span class="n">csv_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">_clean_csv_name</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span> <span class="k">for</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()]</span>
+    <span class="p">[</span><span class="n">ident_path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">csv_file</span> <span class="k">for</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="n">csv_paths</span> <span class="k">if</span> <span class="n">csv_file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;ident&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">csv_paths</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ident_path</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Extract ident table and return CID</span>
+        <span class="n">cid</span> <span class="o">=</span> <span class="n">_extract_ident</span><span class="p">(</span>
+            <span class="n">ident_csv</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ident_path</span><span class="p">),</span>
+            <span class="n">year_quarter</span><span class="o">=</span><span class="n">year_quarter</span><span class="p">,</span>
+            <span class="n">filing_name</span><span class="o">=</span><span class="n">filing_name</span><span class="p">,</span>
+            <span class="n">duckdb_connection</span><span class="o">=</span><span class="n">duckdb_connection</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Failed to parse ident table from </span><span class="si">{</span><span class="n">ident_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="s2">&quot; Skipping remaining tables for filing.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Loop through remaining CSVs and extract, adding extracted CID as a column in each table</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">csv_paths</span><span class="p">:</span>
+        <span class="c1"># Detect which table type CSV is and prep output directory</span>
+        <span class="p">[</span><span class="n">table_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">key</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;contracts&quot;</span><span class="p">,</span> <span class="s2">&quot;transactions&quot;</span><span class="p">,</span> <span class="s2">&quot;indexPub&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Use duckdb to read CSV and write as parquet</span>
+        <span class="n">_extract_other_table</span><span class="p">(</span>
+            <span class="n">table_type</span><span class="o">=</span><span class="n">table_type</span><span class="p">,</span>
+            <span class="n">csv_path</span><span class="o">=</span><span class="n">file</span><span class="p">,</span>
+            <span class="n">year_quarter</span><span class="o">=</span><span class="n">year_quarter</span><span class="p">,</span>
+            <span class="n">cid</span><span class="o">=</span><span class="n">cid</span><span class="p">,</span>
+            <span class="n">filing_name</span><span class="o">=</span><span class="n">filing_name</span><span class="p">,</span>
+            <span class="n">duckdb_connection</span><span class="o">=</span><span class="n">duckdb_connection</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_save_extract_errors">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._save_extract_errors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_extract_errors</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create parquet file with metadata on any CSV parsing errors.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
+        <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;reject_errors&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;reject_scans&quot;</span><span class="p">),</span>
+            <span class="n">condition</span><span class="o">=</span><span class="s2">&quot;reject_errors.scan_id=reject_scans.scan_id AND reject_errors.file_id=reject_scans.file_id&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">select</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;reject_errors.*, parse_filename(reject_scans.file_path), &#39;</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&#39; as year_quarter&quot;</span>
+        <span class="p">),</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;raw_ferceqr__extract_errors&quot;</span><span class="p">,</span>
+        <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;year_quarter&quot;</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@dg</span><span class="o">.</span><span class="n">multi_asset</span><span class="p">(</span>
+    <span class="n">partitions_def</span><span class="o">=</span><span class="n">ferceqr_year_quarters</span><span class="p">,</span>
+    <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;raw_ferceqr__ident&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
+        <span class="s2">&quot;raw_ferceqr__contracts&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
+        <span class="s2">&quot;raw_ferceqr__transactions&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
+        <span class="s2">&quot;raw_ferceqr__index_pub&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
+        <span class="s2">&quot;raw_ferceqr__extract_errors&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="extract_ferceqr">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.extract_ferceqr">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_ferceqr</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
+    <span class="n">ferceqr_extract_settings</span><span class="p">:</span> <span class="n">ExtractSettings</span> <span class="o">=</span> <span class="n">ExtractSettings</span><span class="p">(),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract year quarter from CSVs and load to parquet files.</span>
+
+<span class="sd">    This method will loop through the nested EQR archive zipfiles and extract all tables</span>
+<span class="sd">    from them, and write to parquet. It opens a duckdb connection at the top level to</span>
+<span class="sd">    keep track of extraction errors, so we can write these to the ``raw_ferceqr__extract_errors``</span>
+<span class="sd">    table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get year/quarter from selected partition</span>
+    <span class="n">year_quarter</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">partition_key</span>
+
+    <span class="c1"># Open top level zipfile</span>
+    <span class="k">with</span> <span class="p">(</span>
+        <span class="n">_get_csv</span><span class="p">(</span>
+            <span class="n">ferceqr_extract_settings</span><span class="o">.</span><span class="n">ferceqr_archive_path</span><span class="p">,</span> <span class="n">year_quarter</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">quarter_archive</span><span class="p">,</span>
+        <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># Loop through all nested zipfiles (one for each filing in the quarter)</span>
+        <span class="k">for</span> <span class="n">filing</span> <span class="ow">in</span> <span class="n">quarter_archive</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+            <span class="c1"># Extract CSVs from filing to a temporary directory so duckdb can be used</span>
+            <span class="c1"># to parse CSVs and mirror to parquet</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="p">(</span>
+                    <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span>
+                        <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">quarter_archive</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filing</span><span class="p">))</span>
+                    <span class="p">)</span> <span class="k">as</span> <span class="n">filing_archive</span><span class="p">,</span>
+                    <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting CSVs from </span><span class="si">{</span><span class="n">filing</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                    <span class="n">filing_archive</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tmp_dir</span><span class="p">)</span>
+                    <span class="n">_csvs_to_parquet</span><span class="p">(</span>
+                        <span class="n">csv_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">),</span>
+                        <span class="n">year_quarter</span><span class="o">=</span><span class="n">year_quarter</span><span class="p">,</span>
+                        <span class="n">filing_name</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">filing</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span>
+                        <span class="n">duckdb_connection</span><span class="o">=</span><span class="n">conn</span><span class="p">,</span>
+                    <span class="p">)</span>
+            <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipfile</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not open filing: </span><span class="si">{</span><span class="n">filing</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">_save_extract_errors</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">&quot;ident&quot;</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
+        <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">&quot;contracts&quot;</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
+        <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">&quot;transactions&quot;</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
+        <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">&quot;indexPub&quot;</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
+        <span class="n">metadata</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

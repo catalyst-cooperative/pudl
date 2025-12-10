@@ -1,0 +1,275 @@
+===========================================================================================
+EIA Form 861 -- Annual Electric Power Industry Report
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.eia.gov/electricity/data/eia861
+   * - Source Description
+     - EIA Form 861 Annual Electric Power Industry Report, detailed data files.
+   * - Download Size
+     - 96 MB
+   * - Temporal Coverage
+     - 2001-2024
+   * - PUDL Code
+     - ``eia861``
+   * - Issues
+     - `Open EIA Form 861 -- Annual Electric Power Industry Report issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia861>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+We've segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_eia861__assn_balancing_authority`
+     - https://data.catalyst.coop/search?q=name:core_eia861__assn_balancing_authority
+   
+   * - :ref:`core_eia861__assn_utility`
+     - https://data.catalyst.coop/search?q=name:core_eia861__assn_utility
+   
+   * - :ref:`core_eia861__yearly_advanced_metering_infrastructure`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_advanced_metering_infrastructure
+   
+   * - :ref:`core_eia861__yearly_balancing_authority`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_balancing_authority
+   
+   * - :ref:`core_eia861__yearly_demand_response`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_response
+   
+   * - :ref:`core_eia861__yearly_demand_response_water_heater`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_response_water_heater
+   
+   * - :ref:`core_eia861__yearly_demand_side_management_ee_dr`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_side_management_ee_dr
+   
+   * - :ref:`core_eia861__yearly_demand_side_management_misc`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_side_management_misc
+   
+   * - :ref:`core_eia861__yearly_demand_side_management_sales`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_demand_side_management_sales
+   
+   * - :ref:`core_eia861__yearly_distributed_generation_fuel`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_distributed_generation_fuel
+   
+   * - :ref:`core_eia861__yearly_distributed_generation_misc`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_distributed_generation_misc
+   
+   * - :ref:`core_eia861__yearly_distributed_generation_tech`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_distributed_generation_tech
+   
+   * - :ref:`core_eia861__yearly_distribution_systems`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_distribution_systems
+   
+   * - :ref:`core_eia861__yearly_dynamic_pricing`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_dynamic_pricing
+   
+   * - :ref:`core_eia861__yearly_energy_efficiency`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_energy_efficiency
+   
+   * - :ref:`core_eia861__yearly_green_pricing`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_green_pricing
+   
+   * - :ref:`core_eia861__yearly_mergers`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_mergers
+   
+   * - :ref:`core_eia861__yearly_net_metering_customer_fuel_class`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_net_metering_customer_fuel_class
+   
+   * - :ref:`core_eia861__yearly_net_metering_misc`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_net_metering_misc
+   
+   * - :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_non_net_metering_customer_fuel_class
+   
+   * - :ref:`core_eia861__yearly_non_net_metering_misc`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_non_net_metering_misc
+   
+   * - :ref:`core_eia861__yearly_operational_data_misc`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_operational_data_misc
+   
+   * - :ref:`core_eia861__yearly_operational_data_revenue`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_operational_data_revenue
+   
+   * - :ref:`core_eia861__yearly_reliability`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_reliability
+   
+   * - :ref:`core_eia861__yearly_sales`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_sales
+   
+   * - :ref:`core_eia861__yearly_service_territory`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_service_territory
+   
+   * - :ref:`core_eia861__yearly_short_form`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_short_form
+   
+   * - :ref:`core_eia861__yearly_utility_data_misc`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_utility_data_misc
+   
+   * - :ref:`core_eia861__yearly_utility_data_nerc`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_utility_data_nerc
+   
+   * - :ref:`core_eia861__yearly_utility_data_rto`
+     - https://data.catalyst.coop/search?q=name:core_eia861__yearly_utility_data_rto
+   
+
+
+Background
+^^^^^^^^^^
+
+EIA Form EIA-861 (and the short form EIA-861S) make up the Annual Electric Power Industry Report.
+This survey is a census of all U.S. electric utilities and collects information about retail
+sales of electricity and associated revenue on an annual basis.
+
+
+As of 2023, the EIA-861 Form is organized into the following schedules:
+
+* **Schedule 1:** Identification
+* **Schedule 2:** Energy Sources Data
+* **Schedule 3:** Distribution Information
+* **Schedule 4:** Sales Data
+* **Schedule 5:** Mergers and/or Acquisition Information
+* **Schedule 6:** Demand-Side Management Information
+* **Schedule 7:** Net-Metering Programs Information
+* **Schedule 8:** Service Territory Information
+
+There are more than 20 different spreadsheets included in the annual zipfiles. For
+details, see the `official EIA-861 page <https://www.eia.gov/electricity/data/eia861>`__.
+
+
+
+Download additional documentation
+---------------------------------
+
+
+
+* :download:`Eia861 Instructions 2013-10-31 (PDF) <eia861/eia861_instructions_2013-10-31.pdf>`
+
+* :download:`Eia861 Instructions 2015-12-31 (PDF) <eia861/eia861_instructions_2015-12-31.pdf>`
+
+* :download:`Eia861 Instructions 2017-05-31 (PDF) <eia861/eia861_instructions_2017-05-31.pdf>`
+
+* :download:`Eia861 Instructions 2020-03-31 (PDF) <eia861/eia861_instructions_2020-03-31.pdf>`
+
+* :download:`Eia861 Instructions 2023-05-31 (PDF) <eia861/eia861_instructions_2023-05-31.pdf>`
+
+* :download:`Eia861 Instructions 2024-07-31 (PDF) <eia861/eia861_instructions_2024-07-31.pdf>`
+
+
+
+
+Data available through PUDL
+---------------------------
+
+
+PUDL incorporates annual EIA-861 data starting from 2001 onward.
+There is also a less detailed monthly
+`Form EIA-861M <https: //www.eia.gov/electricity/data/eia861m />`__
+that is not incorporated into PUDL.
+
+
+
+Who submits this data?
+----------------------
+
+
+The Form EIA-861 must be completed by electric power industry entities such as, but not limited to,
+electric utilities, all Demand Side Management (DSM) Program Managers (entities responsible for
+conducting or administering a DSM program), wholesale power marketers, energy service providers,
+electric power producers, transmission owners, transmission operators, and Third Party Owners of
+solar PV (TPO). Responses are collected at the operating company level (not at the holding company level).
+
+EIA-861S is intended for smaller bundled-service utilities and requires less detailed responses.
+Respondents respond to either Form EIA-861 or Form EIA-861S.
+However, to maintain data quality, respondents reporting to EIA-861S are required to complete
+the full form every eight years.
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+EIA typically publishes 861 data from the prior year in two rounds: an early release in the summer and a final release in the fall.
+The data are published on the EIA website and distributed as a collection of spreadsheets.
+The content of the spreadsheets varies from year to year as the questions in the form are updated.
+EIA also periodically changes the naming and structure of the spreadsheets without warning.
+Older “final” data may also be revised several years after it was published.
+To ensure reproducible analyses, we archive `versioned snapshots of the EIA-861 data on Zenodo <https://zenodo.org/records/10204708>`__.
+These archives are periodically refreshed with new data from the `EIA website <https://www.eia.gov/electricity/data/eia861>`__.
+
+To understand the details of how the form and data have evolved over time,
+we recommend reading the Form Instructions from different years, linked above.
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+Non-unique utility IDs
+----------------------
+The Freedom of Information Act (FOIA), 5 U.S.C. §552, the Department of Energy (DOE) regulations,
+10 C.F.R. §1004.11, implementing the FOIA, and the Trade ﻿Secrets Act, 18 U.S.C. §1905 allows
+qualifying respondents to restrict access to their data. According to sources at the EIA,
+approximately 3 respondents have used this as a means to keep their utility-level data proprietary.
+These entries appear under the utility id ``88888`` in the data. Having multiple utilities with the
+same ``utility_id_eia`` breaks the primary key rules for several tables. We handle this by summing
+values with the same primary key and non-numeric column values. When there are two rows with the
+same primary key and different non-numeric column values, we keep one and drop the other. This results
+in a slight loss of data (less than one row in a thousand) but preserves the primary key structure of the
+tables.
+
+The EIA also performs state-level imputations and adjustments for more accurate state-level analysis.
+These entries appear under the utility id ``99999`` and are not intended for use in utility-level
+aggregations.
+
+Form changes and table discrepancies
+------------------------------------
+Not all of the EIA-861 tables exist for all of the reporting years. Both the Form and its output files
+have changed over time; most notably between 2012 and 2013. Beginning in 2013, the EIA split its
+Demand Side Management spreadsheet into two: Demand Response and Energy Efficiency in order to reduce
+ambiguity and ensure data reliability. While there are many similarities between the two years, EIA
+officials recommend against combining data from these three files, citing subtle differences in Form
+questions. For these files, the post-2012 DR and EE spreadsheets are considered more accurate.
+
+Cost data rounded to the thousands
+----------------------------------
+It’s important to note that all costs are reported to EIA-861 in thousands of dollars. PUDL transforms
+these values to dollars, but they will still reflect the values rounded to the thousands.
+
+Not yet fully normalized
+------------------------
+Most of the EIA-861 data that's available in the PUDL DB has not yet been fully
+normalized, meaning it contains many duplicate copies of the same information, which
+may not always be internally consistent.
+
+We also have not yet integrated the Balancing Authority and Utility IDs reported in
+the EIA-861 into our entity tables, so for the moment we don't have any foreign key
+constraints enabled on the EIA-861 tables.
+
+2019 short form
+---------------
+In 2019 the data collected from the short form was incorporated into the other published
+tables rather than as a standalone Short_Form_####.xlsx (where #### is the year) as in
+other years. We haven't addressed this discrepancy yet; see details in issue :issue:`3654`.
+
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.eia861` created for each table's
+respective transform function.

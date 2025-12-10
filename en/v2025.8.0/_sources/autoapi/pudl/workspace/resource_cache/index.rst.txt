@@ -1,0 +1,282 @@
+pudl.workspace.resource_cache
+=============================
+
+.. py:module:: pudl.workspace.resource_cache
+
+.. autoapi-nested-parse::
+
+   Implementations of datastore resource caches.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.workspace.resource_cache.logger
+   pudl.workspace.resource_cache.gcs_retry
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.workspace.resource_cache.PudlResourceKey
+   pudl.workspace.resource_cache.AbstractCache
+   pudl.workspace.resource_cache.LocalFileCache
+   pudl.workspace.resource_cache.GoogleCloudStorageCache
+   pudl.workspace.resource_cache.LayeredCache
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.workspace.resource_cache.extend_gcp_retry_predicate
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: extend_gcp_retry_predicate(predicate, *exception_types)
+
+   Extend a GCS predicate function with additional exception_types.
+
+
+.. py:data:: gcs_retry
+
+.. py:class:: PudlResourceKey
+
+   Bases: :py:obj:`NamedTuple`
+
+
+   Uniquely identifies a specific resource.
+
+
+   .. py:attribute:: dataset
+      :type:  str
+
+
+   .. py:attribute:: doi
+      :type:  str
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:method:: __repr__() -> str
+
+      Returns string representation of PudlResourceKey.
+
+
+
+   .. py:method:: get_local_path() -> pathlib.Path
+
+      Returns (relative) path that should be used when caching this resource.
+
+
+
+.. py:class:: AbstractCache(read_only: bool = False)
+
+   Bases: :py:obj:`abc.ABC`
+
+
+   Defines interaface for the generic resource caching layer.
+
+
+   .. py:attribute:: _read_only
+      :value: False
+
+
+
+   .. py:method:: is_read_only() -> bool
+
+      Returns true if the cache is read-only and should not be modified.
+
+
+
+   .. py:method:: get(resource: PudlResourceKey) -> bytes
+      :abstractmethod:
+
+
+      Retrieves content of given resource or throws KeyError.
+
+
+
+   .. py:method:: add(resource: PudlResourceKey, content: bytes) -> None
+      :abstractmethod:
+
+
+      Adds resource to the cache and sets the content.
+
+
+
+   .. py:method:: delete(resource: PudlResourceKey) -> None
+      :abstractmethod:
+
+
+      Removes the resource from cache.
+
+
+
+   .. py:method:: contains(resource: PudlResourceKey) -> bool
+      :abstractmethod:
+
+
+      Returns True if the resource is present in the cache.
+
+
+
+.. py:class:: LocalFileCache(cache_root_dir: pathlib.Path, **kwargs: Any)
+
+   Bases: :py:obj:`AbstractCache`
+
+
+   Simple key-value store mapping PudlResourceKeys to ByteIO contents.
+
+
+   .. py:attribute:: cache_root_dir
+
+
+   .. py:method:: _resource_path(resource: PudlResourceKey) -> pathlib.Path
+
+
+   .. py:method:: get(resource: PudlResourceKey) -> bytes
+
+      Retrieves value associated with a given resource.
+
+
+
+   .. py:method:: add(resource: PudlResourceKey, content: bytes)
+
+      Adds (or updates) resource to the cache with given value.
+
+
+
+   .. py:method:: delete(resource: PudlResourceKey)
+
+      Deletes resource from the cache.
+
+
+
+   .. py:method:: contains(resource: PudlResourceKey) -> bool
+
+      Returns True if resource is present in the cache.
+
+
+
+.. py:class:: GoogleCloudStorageCache(gcs_path: str, **kwargs: Any)
+
+   Bases: :py:obj:`AbstractCache`
+
+
+   Implements file cache backed by Google Cloud Storage bucket.
+
+
+   .. py:attribute:: _path_prefix
+
+
+   .. py:attribute:: _bucket
+
+
+   .. py:method:: _blob(resource: PudlResourceKey) -> google.cloud.storage.blob.Blob
+
+      Retrieve Blob object associated with given resource.
+
+
+
+   .. py:method:: get(resource: PudlResourceKey) -> bytes
+
+      Retrieves value associated with given resource.
+
+
+
+   .. py:method:: add(resource: PudlResourceKey, value: bytes)
+
+      Adds (or updates) resource to the cache with given value.
+
+
+
+   .. py:method:: delete(resource: PudlResourceKey)
+
+      Deletes resource from the cache.
+
+
+
+   .. py:method:: contains(resource: PudlResourceKey) -> bool
+
+      Returns True if resource is present in the cache.
+
+
+
+.. py:class:: LayeredCache(*caches: list[AbstractCache], **kwargs: Any)
+
+   Bases: :py:obj:`AbstractCache`
+
+
+   Implements multi-layered system of caches.
+
+   This allows building multi-layered system of caches. The idea is that you can have
+   faster local caches with fall-back to the more remote or expensive caches that can
+   be accessed in case of missing content.
+
+   Only the closest layer is being written to (set, delete), while all remaining layers
+   are read-only (get).
+
+
+   .. py:attribute:: _caches
+      :type:  list[AbstractCache]
+      :value: []
+
+
+
+   .. py:method:: add_cache_layer(cache: AbstractCache)
+
+      Adds caching layer.
+
+      The priority is below all other.
+
+
+
+   .. py:method:: num_layers()
+
+      Returns number of caching layers that are in this LayeredCache.
+
+
+
+   .. py:method:: get(resource: PudlResourceKey) -> bytes
+
+      Returns content of a given resource.
+
+
+
+   .. py:method:: add(resource: PudlResourceKey, value)
+
+      Adds (or replaces) resource into the cache with given value.
+
+
+
+   .. py:method:: delete(resource: PudlResourceKey)
+
+      Removes resource from the cache if the cache is not in the read_only mode.
+
+
+
+   .. py:method:: contains(resource: PudlResourceKey) -> bool
+
+      Returns True if resource is present in the cache.
+
+
+
+   .. py:method:: is_optimally_cached(resource: PudlResourceKey) -> bool
+
+      Return True if resource is contained in the closest write-enabled layer.
+
+
+

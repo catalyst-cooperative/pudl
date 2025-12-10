@@ -1,0 +1,111 @@
+pudl.transform.epacems
+======================
+
+.. py:module:: pudl.transform.epacems
+
+.. autoapi-nested-parse::
+
+   Module to perform data cleaning functions on EPA CEMS data tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.epacems.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.epacems.harmonize_eia_epa_orispl
+   pudl.transform.epacems.convert_to_utc
+   pudl.transform.epacems._load_plant_utc_offset
+   pudl.transform.epacems.correct_gross_load_mw
+   pudl.transform.epacems.transform
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: harmonize_eia_epa_orispl(df: pandas.DataFrame, crosswalk_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Harmonize the ORISPL code to match the EIA data.
+
+   The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. EPA has
+   compiled a crosswalk that maps one set of IDs to the other. The crosswalk is
+   integrated into the PUDL db.
+
+   This function merges the crosswalk with the cems data thus adding the official
+   plant_id_eia column to CEMS. In cases where there is no plant_id_eia value for a
+   given plant_id_epa (i.e., this plant isn't in the crosswalk yet), we use
+   fillna() to add the plant_id_epa value to the plant_id_eia column. Because the
+   plant_id_epa is almost always correct this is reasonable.
+
+   EIA IDs are more correct so use the crosswalk to fix any erronious EPA IDs and get
+   rid of that column to avoid confusion.
+
+   https://github.com/USEPA/camd-eia-crosswalk
+
+   Note that this transformation needs to be run *before* convert_to_utc, because
+   convert_to_utc uses the plant ID to look up timezones.
+
+   :param df: A CEMS hourly dataframe for one year-month-state.
+   :param crosswalk_df: The core_epa__assn_eia_epacamd dataframe from the database.
+
+   :returns: The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
+
+
+.. py:function:: convert_to_utc(df: pandas.DataFrame, plant_utc_offset: pandas.DataFrame) -> pandas.DataFrame
+
+   Convert CEMS datetime data to UTC timezones.
+
+   Transformations include:
+
+   * Account for timezone differences with offset from UTC.
+
+   :param df: A CEMS hourly dataframe for one year-state.
+   :param plant_utc_offset: A dataframe association with timezones.
+
+   :returns: The same data, with an op_datetime_utc column added and the op_date and op_hour
+             columns removed.
+
+
+.. py:function:: _load_plant_utc_offset(core_eia__entity_plants: pandas.DataFrame) -> pandas.DataFrame
+
+   Load the UTC offset each EIA plant.
+
+   CEMS times don't change for DST, so we get the UTC offset by using the
+   offset for the plants' timezones in January.
+
+   :param pudl_engine: A database connection engine for
+                       an existing PUDL DB.
+
+   :returns: Dataframe of applicable timezones taken from the core_eia__entity_plants table.
+
+
+.. py:function:: correct_gross_load_mw(df: pandas.DataFrame) -> pandas.DataFrame
+
+   Fix values of gross load that are wrong by orders of magnitude.
+
+   :param df: A CEMS dataframe
+
+   :returns: The same DataFrame with corrected gross load values.
+
+
+.. py:function:: transform(raw_df: pandas.DataFrame, core_epa__assn_eia_epacamd: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform EPA CEMS hourly data and ready it for export to Parquet.
+
+   :param raw_df: An extracted by not yet transformed year_quarter of EPA CEMS data.
+   :param pudl_engine: SQLAlchemy connection engine for connecting to an existing PUDL DB.
+
+   :returns: A single year_quarter of EPA CEMS data
+
+

@@ -1,0 +1,100 @@
+pudl.extract.eia930
+===================
+
+.. py:module:: pudl.extract.eia930
+
+.. autoapi-nested-parse::
+
+   Extract EIA Form 930 data from CSVs.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.eia930.logger
+   pudl.extract.eia930.raw_eia930__all_dfs
+   pudl.extract.eia930.raw_eia930_assets
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.eia930.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.eia930.raw_eia930_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.csv.CsvExtractor`
+
+
+   Extractor for EIA form 930.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: READ_CSV_KWARGS
+
+      Keyword arguments that are passed to :meth:`pandas.read_csv`.
+
+      These allow customization of the CSV parsing process. For example, you can specify
+      the column delimeter, data types, date parsing, etc. This can greatly reduce peak
+      memory usage and speed up the extraction process. Unfortunately you must refer to
+      the column headers using their original names as they appear in the CSV.
+
+      TODO[zaneselvans] 2024-04-19: it would be useful to be able to specify different CSV
+      reading options for different pages within the same dataset. At the moment the same
+      arguments will be applied to all pages. This still allows some flexibility because
+      some :meth:`pandas.read_csv` arguments like ``dtype`` don't raise errors if the
+      columns they apply to aren't present.
+
+
+   .. py:method:: source_filename(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> str
+
+      Produce the source file name as it will appear in the archive.
+
+      Expects a string for page, and additionally a keyword argument dictionary
+      specifying which particular partition to extract. Examples: {'year': 2009},
+      {'year_month': '2020-08'}.
+
+      :param page: pudl name for the dataset contents, eg "boiler_generator_assn", "data"
+
+      :returns: string name of the CSV file
+
+
+
+   .. py:method:: process_raw(df: pandas.DataFrame, page: str, **partition: pudl.extract.extractor.PartitionSelection) -> pandas.DataFrame
+
+      Transforms raw dataframe and rename columns.
+
+
+
+.. py:function:: raw_eia930_asset_factory(page: str)
+
+   Asset factory for individual raw EIA 930 dataframes.
+
+
+.. py:data:: raw_eia930__all_dfs
+
+.. py:data:: raw_eia930_assets
+

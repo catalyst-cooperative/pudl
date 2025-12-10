@@ -1,0 +1,305 @@
+pudl.metadata.enums
+===================
+
+.. py:module:: pudl.metadata.enums
+
+.. autoapi-nested-parse::
+
+   Enumerations of valid field values.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.enums.IMPUTATION_CODES
+   pudl.metadata.enums.COUNTRY_CODES_ISO3166
+   pudl.metadata.enums.SUBDIVISION_CODES_ISO3166
+   pudl.metadata.enums.EPACEMS_STATES
+   pudl.metadata.enums.DIVISION_CODES_US_CENSUS
+   pudl.metadata.enums.APPROXIMATE_TIMEZONES
+   pudl.metadata.enums.NERC_REGIONS
+   pudl.metadata.enums.US_TIMEZONES
+   pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930
+   pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS
+   pudl.metadata.enums.CUSTOMER_CLASSES
+   pudl.metadata.enums.CUSTOMER_CLASSES_EIA176
+   pudl.metadata.enums.TECH_CLASSES
+   pudl.metadata.enums.REVENUE_CLASSES_EIA861
+   pudl.metadata.enums.REVENUE_CLASSES_EIA176
+   pudl.metadata.enums.RELIABILITY_STANDARDS
+   pudl.metadata.enums.FUEL_CLASSES
+   pudl.metadata.enums.RTO_CLASSES
+   pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES
+   pudl.metadata.enums.TECH_DESCRIPTIONS
+   pudl.metadata.enums.PLANT_PARTS
+   pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB
+   pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO
+   pudl.metadata.enums.FUEL_TYPES_EIAAEO
+   pudl.metadata.enums.MODEL_CASES_EIAAEO
+   pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO
+   pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1
+   pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1
+   pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1
+   pudl.metadata.enums.LIABILITY_TYPES_FERC1
+   pudl.metadata.enums.ASSET_TYPES_FERC1
+   pudl.metadata.enums.INCOME_TYPES_FERC1
+   pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS
+   pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS
+   pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS
+   pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS
+   pudl.metadata.enums.DAMAGE_TYPES_PHMSAGAS
+   pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS
+   pudl.metadata.enums.INSTALL_DECADE_PATTERN_PHMSAGAS
+
+
+Module Contents
+---------------
+
+.. py:data:: IMPUTATION_CODES
+   :type:  set[str]
+
+.. py:data:: COUNTRY_CODES_ISO3166
+   :type:  set[str]
+
+.. py:data:: SUBDIVISION_CODES_ISO3166
+   :type:  set[str]
+
+.. py:data:: EPACEMS_STATES
+   :type:  set[str]
+
+.. py:data:: DIVISION_CODES_US_CENSUS
+   :type:  set[str]
+
+.. py:data:: APPROXIMATE_TIMEZONES
+   :type:  dict[str, str]
+
+   Mapping of political subdivision code to the most common timezone in that area.
+
+   This is imperfect for states that have split timezones. See:
+   https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory
+
+   For states that are split, we chose the timezone with a larger population. List of
+   timezones in pytz.common_timezones Canada:
+   https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database
+
+.. py:data:: NERC_REGIONS
+   :type:  list[str]
+   :value: ['BASN', 'CALN', 'CALS', 'DSW', 'ASCC', 'ISONE', 'ERCOT', 'NORW', 'NYISO', 'PJM', 'ROCK',...
+
+
+   North American Reliability Corporation (NERC) regions.
+
+   See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.
+
+.. py:data:: US_TIMEZONES
+   :type:  list[str]
+   :value: ['America/Anchorage', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',...
+
+
+.. py:data:: GENERATION_ENERGY_SOURCES_EIA930
+   :value: ['coal', 'gas', 'hydro', 'nuclear', 'oil', 'other', 'solar', 'unknown', 'wind',...
+
+
+   Energy sources used to categorize generation in the EIA 930 data.
+
+.. py:data:: ELECTRICITY_MARKET_MODULE_REGIONS
+   :type:  list[str]
+   :value: ['florida_reliability_coordinating_council', 'midcontinent_central', 'midcontinent_east',...
+
+
+   Regions that the EIA uses in their Electricity Market Module analysis.
+
+   According to EIA:
+
+   The Electricity Market Module (EMM) in the National Energy Modeling System
+   (NEMS) is made up of four primary submodules: electricity load and demand,
+   electricity capacity planning, electricity fuel dispatching, and electricity
+   finance and pricing, as well as the ReStore submodule which interfaces with
+   both the renewable and electricity modules The EMM also includes nonutility
+   capacity and generation as well as electricity transmission and trade.
+
+   We use 25 electricity supply regions to represent U.S. power markets. The
+   regions follow North American Electric Reliability Corporation (NERC)
+   assessment region boundaries and independent system operator (ISO) and regional
+   transmission organization (RTO) region boundaries (as of early 2019).
+   Subregions are based on regional pricing zones.
+
+   https://www.eia.gov/outlooks/aeo/assumptions/pdf/EMM_Assumptions.pdf
+
+.. py:data:: CUSTOMER_CLASSES
+   :type:  list[str]
+   :value: ['commercial', 'industrial', 'direct_connection', 'other', 'residential', 'total',...
+
+
+.. py:data:: CUSTOMER_CLASSES_EIA176
+   :type:  list[str]
+   :value: ['commercial', 'electric_power', 'industrial', 'other', 'residential', 'vehicle_fuel']
+
+
+.. py:data:: TECH_CLASSES
+   :type:  list[str]
+   :value: ['backup', 'chp_cogen', 'combustion_turbine', 'fuel_cell', 'hydro', 'internal_combustion',...
+
+
+.. py:data:: REVENUE_CLASSES_EIA861
+   :type:  list[str]
+   :value: ['credits_or_adjustments', 'delivery_customers', 'other', 'retail_sales', 'sales_for_resale',...
+
+
+.. py:data:: REVENUE_CLASSES_EIA176
+   :type:  list[str]
+   :value: ['sales', 'transport']
+
+
+.. py:data:: RELIABILITY_STANDARDS
+   :type:  list[str]
+   :value: ['ieee_standard', 'other_standard']
+
+
+.. py:data:: FUEL_CLASSES
+   :type:  list[str]
+   :value: ['gas', 'oil', 'other', 'renewable', 'water', 'wind', 'wood']
+
+
+.. py:data:: RTO_CLASSES
+   :type:  list[str]
+   :value: ['caiso', 'ercot', 'isone', 'miso', 'nyiso', 'other', 'pjm', 'spp']
+
+
+.. py:data:: EPACEMS_MEASUREMENT_CODES
+   :type:  list[str]
+   :value: ['Calculated', 'LME', 'Measured', 'Measured and Substitute', 'Other', 'Substitute',...
+
+
+   Valid emissions measurement codes for the EPA CEMS hourly data.
+
+.. py:data:: TECH_DESCRIPTIONS
+   :type:  set[str]
+
+   Valid technology descriptions from the EIA plant parts list.
+
+.. py:data:: PLANT_PARTS
+   :type:  set[str]
+
+   The plant parts in the EIA plant parts list.
+
+.. py:data:: TECH_DESCRIPTIONS_NRELATB
+   :type:  set[str]
+
+   NREL ATB technology descriptions.
+
+.. py:data:: TECH_DESCRIPTIONS_EIAAEO
+   :type:  list[str]
+   :value: ['coal', 'combined_cycle', 'combustion_turbine_diesel', 'distributed_generation',...
+
+
+   Types of generation technology reported in EIA AEO.
+
+.. py:data:: FUEL_TYPES_EIAAEO
+   :type:  list[str]
+   :value: ['coal', 'distillate_fuel_oil', 'residual_fuel_oil', 'petroleum', 'natural_gas',...
+
+
+   Type of fuel used for generation reported in EIA AEO.
+
+.. py:data:: MODEL_CASES_EIAAEO
+   :type:  list[str]
+   :value: ['aeo2022', 'aeo2023', 'alternative_electricity', 'alternative_transportation',...
+
+
+   Modeling cases for EIA AEO 2023.
+
+   See https://www.eia.gov/outlooks/archive/aeo23/assumptions/case_descriptions.php .
+
+   EIA's browser (https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023) and
+   data API also include the AEO2022 Reference case, which is not listed on the case
+   descriptions page.
+
+.. py:data:: ENERGY_USE_TYPES_EIAAEO
+   :type:  list[str]
+   :value: ['biofuels_heat_and_coproducts', 'byproduct_hydrogen', 'coal', 'coal_subtotal',...
+
+
+   Energy use types from Table 2 of EIA AEO 2023-2025.
+
+   These are from the series titles, not the display titles in the EIA's data browser tool,
+   which may show different text.
+
+.. py:data:: ENERGY_SOURCE_TYPES_FERC1
+   :type:  list[str]
+   :value: ['steam_generation', 'net_energy_generation', 'sources_of_energy', 'nuclear_generation',...
+
+
+   Energy source types for FERC Form 1 data.
+
+.. py:data:: ENERGY_DISPOSITION_TYPES_FERC1
+   :type:  list[str]
+   :value: ['megawatt_hours_sold_non_requirements_sales', 'disposition_of_energy',...
+
+
+   Energy disposition types for FERC Form 1 data.
+
+.. py:data:: UTILITY_PLANT_ASSET_TYPES_FERC1
+   :type:  list[str]
+   :value: ['abandonment_of_leases',...
+
+
+   Utility plant asset types for FERC Form 1 data.
+
+.. py:data:: LIABILITY_TYPES_FERC1
+   :type:  list[str]
+   :value: ['accounts_payable', 'accounts_payable_to_associated_companies',...
+
+
+   Liability types for FERC Form 1 data.
+
+.. py:data:: ASSET_TYPES_FERC1
+   :type:  list[str]
+   :value: ['accounts_receivable_from_associated_companies', 'accrued_utility_revenues',...
+
+
+   Asset types for FERC Form 1 data.
+
+.. py:data:: INCOME_TYPES_FERC1
+   :type:  list[str]
+   :value: ['accretion_expense', 'allowance_for_borrowed_funds_used_during_construction_credit',...
+
+
+   Income types for FERC Form 1 data.
+
+.. py:data:: FUNCTIONAL_STATUS_CODES_CENSUS
+   :type:  list[str]
+   :value: ['A', 'B', 'C', 'E', 'F', 'G', 'I', 'L', 'M', 'N', 'S', 'T']
+
+
+   Functional status codes for Census geographic entities.
+
+   https://www.census.gov/library/reference/code-lists/functional-status-codes.html
+
+.. py:data:: MATERIAL_TYPES_PHMSAGAS
+   :value: ['unprotected_steel_bare', 'unprotected_steel_coated', 'cathodically_protected_steel_bare',...
+
+
+.. py:data:: MAIN_PIPE_SIZES_PHMSAGAS
+   :value: ['0.5_in_or_less', '0.5_to_1_in', '1_in_or_less', '1_to_2_in', '2_in_or_less', '2_to_4_in',...
+
+
+.. py:data:: LEAK_SOURCE_PHMSAGAS
+   :value: ['construction_defect', 'corrosion_failure', 'equipment_failure', 'excavation_damage',...
+
+
+.. py:data:: DAMAGE_TYPES_PHMSAGAS
+   :value: ['notification', 'locating', 'excavation', 'other', 'total']
+
+
+.. py:data:: DAMAGE_SUB_TYPES_PHMSAGAS
+   :value: ['deteriorated_facility', 'dug_after_expiry', 'failed_clearance',...
+
+
+.. py:data:: INSTALL_DECADE_PATTERN_PHMSAGAS
+   :value: '(\\d{4}s|unknown_decade|pre_1940|total_decades)'
+
+

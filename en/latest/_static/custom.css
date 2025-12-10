@@ -1,0 +1,43 @@
+.wy-table-responsive table td {
+    white-space: normal;
+}
+
+html[data-theme="light"] {
+
+    color-announcement-background: yellow;
+    color-announcement-text: red;
+}
+
+html[data-theme="dark"] {
+
+    color-announcement-background: yellow;
+    color-announcement-text: red;
+}
+
+.bd-sidebar-primary {
+    max-width: 300px;
+}
+
+.xpudl-data_dictionary p {margin: 0.5em 0; padding: 0}
+
+.page-toc li, #pudl-data-dictionary h2 {
+    overflow-wrap: break-word;
+    width: 100%;
+}
+
+#pudl-data-dictionary dl {
+  display: grid;
+  grid-gap: 4px 16px;
+  grid-template-columns: max-content;
+}
+#pudl-data-dictionary dt {
+  font-weight: bold;
+  text-align: right;
+}
+#pudl-data-dictionary dd {
+  margin: 0;
+  grid-column-start: 2;
+}
+#pudl-data-dictionary dd p {
+  margin: 0; padding: 0;
+}

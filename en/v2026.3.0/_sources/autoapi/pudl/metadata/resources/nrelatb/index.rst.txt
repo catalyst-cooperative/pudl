@@ -1,0 +1,25 @@
+pudl.metadata.resources.nrelatb
+===============================
+
+.. py:module:: pudl.metadata.resources.nrelatb
+
+.. autoapi-nested-parse::
+
+   Table definitions for the NREL ATB data .
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.nrelatb.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

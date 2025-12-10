@@ -1,0 +1,178 @@
+===========================================================================================
+EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.eia.gov/naturalgas/ngqs/
+   * - Source Description
+     - The EIA Form 176, also known as the Annual Report of Natural and Supplemental Gas Supply and Disposition, describes the origins, suppliers, and disposition of natural gas on a yearly and state by state basis.
+   * - Respondents
+     - Interstate natural gas pipeline companies; intrastate natural gas pipeline companies; natural gas distribution companies; underground natural gas storage (UNG) operators; synthetic natural gas plant operators; field, well, or processing plant operators that deliver natural gas directly to consumers (including their own industrial facilities) other than for lease or plant use or processing; field, well, or processing plant operators that transport gas to, across, or from a State border through field or gathering facilities; liquefied natural gas (LNG) storage operators.
+   * - Source Format
+     - Comma Separated Value (.csv)
+   * - Download Size
+     - 30 MB
+   * - Temporal Coverage
+     - 1997-2023
+   * - PUDL Code
+     - ``eia176``
+   * - Issues
+     - `Open EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia176>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_eia176__yearly_gas_disposition`
+     - https://data.catalyst.coop/search?q=name:core_eia176__yearly_gas_disposition
+   
+   * - :ref:`core_eia176__yearly_gas_disposition_by_consumer`
+     - https://data.catalyst.coop/search?q=name:core_eia176__yearly_gas_disposition_by_consumer
+   
+
+
+Background
+^^^^^^^^^^
+
+EIA `Form 176 <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__, also
+known as the **Annual Report of Natural and Supplemental Gas Supply and Disposition**,
+describes the origins, suppliers, and disposition of natural gas on a yearly and state
+by state basis.
+
+As of 2025, the EIA-176 Form is organized into the following parts:
+
+* **Part 1:** Identification
+* **Part 3:** Company characteristics
+* **Part 4:** Natural and supplemental gas supply
+* **Part 5:** Liquefied natural gas (LNG) storage inventory
+* **Part 6:** Natural and supplemental gas disposition
+* **Part 7:** Comments, footnotes and continuation text lines
+
+
+
+
+Download additional documentation
+---------------------------------
+
+
+* :download:`Eia176 Blank 2011-12-31 (PDF) <eia176/eia176_blank_2011-12-31.pdf>`
+* :download:`Eia176 Blank 2015-02-28 (PDF) <eia176/eia176_blank_2015-02-28.pdf>`
+* :download:`Eia176 Blank 2017-12-31 (PDF) <eia176/eia176_blank_2017-12-31.pdf>`
+* :download:`Eia176 Blank 2021-01-31 (PDF) <eia176/eia176_blank_2021-01-31.pdf>`
+* :download:`Eia176 Blank 2024-06-30 (PDF) <eia176/eia176_blank_2024-06-30.pdf>`
+* :download:`Eia176 Blank 2027-07-31 (PDF) <eia176/eia176_blank_2027-07-31.pdf>`
+* :download:`Eia176 Instructions 2011-12-31 (PDF) <eia176/eia176_instructions_2011-12-31.pdf>`
+* :download:`Eia176 Instructions 2015-02-28 (PDF) <eia176/eia176_instructions_2015-02-28.pdf>`
+* :download:`Eia176 Instructions 2017-12-31 (PDF) <eia176/eia176_instructions_2017-12-31.pdf>`
+* :download:`Eia176 Instructions 2021-01-31 (PDF) <eia176/eia176_instructions_2021-01-31.pdf>`
+* :download:`Eia176 Instructions 2024-06-30 (PDF) <eia176/eia176_instructions_2024-06-30.pdf>`
+* :download:`Eia176 Instructions 2027-07-31 (PDF) <eia176/eia176_instructions_2027-07-31.pdf>`
+
+
+
+
+What data is available through PUDL?
+------------------------------------
+
+
+We are actively integrating EIA-176 data into PUDL with support from external contributors.
+Currently, Part 6 of the form is the only one that has been fully integrated.
+
+
+
+
+Who is required to fill out the form?
+-------------------------------------
+
+
+According to the EIA, the Form EIA‐176 must be completed by:
+
+* Interstate natural gas pipeline companies
+* Intrastate natural gas pipeline companies
+* Natural gas distribution companies
+* Underground natural gas storage operators
+* Synthetic natural gas plant operators
+* Field, well, or processing plant operators that deliver natural gas directly to
+  consumers (including their own industrial facilities) other than for lease or
+  plant use or processing.
+* Field, well, or processing plant operators that transport gas to, across, or from a
+  state border through field or gathering facilities
+* Liquefied natural gas (LNG) storage operators, both peaking facilities and marine
+  terminals
+* Producers of high‐Btu renewable natural gas that inject into an interstate or
+  intra‐state pipeline, or who deliver to a natural gas distributor.
+
+Data is collected annually from approximately 2,000 respondents, with a March 1st
+filing deadline. Each operator must file **one report per state** in which they are doing
+any of the following activities:
+
+* Gas (natural, commingled natural and supplemental gas, or LNG) transportation using
+  respondent‐operated facilities other than field or gathering lines
+* Gas transportation to, from, or across a state border using respondent‐operated field
+  or gathering lines
+* Gas delivery directly to consumers using respondent‐operated facilities other than
+  field, well, or plant operators delivering solely for lease and plant use or processing
+* Gas storage in respondent‐operated underground storage reservoirs, or LNG storage
+  facilities
+* Synthetic natural gas production in respondent‐operated facilities
+
+Subsidiary companies are required to file separate reports if they meet these filing
+requirements, but can specifically request permission from the EIA to consolidate
+filing.
+
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+We archive EIA-176 data from two sources: CSV files that are exported from the `EIA
+Natural Gas Query System <https://www.eia.gov/naturalgas/ngqs>`__ by iterating through
+all predefined reports related to Form 176, as well as a custom report that includes
+every numerical series related to Form 176. We also archive but do not currently process
+the bulk CSV download of all available natural gas data, since it is less well
+structured than the exports from the Natural Gas Query System.
+
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+* **Offshore gas reporting:** For the purposes of Form 176 filings, a state is defined
+  as including adjacent offshore Federal Domain areas. This means that any offshore gas
+  operations will be reported under the relevant state.
+* **Adjustment companies:** The original company-level data contains a number of "adjustment companies"
+  that do not appear to be documented in the Natural Gas Query System `user guide <https://www.eia.gov/naturalgas/ngqs/ngqs_user_guide.pdf>`__.
+  These companies all have "adjustment company" in their name and IDs beginning with 176999.
+  These records are included in the company-level data where they report values.
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.eia176` created for each table's
+respective transform function.
+
+Validating and dropping duplicated data
+---------------------------------------
+The original data includes aggregated data at the U.S. and state-wide scale, which we
+validate against the company-level data but do not publish to avoid data duplication.
+
+Similarly, the original data includes totals fields (e.g., sales totals) that are sums
+of other fields and are calculated by the EIA, not directly reported by companies filling
+out the form. We validate these totals fields against their components and drop them
+during transformation to avoid duplicating values during aggregation.

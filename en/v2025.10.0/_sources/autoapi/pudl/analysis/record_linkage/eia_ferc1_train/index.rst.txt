@@ -1,0 +1,272 @@
+pudl.analysis.record_linkage.eia_ferc1_train
+============================================
+
+.. py:module:: pudl.analysis.record_linkage.eia_ferc1_train
+
+.. autoapi-nested-parse::
+
+   Create spreadsheets for manually mapping FERC-EIA records and validate matches.
+
+   :mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage` uses machine learning to link records from FERC Form 1
+   with records from EIA. While this process is way more efficient and logical
+   than a human, it requires a set of hand-compiled training data in order to do it's job.
+
+   The training data also serve as overrides for otherwise bad AI matches. There are
+   several examples of plants that require human intuition to make sense of. For instance,
+   sometimes FERC capacities lag behind by several years or are comprised of two or more
+   EIA records.
+
+   This module creates an output spreadsheet, based on a certain utility, that makes the
+   matching and machine-matched human validation process much easier. It also contains
+   functions that will read those new/updated/validated matches from the spreadsheet,
+   validate them, and incorporate them into the existing training data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.eia_ferc1_train.logger
+   pudl.analysis.record_linkage.eia_ferc1_train.RENAME_COLS_FERC1_EIA
+   pudl.analysis.record_linkage.eia_ferc1_train.RELEVANT_COLS_PPE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.eia_ferc1_train._pct_diff
+   pudl.analysis.record_linkage.eia_ferc1_train._is_best_match
+   pudl.analysis.record_linkage.eia_ferc1_train._prep_eia_ferc1
+   pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish
+   pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets
+   pudl.analysis.record_linkage.eia_ferc1_train._output_override_spreadsheet
+   pudl.analysis.record_linkage.eia_ferc1_train.generate_all_override_spreadsheets
+   pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency
+   pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training
+   pudl.analysis.record_linkage.eia_ferc1_train.validate_override_fixes
+   pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df
+   pudl.analysis.record_linkage.eia_ferc1_train._add_to_training
+   pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides
+   pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides
+   pudl.analysis.record_linkage.eia_ferc1_train.validate_and_add_to_training
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: RENAME_COLS_FERC1_EIA
+   :type:  dict
+
+.. py:data:: RELEVANT_COLS_PPE
+   :type:  list
+   :value: ['record_id_eia', 'report_year', 'utility_id_pudl', 'utility_id_eia', 'utility_name_eia',...
+
+
+.. py:function:: _pct_diff(df, col) -> pandas.DataFrame
+
+   Calculate percent difference between EIA and FERC versions of a column.
+
+
+.. py:function:: _is_best_match(df, cap_pct_diff=6, net_gen_pct_diff=6, inst_year_diff=3) -> pandas.DataFrame
+
+   Fill the best_match column with strings to show cap, net_gen, inst_year match.
+
+   The process of manually checking all of the FERC-EIA matches made by the machine
+   learning algorithm is tedius. This function makes it easier to speed through the
+   obviously good matches and pay more attention to those that are more questionable.
+
+   By default, a "best match" is comprised of a FERC-EIA match with a capacity percent
+   difference of less than 6%, a net generation percent difference of less than 6%, and
+   an installation year difference of less than 3 years.
+
+
+.. py:function:: _prep_eia_ferc1(eia_ferc1: pandas.DataFrame, utils_eia860: pandas.DataFrame) -> pandas.DataFrame
+
+   Prep FERC-EIA for use in override output sheet pre-utility subgroups.
+
+   :param eia_ferc1: The :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` table,
+                     associating EIA and FERC Form 1 plant records.
+   :param utils_eia860: The :ref:`out_eia__yearly_utilities` table.
+
+   :returns: A version of the EIA-FERC1 plant association table that's been modified for the
+             purposes of creating an manual mapping spreadsheet.
+
+
+.. py:function:: _prep_deprish(deprish, utils_eia860) -> pandas.DataFrame
+
+   Prep depreciation data for use in override output sheet pre-utility subgroups.
+
+
+.. py:function:: _get_util_year_subsets(inputs_dict, util_id_eia_list, years) -> dict
+
+   Get utility and year subsets for each of the input dfs.
+
+   After generating the dictionary with all of the inputs tables loaded, we'll want to
+   create subsets of each of those tables based on the utility and year inputs we're
+   given. This function takes the input dict generated in _generate_input_dfs() and
+   outputs an updated version with df values pertaining to the utilities in
+   util_id_eia_list and years in years.
+
+   :param inputs_dict: The output of running _generation_input_dfs()
+   :type inputs_dict: dict
+   :param util_id_eia_list: A list of the utility_id_eia values you want to
+                            include in a single spreadsheet output. Generally this is a list of the
+                            subsidiaries that pertain to a single parent company.
+   :type util_id_eia_list: list
+   :param years: A list of the years you'd like to add to the override sheets.
+   :type years: list
+
+   :returns:
+
+             A subset of the inputs_dict that contains versions of the value dfs that
+                 pertain only to the utilities and years specified in util_id_eia_list and
+                 years.
+   :rtype: dict
+
+
+.. py:function:: _output_override_spreadsheet(util_year_subset_dict, util_name, output_dir_path) -> None
+
+   Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.
+
+   :param util_year_subset_dict: The output from _get_util_year_subsets()
+   :type util_year_subset_dict: dict
+   :param util_name: A string indicating the name of the utility that you are
+                     creating an override sheet for. The string will be used as the suffix for
+                     the name of the excel file. Ex: for util_name = "BHE", the file name will be
+                     BHE_fix_FERC-EIA_overrides.xlsx.
+   :type util_name: str
+   :param output_dir_path: The relative path to the folder where you'd like to
+                           output the override spreadsheets that this function creates.
+   :type output_dir_path: str
+
+
+.. py:function:: generate_all_override_spreadsheets(eia_ferc1: pandas.DataFrame, ppe: pandas.DataFrame, utils_eia860: pandas.DataFrame, util_dict: dict[str, list[int]], years: list[int], output_dir_path: str) -> None
+
+   Output override spreadsheets for all specified utilities and years.
+
+   These manual override files will be output to a folder called "overrides" in the
+   output directory.
+
+   :param eia_ferc1: The :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` table as a
+                     dataframe, associating EIA and FERC Form 1 plant records.
+   :param ppe: The :ref:`out_eia__yearly_plant_parts` table as a dataframe.
+   :param utils_eia860: The :ref:`out_eia__yearly_utilities` table as a dataframe.
+   :param util_dict: A dictionary with keys that are the names of utility
+                     parent companies and values that are lists of subsidiary utility_id_eia
+                     values. EIA values are used instead of PUDL in this case because PUDL values
+                     are subject to change.
+   :param years: A list of the years you'd like to add to the override sheets.
+   :param output_dir_path: The relative path to the folder where you'd like to output the
+                           override spreadsheets that this function creates.
+
+
+.. py:function:: _check_id_consistency(id_col: Literal['record_id_eia_override_1', 'record_id_ferc1'], df, actual_ids, error_message) -> None
+
+   Check for rogue FERC or EIA ids that don't exist.
+
+   :param id_col: The name of either the ferc record id column: record_id_ferc1 or
+                  the eia record override column: record_id_eia_override_1.
+   :type id_col: str
+   :param df: A dataframe of intended overrides.
+   :type df: pd.DataFrame
+   :param actual_ids: A list of the ferc or eia ids that are valid and come from
+                      either the ppe or official ferc-eia record linkage.
+   :type actual_ids: list
+   :param error_message: A short string to indicate the type of error you're
+                         checking for. This could be looking for values that aren't in the official
+                         list or values that are already in the training data.
+   :type error_message: str
+
+
+.. py:function:: check_if_already_in_training(training_data, validated_connections)
+
+   Check whether any manually mapped records aren't yet in the training data.
+
+   This function is useful for instances where you've started the manual mapping
+   process, taken an extended break, and need to check whether the data you've mapped
+   has been integrated into the training data or not.
+
+
+.. py:function:: validate_override_fixes(validated_connections: pandas.DataFrame, ppe: pandas.DataFrame, eia_ferc1: pandas.DataFrame, training_data: pandas.DataFrame, expect_override_overrides: bool = False, allow_mismatched_utilities: bool = True) -> pandas.DataFrame
+
+   Process the verified and/or fixed matches and look for human error.
+
+   :param validated_connections: A dataframe in the add_to_training directory that is
+                                 ready to be added to be validated and subsumed into the training data.
+   :param ppe: The :ref:`out_eia__yearly_plant_parts` table as a dataframe.
+   :param eia_ferc1: The :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` table as a
+                     dataframe, associating EIA and FERC Form 1 plant records.
+   :param training_data: The current FERC-EIA training data
+   :param expect_override_overrides: Whether you expect the tables to have
+                                     overridden matches already in the training data.
+   :param allow_mismatched_utilities: Whether you want to allow FERC and EIA
+                                      record ids to come from different utilities.
+
+   :raises AssertionError: If there are EIA override id records that aren't in the original
+       FERC-EIA connection.
+   :raises AssertionError: If there are FERC record ids that aren't in the original
+       FERC-EIA connection.
+   :raises AssertionError: If there are EIA override ids that are duplicated throughout the
+       override document.
+   :raises AssertionError: If the utility id in the EIA override id doesn't match the pudl
+       id corresponding with the FERC record.
+   :raises AssertionError: If there are EIA override id records that don't correspond to
+       the correct report year.
+   :raises AssertionError: If you didn't expect to override overrides but the new training
+       data implies an override to the existing training data.
+
+   :returns: The validated FERC-EIA dataframe you're trying to add to the training data.
+
+
+.. py:function:: get_multi_match_df(training_data: pandas.DataFrame) -> pandas.DataFrame
+
+   Process the verified and/or fixed matches and generate a list of 1:m matches.
+
+   Filter the dataframe to only include FERC records with more than one EIA match.
+   Melt this dataframe to report all matched EIA records in the
+   ``record_id_eia_override_1`` column.
+
+   :param training_data: A dataframe in the add_to_training directory that is ready to be
+                         validated and subsumed into the training data.
+
+   :returns: A dataframe of one_to_many matches formatted to fit into the existing validation
+             framework.
+
+
+.. py:function:: _add_to_training(new_overrides, path_to_current_training) -> None
+
+   Add the new overrides to the old override sheet.
+
+
+.. py:function:: _add_to_null_overrides(null_matches, current_null_overrides_path) -> None
+
+   Take record_id_ferc1 values verified to have no EIA match and add them to csv.
+
+
+.. py:function:: _add_to_one_to_many_overrides(one_to_many, current_one_to_many_path) -> None
+
+   Add record_id_ferc1 values verified to have multiple EIA matches to csv.
+
+
+.. py:function:: validate_and_add_to_training(ppe: pandas.DataFrame, eia_ferc1: pandas.DataFrame, input_dir_path: str, expect_override_overrides: bool = False, allow_mismatched_utilities: bool = True, one_to_many: bool = True) -> None
+
+   Validate, combine, and add overrides to the training data.
+
+   Validating and combinging the records so you only have to loop through the files
+   once. Runs :func:`validate_override_fixes` and :func:`_add_to_training`.
+
+   :param input_dir_path: The path to the place where the matched files that you want to
+                          validate or integrate are.
+   :param expect_override_overrides: This value is explicitly assigned at the top of the
+                                     notebook.
+   :param allow_mismatched_utilities: Whether you are allowed to have FERC-EIA matches
+                                      from different utilities.
+   :param one_to_many: If True, will also validate and save a CSV of one_to_many matches.
+
+
