@@ -34,6 +34,7 @@ jobs:
           filters: |
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
+              - '!devtools/**'
               - '!docker/**'
               - '!docs/**'
               - '!.github/**.md'
@@ -54,6 +55,7 @@ jobs:
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
               - '!.mypy.ini'
+              - '!terraform/**'
               - '!test/unit/**'
       - name: print out components
         run: |
