@@ -2339,9 +2339,7 @@ class ParquetData(BaseModel):
 
     Writing data to disk as parquet files enables the use of highly efficient
     processing/transforms with tools like Polars or duckdb. This class provides
-    helpers for managing paths to parquet data on disk. This class and the helper
-    methods that operate on it are meant explicitly for intermediate data to use
-    for transforms, not for output data.
+    helpers for managing paths to parquet data on disk.
     """
 
     table_name: str
