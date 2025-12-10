@@ -76,7 +76,7 @@ with ``entity_id``'s, which we rename to ``utility_id_ferc1_dbf`` and
     PUDL-assigned utility ID is used as a merge key.
 
 .. warning::
-    To fully map the FERC1 utilities you'll need to run the `make unmapped_ids`
+    To fully map the FERC1 utilities you'll need to run the `make unmapped-ids`
     step - documented below - twice because there are two layers of ID's as described
     above.
 
@@ -91,7 +91,7 @@ run the following ``make`` command.
 
 .. code-block:: console
 
-    $ make unmapped_ids
+    $ make unmapped-ids
 
 This invokes a script that identifies plants and utilities which exist in the updated
 FERC 1 and EIA datasets that do not yet appear in the stored ID maps. This will generate

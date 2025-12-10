@@ -3,6 +3,10 @@
 from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.resource_helpers import (
+    canonical_harvested_details,
+    inherits_harvested_values_details,
+)
 
 AGG_FREQS = ["yearly", "monthly"]
 
@@ -119,6 +123,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_boilers": {
         "description": {
             "additional_summary_text": "boilers compiled from the EIA-860 and EIA-923.",
+            "additional_details_text": canonical_harvested_details("boilers", True),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -645,6 +651,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_generators": {
         "description": {
             "additional_summary_text": "generators compiled from across the EIA-860 and EIA-923.",
+            "additional_details_text": canonical_harvested_details("generators", True),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -720,6 +728,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_plants": {
         "description": {
             "additional_summary_text": "plants, compiled from across all EIA-860 and EIA-923 data.",
+            "additional_details_text": canonical_harvested_details("plants", True),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -805,6 +815,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_utilities": {
         "description": {
             "additional_summary_text": "utilities, compiled from all EIA data.",
+            "additional_details_text": canonical_harvested_details("utilities", True),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
@@ -875,6 +887,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_utilities": {
         "description": {
             "additional_summary_text": "all EIA utility attributes.",
+            "additional_details_text": inherits_harvested_values_details("utilities"),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -915,6 +929,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_plants": {
         "description": {
             "additional_summary_text": "all EIA plant attributes.",
+            "additional_details_text": inherits_harvested_values_details("plants"),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -982,6 +998,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_boilers": {
         "description": {
             "additional_summary_text": "all EIA boiler attributes.",
+            "additional_details_text": inherits_harvested_values_details(
+                "boilers, plants, and utilities"
+            ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -1242,7 +1262,9 @@ and thus the fuel cost per MWh generated.
 Plant specific fuel prices are taken from the
 :ref:`core_eia923__monthly_fuel_receipts_costs` table, which only has ~70% coverage,
 leading to some generators with heat rate estimates still lacking fuel cost
-estimates.""",
+estimates.
+
+{inherits_harvested_values_details("generators, plants, and utilities")}""",
             "usage_warnings": [
                 "estimated_values",
                 {
@@ -1253,6 +1275,7 @@ estimates.""",
                     "type": "custom",
                     "description": "Not all columns are originally reported in or calculable from the input tables. Expect nulls.",
                 },
+                "harvested",
             ],
         },
         "schema": {

@@ -529,7 +529,10 @@ class Encoder(PudlMeta):
         )
         rendered = template.render(
             Encoder=self,
-            description=RESOURCE_METADATA[self.name]["description"],
+            # just get the resolved resource summary & drop all the other sections of the description
+            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
+                "\n\n"
+            )[0],
             csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
             is_header=is_header,
         )
@@ -961,7 +964,6 @@ class DataSource(PudlMeta):
     name: SnakeCase
     title: String | None = None
     description: String | None = None
-    field_namespace: String | None = None
     keywords: list[str] = []
     path: AnyHttpUrl | None = None
     contributors: list[Contributor] = []
@@ -1055,17 +1057,6 @@ class DataSource(PudlMeta):
             Path(output_path).write_text(rendered)
         else:
             sys.stdout.write(rendered)
-
-    @classmethod
-    def from_field_namespace(
-        cls, x: str, sources: dict[str, Any] = SOURCES
-    ) -> list["DataSource"]:
-        """Return list of DataSource objects by field namespace."""
-        return [
-            cls(**cls.dict_from_id(name, sources))
-            for name, val in sources.items()
-            if val.get("field_namespace") == x
-        ]
 
     @staticmethod
     def dict_from_id(x: str, sources: dict[str, Any]) -> dict:

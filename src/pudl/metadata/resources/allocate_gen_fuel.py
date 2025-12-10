@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from pudl.metadata.resource_helpers import inherits_harvested_values_details
+
 AGG_FREQS = ["yearly", "monthly"]
 
 USAGE_WARNING_DRAWBACK = {
@@ -80,11 +82,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                         "type": "custom",
                         "description": "A small number of respondents only report annual fuel consumption, and all of it is reported in December.",
                     },
+                    "harvested",
                 ],
                 "additional_details_text": (
                     "Based on allocating net electricity generation and fuel consumption reported "
                     "in the EIA-923 generation and generation_fuel tables to individual generators.\n\n"
                     f"{KNOWN_DRAWBACKS_DESCRIPTION}"
+                    f"\n\n{inherits_harvested_values_details('generators, plants, and utilities')}"
                 ),
             },
             "schema": {
@@ -127,6 +131,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "estimated_values",
                     USAGE_WARNING_DRAWBACK,
                     "month_as_date",
+                    "harvested",
                 ],
                 "additional_details_text": (
                     "First, the net electricity generation and fuel consumption "
@@ -135,6 +140,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = (
                     "prime mover, energy source code, and owner combinations. Note that the "
                     "utility_id_eia in this table refers to the OWNER of the generator, not the "
                     f"operator.\n\n{KNOWN_DRAWBACKS_DESCRIPTION}"
+                    f"\n\n{inherits_harvested_values_details('generators and plants')}"
                 ),
             },
             "schema": {

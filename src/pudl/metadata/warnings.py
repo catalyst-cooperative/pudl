@@ -1,4 +1,8 @@
-"""Standard usage warnings to reference in dynamic table descriptions."""
+"""Standard usage warnings to reference in dynamic table descriptions.
+
+For now, these texts are duplicated in ``docs/data_dictionaries/usage_warnings.rst`` --
+if you make an update here, be sure to update there as well!
+"""
 
 USAGE_WARNINGS = {
     "multiple_inputs": "Contains information from multiple raw inputs.",
@@ -29,4 +33,11 @@ USAGE_WARNINGS = {
     "discontinued_data": "The data is no longer being collected or reported in this way.",
     "discontinued_pudl": "PUDL does not currently update its copy of this data.",
     "experimental_wip": "This table is experimental and/or a work in progress and may change in the future.",
+    "harvested": (
+        "Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses "
+        "the most consistent or relevant value to facilitate cross-referencing even if that means some values"
+        " will differ from the raw sources. See "
+        "`Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ "
+        "for details."
+    ),
 }
