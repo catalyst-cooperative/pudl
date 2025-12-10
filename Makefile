@@ -3,6 +3,15 @@ covargs := --append
 pytest_args := --durations 20 ${gcs_cache_path} --cov-fail-under=0
 etl_fast_yml := src/pudl/package_data/settings/etl_fast.yml
 etl_full_yml := src/pudl/package_data/settings/etl_full.yml
+current_branch := $(shell git rev-parse --abbrev-ref HEAD)
+current_tag := $(shell git tag --points-at HEAD)
+# docs_install_version will be:
+#  - latest if we're on main
+#  - nightly if we're on nightly
+#  - stable if we're on stable
+#  - [tag] if we're on a tag like v20*
+# & otherwise empty
+docs_install_version := $(subst main,latest,$(strip $(filter main nightly stable,${current_branch}) $(filter v20%, ${current_tag})))
 
 # We use mamba locally, but micromamba in CI, so choose the right binary:
 ifdef GITHUB_ACTIONS
@@ -86,6 +95,15 @@ docs-clean:
 docs-build: docs-clean
 	doc8 docs/ README.rst
 	coverage run ${covargs} -- ${CONDA_PREFIX}/bin/sphinx-build --jobs auto -v -W -b html docs docs/_build/html
+
+.PHONY: docs-install
+docs-install: docs-build
+	mkdir -p docs/_install/en
+	cp docs/latest_redirect.html docs/_install/index.html
+ifdef docs_install_version
+	rm -rf docs/_install/en/${docs_install_version}
+	cp -r docs/_build/html docs/_install/en/${docs_install_version}
+endif
 
 ########################################################################################
 # Running the Full ETL
