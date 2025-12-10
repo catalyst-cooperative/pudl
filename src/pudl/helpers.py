@@ -2225,7 +2225,6 @@ def get_parquet_table(
 
     Args:
         table_name: Name of the table to read.
-        parquet_path: Path to parquet file on disk.
         columns: List of columns to read. If None, all columns are read.
         filters: Optional filters to apply when reading the Parquet file. See the
             :func:`pyarrow.parquet.read_table` documentation for details on filter
