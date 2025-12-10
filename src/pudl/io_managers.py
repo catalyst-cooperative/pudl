@@ -308,23 +308,13 @@ class SQLiteIOManager(IOManager):
 class PudlParquetIOManager(IOManager):
     """IOManager that writes pudl tables to pyarrow parquet files."""
 
-    def _get_parquet_path(self, context, table_name: str) -> Path:
-        """Get path to parquet file in output directory."""
-        if context.has_partition_key:
-            partition_key = context.asset_partition_key
-        else:
-            partition_key = None
-
-        parquet_path = PudlPaths().parquet_path(table_name, partition_key=partition_key)
-        parquet_path.parent.mkdir(parents=True, exist_ok=True)
-        return parquet_path
-
     def handle_output(
         self, context: OutputContext, obj: pd.DataFrame | pl.LazyFrame
     ) -> None:
         """Writes pudl dataframe to parquet file."""
         table_name = get_table_name_from_context(context)
-        parquet_path = self._get_parquet_path(context, table_name)
+        parquet_path = PudlPaths().parquet_path(table_name)
+        parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
         if isinstance(obj, pd.DataFrame):
             res = Resource.from_id(table_name)
@@ -353,11 +343,10 @@ class PudlParquetIOManager(IOManager):
     ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
-        parquet_path = self._get_parquet_path(context, table_name)
         if context.dagster_type.typing_type == pl.LazyFrame:
-            df = get_parquet_table_polars(table_name, parquet_path)
+            df = get_parquet_table_polars(table_name)
         else:
-            df = get_parquet_table(table_name, parquet_path)
+            df = get_parquet_table(table_name)
         return df
 
 
