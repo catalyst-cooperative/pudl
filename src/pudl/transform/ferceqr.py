@@ -69,7 +69,11 @@ def core_ferceqr__identity(raw_ferceqr__ident: ParquetData):
     )
 
 
-@dg.asset(io_manager_key="parquet_io_manager", partitions_def=ferceqr_year_quarters)
+@dg.asset(
+    io_manager_key="parquet_io_manager",
+    partitions_def=ferceqr_year_quarters,
+    op_tags={"memory-use": "high"},
+)
 def core_ferceqr__transactions(raw_ferceqr__transactions: ParquetData):
     """Perform basic transforms on transactions table table."""
     return _apply_schema(

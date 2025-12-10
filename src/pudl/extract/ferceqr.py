@@ -3,6 +3,7 @@
 import io
 import tempfile
 import zipfile
+from contextlib import contextmanager
 from pathlib import Path
 
 import dagster as dg
@@ -28,7 +29,27 @@ class ExtractSettings(dg.ConfigurableResource):
         return UPath(self.archive)
 
 
+@contextmanager
+def _get_csv(base_path: UPath, year_quarter: str) -> zipfile.ZipFile:
+    """Download CSV to a tempmorary directory to avoid reading into memory."""
+    year, quarter = year_quarter.split("q")
+    zip_name = f"ferceqr-{year}q{quarter}.zip"
+    remote_path = base_path / zip_name
+
+    # Create temp directory to download zip to
+    with (
+        tempfile.TemporaryDirectory() as tmp_dir,
+    ):
+        # Download file to local path
+        local_path = Path(tmp_dir) / zip_name
+        local_path.write_bytes(remote_path.read_bytes())
+        # Yield open zipfile
+        with zipfile.ZipFile(local_path) as zf:
+            yield zf
+
+
 def _clean_csv_name(csv_path: Path) -> Path:
+    """Standardize zip file names to avoid errors when opening."""
     new_path = csv_path
     if "'" in csv_path.name:
         new_path = csv_path.rename(csv_path.parent / csv_path.name.replace("'", ""))
@@ -161,16 +182,10 @@ def extract_eqr(
     """Extract year quarter from CSVs and load to parquet files."""
     # Get year/quarter from selected partition
     year_quarter = context.partition_key
-    year, quarter = year_quarter.split("q")
-    quarter_zip_path = (
-        ferceqr_extract_settings.base_path / f"ferceqr-{year}q{quarter}.zip"
-    )
 
     # Open top level zipfile
     with (
-        zipfile.ZipFile(
-            io.BytesIO(quarter_zip_path.open(mode="rb").read())
-        ) as quarter_archive,
+        _get_csv(ferceqr_extract_settings.base_path, year_quarter) as quarter_archive,
         duckdb.connect() as conn,
     ):
         # Loop through all nested zipfiles (one for each filing in the quarter)

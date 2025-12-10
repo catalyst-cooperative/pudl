@@ -168,6 +168,8 @@ default_asset_checks += [
                 "core_epacems__hourly_emissions",
                 "out_vcerare__hourly_available_capacity_factor",
                 "core_ferceqr__transactions",
+                "core_ferceqr__identity",
+                "core_ferceqr__contracts",
             ]
         )
     )
@@ -187,16 +189,20 @@ default_resources = {
     "ferceqr_extract_settings": pudl.extract.ferceqr.ExtractSettings(),
 }
 
+
 # Limit the number of concurrent workers when launch assets that use a lot of memory.
-default_tag_concurrency_limits = [
-    {
-        "key": "memory-use",
-        "value": "high",
-        "limit": 4,
-    },
-]
+def _high_memory_concurrency_limits(limit: int = 4) -> list:
+    return [
+        {
+            "key": "memory-use",
+            "value": "high",
+            "limit": 4,
+        },
+    ]
+
+
 default_config = pudl.helpers.get_dagster_execution_config(
-    tag_concurrency_limits=default_tag_concurrency_limits
+    tag_concurrency_limits=_high_memory_concurrency_limits()
 )
 default_config |= pudl.analysis.ml_tools.get_ml_models_config()
 
@@ -252,6 +258,9 @@ defs: Definitions = Definitions(
         define_asset_job(
             name="ferceqr_etl",
             description="This job executes the ferceqr ETL.",
+            config=pudl.helpers.get_dagster_execution_config(
+                num_workers=2, tag_concurrency_limits=_high_memory_concurrency_limits(1)
+            ),
             selection="key:*_ferceqr*",
         ),
     ],
