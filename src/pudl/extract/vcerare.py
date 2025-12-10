@@ -75,7 +75,7 @@ def extract_vcerare(
             dataset="vcerare",
             partitions=partitions,
             pages=VCERARE_PAGES.keys(),
-            ds=context.resources.datastore,
+            datasore=context.resources.datastore,
             zip_path=Path(f"{year}/"),
         ):
             # Collect ParquetData objects for each year/page combo
