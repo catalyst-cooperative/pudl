@@ -20,6 +20,7 @@ from pudl.helpers import (
     simplify_columns,
     zero_pad_numeric_string,
 )
+from pudl.metadata.classes import Resource
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.workspace.setup import PudlPaths
 
@@ -516,4 +517,8 @@ def out_vcerare__hourly_available_capacity_factor(
 
     return lf_from_parquet(
         ParquetData(table_name=partitioned_output_table), use_all_partitions=True
+    ).cast(
+        Resource.from_id(
+            "out_vcerare__hourly_available_capacity_factor"
+        ).to_polars_dtypes()
     )
