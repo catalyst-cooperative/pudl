@@ -11,6 +11,7 @@ from hashlib import sha1
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
+import duckdb
 import frictionless
 import geopandas as gpd
 import jinja2
@@ -45,6 +46,7 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
     CONTRIBUTORS,
+    FIELD_DTYPES_DUCKDB,
     FIELD_DTYPES_PANDAS,
     FIELD_DTYPES_POLARS,
     FIELD_DTYPES_PYARROW,
@@ -631,6 +633,10 @@ class Field(PudlMeta):
     def from_id(cls, x: str) -> "Field":
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
+
+    def to_duckdb_dtype(self) -> duckdb.sqltypes.DuckDBPyType:
+        """Return duckdb data type."""
+        return FIELD_DTYPES_DUCKDB[self.type]
 
     def to_polars_dtype(self) -> pl.DataType:
         """Return polars data type."""
@@ -1697,6 +1703,10 @@ class Resource(PudlMeta):
         if self.schema.primary_key is not None:
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
+
+    def to_duckdb_dtypes(self) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
+        """Return Polars data type of each field by field name."""
+        return {f.name: f.to_duckdb_dtype() for f in self.schema.fields}
 
     def to_polars_dtypes(self) -> dict[str, pl.DataType]:
         """Return Polars data type of each field by field name."""

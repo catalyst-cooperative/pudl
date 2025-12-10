@@ -3,6 +3,7 @@
 import datetime
 from collections.abc import Callable
 
+import duckdb
 import geoarrow.pyarrow as ga
 import geopandas as gpd
 import pandas as pd
@@ -21,6 +22,17 @@ FIELD_DTYPES_POLARS: dict[str, str] = {
     "year": pl.datatypes.Datetime,
 }
 """Polars data type by PUDL field type (Data Package `field.type`)."""
+
+FIELD_DTYPES_DUCKDB: dict[str, str] = {
+    "boolean": duckdb.sqltypes.BOOLEAN,
+    "date": duckdb.sqltypes.DATE,
+    "datetime": duckdb.sqltypes.TIMESTAMP_MS,
+    "integer": duckdb.sqltypes.INTEGER,
+    "number": duckdb.sqltypes.DOUBLE,
+    "string": duckdb.sqltypes.VARCHAR,
+    "year": duckdb.sqltypes.TIMESTAMP_MS,
+}
+"""Duckdb data type by PUDL field type (Data Package `field.type`)."""
 
 FIELD_DTYPES_PANDAS: dict[str, str] = {
     "boolean": "boolean",

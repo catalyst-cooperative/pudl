@@ -259,7 +259,7 @@ defs: Definitions = Definitions(
             name="ferceqr_etl",
             description="This job executes the ferceqr ETL.",
             config=pudl.helpers.get_dagster_execution_config(
-                num_workers=2, tag_concurrency_limits=_high_memory_concurrency_limits(1)
+                num_workers=4, tag_concurrency_limits=_high_memory_concurrency_limits(1)
             ),
             selection="key:*_ferceqr*",
         ),
