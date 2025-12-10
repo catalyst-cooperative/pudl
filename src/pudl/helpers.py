@@ -2343,7 +2343,7 @@ class ParquetData(BaseModel):
     """
 
     table_name: str
-    partitions: dict[str, Any]
+    partitions: dict[str, Any] = {}
 
     @property
     def parquet_directory(self) -> Path:
