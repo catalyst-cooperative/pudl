@@ -2362,7 +2362,7 @@ class ParquetData(BaseModel):
         return self.parquet_directory / filename
 
 
-def offload_table(
+def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
     partitions: dict = {},

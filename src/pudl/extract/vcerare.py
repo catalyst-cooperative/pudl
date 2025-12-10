@@ -22,7 +22,11 @@ import pandas as pd
 from dagster import AssetOut, asset, multi_asset
 
 from pudl import logging_helpers
-from pudl.helpers import ParquetData, duckdb_extract_zipped_csv, offload_table
+from pudl.helpers import (
+    ParquetData,
+    duckdb_extract_zipped_csv,
+    persist_table_as_parquet,
+)
 
 logger = logging_helpers.get_logger(__name__)
 
@@ -77,7 +81,7 @@ def extract_vcerare(
             # Collect ParquetData objects for each year/page combo
             extracted_tables[VCERARE_PAGES[page]].update(
                 {
-                    year: offload_table(
+                    year: persist_table_as_parquet(
                         table_data=_clean_column_names(
                             relation.select(f"*, {year} as report_year")
                         ),
