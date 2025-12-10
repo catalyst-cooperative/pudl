@@ -46,8 +46,8 @@ dependencies:
   - aws-c-s3=0.11.3=h06ab39a_1
   - aws-c-sdkutils=0.2.4=h8b1a151_4
   - aws-checksums=0.2.7=h8b1a151_5
-  - aws-crt-cpp=0.35.2=h8824e59_6
-  - aws-sdk-cpp=1.11.606=hf38915e_9
+  - aws-crt-cpp=0.35.4=h8824e59_0
+  - aws-sdk-cpp=1.11.606=h20b40b1_10
   - azure-core-cpp=1.16.1=h3a458e0_0
   - azure-identity-cpp=1.13.2=h3a5f585_1
   - azure-storage-blobs-cpp=12.15.0=h2a74896_1
@@ -104,27 +104,27 @@ dependencies:
   - cpython=3.13.11=py313hd8ed1ab_100
   - crashtest=0.4.1=pyhd8ed1ab_1
   - cryptography=46.0.3=py313heb322e3_1
-  - curl=8.17.0=h4e3cde8_0
+  - curl=8.17.0=h4e3cde8_1
   - cycler=0.12.1=pyhcf101f3_2
   - cyrus-sasl=2.1.28=hd9c7081_0
   - daff=1.4.2=pyhcf101f3_1
-  - dagster=1.12.4=pyh742d864_0
-  - dagster-cloud-cli=1.12.4=pyh742d864_0
-  - dagster-dbt=1!0.28.4=pyhcf101f3_0
-  - dagster-dg-cli=1.12.4=pyh742d864_0
-  - dagster-dg-core=1.12.4=pyh742d864_0
-  - dagster-graphql=1.12.4=pyh742d864_0
-  - dagster-pipes=1.12.4=pyh742d864_0
-  - dagster-postgres=1!0.28.4=pyhcf101f3_0
-  - dagster-shared=1.12.4=pyh742d864_0
-  - dagster-webserver=1.12.4=pyh742d864_0
-  - databricks-sdk=0.73.0=pyhd8ed1ab_0
+  - dagster=1.12.5=pyh742d864_0
+  - dagster-cloud-cli=1.12.5=pyh742d864_0
+  - dagster-dbt=1!0.28.5=pyhcf101f3_0
+  - dagster-dg-cli=1.12.5=pyh742d864_0
+  - dagster-dg-core=1.12.5=pyh742d864_0
+  - dagster-graphql=1.12.5=pyh742d864_0
+  - dagster-pipes=1.12.5=pyh742d864_0
+  - dagster-postgres=1!0.28.5=pyhcf101f3_0
+  - dagster-shared=1.12.5=pyh742d864_0
+  - dagster-webserver=1.12.5=pyh742d864_0
+  - databricks-sdk=0.74.0=pyhd8ed1ab_0
   - dbt-adapters=1.22.0=pyhd8ed1ab_0
   - dbt-common=1.36.0=pyhd8ed1ab_0
   - dbt-core=1.10.15=pyhd8ed1ab_0
   - dbt-duckdb=1.9.4=pyhd8ed1ab_0
   - dbt-extractor=0.6.0=py313h5c7d99a_1
-  - dbt-protos=1.0.402=pyhcf101f3_0
+  - dbt-protos=1.0.405=pyhcf101f3_0
   - dbt-semantic-interfaces=0.9.2=pyh3cfb1c2_0
   - dbus=1.16.2=h3c4dab8_0
   - debugpy=1.8.17=py313h5d5ffb9_1
@@ -148,9 +148,9 @@ dependencies:
   - exceptiongroup=1.3.1=pyhd8ed1ab_0
   - execnet=2.1.2=pyhd8ed1ab_0
   - executing=2.2.1=pyhd8ed1ab_0
-  - fastapi=0.124.0=hefef5aa_0
+  - fastapi=0.124.2=hc0e8453_0
   - fastapi-cli=0.0.16=pyhcf101f3_1
-  - fastapi-core=0.124.0=pyhcf101f3_0
+  - fastapi-core=0.124.2=pyhcf101f3_0
   - filelock=3.20.0=pyhd8ed1ab_0
   - flask=3.1.2=pyhd8ed1ab_0
   - flask-cors=6.0.1=pyhe01879c_0
@@ -264,7 +264,7 @@ dependencies:
   - jupyter=1.1.1=pyhd8ed1ab_1
   - jupyter-lsp=2.3.0=pyhcf101f3_0
   - jupyter-resource-usage=1.2.0=pyhd8ed1ab_0
-  - jupyter_client=8.6.3=pyhd8ed1ab_1
+  - jupyter_client=8.7.0=pyhcf101f3_0
   - jupyter_console=6.6.3=pyhd8ed1ab_1
   - jupyter_core=5.9.1=pyhc90fa1f_0
   - jupyter_events=0.12.0=pyh29332c3_0
@@ -288,10 +288,10 @@ dependencies:
   - lerc=4.0.0=h0aef613_1
   - libabseil=20250512.1=cxx17_hba17884_0
   - libarchive=3.8.2=gpl_h7be2006_100
-  - libarrow=20.0.0=h7ce2e79_29_cpu
-  - libarrow-acero=20.0.0=h635bf11_29_cpu
-  - libarrow-dataset=20.0.0=h635bf11_29_cpu
-  - libarrow-substrait=20.0.0=h3f74fd7_29_cpu
+  - libarrow=20.0.0=hd5ee9c8_31_cpu
+  - libarrow-acero=20.0.0=h635bf11_31_cpu
+  - libarrow-dataset=20.0.0=h635bf11_31_cpu
+  - libarrow-substrait=20.0.0=h3f74fd7_31_cpu
   - libblas=3.11.0=4_h4a7cf45_openblas
   - libbrotlicommon=1.2.0=hb03c661_1
   - libbrotlidec=1.2.0=hb03c661_1
@@ -299,7 +299,7 @@ dependencies:
   - libcblas=3.11.0=4_h0358290_openblas
   - libcrc32c=1.1.2=h9c3ff4c_0
   - libcups=2.3.3=hb8b1518_5
-  - libcurl=8.17.0=h4e3cde8_0
+  - libcurl=8.17.0=h4e3cde8_1
   - libcxx=21.1.7=ha0f52bf_0
   - libcxxabi=21.1.7=h9fd08b6_0
   - libdeflate=1.25=h17f619e_0
@@ -345,7 +345,7 @@ dependencies:
   - libopenblas=0.3.30=pthreads_h94d23a6_4
   - libopentelemetry-cpp=1.21.0=hb9b0907_1
   - libopentelemetry-cpp-headers=1.21.0=ha770c72_1
-  - libparquet=20.0.0=h7376487_29_cpu
+  - libparquet=20.0.0=h7376487_31_cpu
   - libpciaccess=0.18=hb9d3cd8_0
   - libpng=1.6.53=h421ea60_0
   - libpq=18.1=h5c52fec_2
@@ -461,8 +461,8 @@ dependencies:
   - pkginfo=1.12.1.2=pyhd8ed1ab_0
   - platformdirs=4.5.1=pyhcf101f3_0
   - pluggy=1.6.0=pyhf9edf01_1
-  - polars=1.36.0=pyh6a1acc5_0
-  - polars-runtime-32=1.36.0=py310hffdcd12_0
+  - polars=1.36.1=pyh6a1acc5_0
+  - polars-runtime-32=1.36.1=py310hffdcd12_0
   - pre-commit=4.5.0=pyha770c72_0
   - prettier=3.7.4=h7e4c9f4_0
   - proj=9.7.1=h99ae125_0
@@ -513,7 +513,7 @@ dependencies:
   - python-calamine=0.6.1=py313h5c7d99a_0
   - python-dateutil=2.9.0.post0=pyhe01879c_2
   - python-dotenv=1.2.1=pyhcf101f3_0
-  - python-duckdb=1.4.2=py313h7033f15_0
+  - python-duckdb=1.4.3=py313h7033f15_0
   - python-fastjsonschema=2.21.2=pyhe01879c_0
   - python-flatbuffers=25.9.23=pyh1e1bc0e_0
   - python-gil=3.13.11=h4df99d1_100
@@ -559,7 +559,7 @@ dependencies:
   - s2n=1.6.2=he8a4886_1
   - s3fs=2025.10.0=pyhd8ed1ab_0
   - s3transfer=0.14.0=pyhd8ed1ab_0
-  - scikit-learn=1.7.2=py313h06d4379_0
+  - scikit-learn=1.8.0=py313h06d4379_0
   - scipy=1.16.3=py313h11c21cd_1
   - secretstorage=3.4.1=py313h78bf25f_0
   - semver=3.0.4=pyhd8ed1ab_0
@@ -591,7 +591,7 @@ dependencies:
   - sphinxcontrib-qthelp=2.0.0=pyhd8ed1ab_1
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_1
   - splink=4.0.11=pyhd8ed1ab_0
-  - sqlalchemy=2.0.44=py313h07c4f96_0
+  - sqlalchemy=2.0.45=py313h07c4f96_0
   - sqlglot=28.0.0=pyhcf101f3_0
   - sqlglot-rs=28.0.0=h5602114_0
   - sqlglotrs=0.7.3=py313h5a021e7_0

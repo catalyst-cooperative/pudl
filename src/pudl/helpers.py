@@ -2378,6 +2378,7 @@ def persist_table_as_parquet(
         partitions: Partitions which correspond to the table_data. If passed
             ``{'years': 1995}`` then this method will produce a parquet file at the path
             ``PudlPaths().parquet_transform_dir / table_name / '1995.parquet'``.
+        use_output_dir: If true, write parquet files to output directory instead of transform directory.
     """
     # Create ParquetData class to get path to write parquet file
     parquet_data = ParquetData(
