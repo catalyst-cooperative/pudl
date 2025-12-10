@@ -34,7 +34,7 @@ For each new source, add the following fields to the dictionary:
    * **A short code**: Throughout the code, the source you choose will be referred to by
       a shorthand code - e.g., ``eia860`` or ``nrelatb``. The standard format we use for
       naming sources is agency name + source name. E.g., Form 860 from EIA becomes
-      ``eia860``. When the name of the source is more ambiguous (e.g., MSHA's
+      ``eia860``. When the source is not a single agency form with a distinct name (e.g., MSHA's
       mine sources), we aim to choose a name that is as indicative as possible -
       in this case, ``mshamines``. If you're unsure which name to choose, ask early in
       the contribution process as this will get encoded in many locations. This short
