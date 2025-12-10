@@ -35,7 +35,7 @@ jobs:
         with:
           environment-name: conda-lock
           create-args: >-
-            python=3.13
+            python=3.14
             conda-lock>=3
             prettier>=3.6
             pre-commit>=4.2
