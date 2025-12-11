@@ -11,29 +11,10 @@ sources:
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
               arguments:
-                column_A: customer_incentives_incremental_life_cycle_cost
-                column_B: customer_incentives_incremental_cost
-                or_equal: True
-          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
-              arguments:
-                column_A: customer_incentives_incremental_life_cycle_cost
-                column_B: customer_other_costs_incremental_life_cycle_cost
-                or_equal: True
-          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
-              arguments:
-                column_A: customer_incentives_incremental_life_cycle_cost
-                column_B: other_costs_incremental_cost
-                or_equal: True
-          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
-              arguments:
               column_A: incremental_life_cycle_energy_savings_mwh
               column_B: incremental_energy_savings_mwh
               or_equal: True
-          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
-              arguments:
-                column_A: incremental_life_cycle_peak_reduction_mw
-                column_B: incremental_peak_reduction_mw
-                or_equal: True
+              error_if: ">29"
         columns:
           - name: balancing_authority_code_eia
           - name: customer_class

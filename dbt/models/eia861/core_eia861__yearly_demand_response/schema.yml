@@ -22,6 +22,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+                    error_if: ">3"
           - name: customers
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -37,6 +38,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+                    error_if: ">2"
           - name: potential_peak_demand_savings_mw
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

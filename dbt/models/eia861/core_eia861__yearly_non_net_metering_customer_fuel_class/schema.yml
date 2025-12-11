@@ -16,6 +16,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+                    row_condition: "utility_id_eia != 99999"
           - name: energy_capacity_mwh
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

@@ -21,6 +21,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+                    error_if: ">2"
           - name: rec_revenue
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

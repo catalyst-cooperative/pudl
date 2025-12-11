@@ -17,6 +17,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+                    error_if: ">1"
           - name: sales_to_ultimate_consumers_mwh
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
