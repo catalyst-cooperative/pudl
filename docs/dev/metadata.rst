@@ -235,7 +235,7 @@ refreshing the page is significantly faster than re-running the command line too
 If you're checking a single edit, use the command line,
 but if you need to iterate at all, use the wizard.
 
-Instructions for using the wizard can be found 
+Instructions for using the wizard can be found
 `in the wizard repo README <https://github.com/catalyst-cooperative/pudl-metadata-wizard/blob/main/README.md>`__.
 
 .. _field_description:
