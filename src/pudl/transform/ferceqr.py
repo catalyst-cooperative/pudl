@@ -3,7 +3,6 @@
 import dagster as dg
 import duckdb
 import pandas as pd
-import polars as pl
 
 from pudl.helpers import (
     ParquetData,
@@ -12,16 +11,6 @@ from pudl.helpers import (
 )
 from pudl.metadata.classes import Resource
 from pudl.settings import ferceqr_year_quarters
-
-
-def _apply_schema(table_name: str, lf: pl.LazyFrame) -> pl.LazyFrame:
-    res = Resource.from_id(table_name)
-    schema = res.to_polars_dtypes()
-
-    return lf.cast(
-        schema,
-        strict=False,
-    ).select(list(schema.keys()))
 
 
 def apply_dtypes_to_duckdb_table(
