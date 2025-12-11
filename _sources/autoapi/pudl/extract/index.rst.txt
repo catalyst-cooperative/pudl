@@ -1,0 +1,55 @@
+pudl.extract
+============
+
+.. py:module:: pudl.extract
+
+.. autoapi-nested-parse::
+
+   Modules implementing the "Extract" step of the PUDL ETL pipeline.
+
+   Each module in this subpackage implements data extraction for a single data source from
+   the PUDL :ref:`data-sources`. This process begins with the original data as retrieved by
+   the :mod:`pudl.workspace` subpackage, and ends with a dictionary of "raw"
+   :class:`pandas.DataFrame`s, that have been minimally altered from the original data, and
+   are ready for normalization and data cleaning by the data source specific modules in the
+   :mod:`pudl.transform` subpackage.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/extract/censuspep/index
+   /autoapi/pudl/extract/csv/index
+   /autoapi/pudl/extract/dbf/index
+   /autoapi/pudl/extract/eia176/index
+   /autoapi/pudl/extract/eia191/index
+   /autoapi/pudl/extract/eia757a/index
+   /autoapi/pudl/extract/eia860/index
+   /autoapi/pudl/extract/eia860m/index
+   /autoapi/pudl/extract/eia861/index
+   /autoapi/pudl/extract/eia923/index
+   /autoapi/pudl/extract/eia930/index
+   /autoapi/pudl/extract/eiaaeo/index
+   /autoapi/pudl/extract/eiaapi/index
+   /autoapi/pudl/extract/epacems/index
+   /autoapi/pudl/extract/excel/index
+   /autoapi/pudl/extract/extractor/index
+   /autoapi/pudl/extract/ferc/index
+   /autoapi/pudl/extract/ferc1/index
+   /autoapi/pudl/extract/ferc2/index
+   /autoapi/pudl/extract/ferc6/index
+   /autoapi/pudl/extract/ferc60/index
+   /autoapi/pudl/extract/ferc714/index
+   /autoapi/pudl/extract/gridpathratoolkit/index
+   /autoapi/pudl/extract/nrelatb/index
+   /autoapi/pudl/extract/parquet/index
+   /autoapi/pudl/extract/phmsagas/index
+   /autoapi/pudl/extract/sec10k/index
+   /autoapi/pudl/extract/vcerare/index
+   /autoapi/pudl/extract/xbrl/index
+
+

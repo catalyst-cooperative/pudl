@@ -1,0 +1,116 @@
+pudl.analysis.state_demand
+==========================
+
+.. py:module:: pudl.analysis.state_demand
+
+.. autoapi-nested-parse::
+
+   Estimate historical hourly state-level electricity demand.
+
+   Using hourly electricity demand reported at the balancing authority and utility level in
+   the FERC 714, and service territories for utilities and balancing autorities inferred
+   from the counties served by each utility, and the utilities that make up each balancing
+   authority in the EIA 861, estimate the total hourly electricity demand for each US
+   state.
+
+   This analysis uses the total electricity sales by state reported in the EIA 861 as a
+   scaling factor to ensure that the magnitude of electricity sales is roughly correct, and
+   obtains the shape of the demand curve from the hourly planning area demand reported in
+   the FERC 714.
+
+   The compilation of historical service territories based on the EIA 861 data is somewhat
+   manual and could certainly be improved, but overall the results seem reasonable.
+   Additional predictive spatial variables will be required to obtain more granular
+   electricity demand estimates (e.g. at the county level).
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.state_demand.STATES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.state_demand.lookup_state
+   pudl.analysis.state_demand.county_assignments_ferc714
+   pudl.analysis.state_demand.census_counties
+   pudl.analysis.state_demand.total_state_sales_eia861
+   pudl.analysis.state_demand.out_ferc714__hourly_estimated_state_demand
+
+
+Module Contents
+---------------
+
+.. py:data:: STATES
+   :type:  list[dict[str, str]]
+
+.. py:function:: lookup_state(state: str | int) -> dict
+
+   Lookup US state by state identifier.
+
+   :param state: State name, two-letter abbreviation, or FIPS code.
+                 String matching is case-insensitive.
+
+   :returns: State identifiers.
+
+   .. rubric:: Examples
+
+   >>> lookup_state('alabama')
+   {'name': 'Alabama', 'code': 'AL', 'fips': '01'}
+   >>> lookup_state('AL')
+   {'name': 'Alabama', 'code': 'AL', 'fips': '01'}
+   >>> lookup_state(1)
+   {'name': 'Alabama', 'code': 'AL', 'fips': '01'}
+
+
+.. py:function:: county_assignments_ferc714(out_ferc714__respondents_with_fips) -> pandas.DataFrame
+
+   Load FERC 714 county assignments.
+
+   :param out_ferc714__respondents_with_fips: From `pudl.output.ferc714`, FERC 714 respondents
+                                              with county FIPS IDs.
+
+   :returns: Dataframe with columns
+             `respondent_id_ferc714`, report `year` (int), and `county_id_fips`.
+
+
+.. py:function:: census_counties(out_censusdp1tract__counties: geopandas.GeoDataFrame) -> pandas.DataFrame
+
+   Load county attributes.
+
+   :param out_censusdp1tract__counties: The county layer of the Census DP1 geodatabase.
+
+   :returns: Dataframe with columns `county_id_fips` and `population`.
+
+
+.. py:function:: total_state_sales_eia861(core_eia861__yearly_sales) -> pandas.DataFrame
+
+   Read and format EIA 861 sales by state and year.
+
+   :param core_eia861__yearly_sales: Electricity sales data from EIA 861.
+
+   :returns: Dataframe with columns `state_id_fips`, `year`, `demand_mwh`.
+
+
+.. py:function:: out_ferc714__hourly_estimated_state_demand(context, out_ferc714__hourly_planning_area_demand: polars.LazyFrame, out_censusdp1tract__counties: geopandas.GeoDataFrame, out_ferc714__respondents_with_fips: pandas.DataFrame, core_eia861__yearly_sales: pandas.DataFrame | None = None) -> polars.LazyFrame
+
+   Estimate hourly electricity demand by state.
+
+   :param out_ferc714__hourly_planning_area_demand: Hourly demand timeseries, with imputed demand.
+   :param out_censusdp1tract__counties: The county layer of the Census DP1 shapefile.
+   :param out_ferc714__respondents_with_fips: Annual respondents with the county FIPS IDs
+                                              for their service territories.
+   :param core_eia861__yearly_sales: EIA 861 sales data. If provided, the predicted hourly
+                                     demand is scaled to match these totals.
+
+   :returns: LazyFrame with columns ``state_id_fips``, ``datetime_utc``, ``demand_mwh``, and
+             (if ``state_totals`` was provided) ``scaled_demand_mwh``.
+
+

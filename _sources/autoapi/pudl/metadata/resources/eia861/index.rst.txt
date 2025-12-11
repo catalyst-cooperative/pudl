@@ -1,0 +1,25 @@
+pudl.metadata.resources.eia861
+==============================
+
+.. py:module:: pudl.metadata.resources.eia861
+
+.. autoapi-nested-parse::
+
+   Definitions of data tables primarily coming from EIA-861.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.eia861.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

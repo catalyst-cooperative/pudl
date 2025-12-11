@@ -1,0 +1,175 @@
+===========================================================================================
+EIA Bulk API Data
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.eia.gov/opendata/bulkfiles.php
+   * - Source Description
+     - All data made available in bulk through the EIA Open Data API. At present, PUDL integrates only a few specific data series related to fuel receipts and costs figures from the Bulk Electricity API.
+   * - Source Format
+     - JSON
+   * - Download Size
+     - 1439 MB
+   * - Temporal Coverage
+     - 
+   * - PUDL Code
+     - ``eiaapi``
+   * - Issues
+     - `Open EIA Bulk API Data issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeiaapi>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+We've segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_eia__yearly_fuel_receipts_costs_aggs`
+     - https://data.catalyst.coop/search?q=name:core_eia__yearly_fuel_receipts_costs_aggs
+   
+
+
+Background
+^^^^^^^^^^
+
+EIA makes much of its data available through an Application Programming Interface (API).
+EIA's API is multi-faceted and contains time-series data sets organized by the main
+energy categories:
+
+* **Electricity**: U.S. electric system operating data including aggregate national,
+  state, and plant-level electricity generation statistics, including fuel quality and
+  consumption, for grid-connected plants with nameplate capacity of 1 megawatt or greater.
+* **Natural gas**: statistics of U.S. natural gas production, imports, exploration,
+  pipelines, exports, prices, consumption, stocks, and reserves.
+* **Petroleum**: statistics of U.S. petroleum and other liquid fuel production,
+  imports, refining, exports, prices, consumption, stocks, and reserves
+* **Crude oil imports**:  aggregate national, Petroleum Administration for Defense
+  Districts, state, city, port, and refinery petroleum imports data for various
+  grades of crude oil and country of origin.
+* **Coal**: aggregate national, state, and mine-level coal production statistics,
+  including imports and exports, receipts of coal at electric power plants,
+  consumption and quality, market sales, reserves, and productive capacity;
+* **Densified biomass**: statistics of U.S. biomass production, capacity,
+  inventories, feedstocks, costs, exports and other characteristics.
+* **Nuclear plant generation outages**: daily facility, generator U.S. level outage
+  reports with capacity, outages, and percent outage from the Nuclear Regulatory
+  Commission.
+* **Outlook of energy market/projections**: the Annual Energy Outlook, the
+  International Energy Outlook and the Short Term Energy Outlook.
+* **Total energy**: U.S. total energy production, prices, carbon dioxide emissions,
+  and consumption of energy from all sources by sector.
+* **State energy data system**: state and national energy production and consumption,
+  using survey and estimates to create comprehensive state energy statistics and flows.
+* **CO2 emissions**: CO2 emissions aggregates, CO2 emissions and carbon coefficients
+  by fuel, state, and sector.
+* **International energy**: International Energy System (IES) data containing
+  production, reserves, consumption, capacity, storage, imports, exports, and emissions
+  time series by country for electricity, petroleum, natural gas, coal, nuclear, and
+  renewable energy.
+
+
+
+Download additional documentation
+---------------------------------
+
+
+
+* :download:`Eiaapi Technical Documentation 2025-08-26 (HTML) <eiaapi/eiaapi_technical_documentation_2025-08-26.html>`
+
+
+See EIA's `current API documentation here <https://www.eia.gov/opendata/>`__.
+
+
+
+Data available through PUDL
+---------------------------
+
+
+PUDL archives all the data available within the API through the EIA's bulk API download,
+but only integrates one table of Electricity timeseries.
+
+
+
+Who submits this data?
+----------------------
+
+
+Respondents within the API are wide ranging because the API pulls from many different
+EIA forms. The electricity data is sourced from respondents of many of the EIA forms
+that are processed in PUDL. See the other EIA data source pages for more details.
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+EIA's bulk electricity data contains >750,00 JSON objects, most of which are timeseries.
+These timeseries contain a number of variables (fuel amount and cost are just two)
+across multiple levels of aggregation from individual plants to national averages.
+
+The data is formatted as a single >1GB text file of line-delimited JSON with one line
+per object. Each JSON structure has two nested levels: the top level contains metadata
+describing the series and the second level (under the "data" heading) contains an array
+of timestamp/value pairs.
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+The state-level fuel data that PUDL uses is compiled from published and redacted
+plant-level fuel deliveries. This fills in about 71% of all of the missing monthly
+fuel cost records in :ref:`out_eia923__fuel_receipts_costs`. Another missing ~6% is
+filled in using rolling averages, but 23% of the originally missing records aren't
+able to be filled in with these two methods. Why?
+
+It turns out that the original data is not missing at random and the EIA redacts enough
+records to leave large gaps. In general IPPs (merchant generators) redact all their
+fuel prices, and these generators are concentrated in competitive wholesale markets,
+especially the Northeastern US, where there are essentially no reported fuel prices. In
+addition, the Northeast has a unique seasonality in its natural gas prices, which would
+be impossible to infer by sampling data elsewhere in the country. Finally, there are
+major discontinuities in data collection and processing methodology. The most severe
+(and most recent) was in 2013, when the temporal resolution changed from annual to
+monthly. Prior to 2013, monthly resolution data was collected for a sample of plants
+and the rest was calculated via a regression model. Also, the reporting threshold for
+oil and gas fueled plants changed from 50MW to 200MW.
+
+Some of the most granular data about electric power plants - most notably the
+generator-level data - are not published in EIA's API. This is the main reason why PUDL
+does not rely on the API data for all of its data from the various EIA forms.
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.eiaapi` created for each table's
+respective transform function.
+
+The EIA API's data structure leads to a natural normalization into two
+tables - one of metadata and one of timeseries. That is the format delivered by PUDL's
+extract module. PUDL's transform module parses a compound primary key out of long string
+IDs ("series_id") which is published as :ref:`core_eia__yearly_fuel_receipts_costs_aggs`.
+The rest of the metadata is not very valuable so is not transformed or returned.
+
+The EIA aggregates are related to their component categories via a set of association
+tables defined in pudl.metadata.dfs. For example, the "all_coal" fuel aggregate is
+linked to all the coal-related energy_source_code values: BIT, SUB, LIG, and WC. Similar
+relationships are defined for aggregates over fuel, sector, geography, and time.
+
+Within other EIA tables, we use the monthly state-level fuel costs to fill the gaps in
+missing fuel cost originating from the :ref:`core_eia923__monthly_fuel_receipts_costs`
+table.

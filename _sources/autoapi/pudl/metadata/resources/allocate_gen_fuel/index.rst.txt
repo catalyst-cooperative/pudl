@@ -1,0 +1,38 @@
+pudl.metadata.resources.allocate_gen_fuel
+=========================================
+
+.. py:module:: pudl.metadata.resources.allocate_gen_fuel
+
+.. autoapi-nested-parse::
+
+   Resource metadata for the allocate_gen_fuel tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.allocate_gen_fuel.AGG_FREQS
+   pudl.metadata.resources.allocate_gen_fuel.USAGE_WARNING_DRAWBACK
+   pudl.metadata.resources.allocate_gen_fuel.KNOWN_DRAWBACKS_DESCRIPTION
+   pudl.metadata.resources.allocate_gen_fuel.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: AGG_FREQS
+   :value: ['yearly', 'monthly']
+
+
+.. py:data:: USAGE_WARNING_DRAWBACK
+
+.. py:data:: KNOWN_DRAWBACKS_DESCRIPTION
+   :value: "This process does not distinguish between primary and secondary energy_sources for generators....
+
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

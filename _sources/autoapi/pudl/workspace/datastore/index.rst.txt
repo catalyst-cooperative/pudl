@@ -1,0 +1,492 @@
+pudl.workspace.datastore
+========================
+
+.. py:module:: pudl.workspace.datastore
+
+.. autoapi-nested-parse::
+
+   Datastore manages file retrieval for PUDL datasets.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.workspace.datastore.logger
+   pudl.workspace.datastore.ZenodoDoi
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   pudl.workspace.datastore.ChecksumMismatchError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.workspace.datastore.DatapackageDescriptor
+   pudl.workspace.datastore.ZenodoDoiSettings
+   pudl.workspace.datastore.ZenodoFetcher
+   pudl.workspace.datastore.Datastore
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.workspace.datastore.print_partitions
+   pudl.workspace.datastore.validate_cache
+   pudl.workspace.datastore.fetch_resources
+   pudl.workspace.datastore._parse_key_values
+   pudl.workspace.datastore.pudl_datastore
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: ZenodoDoi
+
+.. py:exception:: ChecksumMismatchError
+
+   Bases: :py:obj:`ValueError`
+
+
+   Resource checksum (md5) does not match.
+
+
+.. py:class:: DatapackageDescriptor(datapackage_json: dict, dataset: str, doi: ZenodoDoi)
+
+   A simple wrapper providing access to datapackage.json contents.
+
+
+   .. py:attribute:: datapackage_json
+
+
+   .. py:attribute:: dataset
+
+
+   .. py:attribute:: doi
+
+
+   .. py:method:: get_resource_path(name: str) -> str
+
+      Returns zenodo url that holds contents of given named resource.
+
+
+
+   .. py:method:: _get_resource_metadata(name: str) -> dict
+
+
+   .. py:method:: get_download_size() -> int
+
+      Returns the total download size of all the resources in MB.
+
+
+
+   .. py:method:: validate_checksum(name: str, content: str) -> bool
+
+      Returns True if content matches checksum for given named resource.
+
+
+
+   .. py:method:: _matches(res: dict, **filters: Any)
+
+
+   .. py:method:: _match_from_partition(parts: dict[str, str], k: str, v: str | list[str, str])
+
+
+   .. py:method:: get_resources(name: str = None, **filters: Any) -> collections.abc.Iterator[pudl.workspace.resource_cache.PudlResourceKey]
+
+      Returns series of PudlResourceKey identifiers for matching resources.
+
+      :param name: if specified, find resource(s) with this name.
+      :param filters: if specified, find resource(s) matching these key=value
+                      constraints. The constraints are matched against the 'parts' field of
+                      the resource entry in the datapackage.json.
+      :type filters: dict
+
+
+
+   .. py:method:: get_partitions(name: str = None) -> dict[str, set[str]]
+
+      Return mapping of known partition keys to their allowed known values.
+
+
+
+   .. py:method:: get_partition_filters(**filters: Any) -> collections.abc.Iterator[dict[str, str]]
+
+      Returns list of all known partition mappings.
+
+      This can be used to iterate over all resources as the mappings can be directly
+      used as filters and should map to unique resource.
+
+      :param filters: additional constraints for selecting relevant partitions.
+
+
+
+   .. py:method:: _validate_datapackage(datapackage_json: dict)
+
+      Checks the correctness of datapackage.json metadata.
+
+      Throws ValueError if invalid.
+
+
+
+   .. py:method:: get_json_string() -> str
+
+      Exports the underlying json as normalized (sorted, indented) json string.
+
+
+
+.. py:class:: ZenodoDoiSettings(_case_sensitive: bool | None = None, _nested_model_default_partial_update: bool | None = None, _env_prefix: str | None = None, _env_file: pydantic_settings.sources.DotenvType | None = ENV_FILE_SENTINEL, _env_file_encoding: str | None = None, _env_ignore_empty: bool | None = None, _env_nested_delimiter: str | None = None, _env_nested_max_split: int | None = None, _env_parse_none_str: str | None = None, _env_parse_enums: bool | None = None, _cli_prog_name: str | None = None, _cli_parse_args: bool | list[str] | tuple[str, Ellipsis] | None = None, _cli_settings_source: pydantic_settings.sources.CliSettingsSource[Any] | None = None, _cli_parse_none_str: str | None = None, _cli_hide_none_type: bool | None = None, _cli_avoid_json: bool | None = None, _cli_enforce_required: bool | None = None, _cli_use_class_docs_for_groups: bool | None = None, _cli_exit_on_error: bool | None = None, _cli_prefix: str | None = None, _cli_flag_prefix_char: str | None = None, _cli_implicit_flags: bool | None = None, _cli_ignore_unknown_args: bool | None = None, _cli_kebab_case: bool | Literal['all', 'no_enums'] | None = None, _cli_shortcuts: collections.abc.Mapping[str, str | list[str]] | None = None, _secrets_dir: pydantic_settings.sources.PathType | None = None, **values: Any)
+
+   Bases: :py:obj:`pydantic_settings.BaseSettings`
+
+
+   Digital Object Identifiers pointing to currently used Zenodo archives.
+
+
+   .. py:attribute:: censusdp1tract
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.4127049'
+
+
+
+   .. py:attribute:: censuspep
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.15315316'
+
+
+
+   .. py:attribute:: eia176
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17563679'
+
+
+
+   .. py:attribute:: eia191
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.10607837'
+
+
+
+   .. py:attribute:: eia757a
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.10607839'
+
+
+
+   .. py:attribute:: eia860
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17091669'
+
+
+
+   .. py:attribute:: eia860m
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17725393'
+
+
+
+   .. py:attribute:: eia861
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17293555'
+
+
+
+   .. py:attribute:: eia923
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17440792'
+
+
+
+   .. py:attribute:: eia930
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17500936'
+
+
+
+   .. py:attribute:: eiawater
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.10806016'
+
+
+
+   .. py:attribute:: eiaaeo
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.15622378'
+
+
+
+   .. py:attribute:: eiaapi
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17500949'
+
+
+
+   .. py:attribute:: epacamd_eia
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17582121'
+
+
+
+   .. py:attribute:: epacems
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17500930'
+
+
+
+   .. py:attribute:: ferc1
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17563678'
+
+
+
+   .. py:attribute:: ferc2
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17223540'
+
+
+
+   .. py:attribute:: ferc6
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17119798'
+
+
+
+   .. py:attribute:: ferc60
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17223513'
+
+
+
+   .. py:attribute:: ferc714
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.16676145'
+
+
+
+   .. py:attribute:: gridpathratoolkit
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.10892394'
+
+
+
+   .. py:attribute:: nrelatb
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.12658647'
+
+
+
+   .. py:attribute:: phmsagas
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.17076661'
+
+
+
+   .. py:attribute:: sec10k
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.15161694'
+
+
+
+   .. py:attribute:: vcerare
+      :type:  ZenodoDoi
+      :value: '10.5281/zenodo.15166129'
+
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+.. py:class:: ZenodoFetcher(zenodo_dois: ZenodoDoiSettings | None = None, timeout: float = 15.0)
+
+   API for fetching datapackage descriptors and resource contents from zenodo.
+
+
+   .. py:attribute:: _descriptor_cache
+      :type:  dict[str, DatapackageDescriptor]
+
+
+   .. py:attribute:: zenodo_dois
+      :type:  ZenodoDoiSettings
+
+
+   .. py:attribute:: timeout
+      :type:  float
+
+
+   .. py:attribute:: http
+
+
+   .. py:method:: get_doi(dataset: str) -> ZenodoDoi
+
+      Returns DOI for given dataset.
+
+
+
+   .. py:method:: get_known_datasets() -> list[str]
+
+      Returns list of supported datasets.
+
+
+
+   .. py:method:: _get_url(doi: ZenodoDoi) -> pydantic.HttpUrl
+
+      Construct a Zenodo depsition URL based on its Zenodo DOI.
+
+
+
+   .. py:method:: _fetch_from_url(url: pydantic.HttpUrl) -> requests.Response
+
+
+   .. py:method:: get_descriptor(dataset: str) -> DatapackageDescriptor
+
+      Returns class:`DatapackageDescriptor` for given dataset.
+
+
+
+   .. py:method:: get_resource(res: pudl.workspace.resource_cache.PudlResourceKey) -> bytes
+
+      Given resource key, retrieve contents of the file from zenodo.
+
+
+
+.. py:class:: Datastore(local_cache_path: pathlib.Path | None = None, gcs_cache_path: str | None = None, timeout: float = 15.0)
+
+   Handle connections and downloading of Zenodo Source archives.
+
+
+   .. py:attribute:: _cache
+
+
+   .. py:attribute:: _datapackage_descriptors
+      :type:  dict[str, DatapackageDescriptor]
+
+
+   .. py:attribute:: temporary_extraction_dir
+
+
+   .. py:attribute:: _zenodo_fetcher
+
+
+   .. py:method:: get_known_datasets() -> list[str]
+
+      Returns list of supported datasets.
+
+
+
+   .. py:method:: get_datapackage_descriptor(dataset: str) -> DatapackageDescriptor
+
+      Fetch datapackage descriptor for dataset either from cache or Zenodo.
+
+
+
+   .. py:method:: get_resources(dataset: str, cached_only: bool = False, skip_optimally_cached: bool = False, **filters: Any) -> collections.abc.Iterator[tuple[pudl.workspace.resource_cache.PudlResourceKey, bytes]]
+
+      Return content of the matching resources.
+
+      :param dataset: name of the dataset to query.
+      :param cached_only: if True, only retrieve resources that are present in the cache.
+      :param skip_optimally_cached: if True, only retrieve resources that are not optimally
+                                    cached. This triggers attempt to optimally cache these resources.
+      :param filters: only return resources that match the key-value mapping in their
+      :type filters: key=val
+      :param metadata["parts"].:
+
+      :Yields: (PudlResourceKey, io.BytesIO) holding content for each matching resource
+
+
+
+   .. py:method:: remove_from_cache(res: pudl.workspace.resource_cache.PudlResourceKey) -> None
+
+      Remove given resource from the associated cache.
+
+
+
+   .. py:method:: get_unique_resource(dataset: str, **filters: Any) -> bytes
+
+      Returns content of a resource assuming there is exactly one that matches.
+
+
+
+   .. py:method:: get_zipfile_resource(dataset: str, **filters: Any) -> zipfile.ZipFile
+
+      Retrieves unique resource and opens it as a ZipFile.
+
+
+
+   .. py:method:: get_zipfile_resources(dataset: str, **filters: Any) -> collections.abc.Iterator[tuple[pudl.workspace.resource_cache.PudlResourceKey, zipfile.ZipFile]]
+
+      Iterates over resources that match filters and opens each as ZipFile.
+
+
+
+   .. py:method:: get_zipfile_file_names(zip_file: zipfile.ZipFile)
+
+      Given a zipfile, return a list of the file names in it.
+
+
+
+.. py:function:: print_partitions(dstore: Datastore, datasets: list[str]) -> None
+
+   Prints known partition keys and its values for each of the datasets.
+
+
+.. py:function:: validate_cache(dstore: Datastore, datasets: list[str], partition: dict[str, str]) -> None
+
+   Validate elements in the datastore cache.
+
+   Delete invalid entries from cache.
+
+
+.. py:function:: fetch_resources(dstore: Datastore, datasets: list[str], partition: dict[str, int | str], gcs_cache_path: str, bypass_local_cache: bool) -> None
+
+   Retrieve all matching resources and store them in the cache.
+
+
+.. py:function:: _parse_key_values(ctx: click.core.Context, param: click.Option, values: str) -> dict[str, str]
+
+   Parse key-value pairs into a Python dictionary.
+
+   Transforms a command line argument of the form: k1=v1,k2=v2,k3=v3...
+   into: {k1:v1, k2:v2, k3:v3, ...}
+
+
+.. py:function:: pudl_datastore(dataset: list[str], validate: bool, list_partitions: bool, partition: dict[str, int | str], gcs_cache_path: str, bypass_local_cache: bool, logfile: pathlib.Path, loglevel: str)
+
+   Manage the raw data inputs to the PUDL data processing pipeline.
+
+   Download all the raw FERC Form 2 data:
+
+   pudl_datastore --dataset ferc2
+
+   Download the raw FERC Form 2 data only for 2021
+
+   pudl_datastore --dataset ferc2 --partition year=2021
+
+   Re-download the raw FERC Form 2 data for 2021 even if you already have it:
+
+   pudl_datastore --dataset ferc2 --partition year=2021 --bypass-local-cache
+
+   Validate all California EPA CEMS data in the local datastore:
+
+   pudl_datastore --dataset epacems --validate --partition state=ca
+
+   List the available partitions in the EIA-860 and EIA-923 datasets:
+
+   pudl_datastore --dataset eia860 --dataset eia923 --list-partitions
+
+

@@ -1,0 +1,4202 @@
+pudl.transform.ferc1
+====================
+
+.. py:module:: pudl.transform.ferc1
+
+.. autoapi-nested-parse::
+
+   Classes & functions to process FERC Form 1 data before loading into the PUDL DB.
+
+   Note that many of the classes/objects here inherit from/are instances of classes defined
+   in :mod:`pudl.transform.classes`. Their design and relationships to each other are
+   documented in that module.
+
+   See :mod:`pudl.transform.params.ferc1` for the values that parameterize many of these
+   transformations.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.ferc1.logger
+   pudl.transform.ferc1.FERC1_TFR_CLASSES
+   pudl.transform.ferc1.ferc1_assets
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.transform.ferc1.SourceFerc1
+   pudl.transform.ferc1.TableIdFerc1
+   pudl.transform.ferc1.RenameColumnsFerc1
+   pudl.transform.ferc1.WideToTidy
+   pudl.transform.ferc1.WideToTidySourceFerc1
+   pudl.transform.ferc1.MergeXbrlMetadata
+   pudl.transform.ferc1.DropDuplicateRowsDbf
+   pudl.transform.ferc1.AlignRowNumbersDbf
+   pudl.transform.ferc1.SelectDbfRowsByCategory
+   pudl.transform.ferc1.UnstackBalancesToReportYearInstantXbrl
+   pudl.transform.ferc1.CombineAxisColumnsXbrl
+   pudl.transform.ferc1.AssignQuarterlyDataToYearlyDbf
+   pudl.transform.ferc1.AddColumnWithUniformValue
+   pudl.transform.ferc1.AddColumnsWithUniformValues
+   pudl.transform.ferc1.IsCloseTolerance
+   pudl.transform.ferc1.CalculationIsCloseTolerance
+   pudl.transform.ferc1.MetricTolerances
+   pudl.transform.ferc1.GroupMetricTolerances
+   pudl.transform.ferc1.GroupMetricChecks
+   pudl.transform.ferc1.ReconcileTableCalculations
+   pudl.transform.ferc1.ErrorMetric
+   pudl.transform.ferc1.ErrorFrequency
+   pudl.transform.ferc1.RelativeErrorMagnitude
+   pudl.transform.ferc1.AbsoluteErrorMagnitude
+   pudl.transform.ferc1.NullCalculatedValueFrequency
+   pudl.transform.ferc1.NullReportedValueFrequency
+   pudl.transform.ferc1.Ferc1TableTransformParams
+   pudl.transform.ferc1.Ferc1AbstractTableTransformer
+   pudl.transform.ferc1.SteamPlantsFuelTableTransformer
+   pudl.transform.ferc1.SteamPlantsTableTransformer
+   pudl.transform.ferc1.HydroelectricPlantsTableTransformer
+   pudl.transform.ferc1.PumpedStoragePlantsTableTransformer
+   pudl.transform.ferc1.PurchasedPowerAndExchangesTableTransformer
+   pudl.transform.ferc1.PlantInServiceTableTransformer
+   pudl.transform.ferc1.SmallPlantsTableTransformer
+   pudl.transform.ferc1.TransmissionLinesTableTransformer
+   pudl.transform.ferc1.EnergySourcesTableTransformer
+   pudl.transform.ferc1.EnergyDispositionsTableTransformer
+   pudl.transform.ferc1.UtilityPlantSummaryTableTransformer
+   pudl.transform.ferc1.BalanceSheetLiabilitiesTableTransformer
+   pudl.transform.ferc1.BalanceSheetAssetsTableTransformer
+   pudl.transform.ferc1.IncomeStatementsTableTransformer
+   pudl.transform.ferc1.RetainedEarningsTableTransformer
+   pudl.transform.ferc1.DepreciationSummaryTableTransformer
+   pudl.transform.ferc1.DepreciationChangesTableTransformer
+   pudl.transform.ferc1.DepreciationByFunctionTableTransformer
+   pudl.transform.ferc1.OperatingExpensesTableTransformer
+   pudl.transform.ferc1.OperatingRevenuesTableTransformer
+   pudl.transform.ferc1.CashFlowsTableTransformer
+   pudl.transform.ferc1.SalesByRateSchedulesTableTransformer
+   pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.ferc1._core_ferc1_xbrl__metadata_json
+   pudl.transform.ferc1.add_source_tables_to_xbrl_metadata
+   pudl.transform.ferc1.wide_to_tidy
+   pudl.transform.ferc1.merge_xbrl_metadata
+   pudl.transform.ferc1.drop_duplicate_rows_dbf
+   pudl.transform.ferc1.align_row_numbers_dbf
+   pudl.transform.ferc1.select_dbf_rows_by_category
+   pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl
+   pudl.transform.ferc1.combine_axis_columns_xbrl
+   pudl.transform.ferc1.assign_quarterly_data_to_yearly_dbf
+   pudl.transform.ferc1.add_columns_with_uniform_values
+   pudl.transform.ferc1.reconcile_table_calculations
+   pudl.transform.ferc1.reconcile_one_type_of_table_calculations
+   pudl.transform.ferc1._calculation_components_subdimension_calculations
+   pudl.transform.ferc1._add_intra_table_calculation_dimensions
+   pudl.transform.ferc1.calculate_values_from_components
+   pudl.transform.ferc1.check_calculation_metrics_by_group
+   pudl.transform.ferc1.check_calculation_metrics
+   pudl.transform.ferc1.add_corrections
+   pudl.transform.ferc1.select_current_year_annual_records_duration_xbrl
+   pudl.transform.ferc1.get_ferc1_dbf_rows_to_map
+   pudl.transform.ferc1.update_dbf_to_xbrl_map
+   pudl.transform.ferc1.read_dbf_to_xbrl_map
+   pudl.transform.ferc1.fill_dbf_to_xbrl_map
+   pudl.transform.ferc1.get_data_cols_raw_xbrl
+   pudl.transform.ferc1.read_xbrl_calculation_fixes
+   pudl.transform.ferc1.ferc1_transform_asset_factory
+   pudl.transform.ferc1.create_ferc1_transform_assets
+   pudl.transform.ferc1.other_dimensions
+   pudl.transform.ferc1.table_to_xbrl_factoid_name
+   pudl.transform.ferc1.table_to_column_to_check
+   pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows
+   pudl.transform.ferc1._core_ferc1__table_dimensions
+   pudl.transform.ferc1._core_ferc1_xbrl__metadata
+   pudl.transform.ferc1._core_ferc1_xbrl__calculation_components
+   pudl.transform.ferc1.unexpected_total_components
+   pudl.transform.ferc1.check_for_calc_components_duplicates
+   pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit
+   pudl.transform.ferc1.assign_parent_dimensions
+   pudl.transform.ferc1.infer_intra_factoid_totals
+   pudl.transform.ferc1.add_calculation_component_corrections
+   pudl.transform.ferc1._core_ferc1__calculation_metric_checks
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: _core_ferc1_xbrl__metadata_json(raw_ferc1_xbrl__metadata_json: dict[str, dict[str, list[dict[str, Any]]]]) -> dict[str, dict[str, list[dict[str, Any]]]]
+
+   Generate cleaned json xbrl metadata.
+
+   For now, this only runs :func:`add_source_tables_to_xbrl_metadata`.
+
+
+.. py:function:: add_source_tables_to_xbrl_metadata(raw_ferc1_xbrl__metadata_json: dict[str, dict[str, list[dict[str, Any]]]]) -> dict[str, dict[str, list[dict[str, Any]]]]
+
+   Add a ``source_tables`` field into metadata calculation components.
+
+   When a particular component of a calculation does not originate from the table in
+   which the calculated field is being reported, label the source table.
+
+
+.. py:class:: SourceFerc1(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Enumeration of allowed FERC 1 raw data sources.
+
+
+   .. py:attribute:: XBRL
+      :value: 'xbrl'
+
+
+
+   .. py:attribute:: DBF
+      :value: 'dbf'
+
+
+
+.. py:class:: TableIdFerc1(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Enumeration of the allowed FERC 1 table IDs.
+
+   Hard coding this doesn't seem ideal. Somehow it should be either defined in the
+   context of the Package, the Ferc1Settings, an etl_group, or DataSource. All of the
+   table transformers associated with a given data source should have a table_id that's
+   from that data source's subset of the database. Where should this really happen?
+   Alternatively, the allowable values could be derived *from* the structure of the
+   Package. But this works for now.
+
+
+   .. py:attribute:: STEAM_PLANTS_FUEL
+      :value: 'core_ferc1__yearly_steam_plants_fuel_sched402'
+
+
+
+   .. py:attribute:: STEAM_PLANTS
+      :value: 'core_ferc1__yearly_steam_plants_sched402'
+
+
+
+   .. py:attribute:: HYDROELECTRIC_PLANTS
+      :value: 'core_ferc1__yearly_hydroelectric_plants_sched406'
+
+
+
+   .. py:attribute:: SMALL_PLANTS
+      :value: 'core_ferc1__yearly_small_plants_sched410'
+
+
+
+   .. py:attribute:: PUMPED_STORAGE_PLANTS
+      :value: 'core_ferc1__yearly_pumped_storage_plants_sched408'
+
+
+
+   .. py:attribute:: PLANT_IN_SERVICE
+      :value: 'core_ferc1__yearly_plant_in_service_sched204'
+
+
+
+   .. py:attribute:: PURCHASED_POWER_AND_EXCHANGES
+      :value: 'core_ferc1__yearly_purchased_power_and_exchanges_sched326'
+
+
+
+   .. py:attribute:: TRANSMISSION_LINES
+      :value: 'core_ferc1__yearly_transmission_lines_sched422'
+
+
+
+   .. py:attribute:: ENERGY_SOURCES
+      :value: 'core_ferc1__yearly_energy_sources_sched401'
+
+
+
+   .. py:attribute:: ENERGY_DISPOSITIONS
+      :value: 'core_ferc1__yearly_energy_dispositions_sched401'
+
+
+
+   .. py:attribute:: UTILITY_PLANT_SUMMARY
+      :value: 'core_ferc1__yearly_utility_plant_summary_sched200'
+
+
+
+   .. py:attribute:: OPERATING_EXPENSES
+      :value: 'core_ferc1__yearly_operating_expenses_sched320'
+
+
+
+   .. py:attribute:: BALANCE_SHEET_LIABILITIES
+      :value: 'core_ferc1__yearly_balance_sheet_liabilities_sched110'
+
+
+
+   .. py:attribute:: DEPRECIATION_SUMMARY
+      :value: 'core_ferc1__yearly_depreciation_summary_sched336'
+
+
+
+   .. py:attribute:: BALANCE_SHEET_ASSETS
+      :value: 'core_ferc1__yearly_balance_sheet_assets_sched110'
+
+
+
+   .. py:attribute:: RETAINED_EARNINGS
+      :value: 'core_ferc1__yearly_retained_earnings_sched118'
+
+
+
+   .. py:attribute:: INCOME_STATEMENTS
+      :value: 'core_ferc1__yearly_income_statements_sched114'
+
+
+
+   .. py:attribute:: DEPRECIATION_CHANGES
+      :value: 'core_ferc1__yearly_depreciation_changes_sched219'
+
+
+
+   .. py:attribute:: OPERATING_REVENUES
+      :value: 'core_ferc1__yearly_operating_revenues_sched300'
+
+
+
+   .. py:attribute:: DEPRECIATION_BY_FUNCTION
+      :value: 'core_ferc1__yearly_depreciation_by_function_sched219'
+
+
+
+   .. py:attribute:: CASH_FLOWS
+      :value: 'core_ferc1__yearly_cash_flows_sched120'
+
+
+
+   .. py:attribute:: SALES_BY_RATE_SCHEDULES
+      :value: 'core_ferc1__yearly_sales_by_rate_schedules_sched304'
+
+
+
+   .. py:attribute:: OTHER_REGULATORY_LIABILITIES
+      :value: 'core_ferc1__yearly_other_regulatory_liabilities_sched278'
+
+
+
+.. py:class:: RenameColumnsFerc1(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Dictionaries for renaming either XBRL or DBF derived FERC 1 columns.
+
+   This is FERC 1 specific, because we need to store both DBF and XBRL rename
+   dictionaries separately. Note that this parameter model does not have its own unique
+   transform function. Like the generic :class:`pudl.transform.classes.RenameColumns`
+   it depends on the build in :meth:`pd.rename` method, which is called with the values
+   DBF or XBRL parameters depending on the context.
+
+   Potential parameters validations that could be implemented
+
+   * Validate that all keys appear in the original dbf/xbrl sources.
+     This has to be true, but right now we don't have stored metadata enumerating all
+     of the columns that exist in the raw data, so we don't have anything to check
+     against. Implement once when we have schemas defined for after the extract step.
+
+   * Validate all values appear in PUDL tables, and all expected PUDL names are mapped.
+     Actually we can't require that the rename values appear in the PUDL tables,
+     because there will be cases in which the original column gets dropped or modified,
+     e.g. in the case of unit conversions with a column rename.
+
+
+   .. py:attribute:: dbf
+      :type:  pudl.transform.classes.RenameColumns
+
+
+   .. py:attribute:: xbrl
+      :type:  pudl.transform.classes.RenameColumns
+
+
+   .. py:attribute:: duration_xbrl
+      :type:  pudl.transform.classes.RenameColumns
+
+
+   .. py:attribute:: instant_xbrl
+      :type:  pudl.transform.classes.RenameColumns
+
+
+   .. py:property:: rename_dicts_xbrl
+
+      Compile all of the XBRL rename dictionaries into an ordered list.
+
+
+.. py:class:: WideToTidy(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for converting a wide table to a tidy table with value types.
+
+
+   .. py:attribute:: idx_cols
+      :type:  list[str] | None
+      :value: None
+
+
+      List of column names to treat as the table index.
+
+
+   .. py:attribute:: stacked_column_name
+      :type:  str | None
+      :value: None
+
+
+      Name of column that will contain the stacked categories.
+
+
+   .. py:attribute:: value_types
+      :type:  list[str] | None
+      :value: None
+
+
+      List of names of value types that will end up being the column names.
+
+      Some of the FERC tables have multiple data types spread across many different
+      categories.  In the input dataframe given to :func:`wide_to_tidy`, the value types
+      must be the suffixes of the column names. If the table does not natively have the
+      pattern of "{to-be stacked category}_{value_type}", rename the columns using a
+      ``rename_columns.duration_xbrl``, ``rename_columns.instant_xbrl`` or
+      ``rename_columns.dbf`` parameter which will be employed in
+      :meth:`process_duration_xbrl`, :meth:`process_instant_xbrl` or :meth:`process_dbf`.
+
+
+   .. py:attribute:: expected_drop_cols
+      :type:  int
+      :value: 0
+
+
+      The number of columns that are expected to be dropped.
+
+      :func:`wide_to_tidy_xbrl` will generate a regex pattern assuming the ``value_types``
+      are the column name's suffixes. If a column does not conform to that pattern, it
+      will be filtered out. This is helpful for us to not include a bunch of columns from
+      the input dataframe incorrectly included in the stacking process. We could enumerate
+      every column that we want to drop, but this could be tedious and potentially error
+      prone. But this does mean that if a column is incorrectly named - or barely missing
+      the pattern, it will be dropped. This parameter enables us to lock the number of
+      expected columns. If the dropped columns are a different number, an error will be
+      raised.
+
+
+.. py:class:: WideToTidySourceFerc1(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for converting either or both XBRL and DBF table from wide to tidy.
+
+
+   .. py:attribute:: xbrl
+      :type:  WideToTidy | list[WideToTidy]
+
+
+   .. py:attribute:: dbf
+      :type:  WideToTidy | list[WideToTidy]
+
+
+   .. py:property:: value_types
+      :type: list[str]
+
+
+      Compile a list of all of the ``value_types`` from ``wide_to_tidy``.
+
+
+.. py:function:: wide_to_tidy(df: pandas.DataFrame, params: WideToTidy) -> pandas.DataFrame
+
+   Reshape wide tables with FERC account columns to tidy format.
+
+   The XBRL table coming into this method could contain all the data from both the
+   instant and duration tables in a wide format -- with one column for every
+   combination of value type (e.g. additions, ending_balance) and value category, which
+   means ~500 columns for some tables.
+
+   We tidy this into a long table with one column for each of the value types in
+   ``params.value_types`` and a new column named ``xbrl_factoid`` that contains
+   categories that were previously the XBRL column name stems.
+
+   This allows aggregations of multiple ``xbrl_factoid`` categories in a columnar
+   fashion such as aggregation across groups of rows to total up various hierarchical
+   accounting categories (hydraulic turbines -> hydraulic production plant -> all
+   production plant -> all electric utility plant) though the categorical columns
+   required for that aggregation are added later.
+
+   For table that have a internal relationship between the values in the
+   ``params.value_types``, such as the :ref:`core_ferc1__yearly_plant_in_service_sched204` table, this also
+   enables aggregation across columns to calculate the ending balance based on the
+   starting balance and all of the reported changes.
+
+
+.. py:class:: MergeXbrlMetadata(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for merging in XBRL metadata.
+
+
+   .. py:attribute:: rename_columns
+      :type:  dict[str, str]
+
+      Dictionary to rename columns in the normalized metadata before merging.
+
+      This dictionary will be passed as :func:`pd.DataFrame.rename` ``columns`` parameter.
+
+
+   .. py:attribute:: on
+      :type:  str | None
+      :value: None
+
+
+      Column name to merge on in :func:`merge_xbrl_metadata`.
+
+
+.. py:function:: merge_xbrl_metadata(df: pandas.DataFrame, xbrl_metadata: pandas.DataFrame, params: MergeXbrlMetadata) -> pandas.DataFrame
+
+   Merge metadata based on params.
+
+
+.. py:class:: DropDuplicateRowsDbf(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameter for dropping duplicate DBF rows.
+
+
+   .. py:attribute:: table_name
+      :type:  TableIdFerc1 | None
+      :value: None
+
+
+      Name of table used to grab primary keys of PUDL table to check for duplicates.
+
+
+   .. py:attribute:: data_columns
+      :type:  list
+      :value: []
+
+
+      List of data column names to ensure primary key duplicates have the same data.
+
+
+.. py:function:: drop_duplicate_rows_dbf(df: pandas.DataFrame, params: DropDuplicateRowsDbf, return_dupes_w_unique_data: bool = False) -> pandas.DataFrame
+
+   Drop duplicate DBF rows if duplicates have identical data or one row has nulls.
+
+   There are several instances of the DBF data reporting the same value on multiple
+   rows. This function checks to see if all of the duplicate values that have the same
+   primary keys have reported the same data or have records with null data in any of
+   the data columns while the other record has complete data. If the duplicates have no
+   unique data, the duplicates are dropped with ``keep="first"``. If any duplicates do
+   not contain the same data or half null data, an assertion will be raised.
+
+   :param df: DBF table containing PUDL primary key columns
+   :param params: an instance of :class:`DropDuplicateRowsDbf`
+   :param return_dupes_w_unique_data: Boolean flag used for debugging only which returns
+                                      the duplicates which contain actually unique data instead of raising
+                                      assertion. Default is False.
+
+
+.. py:class:: AlignRowNumbersDbf(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for aligning DBF row numbers with metadata from manual maps.
+
+
+   .. py:attribute:: dbf_table_names
+      :type:  list[str] | None
+      :value: None
+
+
+      DBF table to use to grab the row map in :func:`align_row_numbers_dbf`.
+
+      Default is ``None``.
+
+
+.. py:function:: align_row_numbers_dbf(df: pandas.DataFrame, params: AlignRowNumbersDbf) -> pandas.DataFrame
+
+   Rename the xbrl_factoid column after :meth:`align_row_numbers_dbf`.
+
+
+.. py:class:: SelectDbfRowsByCategory(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for :func:`select_dbf_rows_by_category`.
+
+
+   .. py:attribute:: column_name
+      :type:  str | None
+      :value: None
+
+
+      The column name containing categories to select by.
+
+
+   .. py:attribute:: select_by_xbrl_categories
+      :type:  bool
+      :value: False
+
+
+      Boolean flag to indicate whether or not to use the categories in the XBRL table.
+
+      If True, :func:`select_dbf_rows_by_category` will find the list of categories that
+      exist in the passed in ``processed_xbrl`` to select by.
+
+
+   .. py:attribute:: additional_categories
+      :type:  list[str]
+      :value: []
+
+
+      List of additional categories to select by.
+
+      If ``select_by_xbrl_categories`` is ``True``, these categories will be added to the
+      XBRL categories and both will be used to select rows from the DBF data. If
+      ``select_by_xbrl_categories`` is ``False``, only the "additional" categories will be
+      the used to select rows from the DBF data.
+
+
+   .. py:attribute:: len_expected_categories_to_drop
+      :type:  int
+      :value: 0
+
+
+      Number of categories that are expected to be dropped from the DBF data.
+
+      This is here to ensure no unexpected manipulations to the categories have occurred. A
+      warning will be flagged if this number is different than the number of categories
+      that are being dropped.
+
+
+.. py:function:: select_dbf_rows_by_category(processed_dbf: pandas.DataFrame, processed_xbrl: pandas.DataFrame, params: SelectDbfRowsByCategory) -> pandas.DataFrame
+
+   Select DBF rows with values listed or found in XBRL in a categorical-like column.
+
+   The XBRL data often breaks out sub-sections of DBF tables into their own table.
+   These breakout tables are often messy, unstructured portions of a particular
+   schedule or page on the FERC1 PDF. We often want to preserve some of the ways the
+   XBRL data is segmented so we need to be able to select only portions of the DBF
+   table to be concatenated with the XBRL data.
+
+   In mapping DBF data to XBRL data for the tables that rely on their ``row_number``
+   we map each row to its corresponding ``xbrl_factoid``. The standard use of this
+   transformer is to use the ``column_name`` that corresponds to the ``xbrl_factoid``
+   that was merged into the DBF data via :func:`align_row_numbers_dbf` and was
+   converted into a column in the XBRL data via :func:`wide_to_tidy`.
+
+   Note: Often, the unstructured portion of the DBF table that (possibly) sums up into
+   a single value in structured data has the same ``xbrl_factoid`` name in the XBRL
+   tables. By convention, we are employing a pattern in the ``dbf_to_xbrl.csv`` map
+   that involves adding an ``_unstructed`` suffix to the rows that correspond to the
+   unstructured portion of the table. This enables a simple selection of the structured
+   part of the table. When processing the unstructured table, you can either rename the
+   XBRL data's factoid name to include an ``_unstructed`` suffix or you can specify
+   the categories with ``_unstructed`` suffixes using the ``additional_categories``
+   parameter.
+
+
+.. py:class:: UnstackBalancesToReportYearInstantXbrl(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for :func:`unstack_balances_to_report_year_instant_xbrl`.
+
+
+   .. py:attribute:: unstack_balances_to_report_year
+      :type:  bool
+      :value: False
+
+
+      If True unstack balances to a single year (the report year).
+
+
+.. py:function:: unstack_balances_to_report_year_instant_xbrl(df: pandas.DataFrame, params: UnstackBalancesToReportYearInstantXbrl, primary_key_cols: list[str]) -> pandas.DataFrame
+
+   Turn start year end year rows into columns for each value type.
+
+   Called in :meth:`Ferc1AbstractTableTransformer.process_instant_xbrl`.
+
+   Some instant tables report year-end data, with their datestamps in different years,
+   but we want year-start and year-end data within a single report_year (which is
+   equivalent) stored in two separate columns for compatibility with the DBF data.
+
+   This function unstacks that table and adds the suffixes ``_starting_balance`` and
+   ``_ending_balance`` to each of the columns. These can then be used as
+   ``value_types`` in :func:`wide_to_tidy` to normalize the table.
+
+   There are two checks in place:
+
+   First, it will make sure that there are not duplicate entries for a single year +
+   other primary key fields. Ex: a row for 2020-12-31 and 2020-06-30 for entity_id X
+   means that the data isn't annually unique. We could just drop these mid-year
+   values, but we might want to keep them or at least check that there is no funny
+   business with the data.
+
+   We also check that there are no mid-year dates at all. If an entity reports a value
+   from the middle of the year, we can't identify it as a start/end of year value.
+
+   Params:
+       primary_key_cols: The columns that should be used to check for duplicated data,
+           and also for unstacking the balance -- these are set to be the index before
+           unstack is called. These are typically set by the wrapping method and
+           generated automatically based on other class transformation parameters via
+           :meth:`Ferc1AbstractTableTransformer.source_table_primary_key`.
+
+
+.. py:class:: CombineAxisColumnsXbrl(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for :func:`combine_axis_columns_xbrl`.
+
+
+   .. py:attribute:: axis_columns_to_combine
+      :type:  list | None
+      :value: None
+
+
+      List of axis columns to combine.
+
+
+   .. py:attribute:: new_axis_column_name
+      :type:  str | None
+      :value: None
+
+
+      The name of the combined axis column -- must end with the suffix ``_axis``!.
+
+
+   .. py:method:: doesnt_end_with_axis(v)
+      :classmethod:
+
+
+      Ensure that new axis column ends in _axis.
+
+
+
+.. py:function:: combine_axis_columns_xbrl(df: pandas.DataFrame, params: CombineAxisColumnsXbrl) -> pandas.DataFrame
+
+   Combine axis columns from squished XBRL tables into one column with no NAs.
+
+   Called in :meth:`Ferc1AbstractTableTransformer.process_xbrl`.
+
+   There are instances (ex: sales_by_rate_schedule_ferc1) where the DBF table is equal
+   to several concatenated XBRL tables. These XBRL tables are extracted together with
+   the function :func:`extract_xbrl_concat`. Once combined, we need to deal with their
+   axis columns.
+
+   We use the axis columns (the primary key for the raw XBRL tables) in the creation
+   of ``record_id``s for each of the rows. If each of the concatenated XBRL tables has
+   the same axis column name then there's no need to fret. However, if the columns have
+   slightly different names (ex: ``residential_sales_axis`` vs.
+   ``industrial_sales_axis``), we'll need to combine them. We combine them to get rid
+   of NA values which aren't allowed in primary keys. Otherwise it would look like
+   this:
+
+       +-------------------------+-------------------------+
+       | residential_sales_axis  | industrial_sales_axis   |
+       +=========================+=========================+
+       | value1                  | NA                      |
+       +-------------------------+-------------------------+
+       | value2                  | NA                      |
+       +-------------------------+-------------------------+
+       | NA                      | valueA                  |
+       +-------------------------+-------------------------+
+       | NA                      | valueB                  |
+       +-------------------------+-------------------------+
+
+   vs. this:
+
+       +-------------------------+
+       | sales_axis              |
+       +=========================+
+       | value1                  |
+       +-------------------------+
+       | value2                  |
+       +-------------------------+
+       | valueA                  |
+       +-------------------------+
+       | valueB                  |
+       +-------------------------+
+
+
+.. py:class:: AssignQuarterlyDataToYearlyDbf(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for transferring quarterly reported data to annual columns.
+
+
+   .. py:attribute:: quarterly_to_yearly_column_map
+      :type:  dict[str, str]
+
+
+   .. py:attribute:: quarterly_filed_years
+      :type:  list[int]
+      :value: []
+
+
+
+.. py:function:: assign_quarterly_data_to_yearly_dbf(df: pandas.DataFrame, params: AssignQuarterlyDataToYearlyDbf) -> pandas.DataFrame
+
+   Transfer 4th quarter reported data to the annual columns.
+
+   For some reason in the dbf data for this table reported all of the
+   balance data as quarterly data between specific years. We already choose
+   the end of the year in :meth:`select_annual_rows_dbf`. This ensures that
+   by this point, any quarterly data remaining in the input dataframe pertains
+   to the 4th quarter.
+
+
+.. py:class:: AddColumnWithUniformValue(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for adding a column to a table with a single value.
+
+
+   .. py:attribute:: column_value
+      :type:  Any
+      :value: None
+
+
+
+   .. py:attribute:: is_dimension
+      :type:  bool
+      :value: False
+
+
+
+.. py:class:: AddColumnsWithUniformValues(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for adding columns to a table with a single value.
+
+
+   .. py:attribute:: columns_to_add
+      :type:  dict[str, AddColumnWithUniformValue]
+
+      Dictionary of column names (keys) with :class:`AddColumnWithUniformValue` (values)
+
+
+   .. py:property:: assign_cols
+      :type: dict[str, str]
+
+
+      Dictionary of column_name (key) to uniform value (value) to use with pd.assign.
+
+
+.. py:function:: add_columns_with_uniform_values(df: pandas.DataFrame, params: AddColumnsWithUniformValues) -> pandas.DataFrame
+
+   Add a column to a table with a single value.
+
+
+.. py:class:: IsCloseTolerance(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Info for testing a particular check.
+
+
+   .. py:attribute:: isclose_rtol
+      :type:  Annotated[float, Field(ge=0.0)]
+      :value: 1e-05
+
+
+      Relative tolerance to use in :func:`np.isclose` for determining equality.
+
+
+   .. py:attribute:: isclose_atol
+      :type:  Annotated[float, Field(ge=0.0, le=0.01)]
+      :value: 1e-08
+
+
+      Absolute tolerance to use in :func:`np.isclose` for determining equality.
+
+
+.. py:class:: CalculationIsCloseTolerance(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Calc params organized by check type.
+
+
+   .. py:attribute:: error_frequency
+      :type:  IsCloseTolerance
+
+
+   .. py:attribute:: relative_error_magnitude
+      :type:  IsCloseTolerance
+
+
+   .. py:attribute:: null_calculated_value_frequency
+      :type:  IsCloseTolerance
+
+
+   .. py:attribute:: absolute_error_magnitude
+      :type:  IsCloseTolerance
+
+
+   .. py:attribute:: null_reported_value_frequency
+      :type:  IsCloseTolerance
+
+
+.. py:class:: MetricTolerances(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Tolerances for all data checks to be preformed within a grouped df.
+
+
+   .. py:attribute:: error_frequency
+      :type:  Annotated[float, Field(ge=0.0, le=1.0)]
+      :value: 0.01
+
+
+
+   .. py:attribute:: relative_error_magnitude
+      :type:  Annotated[float, Field(ge=0.0)]
+      :value: 0.2
+
+
+
+   .. py:attribute:: null_calculated_value_frequency
+      :type:  Annotated[float, Field(ge=0.0, le=1.0)]
+      :value: 0.7
+
+
+      Fraction of records with non-null reported values and null calculated values.
+
+
+   .. py:attribute:: absolute_error_magnitude
+      :type:  Annotated[float, Field(ge=0.0)]
+
+
+   .. py:attribute:: null_reported_value_frequency
+      :type:  Annotated[float, Field(ge=0.0, le=1.0)]
+      :value: 1.0
+
+
+
+.. py:class:: GroupMetricTolerances(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Data quality expectations related to FERC 1 calculations.
+
+   We are doing a lot of comparisons between calculated and reported values to identify
+   reporting errors in the data, errors in FERC's metadata, and bugs in our own code.
+   This class provides a structure for encoding our expectations about the level of
+   acceptable (or at least expected) errors, and allows us to pass them around.
+
+   In the future we might also want to specify much more granular expectations,
+   pertaining to individual tables, years, utilities, or facts to ensure that we don't
+   have low overall error rates, but a problem with the way the data or metadata is
+   reported in a particular year.  We could also define per-filing and per-table error
+   tolerances to help us identify individual utilities that have e.g. used an outdated
+   version of Form 1 when filing.
+
+
+   .. py:attribute:: ungrouped
+      :type:  MetricTolerances
+
+
+   .. py:attribute:: xbrl_factoid
+      :type:  MetricTolerances
+
+
+   .. py:attribute:: utility_id_ferc1
+      :type:  MetricTolerances
+
+
+   .. py:attribute:: report_year
+      :type:  MetricTolerances
+
+
+   .. py:attribute:: table_name
+      :type:  MetricTolerances
+
+
+.. py:class:: GroupMetricChecks(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Input for checking calculations organized by group and test.
+
+
+   .. py:attribute:: groups_to_check
+      :type:  list[Literal['ungrouped', 'table_name', 'xbrl_factoid', 'utility_id_ferc1', 'report_year']]
+      :value: ['ungrouped', 'report_year', 'xbrl_factoid', 'utility_id_ferc1']
+
+
+
+   .. py:attribute:: metrics_to_check
+      :type:  list[str]
+      :value: ['error_frequency', 'relative_error_magnitude', 'null_calculated_value_frequency',...
+
+
+
+   .. py:attribute:: group_metric_tolerances
+      :type:  GroupMetricTolerances
+
+
+   .. py:attribute:: is_close_tolerance
+      :type:  CalculationIsCloseTolerance
+
+
+   .. py:method:: grouped_tol_ge_ungrouped_tol()
+
+      Grouped tolerance should always be greater than or equal to ungrouped.
+
+
+
+.. py:class:: ReconcileTableCalculations(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TransformParams`
+
+
+   Parameters for reconciling xbrl-metadata based calculations within a table.
+
+
+   .. py:attribute:: column_to_check
+      :type:  str | None
+      :value: None
+
+
+      Name of data column to check.
+
+      This will typically be ``dollar_value`` or ``ending_balance`` column for the income
+      statement and the balance sheet tables.
+
+
+   .. py:attribute:: group_metric_checks
+      :type:  GroupMetricChecks
+
+      Fraction of calculated values which we allow not to match reported values.
+
+
+   .. py:attribute:: subdimension_column
+      :type:  str | None
+      :value: None
+
+
+      Sub-dimension column name (e.g. utility type) to compare calculations against in
+      :func:`reconcile_table_calculations`.
+
+
+   .. py:attribute:: subdimension_calculation_tolerance
+      :type:  float
+      :value: 0.05
+
+
+      Fraction of calculated subdimensions allowed not to match reported values.
+
+
+   .. py:attribute:: subdimension_merge_validation
+      :type:  Literal['one_to_many', 'many_to_many']
+      :value: 'one_to_many'
+
+
+      For the subdimension calculations, how to merge validate when merging the data
+      (left) onto the calculation components (right).
+
+
+.. py:function:: reconcile_table_calculations(df: pandas.DataFrame, calculation_components: pandas.DataFrame, xbrl_metadata: pandas.DataFrame, xbrl_factoid_name: str, table_name: str, params: ReconcileTableCalculations) -> pandas.DataFrame
+
+   Ensure intra-table calculated values match reported values within a tolerance.
+
+   In addition to checking whether all reported "calculated" values match the output
+   of our repaired calculations, this function adds a correction record to the
+   dataframe that is included in the calculations so that after the fact the
+   calculations match exactly. This is only done when the fraction of records that
+   don't match within the tolerances of :func:`numpy.isclose` is below a set
+   threshold.
+
+   Note that only calculations which are off by a significant amount result in the
+   creation of a correction record. Many calculations are off from the reported values
+   by exactly one dollar, presumably due to rounding errors. These records typically
+   do not fail the :func:`numpy.isclose()` test and so are not corrected.
+
+   :param df: processed table containing data values to check.
+   :param calculation_components: processed calculation component metadata.
+   :param xbrl_metadata: A dataframe of fact-level metadata, required for inferring the
+                         sub-dimension total calculations.
+   :param xbrl_factoid_name: The name of the column which contains XBRL factoid values in
+                             the processed table.
+   :param table_name: name of the PUDL table whose data and metadata is being processed.
+                      This is necessary so we can ensure the metadata has the same structure as
+                      the calculation components, which at a minimum need both ``table_name`` and
+                      ``xbrl_factoid`` to identify them.
+   :param params: :class:`ReconcileTableCalculations` parameters.
+
+   :returns: A dataframe that includes new ``*_correction`` records with values that ensure
+             the calculations all match to within the required tolerance. It will also
+             contain columns created by the calculation checking process like ``abs_diff``
+             and ``rel_diff``.
+
+
+.. py:function:: reconcile_one_type_of_table_calculations(data: pandas.DataFrame, calculation_components: pandas.DataFrame, calc_idx: list[str], value_col: str, group_metric_checks: GroupMetricChecks, table_name: str, is_subdimension: bool, calc_to_data_merge_validation: Literal['one_to_many', 'many_to_many'] = 'one_to_many') -> pandas.DataFrame
+
+   Calculate vales, run metric checks and add corrections.
+
+   :param data: exploded FERC data to apply the calculations to. Primary key should be
+                ``report_year``, ``utility_id_ferc1``, ``table_name``, ``xbrl_factoid``, and
+                whatever additional dimensions are relevant to the data.
+   :param calculation_components: Table defining the calculations, with each row defining
+                                  a single component, including its weight. Groups of rows identified by
+                                  ``table_name_parent`` and ``xbrl_factoid_parent`` indicate the values being
+                                  calculated.
+   :param calc_idx: primary key columns that uniquely identify a calculation component
+                    (not including the ``_parent`` columns).
+   :param value_col: label of the column in ``data`` that contains the values to apply the
+                     calculations to (typically ``dollar_value`` or ``ending_balance``).
+
+
+.. py:function:: _calculation_components_subdimension_calculations(intra_table_calcs: pandas.DataFrame, table_dims: pandas.DataFrame, xbrl_metadata: pandas.DataFrame, dim_cols: list[str], table_name: str) -> pandas.DataFrame
+
+   Add total to subdimension calculations into calculation components.
+
+
+.. py:function:: _add_intra_table_calculation_dimensions(intra_table_calcs: pandas.DataFrame, table_dims: pandas.DataFrame, dim_cols: list[str]) -> pandas.DataFrame
+
+   Add all observed subdimensions into the calculation components.
+
+
+.. py:function:: calculate_values_from_components(calculation_components: pandas.DataFrame, data: pandas.DataFrame, calc_idx: list[str], value_col: str, calc_to_data_merge_validation: Literal['one_to_many', 'many_to_many'] = 'one_to_many') -> pandas.DataFrame
+
+   Apply calculations derived from XBRL metadata to reported XBRL data.
+
+   :param calculation_components: Table defining the calculations, with each row defining
+                                  a single component, including its weight. Groups of rows identified by
+                                  ``table_name_parent`` and ``xbrl_factoid_parent`` indicate the values being
+                                  calculated.
+   :param data: exploded FERC data to apply the calculations to. Primary key should be
+                ``report_year``, ``utility_id_ferc1``, ``table_name``, ``xbrl_factoid``, and
+                whatever additional dimensions are relevant to the data.
+   :param calc_idx: primary key columns that uniquely identify a calculation component
+                    (not including the ``_parent`` columns).
+   :param value_col: label of the column in ``data`` that contains the values to apply the
+                     calculations to (typically ``dollar_value`` or ``ending_balance``).
+
+
+.. py:function:: check_calculation_metrics_by_group(calculated_df: pandas.DataFrame, group_metric_checks: GroupMetricChecks) -> pandas.DataFrame
+
+   Tabulate the results of the calculation checks by group.
+
+   Convert all of the groups' checks into a big df. This will have two indexes: first
+   for the group name (group) and one for the groups values. the columns will include
+   three for each test: the test metric that is the same name as the test (ex:
+   error_frequency), the tolerance for that group/test and a boolean indicating
+   whether or not that metric failed to meet the tolerance.
+
+
+.. py:function:: check_calculation_metrics(calculated_df: pandas.DataFrame, group_metric_checks: GroupMetricChecks) -> pandas.DataFrame
+
+   Run the calculation metrics and determine if calculations are within tolerance.
+
+
+.. py:class:: ErrorMetric(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Base class for checking a particular metric within a group.
+
+
+   .. py:attribute:: by
+      :type:  Literal['ungrouped', 'table_name', 'xbrl_factoid', 'utility_id_ferc1', 'report_year']
+
+      Name of group to check the metric based on.
+
+      With the exception of the ungrouped case, all groups depend on table_name as well as
+      the other column specified via by.
+
+      If by=="table_name" then that is the only column used in the groupby().
+
+      If by=="ungrouped" then all records are included in the "group" (via a dummy column
+      named ungrouped that contains only the value ungrouped). This allows us to use the
+      same infrastructure for applying the metrics to grouped and ungrouped data.
+
+
+   .. py:attribute:: is_close_tolerance
+      :type:  IsCloseTolerance
+
+      Inputs for the metric to determine :meth:`is_not_close`. Instance of :class:`IsCloseTolerance`.
+
+
+   .. py:attribute:: metric_tolerance
+      :type:  float
+
+      Tolerance for checking the metric within the ``by`` group.
+
+
+   .. py:attribute:: required_cols
+      :type:  list[str]
+      :value: ['table_name', 'xbrl_factoid', 'report_year', 'utility_id_ferc1', 'reported_value',...
+
+
+
+   .. py:method:: has_required_cols(df: pandas.DataFrame)
+
+      Check that the input dataframe has all required columns.
+
+
+
+   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+      :abstractmethod:
+
+
+      Metric function that will be applied to each group of values being checked.
+
+
+
+   .. py:method:: is_not_close(df: pandas.DataFrame) -> pandas.Series
+
+      Flag records where reported and calculated values differ significantly.
+
+      We only want to check this metric when there is a non-null ``abs_diff`` because
+      we want to avoid the instances in which there are either null reported or
+      calculated values.
+
+
+
+   .. py:method:: groupby_cols() -> list[str]
+
+      The list of columns to group by.
+
+      We want to default to adding the table_name into all groupby's, but two of our
+      ``by`` options need special treatment.
+
+
+
+   .. py:method:: apply_metric(df: pandas.DataFrame) -> pandas.Series
+
+      Generate the metric values within each group through an apply method.
+
+      This method adds a column ``is_not_close`` into the df before the groupby
+      because that column is used in many of the :meth:`metric`.
+
+
+
+   .. py:method:: _snake_case_metric_name() -> str
+
+      Convert the TitleCase class name to a snake_case string.
+
+
+
+   .. py:method:: check(calculated_df) -> pandas.DataFrame
+
+      Make a df w/ the metric, tolerance and is_error columns.
+
+
+
+.. py:class:: ErrorFrequency(/, **data: Any)
+
+   Bases: :py:obj:`ErrorMetric`
+
+
+   Check error frequency in XBRL calculations.
+
+
+   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+
+      Calculate the frequency with which records are tagged as errors.
+
+
+
+.. py:class:: RelativeErrorMagnitude(/, **data: Any)
+
+   Bases: :py:obj:`ErrorMetric`
+
+
+   Check relative magnitude of errors in XBRL calculations.
+
+
+   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+
+      Calculate the mangnitude of the errors relative to total reported value.
+
+
+
+.. py:class:: AbsoluteErrorMagnitude(/, **data: Any)
+
+   Bases: :py:obj:`ErrorMetric`
+
+
+   Check absolute magnitude of errors in XBRL calculations.
+
+   These numbers may vary wildly from table to table so no default values for the
+   expected errors are provided here...
+
+
+   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+
+      Calculate the absolute mangnitude of XBRL calculation errors.
+
+
+
+.. py:class:: NullCalculatedValueFrequency(/, **data: Any)
+
+   Bases: :py:obj:`ErrorMetric`
+
+
+   Check the frequency of null calculated values.
+
+
+   .. py:method:: apply_metric(df: pandas.DataFrame) -> pandas.Series
+
+      Only apply metric to rows that contain calculated values.
+
+
+
+   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+
+      Fraction of non-null reported values that have null corresponding calculated values.
+
+
+
+.. py:class:: NullReportedValueFrequency(/, **data: Any)
+
+   Bases: :py:obj:`ErrorMetric`
+
+
+   Check the frequency of null reported values.
+
+
+   .. py:method:: metric(gb: pandas.core.groupby.DataFrameGroupBy) -> pandas.Series
+
+      Frequency with which the reported values are Null.
+
+
+
+.. py:function:: add_corrections(calculated_df: pandas.DataFrame, value_col: str, is_close_tolerance: IsCloseTolerance, table_name: str, is_subdimension: bool) -> pandas.DataFrame
+
+   Add corrections to discrepancies between reported & calculated values.
+
+   To isolate the sources of error, and ensure that all totals add up as expected in
+   later phases of the transformation, we add correction records to the dataframe
+   which compensate for any difference between the calculated and reported values. The
+   ``_correction`` factoids that are added here have already been added to the
+   calculation components during the metadata processing.
+
+   :param calculated_df: DataFrame containing the data to correct. Must already have
+                         ``abs_diff`` column that was added by :func:`check_calculation_metrics`
+   :param value_col: Label of the column whose values are being calculated.
+   :param calculation_tolerance: Data structure containing various calculation tolerances.
+   :param table_name: Name of the table whose data we are working with. For logging.
+   :param is_subdimension: Indicator of whether or not the correction to add is a total to
+                           subdimension calculated value.
+
+
+.. py:class:: Ferc1TableTransformParams(/, **data: Any)
+
+   Bases: :py:obj:`pudl.transform.classes.TableTransformParams`
+
+
+   A model defining what TransformParams are allowed for FERC Form 1.
+
+   This adds additional parameter models beyond the ones inherited from the
+   :class:`pudl.transform.classes.AbstractTableTransformer` class.
+
+
+   .. py:attribute:: rename_columns_ferc1
+      :type:  RenameColumnsFerc1
+
+
+   .. py:attribute:: wide_to_tidy
+      :type:  WideToTidySourceFerc1
+
+
+   .. py:attribute:: merge_xbrl_metadata
+      :type:  MergeXbrlMetadata
+
+
+   .. py:attribute:: align_row_numbers_dbf
+      :type:  AlignRowNumbersDbf
+
+
+   .. py:attribute:: drop_duplicate_rows_dbf
+      :type:  DropDuplicateRowsDbf
+
+
+   .. py:attribute:: assign_quarterly_data_to_yearly_dbf
+      :type:  AssignQuarterlyDataToYearlyDbf
+
+
+   .. py:attribute:: select_dbf_rows_by_category
+      :type:  SelectDbfRowsByCategory
+
+
+   .. py:attribute:: unstack_balances_to_report_year_instant_xbrl
+      :type:  UnstackBalancesToReportYearInstantXbrl
+
+
+   .. py:attribute:: combine_axis_columns_xbrl
+      :type:  CombineAxisColumnsXbrl
+
+
+   .. py:attribute:: reconcile_table_calculations
+      :type:  ReconcileTableCalculations
+
+
+   .. py:attribute:: add_columns_with_uniform_values
+      :type:  AddColumnsWithUniformValues
+
+
+   .. py:property:: xbrl_factoid_name
+      :type: str
+
+
+      Access the column name of the ``xbrl_factoid``.
+
+
+   .. py:property:: rename_dicts_xbrl
+
+      Compile all of the XBRL rename dictionaries into an ordered list.
+
+
+   .. py:property:: wide_to_tidy_value_types
+      :type: list[str]
+
+
+      Compile a list of all of the ``value_types`` from ``wide_to_tidy``.
+
+
+   .. py:property:: aligned_dbf_table_names
+      :type: list[str]
+
+
+      The list of DBF tables aligned by row number in this transform.
+
+
+   .. py:property:: dimension_columns
+      :type: list[str]
+
+
+      List of column names of dimensions.
+
+
+.. py:function:: select_current_year_annual_records_duration_xbrl(df: pandas.DataFrame, table_name: str)
+
+   Select for annual records within their report_year.
+
+   Select only records that have a start_date at beginning of the report_year and
+   have an end_date at the end of the report_year.
+
+
+.. py:function:: get_ferc1_dbf_rows_to_map(ferc1_engine: sqlalchemy.Engine) -> pandas.DataFrame
+
+   Identify DBF rows that need to be mapped to XBRL columns.
+
+   Select all records in the ``f1_row_lit_tbl`` where the row literal associated with a
+   given combination of table and row number is different from the preceding year.
+   This is the smallest set of records which we can use to reproduce the whole table by
+   expanding the time series to include all years, and forward filling the row
+   literals.
+
+
+.. py:function:: update_dbf_to_xbrl_map(ferc1_engine: sqlalchemy.Engine) -> pandas.DataFrame
+
+   Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.
+
+   Reads all rows that need to be mapped out of the ``f1_row_lit_tbl`` and appends
+   columns containing any previously mapped values, returning the resulting dataframe.
+
+
+.. py:function:: read_dbf_to_xbrl_map(dbf_table_names: list[str]) -> pandas.DataFrame
+
+   Read the manually compiled DBF row to XBRL column mapping for a given table.
+
+   :param dbf_table_name: The original name of the table in the FERC Form 1 DBF database
+                          whose mapping to the XBRL data you want to extract. for example
+                          ``f1_plant_in_srvce``.
+
+   :returns: DataFrame with columns ``[sched_table_name, report_year, row_number, row_type, xbrl_factoid]``
+
+
+.. py:function:: fill_dbf_to_xbrl_map(df: pandas.DataFrame, dbf_years: list[int] | None = None) -> pandas.DataFrame
+
+   Forward-fill missing years in the minimal, manually compiled DBF to XBRL mapping.
+
+   The relationship between a DBF row and XBRL column/fact/entity/whatever is mostly
+   consistent from year to year. To minimize the amount of manual mapping work we have
+   to do, we only map the years in which the relationship changes. In the end we do
+   need a complete correspondence for all years though, and this function uses the
+   minimal information we've compiled to fill in all the gaps, producing a complete
+   mapping across all requested years.
+
+   One complication is that we need to explicitly indicate which DBF rows have headers
+   in them (which don't exist in XBRL), to differentiate them from null values in the
+   exhaustive index we create below. We set a ``HEADER_ROW`` sentinel value so we can
+   distinguish between two different reasons that we might find NULL values in the
+   ``xbrl_factoid`` field:
+
+   1. It's NULL because it's between two valid mapped values (the NULL was created
+      in our filling of the time series) and should thus be filled in, or
+
+   2. It's NULL because it was a header row in the DBF data, which means it should
+      NOT be filled in. Without the ``HEADER_ROW`` value, when a row number from year X
+      becomes associated with a non-header row in year X+1 the ffill will keep right on
+      filling, associating all of the new header rows with the value of
+      ``xbrl_factoid`` that was associated with the old row number.
+
+   :param df: A dataframe containing a DBF row to XBRL mapping for a single FERC 1 DBF
+              table.
+   :param dbf_years: The list of years that should have their DBF row to XBRL mapping
+                     filled in. This defaults to all available years of DBF data for FERC 1. In
+                     general this parameter should only be set to a non-default value for testing
+                     purposes.
+
+   :returns: A complete mapping of DBF row number to XBRL columns for all years of data
+             within a single FERC 1 DBF table. Has columns of
+             ``[report_year, row_number, xbrl_factoid]``
+
+
+.. py:function:: get_data_cols_raw_xbrl(raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> list[str]
+
+   Get a list of all XBRL data columns appearing in a given XBRL table.
+
+   :returns: A list of all the data columns found in the original XBRL DB that correspond to
+             the given PUDL table. Includes columns from both the instant and duration tables
+             but excludes structural columns that appear in all XBRL tables.
+
+
+.. py:function:: read_xbrl_calculation_fixes() -> pandas.DataFrame
+
+   Read in the table of calculation fixes.
+
+
+.. py:class:: Ferc1AbstractTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`pudl.transform.classes.AbstractTableTransformer`
+
+
+   An abstract class defining methods common to many FERC Form 1 tables.
+
+   This subclass remains abstract because it does not define transform_main(), which
+   is always going to be table-specific.
+
+   * Methods that only apply to XBRL data should end with _xbrl
+   * Methods that only apply to DBF data should end with _dbf
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: parameter_model
+
+      The :mod:`pydantic` model that is used to contain & instantiate parameters.
+
+      In child classes this should be replaced with the data source-specific
+      :class:`TableTransformParams` class, if it has been defined.
+
+
+   .. py:attribute:: params
+      :type:  Ferc1AbstractTableTransformer.parameter_model
+
+      The parameters that will be used to control the transformation functions.
+
+      This attribute is of type ``parameter_model`` which is defined above. This type
+      varies across datasets and is used to construct and validate the parameters based,
+      so it needs to be set separately in child classes. See
+      :class:`pudl.transform.ferc1.Ferc1AbstractTableTransformer` for an example.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: True
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:attribute:: xbrl_metadata
+      :type:  pandas.DataFrame
+
+      Dataframe combining XBRL metadata for both instant and duration table columns.
+
+
+   .. py:attribute:: xbrl_calculations
+      :type:  pandas.DataFrame | None
+      :value: None
+
+
+      Dataframe of calculation components.
+
+      If ``None``, the calculations have not been instantiated. If the table has been
+      instantiated but is an empty table, then there are no calculations for that table.
+
+
+   .. py:method:: transform_start(raw_dbf: pandas.DataFrame, raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+
+      Process the raw data until the XBRL and DBF inputs have been unified.
+
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Generic FERC1 main table transformer.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data.
+
+      :returns: A single transformed table concatenating multiple years of cleaned data
+                derived from the raw DBF and/or XBRL inputs.
+
+
+
+   .. py:method:: transform_end(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Standardized final cleanup after the transformations are done.
+
+      Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
+      null columns.
+
+
+
+   .. py:method:: select_dbf_rows_by_category(processed_dbf: pandas.DataFrame, processed_xbrl: pandas.DataFrame, params: SelectDbfRowsByCategory | None = None) -> pandas.DataFrame
+
+      Wrapper method for :func:`select_dbf_rows_by_category`.
+
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Normalize the XBRL JSON metadata, turning it into a dataframe.
+
+      This process concatenates and deduplicates the metadata which is associated with
+      the instant and duration tables, since the metadata is only combined with the
+      data after the instant and duration (and DBF) tables have been merged. This
+      happens in :meth:`Ferc1AbstractTableTransformer.merge_xbrl_metadata`.
+
+
+
+   .. py:method:: process_xbrl_metadata(xbrl_metadata_converted: pandas.DataFrame, xbrl_calculations: pandas.DataFrame) -> pandas.DataFrame
+
+      Process XBRL metadata after the calculations have been cleaned.
+
+      Add ``row_type_xbrl`` and ``is_within_table_calc`` columns and create
+      ``xbrl_factoid`` records for the calculation corrections.
+
+      :param xbrl_metadata_converted: Dataframe of relatively unprocessed metadata.
+                                      Result of :meth:`convert_xbrl_metadata_json_to_df`.
+      :param xbrl_calculations: Dataframe of calculation components. Result of
+                                :meth:`process_xbrl_metadata_calculations`.
+
+
+
+   .. py:method:: deduplicate_xbrl_factoid_xbrl_metadata(tbl_meta: pandas.DataFrame) -> pandas.DataFrame
+
+      De-duplicate the xbrl_metadata based on ``xbrl_factoid``.
+
+      Default is to do nothing besides check for duplicate values because almost all
+      tables have no deduping. Deduplication needs to be applied before the
+      :meth:`apply_xbrl_calculation_fixes` inside of :meth:`process_xbrl_metadata`.
+
+
+
+   .. py:method:: raw_xbrl_factoid_to_pudl_name(col_name_xbrl: str) -> str
+
+      Rename a column name from original XBRL name to the transformed PUDL name.
+
+      There are several transform params that either explicitly or implicitly rename
+      columns:
+      * :class:`RenameColumnsFerc1`
+      * :class:`WideToTidySourceFerc1`
+      * :class:`UnstackBalancesToReportYearInstantXbrl`
+      * :class:`ConvertUnits`
+
+      This method attempts to use the table params to translate a column name.
+
+      Note: Instead of doing this for each individual column name, we could compile a
+      rename dict for the whole table with a similar processand then apply it for each
+      group of columns instead of running through this full process every time. If
+      this took longer than...  ~5 ms on a single table w/ lots of calcs this would
+      probably be worth it for simplicity.
+
+
+
+   .. py:method:: rename_xbrl_factoid(col: pandas.Series) -> pandas.Series
+
+      Rename a series of raw to PUDL factoid names via :meth:`raw_xbrl_factoid_to_pudl_name`.
+
+
+
+   .. py:method:: rename_xbrl_factoid_other_tables(calc_comps)
+
+      Rename the factoids from calculation components from other tables.
+
+      Note: It is probably possible to build an apply style function that takes a
+      series of factoid names and a series of table names and returns a table-specific
+      rename_xbrl_factoid.
+
+
+
+   .. py:method:: add_metadata_corrections(tbl_meta: pandas.DataFrame) -> pandas.DataFrame
+
+      Create metadata records for the calculation correction factoids.
+
+      :param tbl_meta: processed metadata table which contains columns ``row_type_xbrl``.
+
+
+
+   .. py:method:: add_calculation_corrections(calc_components: pandas.DataFrame) -> pandas.DataFrame
+
+      Add correction components and parent-only factoids to calculation metadata.
+
+      :param tbl_meta: Partially transformed table metadata in dataframe form.
+
+      :returns: An updated version of the table metadata containing calculation definitions
+                that include a correction component.
+
+
+
+   .. py:method:: get_xbrl_calculation_fixes() -> pandas.DataFrame
+
+      Grab the XBRL calculations fixes for this table.
+
+
+
+   .. py:method:: apply_xbrl_calculation_fixes(calc_components: pandas.DataFrame, calc_fixes: pandas.DataFrame) -> pandas.DataFrame
+
+      Use the fixes we've compiled to update calculations in the XBRL metadata.
+
+      Instructions for updating the calculation component fixes file:
+
+      * To add a calculation component that is missing from the raw metadata,
+        add a new line in the ``xbrl_calculation_component_fixes.csv`` with a
+        the parent and child portion of the calculation and a weight.
+      * To remove a calculation component that exists incorrectly in the raw
+        metadata, add a line in the ``xbrl_calculation_component_fixes.csv``
+        with the parent and child portion of the calculation without a weight.
+      * To edit the weight of a calculation component that exists in the raw
+        metadata, add a line in the ``xbrl_calculation_component_fixes.csv``
+        with the parent and child portion of the calculation with the corrected
+        weight.
+
+      Some common errors occurs when ingesting new metadata which flags the
+      AssertionError in this method. If you're trying to remove a calculation component
+      manually and it doesn't actually exist as a calculation component in the metadata,
+      an AssertionError will be raised. Similarly, if you're trying to add a
+      calculation component manually that already exists, an AssertionError will be
+      raised.
+
+
+
+
+   .. py:method:: process_xbrl_metadata_calculations(xbrl_metadata_converted: pandas.DataFrame) -> pandas.DataFrame
+
+      Convert xbrl metadata calculations into a table of calculation components.
+
+      This method extracts the calculations from the ``xbrl_metadata_converted``
+      that are stored as json embedded within the ``calculations``column and convert
+      those into calculation component records. The resulting table includes columns
+      pertaining to both the calculation components and the parent factoid that the
+      components pertain to. The parental columns had suffixes of ``_parent``.
+
+      This method also adds fixes to the calculations via
+      :meth:`apply_xbrl_calculation_fixes`, adds corrections records via
+      :meth:`add_calculation_corrections` and adds the column
+      ``is_within_table_calc``.
+
+      :param xbrl_metadata_converted: Dataframe of relatively unprocessed metadata.
+                                      Result of :meth:`convert_xbrl_metadata_json_to_df`.
+
+
+
+   .. py:method:: add_columns_with_uniform_values(df: pandas.DataFrame, params: AddColumnsWithUniformValues | None = None) -> pandas.DataFrame
+
+      Add a column with a uniform value.
+
+
+
+   .. py:method:: merge_xbrl_metadata(df: pandas.DataFrame, params: MergeXbrlMetadata | None = None) -> pandas.DataFrame
+
+      Combine XBRL-derived metadata with the data it pertains to.
+
+      While the metadata we're using to annotate the data comes from the more recent
+      XBRL data, it applies generally to all the historical DBF data as well! This
+      method reads the normalized metadata out of an attribute.
+
+
+
+   .. py:method:: align_row_numbers_dbf(df: pandas.DataFrame, params: AlignRowNumbersDbf | None = None) -> pandas.DataFrame
+
+      Align historical FERC1 DBF row numbers with XBRL account IDs.
+
+      Additional Parameterization TBD with additional experience. See:
+      https://github.com/catalyst-cooperative/pudl/issues/2012
+
+
+
+   .. py:method:: drop_duplicate_rows_dbf(df: pandas.DataFrame, params: DropDuplicateRowsDbf | None = None) -> pandas.DataFrame
+
+      Drop the DBF rows where the PKs and data columns are duplicated.
+
+      Wrapper function for :func:`drop_duplicate_rows_dbf`.
+
+
+
+   .. py:method:: process_dbf(raw_dbf: pandas.DataFrame) -> pandas.DataFrame
+
+      DBF-specific transformations that take place before concatenation.
+
+
+
+   .. py:method:: process_xbrl(raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+
+      XBRL-specific transformations that take place before concatenation.
+
+
+
+   .. py:method:: rename_columns(df: pandas.DataFrame, rename_stage: Literal['dbf', 'xbrl', 'xbrl_instant', 'xbrl_duration'] | None = None, params: pudl.transform.classes.RenameColumns | None = None)
+
+      Grab the params based on the rename stage and run default rename_columns.
+
+      :param df: Table to be renamed.
+      :param rename_stage: Name of stage in the transform process. Used to get specific
+                           stage's parameters if None have been passed.
+      :param params: Rename column parameters.
+
+
+
+   .. py:method:: select_annual_rows_dbf(df)
+
+      Select only annually reported DBF Rows.
+
+      There are some DBF tables that include a mix of reporting frequencies. For now,
+      the default for PUDL tables is to have only the annual records.
+
+
+
+   .. py:method:: assign_quarterly_data_to_yearly_dbf(df, params: AssignQuarterlyDataToYearlyDbf | None = None)
+
+      Transfer quarterly filed data to annual columns.
+
+
+
+   .. py:method:: unstack_balances_to_report_year_instant_xbrl(df: pandas.DataFrame, params: UnstackBalancesToReportYearInstantXbrl | None = None) -> pandas.DataFrame
+
+      Turn start year end year rows into columns for each value type.
+
+
+
+   .. py:method:: wide_to_tidy(df: pandas.DataFrame, source_ferc1: SourceFerc1, params: WideToTidy | None = None) -> pandas.DataFrame
+
+      Reshape wide tables with FERC account columns to tidy format.
+
+      The XBRL table coming into this method contains all the data from both the
+      instant and duration tables in a wide format -- with one column for every
+      combination of value type (e.g. additions, ending_balance) and accounting
+      category, which means ~500 columns.
+
+      We tidy this into a long table with one column for each of the value types (6 in
+      all), and a new column that contains the accounting categories. This allows
+      aggregation across columns to calculate the ending balance based on the starting
+      balance and all of the reported changes, and aggregation across groups of rows
+      to total up various hierarchical accounting categories (hydraulic turbines ->
+      hydraulic production plant -> all  production plant -> all electric utility
+      plant) though the categorical columns required for that aggregation are added
+      later.
+
+
+
+   .. py:method:: combine_axis_columns_xbrl(df: pandas.DataFrame, params: CombineAxisColumnsXbrl | None = None) -> pandas.DataFrame
+
+      Combine axis columns from squished XBRL tables into one column with no NA.
+
+
+
+   .. py:method:: merge_instant_and_duration_tables_xbrl(raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+
+      Merge XBRL instant and duration tables, reshaping instant as needed.
+
+      FERC1 XBRL instant period signifies that it is true as of the reported date,
+      while a duration fact pertains to the specified time period. The ``date`` column
+      for an instant fact corresponds to the ``end_date`` column of a duration fact.
+
+      When merging the instant and duration tables, we need to preserve row order.
+      For the small generators table, row order is how we label and extract
+      information from header and note rows. Outer merging messes up the order, so we
+      need to use a one-sided merge. So far, it seems like the duration df contains
+      all the index values in the instant df. To be sure, there's a check that makes
+      sure there are no unique instant df index values. If that passes, we merge the
+      instant table into the duration table, and the row order is preserved.
+
+      Note: This should always be applied before :meth:``rename_columns``
+
+      :param raw_xbrl_instant: table representing XBRL instant facts.
+      :param raw_xbrl_duration: table representing XBRL duration facts.
+
+      :returns: A unified table combining the XBRL duration and instant facts, if both types
+                of facts were present. If either input dataframe is empty, the other
+                dataframe is returned unchanged, except that several unused columns are
+                dropped. If both input dataframes are empty, an empty dataframe is returned.
+
+
+
+   .. py:method:: process_instant_xbrl(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Pre-processing required to make instant and duration tables compatible.
+
+      Column renaming is sometimes required because a few columns in the instant and
+      duration tables do not have corresponding names that follow the naming
+      conventions of ~95% of all the columns, which we rely on programmatically when
+      reshaping and concatenating these tables together.
+
+
+
+   .. py:method:: process_duration_xbrl(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Pre-processing required to make instant and duration tables compatible.
+
+      Column renaming is sometimes required because a few columns in the instant and
+      duration tables do not have corresponding names that follow the naming
+      conventions of ~95% of all the columns, which we rely on programmatically when
+      reshaping and concatenating these tables together.
+
+
+
+   .. py:method:: drop_footnote_columns_dbf(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Drop DBF footnote reference columns, which all end with _f.
+
+
+
+   .. py:method:: source_table_primary_key(source_ferc1: SourceFerc1) -> list[str]
+
+      Look up the pre-renaming source table primary key columns.
+
+
+
+   .. py:method:: renamed_table_primary_key(source_ferc1: SourceFerc1) -> list[str]
+
+      Look up the post-renaming primary key columns.
+
+
+
+   .. py:method:: drop_unused_original_columns_dbf(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Remove residual DBF specific columns.
+
+
+
+   .. py:method:: assign_record_id(df: pandas.DataFrame, source_ferc1: SourceFerc1) -> pandas.DataFrame
+
+      Add a column identifying the original source record for each row.
+
+      It is often useful to be able to tell exactly which record in the FERC Form 1
+      database a given record within the PUDL database came from.
+
+      Within each FERC Form 1 DBF table, each record is supposed to be uniquely
+      identified by the combination of: report_year, report_prd, utility_id_ferc1_dbf,
+      spplmnt_num, row_number.
+
+      The FERC Form 1 XBRL tables do not have these supplement and row number
+      columns, so we construct an id based on:
+      report_year, utility_id_ferc1_xbrl, and the primary key columns of the XBRL table
+
+      :param df: table to assign `record_id` to
+      :param source_ferc1: data source of raw ferc1 database.
+
+      :raises ValueError: If any of the primary key columns are missing from the DataFrame
+          being processed.
+      :raises ValueError: If there are any null values in the primary key columns.
+      :raises ValueError: If the resulting `record_id` column is non-unique.
+
+
+
+   .. py:method:: assign_utility_id_ferc1(df: pandas.DataFrame, source_ferc1: SourceFerc1) -> pandas.DataFrame
+
+      Assign the PUDL-assigned utility_id_ferc1 based on the native utility ID.
+
+      We need to replace the natively reported utility ID from each of the two FERC1
+      sources with a PUDL-assigned utility. The mapping between the native ID's and
+      these PUDL-assigned ID's can be accessed in the database tables
+      ``utilities_dbf_ferc1`` and ``utilities_xbrl_ferc1``.
+
+      :param df: the input table with the native utility ID column.
+      :param source_ferc1: the
+
+      :returns: an augemented version of the input ``df`` with a new column that replaces
+                the natively reported utility ID with the PUDL-assigned utility ID.
+
+
+
+   .. py:method:: reconcile_table_calculations(df: pandas.DataFrame, params: ReconcileTableCalculations | None = None)
+
+      Check how well a table's calculated values match reported values.
+
+
+
+.. py:class:: SteamPlantsFuelTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   A table transformer specific to the :ref:`core_ferc1__yearly_steam_plants_fuel_sched402` table.
+
+   The :ref:`core_ferc1__yearly_steam_plants_fuel_sched402` table reports data about fuel consumed by large thermal power
+   plants in the :ref:`core_ferc1__yearly_steam_plants_sched402` table. Each record in the steam table is
+   typically associated with several records in the fuel table, with each fuel record
+   reporting data for a particular type of fuel consumed by that plant over the course
+   of a year. The fuel table presents several challenges.
+
+   The type of fuel, which is part of the primary key for the table, is a freeform
+   string with hundreds of different nonstandard values. These strings are categorized
+   manually and converted to ``fuel_type_code_pudl``. Some values cannot be categorized
+   and are set to ``other``. In other string categorizations we set the unidentifiable
+   values to NA, but in this table the fuel type is part of the primary key and primary
+   keys cannot contain NA values.
+
+   This simplified categorization occasionally results in records with duplicate
+   primary keys. In those cases the records are aggregated into a single record if they
+   have the same apparent physical units. If the fuel units are different, only the
+   first record is retained.
+
+   Several columns have unspecified, inconsistent, fuel-type specific units of measure
+   associated with them. In order for records to be comparable and aggregatable, we
+   have to infer and standardize these units.
+
+   In the raw FERC Form 1 data there is a ``fuel_units`` column which describes the
+   units of fuel delivered or consumed. Most commonly this is short tons for solid
+   fuels (coal), thousands of cubic feet (Mcf) for gaseous fuels, and barrels (bbl) for
+   liquid fuels.  However, the ``fuel_units`` column is also a freeform string with
+   hundreds of nonstandard values which we have to manually categorize, and many of the
+   values do not map directly to the most commonly used units for fuel quantities. E.g.
+   some solid fuel quantities are reported in pounds, or thousands of pounds, not tons;
+   some liquid fuels are reported in gallons or thousands of gallons, not barrels; and
+   some gaseous fuels are reported in cubic feet not thousands of cubic feet.
+
+   Two additional columns report fuel price per unit of heat content and fuel heat
+   content per physical unit of fuel. The units of those columns are not explicitly
+   reported, vary by fuel, and are inconsistent within individual fuel types.
+
+   We adopt standardized units and attempt to convert all reported values in the fuel
+   table into those units. For physical fuel units we adopt those that are used by the
+   EIA: short tons (tons) for solid fuels, barrels (bbl) for liquid fuels, and
+   thousands of cubic feet (mcf) for gaseous fuels. For heat content per (physical)
+   unit of fuel, we use millions of British thermal units (mmbtu). All fuel prices are
+   converted to US dollars, while many are reported in cents.
+
+   Because the reported fuel price and heat content units are implicit, we have to
+   infer them based on observed values. This is only possible because these quantities
+   are ratios with well defined ranges of valid values. The common units that we
+   observe and attempt to standardize include:
+
+   * coal: primarily BTU/pound, but also MMBTU/ton and MMBTU/pound.
+   * oil: primarily BTU/gallon.
+   * gas: reported in a mix of MMBTU/cubic foot, and MMBTU/thousand cubic feet.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Table specific transforms for core_ferc1__yearly_steam_plants_fuel_sched402.
+
+      :param df: Pre-processed, concatenated XBRL and DBF data.
+
+      :returns: A single transformed table concatenating multiple years of cleaned data
+                derived from the raw DBF and/or XBRL inputs.
+
+
+
+   .. py:method:: process_dbf(raw_dbf: pandas.DataFrame) -> pandas.DataFrame
+
+      Start with inherited method and do some fuel-specific processing.
+
+      We have to do most of the transformation before the DBF and XBRL data have been
+      concatenated because the fuel type column is part of the primary key and it is
+      extensively modified in the cleaning process.
+
+
+
+   .. py:method:: process_xbrl(raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+
+      Special pre-concat treatment of the :ref:`core_ferc1__yearly_steam_plants_fuel_sched402` table.
+
+      We have to do most of the transformation before the DBF and XBRL data have been
+      concatenated because the fuel type column is part of the primary key and it is
+      extensively modified in the cleaning process. For the XBRL data, this means we
+      can't create a record ID until that fuel type value is clean. In addition, the
+      categorization of fuel types results in a number of duplicate fuel records which
+      need to be aggregated.
+
+      :param raw_xbrl_instant: Freshly extracted XBRL instant fact table.
+      :param raw_xbrl_duration: Freshly extracted XBRL duration fact table.
+
+      :returns: Almost fully transformed XBRL data table, with instant and duration facts
+                merged together.
+
+
+
+   .. py:method:: to_numeric(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Convert columns containing numeric strings to numeric types.
+
+
+
+   .. py:method:: standardize_physical_fuel_units(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Convert reported fuel quantities to standard units depending on fuel type.
+
+      Use the categorized fuel type and reported fuel units to convert all fuel
+      quantities to the following standard units, depending on whether the fuel is a
+      solid, liquid, or gas. When a single fuel reports its quantity in fundamentally
+      different units, convert based on typical values. E.g. 19.85 MMBTU per ton of
+      coal, 1.037 Mcf per MMBTU of natural gas, 7.46 barrels per ton of oil.
+
+        * solid fuels (coal and waste): short tons [ton]
+        * liquid fuels (oil): barrels [bbl]
+        * gaseous fuels (gas): thousands of cubic feet [mcf]
+
+      Columns to which these physical units apply:
+
+        * fuel_consumed_units (tons, bbl, mcf)
+        * fuel_cost_per_unit_burned (usd/ton, usd/bbl, usd/mcf)
+        * fuel_cost_per_unit_delivered (usd/ton, usd/bbl, usd/mcf)
+
+      One remaining challenge in this standardization is that nuclear fuel is reported
+      in both mass of Uranium and fuel heat content, and it's unclear if there's any
+      reasonable typical conversion between these units, since available heat content
+      depends on the degree of U235 enrichement, the type of reactor, and whether the
+      fuel is just Uranium, or a mix of Uranium and Plutonium from decommissioned
+      nuclear weapons. See:
+
+      https://world-nuclear.org/information-library/facts-and-figures/heat-values-of-various-fuels.aspx
+
+
+
+   .. py:method:: aggregate_duplicate_fuel_types_xbrl(fuel_xbrl: pandas.DataFrame) -> pandas.DataFrame
+
+      Aggregate the fuel records having duplicate primary keys.
+
+
+
+   .. py:method:: drop_total_rows(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Drop rows that represent plant totals rather than individual fuels.
+
+      This is an imperfect, heuristic process. The rows we identify as probably
+      representing totals rather than individual fuels:
+
+      * have zero or null values in all of their numerical data columns
+      * have no identifiable fuel type
+      * have no identifiable fuel units
+      * DO report a value for MMBTU / MWh (heat rate)
+
+      In the case of the core_ferc1__yearly_steam_plants_fuel_sched402 table, we drop any row where all the data columns
+      are null AND there's a non-null value in the ``fuel_mmbtu_per_mwh`` column, as
+      it typically indicates a "total" row for a plant. We also require a null value
+      for the fuel_units and an "other" value for the fuel type.
+
+
+
+   .. py:method:: drop_invalid_rows(df: pandas.DataFrame, params: pudl.transform.classes.InvalidRows | None = None) -> pandas.DataFrame
+
+      Drop invalid rows from the fuel table.
+
+      This method both drops rows in which all required data columns are null (using
+      the inherited parameterized method) and then also drops those rows we believe
+      represent plant totals. See :meth:`SteamPlantsFuelTableTransformer.drop_total_rows`.
+
+
+
+.. py:class:: SteamPlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for the :ref:`core_ferc1__yearly_steam_plants_sched402` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+.. py:class:: HydroelectricPlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   A table transformer specific to the :ref:`core_ferc1__yearly_hydroelectric_plants_sched406` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:method:: transform_main(df)
+
+      Standard transform_main, bespoke remove duplicate record & remove ``.`` from project_num column.
+
+
+
+   .. py:method:: targeted_drop_duplicates(df)
+
+      Targeted removal of known duplicate record.
+
+      There are two records in 2019 with a ``utility_id_ferc1`` of 200 and a
+      ``plant_name_ferc1`` of "marmet". The records are nearly duplicates of
+      eachother, except one have nulls in the capex columns. Surgically remove the
+      record with the nulls.
+
+
+
+.. py:class:: PumpedStoragePlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_pumped_storage_plants_sched408` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+.. py:class:: PurchasedPowerAndExchangesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_purchased_power_and_exchanges_sched326`.
+
+   This table has data about inter-utility power purchases into the PUDL DB. This
+   includes how much electricity was purchased, how much it cost, and who it was
+   purchased from. Unfortunately the field describing which other utility the power was
+   being bought from is poorly standardized, making it difficult to correlate with
+   other data. It will need to be categorized by hand or with some fuzzy matching
+   eventually.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+.. py:class:: PlantInServiceTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   A transformer for the :ref:`core_ferc1__yearly_plant_in_service_sched204` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: process_xbrl_metadata(xbrl_metadata_converted: pandas.DataFrame, xbrl_calculations: pandas.DataFrame) -> pandas.DataFrame
+
+      Transform the metadata to reflect the transformed data.
+
+      We fill in some gaps in the metadata, e.g. for FERC accounts that have been
+      split across multiple rows, or combined without being calculated. We also need
+      to rename the XBRL metadata categories to conform to the same naming convention
+      that we are using in the data itself (since FERC doesn't quite follow their own
+      naming conventions...). We use the same rename dictionary, but as an argument to
+      :meth:`pd.Series.replace` instead of :meth:`pd.DataFrame.rename`.
+
+
+
+   .. py:method:: deduplicate_xbrl_factoid_xbrl_metadata(tbl_meta: pandas.DataFrame) -> pandas.DataFrame
+
+      De-duplicate the XBLR metadata.
+
+      We deduplicate the metadata on the basis of the ``xbrl_factoid`` name.
+      This table in particular has multiple ``wide_to_tidy`` ``value_types`` because
+      there are multiple dollar columns embedded (it has both the standard start/end
+      balances as well as modifications like transfers/retirements). In the XBRL
+      metadata, each xbrl_fact has its own set of metadata and possibly its own set of
+      calculations. Which means that one ``xbrl_factoid`` for this table natively
+      could have multiple calculations or other metadata.
+
+      For merging, we need the metadata to have one field per ``xbrl_factoid``.
+      Because we normally only use the start/end balance in calculations, when there
+      are duplicate renamed ``xbrl_factoid`` s in our processed metadata, we are going
+      to prefer the one that refers to the start/end balances. In an ideal world, we
+      would be able to access this metadata based on both the ``xbrl_factoid`` and
+      any column from ``value_types`` but that would require a larger change in
+      architecture.
+
+
+
+   .. py:method:: apply_sign_conventions(df) -> pandas.DataFrame
+
+      Adjust rows and column sign conventsion to enable aggregation by summing.
+
+      Columns have uniform sign conventions, which we have manually inferred from the
+      original metadata. This can and probably should be done programmatically in the
+      future. If not, we'll probably want to store the column_weights as a parameter
+      rather than hard-coding it in here.
+
+
+
+   .. py:method:: targeted_drop_duplicates_dbf(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Drop bad duplicate records from a specific utility in 2018.
+
+      This is a very specific fix, meant to get rid of a particular observed set of
+      duplicate records: FERC Respondent ID 187 in 2018 has two sets of plant in
+      service records, one of which contains a bunch of null data.
+
+      This method is part of the DBF processing because we want to be able to
+      hard-code a specific value of ``utility_id_ferc1_dbf`` and those IDs are no
+      longer available later in the process. I think.
+
+
+
+   .. py:method:: process_dbf(raw_dbf: pandas.DataFrame) -> pandas.DataFrame
+
+      Drop targeted duplicates in the DBF data so we can use FERC respondent ID.
+
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      The main table-specific transformations, affecting contents not structure.
+
+      Annotates and alters data based on information from the XBRL taxonomy metadata.
+      Also assigns utility type, plant status & function for use in table explosions.
+      Make all electric_plant_sold balances positive.
+
+
+
+.. py:class:: SmallPlantsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   A table transformer specific to the :ref:`core_ferc1__yearly_small_plants_sched410` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Table specific transforms for core_ferc1__yearly_small_plants_sched410.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data.
+
+      :returns: A single transformed table concatenating multiple years of cleaned data
+                derived from the raw DBF and/or XBRL inputs.
+
+
+
+   .. py:method:: extract_ferc1_license(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Extract FERC license number from ``plant_name_ferc1``.
+
+      Many FERC license numbers are embedded in the ``plant_name_ferc1`` column, but
+      not all numbers in the ``plant_name_ferc1`` column are FERC licenses. Some are
+      dates, dollar amounts, page numbers, or numbers of wind turbines. This function
+      extracts valid FERC license numbers and puts them in a new column called
+      ``license_id_ferc1``.
+
+      Potential FERC license numbers are valid when:
+
+      - Two or more integers were found.
+      - The found integers were accompanied by key phrases such as:
+        ``["license", "no.", "ferc", "project"]``.
+      - The accompanying name does not contain phrases such as:
+        ``["page", "pg", "$",  "wind", "units"]``.
+      - The found integers don't fall don't fall within the range of a valid year,
+        defined as: 1900-2050.
+      - The plant record is categorized as ``hydro`` or not categorized via the
+        ``plant_type`` and ``fuel_type`` columns.
+
+      This function also fills ``other`` fuel types with ``hydro`` for all plants with
+      valid FERC licenses because only hydro plants have FERC licenses.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data.
+
+      :returns: The same input DataFrame but with a new column called ``license_id_ferc1``
+                that contains FERC 1 license information extracted from
+                ``plant_name_ferc1``.
+
+
+
+   .. py:method:: _find_possible_header_or_note_rows(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Find and label rows that might be headers or notes.
+
+      Called by the coordinating function :func:`label_row_types`.
+
+      This function creates a column called ``possible_header_or_note`` that is either
+      True or False depending on whether a group of columns are all NA. Rows labeled
+      as True will be further scrutinized in the :func:`_label_header_rows` and
+      :func:`_label_note_rows` functions to determine whether they are actually
+      headers or notes.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data.
+
+      :returns: The same input DataFrame but with a new column called
+                ``possible_header_or_note`` that flags rows that might contain useful header
+                or note information.
+
+
+
+   .. py:method:: _find_note_clumps(group: pandas.core.groupby.DataFrameGroupBy) -> tuple[pandas.core.groupby.DataFrameGroupBy, pandas.DataFrame]
+
+      Find groups of rows likely to be notes.
+
+      Once the :func:`_find_possible_header_or_note_rows` function identifies rows
+      that are either headers or notes, we must determine which one they are. As
+      described in the :func:`_label_note_rows` function, notes rows are usually
+      adjacent rows with no content.
+
+      This function itentifies instances of two or more adjacent rows where
+      ``possible_header_or_note`` = True. It takes individual utility-year groups as a
+      parameter as opposed to the entire dataset because adjacent rows are only
+      meaningful if they are from the same reporting entity in the same year. If we
+      were to run this on the whole dataframe, we would see "note clumps" that are
+      actually notes from the end of one utility's report and headers from the
+      beginning of another. For this reason, we run this function from within the
+      :func:`_label_note_rows_group` function.
+
+      The output of this function is not a modified version of the original
+      utility-year group, rather, it is a DataFrame containing information about the
+      nature of the ``possible_header_or_note`` = True rows that is used to determine
+      if that row is a note or not. It also returns the original utility-year-group as
+      groupby objects separated by each time ``possible_header_or_note`` changes from
+      True to False or vice versa.
+
+      If you pass in the following df:
+
+      +-------------------+-------------------------+
+      | plant_name_ferc1  | possible_header_or_note |
+      +===================+=========================+
+      | HYDRO:            | True                    |
+      +-------------------+-------------------------+
+      | rainbow falls (b) | False                   |
+      +-------------------+-------------------------+
+      | cadyville (a)     | False                   |
+      +-------------------+-------------------------+
+      | keuka (c)         | False                   |
+      +-------------------+-------------------------+
+      | (a) project #2738 | True                    |
+      +-------------------+-------------------------+
+      | (b) project #2835 | True                    |
+      +-------------------+-------------------------+
+      | (c) project #2852 | True                    |
+      +-------------------+-------------------------+
+
+      You will get the following output (in addition to the groupby objects for each
+      clump):
+
+      +----------------+----------------+
+      | header_or_note | rows_per_clump |
+      +================+================+
+      | True           | 1              |
+      +----------------+----------------+
+      | False          | 3              |
+      +----------------+----------------+
+      | True           | 3              |
+      +----------------+----------------+
+
+      This shows each clump of adjacent records where ``possible_header_or_note`` is
+      True or False and how many records are in each clump.
+
+      Params:
+          group: A utility-year grouping of the concatenated FERC XBRL and DBF tables.
+              This table must have been run through the
+              :func:`_find_possible_header_or_note_rows` function and contain the
+              column ``possible_header_or_note``.
+
+      :returns: A tuple containing groupby objects for each of the note and non-note clumps
+                and a DataFrame indicating the number of rows in each note or non-note
+                clump.
+
+
+
+   .. py:method:: _label_header_rows(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Label header rows by adding ``header`` to ``row_type`` column.
+
+      Called by the coordinating function :func:`label_row_types`.
+
+      Once possible header or notes rows have been identified via the
+      :func:`_find_possible_header_or_note_rows` function, this function sorts out
+      which ones are headers. It does this by identifying a list of strings that, when
+      found in the ``plant_name_ferc1`` column, indicate that the row is or is not a
+      header.
+
+      Sometimes this function identifies a header that is actually a note. For this
+      reason, it's important that the function be called before
+      :func:`_label_note_rows` so that the bad header values get overridden by the
+      ``note`` designation.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data that has been run through
+          the :func:`_find_possible_header_or_note_rows` function and contains the
+          column ``possible_header_or_note``.
+
+      :returns: The same input DataFrame but with likely headers rows containing the string
+                ``header`` in the ``row_type`` column.
+
+
+
+   .. py:method:: _label_note_rows_group(util_year_group: pandas.core.groupby.DataFrameGroupBy) -> pandas.core.groupby.DataFrameGroupBy
+
+      Label note rows by adding ``note`` to ``row_type`` column.
+
+      Called within the wrapper function :func:`_label_note_rows`
+
+      This function breaks the data down by reporting unit (utility and year) and
+      determines whether a ``possible_header_note`` = True row is a note based on two
+      criteria:
+
+      - Clumps of 2 or more adjacent rows where ``possible_header_or_note`` is True.
+      - Instances where the last row in a utility-year group has
+        ``possible_header_or_note`` as True.
+
+      There are a couple of important exceptions that this function also
+      addresses. Utilities often have multiple headers in a single utility-year
+      grouping. You might see something like: ``pd.Series([header, plant1, plant2,
+      note, header, plant3, plant4])``. In this case, a note clump is actually
+      comprised of a note followed by a header. This function will not override the
+      header as a note. Unfortunately, there is always the possibility that a header
+      row is followed by a plant that had no values reported. This would look like,
+      and therefore be categorized as a note clump. I haven't built a work around, but
+      hopefully there aren't very many of these.
+
+      Params:
+          util_year_group: A groupby object that contains a single year and utility.
+
+      :returns: The same input but with likely note rows containing the string ``note`` in
+                the ``row_type`` column.
+
+
+
+   .. py:method:: _label_note_rows(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Wrapper for :func:`_label_note_rows_group`.
+
+      The small plants table has lots of note rows that contain useful information.
+      Unfortunately, the notes are in their own row rather than their own column! This
+      means that useful information pertaining to plant rows is floating around as a
+      junk row with no other information except the note in the ``plant_name_ferc1``
+      field. Luckily, the data are reported just like they would be on paper. I.e.,
+      The headers are at the top, and the notes are at the bottom. See the table in
+      :func:`label_row_types` for more detail. This function labels note rows.
+
+      Note rows are determined by row location within a given report, so we must break
+      the data into reporting units (utility and year) and then apply note-finding
+      methodology defined in :func:`_label_note_rows_group` to each group.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data that has been run through
+          the :func:`_find_possible_header_or_note_rows` function and contains the
+          column ``possible_header_or_note``.
+
+      :returns: The same input DataFrame but with likely note rows containing the string
+                ``note`` in the ``row_type`` column.
+
+
+
+   .. py:method:: _label_total_rows(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Label total rows by adding ``total`` to ``row_type`` column.
+
+      Called within the wrapper function :func:`_label_note_rows`
+
+      For the most part, when ``plant_name_ferc1`` contains the string ``total``, the
+      values therein are duplicates of what is already reported, i.e.: a total value.
+      However, there are some cases where that's not true. For example, the phrase
+      ``amounts are for the total`` appears when chunks of plants (usually but not
+      always wind) are reported together. It's a total, but it's not double counting
+      which is the reason for the ``total`` flag.
+
+      Similar to :func:`_label_header_rows`, it's important that this be called before
+      :func:`_label_note_rows` in :func:`label_row_types` so that not clumps can
+      override certain non-totals that are mistakenly labeled as such.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data.
+
+      :returns: The same input DataFrame but with likely total rows containing the string
+                ``total`` in the ``row_type`` column.
+
+
+
+   .. py:method:: label_row_types(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Coordinate labeling of ``row_types`` as headers, notes, or totals.
+
+      The small plants table is more like a digitized PDF than an actual data table.
+      The rows contain all sorts of information in addition to what the columns might
+      suggest. For instance, there are header rows, note rows, and total rows that
+      contain useful information, but cause confusion in their current state, mixed in
+      with the rest of the data.
+
+      Here's an example of what you might find in the small plants table:
+
+      +-------------------+------------+-----------------+
+      | plant_name_ferc1  | plant_type | capacity_mw     |
+      +===================+============+=================+
+      | HYDRO:            | NA         | NA              |
+      +-------------------+------------+-----------------+
+      | rainbow falls (b) | NA         | 30              |
+      +-------------------+------------+-----------------+
+      | cadyville (a)     | NA         | 100             |
+      +-------------------+------------+-----------------+
+      | keuka (c)         | NA         | 80              |
+      +-------------------+------------+-----------------+
+      | total plants      | NA         | 310             |
+      +-------------------+------------+-----------------+
+      | (a) project #2738 | NA         | NA              |
+      +-------------------+------------+-----------------+
+      | (b) project #2835 | NA         | NA              |
+      +-------------------+------------+-----------------+
+      | (c) project #2852 | NA         | NA              |
+      +-------------------+------------+-----------------+
+
+      Notice how misleading it is to have all this information in one column. The
+      goal of this function is to coordinate labeling functions so that we can
+      identify which rows contain specific plant information and which rows are
+      headers, notes, or totals.
+
+      Once labeled, other functions can either remove rows that might cause double
+      counting, extract useful plant or fuel type information from headers, and
+      extract useful context or license id information from notes.
+
+      Coordinates :func:`_label_header_rows`, :func:`_label_total_rows`,
+      :func:`_label_note_rows`.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data that has been run through
+          the :func:`_find_possible_header_or_note_rows` function and contains the
+          column ``possible_header_or_note``.
+
+      :returns: The same input DataFrame but with a column called ``row_type`` containing the
+                strings ``header``, ``note``, ``total``, or NA to indicate what type of row
+                it is.
+
+
+
+   .. py:method:: prep_header_fuel_and_plant_types(df: pandas.DataFrame, show_unmapped_headers=False) -> pandas.DataFrame
+
+      Forward fill header rows to prep for fuel and plant type extraction.
+
+      The headers we've identified in :func:`_label_header_rows` can be used to
+      supplement the values in the ``plant_type`` and ``fuel_type`` columns.
+
+      This function groups the data by utility, year, and header; extracts the header
+      into a new column; and forward fills the headers so that each record in the
+      header group is associated with that header. Because the headers map to
+      different fuel types and plant types (ex: ``solar pv`` maps to fuel type
+      ``solar`` and plant type ``photovoltaic``), the new forward-filled header column
+      is duplicated and called ``fuel_type_from_header`` and
+      ``plant_type_from_header``. In :func:`map_header_fuel_and_plant_types`, these
+      columns will be mapped to their respective fuel and plant types, used
+      to fill in blank values in the ``plant_type`` and ``fuel_type``, and then
+      eventually removed.
+
+      Why separate the prep step from the map step?
+
+      We trust the values originally reported in the ``fuel_type`` and ``plant_type``
+      columns more than the extracted and forward filled header values, so we only
+      want to replace ``fuel_type`` and ``plant_type`` values that are labeled as
+      ``pd.NA`` or ``other``. The values reported to those columns are extremely messy
+      and must be cleaned via :func:`pudl.transform.classes.categorize_strings` in
+      order for us to know which are truly ``pd.NA`` or ``other``. Because we also
+      use :func:`pudl.transform.classes.categorize_strings` to map the headers to fuel
+      and plant types, it makes sense to clean all four columns at once and then
+      combine them.
+
+      Here's a look at what this function does. It starts with the following table:
+
+      +-------------------+------------+------------+----------+
+      | plant_name_ferc1  | plant_type | fuel_type  | row_type |
+      +===================+============+============+==========+
+      | HYDRO:            | NA         | NA         | header   |
+      +-------------------+------------+------------+----------+
+      | rainbow falls (b) | NA         | NA         | NA       |
+      +-------------------+------------+------------+----------+
+      | cadyville (a)     | NA         | NA         | NA       |
+      +-------------------+------------+------------+----------+
+      | keuka (c)         | NA         | NA         | NA       |
+      +-------------------+------------+------------+----------+
+      | Wind Turbines:    | NA         | NA         | header   |
+      +-------------------+------------+------------+----------+
+      | sunny grove       | NA         | NA         | NA       |
+      +-------------------+------------+------------+----------+
+      | green park wind   | NA         | wind       | NA       |
+      +-------------------+------------+------------+----------+
+
+      And ends with this:
+
+      +-------------------+---------+---------+----------------+--------------------+
+      | plant_name_ferc1  | plant   | fuel    | plant_type     | fuel_type          |
+      |                   | _type   | _type   | _from_header   | _from_header       |
+      +===================+=========+=========+================+====================+
+      | HYDRO:            | NA      | NA      | HYDRO:         | HYDRO:             |
+      +-------------------+---------+---------+----------------+--------------------+
+      | rainbow falls (b) | NA      | NA      | HYDRO:         | HYDRO:             |
+      +-------------------+---------+---------+----------------+--------------------+
+      | cadyville (a)     | NA      | NA      | HYDRO:         | HYDRO:             |
+      +-------------------+---------+---------+----------------+--------------------+
+      | keuka (c)         | NA      | NA      | HYDRO:         | HYDRO:             |
+      +-------------------+---------+---------+----------------+--------------------+
+      | Wind Turbines:    | NA      | NA      | Wind Turbines: | Wind Turbines:     |
+      +-------------------+---------+---------+----------------+--------------------+
+      | sunny grove       | NA      | NA      | Wind Turbines: | Wind Turbines:     |
+      +-------------------+---------+---------+----------------+--------------------+
+      | green park wind   | NA      | wind    | Wind Turbines: | Wind Turbines:     |
+      +-------------------+---------+---------+----------------+--------------------+
+
+      NOTE: If a utility's ``plant_name_ferc1`` values look like this: ``["STEAM",
+      "coal_plant1", "coal_plant2", "wind_turbine1"]``, then this algorithm will
+      think that last wind turbine is a steam plant. Luckily, when a utility embeds
+      headers in the data it usually includes them for all plant types: ``["STEAM",
+      "coal_plant1", "coal_plant2", "WIND", "wind_turbine"]``.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data that has been run through
+          :func:`_label_row_type` and contains the columns ``row_type``.
+
+      :returns: The same input DataFrame but with new columns ``plant_type_from_header``
+                and ``fuel_type_from_header`` that forward fill the values in the header
+                rows by utility, year, and header group.
+
+
+
+   .. py:method:: map_header_fuel_and_plant_types(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Fill ``pd.NA`` and ``other`` plant and fuel types with cleaned headers.
+
+      :func:`prep_header_fuel_and_plant_types` extracted and forward filled the header
+      values; :func:`pudl.transform.params.categorize_strings` cleaned them according
+      to both the fuel and plant type parameters. This function combines the
+      ``fuel_type_from_header`` with ``fuel_type`` and ``plant_type_from_header`` with
+      ``plant_type`` when the reported, cleaned values are ``pd.NA`` or ``other``.
+
+      To understand more about why these steps are necessary read the docstrings for
+      :func:`prep_header_fuel_and_plant_types`.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data that has been run through
+          :func:`prep_header_fuel_and_plant_types` and contains the columns
+          ``fuel_type_from_header`` and ``plant_type_from_header``.
+
+      :returns: The same input DataFrame but with rows with ``pd.NA`` or ``other`` in the
+                ``fuel_type`` and ``plant_type`` columns filled in with the respective
+                values from ``fuel_type_from_header`` and ``plant_type_from_header`` when
+                available. ``fuel_type_from_header`` and ``plant_type_from_header`` columns
+                removed.
+
+
+
+   .. py:method:: map_plant_name_fuel_types(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Supplement ``fuel_type`` with information in ``plant_name_ferc1``.
+
+      Sometimes fuel type is embedded in a plant name (not just headers). In this case
+      we can identify that what that fuel is from the name and fill in empty
+      ``fuel_type`` values. Right now, this only works for hydro plants because the
+      rest are complicated and have a slew of exceptions. This could probably be
+      applied to the ``plant_type`` column in the future too.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data.
+
+      :returns: The same input DataFrame but with rows with ``other`` in the
+                ``fuel_type`` column filled in notable fuel types extracted from the the
+                ``plant_name_ferc1`` column.
+
+
+
+   .. py:method:: associate_notes_with_values(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Use footnote indicators to map notes and FERC licenses to plant rows.
+
+      There are many utilities that report a bunch of mostly empty note rows at the
+      bottom of their yearly entry. These notes often pertain to specific plant rows
+      above. Sometimes the notes and their respective plant rows are linked by a
+      common footnote indicator such as (a) or (1) etc.
+
+      This function takes this:
+
+      +-------------------+------------+------------------+
+      | plant_name_ferc1  | row_type   | license_id_ferc1 |
+      +===================+============+==================+
+      | HYDRO:            | header     | NA               |
+      +-------------------+------------+------------------+
+      | rainbow falls (b) | NA         | NA               |
+      +-------------------+------------+------------------+
+      | cadyville (a)     | NA         | NA               |
+      +-------------------+------------+------------------+
+      | keuka (c)         | NA         | NA               |
+      +-------------------+------------+------------------+
+      | total plants      | total      | NA               |
+      +-------------------+------------+------------------+
+      | (a) project #2738 | note       | 2738             |
+      +-------------------+------------+------------------+
+      | (b) project #2835 | note       | 2738             |
+      +-------------------+------------+------------------+
+      | (c) project #2852 | note       | 2738             |
+      +-------------------+------------+------------------+
+
+      Finds the note rows with footnote indicators, maps the content from the note row
+      into a new note column that's associated with the value row, and maps any FERC
+      license extracted from this note column to the ``license_id_ferc1`` column in
+      the value row.
+
+      +-------------------+------------+-------------------+------------------+
+      | plant_name_ferc1  | row_type   | notes             | license_id_ferc1 |
+      +===================+============+===================+==================+
+      | HYDRO:            | header     | NA                | NA               |
+      +-------------------+------------+-------------------+------------------+
+      | rainbow falls (b) | NA         | (b) project #2835 | 2835             |
+      +-------------------+------------+-------------------+------------------+
+      | cadyville (a)     | NA         | (a) project #2738 | 2738             |
+      +-------------------+------------+-------------------+------------------+
+      | keuka (c)         | NA         | (c) project #2852 | 2752             |
+      +-------------------+------------+-------------------+------------------+
+      | total plants      | total      | NA                | NA               |
+      +-------------------+------------+-------------------+------------------+
+      | (a) project #2738 | note       | NA                | 2738             |
+      +-------------------+------------+-------------------+------------------+
+      | (b) project #2835 | note       | NA                | 2835             |
+      +-------------------+------------+-------------------+------------------+
+      | (c) project #2852 | note       | NA                | 2752             |
+      +-------------------+------------+-------------------+------------------+
+
+      (Header and note rows are removed later).
+
+      NOTE: Note rows that don't have a footnote indicator or note rows with a
+      footnote indicator that don't have a corresponding plant row with the same
+      indicator are not captured. They will ultimately get removed and their content
+      will not be preserved.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data that has been run through
+          :func:`label_row_types` and contains the column ``row_type``.
+
+      :returns: The same input DataFrame but with a column called ``notes`` that contains
+                notes, reported below, in the same row as the plant values they pertain to.
+                Also, any further additions to the ``license_id_ferc1`` field as extracted
+                from these newly associated notes.
+
+
+
+   .. py:method:: spot_fix_rows(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Fix one-off row errors.
+
+      In 2004, utility_id_ferc1 251 reports clumps of units together. Each unit clump
+      looks something like this: ``intrepid wind farm (107 units @ 1.5 mw each)`` and
+      is followed by a row that looks like this: ``(amounts are for the total of all
+      107 units)``. For the most part, these rows are useless note rows. However,
+      there is one instance where important values are reported in this note row
+      rather than in the actual plant row above.
+
+      There are probably plenty of other spot fixes one could add here.
+
+      Params:
+          df: Pre-processed, concatenated XBRL and DBF data.
+
+      :returns: The same input DataFrame but with some spot fixes corrected.
+
+
+
+.. py:class:: TransmissionLinesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   A table transformer for the :ref:`core_ferc1__yearly_transmission_lines_sched422` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Do some string-to-numeric ninja moves.
+
+
+
+.. py:class:: EnergySourcesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_energy_sources_sched401` table.
+
+   The raw DBF and XBRL table will be split up into two tables. This transformer
+   generates the sources of electricity for utilities, dropping the information about
+   dispositions. For XBRL, this is a duration-only table. Right now we are merging in
+   the metadata but not actually keeping anything from it. We are also not yet doing
+   anything with the sign.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Perform default xbrl metadata processing plus adding 1 new xbrl_factoid.
+
+      Note: we should probably parameterize this and add it into the standard
+      :meth:`process_xbrl_metadata`.
+
+
+
+.. py:class:: EnergyDispositionsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_energy_dispositions_sched401` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+.. py:class:: UtilityPlantSummaryTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_utility_plant_summary_sched200` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: process_xbrl(raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+
+      Remove the end-of-previous-year instant data.
+
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Do the default metadata processing plus add a new factoid.
+
+      The new factoid corresponds to the aggregated factoid in
+      :meth:`aggregated_xbrl_factoids`.
+
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Default transforming, plus spot fixing and building aggregate xbrl_factoid.
+
+
+
+   .. py:method:: aggregated_xbrl_factoids(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Aggregate xbrl_factoids records for linking to :ref:`core_ferc1__yearly_plant_in_service_sched204`.
+
+      This table has two ``xbrl_factoid`` which can be linked via calculations to one
+      ``xbrl_factoid`` in the :ref:`core_ferc1__yearly_plant_in_service_sched204`.
+      Doing this 2:1 linkage would be fine in theory. But the
+      :ref:`core_ferc1__yearly_plant_in_service_sched204` is in most senses
+      the table with the more details and of our desire to build tree-link
+      relationships between factoids, we need to build a new factoid to link in a 1:1
+      manner between this table and the :ref:`core_ferc1__yearly_plant_in_service_sched204`.
+
+      We'll also add this factoid into the metadata via :meth:`process_xbrl_metadata`
+      and add the linking calculation via :meth:`apply_xbrl_calculation_fixes`.
+
+
+
+   .. py:method:: spot_fix_bad_signs(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Spot fix depreciation_utility_plant_in_service records with bad signs.
+
+
+
+.. py:class:: BalanceSheetLiabilitiesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_balance_sheet_liabilities_sched110` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Duplicate data that appears in multiple distinct calculations.
+
+      There is a one case in which exactly the same data values are referenced in
+      multiple calculations which can't be resolved by choosing one of the
+      referenced values as the canonical location for that data. In order to preserve
+      all of the calculation structure, we need to duplicate those records in the
+      data, the metadata, and the calculation specifications.  Here we duplicate the
+      data and associated it with newly defined facts, which we will also add to
+      the metadata and calculations.
+
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Perform default xbrl metadata processing plus adding 2 new xbrl_factoids.
+
+      We add two new factoids which are defined (by PUDL) only for the DBF data, and
+      also duplicate and redefine several factoids which are referenced in multiple
+      calculations and need to be distinguishable from each other.
+
+      Note: we should probably parameterize this and add it into the standard
+      :meth:`process_xbrl_metadata`.
+
+
+
+.. py:class:: BalanceSheetAssetsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_balance_sheet_assets_sched110` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Duplicate data that appears in multiple distinct calculations.
+
+      There is a one case in which exactly the same data values are referenced in
+      multiple calculations which can't be resolved by choosing one of the
+      referenced values as the canonical location for that data. In order to preserve
+      all of the calculation structure, we need to duplicate those records in the
+      data, the metadata, and the calculation specifications.  Here we duplicate the
+      data and associated it with newly defined facts, which we will also add to
+      the metadata and calculations.
+
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Default xbrl metadata processing plus some error correction.
+
+      We add two new factoids which are defined (by PUDL) only for the DBF data, and
+      also duplicate and redefine several factoids which are referenced in multiple
+      calculations and need to be distinguishable from each other.
+
+      Note: we should probably parameterize this and add it into the standard
+      :meth:`process_xbrl_metadata`.
+
+
+
+.. py:class:: IncomeStatementsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for the :ref:`core_ferc1__yearly_income_statements_sched114` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Perform default xbrl metadata processing plus adding a new xbrl_factoid.
+
+      Note: we should probably parameterize this and add it into the standard
+      :meth:`process_xbrl_metadata`.
+
+
+
+   .. py:method:: process_dbf(raw_dbf: pandas.DataFrame) -> pandas.DataFrame
+
+      Drop incorrect row numbers from f1_incm_stmnt_2 before standard processing.
+
+      In 2003, two rows were added to the ``f1_income_stmnt`` dbf table, which bumped
+      the starting ``row_number`` of ``f1_incm_stmnt_2`` from 25 to 27. A small
+      handful of respondents seem to have not gotten the memo about this in
+      2003 and have information on these row numbers that shouldn't exist at all for
+      this table.
+
+      This step necessitates the ability to know which source table each record
+      actually comes from, which required adding a column (``sched_table_name``) in
+      the extract step before these two dbf input tables were concatenated.
+
+      Right now we are just dropping these bad row numbers. Should we actually be
+      bumping the whole respondent's row numbers - assuming they reported incorrectly
+      for the whole table? See: https://github.com/catalyst-cooperative/pudl/issues/471
+
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Drop duplicate records from f1_income_stmnt.
+
+      Because net_utility_operating_income is reported on both page 1 and 2 of the
+      form, it ends up introducing a bunch of duplicated records, so we need to drop
+      one of them. Since the value is used in the calculations that are part of the
+      second page, we'll drop it from the first page.
+
+
+
+.. py:class:: RetainedEarningsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_retained_earnings_sched118` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:attribute:: current_year_types
+      :type:  set[str]
+
+
+   .. py:attribute:: previous_year_types
+      :type:  set[str]
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Transform the metadata to reflect the transformed data.
+
+      Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
+      processing, add FERC account values for a few known values.
+
+
+
+   .. py:method:: process_dbf(raw_dbf: pandas.DataFrame) -> pandas.DataFrame
+
+      Preform generic :meth:`process_dbf`, plus deal with duplicates.
+
+      Along with the standard processing in
+      :meth:`Ferc1AbstractTableTransformer.process_dbf`, this method runs:
+      * :meth:`targeted_drop_duplicates_dbf`
+      * :meth:`reconcile_double_year_earnings_types_dbf`
+
+
+
+   .. py:method:: transform_main(df)
+
+      Add `_previous_year` factoids after standard transform_main.
+
+      Add `_previous_year` factoids for `unappropriated_retained_earnings` and
+      `unappropriated_undistributed_subsidiary_earnings` after standard
+      transform_main. This should only affect XBRL data, but we do it after merging to
+      enable access to DBF data to fill this in as well.
+
+
+
+   .. py:method:: transform_end(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Check ``_previous_year`` factoids for consistency after the transformation is done.
+
+
+
+   .. py:method:: check_double_year_earnings_types(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Check previous year/current year factoids for consistency.
+
+      The terminology can be very confusing - here are the expectations:
+
+      1. "inter year consistency": earlier year's "current starting/end
+         balance" == later year's "previous starting/end balance"
+      2. "intra year consistency": each year's "previous ending balance" ==
+         "current starting balance"
+
+
+
+   .. py:method:: targeted_drop_duplicates_dbf(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Drop duplicates with truly duplicate data.
+
+      There are instances of utilities that reported multiple values for several
+      earnings types for a specific year (utility_id_ferc1 68 in 1998 &
+      utility_id_ferc1 296 in 2015). We are taking the largest value reported and
+      dropping the rest. There very well could be a better strategy here, but there
+      are only 25 records that have this problem, so we've going with this.
+
+
+
+   .. py:method:: reconcile_double_year_earnings_types_dbf(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Reconcile current and past year data reported in 1 report_year.
+
+      The DBF table includes two different earnings types that have: "Beginning of
+      Period" and "End of Period" rows. But the table has both an amount column that
+      corresponds to a balance and a starting balance column. For these two earnings
+      types, this means that there is in effect two years of data in this table for
+      each report year: a starting and ending balance for the pervious year and a
+      starting and ending balance for the current year. The ending balance for the
+      previous year should be the same as the starting balance for the current year.
+
+      We need to keep both pieces of data in order to calculate `ending_balances`,
+      so we want to check these assumptions, extract as much information from these
+      two years of data, and keep both records for each of these two earnings
+      types for each utility.
+
+      :raises AssertionError: There are a very small number of instances in which the
+          ending balance from the previous year does not match the starting
+          balance from the current year. The % of these non-matching instances
+          should be less than 2% of the records with these date duplicative
+          earnings types.
+
+
+
+   .. py:method:: add_previous_year_factoid(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Create ``*_previous_year`` factoids for XBRL data.
+
+      XBRL doesn't include the previous year's data, but DBF does - so we try to
+      check that year X's ``*_current_year`` factoid has the same value as year X+1's
+      ``*_previous_year`` factoid.
+
+      To do this, we need to add some ``*_previous_year`` factoids to the XBRL data.
+
+
+
+   .. py:method:: deduplicate_xbrl_factoid_xbrl_metadata(tbl_meta) -> pandas.DataFrame
+
+      Deduplicate the xbrl_metadata based on the ``xbrl_factoid``.
+
+      The metadata relating to dollar_value column *generally* had the same name as
+      the renamed xbrl_factoid. we'll double check that we a) didn't remove too many
+      factoid's by doing this AND that we have a fully deduped output below. In an
+      ideal world, we would have multiple pieces of metadata information (like
+      calculations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+      column.
+
+      Note: This is **almost** the same as the method for
+      :ref:`core_ferc1__yearly_operating_revenues_sched300`. If we wanted to lean into this
+      version of deduplication more generally this might be a fine way start to an
+      abstraction, but ideally we wouldn't need to dedupe this at all and instead
+      enable metadata for every value column from :meth:`wide_to_tidy`.
+
+
+
+.. py:class:: DepreciationSummaryTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_depreciation_summary_sched336` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: process_xbrl_metadata(xbrl_metadata_converted: pandas.DataFrame, xbrl_calculations: pandas.DataFrame) -> pandas.DataFrame
+
+      Transform the metadata to reflect the transformed data.
+
+      Beyond the standard :meth:`Ferc1AbstractTableTransformer.process_xbrl_metadata`
+      processing, add FERC account values for a few known values.
+
+
+
+.. py:class:: DepreciationChangesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_depreciation_changes_sched219` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json) -> pandas.DataFrame
+
+      Transform the metadata to reflect the transformed data.
+
+      Warning: The calculations in this table are currently being corrected using
+      reconcile_table_calculations(), but they still contain high rates of error.
+      This function replaces the name of the single balance column reported in the
+      XBRL Instant table with starting_balance / ending_balance. We pull those two
+      values into their own separate labeled rows, each of which should get the
+      metadata from the original column. We do this pre-processing before we
+      call the main function in order for the calculation fixes and renaming to work
+      as expected.
+
+
+
+   .. py:method:: process_dbf(raw_df: pandas.DataFrame) -> pandas.DataFrame
+
+      Accumulated Depreciation table specific DBF cleaning operations.
+
+      The XBRL reports a utility_type which is always electric in this table, but
+      which may be necessary for differentiating between different values when this
+      data is combined with other tables. The DBF data doesn't report this value so
+      we are adding it here for consistency across the two data sources.
+
+      Also rename the ``ending_balance_accounts`` to ``ending_balance``
+
+
+
+   .. py:method:: process_instant_xbrl(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Pre-processing required to make the instant and duration tables compatible.
+
+      This table has a rename that needs to take place in an unusual spot -- after the
+      starting / ending balances have been usntacked, but before the instant &
+      duration tables are merged. This method just reversed the order in which these
+      operations happen, compared to the inherited method.
+
+
+
+.. py:class:: DepreciationByFunctionTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer for :ref:`core_ferc1__yearly_depreciation_by_function_sched219` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Create a metadata table with the one factoid we've assigned to this table.
+
+      Instead of adding facts to the metadata like a lot of the other table-specific
+      :meth:`convert_xbrl_metadata_json_to_df`, this method creates a metadata table
+      with one singular ``xbrl_factoid``. We assign that factoid to the table in
+      :meth:`transform_main`.
+
+
+
+   .. py:method:: raw_xbrl_factoid_to_pudl_name(col_name_xbrl: str) -> str
+
+      Return the one fact name for this table.
+
+      We've artificially assigned this table to have one ``xbrl_factoid`` during
+      :meth:`transform_main`. Because this table only has one value for its
+      ``xbrl_factoid`` column, all ``col_name_xbrl`` should be converted to
+      "accumulated_depreciation".
+
+
+
+   .. py:method:: process_dbf(raw_df: pandas.DataFrame) -> pandas.DataFrame
+
+      Accumulated Depreciation table specific DBF cleaning operations.
+
+      The XBRL reports a utility_type which is always electric in this table, but
+      which may be necessary for differentiating between different values when this
+      data is combined with other tables. The DBF data doesn't report this value so we
+      are adding it here for consistency across the two data sources.
+
+
+
+   .. py:method:: process_instant_xbrl(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Pre-processing required to make the instant and duration tables compatible.
+
+      This table has a rename that needs to take place in an unusual spot -- after the
+      starting / ending balances have been usntacked, but before the instant &
+      duration tables are merged. This method reverses the order in which these
+      operations happen compared to the inherited method. We also want to strip the
+      ``accumulated_depreciation`` that appears on every plant functional class.
+
+
+
+   .. py:method:: transform_main(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Add ``depreciation_type`` then run default :meth:`transform_main`.
+
+      We are adding ``depreciation_type`` as the ``xbrl_factoid`` column for this
+      table with one value ("accumulated_depreciation") across the whole table. This
+      table has multiple "dimension" columns such as ``utility_type`` and
+      ``plant_function`` which differentiate what slice of a utility's assets each
+      record pertains to. We added this new column as the ``xbrl_factoid`` of the
+      table instead of using one of the dimensions of the table so that the table can
+      conform to the same pattern of treatment for these dimension columns.
+
+
+
+   .. py:method:: transform_end(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Run standard :meth:`Ferc1AbstractTableTransformer.transform_end` plus a data validation step.
+
+      In :func:`infer_intra_factoid_totals`, we restrict the child calculation components to
+      only those without "total" in any of the dimension columns (e.g. `plant_status == "total"`).
+      Because of this, when there is more than one dimension with totals in a table, as in this table,
+      records with two totals (e.g. `plant_status == "total"` and `plant_function == "total"`) only get
+      linked to children with no "totals" in any of their subdimensions. This is fine and good because
+      it avoids possible double counting of mixed total and sub-dimension calculations. But it means
+      that records with totals in one sub-dimension (e.g. `plant_status == "in_service"` and
+      `plant_function == "total"`) aren't linked to double-total parent factoids. To ensure that there
+      aren't many instances of data where most or all of the data is reported in these mixed-total
+      records, we add a validation step to ward against large-scale data loss in
+      :class:`pudl.output.ferc1.Exploder`.
+
+
+
+.. py:class:: OperatingExpensesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_operating_expenses_sched320` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: targeted_drop_duplicates_dbf(raw_df: pandas.DataFrame) -> pandas.DataFrame
+
+      Drop incorrect duplicate from 2002.
+
+      In 2002, utility_id_ferc1_dbf 96 reported two values for
+      administrative_and_general_operation_expense. I found the correct value by
+      looking at the prev_yr_amt value in 2003. This removes the incorrect row.
+
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Default XBRL metadata processing and add a DBF-only xblr factoid.
+
+      Note: we should probably parameterize this and add it into the standard
+      :meth:`process_xbrl_metadata`.
+
+
+
+   .. py:method:: process_dbf(raw_dbf: pandas.DataFrame) -> pandas.DataFrame
+
+      Process DBF but drop a bad row that is flagged by drop_duplicates.
+
+
+
+.. py:class:: OperatingRevenuesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_operating_revenues_sched300` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: deduplicate_xbrl_factoid_xbrl_metadata(tbl_meta: pandas.DataFrame) -> pandas.DataFrame
+
+      Transform the metadata to reflect the transformed data.
+
+      Employ the standard process for processing metadata. Then remove duplication on
+      the basis of the ``xbrl_factoid``. This table used :meth:`wide_to_tidy` with three
+      separate value columns. Which results in one ``xbrl_factoid`` referencing three
+      separate data columns. This method grabs only one piece of metadata for each
+      renamed ``xbrl_factoid``, preferring the calculated value or the factoid
+      referencing the dollar columns.
+
+      In an ideal world, we would have multiple pieces of metadata information (like
+      calculations and ferc account #'s), for every single :meth:`wide_to_tidy` value
+      column. We would probably want to employ that across the board - adding suffixes
+      or something like that to stack the metadata in a similar fashion that we stack
+      the data.
+
+
+
+   .. py:method:: transform_main(df)
+
+      Add duplicate removal after standard transform_main & assign utility type.
+
+
+
+   .. py:method:: targeted_drop_duplicates(df)
+
+      Drop one duplicate records from 2011, utility_id_ferc1 295.
+
+
+
+.. py:class:: CashFlowsTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transform class for :ref:`core_ferc1__yearly_cash_flows_sched120` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: process_instant_xbrl(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Pre-processing required to make the instant and duration tables compatible.
+
+      This table has a rename that needs to take place in an unusual spot -- after the
+      starting / ending balances have been unstacked, but before the instant &
+      duration tables are merged. This method just reversed the order in which these
+      operations happen, compared to the inherited method.
+
+
+
+   .. py:method:: transform_main(df)
+
+      Add duplicate removal and validation after standard transform_main.
+
+
+
+   .. py:method:: targeted_drop_duplicates(df)
+
+      Drop one duplicate record from 2020, utility_id_ferc1 2037.
+
+      Note: This step could be avoided if we employed a :meth:`drop_invalid_rows`
+      transform step with ``required_valid_cols = ["amount"]``
+
+
+
+   .. py:method:: validate_start_end_balance(df)
+
+      Validate of start balance + net = end balance.
+
+      Add a quick check to ensure the vast majority of the ending balances are
+      calculable from the net change + the starting balance = the ending balance.
+
+
+
+   .. py:method:: convert_xbrl_metadata_json_to_df(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]]) -> pandas.DataFrame
+
+      Transform the metadata to reflect the transformed data.
+
+      Replace the name of the balance column reported in the XBRL Instant table with
+      starting_balance / ending_balance since we pull those two values into their own
+      separate labeled rows, each of which should get the original metadata for the
+      Instant column.
+
+
+
+.. py:class:: SalesByRateSchedulesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transform class for :ref:`core_ferc1__yearly_sales_by_rate_schedules_sched304` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :type:  bool
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+   .. py:method:: add_axis_to_total_table_rows(df: pandas.DataFrame)
+
+      Add total to the axis column for rows from the total table.
+
+      Because we're adding the
+      sales_of_electricity_by_rate_schedules_account_totals_304 table into the mix,
+      we have a bunch of total values that get mixed in with all the _billed columns
+      from the individual tables. If left alone, these totals aren't labeled in any
+      way because they don't have the same _axis columns explaining what each of the
+      values are. In order to distinguish them from the rest of the sub-total data we
+      use this function to create an _axis value for them noting that they are totals.
+
+      It's worth noting that there are also some total values in there already.
+      Those would be hard to clean. The idea is that if you want the actual totals,
+      don't try and sum the sub-components, look at the actual labeled total rows.
+
+      This function relies on the ``sched_table_name`` column, so it must be called
+      before that gets dropped.
+
+      :param df: The sales table with a ``sched_table_name`` column.
+
+
+
+   .. py:method:: process_xbrl(raw_xbrl_instant: pandas.DataFrame, raw_xbrl_duration: pandas.DataFrame) -> pandas.DataFrame
+
+      Rename columns before running wide_to_tidy.
+
+
+
+.. py:class:: OtherRegulatoryLiabilitiesTableTransformer(xbrl_metadata_json: dict[Literal['instant', 'duration'], list[dict[str, Any]]] | None = None, params: pudl.transform.classes.TableTransformParams | None = None, cache_dfs: bool = False, clear_cached_dfs: bool = True)
+
+   Bases: :py:obj:`Ferc1AbstractTableTransformer`
+
+
+   Transformer class for :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278` table.
+
+
+   .. py:attribute:: table_id
+      :type:  TableIdFerc1
+
+      Name of the PUDL database table that this table transformer produces.
+
+      Must be defined in the database schema / metadata. This ID is used to instantiate
+      the appropriate :class:`TableTransformParams` object.
+
+
+   .. py:attribute:: has_unique_record_ids
+      :value: False
+
+
+      True if each record in the transformed table corresponds to one input record.
+
+      For tables that have been transformed from wide-to-tidy format, or undergone other
+      kinds of reshaping, there is not a simple one-to-one relationship between input and
+      output records, and so we should not expect record IDs to be unique. In those cases
+      they serve only a forensic purpose, telling us where to find the original source of
+      the transformed data.
+
+
+.. py:data:: FERC1_TFR_CLASSES
+   :type:  collections.abc.Mapping[str, type[Ferc1AbstractTableTransformer]]
+
+.. py:function:: ferc1_transform_asset_factory(table_name: str, tfr_class: Ferc1AbstractTableTransformer, io_manager_key: str = 'pudl_io_manager', convert_dtypes: bool = True, generic: bool = False) -> dagster.AssetsDefinition
+
+   Create an asset that pulls in raw ferc Form 1 assets and applies transformations.
+
+   This is a convenient way to create assets for tables that only depend on raw dbf,
+   raw xbrl instant and duration tables and xbrl metadata.
+
+   :param table_name: The name of the table to create an asset for.
+   :param tfr_class: A transformer class corresponding to the table_name.
+   :param io_manager_key: the dagster io_manager key to use. None defaults
+                          to the fs_io_manager.
+   :param convert_dtypes: convert dtypes of transformed dataframes.
+   :param generic: If using GenericPlantFerc1TableTransformer pass table_id to constructor.
+
+   :returns: An asset for the clean table.
+
+
+.. py:function:: create_ferc1_transform_assets() -> list[dagster.AssetsDefinition]
+
+   Create a list of transformed FERC Form 1 assets.
+
+   :returns: A list of AssetsDefinitions where each asset is a clean ferc form 1 table.
+
+
+.. py:data:: ferc1_assets
+   :value: []
+
+
+.. py:function:: other_dimensions(table_names: list[str]) -> list[str]
+
+   Get a list of the other dimension columns across all of the transformers.
+
+
+.. py:function:: table_to_xbrl_factoid_name() -> dict[str, str]
+
+   Build a dictionary of table name (keys) to ``xbrl_factoid`` column name.
+
+
+.. py:function:: table_to_column_to_check() -> dict[str, list[str]]
+
+   Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.
+
+
+.. py:function:: remove_rare_utility_type_subdimensions_rows(df: pandas.DataFrame) -> pandas.DataFrame
+
+   Remove the rare, non-total utility types when all values are duplicated.
+
+   We remove the records of non-total utility_type's for xbrl_factoid's when almost
+   all instances of that xbrl_factoid show up with just a utility_type of "total". We
+   can only do this confidently because we also check that all of the dollar_value in
+   those records are exactly the same as the corresponding records with utility_type
+   of "total" or the non-total utility_type's have null dollar_value's.
+
+   This data isn't incorrect, it just interferes with how we process the calculations
+   embedded within these tables. This is why we are applying this within
+   :func:`_core_ferc1__table_dimensions` because that is what we use to build the
+   calculation components table.
+
+
+.. py:function:: _core_ferc1__table_dimensions(**kwargs) -> pandas.DataFrame
+
+   Build a table of values of dimensions observed in the transformed data tables.
+
+   Compile a dataframe indicating what distinct values are observed in the data for
+   each dimension column in association with each unique combination of ``table_name``
+   and ``xbrl_factoid``. E.g. for all factoids found in the
+   :ref:`core_ferc1__yearly_depreciation_by_function_sched219` table,
+   the only value observed for ``utility_type`` is ``electric`` and the values observed
+   for ``plant_status`` include: ``future``, ``in_service``, ``leased`` and ``total``.
+
+   We need to include the ``xbrl_factoid`` column because these dimensions can differ
+   based on the ``xbrl_factoid``. So we first rename all of the columns which
+   contain the ``xbrl_factoid`` using :func:`table_to_xbrl_factoid_name` rename
+   dictionary. Then we concatenate all of the tables together and drop duplicates so
+   we have unique instances of observed ``table_name`` and ``xbrl_factoid`` and the
+   other dimension columns found in :func:`other_dimensions`.
+
+
+.. py:function:: _core_ferc1_xbrl__metadata(**kwargs) -> pandas.DataFrame
+
+   Build a table of all of the tables' XBRL metadata.
+
+
+.. py:function:: _core_ferc1_xbrl__calculation_components(**kwargs) -> pandas.DataFrame
+
+   Create calculation-component table from table-level metadata.
+
+
+.. py:function:: unexpected_total_components(calc_comps: pandas.DataFrame, dimensions: list[str]) -> pandas.DataFrame
+
+   Find unexpected components in within-fact total calculations.
+
+   This doesn't check anything about the calcs we get from the metadata, we
+   are only looking at within-fact totals which we've added ourselves.
+
+   Finds calculation relationships where:
+
+   - child components that do not match with parent in non-total dimensions.
+
+     - For example, if utility_type_parent is not "total", then utility_type
+       must be the same as utility_type_parent.
+
+   - child components, that share table_name/xbrl_factoid with their parent,
+     that have "total" for any dimension - these should be represented by
+     *their* child components
+
+   :param calc_comps: calculation component join table
+   :param dimensions: list of dimensions we resolved "total" values for
+
+
+.. py:function:: check_for_calc_components_duplicates(calc_components: pandas.DataFrame, table_names_known_dupes: list[str], idx: list[str]) -> None
+
+   Check for duplicates calculation records.
+
+   We need to remove the core_ferc1__yearly_sales_by_rate_schedules_sched304 bc there are
+   duplicate renamed factoids in that table (originally billed/unbilled).
+
+
+.. py:function:: make_xbrl_factoid_dimensions_explicit(df_w_xbrl_factoid: pandas.DataFrame, table_dimensions_ferc1: pandas.DataFrame, dimensions: list[str], parent: bool = False) -> pandas.DataFrame
+
+   Fill in null dimensions w/ the values observed in :func:`_core_ferc1__table_dimensions`.
+
+   In the raw XBRL metadata's calculations, there is an implicit assumption that
+   calculated values are aggregated within categorical columns called Axes or
+   dimensions, in addition to being grouped by date, utility, table, and fact. The
+   dimensions and their values don't need to be specified explicitly in the calculation
+   components because the same calculation is assumed to apply in all cases.
+
+   We have extended this calculation system to allow independent calculations to be
+   specified for different values within a given dimension. For example, the
+   :ref:`core_ferc1__yearly_utility_plant_summary_sched200` table contains records with a variety of
+   different ``utility_type`` values (gas, electric, etc.). For many combinations of
+   fact and ``utility_type``, no more detailed information about the source of the data
+   is available, but for some, and only in the case of electric utilities, much more
+   detail can be found in the :ref:`core_ferc1__yearly_plant_in_service_sched204` table.
+   In order to use this additional information when it is available, we sometimes
+   explicitly specify different calculations for different values of additional
+   dimension columns.
+
+   This function uses the observed associations between ``table_name``,
+   ``xbrl_factoid`` and the other dimension columns compiled by
+   :func:`_core_ferc1__table_dimensions` to fill in missing (previously implied) dimension
+   values in the calculation components table.
+
+   This is often a broadcast merge because many tables contain many values within these
+   dimension columns, so it is expected that new calculation component table will have
+   many more records than the input calculation components table.
+
+   Any dimension that was already specified in the calculation fixes will be left
+   unchanged. If no value of a particular dimension has ever been observed in
+   association with a given combination of ``table_name`` and ``xbrl_factoid`` it will
+   remain null.
+
+   :param calculation_components: a table of calculation component records which have had
+                                  some manual calculation fixes applied.
+   :param table_dimensions_ferc1: table with all observed values of
+                                  :func:`other_dimensions` for each ``table_name`` and ``xbrl_factoid``
+   :param dimensions: list of dimension columns to check.
+   :param parent: boolean to indicate whether or not the dimensions to be added are
+                  the parental dimensions or the child dimensions.
+
+
+.. py:function:: assign_parent_dimensions(calc_components: pandas.DataFrame, table_dimensions: pandas.DataFrame, dimensions: list[str]) -> pandas.DataFrame
+
+   Add dimensions to calculation parents.
+
+   We now add in parent-dimension values for all of the original calculation component
+   records using the observed dimensions.
+
+   :param calc_components: a table of calculation component records which have had some
+                           manual calculation fixes applied.
+   :param table_dimensions: table with all observed values of :func:`other_dimensions` for
+                            each ``table_name`` and ``xbrl_factoid``.
+   :param dimensions: list of dimension columns to check.
+
+
+.. py:function:: infer_intra_factoid_totals(calc_components: pandas.DataFrame, meta_w_dims: pandas.DataFrame, table_dimensions: pandas.DataFrame, dimensions: list[str]) -> pandas.DataFrame
+
+   Define dimension total calculations.
+
+   Some factoids are marked as a total along some dimension in the metadata,
+   which means that they are the sum of all the non-total factoids along that
+   dimension.
+
+   We match the parent factoids from the metadata to child factoids from the
+   table_dimensions. We treat "total" as a wildcard value.
+
+   We exclude child factoids that are themselves totals, because that would
+   result in a double-count.
+
+   Here are a few examples:
+
+   Imagine a factoid with the following dimensions & values:
+
+   - utility types: "total", "gas", "electric";
+   - plant status: "total", "in_service", "future"
+
+   Then the following parents would match/not-match:
+
+   - parent: "total", "in_service"
+
+     - child: "gas", "in_service" WOULD match.
+     - child: "electric", "in_service" WOULD match.
+     - child: "electric", "future" WOULD NOT match.
+
+   - parent: "total", "total"
+
+     - child: "gas", "in_service" WOULD match.
+     - child: "electric", "future" WOULD match.
+
+   See the unit test in ferc1_test.py for more details.
+
+   To be able to define these within-dimension calculations we also add dimension
+   columns to all of the parent factoids in the table.
+
+   :param calc_components: a table of calculation component records which have had some
+                           manual calculation fixes applied. Passed through unmodified.
+   :param meta_w_dims: metadata table with the dimensions.
+   :param table_dimensions: table with all observed values of :func:`other_dimensions` for
+                            each ``table_name`` and ``xbrl_factoid``.
+   :param dimensions: list of dimension columns to check.
+
+   :returns: An table associating calculation components with the parents they will be
+             aggregated into. The components and the parents are each identified by
+             ``table_name``, ``xbrl_factoid``, and columns defining the additional dimensions
+             (``utility_type``, ``plant_status``, ``plant_function``). The parent columns
+             have a ``_parent`` suffix.
+
+
+.. py:function:: add_calculation_component_corrections(calc_components: pandas.DataFrame) -> pandas.DataFrame
+
+   Add records into the calculation components table.
+
+   All calculated records should have correction records. All total-to-subdimension
+   calculations should also have correction records. For the core (non-subdimension)
+   calculations, all calculation parents require a record with a correction child.
+   For the total-to-subdimension calculations, we are assuming we can identify those
+   calculations with the `is_total_to_subdimensions_calc` boolean column. All
+   total-to-subdimension
+
+   All calculaitons will get a correction record in the calculation components table
+   whether or not there is ever a correction record in the data.
+
+
+.. py:function:: _core_ferc1__calculation_metric_checks(**kwargs)
+
+   Check calculation metrics for all transformed tables which have reconciled calcs.
+
+

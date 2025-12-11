@@ -1,0 +1,69 @@
+pudl.analysis.record_linkage.classify_plants_ferc1
+==================================================
+
+.. py:module:: pudl.analysis.record_linkage.classify_plants_ferc1
+
+.. autoapi-nested-parse::
+
+   Scikit-Learn classification pipeline for identifying related FERC 1 plant records.
+
+   Sadly FERC doesn't provide any kind of real IDs for the plants that report to them --
+   all we have is their names (a freeform string) and the data that is reported alongside
+   them. This is often enough information to be able to recognize which records ought to be
+   associated with each other year to year to create a continuous time series. However, we
+   want to do that programmatically, which means using some clustering / categorization
+   tools from scikit-learn
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.classify_plants_ferc1.logger
+   pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS
+   pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.classify_plants_ferc1.plants_steam_validate_ids
+   pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs
+   pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: _FUEL_COLS
+   :value: ['coal_fraction_mmbtu', 'gas_fraction_mmbtu', 'nuclear_fraction_mmbtu', 'oil_fraction_mmbtu',...
+
+
+.. py:data:: ferc_dataframe_embedder
+
+.. py:function:: plants_steam_validate_ids(ferc_to_ferc_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker, ferc1_steam_df: pandas.DataFrame, label_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Tests that plant_id_ferc1 timeseries includes one record per year.
+
+   :param ferc1_steam_df: A DataFrame of the data from the FERC 1 Steam table.
+   :param label_df: A DataFrame containing column of newly assigned plant labels.
+
+   :returns: The input dataframe, to enable method chaining.
+
+
+.. py:function:: merge_steam_fuel_dfs(ferc1_steam_df: pandas.DataFrame, fuel_fractions: pandas.DataFrame) -> pandas.DataFrame
+
+   Merge steam plants and fuel dfs to prepare inputs for ferc plant matching.
+
+
+.. py:function:: ferc_to_ferc(experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker, core_ferc1__yearly_steam_plants_sched402: pandas.DataFrame, out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: pandas.DataFrame) -> pandas.DataFrame
+
+   Assign IDs to the large steam plants.
+
+

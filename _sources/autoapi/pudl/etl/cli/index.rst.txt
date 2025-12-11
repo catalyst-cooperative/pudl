@@ -1,0 +1,49 @@
+pudl.etl.cli
+============
+
+.. py:module:: pudl.etl.cli
+
+.. autoapi-nested-parse::
+
+   A command line interface (CLI) to the main PUDL ETL functionality.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.etl.cli.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.etl.cli.pudl_etl_job_factory
+   pudl.etl.cli.pudl_etl
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: pudl_etl_job_factory(logfile: str | None = None, loglevel: str = 'INFO', process_epacems: bool = True, base_job: str = 'etl_full') -> collections.abc.Callable[[], dagster.JobDefinition]
+
+   Factory for parameterizing a reconstructable pudl_etl job.
+
+   :param loglevel: The log level for the job's execution.
+   :param logfile: Path to a log file for the job's execution.
+   :param process_epacems: Include EPA CEMS assets in the job execution.
+
+   :returns: The job definition to be executed.
+
+
+.. py:function:: pudl_etl(etl_settings_yml: pathlib.Path, dagster_workers: int, gcs_cache_path: str, logfile: pathlib.Path, loglevel: str)
+
+   Use Dagster to run the PUDL ETL, as specified by the file ETL_SETTINGS_YML.
+
+
