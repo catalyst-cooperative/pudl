@@ -118,10 +118,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": {
             "additional_summary_text": "Annual respondents with the county FIPS IDs for their service territories.",
             "additional_primary_key_text": (
-                "The state and county FIPS columns "
-                "which are part of the natural primary key can be null. "
-                "The natural primary key would be: "
-                "['respondent_id_ferc714', 'report_date', 'state_id_fips', 'county_id_fips']."
+                "Note that the state and county FIPS columns can be null. Otherwise "
+                "the natural primary key would be: "
+                "['respondent_id_ferc714', 'report_date', 'county_id_fips']. The state "
+                "FIPS code is not part of the primary key because the first two digits "
+                "of the county FIPS code indicate the state."
             ),
         },
         "schema": {

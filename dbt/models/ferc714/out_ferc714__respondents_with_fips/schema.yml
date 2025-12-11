@@ -9,6 +9,14 @@ sources:
               arguments:
                 table_name: out_ferc714__respondents_with_fips
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - dbt_expectations.expect_compound_columns_to_be_unique:
+              arguments:
+                description: "Each county should only appear once per respondent per year. There are a handful of duplicates that need to be investigated."
+                column_list:
+                  - respondent_id_ferc714
+                  - report_date
+                  - county_id_fips
+                severity: warn
         columns:
           - name: eia_code
           - name: respondent_type

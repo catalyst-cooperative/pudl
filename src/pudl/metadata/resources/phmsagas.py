@@ -270,7 +270,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_summary_text": ("excavation damages from various sources."),
             "additional_source_text": "(Part D - Excavation Damage)",
             "usage_warnings": [GENERIC_CLEANING_STATE_WARNING, "aggregation_hazard"],
-            "additional_primary_key_text": "We expect the primary key for this table should be report_id, damage_type and damage_sub_type - but there are duplicates and we have not fully cleaned this table.",
         },
         "schema": {
             "fields": [
@@ -285,9 +284,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "report_id",
-                "report_date",
-                "operator_id_phmsa",
-                "operating_state",
                 "damage_type",
                 "damage_sub_type",
             ],
