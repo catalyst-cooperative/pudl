@@ -596,6 +596,10 @@ losses.
 {EIA861_88888}
 
 Rows where ``data_observed`` is False were labeled as imputed in the raw EIA data.
+The EIA documentation does not specify what imputation applies to operational data,
+only net metering and non net-metering distributed data. Less than 1% of rows are
+labeled as imputed, all of which occur in 2004 or 2005. Imputed rows make up no
+more than 25% of the rows for any utility.
 """
             ),
             "usage_warnings": ["redacted_values", "imputed_values"],
