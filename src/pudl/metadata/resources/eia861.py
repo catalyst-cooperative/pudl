@@ -7,6 +7,11 @@ PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The da
 the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,
 and convert capacity reported in DC units to AC units."""
 
+EIA861_88888 = """Respondents are required to report this information to the EIA, but are not required
+to disclose utility-level data to the public. When a respondent chooses to keep its
+utility-level data proprietary, it files using EIA utility id 88888. For more details,
+see :ref:`EIA-861 Notable Irregularities <eia861-notable-irregularities>`."""
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia861__yearly_advanced_metering_infrastructure": {
         "description": {
@@ -580,13 +585,19 @@ are broken down by sector and technology type.""",
     "core_eia861__yearly_operational_data_misc": {
         # TODO: misc might be a misleading name
         "description": {
-            "additional_summary_text": "megawatt hours (MWH) for all a utility's sources of electricity and disposition of electricity listed.",
+            "additional_summary_text": "megawatt hours (MWH) for the sources and disposition of a utility's electricity.",
+            "additional_source_text": "(Schedule 2B)",
             "additional_details_text": (
-                """Sources include: net generation
-purchases from electricity suppliers, exchanges received, exchanges delivered, exchanges
-net, wheeled received, wheeled delivered, wheeled net, transmission by others, and
-losses."""
+                f"""{EIA861_88888}
+
+Rows where ``data_observed`` is False were labeled as imputed in the raw EIA data.
+The EIA documentation does not specify what imputation applies to operational data,
+only net metering and non net-metering distributed data. Less than 1% of rows are
+labeled as imputed, all of which occur in 2004 or 2005. Imputed rows make up no
+more than 25% of the rows for any utility.
+"""
             ),
+            "usage_warnings": ["redacted_values", "imputed_values"],
         },
         "schema": {
             "fields": [
@@ -619,6 +630,11 @@ losses."""
                 "winter_peak_demand_mw",
                 "data_maturity",
             ],
+            "primary_key": [
+                "utility_id_eia",
+                "nerc_region",
+                "report_date",
+            ],
         },
         "field_namespace": "eia",
         "sources": ["eia861"],
@@ -627,11 +643,15 @@ losses."""
     "core_eia861__yearly_operational_data_revenue": {
         "description": {
             "additional_summary_text": "utility revenue by type of electric operating revenue.",
-            "additional_details_text": """A utility's revenue by type of electric operating revenue.
-Includes electric operating revenue From sales to ultimate customers, revenue from
+            "additional_source_text": "(Schedule 2C)",
+            "additional_details_text": f"""A utility's revenue by type of electric operating revenue.
+Includes electric operating revenue from sales to ultimate customers, revenue from
 unbundled (delivery) customers, revenue from sales for resale, electric credits/other
 adjustments, revenue from transmission, other electric operating revenue, and total
-electric operating revenue.""",
+electric operating revenue.
+
+{EIA861_88888}""",
+            "usage_warnings": ["redacted_values"],
         },
         "schema": {
             "fields": [
@@ -642,6 +662,12 @@ electric operating revenue.""",
                 "state",
                 "utility_id_eia",
                 "data_maturity",
+            ],
+            "primary_key": [
+                "utility_id_eia",
+                "nerc_region",
+                "report_date",
+                "revenue_class",
             ],
         },
         "field_namespace": "eia",
