@@ -80,7 +80,7 @@ warnings. This information feeds several processes:
   about the input data and our processing methods, and tips for users about which
   table best suits their use case)
 * Defining primary and foreign key relationships
-* Defining resource schema to be enforced by Pandera
+* Defining the resource schema to be enforced by Pandera
 
 Defining metadata for a new table
 ...................................
@@ -90,7 +90,7 @@ additional files for association tables and imputed assets. If the table doesn't
 have a source file, make a new file that mirrors the format of an existing source.
 Otherwise, find the file representing the primary source of the resource
 (e.g., :mod:`pudl.metadata.resources.eia860`) and
-add a new table into the ``RESOURCE_METADATA`` dictionary.
+add a new entry into the ``RESOURCE_METADATA`` dictionary.
 
 Each resource entry should contain the following elements:
 
@@ -235,7 +235,8 @@ refreshing the page is significantly faster than re-running the command line too
 If you're checking a single edit, use the command line,
 but if you need to iterate at all, use the wizard.
 
-Instructions for using the wizard can be found `here <https://github.com/catalyst-cooperative/pudl-metadata-wizard/blob/main/README.md>`__.
+Instructions for using the wizard can be found 
+`in the wizard repo README <https://github.com/catalyst-cooperative/pudl-metadata-wizard/blob/main/README.md>`__.
 
 .. _field_description:
 
