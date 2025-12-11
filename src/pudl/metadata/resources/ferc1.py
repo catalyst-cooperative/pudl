@@ -277,6 +277,8 @@ columns."""
             "and any settlements for imbalanced exchanges."
         ),
         "additional_source_text": "(Schedule 326)",
+        "additional_primary_key_text": """The primary key for this table would be record_id,
+  however a small number of these values are duplicated in 2021, 2022, and 2024.""",
         "usage_warnings": ["free_text"],
         "additional_details_text": (
             "This table has data about inter-utility power purchases. This "
