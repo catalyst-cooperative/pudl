@@ -1,4 +1,4 @@
-"""Definitions of data tables primarily coming from EIA-860."""
+"""Definitions of data tables primarily coming from EIA-176."""
 
 from typing import Any
 
