@@ -585,15 +585,10 @@ are broken down by sector and technology type.""",
     "core_eia861__yearly_operational_data_misc": {
         # TODO: misc might be a misleading name
         "description": {
-            "additional_summary_text": "megawatt hours (MWH) for all a utility's sources of electricity and disposition of electricity listed.",
+            "additional_summary_text": "megawatt hours (MWH) for the sources and disposition of a utility's electricity.",
             "additional_source_text": "(Schedule 2B)",
             "additional_details_text": (
-                f"""Sources include: net generation
-purchases from electricity suppliers, exchanges received, exchanges delivered, exchanges
-net, wheeled received, wheeled delivered, wheeled net, transmission by others, and
-losses.
-
-{EIA861_88888}
+                f"""{EIA861_88888}
 
 Rows where ``data_observed`` is False were labeled as imputed in the raw EIA data.
 The EIA documentation does not specify what imputation applies to operational data,
