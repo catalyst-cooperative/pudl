@@ -1664,7 +1664,7 @@ def adjust_msw_energy_source_codes(
         bf_by_gens.energy_source_code.unique()
     )
     # NOTE 2025-12-11: we sort this reverse-ly to match the indeterminate order that happens to be in nightly builds right now
-    msw_codes_used = sorted({"MSN", "MSB", "MSW"} & codes_used, reverse=True)
+    msw_codes_used = sorted({"MSN", "MSB", "MSW"}.intersection(codes_used), reverse=True)
     # join these codes into a string that will be used to replace the MSW code
     replacement_codes = ",".join(msw_codes_used)
 
