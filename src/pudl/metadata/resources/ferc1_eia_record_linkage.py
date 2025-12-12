@@ -100,9 +100,9 @@ meant for use as an input into the record linkage between FERC1 plants and EIA.
             "additional_summary_text": "all EIA generators with ownership integrated.",
             "additional_details_text": f"""Generators that report to EIA can have
 multiple utility owners. EIA reports the ownership fraction for each of the owners
-of generators (see :ref:`core_eia860__scd_ownership`). This table includes two record
-for each generator's owner - one record represents a total ownership stake  and a
-second record with a proportional ownership stake (the ``ownership_record_type``
+of generators (see :ref:`core_eia860__scd_ownership`). This table includes two records
+for each generator's owner: one record represents a total ownership stake and the
+other record represents a proportional ownership stake (the ``ownership_record_type``
 column labeled as "total" and "owned" respectively). All of the values reported for
 these generator-owner records are scaled to the ownership stake (represented by
 ``fraction_owned``).
