@@ -703,6 +703,16 @@ SOURCES: dict[str, Any] = {
                 + KEYWORDS["electricity"]
             )
         ),
+        "working_partitions": {
+            "year_quarters": [
+                f"{year}q{quarter}"
+                for year in range(2013, 2026)
+                for quarter in range(1, 5)
+                if not (
+                    (year == 2013 and quarter < 3) or (year == 2025 and quarter > 2)
+                )
+            ],
+        },
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
