@@ -98,13 +98,26 @@ meant for use as an input into the record linkage between FERC1 plants and EIA.
     "out_eia__yearly_generators_by_ownership": {
         "description": {
             "additional_summary_text": "all EIA generators with ownership integrated.",
-            "additional_details_text": inherits_harvested_values_details(
-                "generators, plants, and utilities"
-            ),
+            "additional_details_text": f"""Generators that report to EIA can have
+multiple utility owners. EIA reports the ownership fraction for each of the owners
+of generators (see :ref:`core_eia860__scd_ownership`). This table includes two records
+for each generator's owner: one record represents a total ownership stake and the
+other record represents a proportional ownership stake (the ``ownership_record_type``
+column labeled as "total" and "owned" respectively). All of the values reported for
+these generator-owner records are scaled to the ownership stake (represented by
+``fraction_owned``).
+
+This table was created to represent every possible version of ownership slices of the
+EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_parts`.
+
+{inherits_harvested_values_details("generators, plants, and utilities")}""",
             "usage_warnings": ["aggregation_hazard", "harvested"],
-            "additional_primary_key_text": "There are a handful of NULL Utility IDs in this table. "
-            "The natural primary key would be: "
-            "['plant_id_eia, 'generator_id', 'utility_id_eia', 'report_date', 'ownership_record_type'].",
+            "additional_primary_key_text": (
+                "This table would have a primary key of the "
+                "following columns, except there are ~200 records without utility IDs: "
+                "['plant_id_eia', 'generator_id', 'report_date', 'utility_id_eia', "
+                "'ownership_record_type']."
+            ),
         },
         "schema": {
             "fields": [
@@ -140,7 +153,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA.
                 "capacity_eoy_mw",
                 "fraction_owned",
                 "ownership_record_type",
-            ],
+            ]
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
