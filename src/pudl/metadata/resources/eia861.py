@@ -843,6 +843,8 @@ Utilities report on Form EIA-861S if they:
     "core_eia861__yearly_utility_data_misc": {
         "description": {
             "additional_summary_text": "utility business activities.",
+            "additional_primary_key_text": """The primary key would have been: utility_id_eia, state, report_date,
+  and nerc_region, but there are nulls in the state column across several years of reporting.""",
             "additional_details_text": """This includes whether they operate alternative fuel vehicles, whether they provide
 transmission, distribution, or generation services (bundled or unbundled), and whether
 they engage in wholesale and/or retail markets.""",
@@ -877,6 +879,8 @@ they engage in wholesale and/or retail markets.""",
     "core_eia861__yearly_utility_data_nerc": {
         "description": {
             "additional_summary_text": "the NERC regions that utilities operate in.",
+            "additional_primary_key_text": """The primary key would have been: utility_id_eia, state, report_date,
+  nerc_region, and nerc_regions_of_operation, but there are nulls in the state column across several years of reporting.""",
         },
         "schema": {
             "fields": [
@@ -895,6 +899,8 @@ they engage in wholesale and/or retail markets.""",
     "core_eia861__yearly_utility_data_rto": {
         "description": {
             "additional_summary_text": "the RTOs that utilities operate in.",
+            "additional_primary_key_text": """The primary key would have been: utility_id_eia, state, report_date,
+  nerc_region, and rtos_of_operation, but there are nulls in the state column across several years of reporting.""",
         },
         "schema": {
             "fields": [
