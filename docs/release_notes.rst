@@ -48,8 +48,14 @@ FERC Form 6
 Documentation
 ^^^^^^^^^^^^^
 
-New Data Tests & Data Validations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added dbt data validations to check the uniqueness of natural primary keys in tables
+  where some elements of the primary key contain ``NULL`` values, preventing them from
+  being used explicitly as primary keys in SQLite. This only covers tables where we had
+  already explicitly identified the natural primary key in our metadata notes. See PR
+  :pr:`4811`.
 
 Bug Fixes
 ^^^^^^^^^
