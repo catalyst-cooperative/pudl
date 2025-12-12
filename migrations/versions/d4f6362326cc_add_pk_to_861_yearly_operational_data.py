@@ -1,7 +1,7 @@
 """Add pk to 861 yearly_operational_data
 
 Revision ID: d4f6362326cc
-Revises: 5ba8ad3ad527
+Revises: aeb66b0b4481
 Create Date: 2025-12-05 15:25:42.741782
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'd4f6362326cc'
-down_revision = '5ba8ad3ad527'
+down_revision = 'aeb66b0b4481'
 branch_labels = None
 depends_on = None
 
