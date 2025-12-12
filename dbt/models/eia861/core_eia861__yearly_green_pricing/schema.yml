@@ -34,6 +34,10 @@ sources:
                     min_value: 0.0
           - name: report_date
           - name: sales_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: state
           - name: utility_id_eia
           - name: utility_name_eia
