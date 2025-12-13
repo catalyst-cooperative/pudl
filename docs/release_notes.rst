@@ -34,9 +34,9 @@ EIA-176
 Thanks to open source contributions from `SwitchBox <https://switch.box>`__ and funding
 from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems>`__ we continue to bring in more EIA natural gas data.
 
- * Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
-   company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
-   :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
+* Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
+  company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
+  :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
