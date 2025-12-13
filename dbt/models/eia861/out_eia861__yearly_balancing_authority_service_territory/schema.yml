@@ -13,7 +13,15 @@ sources:
           - name: county_id_fips
           - name: county_name_census
           - name: population
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: area_km2
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: report_date
           - name: balancing_authority_id_eia
           - name: state

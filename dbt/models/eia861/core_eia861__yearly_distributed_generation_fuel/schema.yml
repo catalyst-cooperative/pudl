@@ -13,6 +13,10 @@ sources:
           - name: estimated_or_actual_fuel_data
           - name: fuel_class
           - name: fuel_pct
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  max_value: 100
           - name: report_date
           - name: state
           - name: utility_id_eia
