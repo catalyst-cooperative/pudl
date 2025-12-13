@@ -48,7 +48,7 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-                    error_if: "<1"
+                    error_if: ">1"
           - name: report_date
           - name: short_form
           - name: state
