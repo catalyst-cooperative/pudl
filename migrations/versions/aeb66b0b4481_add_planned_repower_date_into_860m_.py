@@ -1,7 +1,7 @@
 """add planned_repower_date into 860m changelog
 
 Revision ID: aeb66b0b4481
-Revises: 5ba8ad3ad527
+Revises: 907de695bcc5
 Create Date: 2025-11-26 13:56:08.558987
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'aeb66b0b4481'
-down_revision = '5ba8ad3ad527'
+down_revision = '907de695bcc5'
 branch_labels = None
 depends_on = None
 
