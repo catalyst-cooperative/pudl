@@ -13,6 +13,12 @@ sources:
           - name: nerc_region
           - name: report_date
           - name: revenue
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    row_condition: "revenue_class != 'credits_or_adjustments'"
+                    error_if: ">764" # Relatively high, worth investigating
           - name: revenue_class
           - name: state
           - name: utility_id_eia

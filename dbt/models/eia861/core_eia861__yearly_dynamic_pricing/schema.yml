@@ -15,6 +15,10 @@ sources:
           - name: critical_peak_rebate
           - name: customer_class
           - name: customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: real_time_pricing
           - name: report_date
           - name: short_form

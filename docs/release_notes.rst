@@ -25,9 +25,18 @@ New Data
    company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
    :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
 
-
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through October 2025. See :pr:`4788`.
+
+EIA-861
+~~~~~~~
+* Added EIA-861 re-released final release data from 2024. See :issue:`4826` and PR
+  :pr:`4827`.
 
 FERC Form 6
 ~~~~~~~~~~~
