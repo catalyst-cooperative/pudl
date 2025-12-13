@@ -2,16 +2,21 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2025.12.0:
+.. _release-v2025.12.1:
 
 ---------------------------------------------------------------------------------------
-v2025.12.0 (2025-12-13)
+v2025.12.1 (2025-12-13)
 ---------------------------------------------------------------------------------------
 
 This is a monthly release primarily intended to update the generatores reporting in
 EIA-860M, with some other minor improvements coming along for the ride. These include
 another new EIA Form 176 natural gas disposition table, and experimental access to the
 FERC XBRL derived databases using DuckDB. Details below.
+
+.. note::
+
+   There was a misconfiguration in the build for ``v2025.12.0`` that prevented it from
+   deploying.
 
 Enhancements
 ^^^^^^^^^^^^
