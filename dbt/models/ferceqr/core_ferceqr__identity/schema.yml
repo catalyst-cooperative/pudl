@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferceqr__identity
+        columns:
+          - name: filer_unique_id
+          - name: company_identifier
+          - name: company_name
+          - name: contact_name
+          - name: contact_title
+          - name: contact_address
+          - name: contact_city
+          - name: contact_state
+          - name: contact_zip
+          - name: contact_country_name
+          - name: contact_phone
+          - name: contact_email
+          - name: transactions_reported_to_index_price_publishers
+          - name: year_quarter

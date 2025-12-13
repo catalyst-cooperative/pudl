@@ -1,0 +1,38 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferceqr__contracts
+        columns:
+          - name: year_quarter
+          - name: company_identifier
+          - name: contract_unique_id
+          - name: seller_company_name
+          - name: customer_company_name
+          - name: contract_affiliate
+          - name: ferc_tariff_reference
+          - name: contract_service_agreement_id
+          - name: contract_execution_date
+          - name: commencement_date_of_contract_term
+          - name: contract_termination_date
+          - name: actual_termination_date
+          - name: extension_provision_description
+          - name: class_name
+          - name: term_name
+          - name: increment_name
+          - name: increment_peaking_name
+          - name: product_type_name
+          - name: product_name
+          - name: quantity
+          - name: units
+          - name: rate
+          - name: rate_minimum
+          - name: rate_maximum
+          - name: rate_description
+          - name: rate_units
+          - name: point_of_receipt_balancing_authority
+          - name: point_of_receipt_specific_location
+          - name: point_of_delivery_balancing_authority
+          - name: point_of_delivery_specific_location
+          - name: begin_date
+          - name: end_date

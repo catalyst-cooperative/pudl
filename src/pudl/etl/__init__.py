@@ -57,6 +57,7 @@ raw_module_groups = {
     "raw_phmsagas": [pudl.extract.phmsagas],
     "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
+    "raw_ferceqr": [pudl.extract.ferceqr],
 }
 
 
@@ -79,6 +80,7 @@ core_module_groups = {
     "core_epacems": [pudl.transform.epacems],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
+    "core_ferceqr": [pudl.transform.ferceqr],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_sec10k": [pudl.transform.sec10k],
     "core_nrelatb": [pudl.transform.nrelatb],
@@ -165,6 +167,9 @@ default_asset_checks += [
             not in [
                 "core_epacems__hourly_emissions",
                 "out_vcerare__hourly_available_capacity_factor",
+                "core_ferceqr__transactions",
+                "core_ferceqr__identity",
+                "core_ferceqr__contracts",
             ]
         )
     )
@@ -181,7 +186,9 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
+    "ferceqr_extract_settings": pudl.extract.ferceqr.ExtractSettings(),
 }
+
 
 # Limit the number of concurrent workers when launch assets that use a lot of memory.
 default_tag_concurrency_limits = [
@@ -191,6 +198,8 @@ default_tag_concurrency_limits = [
         "limit": 4,
     },
 ]
+
+
 default_config = pudl.helpers.get_dagster_execution_config(
     tag_concurrency_limits=default_tag_concurrency_limits
 )
@@ -230,6 +239,7 @@ defs: Definitions = Definitions(
                     }
                 }
             },
+            selection="not key:*_ferceqr*",
         ),
         define_asset_job(
             name="etl_fast",
@@ -242,6 +252,15 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset.",
+            selection="not key:*_ferceqr*",
+        ),
+        define_asset_job(
+            name="ferceqr_etl",
+            description="This job executes the ferceqr ETL.",
+            config=pudl.helpers.get_dagster_execution_config(
+                tag_concurrency_limits=default_tag_concurrency_limits
+            ),
+            selection="key:*_ferceqr*",
         ),
     ],
 )

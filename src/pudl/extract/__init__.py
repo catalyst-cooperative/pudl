@@ -24,6 +24,7 @@ from . import (
     excel,
     ferc1,
     ferc714,
+    ferceqr,
     gridpathratoolkit,
     nrelatb,
     phmsagas,

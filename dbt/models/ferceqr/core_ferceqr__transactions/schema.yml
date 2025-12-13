@@ -1,0 +1,34 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferceqr__transactions
+        columns:
+          - name: year_quarter
+          - name: company_identifier
+          - name: transaction_unique_id
+          - name: seller_company_name
+          - name: customer_company_name
+          - name: ferc_tariff_reference
+          - name: contract_service_agreement_id
+          - name: transaction_unique_identifier
+          - name: transaction_begin_date
+          - name: transaction_end_date
+          - name: trade_date
+          - name: exchange_brokerage_service
+          - name: type_of_rate
+          - name: timezone
+          - name: class_name
+          - name: term_name
+          - name: increment_name
+          - name: increment_peaking_name
+          - name: product_name
+          - name: rate_units
+          - name: point_of_delivery_balancing_authority
+          - name: point_of_delivery_specific_location
+          - name: transaction_quantity
+          - name: price
+          - name: standardized_quantity
+          - name: standardized_price
+          - name: total_transmission_charge
+          - name: total_transaction_charge
