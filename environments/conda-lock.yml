@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: d8baa96e6d44c57dc38a4d6f7a0cedc8899a3fb8e8564b2db665466240fe1448
-    osx-64: 348901bd0120a40ad276a6fd1be3220ddcfcbf3a0b10da3c5559000d4373ab31
-    osx-arm64: c12f143a2bec8a54bb1a30b281a6a09ed3b544d195e94414fb72318c65e5e967
+    linux-64: f3a8292b54c709b86f010e15821b803e583a31fbe7565967372c390cc672e38b
+    osx-64: 6a14866575f6bd3fe545880ac716985ab9510634f70f969c5aa6abd99e2bcbd1
+    osx-arm64: 83e1779172ec16863b8bdf93876ec4601b4bac4f8e4d9d6d6f8a4c01afcabace
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -829,17 +829,17 @@ package:
       lxml: ">=4,<7,!=6.0.0"
       numpy: ">=1,<3"
       openpyxl: ">=3,<4"
-      pillow: ">=10,<12"
+      pillow: ">=10,<13"
       pyparsing: ">=3,<4"
       python: ">=3.10,<3.14"
       python-dateutil: ">=2,<3"
       regex: ""
       truststore: ">=0,<1"
       typing-extensions: ">=4,<5"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.37.77-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.37.77-pyhd8ed1ab_1.conda
     hash:
-      md5: 256c396bfa57fb4c2f48694200890896
-      sha256: 9dc9b03df18ebdb120dd0c754c5f015d7a4c5b31b84781d96e2dbf0119c915b0
+      md5: 7eac96dca8af5dbfa08f2150a557308d
+      sha256: d2e129495c1f46b9e608119a167e9388670d9cb53715f9fd1f7de43579935a06
     category: main
     optional: false
   - name: arelle-release
@@ -856,17 +856,17 @@ package:
       lxml: ">=4,<7,!=6.0.0"
       numpy: ">=1,<3"
       openpyxl: ">=3,<4"
-      pillow: ">=10,<12"
+      pillow: ">=10,<13"
       pyparsing: ">=3,<4"
       python: ">=3.10,<3.14"
       python-dateutil: ">=2,<3"
       regex: ""
       truststore: ">=0,<1"
       typing-extensions: ">=4,<5"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.37.77-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.37.77-pyhd8ed1ab_1.conda
     hash:
-      md5: 256c396bfa57fb4c2f48694200890896
-      sha256: 9dc9b03df18ebdb120dd0c754c5f015d7a4c5b31b84781d96e2dbf0119c915b0
+      md5: 7eac96dca8af5dbfa08f2150a557308d
+      sha256: d2e129495c1f46b9e608119a167e9388670d9cb53715f9fd1f7de43579935a06
     category: main
     optional: false
   - name: arelle-release
@@ -883,17 +883,17 @@ package:
       lxml: ">=4,<7,!=6.0.0"
       numpy: ">=1,<3"
       openpyxl: ">=3,<4"
-      pillow: ">=10,<12"
+      pillow: ">=10,<13"
       pyparsing: ">=3,<4"
       python: ">=3.10,<3.14"
       python-dateutil: ">=2,<3"
       regex: ""
       truststore: ">=0,<1"
       typing-extensions: ">=4,<5"
-    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.37.77-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/arelle-release-2.37.77-pyhd8ed1ab_1.conda
     hash:
-      md5: 256c396bfa57fb4c2f48694200890896
-      sha256: 9dc9b03df18ebdb120dd0c754c5f015d7a4c5b31b84781d96e2dbf0119c915b0
+      md5: 7eac96dca8af5dbfa08f2150a557308d
+      sha256: d2e129495c1f46b9e608119a167e9388670d9cb53715f9fd1f7de43579935a06
     category: main
     optional: false
   - name: argon2-cffi
@@ -19377,7 +19377,7 @@ package:
     category: main
     optional: false
   - name: pillow
-    version: 11.3.0
+    version: 12.0.0
     manager: conda
     platform: linux-64
     dependencies:
@@ -19386,23 +19386,23 @@ package:
       libfreetype: ">=2.14.1"
       libfreetype6: ">=2.14.1"
       libgcc: ">=14"
-      libjpeg-turbo: ">=3.1.0,<4.0a0"
-      libtiff: ">=4.7.0,<4.8.0a0"
+      libjpeg-turbo: ">=3.1.2,<4.0a0"
+      libtiff: ">=4.7.1,<4.8.0a0"
       libwebp-base: ">=1.6.0,<2.0a0"
       libxcb: ">=1.17.0,<2.0a0"
-      libzlib: ">=1.3.1,<2.0a0"
-      openjpeg: ">=2.5.3,<3.0a0"
+      openjpeg: ">=2.5.4,<3.0a0"
       python: ""
       python_abi: 3.13.*
       tk: ">=8.6.13,<8.7.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/pillow-11.3.0-py313ha492abd_3.conda
+      zlib-ng: ">=2.3.1,<2.4.0a0"
+    url: https://conda.anaconda.org/conda-forge/linux-64/pillow-12.0.0-py313h80991f8_2.conda
     hash:
-      md5: 3354141a95eee5d29000147578dbc13f
-      sha256: b5d03d663d73c682fb88b4f71b9431a79362eca4a6201650a44f1ca9d467a7cf
+      md5: 37ca27d2f726f29a068230d8f6917ce4
+      sha256: 5319da7c24f4f876c966fc6e83789aa4530779d4454c37c4169f79050555bc26
     category: main
     optional: false
   - name: pillow
-    version: 11.3.0
+    version: 12.0.0
     manager: conda
     platform: osx-64
     dependencies:
@@ -19410,23 +19410,23 @@ package:
       lcms2: ">=2.17,<3.0a0"
       libfreetype: ">=2.14.1"
       libfreetype6: ">=2.14.1"
-      libjpeg-turbo: ">=3.1.0,<4.0a0"
-      libtiff: ">=4.7.0,<4.8.0a0"
+      libjpeg-turbo: ">=3.1.2,<4.0a0"
+      libtiff: ">=4.7.1,<4.8.0a0"
       libwebp-base: ">=1.6.0,<2.0a0"
       libxcb: ">=1.17.0,<2.0a0"
-      libzlib: ">=1.3.1,<2.0a0"
-      openjpeg: ">=2.5.3,<3.0a0"
+      openjpeg: ">=2.5.4,<3.0a0"
       python: ""
       python_abi: 3.13.*
       tk: ">=8.6.13,<8.7.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-64/pillow-11.3.0-py313hcfd0557_3.conda
+      zlib-ng: ">=2.3.1,<2.4.0a0"
+    url: https://conda.anaconda.org/conda-forge/osx-64/pillow-12.0.0-py313h8d2ffa5_2.conda
     hash:
-      md5: 9fe2ebb0ad526ad057cf21d20d53d466
-      sha256: ebd4febd2b4a0d766cab6450f2ac5442b5a319c5f01f744823e5bdfa899b6e0c
+      md5: 7681f51d660830db9c65b20e32e47350
+      sha256: 5ee2562f8fd14aa6e1e77708c1f66fc9557f76e1c9deef3df8461b18aff48788
     category: main
     optional: false
   - name: pillow
-    version: 11.3.0
+    version: 12.0.0
     manager: conda
     platform: osx-arm64
     dependencies:
@@ -19434,19 +19434,19 @@ package:
       lcms2: ">=2.17,<3.0a0"
       libfreetype: ">=2.14.1"
       libfreetype6: ">=2.14.1"
-      libjpeg-turbo: ">=3.1.0,<4.0a0"
-      libtiff: ">=4.7.0,<4.8.0a0"
+      libjpeg-turbo: ">=3.1.2,<4.0a0"
+      libtiff: ">=4.7.1,<4.8.0a0"
       libwebp-base: ">=1.6.0,<2.0a0"
       libxcb: ">=1.17.0,<2.0a0"
-      libzlib: ">=1.3.1,<2.0a0"
-      openjpeg: ">=2.5.3,<3.0a0"
+      openjpeg: ">=2.5.4,<3.0a0"
       python: 3.13.*
       python_abi: 3.13.*
       tk: ">=8.6.13,<8.7.0a0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/pillow-11.3.0-py313he4c6d0d_3.conda
+      zlib-ng: ">=2.3.1,<2.4.0a0"
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/pillow-12.0.0-py313ha86496b_2.conda
     hash:
-      md5: 2f6f5c3fa80054f42d8cd4d23e4d93d6
-      sha256: 060f14a270d39f5c3df89ea2c46f68b6cadd4b6950360af6b7524f5ea33c9354
+      md5: d52bb6207093e90d6b70649728257e3f
+      sha256: cb85e8c90c107dc81f783a42f996808eaa384b307e8becdfd1619e6fe09cc27c
     category: main
     optional: false
   - name: pip
@@ -26842,36 +26842,36 @@ package:
     category: main
     optional: false
   - name: tzdata
-    version: 2025b
+    version: 2025c
     manager: conda
     platform: linux-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025b-h8577fbf_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025c-h8577fbf_0.conda
     hash:
-      md5: e4e8496b68cf5f25e76fbe67f3856550
-      sha256: 865716d3e2ccaca1218462645830d2370ab075a9a118c238728e1231a234bc6c
+      md5: 338201218b54cadff2e774ac27733990
+      sha256: 50fad5db6734d1bb73df1cf5db73215e326413d4b2137933f70708aa1840e25b
     category: main
     optional: false
   - name: tzdata
-    version: 2025b
+    version: 2025c
     manager: conda
     platform: osx-64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025b-h8577fbf_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025c-h8577fbf_0.conda
     hash:
-      md5: e4e8496b68cf5f25e76fbe67f3856550
-      sha256: 865716d3e2ccaca1218462645830d2370ab075a9a118c238728e1231a234bc6c
+      md5: 338201218b54cadff2e774ac27733990
+      sha256: 50fad5db6734d1bb73df1cf5db73215e326413d4b2137933f70708aa1840e25b
     category: main
     optional: false
   - name: tzdata
-    version: 2025b
+    version: 2025c
     manager: conda
     platform: osx-arm64
     dependencies: {}
-    url: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025b-h8577fbf_1.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025c-h8577fbf_0.conda
     hash:
-      md5: e4e8496b68cf5f25e76fbe67f3856550
-      sha256: 865716d3e2ccaca1218462645830d2370ab075a9a118c238728e1231a234bc6c
+      md5: 338201218b54cadff2e774ac27733990
+      sha256: 50fad5db6734d1bb73df1cf5db73215e326413d4b2137933f70708aa1840e25b
     category: main
     optional: false
   - name: uc-micro-py
@@ -28506,6 +28506,46 @@ package:
     hash:
       md5: e3170d898ca6cb48f1bb567afb92f775
       sha256: 58f8860756680a4831c1bf4f294e2354d187f2e999791d53b1941834c4b37430
+    category: main
+    optional: false
+  - name: zlib-ng
+    version: 2.3.2
+    manager: conda
+    platform: linux-64
+    dependencies:
+      __glibc: ">=2.17,<3.0.a0"
+      libgcc: ">=14"
+      libstdcxx: ">=14"
+    url: https://conda.anaconda.org/conda-forge/linux-64/zlib-ng-2.3.2-h54a6638_0.conda
+    hash:
+      md5: 0faadd01896315ceea58bcc3479b1d21
+      sha256: 0afb07f3511031c35202036e2cd819c90edaa0c6a39a7a865146d3cb066bec96
+    category: main
+    optional: false
+  - name: zlib-ng
+    version: 2.3.2
+    manager: conda
+    platform: osx-64
+    dependencies:
+      __osx: ">=10.13"
+      libcxx: ">=19"
+    url: https://conda.anaconda.org/conda-forge/osx-64/zlib-ng-2.3.2-h53ec75d_0.conda
+    hash:
+      md5: 1e979f90e823b82604ab1da7e76c75e5
+      sha256: 9183b2ada178d83ca6f8a66ba2ddcfb5f2476c2e866a4609c1f84dd5f32d796e
+    category: main
+    optional: false
+  - name: zlib-ng
+    version: 2.3.2
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      __osx: ">=11.0"
+      libcxx: ">=19"
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.2-h248ca61_0.conda
+    hash:
+      md5: c2a30a3b30cf86ef97ec880d53a6571a
+      sha256: 2fe2befe061a51c24fce7f5f071c47b45b43f8c8781c0c557edf7c733ab13b18
     category: main
     optional: false
   - name: zstandard
