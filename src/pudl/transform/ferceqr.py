@@ -66,10 +66,9 @@ def _map_timezones(
     return table.join(conn.from_df(tz_map), condition="time_zone", how="left")
 
 
-def _na_to_null(col_name: str) -> duckdb.CaseExpression:
-    return duckdb.CaseExpression(
-        condition=duckdb.ColumnExpression(col_name) in ["N/A", "NA"],
-        value=duckdb.ColumnExpression(col_name),
+def _na_to_null(col_name: str) -> duckdb.Expression:
+    return duckdb.SQLExpression(
+        f"CASE WHEN UPPER({col_name}) IN ('N/A', 'NA') THEN NULL ELSE UPPER({col_name}) END"
     )
 
 
