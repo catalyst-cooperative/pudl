@@ -25,6 +25,7 @@ class PudlPaths(BaseSettings):
 
     pudl_input: PotentialDirectoryPath
     pudl_output: PotentialDirectoryPath
+    dagster_home: DirectoryPath
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @model_validator(mode="after")
@@ -48,7 +49,7 @@ class PudlPaths(BaseSettings):
     @property
     def parquet_transform_dir(self) -> Path:
         """Path to directory with parquet files used for intermediate transforms."""
-        return self.input_dir.parent / "storage" / "parquet"
+        return self.dagster_home / "storage" / "parquet"
 
     @property
     def settings_dir(self) -> Path:
