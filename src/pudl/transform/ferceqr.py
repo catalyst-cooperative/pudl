@@ -164,6 +164,7 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
                 product_type_name=_na_to_null("product_type_name"),
                 product_name=_na_to_null("product_name"),
                 rate_units=_na_to_null("rate_units"),
+                units=_na_to_null("units"),
                 begin_date=duckdb.SQLExpression(
                     "TRY_STRPTIME(begin_date, '%Y%m%d%H%M')"
                 ),
