@@ -223,6 +223,7 @@ def allocate_gen_fuel_asset_factory(
             "gens": AssetIn(key="_out_eia__yearly_generators"),
         },
         io_manager_key=io_manager_key,
+        op_tags={"memory-use": "high"},
         compute_kind="Python",
         config_schema={
             "debug": Field(
@@ -246,6 +247,7 @@ def allocate_gen_fuel_asset_factory(
         gens: pd.DataFrame,
     ) -> pd.DataFrame:
         """Allocate net gen from gen_fuel to generator/energy_source_code level."""
+        pd.options.mode.copy_on_write = True
         gf, bf, gen, bga, gens = select_input_data(
             gf=gf, bf=bf, gen=gen, bga=bga, gens=gens
         )
@@ -1658,19 +1660,13 @@ def adjust_msw_energy_source_codes(
     """
     # Adjust any energy source codes related to municipal solid waste
     # get a list of all of the MSW-related codes used in gf and bf
-    msw_codes_in_gf = set(
-        gf.loc[
-            gf["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
-            "energy_source_code",
-        ].unique()
+    codes_used = set(gf.energy_source_code.unique()) | set(
+        bf_by_gens.energy_source_code.unique()
     )
-    msw_codes_in_bf = set(
-        bf_by_gens.loc[
-            bf_by_gens["energy_source_code"].isin(["MSW", "MSB", "MSN"]),
-            "energy_source_code",
-        ].unique()
+    # NOTE 2025-12-11: we sort this reverse-ly to match the indeterminate order that happens to be in nightly builds right now
+    msw_codes_used = sorted(
+        {"MSN", "MSB", "MSW"}.intersection(codes_used), reverse=True
     )
-    msw_codes_used = list(msw_codes_in_gf | msw_codes_in_bf)
     # join these codes into a string that will be used to replace the MSW code
     replacement_codes = ",".join(msw_codes_used)
 
@@ -1681,9 +1677,7 @@ def adjust_msw_energy_source_codes(
             # create a column of all unique fuels in the order in which they appear (ESC 1-6, startup fuel 1-6)
             # this column will have each fuel code separated by a comma
             gens["unique_esc"] = [
-                ",".join(
-                    fuel for fuel in list(dict.fromkeys(fuels)) if pd.notnull(fuel)
-                )
+                ",".join(fuel for fuel in fuels if pd.notnull(fuel))
                 for fuels in gens.loc[
                     :,
                     [

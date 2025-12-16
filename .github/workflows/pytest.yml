@@ -34,6 +34,7 @@ jobs:
           filters: |
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
+              - '!devtools/**'
               - '!docker/**'
               - '!docs/**'
               - '!.github/**.md'
@@ -42,6 +43,15 @@ jobs:
               - '!.github/dependabot.yml'
               - '!.github/release.yml'
               - '!.github/ISSUE_TEMPLATE/*.yml'
+              - '!.github/workflows/bot-auto-merge.yml'
+              - '!.github/workflows/build-deploy-docs.yml'
+              - '!.github/workflows/build-deploy-pudl.yml'
+              - '!.github/workflows/com-dev-notify.yml'
+              - '!.github/workflows/docker-build-test.yml'
+              - '!.github/workflows/q-update-issue-scheduler.yml'
+              - '!.github/workflows/release.yml'
+              - '!.github/workflows/update-conda-lockfile.yml'
+              - '!.github/workflows/zenodo-cache-sync.yml'
               - '!.github/workflows/zenodo-data-release.yml'
               - '!AGENTS.md'
               - '!README.rst'
@@ -54,6 +64,7 @@ jobs:
               - '!.pre-commit-config.yaml'
               - '!.readthedocs.yaml'
               - '!.mypy.ini'
+              - '!terraform/**'
               - '!test/unit/**'
       - name: print out components
         run: |
@@ -105,7 +116,7 @@ jobs:
           ls -a
 
       - name: Upload docs coverage artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-docs
           include-hidden-files: true
@@ -160,7 +171,7 @@ jobs:
           ls -a
 
       - name: Upload unit tests coverage artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-unit
           include-hidden-files: true
@@ -222,7 +233,7 @@ jobs:
           | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
       - name: Restore Zenodo datastore from cache if possible
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache-zenodo-datastore
         with:
           path: ${{ env.PUDL_INPUT }}
@@ -266,7 +277,7 @@ jobs:
           ls -a
 
       - name: Upload integration test coverage artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-integration
           include-hidden-files: true
@@ -274,7 +285,7 @@ jobs:
 
       - name: Upload dbt test failure database artifact
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: dbt-failures
           path: pudl_dbt_tests.duckdb
@@ -294,7 +305,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Download coverage
         id: download-coverage
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: coverage
       - name: List downloaded files

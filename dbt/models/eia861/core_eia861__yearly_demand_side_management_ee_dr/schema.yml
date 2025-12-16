@@ -11,26 +11,105 @@ sources:
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: annual_indirect_program_cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    error_if: ">1"
           - name: annual_total_cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: customer_class
           - name: energy_efficiency_annual_actual_peak_reduction_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: energy_efficiency_annual_cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: energy_efficiency_annual_effects_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    error_if: ">1"
           - name: energy_efficiency_annual_incentive_payment
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    error_if: ">1"
           - name: energy_efficiency_incremental_actual_peak_reduction_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: energy_efficiency_incremental_effects_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: load_management_annual_actual_peak_reduction_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: load_management_annual_cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: load_management_annual_effects_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    error_if: ">10"
           - name: load_management_annual_incentive_payment
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: load_management_annual_potential_peak_reduction_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: load_management_incremental_actual_peak_reduction_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    error_if: ">2"
           - name: load_management_incremental_effects_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    error_if: ">6"
           - name: load_management_incremental_potential_peak_reduction_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    error_if: ">4"
           - name: nerc_region
           - name: price_responsiveness_customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: report_date
           - name: state
           - name: time_responsiveness_customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: utility_id_eia
           - name: data_maturity

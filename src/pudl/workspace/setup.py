@@ -32,6 +32,7 @@ class PudlPaths(BaseSettings):
         """Create PUDL input and output directories if they don't already exist."""
         self.input_dir.mkdir(parents=True, exist_ok=True)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.parquet_transform_dir.mkdir(parents=True, exist_ok=True)
         return self
 
     @property
@@ -43,6 +44,11 @@ class PudlPaths(BaseSettings):
     def output_dir(self) -> Path:
         """Path to PUDL output directory."""
         return Path(self.pudl_output).absolute()
+
+    @property
+    def parquet_transform_dir(self) -> Path:
+        """Path to directory with parquet files used for intermediate transforms."""
+        return self.input_dir.parent / "storage" / "parquet"
 
     @property
     def settings_dir(self) -> Path:
@@ -79,6 +85,10 @@ class PudlPaths(BaseSettings):
     def sqlite_db_path(self, name: str) -> Path:
         """Return path to locally stored SQLite DB file."""
         return self.output_dir / f"{name}.sqlite"
+
+    def duckdb_db_path(self, name: str) -> Path:
+        """Return path to locally stored SQLite DB file."""
+        return self.output_dir / f"{name}.duckdb"
 
     def output_file(self, filename: str) -> Path:
         """Path to file in PUDL output directory."""
