@@ -108,7 +108,7 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
                 ),
                 exchange_brokerage_service=_na_to_null("exchange_brokerage_service"),
                 type_of_rate=_na_to_null("type_of_rate"),
-                time_zone=_na_to_null("time_zone"),
+                timezone=_na_to_null("time_zone"),
                 class_name=_na_to_null("class_name"),
                 term_name=_na_to_null("term_name"),
                 increment_name=_na_to_null("increment_name"),
