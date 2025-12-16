@@ -18,7 +18,19 @@ def apply_dtypes_to_duckdb_table(
     table_data: duckdb.DuckDBPyRelation,
     **col_expressions: dict[str, duckdb.Expression],
 ):
-    """Return a duckdb relation that will cast all columns to appropriate dtypes."""
+    """Generate a select statement containing transforms to all columns and cast to correct dtypes.
+
+    EQR transforms are implemented using the duckdb expression api, which allows us
+    to dynamically build SQL statements to operate on each column. By collecting all
+    of these expressions into a single select statement, we create a query that will
+    transform data from raw parquet files.
+
+    Args:
+        table_name: Name of table, which should have corresponding table level metadata.
+        col_expressions: Map column names to pre-generated expressions. Each of these
+            expressions will have a ``cast`` added on to it to apply correct dtypes.
+            For columns defined in the table schema, but
+    """
     dtypes = Resource.from_id(table_name).to_duckdb_dtypes()
     return table_data.select(
         *[
