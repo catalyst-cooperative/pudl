@@ -59,7 +59,9 @@ def _clean_csv_name(csv_path: Path) -> Path:
 
 
 def _get_table_name(table_type: str, year_quarter: str) -> str:
-    return f"raw_ferceqr__{table_type}_{year_quarter}"
+    if table_type != "indexPub":
+        return f"raw_ferceqr__{table_type}_{year_quarter}"
+    return f"raw_ferceqr__index_pub_{year_quarter}"
 
 
 def _extract_ident(
@@ -153,7 +155,7 @@ def _csvs_to_parquet(
         )
 
 
-def _save_extract_metadata(year_quarter: str, duckdb_connection: DuckDBPyConnection):
+def _save_extract_errors(year_quarter: str, duckdb_connection: DuckDBPyConnection):
     """Create parquet file with metadata on any CSV parsing errors."""
     return persist_table_as_parquet(
         duckdb_connection.table("reject_errors")
@@ -164,7 +166,7 @@ def _save_extract_metadata(year_quarter: str, duckdb_connection: DuckDBPyConnect
         .select(
             f"reject_errors.*, parse_filename(reject_scans.file_path), '{year_quarter}' as year_quarter"
         ),
-        table_name="raw_ferceqr__metadata",
+        table_name="raw_ferceqr__extract_errors",
         partitions={"year_quarter": year_quarter},
     )
 
@@ -175,8 +177,8 @@ def _save_extract_metadata(year_quarter: str, duckdb_connection: DuckDBPyConnect
         "raw_ferceqr__ident": dg.AssetOut(),
         "raw_ferceqr__contracts": dg.AssetOut(),
         "raw_ferceqr__transactions": dg.AssetOut(),
-        "raw_ferceqr__indexPub": dg.AssetOut(),
-        "raw_ferceqr__metadata": dg.AssetOut(),
+        "raw_ferceqr__index_pub": dg.AssetOut(),
+        "raw_ferceqr__extract_errors": dg.AssetOut(),
     },
 )
 def extract_eqr(
@@ -212,7 +214,7 @@ def extract_eqr(
                     )
             except zipfile.BadZipfile:
                 logger.warning(f"Could not open filing: {filing}.")
-        metadata = _save_extract_metadata(year_quarter, conn)
+        metadata = _save_extract_errors(year_quarter, conn)
     return (
         ParquetData(table_name=_get_table_name("ident", year_quarter)),
         ParquetData(table_name=_get_table_name("contracts", year_quarter)),
