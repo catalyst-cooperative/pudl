@@ -173,3 +173,25 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
             partitions={"year_quarter": year_quarter},
             use_output_dir=True,
         )
+
+
+@dg.asset(partitions_def=ferceqr_year_quarters)
+def core_ferceqr__index_pub(context, raw_ferceqr__index_pub: ParquetData):
+    """Perform basic transforms on indexPub table table."""
+    year_quarter = context.partition_key
+    with duckdb_relation_from_parquet(
+        raw_ferceqr__index_pub, use_all_partitions=True
+    ) as (table, _):
+        return persist_table_as_parquet(
+            apply_dtypes_to_duckdb_table(
+                table_name="core_ferceqr__index_pub",
+                table_data=table,
+                index_price_publisher_name=_na_to_null(
+                    "Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported"
+                ),
+                transactions_reported=duckdb.ColumnExpression("Transactions_Reported"),
+            ),
+            table_name="core_ferceqr__index_pub",
+            partitions={"year_quarter": year_quarter},
+            use_output_dir=True,
+        )

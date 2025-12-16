@@ -9076,6 +9076,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     # begin_date
     # end_date
+    # indexPub table
+    # year_quarter
+    # company_identifier
+    # filer_unique_id
+    # seller_company_name
+    "index_price_publisher_name": {
+        "type": "string",
+        "description": (
+            "Name of index price publisher, which can be one of the following:"
+            " AM - Argus Media, EIG - Energy Intelligence Group, Inc., IP -"
+            " Intelligence Press, P - Platts, B - Bloomberg, PDX - Powerdex, SNL -"
+            " SNL Energy"
+        ),
+        "constraints": {
+            "enum": ["AM", "EIG", "IP", "P", "B", "PDX", "SNL"],
+        },
+    },
+    "transactions_reported": {
+        "type": "string",
+        "description": (
+            "Description of the types of transactions reported to the index"
+            " publisher identified in this record."
+        ),
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 

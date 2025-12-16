@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferceqr__index_pub
+        columns:
+          - name: year_quarter
+          - name: company_identifier
+          - name: filer_unique_id
+          - name: seller_company_name
+          - name: index_price_publisher_name
+          - name: transactions_reported

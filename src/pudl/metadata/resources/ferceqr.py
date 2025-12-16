@@ -133,4 +133,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
     },
+    "core_ferceqr__index_pub": {
+        "description": TABLE_DESCRIPTIONS["index_pub"],
+        "schema": {
+            "fields": [
+                "year_quarter",
+                "company_identifier",
+                "filer_unique_id",
+                "seller_company_name",
+                "index_price_publisher_name",
+                "transactions_reported",
+            ],
+        },
+        "create_database_schema": False,
+        "sources": ["ferceqr"],
+        "etl_group": "ferceqr",
+        "field_namespace": "ferceqr",
+    },
 }
