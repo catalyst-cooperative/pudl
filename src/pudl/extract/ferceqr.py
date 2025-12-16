@@ -69,7 +69,7 @@ def _extract_ident(
     year_quarter: str,
     duckdb_connection: DuckDBPyConnection,
 ) -> str:
-    """Extract data from ident csv and write to parquet, returning CID from table.
+    """Extract data from ident csv, write to parquet, and return CID from table.
 
     This table is always extracted first so we can pull the CID from it and include
     a CID column in all other tables.
