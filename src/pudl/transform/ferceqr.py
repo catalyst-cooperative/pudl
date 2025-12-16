@@ -51,7 +51,10 @@ def _na_to_null(col_name: str) -> duckdb.CaseExpression:
 
     # If you don't include an `otherwise` statement, those values will default to NULL
     return duckdb.CaseExpression(
-        condition=upper_col_expression.isnotin(["N/A", "NA"]),
+        condition=upper_col_expression.isnotin(
+            duckdb.ConstantExpression("N/A"),
+            duckdb.ConstantExpression("NA"),
+        ),
         value=upper_col_expression,
     )
 
