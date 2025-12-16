@@ -2,6 +2,7 @@
 
 import importlib.resources
 import itertools
+import os
 
 from dagster import (
     AssetKey,
@@ -186,7 +187,11 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
-    "ferceqr_extract_settings": pudl.extract.ferceqr.ExtractSettings(),
+    "ferceqr_extract_settings": pudl.extract.ferceqr.ExtractSettings(
+        archive=os.getenv(  # Default to read directly from GCS if local path not specified
+            "EQR_ARCHIVE_PATH", "gs://archives.catalyst.coop/ferceqr/published"
+        )
+    ),
 }
 
 
