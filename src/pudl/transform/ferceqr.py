@@ -159,11 +159,11 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
                 end_date=duckdb.SQLExpression("TRY_STRPTIME(end_date, '%Y%m%d%H%M')"),
                 contract_affiliate=(
                     duckdb.CaseExpression(
-                        condition=duckdb.ColumnExpression("contract_affiliate")
+                        condition=duckdb.SQLExpression("UPPER(contract_affiliate)")
                         == duckdb.ConstantExpression("Y"),
                         value=True,
                     ).when(
-                        condition=duckdb.ColumnExpression("contract_affiliate")
+                        condition=duckdb.SQLExpression("UPPER(contract_affiliate)")
                         == duckdb.ConstantExpression("N"),
                         value=False,
                     )
