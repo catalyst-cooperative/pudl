@@ -2,9 +2,21 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2025.12.1:
+
 ---------------------------------------------------------------------------------------
-v2025.12.x (2025-12-XX)
+v2025.12.1 (2025-12-13)
 ---------------------------------------------------------------------------------------
+
+This is a monthly release primarily intended to update the generatores reporting in
+EIA-860M, with some other minor improvements coming along for the ride. These include
+another new EIA Form 176 natural gas disposition table, and experimental access to the
+FERC XBRL derived databases using DuckDB. Details below.
+
+.. note::
+
+   There was a misconfiguration in the build for ``v2025.12.0`` that prevented it from
+   deploying.
 
 Enhancements
 ^^^^^^^^^^^^
@@ -14,20 +26,35 @@ Enhancements
   SQLite) can be queried remotely when stored in a cloud bucket. This will also let us
   provide access to this relatively raw but complete FERC data through the `PUDL Data
   Viewer <https://data.catalyst.coop>`__. Note that the XBRL data only covers 2021 to
-  the present. See PR :pr:`4782` for this change, which is mostly implemented in the
-  1.7.x releases of our
-  `FERC XBRL Extractor <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/releases>`__.
+  the present. For links and an access example, see :ref:`access-raw-ferc-duckdb`. See
+  PR :pr:`4782` for this change, which is mostly implemented in the
+  1.7.x releases of our `FERC XBRL Extractor <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/releases>`__.
 
 New Data
 ^^^^^^^^
 
- * Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
-   company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
-   :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
+EIA-176
+~~~~~~~
 
+Thanks to open source contributions from `SwitchBox <https://switch.box>`__ and funding
+from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems>`__ we continue to bring in more EIA natural gas data.
+
+* Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
+  company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
+  :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through October 2025. See :pr:`4788`.
+
+EIA-861
+~~~~~~~
+* Added EIA-861 re-released final release data from 2024. See :issue:`4826` and PR
+  :pr:`4827`.
 
 FERC Form 6
 ~~~~~~~~~~~
@@ -35,9 +62,6 @@ FERC Form 6
 * Updated to using the `latest archive of FERC Form 6
   <https://zenodo.org/records/17119798>`__ to capture a few late revisions. See PR
   :pr:`4784`.
-
-Documentation
-^^^^^^^^^^^^^
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,6 +81,9 @@ Bug Fixes
   file rather than uploading a zero-length file. Previously both types of errors
   (missing files and zero-length files) were only caught through manual inspection of
   draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
+* Remove row with plant ID 68815 and generator ID ``GAPPV`` that was erroneously
+  included in the 2024 from the EIA 860 generators data. See :issue:`4769` and PR
+  :pr:`4824`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^

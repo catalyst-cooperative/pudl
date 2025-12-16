@@ -11,6 +11,10 @@ sources:
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: capacity_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: estimated_or_actual_tech_data
           - name: report_date
           - name: state
