@@ -9033,7 +9033,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " RTO/ISO: If the price is the result of an RTO/ISO market or the sale is made to the RTO/ISO."
         ),
     },
-    # timezone
     # point_of_delivery_balancing_authority
     # point_of_delivery_specific_location
     # class_name
@@ -9937,6 +9936,31 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
             )
         }
+    },
+    "core_ferceqr__transactions": {
+        "timezone": {
+            "type": "string",
+            "description": ("The time zone in which the sale was made."),
+            "constraints": {
+                "enum": [
+                    "AD",
+                    "AP",
+                    "AS",
+                    "CD",
+                    "CP",
+                    "CS",
+                    "ED",
+                    "EP",
+                    "ES",
+                    "MD",
+                    "MP",
+                    "MS",
+                    "PD",
+                    "PP",
+                    "PS",
+                ],
+            },
+        },
     },
 }
 

@@ -2,7 +2,6 @@
 
 import dagster as dg
 import duckdb
-import pandas as pd
 
 from pudl.helpers import (
     ParquetData,
@@ -45,43 +44,15 @@ def apply_dtypes_to_duckdb_table(
     )
 
 
-def _map_timezones(
-    table: duckdb.DuckDBPyRelation, conn: duckdb.DuckDBPyConnection
-) -> duckdb.DuckDBPyRelation:
-    tz_map = pd.DataFrame(
-        columns=["time_zone", "timezone"],
-        data=[
-            ("EP", "America/New_York"),
-            ("PP", "America/Los_Angeles"),
-            ("ES", "America/New_York"),
-            ("ED", "America/New_York"),
-            ("CP", "America/Chicago"),
-            ("MS", "America/Denver"),
-            ("MD", "America/Denver"),
-            ("CD", "America/Chicago"),
-            ("CS", "America/Chicago"),
-            ("PS", "America/Los_Angeles"),
-            ("PD", "America/Los_Angeles"),
-            ("MP", "America/Denver"),
-            ("EPT", "America/New_York"),
-            ("CPT", "America/Chicago"),
-            ("CST", "America/Chicago"),
-            ("CDT", "America/Chicago"),
-            ("PPT", "America/Los_Angeles"),
-            ("EDT", "America/New_York"),
-            ("AP", "America/New_York"),
-            ("MPT", "America/Denver"),
-            ("N/A", None),
-            ("NA", None),
-        ],
-    )
-    return table.join(conn.from_df(tz_map), condition="time_zone", how="left")
-
-
 def _na_to_null(col_name: str) -> duckdb.CaseExpression:
+    """Convert string NA values to NULL."""
+    # Standardize all strings to be uppercase
+    upper_col_expression = duckdb.SQLExpression(f"UPPER({col_name})")
+
+    # If you don't include an `otherwise` statement, those values will default to NULL
     return duckdb.CaseExpression(
-        condition=duckdb.ColumnExpression(col_name) in ["N/A", "NA"],
-        value=duckdb.ColumnExpression(col_name),
+        condition=upper_col_expression.isnotin(["N/A", "NA"]),
+        value=upper_col_expression,
     )
 
 
@@ -121,7 +92,7 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
         return persist_table_as_parquet(
             apply_dtypes_to_duckdb_table(
                 table_name="core_ferceqr__transactions",
-                table_data=_map_timezones(table, conn),
+                table_data=table,
                 transaction_begin_date=duckdb.SQLExpression(
                     "TRY_STRPTIME(transaction_begin_date, '%Y%m%d%H%M')"
                 ),
@@ -134,6 +105,7 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
                 ),
                 exchange_brokerage_service=_na_to_null("exchange_brokerage_service"),
                 type_of_rate=_na_to_null("type_of_rate"),
+                time_zone=_na_to_null("time_zone"),
                 class_name=_na_to_null("class_name"),
                 term_name=_na_to_null("term_name"),
                 increment_name=_na_to_null("increment_name"),
