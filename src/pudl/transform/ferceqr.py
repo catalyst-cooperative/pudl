@@ -73,8 +73,20 @@ def core_ferceqr__identity(
             apply_dtypes_to_duckdb_table(
                 table_name="core_ferceqr__identity",
                 table_data=table,
-                transactions_reported_to_index_price_publishers=_na_to_null(
-                    "transactions_reported_to_index_price_publishers"
+                transactions_reported_to_index_price_publishers=(
+                    duckdb.CaseExpression(
+                        condition=duckdb.SQLExpression(
+                            "UPPER(transactions_reported_to_index_price_publishers)"
+                        )
+                        == duckdb.ConstantExpression("Y"),
+                        value=True,
+                    ).when(
+                        condition=duckdb.SQLExpression(
+                            "UPPER(transactions_reported_to_index_price_publishers)"
+                        )
+                        == duckdb.ConstantExpression("N"),
+                        value=False,
+                    )
                 ),
             ),
             table_name="core_ferceqr__identity",
@@ -91,7 +103,7 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
     year_quarter = context.partition_key
     with duckdb_relation_from_parquet(
         raw_ferceqr__transactions, use_all_partitions=True
-    ) as (table, conn):
+    ) as (table, _):
         return persist_table_as_parquet(
             apply_dtypes_to_duckdb_table(
                 table_name="core_ferceqr__transactions",

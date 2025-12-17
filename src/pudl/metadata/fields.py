@@ -8787,7 +8787,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " N/A: To be used only when the other available Class Names do not apply."
         ),
         "constraints": {
-            "enum": ["F", "NF", "UP", "N/A", "BA"],
+            "enum": ["F", "NF", "UP", "BA"],
         },
     },
     "term_name": {
@@ -8797,7 +8797,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " with shorter durations are short-term."
         ),
         "constraints": {
-            "enum": ["LT", "ST", "N/A"],
+            "enum": ["LT", "ST"],
         },
     },
     "increment_name": {
@@ -8819,7 +8819,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " N/A: Terms of the contract do not specify an increment."
         ),
         "constraints": {
-            "enum": ["5", "15", "H", "D", "W", "M", "Y", "N/A"],
+            "enum": ["5", "15", "H", "D", "W", "M", "Y"],
         },
     },
     "increment_peaking_name": {
@@ -8833,6 +8833,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " as on-peak at the point of delivery."
             " N/A: To be used only when the increment peaking name is not specified in the contract."
         ),
+        "constraints": {
+            "enum": ["FP", "OP", "P"],
+        },
     },
     "product_type_name": {
         "type": "string",
@@ -8894,13 +8897,64 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Quantity for the contract product identified.",
     },
-    "units": {
-        "type": "string",
-        "description": "Measure stated in the contract for the product sold.",
-    },
     "rate": {
         "type": "number",
         "description": "The charge for the product per unit as stated in the contract.",
+    },
+    "rate_units": {  # FERC EQR
+        "type": "string",
+        "description": "Measure stated in the contract for the product sold. FERC EQR.",
+        "constraints": {
+            "enum": [
+                "$/KV",
+                "$/KVA",
+                "$/KVR",
+                "$/KW",
+                "$/KWH",
+                "$/KW-DAY",
+                "$/KW-MO",
+                "$/KW-WK",
+                "$/KW-YR",
+                "$/MW",
+                "$/MWH",
+                "$/MW-DAY",
+                "$/MW-MO",
+                "$/MW-WK",
+                "$/MW-YR",
+                "$/MVAR-YR",
+                "$/RKVA",
+                "CENTS",
+                "CENTS/KVR",
+                "CENTS/KWH",
+                "FLAT RATE",
+            ],
+        },
+    },
+    "units": {  # FERC EQR
+        "type": "string",
+        "description": "Measure stated in the contract for the product sold.",
+        "constraints": {
+            "enum": [
+                "KV",
+                "KVA",
+                "KVR",
+                "KW",
+                "KWH",
+                "KW-DAY",
+                "KW-MO",
+                "KW-WK",
+                "KW-YR",
+                "MVAR-YR",
+                "MW",
+                "MWH",
+                "MW-DAY",
+                "MW-MO",
+                "MW-WK",
+                "MW-YR",
+                "RKVA",
+                "FLAT RATE",
+            ]
+        },
     },
     "rate_minimum": {
         "type": "number",
@@ -8924,10 +8978,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " detailed citation of the relevant FERC tariff including page"
             " number and section."
         ),
-    },
-    "rate_units": {
-        "type": "string",
-        "description": "Measure stated in the contract for the product sold.",
     },
     "point_of_receipt_balancing_authority": {
         "type": "string",
@@ -9020,6 +9070,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " term “Broker” shall be provided. If an exchange is used, the specific"
             " exchange that is used shall be selected from the Commission-provided list."
         ),
+        "constraints": {
+            "enum": ["BROKER", "ICE", "NODAL", "NYMEX"],
+        },
     },
     "type_of_rate": {
         "type": "string",
@@ -9032,6 +9085,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " Field Number 73 or a price published by an RTO/ISO (e.g., PJM West or Illinois Hub)."
             " RTO/ISO: If the price is the result of an RTO/ISO market or the sale is made to the RTO/ISO."
         ),
+        "constraints": {
+            "enum": ["FIXED", "FORMULA", "ELECTRIC INDEX", "RTO/ISO"],
+        },
     },
     # point_of_delivery_balancing_authority
     # point_of_delivery_specific_location
@@ -9961,10 +10017,71 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             )
         }
     },
+    "core_ferceqr__contracts": {
+        "product_name": {
+            "constraints": {
+                "enum": [
+                    "BLACK START SERVICE",
+                    "CAPACITY",
+                    "CUSTOMER CHARGE",
+                    "DIRECT ASSIGNMENT FACILITIES CHARGE",
+                    "EMERGENCY ENERGY",
+                    "ENERGY",
+                    "ENERGY IMBALANCE",
+                    "EXCHANGE",
+                    "FUEL CHARGE",
+                    "GENERATOR IMBALANCE",
+                    "GRANDFATHERED BUNDLED",
+                    "INTERCONNECTION AGREEMENT",
+                    "MEMBERSHIP AGREEMENT",
+                    "MUST RUN AGREEMENT",
+                    "NEGOTIATED-RATE TRANSMISSION",
+                    "NETWORK",
+                    "NETWORK OPERATING AGREEMENT",
+                    "OTHER",
+                    "POINT-TO-POINT AGREEMENT",
+                    "PRIMARY FREQUENCY RESPONSE",
+                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
+                    "REAL POWER TRANSMISSION LOSS",
+                    "REASSIGNMENT AGREEMENT",
+                    "REGULATION & FREQUENCY RESPONSE",
+                    "REQUIREMENTS SERVICE",
+                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
+                    "SPINNING RESERVE",
+                    "SUPPLEMENTAL RESERVE",
+                    "SYSTEM OPERATING AGREEMENTS",
+                    "TOLLING ENERGY",
+                    "TRANSMISSION OWNERS AGREEMENT",
+                    "UPLIFT",
+                ]
+            },
+        },
+    },
     "core_ferceqr__transactions": {
         "timezone": {
             "type": "string",
-            "description": ("The time zone in which the sale was made."),
+            "description": (
+                "A code representing the so-called 'time zone' in which the sale was "
+                "made. However, these codes do not actually correspond to time zones. "
+                "Rather, they indicate an offset from UTC, which changes according to "
+                "daylight savings vs. standard time. The codes are as follows:\n"
+                "AD: Atlantic Daylight Time (UTC-3)\n"
+                "AP: Atlantic Prevailing Time\n"
+                "AS: Atlantic Standard Time (UTC-4)\n"
+                "CD: Central Daylight Time (UTC-5)\n"
+                "CP: Central Prevailing Time\n"
+                "CS: Central Standard Time (UTC-6)\n"
+                "ED: Eastern Daylight Time (UTC-4)\n"
+                "EP: Eastern Prevailing Time\n"
+                "ES: Eastern Standard Time (UTC-5)\n"
+                "MD: Mountain Daylight Time (UTC-6)\n"
+                "MP: Mountain Prevailing Time\n"
+                "MS: Mountain Standard Time (UTC-7)\n"
+                "PD: Pacific Daylight Time (UTC-7)\n"
+                "PP: Pacific Prevailing Time\n"
+                "PS: Pacific Standard Time (UTC-8)\n"
+                "UT: Coordinated Universal Time (UTC+0)"
+            ),
             "constraints": {
                 "enum": [
                     "AD",
@@ -9982,7 +10099,37 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "PD",
                     "PP",
                     "PS",
+                    "UT",
                 ],
+            },
+        },
+        "product_name": {
+            "constraints": {
+                "enum": [
+                    "BLACK START SERVICE",
+                    "BOOKED OUT POWER",
+                    "CAPACITY",
+                    "CUSTOMER CHARGE",
+                    "EMERGENCY ENERGY",
+                    "ENERGY",
+                    "ENERGY IMBALANCE",
+                    "EXCHANGE",
+                    "FUEL CHARGE",
+                    "GENERATOR IMBALANCE",
+                    "GRANDFATHERED BUNDLED",
+                    "NEGOTIATED-RATE TRANSMISSION",
+                    "OTHER",
+                    "PRIMARY FREQUENCY RESPONSE",
+                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
+                    "REAL POWER TRANSMISSION LOSS",
+                    "REGULATION & FREQUENCY RESPONSE",
+                    "REQUIREMENTS SERVICE",
+                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
+                    "SPINNING RESERVE",
+                    "SUPPLEMENTAL RESERVE",
+                    "TOLLING ENERGY",
+                    "UPLIFT",
+                ]
             },
         },
     },

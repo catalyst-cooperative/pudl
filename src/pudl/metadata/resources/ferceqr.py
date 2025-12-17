@@ -3,14 +3,24 @@
 from typing import Any
 
 TABLE_DESCRIPTIONS = {
-    "ident": {
+    "identity": {
         "additional_summary_text": "placeholder",
         "additional_source_text": "placeholder",
+        "additional_primary_key_text": (
+            "The primary key ought to be ['year_quarter', 'company_identifier', "
+            "'filer_unique_id'], where filer_unique_id is an employee-level ID. "
+            "However, a handful of companies have erroneously reported the same "
+            "filer_unique_id for multiple employees, resulting in duplicate records. "
+            "In other cases, there appear to be multiple filings in a given quarter "
+            "for the same company and filer, resulting in additional duplicates. Thus, "
+            "there is no reliable natural primary key for the identity table."
+        ),
         "usage_warnings": [],
     },
     "contracts": {
         "additional_summary_text": "placeholder",
         "additional_source_text": "placeholder",
+        "additional_primary_key_text": "The FERC EQR contracts table has no natural primary key.",
         "usage_warnings": [],
     },
     "transactions": {
@@ -27,11 +37,12 @@ TABLE_DESCRIPTIONS = {
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_ferceqr__identity": {
-        "description": TABLE_DESCRIPTIONS["ident"],
+        "description": TABLE_DESCRIPTIONS["identity"],
         "schema": {
             "fields": [
-                "filer_unique_id",
+                "year_quarter",
                 "company_identifier",
+                "filer_unique_id",
                 "company_name",
                 "contact_name",
                 "contact_title",
@@ -43,7 +54,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "contact_phone",
                 "contact_email",
                 "transactions_reported_to_index_price_publishers",
-                "year_quarter",
             ],
         },
         "create_database_schema": False,
@@ -127,6 +137,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "total_transmission_charge",
                 "total_transaction_charge",
             ],
+            "primary_key": [
+                "year_quarter",
+                "company_identifier",
+                "transaction_unique_id",
+            ],
         },
         "create_database_schema": False,
         "sources": ["ferceqr"],
@@ -143,6 +158,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "seller_company_name",
                 "index_price_publisher_name",
                 "transactions_reported",
+            ],
+            "primary_key": [
+                "year_quarter",
+                "company_identifier",
+                "filer_unique_id",
             ],
         },
         "create_database_schema": False,
