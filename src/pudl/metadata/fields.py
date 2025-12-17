@@ -8617,18 +8617,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " identifier must be included in an EQR for a given quarter."
         ),
     },
-    "company_identifier": {
+    "company_id": {
         "type": "string",
         "description": (
-            "The Company Identifier (CID) obtained through the"
-            " Commission’s Company Registration system."
+            "The Company Identifier (CID) obtained through FERC's"
+            " Company Registration system."
         ),
     },
-    "seller_company_identifier": {
+    "seller_company_id": {
         "type": "string",
         "description": (
-            "The Company Identifier (CID) obtained through the"
-            " Commission’s Company Registration system corresponding to the selling company."
+            "The Company Identifier (CID) obtained through FERC's"
+            " Company Registration system corresponding to the selling company."
         ),
     },
     "contact_name": {

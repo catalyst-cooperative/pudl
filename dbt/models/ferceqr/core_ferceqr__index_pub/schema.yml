@@ -5,7 +5,7 @@ sources:
       - name: core_ferceqr__index_pub
         columns:
           - name: year_quarter
-          - name: company_identifier
+          - name: company_id
           - name: filer_unique_id
           - name: seller_company_name
           - name: index_price_publisher_name

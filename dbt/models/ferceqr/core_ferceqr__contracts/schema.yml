@@ -5,7 +5,7 @@ sources:
       - name: core_ferceqr__contracts
         columns:
           - name: year_quarter
-          - name: seller_company_identifier
+          - name: seller_company_id
           - name: contract_unique_id
           - name: seller_company_name
           - name: customer_company_name
