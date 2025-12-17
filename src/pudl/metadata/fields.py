@@ -8674,6 +8674,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "year_quarter": {
         "type": "string",
         "description": "Year-quarter corresponding to record. Formatted like YYYYq{1-4}.",
+        "constraints": {
+            "pattern": r"\d{4}q[1-4]",
+        },
     },
     "contract_unique_id": {
         "type": "string",
