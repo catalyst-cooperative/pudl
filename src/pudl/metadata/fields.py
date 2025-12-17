@@ -8691,13 +8691,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The name of the company that is authorized to make sales as indicated"
             " in the company’s FERC tariff(s) or that is required to file the EQR"
             " under section 220 of the Federal Power Act. This name must match the"
-            " name provided as a Seller’s “Company Name” in Field Number 2 of the"
-            " ID Data (Seller Data)."
+            " name provided as a Seller’s company_name in the core_ferceqr__identity table."
         ),
     },
     "customer_company_name": {
         "type": "string",
-        "description": "The name of the purchaser of contract products and services.",
+        "description": (
+            "The name of the purchaser of contract products and services. Unlike the"
+            " seller_company_name this name is not guaranteed to match a name in the"
+            " core_ferceqr__identity name."
+        ),
     },
     "contract_affiliate": {
         "type": "boolean",
