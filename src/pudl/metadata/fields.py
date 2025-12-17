@@ -9037,7 +9037,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " information. One record for each transaction record must be included in"
             " an EQR for a given quarter. A new transaction record must be used"
             " every time a price changes in a sale. Note, these ID's are only unique"
-            " for a single seller_company_name."
+            " for a single company_identifier and year_quarter."
         ),
     },
     "seller_transaction_id": {
