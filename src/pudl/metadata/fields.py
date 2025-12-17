@@ -8606,8 +8606,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Non-US postal code of the company's mailing address.",
     },
-    # FERCEQR placeholder fields
-    # ident table
     "filer_unique_id": {
         "type": "string",
         "description": (
@@ -8628,7 +8626,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " Commission’s Company Registration system."
         ),
     },
-    # company_name
     "contact_name": {
         "type": "string",
         "description": (
@@ -8638,7 +8635,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " (Agent) – Name of the person who prepared the filing"
         ),
     },
-    # contact_title
     "contact_address": {
         "type": "string",
         "description": "Street address for contact identified in contact_name.",
@@ -8679,9 +8675,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Year-quarter corresponding to record. Formatted like YYYYq{1-4}.",
     },
-    # contacts table
-    # year_quarter
-    # company_identifier
     "contract_unique_id": {
         "type": "string",
         "description": (
@@ -9030,9 +9023,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "datetime",
         "description": "Last date and time for the sale of the product at the rate specified.",
     },
-    # transactions table
-    # year_quarter
-    # company_identifier
     "transaction_unique_id": {
         "type": "string",
         "description": (
@@ -9043,10 +9033,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " every time a price changes in a sale."
         ),
     },
-    # seller_company_name
-    # customer_company_name
-    # ferc_tariff_reference
-    # contract_service_agreement_id
     "transaction_unique_identifier": {
         "type": "string",
         "description": "Unique reference number assigned by the Seller for each transaction.",
@@ -9089,13 +9075,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "enum": ["FIXED", "FORMULA", "ELECTRIC INDEX", "RTO/ISO"],
         },
     },
-    # point_of_delivery_balancing_authority
-    # point_of_delivery_specific_location
-    # class_name
-    # term_name
-    # increment_name
-    # increment_peaking_name
-    # product_name
     "transaction_quantity": {
         "type": "number",
         "description": "The quantity of the product in this transaction record.",
@@ -9104,7 +9083,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Actual price charged for the product per unit. The price reported cannot be averaged or otherwise aggregated.",
     },
-    # rate_units
     "standardized_quantity": {
         "type": "number",
         "description": (
@@ -9130,13 +9108,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "transaction_quantity * price + total_transmission_charge.",
     },
-    # begin_date
-    # end_date
-    # indexPub table
-    # year_quarter
-    # company_identifier
-    # filer_unique_id
-    # seller_company_name
     "index_price_publisher_name": {
         "type": "string",
         "description": (
