@@ -9036,10 +9036,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " (e.g., “T1”, “T2”) used to designate a record containing transaction"
             " information. One record for each transaction record must be included in"
             " an EQR for a given quarter. A new transaction record must be used"
-            " every time a price changes in a sale."
+            " every time a price changes in a sale. Note, these ID's are only unique"
+            " for a single seller_company_name."
         ),
     },
-    "transaction_unique_identifier": {
+    "seller_transaction_id": {
         "type": "string",
         "description": "Unique reference number assigned by the Seller for each transaction.",
     },

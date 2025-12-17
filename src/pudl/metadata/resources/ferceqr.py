@@ -115,7 +115,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "customer_company_name",
                 "ferc_tariff_reference",
                 "contract_service_agreement_id",
-                "transaction_unique_identifier",
+                "seller_transaction_id",
                 "transaction_begin_date",
                 "transaction_end_date",
                 "trade_date",

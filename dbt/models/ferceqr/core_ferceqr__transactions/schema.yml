@@ -11,7 +11,7 @@ sources:
           - name: customer_company_name
           - name: ferc_tariff_reference
           - name: contract_service_agreement_id
-          - name: transaction_unique_identifier
+          - name: seller_transaction_id
           - name: transaction_begin_date
           - name: transaction_end_date
           - name: trade_date

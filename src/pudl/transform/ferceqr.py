@@ -127,6 +127,9 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
                 "increment_peaking_name": _na_to_null("increment_peaking_name"),
                 "product_name": _na_to_null("product_name"),
                 "rate_units": _na_to_null("rate_units"),
+                "seller_transaction_id": duckdb.ColumnExpression(
+                    "transaction_unique_identifier"
+                ),
             },
         )
 
