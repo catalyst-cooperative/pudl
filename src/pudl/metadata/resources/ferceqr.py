@@ -66,7 +66,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "year_quarter",
-                "company_identifier",
+                "seller_company_identifier",
                 "contract_unique_id",
                 "seller_company_name",
                 "customer_company_name",
@@ -109,7 +109,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "year_quarter",
-                "company_identifier",
+                "seller_company_identifier",
                 "transaction_unique_id",
                 "seller_company_name",
                 "customer_company_name",
@@ -139,7 +139,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "year_quarter",
-                "company_identifier",
+                "seller_company_identifier",
                 "transaction_unique_id",
             ],
         },

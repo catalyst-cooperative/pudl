@@ -130,6 +130,9 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
                 "seller_transaction_id": duckdb.ColumnExpression(
                     "transaction_unique_identifier"
                 ),
+                "seller_company_identifier": duckdb.ColumnExpression(
+                    "company_identifier"
+                ),
             },
         )
 
@@ -182,6 +185,9 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
                         == duckdb.ConstantExpression("N"),
                         value=False,
                     )
+                ),
+                "seller_company_identifier": duckdb.ColumnExpression(
+                    "company_identifier"
                 ),
             },
         )

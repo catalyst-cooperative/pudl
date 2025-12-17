@@ -8620,10 +8620,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "company_identifier": {
         "type": "string",
         "description": (
-            "(Seller) – The Company Identifier (CID) obtained through the"
+            "The Company Identifier (CID) obtained through the"
             " Commission’s Company Registration system."
-            " (Agent) – The CID or Delegate Identifier (DID) obtained through the"
-            " Commission’s Company Registration system."
+        ),
+    },
+    "seller_company_identifier": {
+        "type": "string",
+        "description": (
+            "The Company Identifier (CID) obtained through the"
+            " Commission’s Company Registration system corresponding to the selling company."
         ),
     },
     "contact_name": {
