@@ -4,8 +4,9 @@ from typing import Any
 
 TABLE_DESCRIPTIONS = {
     "identity": {
-        "additional_summary_text": "placeholder",
-        "additional_source_text": "placeholder",
+        "additional_summary_text": (
+            "individuals who filed FERC EQR for a company in a given quarter."
+        ),
         "additional_primary_key_text": (
             "The primary key ought to be ['year_quarter', 'company_id_ferc', "
             "'filer_unique_id'], where filer_unique_id is an employee-level ID. "
@@ -15,23 +16,22 @@ TABLE_DESCRIPTIONS = {
             "for the same company and filer, resulting in additional duplicates. Thus, "
             "there is no reliable natural primary key for the identity table."
         ),
-        "usage_warnings": [],
+        "usage_warnings": ["experimental_wip"],
     },
     "contracts": {
         "additional_summary_text": "placeholder",
         "additional_source_text": "placeholder",
         "additional_primary_key_text": "The FERC EQR contracts table has no natural primary key.",
-        "usage_warnings": [],
+        "usage_warnings": ["experimental_wip"],
     },
     "transactions": {
         "additional_summary_text": "placeholder",
         "additional_source_text": "placeholder",
-        "usage_warnings": [],
+        "usage_warnings": ["experimental_wip"],
     },
     "index_pub": {
-        "additional_summary_text": "placeholder",
-        "additional_source_text": "placeholder",
-        "usage_warnings": [],
+        "additional_summary_text": "index prices individual EQR filers reported transactions to.",
+        "usage_warnings": ["experimental_wip"],
     },
 }
 
