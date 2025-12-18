@@ -22,7 +22,7 @@ Discontinued by us:
   If you would be interested in funding additional updates to this data, get in touch!
 
 Early release:
-  May contain early release data.
+  May contain early release data. EIA releases some of it's annual data early for immediate access to individual plant and generator level data. The data has not been fully edited and is inappropriate for use in aggregation. Data for certain plants may be excluding pending validation.
 
 Estimated values:
   Contains estimated values.
