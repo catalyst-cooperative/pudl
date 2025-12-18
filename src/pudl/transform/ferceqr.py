@@ -208,5 +208,6 @@ def core_ferceqr__index_pub(context, raw_ferceqr__index_pub: ParquetData):
                 "transactions_reported": duckdb.ColumnExpression(
                     "Transactions_Reported"
                 ),
+                "seller_company_name": duckdb.ColumnExpression("Seller_Company_Name"),
             },
         )
