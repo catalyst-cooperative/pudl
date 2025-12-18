@@ -51,7 +51,7 @@ def transform_eqr_table(
     )
 
 
-def _na_to_null(col_name: str) -> duckdb.CaseExpression:
+def _na_to_null(col_name: str) -> duckdb.Expression:
     """Convert string NA values to NULL."""
     return duckdb.SQLExpression(
         f"CASE WHEN UPPER({col_name}) IN ('N/A', 'NA') THEN NULL ELSE UPPER({col_name}) END"
