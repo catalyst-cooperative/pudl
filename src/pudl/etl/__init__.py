@@ -168,9 +168,9 @@ default_asset_checks += [
             not in [
                 "core_epacems__hourly_emissions",
                 "out_vcerare__hourly_available_capacity_factor",
-                "core_ferceqr__identity",
+                "core_ferceqr__quarterly_identity",
                 "core_ferceqr__contracts",
-                "core_ferceqr__index_pub",
+                "core_ferceqr__quarterly_index_pub",
                 "core_ferceqr__transactions",
             ]
         )
