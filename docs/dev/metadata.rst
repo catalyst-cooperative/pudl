@@ -149,7 +149,7 @@ The following fields should be filled out for each new resource. You may wish to
   * codes - Code table containing descriptions of categorical codes for _
   * entity - Entity table containing static information about _
   * scd - Slowly changing dimension (SCD) table describing attributes of _
-  * timeseries - time series of _
+  * timeseries - Time series of _
 
 * ``additional_source_text``: Use as needed. A few word refinement on the source data
   for this table, such as specifying what part of the form it refers to; usually as
