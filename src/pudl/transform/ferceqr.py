@@ -59,7 +59,7 @@ def _na_to_null(col_name: str) -> duckdb.CaseExpression:
 
 
 @dg.asset(partitions_def=ferceqr_year_quarters)
-def core_ferceqr__identity(
+def core_ferceqr__quarterly_identity(
     context: dg.AssetExecutionContext, raw_ferceqr__ident: ParquetData
 ):
     """Apply data types to EQR ident table."""
@@ -69,7 +69,7 @@ def core_ferceqr__identity(
         _,
     ):
         return transform_eqr_table(
-            table_name="core_ferceqr__identity",
+            table_name="core_ferceqr__quarterly_identity",
             table_data=table,
             year_quarter=year_quarter,
             col_expressions={
@@ -191,14 +191,14 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
 
 
 @dg.asset(partitions_def=ferceqr_year_quarters)
-def core_ferceqr__index_pub(context, raw_ferceqr__index_pub: ParquetData):
+def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetData):
     """Perform basic transforms on indexPub table table."""
     year_quarter = context.partition_key
     with duckdb_relation_from_parquet(
         raw_ferceqr__index_pub, use_all_partitions=True
     ) as (table, _):
         return transform_eqr_table(
-            table_name="core_ferceqr__index_pub",
+            table_name="core_ferceqr__quarterly_index_pub",
             table_data=table,
             year_quarter=year_quarter,
             col_expressions={

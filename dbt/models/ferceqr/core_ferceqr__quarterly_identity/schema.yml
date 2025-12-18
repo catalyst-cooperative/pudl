@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: core_ferceqr__identity
+      - name: core_ferceqr__quarterly_identity
         columns:
           - name: filer_unique_id
           - name: company_id_ferc

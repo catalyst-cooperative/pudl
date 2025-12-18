@@ -36,7 +36,7 @@ TABLE_DESCRIPTIONS = {
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_ferceqr__identity": {
+    "core_ferceqr__quarterly_identity": {
         "description": TABLE_DESCRIPTIONS["identity"],
         "schema": {
             "fields": [
@@ -148,7 +148,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
     },
-    "core_ferceqr__index_pub": {
+    "core_ferceqr__quarterly_index_pub": {
         "description": TABLE_DESCRIPTIONS["index_pub"],
         "schema": {
             "fields": [

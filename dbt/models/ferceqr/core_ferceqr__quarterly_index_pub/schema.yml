@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: core_ferceqr__index_pub
+      - name: core_ferceqr__quarterly_index_pub
         columns:
           - name: year_quarter
           - name: company_id_ferc
