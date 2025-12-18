@@ -7,7 +7,7 @@ TABLE_DESCRIPTIONS = {
         "additional_summary_text": "placeholder",
         "additional_source_text": "placeholder",
         "additional_primary_key_text": (
-            "The primary key ought to be ['year_quarter', 'company_id', "
+            "The primary key ought to be ['year_quarter', 'company_id_ferc', "
             "'filer_unique_id'], where filer_unique_id is an employee-level ID. "
             "However, a handful of companies have erroneously reported the same "
             "filer_unique_id for multiple employees, resulting in duplicate records. "
@@ -41,7 +41,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "year_quarter",
-                "company_id",
+                "company_id_ferc",
                 "filer_unique_id",
                 "company_name",
                 "contact_name",
@@ -66,7 +66,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "year_quarter",
-                "seller_company_id",
+                "seller_company_id_ferc",
                 "contract_unique_id",
                 "seller_company_name",
                 "customer_company_name",
@@ -109,7 +109,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "year_quarter",
-                "seller_company_id",
+                "seller_company_id_ferc",
                 "transaction_unique_id",
                 "seller_company_name",
                 "customer_company_name",
@@ -139,7 +139,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "year_quarter",
-                "seller_company_id",
+                "seller_company_id_ferc",
                 "transaction_unique_id",
             ],
         },
@@ -153,7 +153,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": [
                 "year_quarter",
-                "company_id",
+                "company_id_ferc",
                 "filer_unique_id",
                 "seller_company_name",
                 "index_price_publisher_name",
@@ -161,7 +161,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": [
                 "year_quarter",
-                "company_id",
+                "company_id_ferc",
                 "filer_unique_id",
             ],
         },

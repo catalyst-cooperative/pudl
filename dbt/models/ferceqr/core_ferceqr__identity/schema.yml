@@ -5,7 +5,7 @@ sources:
       - name: core_ferceqr__identity
         columns:
           - name: filer_unique_id
-          - name: company_id
+          - name: company_id_ferc
           - name: company_name
           - name: contact_name
           - name: contact_title
