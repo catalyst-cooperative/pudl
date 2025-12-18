@@ -2344,15 +2344,11 @@ class ParquetData(BaseModel):
 
     table_name: str
     partitions: dict[str, Any] = {}
-    use_output_dir: bool = False
 
     @property
     def parquet_directory(self) -> Path:
         """Get path to directory for writing/reading parquet files."""
-        if self.use_output_dir:
-            parquet_path = PudlPaths().parquet_path() / self.table_name
-        else:
-            parquet_path = PudlPaths().parquet_transform_dir / self.table_name
+        parquet_path = PudlPaths().parquet_path() / self.table_name
         parquet_path.mkdir(exist_ok=True, parents=True)
         return parquet_path
 
@@ -2370,7 +2366,6 @@ def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
     partitions: dict = {},
-    use_output_dir: bool = False,
     compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
 ) -> ParquetData:
     """Write data from DataFrame or LazyFrame to disk as a parquet file.
@@ -2383,13 +2378,10 @@ def persist_table_as_parquet(
         table_name: Table name used to construct path to/name of parquet file.
         partitions: Partitions which correspond to the table_data. If passed
             ``{'years': 1995}`` then this method will produce a parquet file at the path
-            ``PudlPaths().parquet_transform_dir / table_name / '1995.parquet'``.
-        use_output_dir: If true, write parquet files to output directory instead of transform directory.
+            ``PudlPaths().parquet_path() / table_name / '1995.parquet'``.
     """
     # Create ParquetData class to get path to write parquet file
-    parquet_data = ParquetData(
-        table_name=table_name, partitions=partitions, use_output_dir=use_output_dir
-    )
+    parquet_data = ParquetData(table_name=table_name, partitions=partitions)
     if isinstance(table_data, pd.DataFrame):
         table_data.to_parquet(parquet_data.parquet_path, compression=compression)
     elif isinstance(table_data, pl.LazyFrame):

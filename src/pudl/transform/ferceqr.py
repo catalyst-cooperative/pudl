@@ -40,7 +40,6 @@ def transform_eqr_table(
         ),
         table_name=table_name,
         partitions={"year_quarter": year_quarter},
-        use_output_dir=True,
     )
 
 
