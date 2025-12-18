@@ -29,8 +29,6 @@ def transform_eqr_table(
         table_name: Name of table, which should have corresponding table level metadata.
         col_expressions: Map column names to pre-generated expressions. Each of these
             expressions will have a ``cast`` added on to it to apply correct dtypes.
-            Columns defined in the table schema, but not in col_expressions will
-            also be cast to appropriate dtype.
     """
     dtypes = Resource.from_id(table_name).to_duckdb_dtypes()
     return persist_table_as_parquet(
@@ -38,11 +36,6 @@ def transform_eqr_table(
             *[
                 expression.cast(dtypes[col]).alias(col)
                 for col, expression in col_expressions.items()
-            ],
-            *[
-                duckdb.ColumnExpression(col).cast(dtype).alias(col)
-                for col, dtype in dtypes.items()
-                if col not in col_expressions
             ],
         ),
         table_name=table_name,
@@ -73,6 +66,19 @@ def core_ferceqr__quarterly_identity(
             table_data=table,
             year_quarter=year_quarter,
             col_expressions={
+                "year_quarter": duckdb.ColumnExpression("year_quarter"),
+                "company_id_ferc": duckdb.ColumnExpression("company_identifier"),
+                "filer_unique_id": duckdb.ColumnExpression("filer_unique_id"),
+                "company_name": duckdb.ColumnExpression("company_name"),
+                "contact_name": duckdb.ColumnExpression("contact_name"),
+                "contact_title": duckdb.ColumnExpression("contact_title"),
+                "contact_address": duckdb.ColumnExpression("contact_address"),
+                "contact_city": duckdb.ColumnExpression("contact_city"),
+                "contact_state": duckdb.ColumnExpression("contact_state"),
+                "contact_zip": duckdb.ColumnExpression("contact_zip"),
+                "contact_country_name": duckdb.ColumnExpression("contact_country_name"),
+                "contact_phone": duckdb.ColumnExpression("contact_phone"),
+                "contact_email": duckdb.ColumnExpression("contact_email"),
                 "transactions_reported_to_index_price_publishers": (
                     duckdb.CaseExpression(
                         condition=duckdb.SQLExpression(
@@ -88,7 +94,6 @@ def core_ferceqr__quarterly_identity(
                         value=False,
                     )
                 ),
-                "company_id_ferc_ferc": duckdb.ColumnExpression("company_identifier"),
             },
         )
 
@@ -107,6 +112,24 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
             table_data=table,
             year_quarter=year_quarter,
             col_expressions={
+                "year_quarter": duckdb.ColumnExpression("year_quarter"),
+                "seller_company_id_ferc": duckdb.ColumnExpression("company_identifier"),
+                "transaction_unique_id": duckdb.ColumnExpression(
+                    "transaction_unique_id"
+                ),
+                "seller_company_name": duckdb.ColumnExpression("seller_company_name"),
+                "customer_company_name": duckdb.ColumnExpression(
+                    "customer_company_name"
+                ),
+                "ferc_tariff_reference": duckdb.ColumnExpression(
+                    "ferc_tariff_reference"
+                ),
+                "contract_service_agreement_id": duckdb.ColumnExpression(
+                    "contract_service_agreement"
+                ),
+                "seller_transaction_id": duckdb.ColumnExpression(
+                    "transaction_unique_identifier"
+                ),
                 "transaction_begin_date": duckdb.SQLExpression(
                     "TRY_STRPTIME(transaction_begin_date, '%Y%m%d%H%M')"
                 ),
@@ -115,9 +138,6 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
                 ),
                 "trade_date": duckdb.SQLExpression(
                     "TRY_STRPTIME(trade_date, '%Y%m%d')"
-                ),
-                "contract_service_agreement_id": duckdb.ColumnExpression(
-                    "contract_service_agreement"
                 ),
                 "exchange_brokerage_service": _na_to_null("exchange_brokerage_service"),
                 "type_of_rate": _na_to_null("type_of_rate"),
@@ -128,10 +148,21 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
                 "increment_peaking_name": _na_to_null("increment_peaking_name"),
                 "product_name": _na_to_null("product_name"),
                 "rate_units": _na_to_null("rate_units"),
-                "seller_transaction_id": duckdb.ColumnExpression(
-                    "transaction_unique_identifier"
+                "point_of_delivery_balancing_authority": duckdb.ColumnExpression(
+                    "point_of_delivery_balancing_authority"
                 ),
-                "seller_company_id_ferc": duckdb.ColumnExpression("company_identifier"),
+                "point_of_delivery_specific_location": duckdb.ColumnExpression(
+                    "point_of_delivery_specific_location"
+                ),
+                "transaction_quantity": duckdb.ColumnExpression("transaction_quantity"),
+                "price": duckdb.ColumnExpression("price"),
+                "standardized_quantity": duckdb.ColumnExpression(
+                    "standardized_quantity"
+                ),
+                "standardized_price": duckdb.ColumnExpression("standardized_price"),
+                "total_transmission_charge": duckdb.ColumnExpression(
+                    "total_transmission_charge"
+                ),
             },
         )
 
@@ -148,31 +179,12 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
             table_data=table,
             year_quarter=year_quarter,
             col_expressions={
-                "contract_execution_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(contract_execution_date, '%Y%m%d')"
-                ),
-                "commencement_date_of_contract_term": duckdb.SQLExpression(
-                    "TRY_STRPTIME(commencement_date_of_contract_term, '%Y%m%d')"
-                ),
-                "contract_termination_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(contract_termination_date, '%Y%m%d')"
-                ),
-                "actual_termination_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(actual_termination_date, '%Y%m%d')"
-                ),
-                "class_name": _na_to_null("class_name"),
-                "term_name": _na_to_null("term_name"),
-                "increment_name": _na_to_null("increment_name"),
-                "increment_peaking_name": _na_to_null("increment_peaking_name"),
-                "product_type_name": _na_to_null("product_type_name"),
-                "product_name": _na_to_null("product_name"),
-                "rate_units": _na_to_null("rate_units"),
-                "units": _na_to_null("units"),
-                "begin_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(begin_date, '%Y%m%d%H%M')"
-                ),
-                "end_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(end_date, '%Y%m%d%H%M')"
+                "year_quarter": duckdb.ColumnExpression("year_quarter"),
+                "seller_company_id_ferc": duckdb.ColumnExpression("company_identifier"),
+                "contract_unique_id": duckdb.ColumnExpression("contract_unique_id"),
+                "seller_company_name": duckdb.ColumnExpression("seller_company_name"),
+                "customer_company_name": duckdb.ColumnExpression(
+                    "customer_company_name"
                 ),
                 "contract_affiliate": (
                     duckdb.CaseExpression(
@@ -185,7 +197,58 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
                         value=False,
                     )
                 ),
-                "seller_company_id_ferc": duckdb.ColumnExpression("company_identifier"),
+                "ferc_tariff_reference": duckdb.ColumnExpression(
+                    "ferc_tariff_reference"
+                ),
+                "contract_service_agreement_id": duckdb.ColumnExpression(
+                    "contract_service_agreement_id"
+                ),
+                "contract_execution_date": duckdb.SQLExpression(
+                    "TRY_STRPTIME(contract_execution_date, '%Y%m%d')"
+                ),
+                "commencement_date_of_contract_term": duckdb.SQLExpression(
+                    "TRY_STRPTIME(commencement_date_of_contract_term, '%Y%m%d')"
+                ),
+                "contract_termination_date": duckdb.SQLExpression(
+                    "TRY_STRPTIME(contract_termination_date, '%Y%m%d')"
+                ),
+                "actual_termination_date": duckdb.SQLExpression(
+                    "TRY_STRPTIME(actual_termination_date, '%Y%m%d')"
+                ),
+                "extension_provision_description": duckdb.ColumnExpression(
+                    "extension_provision_description"
+                ),
+                "class_name": _na_to_null("class_name"),
+                "term_name": _na_to_null("term_name"),
+                "increment_name": _na_to_null("increment_name"),
+                "increment_peaking_name": _na_to_null("increment_peaking_name"),
+                "product_type_name": _na_to_null("product_type_name"),
+                "product_name": _na_to_null("product_name"),
+                "quantity": duckdb.ColumnExpression("quantity"),
+                "units": _na_to_null("units"),
+                "rate": duckdb.ColumnExpression("rate"),
+                "rate_minimum": duckdb.ColumnExpression("rate_minimum"),
+                "rate_maximum": duckdb.ColumnExpression("rate_maximum"),
+                "rate_description": duckdb.ColumnExpression("rate_description"),
+                "rate_units": _na_to_null("rate_units"),
+                "point_of_receipt_balancing_authority": duckdb.ColumnExpression(
+                    "point_of_receipt_balancing_authority"
+                ),
+                "point_of_receipt_specific_location": duckdb.ColumnExpression(
+                    "point_of_receipt_specific_location"
+                ),
+                "point_of_delivery_balancing_authority": duckdb.ColumnExpression(
+                    "point_of_delivery_balancing_authority"
+                ),
+                "point_of_delivery_specific_location": duckdb.ColumnExpression(
+                    "point_of_delivery_specific_location"
+                ),
+                "begin_date": duckdb.SQLExpression(
+                    "TRY_STRPTIME(begin_date, '%Y%m%d%H%M')"
+                ),
+                "end_date": duckdb.SQLExpression(
+                    "TRY_STRPTIME(end_date, '%Y%m%d%H%M')"
+                ),
             },
         )
 
@@ -202,12 +265,15 @@ def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetDa
             table_data=table,
             year_quarter=year_quarter,
             col_expressions={
+                "year_quarter": duckdb.ColumnExpression("year_quarter"),
+                "company_id_ferc": duckdb.ColumnExpression("company_identifier"),
+                "filer_unique_id": duckdb.ColumnExpression("filer_unique_id"),
+                "seller_company_name": duckdb.ColumnExpression("Seller_Company_Name"),
                 "index_price_publisher_name": _na_to_null(
                     "Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported"
                 ),
                 "transactions_reported": duckdb.ColumnExpression(
                     "Transactions_Reported"
                 ),
-                "seller_company_name": duckdb.ColumnExpression("Seller_Company_Name"),
             },
         )
