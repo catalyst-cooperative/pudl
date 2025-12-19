@@ -6,6 +6,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_epacems__hourly_emissions": {
         "description": {
             "additional_summary_text": "emissions and plant operational data as required by 40 CFR Part 75.",
+            "usage_warnings": ["scale_hazard", "incomplete_id_coverage"],
+            "additional_details_text": """Continuous Emissions Monitoring Systems
+(CEMS) are used to determine the rate of gas or particulate matter exiting a point
+source of emissions. The EPA Clean Air Markets Division (CAMD) has collected data on
+power plant emissions from CEMS units stretching back to 1995. The CEMS dataset
+includes hourly gross load, SO2, CO2, and NOx emissions associated with a given
+emissions-unit during startup, shutdown, and instances of malfunction. An EPA CEMS
+emissions-unit or smokestack unit is not the same as an EIA unit. See
+:ref:`core_epa__assn_eia_epacamd` for details about how to connect CEMS data to
+corresponding EIA units.
+
+Only fossil-combustion units over 25 MW are required to install and use CEMS, so
+there are some units that do report in EIA-860 or EIA-923 that do not have any
+CEMS data.
+""",
         },
         "schema": {
             "fields": [

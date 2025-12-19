@@ -1,7 +1,7 @@
 """Estimate historical hourly state-level electricity demand.
 
 Using hourly electricity demand reported at the balancing authority and utility level in
-the FERC 714, and service territories for utilities and balancing autorities inferred
+the FERC 714, and service territories for utilities and balancing authorities inferred
 from the counties served by each utility, and the utilities that make up each balancing
 authority in the EIA 861, estimate the total hourly electricity demand for each US
 state.

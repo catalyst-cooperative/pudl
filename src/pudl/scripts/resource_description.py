@@ -30,9 +30,9 @@ def main(name: str):
     if name not in RESOURCE_METADATA:
         click.echo(f"No table {name}")
         return
-    builder = ResourceDescriptionBuilder(name, RESOURCE_METADATA[name])
+    resolved = ResourceDescriptionBuilder(name, RESOURCE_METADATA[name]).build()
     click.echo("Table found:")
-    click.echo(builder.summarize())
+    click.echo(resolved.summarize())
 
 
 if __name__ == "__main__":

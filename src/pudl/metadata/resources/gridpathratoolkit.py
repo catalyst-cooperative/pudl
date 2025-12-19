@@ -21,7 +21,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "See the Appendix of the GridPath Resource Adequacy Toolkit report for "
                 "details."
             ),
-            "usage_warnings": ["estimated_values"],
+            "usage_warnings": ["estimated_values", "discontinued_data"],
         },
         "schema": {
             "fields": [
@@ -47,6 +47,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "convenience and legibility. The resulting aggregated profiles are stored "
                 "in :ref:`out_gridpathratoolkit__hourly_available_capacity_factor`."
             ),
+            "usage_warnings": ["discontinued_data"],
         },
         "schema": {
             "fields": [

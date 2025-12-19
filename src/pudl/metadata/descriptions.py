@@ -2,6 +2,8 @@
 
 import re
 from collections import namedtuple
+from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Self
 
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -26,6 +28,13 @@ layer_descriptions: dict = {
     "out": (
         "Data has been expanded into a wide/denormalized format, with IDs and codes "
         "accompanied by human-readable names and descriptions."
+    ),
+    "out_narrow": (
+        # this is a pseudo layer that does not appear in table names, but
+        # allows us to accurately describe the few out tables that remain in
+        # normalized format.
+        "Data is ready for use in analyses, but for practical reasons has not been "
+        "denormalized and remains in narrow format."
     ),
     "test": (
         "Only used in unit and integration testing; not intended for public "
@@ -136,6 +145,69 @@ def first_non_none(*args):
     return None
 
 
+@dataclass
+class ResolvedResourceDescription:
+    """The fully-resolved components of a resource description.
+
+    This class stores the different components of a resource description, as computed by :class:`ResourceDescriptionBuilder`.
+
+    There are six description components:
+
+    * summary
+    * layer
+    * source
+    * primary_key
+    * details
+    * usage_warnings
+
+    Each takes the form of a :class:`ResourceTrait` (or list of :class:`ResourceTrait`, in the case of usage_warnings),
+    which include the description text along with any types/categories extracted along the way.
+
+    This object serves as the input to the resource_description template, which assembles the components into a static text block
+    appropriate for including in a data dictionary, datapackage export, or sqlachemy operation.
+    """
+
+    resource_id: str
+    summary: ResourceTrait
+    layer: ResourceTrait
+    source: ResourceTrait
+    primary_key: ResourceTrait
+    details: ResourceTrait
+    usage_warnings: list[ResourceTrait]
+
+    def summarize(self) -> str:
+        """Show all computed description components, including type/category information.
+
+        This is suitable for low-overhead previews and debugging.
+        """
+        return f"""
+{self.resource_id}
+   Summary [{self.summary.type}]: {self.summary.description}
+     Layer [{self.layer.type}]: {self.layer.description}
+    Source [{self.source.type}]: {self.source.description}
+        PK [{self.primary_key.type}]: {self.primary_key.description}
+  Warnings [{len(self.usage_warnings)}]:{"\n\t".join([""] + [f"{uw.type} - {uw.description}" for uw in self.usage_warnings])}
+   Details [{self.details.type}]:
+{self.details.description}
+"""
+
+    def jinja_render(self, jinja_environment):
+        """Render all description components into the full static description text block using the resource_description template."""
+        return (
+            jinja_environment.get_template("resource_description.rst.jinja").render(
+                descriptions=self
+            )
+        ).strip()
+
+
+def component(
+    fn: Callable[..., ResourceTrait | list[ResourceTrait]],
+) -> Callable[..., ResourceTrait | list[ResourceTrait]]:
+    """Decorator for functions which resolve a description component."""
+    fn.__is_component = True
+    return fn
+
+
 class ResourceDescriptionBuilder:
     r"""Generate the static text of a resource description from its decomposed parts.
 
@@ -151,44 +223,43 @@ class ResourceDescriptionBuilder:
     in using :class:`ResourceNameComponents` or left blank. See :class:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents` for
     complete documentation on manually-specifiable keys.
 
-    This class computes and stores "final" description components from all available inputs.
-    There are six final description components:
-
-    * summary
-    * layer
-    * source
-    * primary_key
-    * details
-    * usage_warnings
-
-    Each takes the form of a :class:`ResourceTrait` (or list of :class:`ResourceTrait`, in the case of usage_warnings),
-    which include the description text along with any types/categories extracted along the way.
-
-    This class then serves as the input to the resource_description template, which assembles the components into a static text block
-    appropriate for including in a data dictionary, datapackage export, or sqlachemy operation.
+    This class computes "final" description components from all available inputs, and outputs a :class:`ResolvedResourceDescription` which may be rendered in one or more ways.
     """
 
     def __init__(self, resource_id: str, settings: dict):
-        """Compute and store all description components from manually-specified settings and automatic sources.
+        """Create a new builder for a resource description.
 
         Args:
             resource_id: a snake-case string uniquely identifying the resource; aka the table name.
             settings: a dictionary of resource metadata, usually obtained as a :class:`~pudl.metadata.classes.PudlResourceDescriptor` model dump.
         """
         self.resource_id = resource_id
-        defaults = ResourceNameComponents(name=resource_id)
+        self.defaults = ResourceNameComponents(name=resource_id)
 
         # make a copy and move all the description keys up a level
         settings = dict(settings)
         if isinstance(settings.get("description"), dict):
             settings = settings | settings["description"]
+        self.settings = settings
 
-        # this is a little gross but calling 5 methods with the same signature individually makes me sad
-        for trait in ["summary", "layer", "source", "primary_key", "details"]:
-            getattr(self, f"_create_{trait}_description")(settings, defaults)
-        self._assemble_usage_warnings(settings, defaults)
+        self.components = [
+            name
+            for name in dir(self)
+            if getattr(getattr(self, name), "__is_component", False)
+        ]
 
-    def _create_summary_description(self, settings, defaults: "ResourceNameComponents"):
+    def build(self):
+        """Compute and store all description components from manually-specified settings and automatic sources."""
+        return ResolvedResourceDescription(
+            self.resource_id,
+            **{
+                name: getattr(self, name)(self.settings, self.defaults)
+                for name in self.components
+            },
+        )
+
+    @component
+    def summary(self, settings, defaults: "ResourceNameComponents") -> ResourceTrait:
         """Compute the summary component (first line) of the resource description.
 
         The summary is standardized based on table type, and if the table type is timeseries, the timeseries resolution.
@@ -226,13 +297,13 @@ class ResourceDescriptionBuilder:
                 ]
             )
 
-        self.summary = ResourceTrait(
+        return ResourceTrait(
             type=f"{table_type_code}[{timeseries_resolution_code}]",
             # glue all the component parts into a single string, skipping any missing bits.
             description=" ".join(c for c in components if c is not None),
         )
 
-    def _create_x_description(
+    def _generic_component(
         self,
         attr: str,
         lookup: dict[str, str],
@@ -261,25 +332,34 @@ class ResourceDescriptionBuilder:
         # assemble the parts of the component description in display order.
         # any or all of these may be none, depending on the resource name and manually specified information.
         components = [lookup.get(attr_value), settings.get(f"additional_{attr}_text")]
-        setattr(
-            self,
-            attr,
-            ResourceTrait(
-                type=attr_value,
-                # glue all the component parts into a single string, skipping any missing bits.
-                description=" ".join(c for c in components if c is not None),
-            ),
+        return ResourceTrait(
+            type=attr_value,
+            # glue all the component parts into a single string, skipping any missing bits.
+            description=" ".join(c for c in components if c is not None),
         )
 
-    def _create_layer_description(self, settings, defaults):
+    @component
+    def layer(self, settings, defaults):
         """Compute the processing layer component of the resource description."""
-        self._create_x_description("layer", layer_descriptions, settings, defaults)
+        if (  # use narrow variant for hourly output tables
+            defaults.layer_code == "out"
+            and defaults.timeseries_resolution_code == "hourly"
+        ):
+            settings["layer_code"] = first_non_none(  # keep any manual overrides
+                settings.get("layer_code"), "out_narrow"
+            )
 
-    def _create_source_description(self, settings, defaults):
+        return self._generic_component("layer", layer_descriptions, settings, defaults)
+
+    @component
+    def source(self, settings, defaults):
         """Compute the data source component of the resource description."""
-        self._create_x_description("source", source_descriptions, settings, defaults)
+        return self._generic_component(
+            "source", source_descriptions, settings, defaults
+        )
 
-    def _create_primary_key_description(self, settings, defaults):
+    @component
+    def primary_key(self, settings, defaults):
         """Compute the primary key component of the resource description.
 
         If a primary key is available in the resource schema, include a list of the primary key columns.
@@ -304,13 +384,14 @@ class ResourceDescriptionBuilder:
             else "This table has no primary key.",
             settings.get("additional_primary_key_text"),
         ]
-        self.primary_key = ResourceTrait(
+        return ResourceTrait(
             type=str(has_primary_key),
             # glue all the component parts into a single string, skipping any missing bits.
             description=" ".join(c for c in components if c is not None),
         )
 
-    def _create_details_description(self, settings, defaults):
+    @component
+    def details(self, settings, defaults):
         """Compute the details component of the resource description.
 
         There is no standardized text for this component, and manually specifying it is optional.
@@ -321,12 +402,13 @@ class ResourceDescriptionBuilder:
             settings["additional_details_text"] = settings["description"]
         # end TODO: remove
 
-        self.details = ResourceTrait(
+        return ResourceTrait(
             type=str(settings.get("additional_details_text") is not None),
             description=first_non_none(settings.get("additional_details_text"), ""),
         )
 
-    def _assemble_usage_warnings(self, settings, defaults):
+    @component
+    def usage_warnings(self, settings, defaults):
         """Combine manually-provided warnings and automatically-detected warnings for the requested resource.
 
         We automatically detect and include the following usage warnings:
@@ -339,36 +421,12 @@ class ResourceDescriptionBuilder:
             usage_warnings.append("multiple_inputs")
         if "ferc" in self.resource_id:
             usage_warnings.append("ferc_is_hard")
-        self.usage_warnings = [
+        return [
             ResourceTrait(type=uw, description=USAGE_WARNINGS[uw])
             if isinstance(uw, str)
             else ResourceTrait(**uw)
             for uw in usage_warnings
         ]
-
-    def summarize(self) -> str:
-        """Show all computed description components, including type/category information.
-
-        This is suitable for low-overhead previews and debugging.
-        """
-        return f"""
-{self.resource_id}
-   Summary [{self.summary.type}]: {self.summary.description}
-     Layer [{self.layer.type}]: {self.layer.description}
-    Source [{self.source.type}]: {self.source.description}
-        PK [{self.primary_key.type}]: {self.primary_key.description}
-  Warnings [{len(self.usage_warnings)}]:{"\n\t".join([""] + [f"{uw.type} - {uw.description}" for uw in self.usage_warnings])}
-   Details [{self.details.type}]:
-{self.details.description}
-"""
-
-    def build(self, jinja_environment):
-        """Render all description components into the full static description text block using the resource_description template."""
-        return (
-            jinja_environment.get_template("resource_description.rst.jinja").render(
-                descriptions=self
-            )
-        ).strip()
 
 
 class ResourceNameComponents(DescriptionMeta):

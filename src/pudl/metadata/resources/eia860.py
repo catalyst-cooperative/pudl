@@ -2,6 +2,11 @@
 
 from typing import Any
 
+from pudl.metadata.resource_helpers import (
+    canonical_harvested_details,
+    inherits_harvested_values_details,
+)
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia860__scd_boilers": {
         "description": {
@@ -9,6 +14,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "boilers which may vary from year to year. Compiled from across all "
                 "EIA-860 data."
             ),
+            "additional_details_text": canonical_harvested_details("boilers", False),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -154,6 +161,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "generators which may vary from year to year. Compiled from across "
                 "EIA-860 and EIA-923 data."
             ),
+            "additional_details_text": canonical_harvested_details("generators", False),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -327,6 +336,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plants which may vary from year to year. Compiled from across all "
                 "EIA-860 and EIA-923 data."
             ),
+            "additional_details_text": canonical_harvested_details("plants", False),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -412,6 +423,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_summary_text": (
                 "utilities which may vary from year to year. Compiled from all EIA data."
             ),
+            "additional_details_text": canonical_harvested_details("utilities", False),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -516,10 +529,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operating status, retirement date, and install year."
             ),
             "additional_details_text": (
-                """Includes control ids for sulfur dioxide
+                f"""Includes control ids for sulfur dioxide
 (SO2), particulate matter, mercury, nitrogen oxide (NOX), and acid (HCl) gas
-monitoring."""
+monitoring.
+
+{inherits_harvested_values_details("plants and utilities")}"""
             ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -678,6 +694,19 @@ columns.""",
                     ),
                 },
             ],
+            "additional_details_text": """A single plant can have
+several collections of cooling equipment, so each line in this table represents one
+cooling system at a given plant. You can determine how to link each set of cooling
+equipment to specific boilers in a plant via :ref:`core_eia860__assn_boiler_cooling`.
+
+EIA-860 respondents are required to submit information about cooling equipment for
+plants over 100 MW - including steam, combined cycle, nuclear or solar thermal
+generators.
+
+This table has been cleaned, but not tidied/normalized with other EIA 923 or 860
+data. The same variables present in this table may show up in other
+tables and/or in other years. Once this table has been harvested, it will be converted
+into a``core`` table.""",
         },
         "schema": {
             "fields": [
