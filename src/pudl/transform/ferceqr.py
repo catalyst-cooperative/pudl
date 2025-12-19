@@ -31,6 +31,10 @@ def transform_eqr_table(
             expressions will have a ``cast`` added on to it to apply correct dtypes.
     """
     dtypes = Resource.from_id(table_name).to_duckdb_dtypes()
+
+    # Verify that all expected columns are included and that there are no extra columns
+    assert set(dtypes.keys()) == set(col_expressions.keys())
+
     return persist_table_as_parquet(
         table_data=table_data.select(
             *[
