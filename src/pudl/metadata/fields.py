@@ -8687,7 +8687,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "An identifier beginning with the letter “C” and followed by a number"
-            " (e.g., “C1”, “C2”) used to designate a record containing contract information."
+            " (e.g., 'C1', 'C2') used to designate a record containing contract information."
+            " Note that these contract IDs may only be unique within the context of a particular"
+            " seller, seller-buyer pair, or timeframe. FERC documentation of the field is limited."
         ),
     },
     "seller_company_name": {
@@ -8696,7 +8698,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The name of the company that is authorized to make sales as indicated"
             " in the company’s FERC tariff(s) or that is required to file the EQR"
             " under section 220 of the Federal Power Act. This name must match the"
-            " name provided as a Seller’s company_name in the core_ferceqr__identity table."
+            " name provided as seller_company_name in the core_ferceqr__quarterly_identity"
+            " table. There are a handful of cases in which this requirement is violated, so any"
+            " joins between tables should rely on company_id_ferc, not the company names."
         ),
     },
     "customer_company_name": {
@@ -8704,13 +8708,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The name of the purchaser of contract products and services. Unlike the"
             " seller_company_name this name is not guaranteed to match a name in the"
-            " core_ferceqr__identity name."
+            " core_ferceqr__quarterly_identity name. In addition, the same customer company"
+            " may appear with different names in different contracts and transactions, since"
+            " this field is an unconstrained string chosen by the seller." 
         ),
     },
     "contract_affiliate": {
         "type": "boolean",
         "description": (
-            "The customer is an affiliate if it controls, is controlled by, or is under"
+           "If True, this field indicates the customer is an affiliate of the seller."
+            " The customer is an affiliate if it controls, is controlled by, or is under"
             " common control with the seller. This includes a division that operates"
             " as a functional unit. A customer of a seller who is an Exempt Wholesale"
             " Generator may be defined as an affiliate under the Public Utility"
@@ -8797,8 +8804,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "term_name": {
         "type": "string",
         "description": (
-            "Contracts with durations of one year or greater are long-term. Contracts"
-            " with shorter durations are short-term."
+            "Contracts with durations of one year or greater are long-term (LT)."
+            " Contracts with shorter durations are short-term (ST)."
         ),
         "constraints": {
             "enum": ["LT", "ST"],
@@ -8831,9 +8838,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "FP: The product described may be sold during those hours designated as on-"
             "peak and off-peak at the point of delivery."
-            "OP: The product described may be sold only during those hours designated"
+            " OP: The product described may be sold only during those hours designated"
             " as off-peak at the point of delivery."
-            "P: The product described may be sold only during those hours designated"
+            " P: The product described may be sold only during those hours designated"
             " as on-peak at the point of delivery."
             " N/A: To be used only when the increment peaking name is not specified in the contract."
         ),
@@ -8865,7 +8872,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " T: The product is sold under a FERC-approved transmission tariff."
             " NPU: The product is sold by a non-public utility that is required to file the"
             " EQR under section 220 of the Federal Power Act."
-            " Other: The product cannot be characterized by the other product type names."
+            " OTHER: The product cannot be characterized by the other product type names."
         ),
         "constraints": {
             "enum": [
@@ -9047,7 +9054,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "seller_transaction_id": {
         "type": "string",
-        "description": "Unique reference number assigned by the Seller for each transaction.",
+        "description": (
+            "Unique reference number assigned by the Seller for each transaction. May only be unique"
+            " in the context of the seller's internal record keeping. This is an unrestricted text field."
+        ),
     },
     "transaction_begin_date": {
         "type": "datetime",
@@ -9067,6 +9077,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "If a broker service is used to consummate or effectuate a transaction, the"
             " term “Broker” shall be provided. If an exchange is used, the specific"
             " exchange that is used shall be selected from the Commission-provided list."
+            " Allowed values include BROKER, ICE, NODAL, and NYMEX."
         ),
         "constraints": {
             "enum": ["BROKER", "ICE", "NODAL", "NYMEX"],
@@ -9075,9 +9086,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "type_of_rate": {
         "type": "string",
         "description": (
-            "Fixed: A fixed charge per unit of consumption. No variables are used to determine this rate."
-            " Formula: A calculation of a rate based upon a formula that does not contain an electric index component."
-            " Electric Index: A calculation of a rate based upon an index or a formula that contains"
+            "FIXED: A fixed charge per unit of consumption. No variables are used to determine this rate."
+            " FORMULA: A calculation of a rate based upon a formula that does not contain an electric index component."
+            " ELECTRIC INDEX: A calculation of a rate based upon an index or a formula that contains"
             " an electric index component. An electric index includes an index"
             " published by an index publisher such as those required to be listed in"
             " Field Number 73 or a price published by an RTO/ISO (e.g., PJM West or Illinois Hub)."

@@ -34,7 +34,8 @@ TABLE_DESCRIPTIONS = {
         "usage_warnings": ["experimental_wip"],
     },
     "index_pub": {
-        "additional_summary_text": "index prices individual EQR filers reported transactions to.",
+        "additional_summary_text": "electricity market price indices that individual EQR filers"
+        " reported transactions to.",
         "usage_warnings": ["experimental_wip"],
     },
 }
