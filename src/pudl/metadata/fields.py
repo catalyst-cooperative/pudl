@@ -8710,13 +8710,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " seller_company_name this name is not guaranteed to match a name in the"
             " core_ferceqr__quarterly_identity name. In addition, the same customer company"
             " may appear with different names in different contracts and transactions, since"
-            " this field is an unconstrained string chosen by the seller." 
+            " this field is an unconstrained string chosen by the seller."
         ),
     },
     "contract_affiliate": {
         "type": "boolean",
         "description": (
-           "If True, this field indicates the customer is an affiliate of the seller."
+            "If True, this field indicates the customer is an affiliate of the seller."
             " The customer is an affiliate if it controls, is controlled by, or is under"
             " common control with the seller. This includes a division that operates"
             " as a functional unit. A customer of a seller who is an Exempt Wholesale"
