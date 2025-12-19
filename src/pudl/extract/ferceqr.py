@@ -95,7 +95,7 @@ def _extract_other_table(
     cid: str,
     duckdb_connection: DuckDBPyConnection,
 ):
-    """Extract data from ident csv and write to parquet, returning CID from table."""
+    """Extract data from a table other than ident and add year_quarter and CID columns."""
     # Use duckdb to read CSV and write as parquet
     persist_table_as_parquet(
         duckdb_connection.read_csv(
