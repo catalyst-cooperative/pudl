@@ -20,16 +20,16 @@ TABLE_DESCRIPTIONS = {
     },
     "contracts": {
         "additional_summary_text": (
-            "Contains information about contracts between power selling and"
-            " purchasing companies."
+            "Contains information about contracts between companies selling"
+            " and buying electricity market products."
         ),
         "additional_primary_key_text": "The FERC EQR contracts table has no natural primary key.",
         "usage_warnings": ["experimental_wip"],
     },
     "transactions": {
         "additional_summary_text": (
-            "Contains information about individual power sales made by a selling"
-            " company during a given reporting quarter."
+            "Contains information about individual electricity market transactions that took place"
+            " during a given reporting quarter. Reported by the seller."
         ),
         "usage_warnings": ["experimental_wip"],
     },
