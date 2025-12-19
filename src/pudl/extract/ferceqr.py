@@ -33,8 +33,7 @@ class ExtractSettings(dg.ConfigurableResource):
 @contextmanager
 def _get_csv(base_path: UPath, year_quarter: str) -> zipfile.ZipFile:
     """Download CSV to a tempmorary directory to avoid reading into memory."""
-    year, quarter = year_quarter.split("q")
-    zip_name = f"ferceqr-{year}q{quarter}.zip"
+    zip_name = f"ferceqr-{year_quarter}.zip"
     remote_path = base_path / zip_name
 
     # Create temp directory to download zip to
