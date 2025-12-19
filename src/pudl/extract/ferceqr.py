@@ -22,12 +22,12 @@ class ExtractSettings(dg.ConfigurableResource):
     """Dagster resource which defines which EQR data to extract and configuration for raw archive."""
 
     #: Valid fsspec compatible path pointing to directory of archived EQR filings
-    ferceqr_archive_path: str = "gs://archives.catalyst.coop/ferceqr/published"
+    ferceqr_archive_uri: str = "gs://archives.catalyst.coop/ferceqr/published"
 
     @property
-    def base_path(self) -> UPath:
+    def ferceqr_archive_path(self) -> UPath:
         """Return UPath pointing to archive base path."""
-        return UPath(self.ferceqr_archive_path)
+        return UPath(self.ferceqr_archive_uri)
 
 
 @contextmanager
@@ -203,7 +203,9 @@ def extract_eqr(
 
     # Open top level zipfile
     with (
-        _get_csv(ferceqr_extract_settings.base_path, year_quarter) as quarter_archive,
+        _get_csv(
+            ferceqr_extract_settings.ferceqr_archive_path, year_quarter
+        ) as quarter_archive,
         duckdb.connect() as conn,
     ):
         # Loop through all nested zipfiles (one for each filing in the quarter)
