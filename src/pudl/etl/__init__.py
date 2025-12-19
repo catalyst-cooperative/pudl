@@ -190,7 +190,7 @@ default_resources = {
     "geoparquet_io_manager": geoparquet_io_manager,
     "ferceqr_extract_settings": pudl.extract.ferceqr.ExtractSettings(
         archive=os.getenv(  # Default to read directly from GCS if local path not specified
-            "EQR_ARCHIVE_PATH", "gs://archives.catalyst.coop/ferceqr/published"
+            "FERCEQR_ARCHIVE_PATH", "gs://archives.catalyst.coop/ferceqr/published"
         )
     ),
 }
