@@ -43,6 +43,15 @@ def transform_eqr_table(
     )
 
 
+def _yn_to_bool(col: str):
+    return duckdb.SQLExpression(f"""
+CASE
+    WHEN UPPER({col}) = 'Y' THEN TRUE
+    WHEN UPPER({col}) = 'N' THEN FALSE
+    ELSE NULL
+END""")
+
+
 def _na_to_null(col_name: str) -> duckdb.Expression:
     """Convert string NA values to NULL."""
     return duckdb.SQLExpression(
@@ -78,20 +87,8 @@ def core_ferceqr__quarterly_identity(
                 "contact_country_name": duckdb.ColumnExpression("contact_country_name"),
                 "contact_phone": duckdb.ColumnExpression("contact_phone"),
                 "contact_email": duckdb.ColumnExpression("contact_email"),
-                "transactions_reported_to_index_price_publishers": (
-                    duckdb.CaseExpression(
-                        condition=duckdb.SQLExpression(
-                            "UPPER(transactions_reported_to_index_price_publishers)"
-                        )
-                        == duckdb.ConstantExpression("Y"),
-                        value=True,
-                    ).when(
-                        condition=duckdb.SQLExpression(
-                            "UPPER(transactions_reported_to_index_price_publishers)"
-                        )
-                        == duckdb.ConstantExpression("N"),
-                        value=False,
-                    )
+                "transactions_reported_to_index_price_publishers": _yn_to_bool(
+                    "transactions_reported_to_index_price_publishers"
                 ),
             },
         )
@@ -185,17 +182,7 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
                 "customer_company_name": duckdb.ColumnExpression(
                     "customer_company_name"
                 ),
-                "contract_affiliate": (
-                    duckdb.CaseExpression(
-                        condition=duckdb.SQLExpression("UPPER(contract_affiliate)")
-                        == duckdb.ConstantExpression("Y"),
-                        value=True,
-                    ).when(
-                        condition=duckdb.SQLExpression("UPPER(contract_affiliate)")
-                        == duckdb.ConstantExpression("N"),
-                        value=False,
-                    )
-                ),
+                "contract_affiliate": _yn_to_bool("contract_affiliate"),
                 "ferc_tariff_reference": duckdb.ColumnExpression(
                     "ferc_tariff_reference"
                 ),
