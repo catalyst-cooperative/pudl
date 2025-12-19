@@ -163,6 +163,9 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
                 "total_transmission_charge": duckdb.ColumnExpression(
                     "total_transmission_charge"
                 ),
+                "total_transaction_charge": duckdb.ColumnExpression(
+                    "total_transaction_charge"
+                ),
             },
         )
 
