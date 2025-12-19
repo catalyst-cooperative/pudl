@@ -21,7 +21,6 @@ from pudl.metadata.resources import RESOURCE_METADATA
 
 DOCS_DIR = Path(__file__).parent.resolve()
 if os.environ.get("READTHEDOCS"):
-    os.environ["DAGSTER_HOME"] = os.environ["PUDL_OUTPUT"]
     pudl_input = Path(os.environ["PUDL_INPUT"])
     pudl_input.mkdir(parents=True, exist_ok=True)
     pudl_output = Path(os.environ["PUDL_OUTPUT"])
