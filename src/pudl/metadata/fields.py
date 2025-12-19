@@ -7055,7 +7055,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Two letter state code where company is incorporated.",
     },
-    "steam_load_1000_lbs": {
+    "steam_load_lbs": {
         "type": "number",
         "description": (
             "Total steam pressure produced by a unit during the reported hour."
