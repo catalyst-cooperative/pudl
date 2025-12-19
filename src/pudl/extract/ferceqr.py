@@ -68,6 +68,7 @@ def _get_table_name(table_type: str, year_quarter: str) -> str:
 def _extract_ident(
     ident_csv: str,
     year_quarter: str,
+    filing_name: str,
     duckdb_connection: DuckDBPyConnection,
 ) -> str:
     """Extract data from ident csv, write to parquet, and return CID from table.
@@ -83,7 +84,7 @@ def _extract_ident(
     persist_table_as_parquet(
         csv_rel.select(f"*, '{year_quarter}' AS year_quarter"),
         table_name=_get_table_name("ident", year_quarter),
-        partitions={"cid": cid},
+        partitions={"filing": filing_name},
     )
     return cid
 
@@ -93,6 +94,7 @@ def _extract_other_table(
     csv_path: str,
     year_quarter: str,
     cid: str,
+    filing_name: str,
     duckdb_connection: DuckDBPyConnection,
 ):
     """Extract data from a table other than ident and add year_quarter and CID columns."""
@@ -102,13 +104,14 @@ def _extract_other_table(
             csv_path, all_varchar=True, store_rejects=True, ignore_errors=True
         ).select(f"*, '{year_quarter}' AS year_quarter, '{cid}' as company_identifier"),
         table_name=_get_table_name(table_type, year_quarter),
-        partitions={"cid": cid},
+        partitions={"filing": filing_name},
     )
 
 
 def _csvs_to_parquet(
     csv_path: Path,
     year_quarter: str,
+    filing_name: str,
     duckdb_connection: DuckDBPyConnection,
 ):
     """Mirror CSVs in filing to a parquet file.
@@ -128,6 +131,7 @@ def _csvs_to_parquet(
         cid = _extract_ident(
             ident_csv=str(ident_path),
             year_quarter=year_quarter,
+            filing_name=filing_name,
             duckdb_connection=duckdb_connection,
         )
     except TypeError:
@@ -152,6 +156,7 @@ def _csvs_to_parquet(
             csv_path=file,
             year_quarter=year_quarter,
             cid=cid,
+            filing_name=filing_name,
             duckdb_connection=duckdb_connection,
         )
 
@@ -186,7 +191,13 @@ def extract_eqr(
     context: dg.AssetExecutionContext,
     ferceqr_extract_settings: ExtractSettings = ExtractSettings(),
 ) -> tuple[ParquetData, ParquetData, ParquetData, ParquetData, ParquetData]:
-    """Extract year quarter from CSVs and load to parquet files."""
+    """Extract year quarter from CSVs and load to parquet files.
+
+    This method will loop through the nested EQR archive zipfiles and extract all tables
+    from them, and write to parquet. It opens a duckdb connection at the top level to
+    keep track of extraction errors, so we can write these to the ``raw_ferceqr__extract_errors``
+    table.
+    """
     # Get year/quarter from selected partition
     year_quarter = context.partition_key
 
@@ -211,6 +222,7 @@ def extract_eqr(
                     _csvs_to_parquet(
                         csv_path=Path(tmp_dir),
                         year_quarter=year_quarter,
+                        filing_name=Path(filing).stem,
                         duckdb_connection=conn,
                     )
             except zipfile.BadZipfile:
