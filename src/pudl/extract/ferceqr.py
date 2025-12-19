@@ -21,12 +21,13 @@ logger = get_logger(f"catalystcoop.{__name__}")
 class ExtractSettings(dg.ConfigurableResource):
     """Dagster resource which defines which EQR data to extract and configuration for raw archive."""
 
-    archive: str = "gs://archives.catalyst.coop/ferceqr/published"
+    #: Valid fsspec compatible path pointing to directory of archived EQR filings
+    ferceqr_archive_path: str = "gs://archives.catalyst.coop/ferceqr/published"
 
     @property
     def base_path(self) -> UPath:
         """Return UPath pointing to archive base path."""
-        return UPath(self.archive)
+        return UPath(self.ferceqr_archive_path)
 
 
 @contextmanager
