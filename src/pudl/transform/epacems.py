@@ -213,7 +213,7 @@ def transform_epacems(
             .then(pl.col("gross_load_mw") / 1000)
             .otherwise(pl.col("gross_load_mw")),
             # transform steam_load_1000_lbs to lbs
-            steam_load_lbs=(pl.col("steam_load_1000_lbs") * 1000).round(-2),
+            steam_load_lbs=(pl.col("steam_load_1000_lbs") * 1000),
         )
         .pipe(apply_pudl_dtypes_polars, group="epacems")
     )
