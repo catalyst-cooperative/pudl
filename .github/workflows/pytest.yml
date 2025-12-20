@@ -73,6 +73,9 @@ jobs:
           echo "merge_group ${{ github.event.merge_group }} is not null: ${{ github.event.merge_group != null }}"
 
   ci-docs:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -99,6 +102,14 @@ jobs:
           conda config --show-sources
           conda config --show
           printenv | sort
+
+      - name: Set default GCP credentials
+        id: gcloud-auth
+        continue-on-error: true
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
@@ -123,6 +134,9 @@ jobs:
           path: .coverage
 
   ci-unit:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -149,6 +163,14 @@ jobs:
           conda config --show-sources
           conda config --show
           printenv | sort
+
+      - name: Set default GCP credentials
+        id: gcloud-auth
+        continue-on-error: true
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
