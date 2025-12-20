@@ -134,7 +134,7 @@ class GoogleCloudStorageCache(AbstractCache):
         super().__init__(**kwargs)
         parsed_url = urlparse(gcs_path)
         if parsed_url.scheme != "gs":
-            raise ValueError(f"gsc_path should start with gs:// (found: {gcs_path})")
+            raise ValueError(f"gcs_path should start with gs:// (found: {gcs_path})")
         self._path_prefix = Path(parsed_url.path)
         # Get GCP credentials and billing project id
         # A billing project is now required because zenodo-cache is requester pays.

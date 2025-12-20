@@ -12,6 +12,7 @@ on:
 env:
   INTERNAL_ZENODO_CACHE_BUCKET: gs://internal-zenodo-cache.catalyst.coop
   PUBLIC_ZENODO_CACHE_BUCKET: gs://zenodo-cache.catalyst.coop
+  S3_ZENODO_CACHE: s3://pudl.catalyst.coop/zenodo/
   PUDL_OUTPUT: ~/pudl-work/output
   PUDL_INPUT: ~/pudl-work/input/
 
@@ -57,6 +58,13 @@ jobs:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "zenodo-cache-manager@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "us-west-2"
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v3
 
@@ -67,6 +75,7 @@ jobs:
       - name: Sync internal and public caches
         run: |
           gcloud storage --billing-project=catalyst-cooperative-pudl rsync -r ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} ${{ env.PUBLIC_ZENODO_CACHE_BUCKET }}
+          gcloud storage rsync -r ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} ${{ env.S3_ZENODO_CACHE }}
 
   zenodo-cache-sync-notify:
     runs-on: ubuntu-latest
