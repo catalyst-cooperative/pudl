@@ -10,8 +10,6 @@ on:
       - "src/pudl/workspace/datastore.py"
 
 env:
-  INTERNAL_ZENODO_CACHE_BUCKET: gs://internal-zenodo-cache.catalyst.coop
-  PUBLIC_ZENODO_CACHE_BUCKET: gs://zenodo-cache.catalyst.coop
   S3_ZENODO_CACHE: s3://pudl.catalyst.coop/zenodo/
   PUDL_OUTPUT: ~/pudl-work/output
   PUDL_INPUT: ~/pudl-work/input/
@@ -70,12 +68,7 @@ jobs:
 
       - name: Update GCS cache with any new Zenodo archives
         run: |
-          pudl_datastore --gcs-cache-path ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} --bypass-local-cache --loglevel DEBUG
-
-      - name: Sync internal and public caches
-        run: |
-          gcloud storage --billing-project=catalyst-cooperative-pudl rsync -r ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} ${{ env.PUBLIC_ZENODO_CACHE_BUCKET }}
-          gcloud storage rsync -r ${{ env.INTERNAL_ZENODO_CACHE_BUCKET }} ${{ env.S3_ZENODO_CACHE }}
+          pudl_datastore --s3-cache-path ${{ env.S3_ZENODO_CACHE }} --bypass-local-cache --loglevel DEBUG
 
   zenodo-cache-sync-notify:
     runs-on: ubuntu-latest

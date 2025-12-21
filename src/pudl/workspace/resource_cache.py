@@ -296,7 +296,7 @@ class S3Cache(AbstractCache):
             self._s3_client.head_object(Bucket=self._bucket_name, Key=key)
             return True
         except ClientError as e:
-            if e.response["Error"]["Code"] in ("404", "NoSuchKey"):
+            if e.response["Error"]["Code"] == "NoSuchKey":
                 return False
             # For other errors, log and re-raise
             logger.error(f"Error checking if {resource} exists in S3: {e}")
