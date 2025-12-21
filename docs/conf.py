@@ -12,6 +12,7 @@ import datetime
 import importlib.metadata
 import os
 import shutil
+import time
 from pathlib import Path
 
 from pudl.metadata import PUDL_PACKAGE
@@ -208,6 +209,10 @@ def data_sources_metadata_to_rst(app):
                 if res.etl_group in extra_etl_groups[name]
                 and name in [src.name for src in res.sources]
             ]
+
+        # Sleep to avoid zenodo rate limit when building from readthedocs
+        if os.environ.get("READTHEDOCS"):
+            time.sleep(10)
         source.to_rst(
             docs_dir=DOCS_DIR,
             output_path=DOCS_DIR / f"data_sources/{name}.rst",
