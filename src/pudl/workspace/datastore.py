@@ -313,6 +313,7 @@ class Datastore:
     def __init__(
         self,
         local_cache_path: Path | None = None,
+        s3_cache_path: str | None = "s3://pudl.catalyst.coop/zenodo",
         gcs_cache_path: str | None = None,
         timeout: float = 15.0,
     ):
@@ -338,6 +339,9 @@ class Datastore:
         if local_cache_path:
             logger.info(f"Adding local cache layer at {local_cache_path}")
             self._cache.add_cache_layer(resource_cache.LocalFileCache(local_cache_path))
+        if s3_cache_path:
+            logger.info(f"Adding S3 cache layer at {s3_cache_path}")
+            self._cache.add_cache_layer(resource_cache.S3Cache(s3_cache_path))
         if gcs_cache_path:
             try:
                 logger.info(f"Adding GCS cache layer at {gcs_cache_path}")
@@ -596,6 +600,16 @@ def _parse_key_values(
     ),
 )
 @click.option(
+    "--s3-cache-path",
+    type=str,
+    help=(
+        "Load cached inputs from AWS S3 if possible. The default is our public AWS "
+        "Open Data Registry bucket: s3://pudl.catalyst.coop/zenodo which can be "
+        "accessed for free in read-only mode without any AWS credentials. "
+    ),
+    default="s3://pudl.catalyst.coop/zenodo",
+)
+@click.option(
     "--gcs-cache-path",
     type=str,
     help=(
@@ -628,6 +642,7 @@ def pudl_datastore(
     validate: bool,
     list_partitions: bool,
     partition: dict[str, int | str],
+    s3_cache_path: str,
     gcs_cache_path: str,
     bypass_local_cache: bool,
     logfile: pathlib.Path,
@@ -662,6 +677,7 @@ def pudl_datastore(
         cache_path = PudlPaths().input_dir
 
     dstore = Datastore(
+        s3_cache_path=s3_cache_path,
         gcs_cache_path=gcs_cache_path,
         local_cache_path=cache_path,
     )

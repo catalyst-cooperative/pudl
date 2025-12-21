@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import Any, NamedTuple
 from urllib.parse import urlparse
 
+import boto3
 import google.auth
+from botocore.client import Config
+from botocore.exceptions import ClientError, NoCredentialsError
 from google.api_core.exceptions import BadRequest
 from google.api_core.retry import Retry
 from google.cloud import storage
@@ -165,6 +168,139 @@ class GoogleCloudStorageCache(AbstractCache):
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if resource is present in the cache."""
         return self._blob(resource).exists(retry=gcs_retry)
+
+
+class S3Cache(AbstractCache):
+    """Implements file cache backed by AWS S3 bucket.
+
+    This cache can access both public and private S3 buckets. For public buckets,
+    no AWS credentials are required. For private buckets, AWS credentials should be
+    available in the environment (via environment variables, AWS config files, or
+    IAM roles).
+    """
+
+    def __init__(self, s3_path: str, **kwargs: Any):
+        """Constructs new cache that stores files in AWS S3.
+
+        Args:
+            s3_path: path to where the data should be stored. This should
+                be in the form of s3://{bucket-name}/{optional-path-prefix}
+
+        Raises:
+            ValueError: if s3_path doesn't start with s3://
+        """
+        super().__init__(**kwargs)
+        parsed_url = urlparse(s3_path)
+        if parsed_url.scheme != "s3":
+            raise ValueError(f"s3_path should start with s3:// (found: {s3_path})")
+
+        self._bucket_name = parsed_url.netloc
+        self._path_prefix = Path(parsed_url.path)
+
+        # Try to create S3 client with credentials from the environment
+        # If no credentials are available, create an unsigned client for public buckets
+        try:
+            # Try with credentials first (from environment, AWS config, or IAM role)
+            self._s3_client = boto3.client("s3")
+            self._unsigned = False
+            logger.debug(
+                f"S3Cache initialized with credentials for bucket {self._bucket_name}"
+            )
+        except (NoCredentialsError, ClientError) as e:
+            # No credentials available, use unsigned requests for public buckets
+            logger.debug(
+                f"No AWS credentials found ({e}), using unsigned requests for public bucket {self._bucket_name}"
+            )
+            self._s3_client = boto3.client(
+                "s3", config=Config(signature_version="UNSIGNED")
+            )
+            self._unsigned = True
+
+    def _get_object_key(self, resource: PudlResourceKey) -> str:
+        """Get the S3 object key for a given resource."""
+        return (self._path_prefix / resource.get_local_path()).as_posix().lstrip("/")
+
+    def get(self, resource: PudlResourceKey) -> bytes:
+        """Retrieves value associated with given resource.
+
+        Raises:
+            KeyError: if the resource doesn't exist in S3
+            ClientError: for other S3 errors
+        """
+        key = self._get_object_key(resource)
+        logger.debug(f"Getting {resource} from S3 bucket {self._bucket_name}")
+
+        try:
+            response = self._s3_client.get_object(Bucket=self._bucket_name, Key=key)
+            return response["Body"].read()
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "NoSuchKey":
+                raise KeyError(
+                    f"{resource} not found in S3 bucket {self._bucket_name}"
+                ) from e
+            raise
+
+    def add(self, resource: PudlResourceKey, content: bytes):
+        """Adds (or updates) resource to the cache with given content.
+
+        Raises:
+            RuntimeError: if cache is read-only or using unsigned requests
+            ClientError: for S3 errors
+        """
+        if self.is_read_only():
+            logger.debug(f"Read only cache: ignoring add({resource})")
+            return
+
+        if self._unsigned:
+            raise RuntimeError(
+                "Cannot write to S3 without credentials. "
+                "Please configure AWS credentials to write to S3."
+            )
+
+        key = self._get_object_key(resource)
+        logger.debug(f"Adding {resource} to S3 bucket {self._bucket_name}")
+
+        self._s3_client.put_object(Bucket=self._bucket_name, Key=key, Body=content)
+
+    def delete(self, resource: PudlResourceKey):
+        """Deletes resource from the cache.
+
+        Raises:
+            RuntimeError: if cache is read-only or using unsigned requests
+            ClientError: for S3 errors
+        """
+        if self.is_read_only():
+            logger.debug(f"Read only cache: ignoring delete({resource})")
+            return
+
+        if self._unsigned:
+            raise RuntimeError(
+                "Cannot delete from S3 without credentials. "
+                "Please configure AWS credentials to delete from S3."
+            )
+
+        key = self._get_object_key(resource)
+        logger.debug(f"Deleting {resource} from S3 bucket {self._bucket_name}")
+
+        self._s3_client.delete_object(Bucket=self._bucket_name, Key=key)
+
+    def contains(self, resource: PudlResourceKey) -> bool:
+        """Returns True if resource is present in the cache.
+
+        Returns:
+            True if the resource exists in S3, False otherwise
+        """
+        key = self._get_object_key(resource)
+
+        try:
+            self._s3_client.head_object(Bucket=self._bucket_name, Key=key)
+            return True
+        except ClientError as e:
+            if e.response["Error"]["Code"] in ("404", "NoSuchKey"):
+                return False
+            # For other errors, log and re-raise
+            logger.error(f"Error checking if {resource} exists in S3: {e}")
+            raise
 
 
 class LayeredCache(AbstractCache):
