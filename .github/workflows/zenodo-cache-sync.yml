@@ -49,13 +49,6 @@ jobs:
         run: |
           pip install --editable ./
 
-      - name: Set default gcp credentials
-        id: gcloud-auth
-        uses: "google-github-actions/auth@v3"
-        with:
-          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
-          service_account: "zenodo-cache-manager@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-
       - name: Authenticate to AWS
         uses: aws-actions/configure-aws-credentials@v5
         with:
@@ -63,10 +56,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-west-2"
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v3
-
-      - name: Update GCS cache with any new Zenodo archives
+      - name: Update AWS S3 cache with any new Zenodo archives
         run: |
           pudl_datastore --s3-cache-path ${{ env.S3_ZENODO_CACHE }} --bypass-local-cache --loglevel DEBUG
 
