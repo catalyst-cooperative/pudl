@@ -235,7 +235,10 @@ class ZenodoFetcher:
         self.timeout = timeout
 
         retries = Retry(
-            backoff_factor=2, total=3, status_forcelist=[429, 500, 502, 503, 504]
+            backoff_factor=2,
+            total=10,
+            status_forcelist=[429, 500, 502, 503, 504],
+            backoff_max=300,
         )
         adapter = HTTPAdapter(max_retries=retries)
         self.http = requests.Session()
