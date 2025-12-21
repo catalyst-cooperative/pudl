@@ -6,6 +6,7 @@ from typing import Any, NamedTuple
 from urllib.parse import urlparse
 
 import boto3
+import botocore
 import google.auth
 from botocore.client import Config
 from botocore.exceptions import ClientError
@@ -216,7 +217,7 @@ class S3Cache(AbstractCache):
                 f"No AWS credentials found, using unsigned requests for public bucket {self._bucket_name}"
             )
             self._s3_client = boto3.client(
-                "s3", config=Config(signature_version="UNSIGNED")
+                "s3", config=Config(signature_version=botocore.UNSIGNED)
             )
             self._unsigned = True
 
