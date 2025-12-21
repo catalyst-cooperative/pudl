@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import boto3
 import google.auth
 from botocore.client import Config
-from botocore.exceptions import ClientError, NoCredentialsError
+from botocore.exceptions import ClientError
 from google.api_core.exceptions import BadRequest
 from google.api_core.retry import Retry
 from google.cloud import storage
@@ -197,19 +197,23 @@ class S3Cache(AbstractCache):
         self._bucket_name = parsed_url.netloc
         self._path_prefix = Path(parsed_url.path)
 
-        # Try to create S3 client with credentials from the environment
-        # If no credentials are available, create an unsigned client for public buckets
-        try:
-            # Try with credentials first (from environment, AWS config, or IAM role)
+        # Check if credentials are available in the environment
+        # We need to check the session because boto3.client() doesn't fail
+        # until you actually try to use it
+        session = boto3.Session()
+        credentials = session.get_credentials()
+
+        if credentials is not None:
+            # Credentials are available
             self._s3_client = boto3.client("s3")
             self._unsigned = False
             logger.debug(
                 f"S3Cache initialized with credentials for bucket {self._bucket_name}"
             )
-        except (NoCredentialsError, ClientError) as e:
+        else:
             # No credentials available, use unsigned requests for public buckets
             logger.debug(
-                f"No AWS credentials found ({e}), using unsigned requests for public bucket {self._bucket_name}"
+                f"No AWS credentials found, using unsigned requests for public bucket {self._bucket_name}"
             )
             self._s3_client = boto3.client(
                 "s3", config=Config(signature_version="UNSIGNED")
