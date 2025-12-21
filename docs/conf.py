@@ -212,6 +212,7 @@ def data_sources_metadata_to_rst(app):
 
         # Sleep to avoid zenodo rate limit when building from readthedocs
         if os.environ.get("READTHEDOCS"):
+            print("Sleeping")
             time.sleep(10)
         source.to_rst(
             docs_dir=DOCS_DIR,
