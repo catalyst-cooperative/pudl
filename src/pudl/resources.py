@@ -36,6 +36,11 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
 
 @resource(
     config_schema={
+        "s3_cache_path": Field(
+            str,
+            description="Load datastore resources from AWS S3.",
+            default_value="s3://pudl.catalyst.coop/zenodo",
+        ),
         "gcs_cache_path": Field(
             str,
             description="Load datastore resources from Google Cloud Storage.",

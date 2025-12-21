@@ -68,16 +68,27 @@ def pudl_etl_job_factory(
     help="Max number of processes Dagster can launch. Defaults to the number of CPUs.",
 )
 @click.option(
+    "--s3-cache-path",
+    type=str,
+    default="s3://pudl.catalyst.coop/zenodo",
+    help=(
+        "Load cached inputs from AWS S3 object storage cache. This is typically "
+        "much faster and more reliable than downloading from Zenodo directly. By "
+        "default we read from the cache in PUDL's free, public AWS Open Data Registry "
+        "bucket."
+    ),
+)
+@click.option(
     "--gcs-cache-path",
     type=str,
     default="",
     help=(
+        "Deprecated. "
         "Load cached inputs from Google Cloud Storage if possible. This is usually "
         "much faster and more reliable than downloading from Zenodo directly. The "
-        "path should be a URL of the form gs://bucket[/path_prefix]. Internally we use "
-        "gs://internal-zenodo-cache.catalyst.coop. A public cache is available at "
-        "gs://zenodo-cache.catalyst.coop but requires GCS authentication and a billing "
-        "project to pay data egress costs."
+        "path should be a URL of the form gs://bucket[/path_prefix]. Note that this "
+        "option will requires GCS authentication and a billing project to pay data "
+        "egress costs."
     ),
 )
 @click.option(
@@ -99,6 +110,7 @@ def pudl_etl_job_factory(
 def pudl_etl(
     etl_settings_yml: pathlib.Path,
     dagster_workers: int,
+    s3_cache_path: str,
     gcs_cache_path: str,
     logfile: pathlib.Path,
     loglevel: str,
@@ -133,6 +145,7 @@ def pudl_etl(
             "datastore": {
                 "config": {
                     "gcs_cache_path": gcs_cache_path,
+                    "s3_cache_path": s3_cache_path,
                 },
             },
         },

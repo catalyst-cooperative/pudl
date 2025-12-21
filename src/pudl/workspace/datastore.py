@@ -602,23 +602,25 @@ def _parse_key_values(
 @click.option(
     "--s3-cache-path",
     type=str,
-    help=(
-        "Load cached inputs from AWS S3 if possible. The default is our public AWS "
-        "Open Data Registry bucket: s3://pudl.catalyst.coop/zenodo which can be "
-        "accessed for free in read-only mode without any AWS credentials. "
-    ),
     default="s3://pudl.catalyst.coop/zenodo",
+    help=(
+        "Load cached inputs from AWS S3 object storage cache. This is typically "
+        "much faster and more reliable than downloading from Zenodo directly. By "
+        "default we read from the cache in PUDL's free, public AWS Open Data Registry "
+        "bucket."
+    ),
 )
 @click.option(
     "--gcs-cache-path",
     type=str,
+    default="",
     help=(
+        "Deprecated. "
         "Load cached inputs from Google Cloud Storage if possible. This is usually "
         "much faster and more reliable than downloading from Zenodo directly. The "
-        "path should be a URL of the form gs://bucket[/path_prefix]. Internally we use "
-        "gs://internal-zenodo-cache.catalyst.coop. A public cache is available at "
-        "gs://zenodo-cache.catalyst.coop but requires GCS authentication and a billing "
-        "project to pay data egress costs."
+        "path should be a URL of the form gs://bucket[/path_prefix]. Note that this "
+        "option will requires GCS authentication and a billing project to pay data "
+        "egress costs."
     ),
 )
 @click.option(

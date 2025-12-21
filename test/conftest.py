@@ -78,11 +78,6 @@ def pytest_addoption(parser):
         help="Path to a non-standard ETL settings file to use.",
     )
     parser.addoption(
-        "--gcs-cache-path",
-        default=None,
-        help="If set, use this GCS path as a datastore cache layer.",
-    )
-    parser.addoption(
         "--bypass-local-cache",
         action="store_true",
         default=False,
@@ -420,9 +415,7 @@ def logger_config():
 @pytest.fixture(scope="session")
 def pudl_datastore_config(request) -> dict[str, Any]:
     """Produce a :class:pudl.workspace.datastore.Datastore."""
-    gcs_cache_path = request.config.getoption("--gcs-cache-path")
     return {
-        "gcs_cache_path": gcs_cache_path if gcs_cache_path else "",
         "use_local_cache": not request.config.getoption("--bypass-local-cache"),
     }
 
