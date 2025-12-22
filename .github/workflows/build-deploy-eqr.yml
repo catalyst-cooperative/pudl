@@ -1,0 +1,20 @@
+---
+name: build-deploy-pudl
+on:
+  workflow_dispatch:
+
+env:
+  GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
+  GCS_OUTPUT_BUCKET: gs://builds.catalyst.coop
+  BATCH_JOB_JSON: batch_job.json
+
+jobs:
+  build_and_deploy_eqr:
+    name: Build Docker image, push to Docker Hub and deploy to Google Batch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: No-op
+        run: echo "No-op to get stub workflow in main"
