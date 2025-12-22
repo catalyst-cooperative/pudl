@@ -1009,7 +1009,6 @@ class DataSource(PudlMeta):
         """Get source file metadata from the datastore."""
         dp_desc = Datastore(
             local_cache_path=PudlPaths().data_dir,
-            gcs_cache_path="gs://zenodo-cache.catalyst.coop",
         ).get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
