@@ -103,14 +103,6 @@ jobs:
           conda config --show
           printenv | sort
 
-      - name: Set default GCP credentials
-        id: gcloud-auth
-        continue-on-error: true
-        uses: "google-github-actions/auth@v3"
-        with:
-          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
-          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
@@ -163,14 +155,6 @@ jobs:
           conda config --show-sources
           conda config --show
           printenv | sort
-
-      - name: Set default GCP credentials
-        id: gcloud-auth
-        continue-on-error: true
-        uses: "google-github-actions/auth@v3"
-        with:
-          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
-          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
@@ -270,15 +254,7 @@ jobs:
           du -sh /home/runner/pudl-work/*
           du -sh /home/runner/_work/*
 
-      - name: Set default GCP credentials
-        id: gcloud-auth
-        continue-on-error: true
-        uses: "google-github-actions/auth@v3"
-        with:
-          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
-          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-
-      - name: Run integration tests, trying to use GCS cache if possible
+      - name: Install PUDL, download some EPA CEMS data, and run the integration tests
         run: |
           pip install --no-deps --editable .
           pudl_datastore --dataset epacems --partition year_quarter=2023q1
