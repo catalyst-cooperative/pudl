@@ -12,13 +12,17 @@ import itertools
 import pathlib
 import re
 import shutil
+import tempfile
 import time
 from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable
+from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
+from pathlib import Path
 from typing import Any, Literal, NamedTuple
 
+import duckdb
 import geopandas as gpd
 import numpy as np
 import pandas as pd
@@ -27,6 +31,7 @@ import requests
 import sqlalchemy as sa
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
+from pydantic import BaseModel
 
 import pudl.logging_helpers
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
@@ -742,7 +747,9 @@ def organize_cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df[organized_cols]
 
 
-def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+def simplify_strings(
+    df: pd.DataFrame, columns: list[str], copy: bool = True
+) -> pd.DataFrame:
     """Simplify the strings contained in a set of dataframe columns.
 
     Performs several operations to simplify strings for comparison and parsing purposes.
@@ -752,24 +759,31 @@ def simplify_strings(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
 
     Leaves null values unaltered. Casts other values with astype(str).
 
+    Running with ``copy=False`` is intended for memory-intensive data frames where no
+    upstream process retains a reference to the data. Use care with this option,
+    and keep an eye out for spooky data changes showing up in unexpected places.
+
     Args:
         df: DataFrame whose columns are being cleaned up.
         columns: The labels of the string columns to be simplified.
+        copy: (Default True) Return a copy, making no changes to the original data.
 
     Returns:
         The whole DataFrame that was passed in, with the string columns cleaned up.
     """
-    out_df = df.copy()
+    out_df = df.copy() if copy else df
     for col in columns:
         if col in out_df.columns:
-            out_df.loc[out_df[col].notnull(), col] = (
-                out_df.loc[out_df[col].notnull(), col]
-                .astype(str)
-                .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
-                .str.strip()
-                .str.lower()
-                .str.replace(r"\s+", " ", regex=True)
-            )
+            mask = out_df[col].notnull()
+            if mask.sum() > 0:
+                out_df.loc[mask, col] = (
+                    out_df.loc[mask, col]
+                    .astype(str)
+                    .str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
+                    .str.strip()
+                    .str.lower()
+                    .str.replace(r"\s+", " ", regex=True)
+                )
     return out_df
 
 
@@ -972,9 +986,7 @@ def month_year_to_date(df: pd.DataFrame) -> pd.DataFrame:
         month_year_date.append((month_col, year_col, date_col))
 
     for month_col, year_col, date_col in month_year_date:
-        df = fix_int_na(df, columns=[year_col, month_col])
-
-        date_mask = (df[year_col] != "") & (df[month_col] != "")
+        date_mask = df[[year_col, month_col]].notna().all(axis="columns")
         years = df.loc[date_mask, year_col]
         months = df.loc[date_mask, month_col]
 
@@ -996,6 +1008,7 @@ def convert_to_date(
     day_col: str = "report_day",
     month_na_value: int = 1,
     day_na_value: int = 1,
+    copy: bool = True,
 ) -> pd.DataFrame:
     """Convert specified year, month or day columns into a datetime object.
 
@@ -1003,6 +1016,10 @@ def convert_to_date(
     conversion is applied, and the original dataframe is returned unchanged.
     Otherwise the constructed date is placed in that column, and the columns
     which were used to create the date are dropped.
+
+    Running with ``copy=False`` is intended for memory-intensive data frames where no
+    upstream process retains a reference to the data. Use care with this option,
+    and keep an eye out for spooky data changes showing up in unexpected places.
 
     Args:
         df: dataframe to convert
@@ -1013,12 +1030,14 @@ def convert_to_date(
         month_na_value: generated month if no month exists or if the month
             value is NA.
         day_na_value: generated day if no day exists or if the day value is NA.
+        copy: (default True) return a copy, making no changes to the original data.
 
     Returns:
         A DataFrame in which the year, month, day columns values have been converted
         into datetime objects.
     """
-    df = df.copy()
+    if copy:
+        df = df.copy()
     if date_col in df.columns:
         return df
 
@@ -1034,8 +1053,10 @@ def convert_to_date(
 
     df[date_col] = pd.to_datetime({"year": year, "month": month, "day": day})
     cols_to_drop = [x for x in [day_col, year_col, month_col] if x in df.columns]
-    df = df.drop(cols_to_drop, axis="columns")
 
+    if copy:
+        return df.drop(cols_to_drop, axis="columns")
+    df.drop(cols_to_drop, axis="columns", inplace=True)  # noqa: PD002
     return df
 
 
@@ -1490,26 +1511,6 @@ def iterate_multivalue_dict(**kwargs):
         yield result
 
 
-def get_working_dates_by_datasource(datasource: str) -> pd.DatetimeIndex:
-    """Get all working dates of a datasource as a DatetimeIndex."""
-    import pudl.metadata.classes
-
-    dates = pd.DatetimeIndex([])
-    for data_source in pudl.metadata.classes.DataSource.from_field_namespace(
-        datasource
-    ):
-        working_partitions = data_source.working_partitions
-        if "years" in working_partitions:
-            dates = dates.append(
-                pd.to_datetime(working_partitions["years"], format="%Y")
-            )
-        if "year_months" in working_partitions:
-            dates = dates.append(
-                pd.DatetimeIndex(pd.to_datetime(working_partitions["year_months"]))
-            )
-    return dates
-
-
 def dedupe_on_category(
     dedup_df: pd.DataFrame, base_cols: list[str], category_name: str, sorter: list[str]
 ) -> pd.DataFrame:
@@ -1892,6 +1893,7 @@ def convert_col_to_bool(
 def fix_boolean_columns(
     df: pd.DataFrame,
     boolean_columns_to_fix: list[str],
+    inplace: bool = False,
 ) -> pd.DataFrame:
     """Fix standard issues with EIA boolean columns.
 
@@ -1899,12 +1901,21 @@ def fix_boolean_columns(
     columns have "X" values which represents a False value. A subset of the columns
     have "U" values, presumably for "Unknown," which must be set to null in order to
     convert the columns to datatype Boolean.
+
+    If running with ``inplace=True``, will run in-place versions of the fill and
+    replace operations instead of returning a copy of the data frame. This mode is
+    useful for memory-intensive data frames, but be aware that upstream processes
+    retaining a reference to the data will see the changes made here.
     """
     fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {
         col: {"Y": True, "N": False, "X": False, "U": pd.NA}
         for col in boolean_columns_to_fix
     }
+    if inplace:
+        df.fillna(fillna_cols, inplace=True)  # noqa: PD002
+        df.replace(to_replace=boolean_replace_cols, inplace=True)  # noqa: PD002
+        return df
     return df.fillna(fillna_cols).replace(to_replace=boolean_replace_cols)
 
 
@@ -2176,7 +2187,7 @@ def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
     paths = PudlPaths()
     parquet_path = paths.parquet_path(table_name)
 
-    return pl.scan_parquet(parquet_path, schema=schema)
+    return pl.scan_parquet(parquet_path).cast(schema, strict=False)
 
 
 def get_parquet_table(
@@ -2301,3 +2312,150 @@ def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFra
         df[column] = df[column].mask(invalid_mask, pd.NA)
 
     return df
+
+
+class ParquetData(BaseModel):
+    """Wrap table data offloaded as parquet file(s) on disk.
+
+    Writing data to disk as parquet files enables the use of highly efficient
+    processing/transforms with tools like Polars or duckdb. This class provides
+    helpers for managing paths to parquet data on disk.
+    """
+
+    table_name: str
+    partitions: dict[str, Any] = {}
+
+    @property
+    def parquet_directory(self) -> Path:
+        """Get path to directory for writing/reading parquet files."""
+        parquet_path = PudlPaths().parquet_transform_dir / self.table_name
+        parquet_path.mkdir(exist_ok=True, parents=True)
+        return parquet_path
+
+    @property
+    def parquet_path(self) -> Path:
+        """Get name of an individual parquet file corresponding to a single partition of data."""
+        if self.partitions != {}:
+            filename = "_".join(map(str, self.partitions.values())) + ".parquet"
+        else:
+            filename = f"{self.table_name}.parquet"
+        return self.parquet_directory / filename
+
+
+def persist_table_as_parquet(
+    table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
+    table_name: str,
+    partitions: dict = {},
+) -> ParquetData:
+    """Write data from DataFrame or LazyFrame to disk as a parquet file.
+
+    Offloading data to disk allows Polars and duckdb to perform highly efficient
+    transforms.
+
+    Args:
+        table_data: Data to write to disk as either a Pandas DataFrame, Polars LazyFrame, or duckdb relation.
+        table_name: Table name used to construct path to/name of parquet file.
+        partitions: Partitions which correspond to the table_data. If passed
+            ``{'years': 1995}`` then this method will produce a parquet file at the path
+            ``PudlPaths().parquet_transform_dir / table_name / '1995.parquet'``.
+    """
+    # Create ParquetData class to get path to write parquet file
+    parquet_data = ParquetData(table_name=table_name, partitions=partitions)
+    if isinstance(table_data, pd.DataFrame):
+        table_data.to_parquet(parquet_data.parquet_path)
+    elif isinstance(table_data, pl.LazyFrame):
+        table_data.sink_parquet(parquet_data.parquet_path, engine="streaming")
+    elif isinstance(table_data, duckdb.DuckDBPyRelation):
+        table_data.to_parquet(str(parquet_data.parquet_path), overwrite=True)
+    else:
+        raise TypeError(
+            "table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."
+            f" Got {type(table_data)}."
+        )
+    return parquet_data
+
+
+def lf_from_parquet(
+    parquet_data: ParquetData, use_all_partitions: bool = False
+) -> pl.LazyFrame:
+    """Scan parquet file(s) from disk and return Polars LazyFrame.
+
+    Args:
+        parquet_data: Points to parquet data on disk.
+        use_all_partitions: If true read the entire directory of parquet files.
+            Otherwise only read data from the partition specified in parquet_data.
+    """
+    if use_all_partitions:
+        return pl.scan_parquet(parquet_data.parquet_directory)
+    return pl.scan_parquet(parquet_data.parquet_path)
+
+
+def df_from_parquet(
+    parquet_data: ParquetData, use_all_partitions: bool = False
+) -> pd.DataFrame:
+    """Read data from a set of parquet files and return a pandas DataFrame.
+
+    Args:
+        parquet_data: Points to parquet data on disk.
+        use_all_partitions: If true read the entire directory of parquet files.
+            Otherwise only read data from the partition specified in parquet_data.
+    """
+    if use_all_partitions:
+        return pd.read_parquet(parquet_data.parquet_directory)
+    return pd.read_parquet(parquet_data.parquet_path)
+
+
+@contextmanager
+def duckdb_relation_from_parquet(
+    parquet_data: ParquetData, use_all_partitions: bool = False
+) -> duckdb.DuckDBPyRelation:
+    """Create a duckdb relation to read from parquet files.
+
+    This method is intended to be used as a context manager to keep the duckdb
+    connection open while the relation is in use.
+
+    Args:
+        parquet_data: Points to parquet data on disk.
+        use_all_partitions: If true read the entire directory of parquet files.
+            Otherwise only read data from the partition specified in parquet_data.
+    """
+    with duckdb.connect() as conn:
+        if use_all_partitions:
+            yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet")
+        yield conn.read_parquet(str(parquet_data.parquet_path))
+
+
+def duckdb_extract_zipped_csv(
+    dataset: str,
+    partitions: dict[str, Any],
+    pages: list[str],
+    datasore,
+    zip_path: Path = Path(),
+) -> tuple[str, ParquetData]:
+    """Extract data from zipped CSV page(s) in a data archive.
+
+    A common pattern for raw PUDL data is a set of zipfiles with one zipfile per
+    partition, and one or more CSV files within each zipfile. This function provides
+    a highly efficient way to extract data from archives that conform to this pattern
+    using duckdb. This function is a generator, which will yield a duckdb relation for
+    each CSV file within a zipfile, allowing the caller to perform transforms using
+    the relation before writing to disk with the ``offload_table`` function.
+
+    Args:
+        dataset: Name of dataset (required to get archive from datastore).
+        partition: Partitions of resource to extract data from.
+        pages: List of csv files to extract from archive.
+        datastore: Instance of PUDL datastore to get raw data.
+        zip_path: Base path within zipfile that points to where CSV files are stored.
+            If not explicitly set, assume CSV files are at the top level of the zipfile.
+    """
+    with (
+        duckdb.connect() as conn,
+        datasore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
+        tempfile.TemporaryDirectory() as tmp_dir,
+    ):
+        tmp_dir = Path(tmp_dir)
+        zf.extractall(tmp_dir)
+
+        for page in pages:
+            yield page, conn.read_csv(str(tmp_dir / zip_path / page))

@@ -483,7 +483,7 @@ def harvest_entity_tables(  # noqa: C901
     We have determined which columns should be considered "static" or "annual".
     These can be found in constants in the `entities` dictionary. Static means
     That is should not change over time. Annual means there is annual
-    variablity. This distinction was made in part by testing the consistency
+    variability. This distinction was made in part by testing the consistency
     and in part by an understanding of how the entities and columns relate in
     the real world.
 

@@ -1,0 +1,91 @@
+---
+name: zenodo-data-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Upload to Zenodo server environment:"
+        required: true
+        options:
+          - sandbox
+          - production
+        default: "sandbox"
+        type: choice
+      source_dir:
+        description: "Path to PUDL data to publish:"
+        required: true
+        default: "s3://pudl.catalyst.coop/nightly/"
+      ignore_regex:
+        description: "Ignore files matching this regex:"
+        required: false
+        default: '(^.*\.parquet$|^pudl_parquet_datapackage\.json$)'
+      publish:
+        description: "Automatically publish Zenodo record?"
+        required: true
+        default: "no-publish"
+        options:
+          - no-publish
+          - publish
+        type: choice
+
+jobs:
+  zenodo-data-release:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: zenodo-data-release-${{ inputs.env }}
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "us-west-2"
+
+      - name: Set up pudl-dev conda environment
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: environments/conda-lock.yml
+          environment-name: pudl-dev
+          cache-environment: true
+
+      - name: Install PUDL
+        run: |
+          pip install --no-deps --editable .
+
+      - name: Do a Zenodo data release
+        env:
+          ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
+          ZENODO_TOKEN_UPLOAD: ${{ secrets.ZENODO_TOKEN_UPLOAD }}
+        run: |
+          zenodo_data_release \
+            --env "${{ inputs.env }}" \
+            --source-dir "${{ inputs.source_dir }}" \
+            ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
+            --${{ inputs.publish }}
+
+      - name: Post status to pudl-deployments channel
+        if: always()
+        id: slack
+        uses: slackapi/slack-github-action@v2
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
+          payload: |
+            {
+              "text": "${{job.status == 'success' && ':white_check_mark:' || ':x:'}} zenodo-data-release (`${{ github.ref }}`) finished with status: ${{ job.status }}. Logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "channel": "C03FHB9N0PQ"
+            }

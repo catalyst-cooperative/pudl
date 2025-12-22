@@ -12,6 +12,7 @@ env:
   PUDL_OUTPUT: /home/runner/pudl-work/output/
   PUDL_INPUT: /home/runner/pudl-work/input/
   DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
+  ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
 
 jobs:
   change_filter:
@@ -22,7 +23,7 @@ jobs:
       # 2025-07-17: because merge_group is an Object and run_code_checks is not a conditional, need to explicitly check for null-ness instead of relying on truthiness.
       run_code_checks: ${{ github.event_name =='workflow_dispatch' || (steps.filter.outputs.code == 'true' && (github.event.merge_group != null)) }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: dorny/paths-filter@v3
@@ -33,25 +34,38 @@ jobs:
           filters: |
             code:
               - '!dbt/seeds/etl_full_row_counts.csv'
-              - '!docker/*'
-              - '!docs/**.rst'
-              - '!docs/**.md'
-              - '!docs/**.pdf'
-              - '!docs/**.html'
-              - '!docs/**.rst.jinja'
-              - '!docs/**.bib'
+              - '!devtools/**'
+              - '!docker/**'
+              - '!docs/**'
               - '!.github/**.md'
               - '!.github/FUNDING.yml'
               - '!.github/actionlint.yml'
               - '!.github/dependabot.yml'
               - '!.github/release.yml'
               - '!.github/ISSUE_TEMPLATE/*.yml'
+              - '!.github/workflows/bot-auto-merge.yml'
+              - '!.github/workflows/build-deploy-docs.yml'
+              - '!.github/workflows/build-deploy-pudl.yml'
+              - '!.github/workflows/com-dev-notify.yml'
+              - '!.github/workflows/docker-build-test.yml'
+              - '!.github/workflows/q-update-issue-scheduler.yml'
+              - '!.github/workflows/release.yml'
+              - '!.github/workflows/update-conda-lockfile.yml'
+              - '!.github/workflows/zenodo-cache-sync.yml'
+              - '!.github/workflows/zenodo-data-release.yml'
               - '!AGENTS.md'
               - '!README.rst'
               - '!CONTRIBUTING.rst'
               - '!LICENSE.txt'
               - '!CITATION.cff'
               - '!.zenodo.json'
+              - '!**.gitignore'
+              - '!.git-blame-ignore-revs'
+              - '!.pre-commit-config.yaml'
+              - '!.readthedocs.yaml'
+              - '!.mypy.ini'
+              - '!terraform/**'
+              - '!test/unit/**'
       - name: print out components
         run: |
           echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
@@ -59,6 +73,9 @@ jobs:
           echo "merge_group ${{ github.event.merge_group }} is not null: ${{ github.event.merge_group != null }}"
 
   ci-docs:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -67,7 +84,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -85,6 +102,14 @@ jobs:
           conda config --show-sources
           conda config --show
           printenv | sort
+
+      - name: Set default GCP credentials
+        id: gcloud-auth
+        continue-on-error: true
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
@@ -102,13 +127,16 @@ jobs:
           ls -a
 
       - name: Upload docs coverage artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-docs
           include-hidden-files: true
           path: .coverage
 
   ci-unit:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -117,7 +145,7 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -135,6 +163,14 @@ jobs:
           conda config --show-sources
           conda config --show
           printenv | sort
+
+      - name: Set default GCP credentials
+        id: gcloud-auth
+        continue-on-error: true
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
@@ -157,7 +193,7 @@ jobs:
           ls -a
 
       - name: Upload unit tests coverage artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-unit
           include-hidden-files: true
@@ -185,7 +221,7 @@ jobs:
       - name: Collect Workflow Telemetry
         uses: catchpoint/workflow-telemetry-action@v2
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -219,7 +255,7 @@ jobs:
           | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
 
       - name: Restore Zenodo datastore from cache if possible
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache-zenodo-datastore
         with:
           path: ${{ env.PUDL_INPUT }}
@@ -263,7 +299,7 @@ jobs:
           ls -a
 
       - name: Upload integration test coverage artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-integration
           include-hidden-files: true
@@ -271,7 +307,7 @@ jobs:
 
       - name: Upload dbt test failure database artifact
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: dbt-failures
           path: pudl_dbt_tests.duckdb
@@ -288,10 +324,10 @@ jobs:
       - change_filter
     if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Download coverage
         id: download-coverage
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: coverage
       - name: List downloaded files

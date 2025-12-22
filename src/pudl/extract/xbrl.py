@@ -68,16 +68,20 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
             )
             return
 
-        sql_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
-        if sql_path.exists():
-            sql_path.unlink()
+        sqlite_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
+        if sqlite_path.exists():
+            sqlite_path.unlink()
+        duckdb_path = PudlPaths().duckdb_db_path(f"ferc{form.value}_xbrl")
+        if duckdb_path.exists():
+            duckdb_path.unlink()
 
         convert_form(
             settings,
             form,
             datastore,
             output_path=output_path,
-            sql_path=sql_path,
+            sqlite_path=sqlite_path,
+            duckdb_path=duckdb_path,
             batch_size=rs.xbrl_batch_size,
             workers=rs.xbrl_num_workers,
         )
@@ -90,7 +94,8 @@ def convert_form(
     form: XbrlFormNumber,
     datastore: FercXbrlDatastore,
     output_path: Path,
-    sql_path: Path,
+    sqlite_path: Path,
+    duckdb_path: Path,
     batch_size: int | None = None,
     workers: int | None = None,
 ) -> None:
@@ -120,8 +125,8 @@ def convert_form(
     # we already delete the existing base on `clobber=True` in `xbrl2sqlite`
     run_main(
         filings=filings_archives,
-        db_path=sql_path,
-        clobber=False,
+        sqlite_path=sqlite_path,
+        duckdb_path=duckdb_path,
         taxonomy=taxonomy_archive,
         form_number=form.value,
         metadata_path=metadata_path,

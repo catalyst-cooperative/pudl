@@ -37,6 +37,7 @@ sources:
           - name: planned_net_summer_capacity_derate_mw
           - name: planned_net_summer_capacity_uprate_mw
           - name: planned_uprate_date
+          - name: planned_repower_date
           - name: prime_mover_code
           - name: sector_id_eia
           - name: state
