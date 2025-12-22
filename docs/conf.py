@@ -208,7 +208,6 @@ def data_sources_metadata_to_rst(app):
                 if res.etl_group in extra_etl_groups[name]
                 and name in [src.name for src in res.sources]
             ]
-
         source.to_rst(
             docs_dir=DOCS_DIR,
             output_path=DOCS_DIR / f"data_sources/{name}.rst",
