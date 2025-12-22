@@ -781,7 +781,7 @@ SUPPORTING_STRUCTURE_TYPE_CATEGORIES: dict[str, set[str]] = {
             "s-p",
             "s-s-p",
             "s-w-p",
-            "w-p",  # wood pole abbreviation
+            "w-p",
             "single pole",
             "single w.p.",
             "single w.p",

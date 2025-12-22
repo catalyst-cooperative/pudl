@@ -35,12 +35,21 @@ from pudl.transform.classes import (
     AbstractTableTransformer,
     InvalidRows,
     RenameColumns,
+    StringCategories,
+    StringNormalization,
     TableTransformParams,
     TransformParams,
     cache_df,
+    categorize_strings,
     enforce_snake_case,
+    normalize_strings,
 )
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
+from pudl.transform.params.ferc1 import (
+    FERC1_STRING_NORM,
+    SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES,
+    SUPPORTING_STRUCTURE_TYPE_CATEGORIES,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -4617,18 +4626,6 @@ class TransmissionLinesTableTransformer(Ferc1AbstractTableTransformer):
         Returns:
             DataFrame with supporting_structure_type and supporting_structure_material columns.
         """
-        from pudl.transform.classes import (
-            StringCategories,
-            StringNormalization,
-            categorize_strings,
-            normalize_strings,
-        )
-        from pudl.transform.params.ferc1 import (
-            FERC1_STRING_NORM,
-            SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES,
-            SUPPORTING_STRUCTURE_TYPE_CATEGORIES,
-        )
-
         if "supporting_structure_type" not in df.columns:
             return df
 
