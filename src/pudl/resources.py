@@ -36,15 +36,10 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
 
 @resource(
     config_schema={
-        "s3_cache_path": Field(
+        "cloud_cache_path": Field(
             str,
-            description="Load datastore resources from AWS S3.",
+            description="Load datastore resources from this GCS or S3 path.",
             default_value="s3://pudl.catalyst.coop/zenodo",
-        ),
-        "gcs_cache_path": Field(
-            str,
-            description="Load datastore resources from Google Cloud Storage.",
-            default_value="",
         ),
         "use_local_cache": Field(
             bool,
@@ -56,7 +51,7 @@ def ferc_to_sqlite_settings(init_context) -> FercToSqliteSettings:
 def datastore(init_context) -> Datastore:
     """Dagster resource to interact with Zenodo archives."""
     ds_kwargs = {}
-    ds_kwargs["gcs_cache_path"] = init_context.resource_config["gcs_cache_path"]
+    ds_kwargs["cloud_cache_path"] = init_context.resource_config["cloud_cache_path"]
 
     if init_context.resource_config["use_local_cache"]:
         # TODO(rousik): we could also just use PudlPaths().input_dir here, because

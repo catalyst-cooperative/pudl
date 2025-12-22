@@ -313,21 +313,20 @@ class Datastore:
     def __init__(
         self,
         local_cache_path: Path | None = None,
-        s3_cache_path: str | None = "s3://pudl.catalyst.coop/zenodo",
-        gcs_cache_path: str | None = None,
+        cloud_cache_path: str | None = "s3://pudl.catalyst.coop/zenodo",
         timeout: float = 15.0,
     ):
-        # TODO(rousik): figure out an efficient way to configure datastore caching
-        """Datastore manages file retrieval for PUDL datasets.
+        """Datastore manages input data retrieval for PUDL datasets.
 
         Args:
-            local_cache_path: if provided, LocalFileCache pointed at the data
+            local_cache_path: if provided, :class:`LocalFileCache` pointed at the data
                 subdirectory of this path will be used with this Datastore.
-            gcs_cache_path: if provided, GoogleCloudStorageCache will be used
-                to retrieve data files. The path is expected to have the following
-                format: gs://bucket[/path_prefix]
-            timeout: connection timeouts (in seconds) to use when connecting
-                to Zenodo servers.
+            cloud_cache_path: if provided, retrieve data from cloud object storage
+                using :class:`GoogleCloudStorageCache` or :class:`S3Cache` depending on
+                the protocol specified in the URL. The path is expected to have the
+                format: {gs,s3}://bucket[/path_prefix]
+            timeout: connection timeouts (in seconds) to use when connecting to Zenodo
+                servers.
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
@@ -336,22 +335,34 @@ class Datastore:
         # object is deleted
         self.temporary_extraction_dir = TemporaryDirectory()
 
-        if local_cache_path:
+        assert local_cache_path is not None or cloud_cache_path is not None, (
+            "At least one of local_cache_path or cloud_cache_path must be provided."
+        )
+        if local_cache_path is not None:
             logger.info(f"Adding local cache layer at {local_cache_path}")
             self._cache.add_cache_layer(resource_cache.LocalFileCache(local_cache_path))
-        if s3_cache_path:
-            logger.info(f"Adding S3 cache layer at {s3_cache_path}")
-            self._cache.add_cache_layer(resource_cache.S3Cache(s3_cache_path))
-        if gcs_cache_path:
-            try:
-                logger.info(f"Adding GCS cache layer at {gcs_cache_path}")
-                self._cache.add_cache_layer(
-                    resource_cache.GoogleCloudStorageCache(gcs_cache_path)
-                )
-            except (DefaultCredentialsError, OSError) as e:
-                logger.info(
-                    f"Unable to obtain credentials for GCS Cache at {gcs_cache_path}. "
-                    f"Falling back to Zenodo if necessary. Error was: {e}"
+
+        if cloud_cache_path is not None:
+            parsed_url = urlparse(cloud_cache_path)
+            if parsed_url.scheme == "s3":
+                logger.info(f"Adding S3 cache layer at {cloud_cache_path}")
+                self._cache.add_cache_layer(resource_cache.S3Cache(cloud_cache_path))
+            elif parsed_url.scheme == "gs":
+                try:
+                    logger.info(f"Adding GCS cache layer at {cloud_cache_path}")
+                    self._cache.add_cache_layer(
+                        resource_cache.GoogleCloudStorageCache(cloud_cache_path)
+                    )
+                except (DefaultCredentialsError, OSError) as e:
+                    logger.info(
+                        "Unable to obtain credentials for GCS Cache at "
+                        f" {cloud_cache_path}. "
+                        f"Falling back to Zenodo if necessary. Error was: {e}"
+                    )
+            else:
+                raise ValueError(
+                    f"Unsupported cloud storage scheme: {parsed_url.scheme}. "
+                    "Only 's3' and 'gs' are supported."
                 )
 
         self._zenodo_fetcher = ZenodoFetcher(timeout=timeout)
@@ -512,7 +523,7 @@ def fetch_resources(
     dstore: Datastore,
     datasets: list[str],
     partition: dict[str, int | str],
-    gcs_cache_path: str,
+    cloud_cache_path: str,
     bypass_local_cache: bool,
 ) -> None:
     """Retrieve all matching resources and store them in the cache."""
@@ -521,9 +532,9 @@ def fetch_resources(
             single_ds, skip_optimally_cached=True, **partition
         ):
             logger.info(f"Retrieved {res}.")
-            # If the gcs_cache_path is specified and we don't want
+            # If the cloud_cache_path is specified and we don't want
             # to bypass the local cache, populate the local cache.
-            if gcs_cache_path and not bypass_local_cache:
+            if cloud_cache_path and not bypass_local_cache:
                 dstore._cache.add(res, contents)
 
 
@@ -596,31 +607,18 @@ def _parse_key_values(
     default=False,
     help=(
         "If enabled, locally cached data will not be used. Instead, a new copy will be "
-        "downloaded from Zenodo or the GCS cache if specified."
+        "downloaded from Zenodo or the cloud cache if specified."
     ),
 )
 @click.option(
-    "--s3-cache-path",
+    "--cloud-cache-path",
     type=str,
     default="s3://pudl.catalyst.coop/zenodo",
     help=(
-        "Load cached inputs from AWS S3 object storage cache. This is typically "
+        "Load cached inputs from cloud object storage (S3 or GCS) . This is typically "
         "much faster and more reliable than downloading from Zenodo directly. By "
         "default we read from the cache in PUDL's free, public AWS Open Data Registry "
         "bucket."
-    ),
-)
-@click.option(
-    "--gcs-cache-path",
-    type=str,
-    default="",
-    help=(
-        "Deprecated. "
-        "Load cached inputs from Google Cloud Storage if possible. This is usually "
-        "much faster and more reliable than downloading from Zenodo directly. The "
-        "path should be a URL of the form gs://bucket[/path_prefix]. Note that this "
-        "option will requires GCS authentication and a billing project to pay data "
-        "egress costs."
     ),
 )
 @click.option(
@@ -644,8 +642,7 @@ def pudl_datastore(
     validate: bool,
     list_partitions: bool,
     partition: dict[str, int | str],
-    s3_cache_path: str,
-    gcs_cache_path: str,
+    cloud_cache_path: str,
     bypass_local_cache: bool,
     logfile: pathlib.Path,
     loglevel: str,
@@ -679,8 +676,7 @@ def pudl_datastore(
         cache_path = PudlPaths().input_dir
 
     dstore = Datastore(
-        s3_cache_path=s3_cache_path,
-        gcs_cache_path=gcs_cache_path,
+        cloud_cache_path=cloud_cache_path,
         local_cache_path=cache_path,
     )
 
@@ -696,7 +692,7 @@ def pudl_datastore(
             dstore=dstore,
             datasets=dataset,
             partition=partition,
-            gcs_cache_path=gcs_cache_path,
+            cloud_cache_path=cloud_cache_path,
             bypass_local_cache=bypass_local_cache,
         )
 
