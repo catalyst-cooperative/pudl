@@ -106,7 +106,7 @@ class LocalFileCache(AbstractCache):
         """Adds (or updates) resource to the cache with given value."""
         logger.debug(f"Adding {resource} to {self._resource_path}")
         if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring set({resource})")
+            logger.warning(f"Read only cache: ignoring set({resource})")
             return
         path = self._resource_path(resource)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -116,7 +116,7 @@ class LocalFileCache(AbstractCache):
     def delete(self, resource: PudlResourceKey):
         """Deletes resource from the cache."""
         if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring delete({resource})")
+            logger.warning(f"Read only cache: ignoring delete({resource})")
             return
         self._resource_path(resource).unlink(missing_ok=True)
 
@@ -253,7 +253,7 @@ class S3Cache(AbstractCache):
             ClientError: for S3 errors
         """
         if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring add({resource})")
+            logger.warning(f"Read only cache: ignoring add({resource})")
             return
 
         if self._unsigned:
@@ -275,7 +275,7 @@ class S3Cache(AbstractCache):
             ClientError: for S3 errors
         """
         if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring delete({resource})")
+            logger.warning(f"Read only cache: ignoring delete({resource})")
             return
 
         if self._unsigned:
@@ -363,7 +363,7 @@ class LayeredCache(AbstractCache):
     def add(self, resource: PudlResourceKey, value):
         """Adds (or replaces) resource into the cache with given value."""
         if self.is_read_only():
-            logger.debug(f"Read only cache: ignoring set({resource})")
+            logger.warning(f"Read only cache: ignoring set({resource})")
             return
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
@@ -378,7 +378,7 @@ class LayeredCache(AbstractCache):
     def delete(self, resource: PudlResourceKey):
         """Removes resource from the cache if the cache is not in the read_only mode."""
         if self.is_read_only():
-            logger.debug(f"Readonly cache: not removing {resource}")
+            logger.warning(f"Read only cache: not removing {resource}")
             return
         for cache_layer in self._caches:
             if cache_layer.is_read_only():

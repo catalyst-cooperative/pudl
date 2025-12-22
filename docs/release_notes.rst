@@ -27,7 +27,7 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Switched from caching Zenodo archives in GCS to AWS S3, using our free an public AWS
+* Switched from caching Zenodo archives in GCS to AWS S3, using our free and public AWS
   Open Data Registry bucket at ``s3://pudl.catalyst.coop/zenodo``. This will make it
   easier for open source contributors to run continuous integration tests, since no
   cloud credentials are required to download the raw data from S3, and they will not be
