@@ -4,7 +4,9 @@ import shutil
 import tempfile
 from pathlib import Path
 
+import pytest
 import requests.exceptions as requests_exceptions
+from botocore.exceptions import ClientError
 from google.api_core.exceptions import BadRequest
 from google.cloud.storage.retry import _should_retry
 
@@ -204,3 +206,252 @@ class TestLayeredCache:
         assert not lc.contains(r_new)
         assert not self.cache_1.contains(r_new)
         assert not self.cache_2.contains(r_new)
+
+
+class TestS3Cache:
+    """Unit tests for the S3Cache class."""
+
+    @pytest.fixture
+    def mock_s3_with_credentials(self, mocker):
+        """Fixture providing mocked boto3 components with credentials."""
+        mock_session = mocker.patch("pudl.workspace.resource_cache.boto3.Session")
+        mock_client = mocker.patch("pudl.workspace.resource_cache.boto3.client")
+        mock_creds = mocker.Mock()
+        mock_session.return_value.get_credentials.return_value = mock_creds
+        mock_s3_client = mocker.MagicMock()
+        mock_client.return_value = mock_s3_client
+
+        return {
+            "session": mock_session,
+            "client": mock_client,
+            "credentials": mock_creds,
+            "s3_client": mock_s3_client,
+        }
+
+    @pytest.fixture
+    def mock_s3_without_credentials(self, mocker):
+        """Fixture providing mocked boto3 components without credentials."""
+        mock_session = mocker.patch("pudl.workspace.resource_cache.boto3.Session")
+        mock_client = mocker.patch("pudl.workspace.resource_cache.boto3.client")
+        mock_session.return_value.get_credentials.return_value = None
+        mock_s3_client = mocker.MagicMock()
+        mock_client.return_value = mock_s3_client
+
+        return {
+            "session": mock_session,
+            "client": mock_client,
+            "s3_client": mock_s3_client,
+        }
+
+    def test_invalid_s3_path_raises_value_error(self):
+        """Test that invalid S3 paths raise ValueError."""
+        with pytest.raises(ValueError, match="s3_path should start with s3://"):
+            resource_cache.S3Cache("gs://wrong-scheme/path")
+
+        with pytest.raises(ValueError, match="s3_path should start with s3://"):
+            resource_cache.S3Cache("https://example.com/path")
+
+    def test_initialization_with_credentials(self, mock_s3_with_credentials):
+        """Test S3Cache initialization when AWS credentials are available."""
+        mocks = mock_s3_with_credentials
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix")
+
+        # Verify it created a signed client
+        assert not cache._unsigned
+        assert cache._bucket_name == "test-bucket"
+        mocks["client"].assert_called_once_with("s3")
+
+    def test_initialization_without_credentials(self, mock_s3_without_credentials):
+        """Test S3Cache initialization when no AWS credentials are available."""
+        mocks = mock_s3_without_credentials
+        cache = resource_cache.S3Cache("s3://public-bucket/path")
+
+        # Verify it created an unsigned client
+        assert cache._unsigned
+        assert cache._bucket_name == "public-bucket"
+        # Check that client was called with unsigned config
+        call_args = mocks["client"].call_args
+        assert call_args[0][0] == "s3"
+        assert "config" in call_args[1]
+
+    def test_get_success(self, mock_s3_with_credentials, mocker):
+        """Test successfully retrieving an object from S3."""
+        mocks = mock_s3_with_credentials
+
+        # Mock successful get_object response
+        mock_response = {"Body": mocker.Mock()}
+        mock_response["Body"].read.return_value = b"test content"
+        mocks["s3_client"].get_object.return_value = mock_response
+
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix")
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        content = cache.get(res)
+
+        assert content == b"test content"
+        mocks["s3_client"].get_object.assert_called_once()
+
+    def test_get_not_found_raises_key_error(self, mock_s3_with_credentials):
+        """Test that getting a non-existent object raises KeyError."""
+        mocks = mock_s3_with_credentials
+
+        # Mock NoSuchKey error
+        error_response = {"Error": {"Code": "NoSuchKey"}}
+        mocks["s3_client"].get_object.side_effect = ClientError(
+            error_response, "GetObject"
+        )
+
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix")
+        res = PudlResourceKey("dataset", "doi", "missing.txt")
+
+        with pytest.raises(KeyError, match="not found in S3 bucket"):
+            cache.get(res)
+
+    def test_add_with_credentials(self, mock_s3_with_credentials):
+        """Test adding an object to S3 with credentials."""
+        mocks = mock_s3_with_credentials
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix")
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        cache.add(res, b"new content")
+
+        mocks["s3_client"].put_object.assert_called_once()
+        call_args = mocks["s3_client"].put_object.call_args
+        assert call_args[1]["Bucket"] == "test-bucket"
+        assert call_args[1]["Body"] == b"new content"
+
+    def test_add_without_credentials_raises_error(self, mock_s3_without_credentials):
+        """Test that adding without credentials raises RuntimeError."""
+        cache = resource_cache.S3Cache("s3://public-bucket/path")
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        with pytest.raises(
+            RuntimeError, match="Cannot write to S3 without credentials"
+        ):
+            cache.add(res, b"content")
+
+    def test_add_read_only_does_nothing(self, mock_s3_with_credentials):
+        """Test that add() does nothing when cache is read-only."""
+        mocks = mock_s3_with_credentials
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix", read_only=True)
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        cache.add(res, b"content")
+
+        # Verify put_object was not called
+        mocks["s3_client"].put_object.assert_not_called()
+
+    def test_delete_with_credentials(self, mock_s3_with_credentials):
+        """Test deleting an object from S3 with credentials."""
+        mocks = mock_s3_with_credentials
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix")
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        cache.delete(res)
+
+        mocks["s3_client"].delete_object.assert_called_once()
+        call_args = mocks["s3_client"].delete_object.call_args
+        assert call_args[1]["Bucket"] == "test-bucket"
+
+    def test_delete_without_credentials_raises_error(self, mock_s3_without_credentials):
+        """Test that deleting without credentials raises RuntimeError."""
+        cache = resource_cache.S3Cache("s3://public-bucket/path")
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        with pytest.raises(
+            RuntimeError, match="Cannot delete from S3 without credentials"
+        ):
+            cache.delete(res)
+
+    def test_delete_read_only_does_nothing(self, mock_s3_with_credentials):
+        """Test that delete() does nothing when cache is read-only."""
+        mocks = mock_s3_with_credentials
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix", read_only=True)
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        cache.delete(res)
+
+        # Verify delete_object was not called
+        mocks["s3_client"].delete_object.assert_not_called()
+
+    def test_contains_returns_true_when_object_exists(self, mock_s3_with_credentials):
+        """Test that contains() returns True when object exists in S3."""
+        mocks = mock_s3_with_credentials
+
+        # Mock successful head_object (object exists)
+        mocks["s3_client"].head_object.return_value = {}
+
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix")
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        assert cache.contains(res)
+
+    def test_contains_returns_false_when_object_not_found(
+        self, mock_s3_with_credentials
+    ):
+        """Test that contains() returns False when object doesn't exist."""
+        mocks = mock_s3_with_credentials
+
+        # Mock 404 error
+        error_response = {
+            "Error": {"Code": "404"},
+            "ResponseMetadata": {"HTTPStatusCode": 404},
+        }
+        mocks["s3_client"].head_object.side_effect = ClientError(
+            error_response, "HeadObject"
+        )
+
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix")
+        res = PudlResourceKey("dataset", "doi", "missing.txt")
+
+        assert not cache.contains(res)
+
+    def test_contains_returns_false_for_nosuchkey_error(self, mock_s3_with_credentials):
+        """Test that contains() returns False for NoSuchKey error."""
+        mocks = mock_s3_with_credentials
+
+        # Mock NoSuchKey error
+        error_response = {"Error": {"Code": "NoSuchKey"}}
+        mocks["s3_client"].head_object.side_effect = ClientError(
+            error_response, "HeadObject"
+        )
+
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix")
+        res = PudlResourceKey("dataset", "doi", "missing.txt")
+
+        assert not cache.contains(res)
+
+    def test_contains_raises_on_other_errors(self, mock_s3_with_credentials):
+        """Test that contains() raises exceptions for non-404 errors."""
+        mocks = mock_s3_with_credentials
+
+        # Mock access denied error
+        error_response = {"Error": {"Code": "AccessDenied"}}
+        mocks["s3_client"].head_object.side_effect = ClientError(
+            error_response, "HeadObject"
+        )
+
+        cache = resource_cache.S3Cache("s3://test-bucket/prefix")
+        res = PudlResourceKey("dataset", "doi", "file.txt")
+
+        with pytest.raises(ClientError):
+            cache.contains(res)
+
+    def test_get_object_key_with_prefix(self, mock_s3_with_credentials):
+        """Test that object keys are constructed correctly with a prefix."""
+        cache = resource_cache.S3Cache("s3://test-bucket/my/prefix")
+        res = PudlResourceKey("dataset", "10.5281/zenodo.123", "data.csv")
+
+        key = cache._get_object_key(res)
+
+        # DOI slashes get replaced with dashes
+        assert key == "my/prefix/dataset/10.5281-zenodo.123/data.csv"
+
+    def test_get_object_key_without_prefix(self, mock_s3_with_credentials):
+        """Test that object keys are constructed correctly without a prefix."""
+        cache = resource_cache.S3Cache("s3://test-bucket")
+        res = PudlResourceKey("dataset", "10.5281/zenodo.456", "file.txt")
+
+        key = cache._get_object_key(res)
+
+        assert key == "dataset/10.5281-zenodo.456/file.txt"

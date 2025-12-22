@@ -10,8 +10,7 @@ function send_slack_msg() {
 }
 
 function authenticate_gcp() {
-    # Set the default gcloud project id so the zenodo-cache bucket
-    # knows what project to bill for egress
+    # Set the default gcloud project id so the gcloud storage operations know what project to bill
     echo "Authenticating to GCP"
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
@@ -40,16 +39,13 @@ function run_pudl_etl() {
         alembic upgrade head &&
         ferc_to_sqlite \
             --loglevel DEBUG \
-            --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
             --workers 8 \
             "$PUDL_SETTINGS_YML" &&
         pudl_etl \
             --loglevel DEBUG \
-            --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
             "$PUDL_SETTINGS_YML" &&
         pytest \
             -n auto \
-            --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
             --etl-settings "$PUDL_SETTINGS_YML" \
             --live-dbs test/integration test/unit \
             --no-cov &&
