@@ -2,6 +2,158 @@
 PUDL Release Notes
 =======================================================================================
 
+---------------------------------------------------------------------------------------
+v2026.X.x (2026-XX-XX)
+---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Switched from caching Zenodo archives in GCS to AWS S3, using our free and public AWS
+  Open Data Registry bucket at ``s3://pudl.catalyst.coop/zenodo``. This will make it
+  easier for open source contributors to run continuous integration tests, since no
+  cloud credentials are required to download the raw data from S3, and they will not be
+  subject to the flakiness of the Zenodo API. It will also allow us to access the raw
+  PUDL inputs and associated metadata in environments where we may not easily be able to
+  authenticate to GCS, such as Read The Docs. This was partly an attempt to mitigate the
+  Error 429 "too many requests" responses we have started getting from Zenodo, described
+  in :issue:`4856`. See PR :pr:`4857`.
+
+.. _release-v2025.12.1:
+
+---------------------------------------------------------------------------------------
+v2025.12.1 (2025-12-13)
+---------------------------------------------------------------------------------------
+
+This is a monthly release primarily intended to update the generatores reporting in
+EIA-860M, with some other minor improvements coming along for the ride. These include
+another new EIA Form 176 natural gas disposition table, and experimental access to the
+FERC XBRL derived databases using DuckDB. Details below.
+
+.. note::
+
+   There was a misconfiguration in the build for ``v2025.12.0`` that prevented it from
+   deploying.
+
+Enhancements
+^^^^^^^^^^^^
+
+* We are experimenting with distributing the XBRL-derived databases for FERC Forms 1, 2,
+  6, 60, and 714 using `DuckDB <https://duckdb.org/docs/stable/>`__, which (unlike
+  SQLite) can be queried remotely when stored in a cloud bucket. This will also let us
+  provide access to this relatively raw but complete FERC data through the `PUDL Data
+  Viewer <https://data.catalyst.coop>`__. Note that the XBRL data only covers 2021 to
+  the present. For links and an access example, see :ref:`access-raw-ferc-duckdb`. See
+  PR :pr:`4782` for this change, which is mostly implemented in the
+  1.7.x releases of our `FERC XBRL Extractor <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/releases>`__.
+
+New Data
+^^^^^^^^
+
+EIA-176
+~~~~~~~
+
+Thanks to open source contributions from `SwitchBox <https://switch.box>`__ and funding
+from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems>`__ we continue to bring in more EIA natural gas data.
+
+* Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
+  company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
+  :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through October 2025. See :pr:`4788`.
+
+EIA-861
+~~~~~~~
+* Added EIA-861 re-released final release data from 2024. See :issue:`4826` and PR
+  :pr:`4827`.
+
+FERC Form 6
+~~~~~~~~~~~
+
+* Updated to using the `latest archive of FERC Form 6
+  <https://zenodo.org/records/17119798>`__ to capture a few late revisions. See PR
+  :pr:`4784`.
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added dbt data validations to check the uniqueness of natural primary keys in tables
+  where some elements of the primary key contain ``NULL`` values, preventing them from
+  being used explicitly as primary keys in SQLite. This only covers tables where we had
+  already explicitly identified the natural primary key in our metadata notes. See PR
+  :pr:`4811`.
+
+Bug Fixes
+^^^^^^^^^
+
+* Improve the retry logic we use when uploading a PUDL data release to Zenodo: Catch
+  common transient error status codes and retry the upload instead of continuing as if
+  nothing had gone wrong. When retrying, restart the upload from the beginning of the
+  file rather than uploading a zero-length file. Previously both types of errors
+  (missing files and zero-length files) were only caught through manual inspection of
+  draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
+* Remove row with plant ID 68815 and generator ID ``GAPPV`` that was erroneously
+  included in the 2024 from the EIA 860 generators data. See :issue:`4769` and PR
+  :pr:`4824`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Reduced peak memory usage for :ref:`core_eia860m__changelog_generators` from 22GB to
+  16GB. See issue :issue:`4686` and PR :pr:`4707`.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added ``balancing_authority_code_eia`` and ``balancing_authority_name_eia`` to the
+  set of plant-level attributes that are merged into the denormalized
+  :ref:`out_eia__monthly_generators` and :ref:`out_eia__yearly_generators` tables, as
+  multiple users have requested them. Most recently :user:`sam-hostetter` in issue
+  :issue:`4772`. See :pr:`4776`.
+* Decouple the publication of Zenodo data releases from the nightly and release builds
+  by creating a ``zenodo-data-release`` GitHub Actions workflow that can create a new
+  archive of a PUDL data release from nightly or stable build outputs. This should
+  reduce the idle capacity and runtime of our nightly build VM significantly, and also
+  allow us to retry Zenodo release uploads when Zenodo flakes out. The nightly and
+  release builds will now trigger the ``zenodo-data-release`` workflow using ``curl``
+  and the GitHub API. See issue :issue:`4775` and PR :pr:`4778`.
+* Disabled the distribution of build outputs to S3/GCS during ``workflow_dispatch``
+  builds since these uploads are pretty robust, they slow down the build, we delete the
+  outputs right after uploading them, and there are egress fees associated with sending
+  the data to S3. Build artifacts are still uploaded to ``gs://builds.catalyst.coop``.
+  See PR :pr:`4778`.
+* Reduced the size of our nightly build VM to 8 CPUs & 64GB RAM since that configuration
+  works again after our performance improvements, and it's cheaper and not that much
+  slower than the bigger VM. See :pr:`4778`.
+* Replaced ``fgd_sorbent_consumption_1000_tons`` with ``fgd_sorbent_consumption_tons``
+  and changed units, consumption tons, to be rounded to nearest 100 tons in the
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance` table. See issue :issue:`4301`
+  and PR :pr:`4426`.
+
 .. _release-v2025.11.0:
 
 ---------------------------------------------------------------------------------------

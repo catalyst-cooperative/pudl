@@ -70,7 +70,6 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "Comma Separated Value (.csv)",
         },
-        "field_namespace": "eia",
         "working_partitions": {"years": sorted(set(range(1997, 2024)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
@@ -102,7 +101,6 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "JSON",
         },
-        "field_namespace": "eia",
         "working_partitions": {"years": sorted(set(range(2014, 2024)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
@@ -132,7 +130,6 @@ SOURCES: dict[str, Any] = {
             "respondents": ("Natural gas processing plants."),
             "source_format": "JSON",
         },
-        "field_namespace": "eia",
         "working_partitions": {"years": sorted({2012, 2014, 2017})},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
@@ -164,7 +161,6 @@ SOURCES: dict[str, Any] = {
             "records_liberated": "~1 million",
             "source_format": "Microsoft Excel (.xls/.xlsx)",
         },
-        "field_namespace": "eia",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
@@ -200,12 +196,11 @@ SOURCES: dict[str, Any] = {
             "capacity. Preliminary Monthly Electric Generator Inventory (based on "
             "Form EIA-860M as a supplement to Form EIA-860)"
         ),
-        "field_namespace": "eia",
         "contributors": [],
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-09", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-10", freq="M")
             ],
         },
         "keywords": sorted(
@@ -232,7 +227,6 @@ SOURCES: dict[str, Any] = {
         "description": (
             "EIA Form 861 Annual Electric Power Industry Report, detailed data files."
         ),
-        "field_namespace": "eia",
         "working_partitions": {
             "years": sorted(set(range(2001, 2025))),
         },
@@ -279,7 +273,6 @@ SOURCES: dict[str, Any] = {
             "records_liberated": "~5 million",
             "source_format": "Microsoft Excel (.xls/.xlsx)",
         },
-        "field_namespace": "eia",
         "working_partitions": {
             "years": sorted(set(range(2001, 2026))),
         },
@@ -322,7 +315,6 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "Comma separated values (CSV)",
         },
-        "field_namespace": "eia",
         "working_partitions": {
             "half_years": [
                 f"{year}half{half}" for year in range(2015, 2026) for half in [1, 2]
@@ -361,7 +353,6 @@ SOURCES: dict[str, Any] = {
         "source_file_dict": {
             "source_format": "JSON",
         },
-        "field_namespace": "eia",
         "working_partitions": {
             "years": [2023, 2025],
         },
@@ -397,7 +388,6 @@ SOURCES: dict[str, Any] = {
         "source_file_dict": {
             "source_format": "JSON",
         },
-        "field_namespace": "eia",
         "working_partitions": {"data_set": "electricity"},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -452,7 +442,6 @@ SOURCES: dict[str, Any] = {
             "records_liberated": "~1 billion",
             "source_format": "Comma Separated Value (.csv)",
         },
-        "field_namespace": "epacems",
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
@@ -494,7 +483,6 @@ SOURCES: dict[str, Any] = {
             "records_liberated": "~7000",
             "source_format": "Comma Separated Value (.csv)",
         },
-        "field_namespace": "glue",
         "working_partitions": {"years": sorted(set(range(2018, 2025)))},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -535,7 +523,6 @@ SOURCES: dict[str, Any] = {
             "records_liberated": "~13.2 million (116 raw tables), ~4.7 million (23 clean tables)",
             "source_format": "XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)",
         },
-        "field_namespace": "ferc1",
         "working_partitions": {
             "years": sorted(set(range(1994, 2025))),
         },
@@ -567,7 +554,6 @@ SOURCES: dict[str, Any] = {
             "comprehensive financial and operating report submitted for natural gas "
             "pipelines rate regulation and financial audits."
         ),
-        "field_namespace": "ferc2",
         "working_partitions": {
             # Years 1991-1995 use strange formats that need to be investigated further.
             # Years 1996-1999 come in split archives and full archives and we are going
@@ -598,7 +584,6 @@ SOURCES: dict[str, Any] = {
             "comprehensive financial and operating report submitted for oil "
             "pipelines rate regulation and financial audits."
         ),
-        "field_namespace": "ferc6",
         "working_partitions": {
             # Years 2000-2020 are backed by DBF format.
             # Years 2021-present are backed by XBRL.
@@ -628,7 +613,6 @@ SOURCES: dict[str, Any] = {
             "comprehensive financial and operating report submitted for centralized "
             "service companies."
         ),
-        "field_namespace": "ferc60",
         "working_partitions": {
             "years": sorted(set(range(2006, 2025))),
         },
@@ -659,7 +643,6 @@ SOURCES: dict[str, Any] = {
             "inter-balancing authority area power transfers, and net energy for load, "
             "summer-winter generation peaks and system lambda."
         ),
-        "field_namespace": "ferc714",
         "working_partitions": {
             # 2021 and later data is in XBRL.
             # 2006-2020 data is in monolithic CSV files, so any year means all years.
@@ -820,7 +803,6 @@ SOURCES: dict[str, Any] = {
             "pipeline mileage, facilities, commodities transported, miles by material, "
             "and installation dates."
         ),
-        "field_namespace": "phmsagas",
         "working_partitions": {"years": sorted(set(range(1970, 2025)))},
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
@@ -841,7 +823,6 @@ SOURCES: dict[str, Any] = {
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
-        "field_namespace": "pudl",
         "keywords": ["us", "electricity", "open data", "open source"],
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
@@ -855,7 +836,6 @@ SOURCES: dict[str, Any] = {
             "Exchange Commission (SEC), that gives a comprehensive summary of a "
             "company's financial performance."
         ),
-        "field_namespace": "sec",
         "working_partitions": {
             "tables": [
                 "raw_sec10k__quarterly_filings",

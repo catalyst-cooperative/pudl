@@ -1,5 +1,6 @@
 """Test the PUDL console scripts from within PyTest."""
 
+import os
 from pathlib import Path
 
 import geopandas as gpd
@@ -13,11 +14,11 @@ import sqlalchemy as sa
         # Force the download of one small partition from Zenodo
         "pudl_datastore --dataset ferc60 --bypass-local-cache --partition year=2020",
         # Force the download of one small partition from GCS
-        "pudl_datastore -d ferc60 --bypass-local-cache --gcs-cache-path gs://zenodo-cache.catalyst.coop --partition year=2020",
+        "pudl_datastore -d ferc60 --bypass-local-cache --cloud-cache-path s3://pudl.catalyst.coop/zenodo --partition year=2020",
         # Exercise the datastore validation code
         "pudl_datastore -d ferc60 --validate --partition year=2020",
         # Ensure that all data source partitions are legible
-        "pudl_datastore --list-partitions --gcs-cache-path gs://zenodo-cache.catalyst.coop",
+        "pudl_datastore --list-partitions --cloud-cache-path s3://pudl.catalyst.coop/zenodo",
     ],
 )
 @pytest.mark.script_launch_mode("inprocess")
@@ -120,3 +121,37 @@ def test_resource_description(script_runner, resource_id: str):
         ["resource_description", "-n", resource_id], print_result=True
     )
     assert ret.success
+
+
+@pytest.mark.script_launch_mode("inprocess")
+@pytest.mark.skipif(
+    "ZENODO_SANDBOX_TOKEN_PUBLISH" not in os.environ,
+    reason="Zenodo sandbox token required to exercise uploads",
+)
+def test_zenodo_data_release(script_runner, tmp_path: Path):
+    """Round-trip upload a tiny release directory to the Zenodo sandbox.
+
+    The CLI accepts any fsspec-compatible path. Using ``Path.as_uri()`` yields a
+    ``file://`` prefix so the integration test exercises that codepath while
+    keeping all artifacts confined to pytest's temporary directory management.
+    """
+
+    source_dir = tmp_path / "release"
+    source_dir.mkdir()
+    (source_dir / "README.txt").write_text("Test release contents", encoding="utf-8")
+    (source_dir / "data.csv").write_text("value\n1\n", encoding="utf-8")
+    (source_dir / "metadata.json").write_text("{}\n", encoding="utf-8")
+
+    result = script_runner.run(
+        [
+            "zenodo_data_release",
+            "--env",
+            "sandbox",
+            "--source-dir",
+            source_dir.as_uri(),
+            "--publish",
+        ],
+        print_result=True,
+    )
+
+    assert result.success

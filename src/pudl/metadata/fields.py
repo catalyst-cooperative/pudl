@@ -60,6 +60,148 @@ from pudl.metadata.sources import SOURCES
 # )
 
 FIELD_METADATA: dict[str, dict[str, Any]] = {
+    "delivered_gas_heat_content_mmbtu_per_mcf": {
+        "description": "The average annual heat content of gas delivered directly to consumers.",
+        "unit": "MMBtu_per_Mcf",
+        "type": "number",
+    },
+    "operational_consumption_facility_space_heat_mcf": {
+        "description": (
+            "Volume of natural gas consumed as fuel for space heat of the operator's own facilities within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "operational_consumption_new_pipeline_fill_mcf": {
+        "description": (
+            "Volume of natural gas consumed as fuel for the operator's new pipeline fill within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "operational_consumption_compressors_mcf": {
+        "description": (
+            "Volume of natural gas consumed as fuel for the operator's own pipeline distribution or storage compressor use within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "operational_consumption_lng_vaporization_liquefaction_mcf": {
+        "description": (
+            "Volume of natural gas consumed by the operator for vaporization, liquefaction, and LNG fuel within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "operational_consumption_vehicle_fuel_mcf": {
+        "description": (
+            "Volume of natural gas used in the operator's company-owned fleet within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "operational_consumption_other_mcf": {
+        "description": (
+            "Volume of natural gas consumed as fuel by the operator for other purposes within the report state. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "operational_consumption_other_detail": {
+        "description": (
+            "Free-text detail describing the operator’s specified 'other purposes' for operational natural-gas consumption, corresponding to the volume reported in operational_consumption_other_mcf."
+        ),
+        "type": "string",
+    },
+    "operational_storage_underground_mcf": {
+        "description": (
+            "The total volume added to underground storage operated by the company within the report state, regardless of ownership of the gas. This includes new fields. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "operational_lng_storage_injections_mcf": {
+        "description": (
+            "The total volume added to LNG storage operated by the company within the report state, regardless of ownership of the gas. For LNG import and export marine terminals, this should exclude injections of LNG during the course of routine operations for handling imports, as well as LNG held in storage for future use. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "producer_lease_use_mcf": {
+        "description": (
+            "The total volume of gas used in the company's well, field and lease operations. This field should only be reported by producers. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "producer_returned_for_repressuring_reinjection_mcf": {
+        "description": (
+            "The volume of gas delivered directly from the operator's system to oil or gas fields located within the report state for repressuring, pressure maintenance, and cycling operations. This field should only be reported by producers. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "losses_mcf": {
+        "description": (
+            "Known loss volumes as a result of leaks, damage, accidents, migration and blow down within the report state where the events took place, as well as estimated losses from leaks occurring during distribution activities. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "disposition_distribution_companies_mcf": {
+        "description": (
+            "Disposition to distribution companies within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "disposition_other_pipelines_mcf": {
+        "description": (
+            "Disposition to other pipelines within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "disposition_storage_operators_mcf": {
+        "description": (
+            "Disposition to storage operators within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "total_disposition_mcf": {
+        "description": (
+            "Total disposition within the report state, as reported by the operator. "
+            "This includes disposition to consumers which is reported in core_eia176__yearly_gas_disposition_by_consumer. "
+            "Note that the reported total disposition and the sum of values in this table and core_eia176__yearly_gas_disposition_by_consumer often don't match as it would be expected. "
+            "Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "unaccounted_for_mcf": {
+        "description": (
+            "The difference between gas supply and disposition. A positive entry indicates supply in excess of accounted-for disposition. A negative entry indicates accounted-for disposition exceeds reported supply. This is calculated as the difference between Part 4 Line 7.0 and Part 6 Line 19.0, and is reported as Line 20.0 in the original form."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "disposition_out_of_state_mcf": {
+        # TODO (12-03-2025): When we have created the disaggregated table, update this field description to point at it.
+        "description": (
+            "Total volume of the operator's deliveries across or to state lines or U.S. borders. This has been summed from the detailed data reported by each company on Line 14.0 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
+    "other_disposition_all_other_mcf": {
+        # TODO (12-03-2025): When we have created the disaggregated table, update this field description to point at it.
+        "description": (
+            "Other disposition within the report state that does not fall into one of the other reported categories in lines 10.1-17.0. This has been summed from the detailed data reported by each company on Line 18.4 of the original form in order to preserve the primary key of the table. Reference conditions for measurement are 14.73 psia and 60° Fahrenheit."
+        ),
+        "unit": "Mcf",
+        "type": "number",
+    },
     "consumers": {
         "type": "integer",
         "description": "Number of end-use consumers within the report state.",
@@ -2980,11 +3122,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Code corresponding to name of flue gas desulfurization equipment manufacturer."
         ),
     },
-    "fgd_sorbent_consumption_1000_tons": {
+    "fgd_sorbent_consumption_tons": {
         "type": "number",
-        "unit": "1000_tons",
+        "unit": "tons",
         "description": (
-            "Quantity of flue gas desulfurization sorbent used, to the nearest 0.1 thousand tons."
+            "Quantity of flue gas desulfurization sorbent used, to the nearest 100 ton."
         ),
     },
     "fgd_structure_cost": {
@@ -3858,7 +4000,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "incremental_energy_savings_mwh": {
         "type": "number",
         "description": (
-            "energy savings in the given report year resulting from new participants "
+            "Energy savings in the given report year resulting from new participants "
             "in existing demand response programs and all participants in new demand "
             "response programs."
         ),
@@ -8608,8 +8750,10 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "revenue_class": {
             "type": "string",
-            "description": "Source of revenue: whether revenue originates from gas owned directly by the "
-            "operator (sales) or gas transported by the operator (transport).",
+            "description": (
+                "Source of revenue: whether revenue originates from gas owned directly by the "
+                "operator (sales) or gas transported by the operator (transport)."
+            ),
             "constraints": {"enum": REVENUE_CLASSES_EIA176},
         },
     },

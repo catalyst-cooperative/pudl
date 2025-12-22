@@ -1136,7 +1136,7 @@ def _core_eia923__coalmine(
     # we need an mine id to associate this coalmine table with the frc
     # table. In order to do that, we need to create a clean index, like
     # an autoincremeted id column in a db, which will later be used as a
-    # primary key in the coalmine table and a forigen key in the frc table
+    # primary key in the coalmine table and a foreign key in the frc table
 
     # first we reset the index to get a clean index
     cmi_df = cmi_df.reset_index()
@@ -1417,6 +1417,13 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_dollars")] *= 1000
     fgd_df.columns = fgd_df.columns.str.replace("_1000_dollars", "")  # Rename columns
 
+    # Convert thousands of tons to tons
+    fgd_df.loc[:, fgd_df.columns.str.endswith("_1000_tons")] *= 1000
+    fgd_df.columns = fgd_df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
+    fgd_df.loc[:, "fgd_sorbent_consumption_tons"] = fgd_df.loc[
+        :, "fgd_sorbent_consumption_tons"
+    ].round(-2)
+
     # Convert SO2 test date column to datetime
     # This column only exists for 2008-2011
     # First, convert a few troublesome datetimes that look like m/yy or mm/yy
@@ -1467,7 +1474,7 @@ def fgd_continuity_check(fgd):
         thresholds={
             "fgd_electricity_consumption_mwh": 0.3,
             "fgd_hours_in_service": 0.1,
-            "fgd_sorbent_consumption_1000_tons": 0.2,
+            "fgd_sorbent_consumption_tons": 0.2,
             "so2_removal_efficiency_tested": 0.1,
             "so2_removal_efficiency_annual": 0.1,
         },

@@ -277,20 +277,27 @@ def _core_eia860__generators(
         "ferc_qualifying_facility",
     ]
     gens_df = (
+        # pandas complains when you pass in empty dfs, but it's surprisingly more
+        # memory-expensive to skip the empty dfs and manually add the columns
+        # we need from them back in, so the complainer stays.
         pd.concat([ge_df, gp_df, gr_df, g_df], sort=True)
         .pipe(pudl.helpers.standardize_na_values)
         .dropna(subset=["generator_id", "plant_id_eia"])
         .pipe(
             pudl.helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
+            inplace=True,
         )
-        .replace(to_replace=nulls_replace_cols)
-        .pipe(pudl.helpers.month_year_to_date)
+    )
+    gens_df.replace(to_replace=nulls_replace_cols, inplace=True)  # noqa: PD002
+    gens_df = (
+        gens_df.pipe(pudl.helpers.month_year_to_date)
         .pipe(
             pudl.helpers.simplify_strings,
             columns=["rto_iso_lmp_node_id", "rto_iso_location_wholesale_reporting_id"],
+            copy=False,
         )
-        .pipe(pudl.helpers.convert_to_date)
+        .pipe(pudl.helpers.convert_to_date, copy=False)
     )
     # This manual fix is required before encoding because there's not a unique mapping
     # PA -> PACW in Oregon
@@ -303,7 +310,26 @@ def _core_eia860__generators(
         (gens_df.state == "UT") & (gens_df.balancing_authority_code_eia == "PA"),
         "balancing_authority_code_eia",
     ] = "PACE"
-    gens_df = PUDL_PACKAGE.encode(gens_df)
+    gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
+
+    # spot fix one assumed to be bad technology description. It's assumed to be wrong
+    # because we learned via pudl.output.eia.fill_generator_technology_description
+    # that all other combos of PM code and ESC have a different technology. See #4788
+    # we have to do this after encodeing bc we are dealin with codes
+    bad_tech_mask = (
+        (gens_df.technology_description == "All Other")
+        & (gens_df.prime_mover_code == "OT")
+        & (gens_df.energy_source_code_1 == "OG")
+    )
+    expected_bad_tech_len = 1 if 2025 in gens_df.report_date.dt.year.unique() else 0
+    if len(gens_df[bad_tech_mask]) != expected_bad_tech_len:
+        raise AssertionError(
+            f"Spot fixing: We expect to find {expected_bad_tech_len} record "
+            "which has what we assume is an incorrect technology description, "
+            f"but we found: {len(gens_df[bad_tech_mask])}."
+            f"\n\n{gens_df[bad_tech_mask]}"
+        )
+    gens_df.loc[bad_tech_mask, "technology_description"] = "Other Gases"
 
     gens_df["fuel_type_code_pudl"] = gens_df.energy_source_code_1.str.upper().map(
         pudl.helpers.label_map(
@@ -322,7 +348,17 @@ def _core_eia860__generators(
             null_value=pd.NA,
         )
     )
-
+    # spot fix (remove) a plant with no information about it that EIA confirmed was an error.
+    # See issue #4769.
+    bad_gen_mask = (gens_df["report_date"] == "2024-01-01") & (
+        gens_df["plant_id_eia"] == 68815
+    )
+    if (len_observed := len(gens_df[bad_gen_mask])) >= 2:
+        raise AssertionError(
+            "Spot fixing: We expect to find 1 record for plant_id_eia 68815 in "
+            f"2024-01-01, but found {len_observed}"
+        )
+    gens_df = gens_df[~bad_gen_mask]
     return gens_df
 
 
@@ -373,6 +409,17 @@ def _core_eia860__generators_solar(
             null_value=pd.NA,
         )
     )
+    # spot fix (remove) a plant with no information about it that EIA confirmed was an error.
+    # See issue #4769. The plant is solar so we have to remove it from here too.
+    bad_gen_mask = (solar_df["report_date"] == "2024-01-01") & (
+        solar_df["plant_id_eia"] == 68815
+    )
+    if (len_observed := len(solar_df[bad_gen_mask])) >= 2:
+        raise AssertionError(
+            "Spot fixing: We expect to find 1 record for plant_id_eia 68815 in "
+            f"2024-01-01, but found {len_observed}"
+        )
+    solar_df = solar_df[~bad_gen_mask]
     return solar_df
 
 

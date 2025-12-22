@@ -17,8 +17,20 @@ sources:
           - name: state
           - name: balancing_authority_code_eia
           - name: sales_revenue
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: sales_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: has_net_metering
           - name: has_demand_side_management
           - name: has_time_responsive_programs

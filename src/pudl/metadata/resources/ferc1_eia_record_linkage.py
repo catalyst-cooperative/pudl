@@ -2,13 +2,15 @@
 
 from typing import Any
 
+from pudl.metadata.resource_helpers import inherits_harvested_values_details
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_plant_parts": {
         "description": {
             "additional_summary_text": "all EIA plant parts, for use in matching to FERC 1.",
-            "usage_warnings": ["aggregation_hazard"],
+            "usage_warnings": ["aggregation_hazard", "harvested"],
             "additional_details_text": (
-                """Practically speaking, a plant is a collection of generator(s). There
+                f"""Practically speaking, a plant is a collection of generator(s). There
 are many attributes of generators (i.e. prime mover, primary fuel source, technology
 type). We can use these generator attributes to group generator records into larger
 aggregate records which we call "plant parts". A plant part is a record which
@@ -30,7 +32,9 @@ portion records are labeled in the ``ownership_record_type`` column as ``owned``
 and the total records are labeled as ``total``.
 
 This table includes A LOT of duplicative information about EIA plants. It is primarily
-meant for use as an input into the record linkage between FERC1 plants and EIA."""
+meant for use as an input into the record linkage between FERC1 plants and EIA.
+
+{inherits_harvested_values_details("generators, plants, and utilities")}"""
             ),
         },
         "schema": {
@@ -94,7 +98,26 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
     "out_eia__yearly_generators_by_ownership": {
         "description": {
             "additional_summary_text": "all EIA generators with ownership integrated.",
-            "usage_warnings": ["aggregation_hazard"],
+            "additional_details_text": f"""Generators that report to EIA can have
+multiple utility owners. EIA reports the ownership fraction for each of the owners
+of generators (see :ref:`core_eia860__scd_ownership`). This table includes two records
+for each generator's owner: one record represents a total ownership stake and the
+other record represents a proportional ownership stake (the ``ownership_record_type``
+column labeled as "total" and "owned" respectively). All of the values reported for
+these generator-owner records are scaled to the ownership stake (represented by
+``fraction_owned``).
+
+This table was created to represent every possible version of ownership slices of the
+EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_parts`.
+
+{inherits_harvested_values_details("generators, plants, and utilities")}""",
+            "usage_warnings": ["aggregation_hazard", "harvested"],
+            "additional_primary_key_text": (
+                "This table would have a primary key of the "
+                "following columns, except there are ~200 records without utility IDs: "
+                "['plant_id_eia', 'generator_id', 'report_date', 'utility_id_eia', "
+                "'ownership_record_type']."
+            ),
         },
         "schema": {
             "fields": [
@@ -130,7 +153,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
                 "capacity_eoy_mw",
                 "fraction_owned",
                 "ownership_record_type",
-            ],
+            ]
         },
         "sources": ["eia860", "eia923"],
         "etl_group": "outputs",
@@ -139,6 +162,7 @@ meant for use as an input into the record linkage between FERC1 plants and EIA."
     "out_eia__yearly_assn_plant_parts_plant_gen": {
         "description": {
             "additional_summary_text": "plant parts (identified as ``record_id_eia``) and  'plant_gen' records (identified as ``record_id_eia_plant_gen``) from the :ref:`out_eia__yearly_plant_parts` table.",
+            "layer_code": "out_narrow",
             "usage_warnings": ["aggregation_hazard"],
             "additional_details_text": """
 The purpose of this table is to help determine what generator records are associated
@@ -178,7 +202,7 @@ the ``record_id_eia_plant_gen`` record.""",
     "out_pudl__yearly_assn_eia_ferc1_plant_parts": {
         "description": {
             "additional_summary_text": "power plant data reported in FERC Form 1 and any available EIA data related to the plant parts covered by each FERC Form 1 record.",
-            "additional_details_text": """This table
+            "additional_details_text": f"""This table
 answers the question "What EIA data reported about plants or generators should be
 associated with a given plant record found in the FERC Form 1?"
 
@@ -192,7 +216,10 @@ may report the same plant in different ways in different years.
 The EIA data associated with each FERC plant record comes from our Plant Parts EIA
 table, :ref:`out_eia__yearly_plant_parts`.
 The EIA data in each record represents an aggregation of several slices of an EIA
-plant, across both physical characteristics and utility ownership.""",
+plant, across both physical characteristics and utility ownership.
+
+{inherits_harvested_values_details("generators and plants")}""",
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [

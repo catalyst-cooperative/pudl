@@ -9,6 +9,14 @@ sources:
               arguments:
                 table_name: out_eia__yearly_generators_by_ownership
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - dbt_expectations.expect_compound_columns_to_be_unique:
+              arguments:
+                column_list:
+                  - plant_id_eia
+                  - generator_id
+                  - utility_id_eia
+                  - report_date
+                  - ownership_record_type
         columns:
           - name: plant_id_eia
           - name: generator_id
