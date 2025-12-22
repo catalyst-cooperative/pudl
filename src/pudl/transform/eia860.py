@@ -348,7 +348,17 @@ def _core_eia860__generators(
             null_value=pd.NA,
         )
     )
-
+    # spot fix (remove) a plant with no information about it that EIA confirmed was an error.
+    # See issue #4769.
+    bad_gen_mask = (gens_df["report_date"] == "2024-01-01") & (
+        gens_df["plant_id_eia"] == 68815
+    )
+    if (len_observed := len(gens_df[bad_gen_mask])) >= 2:
+        raise AssertionError(
+            "Spot fixing: We expect to find 1 record for plant_id_eia 68815 in "
+            f"2024-01-01, but found {len_observed}"
+        )
+    gens_df = gens_df[~bad_gen_mask]
     return gens_df
 
 
@@ -399,6 +409,17 @@ def _core_eia860__generators_solar(
             null_value=pd.NA,
         )
     )
+    # spot fix (remove) a plant with no information about it that EIA confirmed was an error.
+    # See issue #4769. The plant is solar so we have to remove it from here too.
+    bad_gen_mask = (solar_df["report_date"] == "2024-01-01") & (
+        solar_df["plant_id_eia"] == 68815
+    )
+    if (len_observed := len(solar_df[bad_gen_mask])) >= 2:
+        raise AssertionError(
+            "Spot fixing: We expect to find 1 record for plant_id_eia 68815 in "
+            f"2024-01-01, but found {len_observed}"
+        )
+    solar_df = solar_df[~bad_gen_mask]
     return solar_df
 
 

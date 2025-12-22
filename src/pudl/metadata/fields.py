@@ -3977,7 +3977,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "incremental_energy_savings_mwh": {
         "type": "number",
         "description": (
-            "energy savings in the given report year resulting from new participants "
+            "Energy savings in the given report year resulting from new participants "
             "in existing demand response programs and all participants in new demand "
             "response programs."
         ),
