@@ -10,7 +10,7 @@ on:
       - "src/pudl/workspace/datastore.py"
 
 env:
-  S3_ZENODO_CACHE: s3://pudl.catalyst.coop/zenodo/
+  CLOUD_CACHE_PATH: s3://pudl.catalyst.coop/zenodo/
   PUDL_OUTPUT: ~/pudl-work/output
   PUDL_INPUT: ~/pudl-work/input/
 
@@ -58,7 +58,7 @@ jobs:
 
       - name: Update AWS S3 cache with any new Zenodo archives
         run: |
-          pudl_datastore --s3-cache-path ${{ env.S3_ZENODO_CACHE }} --bypass-local-cache --loglevel DEBUG
+          pudl_datastore --cloud-cache-path ${{ env.CLOUD_CACHE_PATH }} --bypass-local-cache --loglevel DEBUG
 
   zenodo-cache-sync-notify:
     runs-on: ubuntu-latest

@@ -14,11 +14,11 @@ import sqlalchemy as sa
         # Force the download of one small partition from Zenodo
         "pudl_datastore --dataset ferc60 --bypass-local-cache --partition year=2020",
         # Force the download of one small partition from GCS
-        "pudl_datastore -d ferc60 --bypass-local-cache --s3-cache-path s3://pudl.catalyst.coop/zenodo --partition year=2020",
+        "pudl_datastore -d ferc60 --bypass-local-cache --cloud-cache-path s3://pudl.catalyst.coop/zenodo --partition year=2020",
         # Exercise the datastore validation code
         "pudl_datastore -d ferc60 --validate --partition year=2020",
         # Ensure that all data source partitions are legible
-        "pudl_datastore --list-partitions --s3-cache-path s3://pudl.catalyst.coop/zenodo",
+        "pudl_datastore --list-partitions --cloud-cache-path s3://pudl.catalyst.coop/zenodo",
     ],
 )
 @pytest.mark.script_launch_mode("inprocess")
