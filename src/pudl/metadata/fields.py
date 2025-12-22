@@ -7359,7 +7359,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "supporting_structure_type": {
         "type": "string",
-        "description": "Supporting structure of the transmission line.",
+        "description": (
+            "Type of supporting structure for the transmission line. "
+            "Categorized values: pole, h_frame, tower, underground."
+        ),
+    },
+    "supporting_structure_material": {
+        "type": "string",
+        "description": (
+            "Material used in the supporting structure for the transmission line. "
+            "Categorized values: steel, wood, concrete."
+        ),
     },
     "can_switch_oil_gas": {
         "type": "boolean",

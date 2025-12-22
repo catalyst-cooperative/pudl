@@ -4604,9 +4604,81 @@ class TransmissionLinesTableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_LINES
     has_unique_record_ids: bool = False
 
+    def split_supporting_structure(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Split supporting_structure_type into structure type and material columns.
+
+        The original column contains values that may specify structure type, material,
+        or both. This method creates two new columns by applying categorization to
+        extract both pieces of information from the original values.
+
+        Args:
+            df: DataFrame with supporting_structure_type column.
+
+        Returns:
+            DataFrame with supporting_structure_type and supporting_structure_material columns.
+        """
+        from pudl.transform.classes import (
+            StringCategories,
+            StringNormalization,
+            categorize_strings,
+            normalize_strings,
+        )
+        from pudl.transform.params.ferc1 import (
+            FERC1_STRING_NORM,
+            SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES,
+            SUPPORTING_STRUCTURE_TYPE_CATEGORIES,
+        )
+
+        if "supporting_structure_type" not in df.columns:
+            return df
+
+        # Normalize the column before categorization to ensure lowercase matching
+        # This is necessary because split_supporting_structure() is called before
+        # the parent class's normalize_strings() method.
+        # Use nullable=True to preserve NA values during normalization.
+        original_col = df["supporting_structure_type"].copy()
+        norm_params = {**FERC1_STRING_NORM, "nullable": True}
+        normalized_col = normalize_strings(
+            original_col, StringNormalization(**norm_params)
+        )
+
+        # Check for uncategorized values and fail if found
+        structure_type_params = StringCategories(**SUPPORTING_STRUCTURE_TYPE_CATEGORIES)
+        material_params = StringCategories(**SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES)
+
+        uncategorized_structure = set(normalized_col.dropna()).difference(
+            structure_type_params.mapping
+        )
+        uncategorized_material = set(normalized_col.dropna()).difference(
+            material_params.mapping
+        )
+
+        if uncategorized_structure or uncategorized_material:
+            raise ValueError(
+                f"{self.table_id.value}: Found uncategorized supporting_structure_type "
+                f"values. Structure: {uncategorized_structure}, "
+                f"Material: {uncategorized_material}. "
+                "These must be added to the category dictionaries before the ETL can proceed."
+            )
+
+        # Categorize structure type (using normalized column)
+        df["supporting_structure_type"] = categorize_strings(
+            normalized_col, structure_type_params
+        )
+
+        # Categorize material (using normalized column)
+        df["supporting_structure_material"] = categorize_strings(
+            normalized_col, material_params
+        )
+
+        return df
+
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
-        """Do some string-to-numeric ninja moves."""
+        """Transform transmission lines table, splitting structure type and material."""
         df["num_transmission_circuits"] = pd.to_numeric(df["num_transmission_circuits"])
+        # Split supporting_structure_type before calling super().transform_main()
+        # which will apply categorize_strings to the new columns
+        df = self.split_supporting_structure(df)
         return super().transform_main(df)
 
 

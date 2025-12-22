@@ -772,6 +772,167 @@ fuel in the FERC Form 1 Reporting.
 Case is ignored, as all fuel strings are converted to lower case in the data set.
 """
 
+SUPPORTING_STRUCTURE_TYPE_CATEGORIES: dict[str, set[str]] = {
+    "categories": {
+        "pole": {
+            "pole",
+            "poles",
+            "sp",
+            "s-p",
+            "s-s-p",
+            "s-w-p",
+            "single pole",
+            "single w.p.",
+            "single w.p",
+            "wood pole",  # Wood pole (material + structure)
+            "wood poles",
+            "steel pole",  # Steel pole (material + structure)
+            "steel poles",
+            "1",  # FERC code for single pole
+            "(1)",
+            "(1) steel",
+            "(1) wood",
+        },
+        "h_frame": {
+            "h-frame",
+            "h frame",
+            "hframe",
+            "hfrm",
+            "h",
+            "hfw",
+            "wh",
+            "w-h-f",
+            "w-h fr.",
+            "w-h-fr",
+            "wood h-frame",
+            "wood h frame",
+            "wood h",
+            "wood - h",
+            "wd-h-frame",
+            "steel h-frame",
+            "steel hfrm",
+            "conc hfrm",
+            "2",  # FERC code for H-frame
+            "(2)",
+            "(2) wood",
+        },
+        "tower": {
+            "tower",
+            "towers",
+            "twr",
+            "t",
+            "ts",
+            "steel tower",
+            "steel towers",
+            "steel twr",
+            "latticetower",
+            "s-t",
+            "s-steel",
+            "3",  # FERC code for tower
+            "(3)",
+            "(3) steel",
+        },
+        "underground": {
+            "underground",
+            "ug",
+            "u",
+            "4",  # FERC code for underground
+            "(4)",
+        },
+        "na_category": {
+            "na_category",
+            "various",
+            "0",
+        },
+    }
+}
+"""Mapping from canonical structure types to observed values in FERC Form 1 Schedule 422.
+
+Case is ignored, as all strings are converted to lower case in the data set.
+"""
+
+SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES: dict[str, set[str]] = {
+    "categories": {
+        "steel": {
+            "steel",
+            "s-steel",
+            "s-t",
+            "s-p",
+            "s-s-p",
+            "s-w-p",
+            "st",
+            "steel tower",
+            "steel towers",
+            "steel pole",
+            "steel poles",
+            "steel twr",
+            "steel h-frame",
+            "steel hfrm",
+            "polesteel",
+            "(1) steel",
+            "(3) steel",
+        },
+        "wood": {
+            "wood",
+            "wp",
+            "w-p",
+            "w-h-f",
+            "w-h fr.",
+            "wood pole",
+            "wood poles",
+            "wood h-frame",
+            "wood h frame",
+            "wood h",
+            "wood - h",
+            "wd-h-frame",
+            "polewood",
+            "single w.p.",
+            "single w.p",
+            "(2) wood",
+        },
+        "concrete": {
+            "concrete",
+            "cement",
+            "conc",
+            "conc hfrm",
+        },
+        "na_category": {
+            "na_category",
+            "tower",  # Tower without material specified
+            "towers",
+            "t",
+            "ts",
+            "twr",
+            "h-frame",  # H-frame without material specified
+            "h frame",
+            "hframe",
+            "hfrm",
+            "h",
+            "hfw",
+            "pole",  # Pole without material specified
+            "poles",
+            "sp",
+            "underground",  # Underground doesn't have material
+            "ug",
+            "u",
+            "various",
+            "0",
+            "1",  # Just the code, no material
+            "2",
+            "3",
+            "4",
+            "(1)",
+            "(2)",
+            "(3)",
+            "(4)",
+        },
+    }
+}
+"""Mapping from canonical materials to observed values in FERC Form 1 Schedule 422.
+
+Case is ignored, as all strings are converted to lower case in the data set.
+"""
+
 FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
     "categories": {
         "ton": {
