@@ -2,6 +2,41 @@
 PUDL Release Notes
 =======================================================================================
 
+---------------------------------------------------------------------------------------
+v2026.X.x (2026-XX-XX)
+---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes
+^^^^^^^^^
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Switched from caching Zenodo archives in GCS to AWS S3, using our free and public AWS
+  Open Data Registry bucket at ``s3://pudl.catalyst.coop/zenodo``. This will make it
+  easier for open source contributors to run continuous integration tests, since no
+  cloud credentials are required to download the raw data from S3, and they will not be
+  subject to the flakiness of the Zenodo API. It will also allow us to access the raw
+  PUDL inputs and associated metadata in environments where we may not easily be able to
+  authenticate to GCS, such as Read The Docs. This was partly an attempt to mitigate the
+  Error 429 "too many requests" responses we have started getting from Zenodo, described
+  in :issue:`4856`. See PR :pr:`4857`.
+
 .. _release-v2025.12.1:
 
 ---------------------------------------------------------------------------------------
