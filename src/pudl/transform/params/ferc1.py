@@ -784,9 +784,9 @@ SUPPORTING_STRUCTURE_TYPE_CATEGORIES: dict[str, set[str]] = {
             "single pole",
             "single w.p.",
             "single w.p",
-            "wood pole",  # Wood pole (material + structure)
+            "wood pole",
             "wood poles",
-            "steel pole",  # Steel pole (material + structure)
+            "steel pole",
             "steel poles",
             "1",  # FERC code for single pole
             "(1)",

@@ -4632,10 +4632,6 @@ class TransmissionLinesTableTransformer(Ferc1AbstractTableTransformer):
         if "supporting_structure_type" not in df.columns:
             return df
 
-        # Normalize the column before categorization to ensure lowercase matching
-        # This is necessary because split_supporting_structure() is called before
-        # the parent class's normalize_strings() method.
-        # Use nullable=True to preserve NA values during normalization.
         original_col = df["supporting_structure_type"].copy()
         norm_params = {**FERC1_STRING_NORM, "nullable": True}
         normalized_col = normalize_strings(
