@@ -114,6 +114,9 @@ def generate_batch_config():
         container_command=args.container_command,
         container_arg=args.container_arg,
         container_env=args.container_env,
+        vcpu=args.vcpu,
+        mem_gb=args.mem_gb,
+        disk_gb=args.disk_gb,
     )
 
     logger.info(f"Writing to {args.output}")
