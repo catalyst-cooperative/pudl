@@ -8616,6 +8616,550 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Non-US postal code of the company's mailing address.",
     },
+    "filer_unique_id": {
+        "type": "string",
+        "description": (
+            "(Seller) An identifier (e.g., “FS1”, “FS2”) used to designate a record"
+            " containing Seller identification information. One record for each"
+            " seller company must be included in an EQR for a given quarter."
+            " (Agent) – An identifier (i.e., “FA1”) used to designate a record"
+            " containing Agent identification information. One record with the FA1"
+            " identifier must be included in an EQR for a given quarter."
+        ),
+    },
+    "company_id_ferc": {
+        "type": "string",
+        "description": (
+            "The Company Identifier (CID) obtained through FERC's"
+            " Company Registration system."
+        ),
+    },
+    "seller_company_id_ferc": {
+        "type": "string",
+        "description": (
+            "The Company Identifier (CID) obtained through FERC's"
+            " Company Registration system corresponding to the selling company."
+        ),
+    },
+    "contact_name": {
+        "type": "string",
+        "description": (
+            "(Seller) – The name of the contact for the company authorized to make"
+            " sales as indicated in the company’s FERC tariff(s) or that is required to"
+            " file the EQR under section 220 of the Federal Power Act."
+            " (Agent) – Name of the person who prepared the filing"
+        ),
+    },
+    "contact_address": {
+        "type": "string",
+        "description": "Street address for contact identified in contact_name.",
+    },
+    "contact_city": {
+        "type": "string",
+        "description": "City for contact identified in contact_name.",
+    },
+    "contact_state": {
+        "type": "string",
+        "description": "State for contact identified in contact_name.",
+    },
+    "contact_zip": {
+        "type": "string",
+        "description": "Zip code for contact identified in contact_name.",
+    },
+    "contact_country_name": {
+        "type": "string",
+        "description": "Country (USA, Canada, Mexico, or United Kingdom) for contact identified in contact_name.",
+    },
+    "contact_phone": {
+        "type": "string",
+        "description": "Phone number for contact identified in contact_name.",
+    },
+    "contact_email": {
+        "type": "string",
+        "description": "Email for contact identified in contact_name.",
+    },
+    "transactions_reported_to_index_price_publishers": {
+        "type": "boolean",
+        "description": (
+            "Sellers should indicate whether they have reported their sales"
+            " transactions to index price publisher(s). If they have, Sellers should"
+            " indicate specifically which index publisher(s) in Field Number 73."
+        ),
+    },
+    "year_quarter": {
+        "type": "string",
+        "description": "Year-quarter corresponding to record. Formatted like YYYYq{1-4}.",
+        "constraints": {
+            "pattern": r"\d{4}q[1-4]",
+        },
+    },
+    "contract_unique_id": {
+        "type": "string",
+        "description": (
+            "An identifier beginning with the letter “C” and followed by a number"
+            " (e.g., 'C1', 'C2') used to designate a record containing contract information."
+            " Note that these contract IDs may only be unique within the context of a particular"
+            " seller, seller-buyer pair, or timeframe. FERC documentation of the field is limited."
+        ),
+    },
+    "seller_company_name": {
+        "type": "string",
+        "description": (
+            "The name of the company that is authorized to make sales as indicated"
+            " in the company’s FERC tariff(s) or that is required to file the EQR"
+            " under section 220 of the Federal Power Act. This name must match the"
+            " name provided as seller_company_name in the core_ferceqr__quarterly_identity"
+            " table. There are a handful of cases in which this requirement is violated, so any"
+            " joins between tables should rely on company_id_ferc, not the company names."
+        ),
+    },
+    "customer_company_name": {
+        "type": "string",
+        "description": (
+            "The name of the purchaser of contract products and services. Unlike the"
+            " seller_company_name this name is not guaranteed to match a name in the"
+            " core_ferceqr__quarterly_identity name. In addition, the same customer company"
+            " may appear with different names in different contracts and transactions, since"
+            " this field is an unconstrained string chosen by the seller."
+        ),
+    },
+    "contract_affiliate": {
+        "type": "boolean",
+        "description": (
+            "If True, this field indicates the customer is an affiliate of the seller."
+            " The customer is an affiliate if it controls, is controlled by, or is under"
+            " common control with the seller. This includes a division that operates"
+            " as a functional unit. A customer of a seller who is an Exempt Wholesale"
+            " Generator may be defined as an affiliate under the Public Utility"
+            " Holding Company Act and the FPA."
+        ),
+    },
+    "ferc_tariff_reference": {
+        "type": "string",
+        "description": (
+            "The FERC tariff reference cites the document that specifies the terms"
+            " and conditions under which a Seller is authorized to make transmission"
+            " sales, power sales or sales of related jurisdictional services at cost-based"
+            " rates or at market-based rates. If the sales are market-based, the tariff"
+            " that is specified in the FERC order granting the Seller Market Based"
+            " Rate Authority must be listed. If a non-public utility does not have a"
+            " FERC Tariff Reference, it should enter “NPU” for the FERC Tariff Reference."
+        ),
+    },
+    "contract_service_agreement_id": {
+        "type": "string",
+        "description": (
+            "Unique identifier given to each service agreement that can be used by"
+            " the Seller to produce the agreement, if requested. The identifier may be"
+            " the number assigned by FERC for those service agreements that have"
+            " been filed with and accepted by the Commission, or it may be generated"
+            " as part of an internal identification system."
+        ),
+    },
+    "contract_execution_date": {
+        "type": "date",
+        "description": (
+            "The date the contract was signed. If the parties signed on different dates,"
+            " use the most recent date signed."
+        ),
+    },
+    "commencement_date_of_contract_term": {
+        "type": "date",
+        "description": (
+            "The date the terms of the contract reported in fields 18, 23 and 25"
+            " through 44 (as defined in the data dictionary) became effective. If those"
+            " terms became effective on multiple dates (i.e., due to one or more"
+            " amendments), the date to be reported in this field is the date the most"
+            " recent amendment became effective. If the contract or the most recent"
+            " reported amendment does not have an effective date, the date when"
+            " service began pursuant to the contract or most recent reported"
+            " amendment may be used. If the terms reported in fields 18, 23 and 25"
+            " through 44 have not been amended since January 1, 2009, the initial"
+            " date the contract became effective (or absent an effective date the initial"
+            " date when service began) may be used."
+        ),
+    },
+    "contract_termination_date": {
+        "type": "date",
+        "description": "The date that the contract expires.",
+    },
+    "actual_termination_date": {
+        "type": "date",
+        "description": "The date the contract actually terminates.",
+    },
+    "extension_provision_description": {
+        "type": "string",
+        "description": "Description of terms that provide for the continuation of the contract.",
+    },
+    "class_name": {
+        "type": "string",
+        "description": (
+            "F - Firm: For transmission sales, a service or product that always has priority over"
+            " non-firm service. For power sales, a service or product that is not"
+            " interruptible for economic reasons."
+            " NF - Non-firm: For transmission sales, a service that is reserved and/or scheduled on an"
+            " as-available basis and is subject to curtailment or interruption at a lesser"
+            " priority compared to Firm service. For an energy sale, a service or"
+            " product for which delivery or receipt of the energy may be interrupted"
+            " for any reason or no reason, without liability on the part of either the"
+            " buyer or seller."
+            " UP - Unit Power Sale: Designates a dedicated sale of energy and capacity from one or more"
+            " than one specified generation unit(s)."
+            " N/A: To be used only when the other available Class Names do not apply."
+        ),
+        "constraints": {
+            "enum": ["F", "NF", "UP", "BA"],
+        },
+    },
+    "term_name": {
+        "type": "string",
+        "description": (
+            "Contracts with durations of one year or greater are long-term (LT)."
+            " Contracts with shorter durations are short-term (ST)."
+        ),
+        "constraints": {
+            "enum": ["LT", "ST"],
+        },
+    },
+    "increment_name": {
+        "type": "string",
+        "description": (
+            "5: Terms of the contract (if specifically noted in the contract) set for more"
+            " than 0 minutes and less than or equal to 5 minutes (> 0 and ≤ 5 minutes)."
+            " 15: Terms of the contract (if specifically noted in the contract) set for more"
+            " than 5 minutes and less than or equal to 15 minutes (> 5 and ≤ 15 minutes)."
+            " H: Terms of the contract (if specifically noted in the contract) set for more"
+            " than 15 minutes and less than or equal to 6 hours (> 15 minutes and ≤ 6 hours)."
+            " D: Terms of the contract (if specifically noted in the contract) set for more"
+            " than 6 and up to 60 hours (> 6 and ≤ 60 hours)."
+            " W: Terms of the contract (if specifically noted in the contract) set for over"
+            " 60 hours and up to 168 hours (> 60 and ≤ 168 hours)."
+            " M: Terms of the contract (if specifically noted in the contract) set for more"
+            " than 168 hours up to, but not including, one year (> 168 hours and < 1 year)."
+            " Y: Terms of the contract (if specifically noted in the contract) set for one year or more (≥ 1 year)."
+            " N/A: Terms of the contract do not specify an increment."
+        ),
+        "constraints": {
+            "enum": ["5", "15", "H", "D", "W", "M", "Y"],
+        },
+    },
+    "increment_peaking_name": {
+        "type": "string",
+        "description": (
+            "FP: The product described may be sold during those hours designated as on-"
+            "peak and off-peak at the point of delivery."
+            " OP: The product described may be sold only during those hours designated"
+            " as off-peak at the point of delivery."
+            " P: The product described may be sold only during those hours designated"
+            " as on-peak at the point of delivery."
+            " N/A: To be used only when the increment peaking name is not specified in the contract."
+        ),
+        "constraints": {
+            "enum": ["FP", "OP", "P"],
+        },
+    },
+    "product_type_name": {
+        "type": "string",
+        "description": (
+            "CB: Energy, capacity or ancillary services sold under a FERC-approved cost-based rate tariff."
+            " CR: An agreement under which a transmission provider sells, assigns or transfers all or portion of its rights to an eligible customer."
+            " CR-AD: Transmission capacity reassignments reported in Atlantic Daylight time."
+            " CR-AP: Transmission capacity reassignments reported in Atlantic Prevailing time."
+            " CR-AS: Transmission capacity reassignments reported in Atlantic Standard time."
+            " CR-CD: Transmission capacity reassignments reported in Central Daylight time."
+            " CR-CP: Transmission capacity reassignments reported in Central Prevailing time."
+            " CR-CS: Transmission capacity reassignments reported in Central Standard time."
+            " CR-ED: Transmission capacity reassignments reported in Eastern Daylight time."
+            " CR-EP: Transmission capacity reassignments reported in Eastern Prevailing time."
+            " CR-ES: Transmission capacity reassignments reported in Eastern Standard time."
+            " CR-MD: Transmission capacity reassignments reported in Mountain Daylight time."
+            " CR-MP: Transmission capacity reassignments reported in Mountain Prevailing time."
+            " CR-MS: Transmission capacity reassignments reported in Mountain Standard time."
+            " CR-PD: Transmission capacity reassignments reported in Pacific Daylight time."
+            " CR-PP: Transmission capacity reassignments reported in Pacific Prevailing time."
+            " CR-PS: Transmission capacity reassignments reported in Pacific Standard time."
+            " MB: Energy, capacity or ancillary services sold under the seller’s FERC-approved market-based rate tariff."
+            " T: The product is sold under a FERC-approved transmission tariff."
+            " NPU: The product is sold by a non-public utility that is required to file the"
+            " EQR under section 220 of the Federal Power Act."
+            " OTHER: The product cannot be characterized by the other product type names."
+        ),
+        "constraints": {
+            "enum": [
+                "CB",
+                "CR",
+                "CR-AD",
+                "CR-AP",
+                "CR-AS",
+                "CR-CD",
+                "CR-CP",
+                "CR-CS",
+                "CR-ED",
+                "CR-EP",
+                "CR-ES",
+                "CR-MD",
+                "CR-MP",
+                "CR-MS",
+                "CR-PD",
+                "CR-PP",
+                "CR-PS",
+                "MB",
+                "T",
+                "NPU",
+                "OTHER",
+            ],
+        },
+    },
+    "product_name": {
+        "type": "string",
+        "description": "Description of product being offered.",
+    },
+    "quantity": {
+        "type": "number",
+        "description": "Quantity for the contract product identified.",
+    },
+    "rate": {
+        "type": "number",
+        "description": "The charge for the product per unit as stated in the contract.",
+    },
+    "rate_units": {  # FERC EQR
+        "type": "string",
+        "description": "Measure stated in the contract for the product sold. FERC EQR.",
+        "constraints": {
+            "enum": [
+                "$/KV",
+                "$/KVA",
+                "$/KVR",
+                "$/KW",
+                "$/KWH",
+                "$/KW-DAY",
+                "$/KW-MO",
+                "$/KW-WK",
+                "$/KW-YR",
+                "$/MW",
+                "$/MWH",
+                "$/MW-DAY",
+                "$/MW-MO",
+                "$/MW-WK",
+                "$/MW-YR",
+                "$/MVAR-YR",
+                "$/RKVA",
+                "CENTS",
+                "CENTS/KVR",
+                "CENTS/KWH",
+                "FLAT RATE",
+            ],
+        },
+    },
+    "units": {  # FERC EQR
+        "type": "string",
+        "description": "Measure stated in the contract for the product sold.",
+        "constraints": {
+            "enum": [
+                "KV",
+                "KVA",
+                "KVR",
+                "KW",
+                "KWH",
+                "KW-DAY",
+                "KW-MO",
+                "KW-WK",
+                "KW-YR",
+                "MVAR-YR",
+                "MW",
+                "MWH",
+                "MW-DAY",
+                "MW-MO",
+                "MW-WK",
+                "MW-YR",
+                "RKVA",
+                "FLAT RATE",
+            ]
+        },
+    },
+    "rate_minimum": {
+        "type": "number",
+        "description": "Minimum rate to be charged per the contract, if a range is specified.",
+    },
+    "rate_maximum": {
+        "type": "number",
+        "description": "Maximum rate to be charged per the contract, if a range is specified.",
+    },
+    "rate_description": {
+        "type": "string",
+        "description": (
+            "Text description of rate. If the rate is currently available on the"
+            " FERC website, a citation of the FERC Accession Number and"
+            " the relevant FERC tariff including page number or section may"
+            " be included instead of providing the entire rate algorithm. If the"
+            " rate is not available on the FERC website, include the rate"
+            " algorithm, if rate is calculated. If the algorithm would exceed"
+            " the 300 character field limit, it may be provided in a descriptive"
+            " summary (including bases and methods of calculations) with a"
+            " detailed citation of the relevant FERC tariff including page"
+            " number and section."
+        ),
+    },
+    "point_of_receipt_balancing_authority": {
+        "type": "string",
+        "description": (
+            "The registered Balancing Authority (formerly called NERC"
+            " Control Area) where service begins for a transmission or"
+            " transmission-related jurisdictional sale. The Balancing"
+            " Authority will be identified with the abbreviation used in OASIS"
+            " applications. If receipt occurs at a trading hub, the term 'Hub'"
+            " should be used."
+        ),
+    },
+    "point_of_receipt_specific_location": {
+        "type": "string",
+        "description": (
+            "The specific location at which the product is received if"
+            " designated in the contract. If receipt occurs at a trading hub, a"
+            " standardized hub name must be used. If more points of receipt"
+            " are listed in the contract than can fit into the 50 character space,"
+            " a description of the collection of points may be used. 'Various'"
+            " alone, is unacceptable unless the contract itself uses that terminology."
+        ),
+    },
+    "point_of_delivery_balancing_authority": {
+        "type": "string",
+        "description": (
+            "The registered Balancing Authority (formerly called NERC"
+            " Control Area) where a jurisdictional product is delivered and/or"
+            " service ends for a transmission or transmission-related"
+            " jurisdictional sale. The Balancing Authority will be identified"
+            " with the abbreviation used in OASIS applications. If delivery"
+            " occurs at the interconnection of two control areas, the control"
+            " area that the product is entering should be used. If delivery"
+            " occurs at a trading hub, the term 'Hub' should be used."
+        ),
+    },
+    "point_of_delivery_specific_location": {
+        "type": "string",
+        "description": (
+            "The specific location at which the product is delivered if"
+            " designated in the contract. If receipt occurs at a trading hub, a"
+            " standardized hub name must be used."
+        ),
+    },
+    "begin_date": {
+        "type": "datetime",
+        "description": "First date and time for the sale of the product at the rate specified.",
+    },
+    "end_date": {
+        "type": "datetime",
+        "description": "Last date and time for the sale of the product at the rate specified.",
+    },
+    "transaction_unique_id": {
+        "type": "string",
+        "description": (
+            "An identifier beginning with the letter “T” and followed by a number"
+            " (e.g., “T1”, “T2”) used to designate a record containing transaction"
+            " information. One record for each transaction record must be included in"
+            " an EQR for a given quarter. A new transaction record must be used"
+            " every time a price changes in a sale. Note, these ID's are only unique"
+            " for a single company_identifier and year_quarter."
+        ),
+    },
+    "seller_transaction_id": {
+        "type": "string",
+        "description": (
+            "Unique reference number assigned by the Seller for each transaction. May only be unique"
+            " in the context of the seller's internal record keeping. This is an unrestricted text field."
+        ),
+    },
+    "transaction_begin_date": {
+        "type": "datetime",
+        "description": "First date and time the product is sold during the quarter.",
+    },
+    "transaction_end_date": {
+        "type": "datetime",
+        "description": "Last date and time the product is sold during the quarter.",
+    },
+    "trade_date": {
+        "type": "date",
+        "description": "The date upon which the parties made the legally binding agreement on the price of a transaction.",
+    },
+    "exchange_brokerage_service": {
+        "type": "string",
+        "description": (
+            "If a broker service is used to consummate or effectuate a transaction, the"
+            " term “Broker” shall be provided. If an exchange is used, the specific"
+            " exchange that is used shall be selected from the Commission-provided list."
+            " Allowed values include BROKER, ICE, NODAL, and NYMEX."
+        ),
+        "constraints": {
+            "enum": ["BROKER", "ICE", "NODAL", "NYMEX"],
+        },
+    },
+    "type_of_rate": {
+        "type": "string",
+        "description": (
+            "FIXED: A fixed charge per unit of consumption. No variables are used to determine this rate."
+            " FORMULA: A calculation of a rate based upon a formula that does not contain an electric index component."
+            " ELECTRIC INDEX: A calculation of a rate based upon an index or a formula that contains"
+            " an electric index component. An electric index includes an index"
+            " published by an index publisher such as those required to be listed in"
+            " Field Number 73 or a price published by an RTO/ISO (e.g., PJM West or Illinois Hub)."
+            " RTO/ISO: If the price is the result of an RTO/ISO market or the sale is made to the RTO/ISO."
+        ),
+        "constraints": {
+            "enum": ["FIXED", "FORMULA", "ELECTRIC INDEX", "RTO/ISO"],
+        },
+    },
+    "transaction_quantity": {
+        "type": "number",
+        "description": "The quantity of the product in this transaction record.",
+    },
+    "price": {
+        "type": "number",
+        "description": "Actual price charged for the product per unit. The price reported cannot be averaged or otherwise aggregated.",
+    },
+    "standardized_quantity": {
+        "type": "number",
+        "description": (
+            "For product names energy, capacity, and booked out power only."
+            " Specify the quantity in MWh if the product is energy or booked out"
+            " power and specify the quantity in MW-month if the product is capacity"
+            " or booked out power."
+        ),
+    },
+    "standardized_price": {
+        "type": "number",
+        "description": (
+            "For product names energy, capacity, and booked out power only."
+            " Specify the price in $/MWh if the product is energy or booked out"
+            " power and specify the price in $/MW-month if the product is capacity or booked out power."
+        ),
+    },
+    "total_transmission_charge": {
+        "type": "number",
+        "description": "Payments received for transmission services when explicitly identified.",
+    },
+    "total_transaction_charge": {
+        "type": "number",
+        "description": "transaction_quantity * price + total_transmission_charge.",
+    },
+    "index_price_publisher_name": {
+        "type": "string",
+        "description": (
+            "Name of index price publisher, which can be one of the following:"
+            " AM - Argus Media, EIG - Energy Intelligence Group, Inc., IP -"
+            " Intelligence Press, P - Platts, B - Bloomberg, PDX - Powerdex, SNL -"
+            " SNL Energy"
+        ),
+        "constraints": {
+            "enum": ["AM", "EIG", "IP", "P", "B", "PDX", "SNL"],
+        },
+    },
+    "transactions_reported": {
+        "type": "string",
+        "description": (
+            "Description of the types of transactions reported to the index"
+            " publisher identified in this record."
+        ),
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -9476,6 +10020,122 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Label identifying a group of balancing authorities to be used in aggregating demand E.g. a region of the US or a whole interconnect."
             )
         }
+    },
+    "core_ferceqr__contracts": {
+        "product_name": {
+            "constraints": {
+                "enum": [
+                    "BLACK START SERVICE",
+                    "CAPACITY",
+                    "CUSTOMER CHARGE",
+                    "DIRECT ASSIGNMENT FACILITIES CHARGE",
+                    "EMERGENCY ENERGY",
+                    "ENERGY",
+                    "ENERGY IMBALANCE",
+                    "EXCHANGE",
+                    "FUEL CHARGE",
+                    "GENERATOR IMBALANCE",
+                    "GRANDFATHERED BUNDLED",
+                    "INTERCONNECTION AGREEMENT",
+                    "MEMBERSHIP AGREEMENT",
+                    "MUST RUN AGREEMENT",
+                    "NEGOTIATED-RATE TRANSMISSION",
+                    "NETWORK",
+                    "NETWORK OPERATING AGREEMENT",
+                    "OTHER",
+                    "POINT-TO-POINT AGREEMENT",
+                    "PRIMARY FREQUENCY RESPONSE",
+                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
+                    "REAL POWER TRANSMISSION LOSS",
+                    "REASSIGNMENT AGREEMENT",
+                    "REGULATION & FREQUENCY RESPONSE",
+                    "REQUIREMENTS SERVICE",
+                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
+                    "SPINNING RESERVE",
+                    "SUPPLEMENTAL RESERVE",
+                    "SYSTEM OPERATING AGREEMENTS",
+                    "TOLLING ENERGY",
+                    "TRANSMISSION OWNERS AGREEMENT",
+                    "UPLIFT",
+                ]
+            },
+        },
+    },
+    "core_ferceqr__transactions": {
+        "timezone": {
+            "type": "string",
+            "description": (
+                "A code representing the so-called 'time zone' in which the sale was made."
+                " However, these codes do not actually correspond to time zones."
+                " Rather, they indicate an offset from UTC, which changes according to daylight savings vs. standard time."
+                " The codes are as follows:"
+                " AD: Atlantic Daylight Time (UTC-3),"
+                " AP: Atlantic Prevailing Time,"
+                " AS: Atlantic Standard Time (UTC-4),"
+                " CD: Central Daylight Time (UTC-5),"
+                " CP: Central Prevailing Time,"
+                " CS: Central Standard Time (UTC-6),"
+                " ED: Eastern Daylight Time (UTC-4),"
+                " EP: Eastern Prevailing Time,"
+                " ES: Eastern Standard Time (UTC-5),"
+                " MD: Mountain Daylight Time (UTC-6),"
+                " MP: Mountain Prevailing Time,"
+                " MS: Mountain Standard Time (UTC-7),"
+                " PD: Pacific Daylight Time (UTC-7),"
+                " PP: Pacific Prevailing Time,"
+                " PS: Pacific Standard Time (UTC-8),"
+                " UT: Coordinated Universal Time (UTC+0)"
+            ),
+            "constraints": {
+                "enum": [
+                    "AD",
+                    "AP",
+                    "AS",
+                    "CD",
+                    "CP",
+                    "CS",
+                    "ED",
+                    "EP",
+                    "ES",
+                    "MD",
+                    "MP",
+                    "MS",
+                    "PD",
+                    "PP",
+                    "PS",
+                    "UT",
+                ],
+            },
+        },
+        "product_name": {
+            "constraints": {
+                "enum": [
+                    "BLACK START SERVICE",
+                    "BOOKED OUT POWER",
+                    "CAPACITY",
+                    "CUSTOMER CHARGE",
+                    "EMERGENCY ENERGY",
+                    "ENERGY",
+                    "ENERGY IMBALANCE",
+                    "EXCHANGE",
+                    "FUEL CHARGE",
+                    "GENERATOR IMBALANCE",
+                    "GRANDFATHERED BUNDLED",
+                    "NEGOTIATED-RATE TRANSMISSION",
+                    "OTHER",
+                    "PRIMARY FREQUENCY RESPONSE",
+                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
+                    "REAL POWER TRANSMISSION LOSS",
+                    "REGULATION & FREQUENCY RESPONSE",
+                    "REQUIREMENTS SERVICE",
+                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
+                    "SPINNING RESERVE",
+                    "SUPPLEMENTAL RESERVE",
+                    "TOLLING ENERGY",
+                    "UPLIFT",
+                ]
+            },
+        },
     },
 }
 
