@@ -81,7 +81,6 @@ jobs:
             --container-arg="/home/mambauser/env" \
             --container-arg="--attach" \
             --container-arg='' \
-            --container-arg="bash" \
             --container-arg="dg" \
             --container-arg="run" \
             --container-arg="--job" \
