@@ -57,18 +57,6 @@ def to_config(
                             },
                             "environment": {"variables": env_dict},
                         },
-                        {
-                            "container": {
-                                "imageUri": "docker.io/postgres:11",
-                            },
-                            "environment": {
-                                "variables": {
-                                    "POSTGRES_USER": "dagster",
-                                    "POSTGRES_PASSWORD": "dagster_password",
-                                    "POSTGRES_DB": "dagster",
-                                },
-                            },
-                        },
                     ],
                     "computeResource": {
                         "cpuMilli": vcpu * 1000,
