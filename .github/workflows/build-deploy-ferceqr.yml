@@ -16,5 +16,90 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - name: No-op
-        run: echo "No-op to get stub workflow in main"
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Docker Metadata
+        id: docker_metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: catalystcoop/pudl-etl
+          flavor: |
+            latest=auto
+          tags: |
+            type=raw,value=${{ github.ref_name }}
+            type=ref,event=tag
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image and push to Docker Hub
+        id: docker-build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: ${{ steps.docker_metadata.outputs.tags }}
+          labels: ${{ steps.docker_metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "deploy-pudl-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      # Deploy PUDL image to GCE
+      # Dagster Postgres connection configured in docker/dagster.yaml - otherwise we get a str for port num
+      - name: Make GCP Batch config file
+        env:
+          PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
+        run: |-
+          ./devtools/generate_batch_config.py \
+            --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
+            --container-command "micromamba" \
+            --container-arg="run" \
+            --container-arg="--prefix" \
+            --container-arg="/home/mambauser/env" \
+            --container-arg="--attach" \
+            --container-arg='' \
+            --container-arg="bash" \
+            --container-arg="dg" \
+            --container-arg="run" \
+            --container-arg="--job" \
+            --container-arg="ferceqr_etl" \
+            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            --container-env BUILD_ID=${{ env.BUILD_ID }} \
+            --container-env BUILD_REF=${{ github.ref_name }} \
+            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
+            --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
+            --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
+            --container-env OMP_NUM_THREADS=4 \
+            --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
+            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
+            --container-env PUDL_SETTINGS_YML="/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml" \
+            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
+            --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
+            --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
+            --output ${{ env.BATCH_JOB_JSON }}
+
+      # Start the batch job
+      - name: Kick off batch job
+        run: gcloud batch jobs submit run-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
