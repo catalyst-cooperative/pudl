@@ -13,7 +13,7 @@ Catalyst developers reviewing external community contributions.
 Guidelines for contributors
 -------------------------------------------------------------------------------
 
-The guidelines for external contributors can be found at :doc:`/CONTRIBUTING.rst`.
+The guidelines for external contributors can be found at :doc:`../CONTRIBUTING`.
 
 -------------------------------------------------------------------------------
 Github incantations
