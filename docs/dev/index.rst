@@ -23,3 +23,4 @@ Development
   data_guidelines
   nightly_data_builds
   infrastructure_as_code
+  managing_external_contributions
