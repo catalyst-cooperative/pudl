@@ -97,7 +97,7 @@ dependencies:
   - colorama=0.4.6=pyhd8ed1ab_1
   - coloredlogs=14.0=pyhd8ed1ab_3
   - comm=0.2.3=pyhe01879c_0
-  - conda-lock=3.0.4=pyh367d9c9_1
+  - conda-lock=4.0.0=pyha191276_0
   - conda-package-streaming=0.12.0=pyhd8ed1ab_0
   - contourpy=1.3.3=py313h7037e92_3
   - coverage=7.13.0=py313h3dea7bd_0
@@ -138,7 +138,7 @@ dependencies:
   - docker-py=7.1.0=pyhd8ed1ab_1
   - docstring_parser=0.17.0=pyhd8ed1ab_0
   - docutils=0.21.2=pyhd8ed1ab_1
-  - dulwich=0.22.8=py313h920b4c0_0
+  - dulwich=0.24.10=py313h5c7d99a_1
   - elfutils=0.194=h849f50c_0
   - email-validator=2.3.0=pyhd8ed1ab_0
   - email_validator=2.3.0=hd8ed1ab_0
@@ -149,7 +149,7 @@ dependencies:
   - execnet=2.1.2=pyhd8ed1ab_0
   - executing=2.2.1=pyhd8ed1ab_0
   - fastapi=0.127.0=hdf53b3f_0
-  - fastapi-cli=0.0.16=pyhcf101f3_1
+  - fastapi-cli=0.0.20=pyhcf101f3_0
   - fastapi-core=0.127.0=pyhcf101f3_0
   - filelock=3.20.1=pyhd8ed1ab_0
   - flask=3.1.2=pyhd8ed1ab_0
@@ -169,10 +169,10 @@ dependencies:
   - fribidi=1.0.16=hb03c661_0
   - frictionless=5.18.1=pyhd8ed1ab_1
   - frozenlist=1.7.0=py313h6b9daa2_0
-  - fsspec=2025.10.0=pyhd8ed1ab_0
+  - fsspec=2025.12.0=pyhd8ed1ab_0
   - furo=2024.8.6=pyhd8ed1ab_2
   - future=1.0.0=pyhd8ed1ab_2
-  - gcsfs=2025.10.0=pyhd8ed1ab_0
+  - gcsfs=2025.12.0=pyhd8ed1ab_0
   - gdal=3.12.1=py313h60f829d_0
   - gdk-pixbuf=2.44.4=h2b0a6b4_0
   - geoarrow-c=0.3.1=py313h7033f15_0
@@ -197,9 +197,11 @@ dependencies:
   - google-cloud-core=2.5.0=pyhd8ed1ab_0
   - google-cloud-sdk=550.0.0=py313h78bf25f_0
   - google-cloud-storage=3.7.0=pyhcf101f3_0
+  - google-cloud-storage-control=1.8.0=py313h78bf25f_0
   - google-crc32c=1.8.0=py313h74173ec_0
   - google-resumable-media=2.8.0=pyhd8ed1ab_0
   - googleapis-common-protos=1.72.0=pyhd8ed1ab_0
+  - googleapis-common-protos-grpc=1.72.0=pyhd8ed1ab_0
   - gql=4.0.0=pyhd8ed1ab_0
   - gql-with-requests=4.0.0=hd8ed1ab_0
   - graphene=3.4.3=pyhd8ed1ab_1
@@ -208,6 +210,7 @@ dependencies:
   - graphql-relay=3.2.0=pyhd8ed1ab_1
   - graphviz=13.1.2=h87b6fe6_0
   - greenlet=3.3.0=py313h7033f15_0
+  - grpc-google-iam-v1=0.14.3=pyhd8ed1ab_0
   - grpcio=1.73.1=py313h2b3948d_1
   - grpcio-health-checking=1.73.1=pyhe01879c_0
   - grpcio-status=1.73.1=pyhd8ed1ab_0
@@ -396,9 +399,9 @@ dependencies:
   - memray=1.19.1=py313h422961c_3
   - minizip=4.0.10=h05a5f5f_0
   - mistune=3.1.4=pyhcf101f3_0
-  - mlflow=3.7.0=pyh707e725_0
-  - mlflow-skinny=3.7.0=pyh707e725_0
-  - mlflow-ui=3.7.0=pyh707e725_0
+  - mlflow=3.8.0=pyh707e725_0
+  - mlflow-skinny=3.8.0=pyh707e725_0
+  - mlflow-ui=3.8.0=pyh707e725_0
   - more-itertools=10.8.0=pyhcf101f3_1
   - msgpack-python=1.1.2=py313h7037e92_1
   - multidict=6.7.0=py313h3dea7bd_0
@@ -423,7 +426,7 @@ dependencies:
   - notebook-shim=0.2.4=pyhd8ed1ab_1
   - numba=0.63.1=py313h5dce7c4_0
   - numexpr=2.14.1=py313h24ae7f9_101
-  - numpy=2.3.5=py313hf6604e3_0
+  - numpy=2.3.5=py313hf6604e3_1
   - oauthlib=3.3.1=pyhd8ed1ab_0
   - openjpeg=2.5.4=h55fea9a_0
   - openldap=2.6.10=he970967_0
@@ -499,7 +502,7 @@ dependencies:
   - pynacl=1.6.1=py313h07c4f96_0
   - pyogrio=0.12.1=py313hae45665_0
   - pyopenssl=25.3.0=pyhd8ed1ab_0
-  - pyparsing=3.2.5=pyhcf101f3_0
+  - pyparsing=3.3.0=pyhcf101f3_0
   - pyproj=3.7.2=py313h77f6078_2
   - pyproject_hooks=1.2.0=pyhd8ed1ab_1
   - pysocks=1.7.1=pyha55dd90_7
@@ -559,7 +562,7 @@ dependencies:
   - ruff=0.14.10=h4196e79_0
   - ruff-lsp=0.0.62=pyhd8ed1ab_0
   - s2n=1.6.2=he8a4886_1
-  - s3fs=2025.10.0=pyhd8ed1ab_0
+  - s3fs=2025.12.0=pyhd8ed1ab_0
   - s3transfer=0.14.0=pyhd8ed1ab_0
   - scikit-learn=1.8.0=np2py313h16d504d_1
   - scipy=1.16.3=py313h4b8bb8b_2
@@ -592,7 +595,7 @@ dependencies:
   - sphinxcontrib-jsmath=1.0.1=pyhd8ed1ab_1
   - sphinxcontrib-qthelp=2.0.0=pyhd8ed1ab_1
   - sphinxcontrib-serializinghtml=1.1.10=pyhd8ed1ab_1
-  - splink=4.0.11=pyhd8ed1ab_0
+  - splink=4.0.12=pyhd8ed1ab_0
   - sqlalchemy=2.0.45=py313h07c4f96_0
   - sqlglot=28.0.0=pyhcf101f3_0
   - sqlglot-rs=28.0.0=h5602114_0

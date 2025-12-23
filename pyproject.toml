@@ -364,6 +364,7 @@ zip = ">=3.0"
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
+omit = ["src/pudl/*/ferceqr.py"]
 relative_files = true
 
 [tool.coverage.report]
