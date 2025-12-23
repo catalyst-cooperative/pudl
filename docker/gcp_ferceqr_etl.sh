@@ -18,11 +18,23 @@ function initialize_postgres() {
         psql -c "CREATE DATABASE dagster OWNER dagster" -h127.0.0.1 -p5433
 }
 
+function authenticate_gcp() {
+    # Set the default gcloud project id so the gcloud storage operations know what project to bill
+    echo "Authenticating to GCP"
+    gcloud config set project "$GCP_BILLING_PROJECT"
+}
+
 function run_ferceqr_etl() {
     echo "Running FERC EQR ETL"
     initialize_postgres &&
         authenticate_gcp &&
-        dg run --job ferceqr_etl
+        dagster dev &
+    dg run --job ferceqr_etl
+    inotifywait -e create -t 18000 --include 'SUCCESS|FAILURE' "$PUDL_OUTPUT"
+    killall dagster
 }
 
-run_ferceqr_etl 2>&1 | tee "$LOGFILE"
+run_ferceqr_etl 2>&1
+
+# This needs to happen regardless of the ETL outcome:
+pg_ctlcluster "$PG_VERSION" dagster stop 2>&1

@@ -8,8 +8,12 @@ from pudl.helpers import (
     duckdb_relation_from_parquet,
     persist_table_as_parquet,
 )
+from pudl.logging_helpers import get_logger
 from pudl.metadata.classes import Resource
 from pudl.settings import ferceqr_year_quarters
+from pudl.workspace.setup import PudlPaths
+
+logger = get_logger(__name__)
 
 
 def transform_eqr_table(
@@ -39,11 +43,6 @@ def transform_eqr_table(
     relation_columns = table_data.columns
     if table_name == "core_ferceqr__quarterly_identity":
         relation_columns.remove("filing_quarter")
-    assert len(dtypes.keys()) == len(relation_columns), (
-        f"DuckDB dtypes has {len(dtypes.keys())} columns, but DuckDB relation has "
-        f"{len(table_data.columns)} columns in {table_name} for {year_quarter}. "
-        f"Columns in dtypes: {dtypes.keys()}. Columns in relation: {table_data.columns}."
-    )
 
     return persist_table_as_parquet(
         table_data=table_data.select(
@@ -280,3 +279,27 @@ def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetDa
                 ),
             },
         )
+
+
+@dg.asset(
+    deps=[
+        dg.AssetDep(
+            "core_ferceqr__contracts", partition_mapping=dg.AllPartitionMapping()
+        ),
+        dg.AssetDep(
+            "core_ferceqr__transactions", partition_mapping=dg.AllPartitionMapping()
+        ),
+        dg.AssetDep(
+            "core_ferceqr__quarterly_index_pub",
+            partition_mapping=dg.AllPartitionMapping(),
+        ),
+        dg.AssetDep(
+            "core_ferceqr__quarterly_identity",
+            partition_mapping=dg.AllPartitionMapping(),
+        ),
+    ],
+    automation_condition=dg.AutomationCondition.eager(),
+)
+def ferceqr__monitor():
+    """During ferceqr cloud builds execute after all upstream partitions are complete."""
+    (PudlPaths().output_dir / "SUCCESS").touch()

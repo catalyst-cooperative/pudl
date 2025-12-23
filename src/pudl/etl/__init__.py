@@ -8,10 +8,16 @@ from dagster import (
     AssetKey,
     AssetsDefinition,
     AssetSpec,
+    AutomationConditionSensorDefinition,
+    DagsterRunStatus,
+    DefaultSensorStatus,
     Definitions,
+    JobSelector,
     define_asset_job,
     load_asset_checks_from_modules,
     load_assets_from_modules,
+    run_status_sensor,
+    sensor,
 )
 
 import pudl
@@ -31,6 +37,7 @@ from pudl.resources import (
     ferc_to_sqlite_settings,
 )
 from pudl.settings import EtlSettings
+from pudl.workspace.setup import PudlPaths
 
 from . import (
     eia_bulk_elec_assets,
@@ -229,6 +236,40 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     return dataset_settings
 
 
+ferceqr_job = define_asset_job(
+    name="ferceqr_etl",
+    description="This job executes the ferceqr ETL.",
+    config=pudl.helpers.get_dagster_execution_config(
+        tag_concurrency_limits=default_tag_concurrency_limits
+    ),
+    selection="key:*_ferceqr*",
+)
+
+ferceqr_sensor_status = (
+    DefaultSensorStatus.RUNNING
+    if os.getenv("FERCEQR_BUILD", None)
+    else DefaultSensorStatus.STOPPED
+)
+
+
+# Create the automation sensor with default_status=RUNNING
+ferceqr_success_sensor = AutomationConditionSensorDefinition(
+    name="ferceqr_success_sensor",
+    target="ferceqr__monitor",
+    default_status=ferceqr_sensor_status,
+)
+
+
+@run_status_sensor(
+    monitored_jobs=[ferceqr_job],
+    run_status=DagsterRunStatus.FAILURE,
+    default_status=ferceqr_sensor_status,
+)
+def ferceqr_failure_sensor():
+    """During ferc eqr cloud builds, monitor for any failed runs and alert."""
+    (PudlPaths().output_dir / "FAILURE").touch()
+
+
 defs: Definitions = Definitions(
     assets=default_assets,
     asset_checks=default_asset_checks,
@@ -260,15 +301,9 @@ defs: Definitions = Definitions(
             description="This job executes the most recent year of each asset.",
             selection="not key:*_ferceqr*",
         ),
-        define_asset_job(
-            name="ferceqr_etl",
-            description="This job executes the ferceqr ETL.",
-            config=pudl.helpers.get_dagster_execution_config(
-                tag_concurrency_limits=default_tag_concurrency_limits
-            ),
-            selection="key:*_ferceqr*",
-        ),
+        ferceqr_job,
     ],
+    sensors=[ferceqr_success_sensor, ferceqr_failure_sensor],
 )
 
 """A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL."""
