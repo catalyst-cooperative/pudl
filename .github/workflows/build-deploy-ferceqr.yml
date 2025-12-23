@@ -81,10 +81,8 @@ jobs:
             --container-arg="/home/mambauser/env" \
             --container-arg="--attach" \
             --container-arg='' \
-            --container-arg="dg" \
-            --container-arg="run" \
-            --container-arg="--job" \
-            --container-arg="ferceqr_etl" \
+            --container-arg="bash" \
+            --container-arg="./docker/gcp_ferceqr_etl.sh" \
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
