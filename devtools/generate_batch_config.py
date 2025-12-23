@@ -32,6 +32,9 @@ def to_config(
     container_env: list[list[str]],
     container_command: str,
     container_arg: str,
+    vcpu: int,
+    mem_gb: int,
+    disk_gb: int,
 ) -> dict:
     """Munge arguments into a configuration dictionary."""
     complete_env = sorted(_flat(container_env))
@@ -53,12 +56,24 @@ def to_config(
                                 "commands": [container_command] + _flat(container_arg),
                             },
                             "environment": {"variables": env_dict},
-                        }
+                        },
+                        {
+                            "container": {
+                                "imageUri": "docker.io/postgres:11",
+                            },
+                            "environment": {
+                                "variables": {
+                                    "POSTGRES_USER": "dagster",
+                                    "POSTGRES_PASSWORD": "dagster_password",
+                                    "POSTGRES_DB": "dagster",
+                                },
+                            },
+                        },
                     ],
                     "computeResource": {
-                        "cpuMilli": 8000,
-                        "memoryMib": int(63 * MIB_PER_GB),
-                        "bootDiskMib": 200 * 1024,
+                        "cpuMilli": vcpu * 1000,
+                        "memoryMib": int(mem_gb * MIB_PER_GB),
+                        "bootDiskMib": disk_gb * 1024,
                     },
                     "maxRunDuration": f"{60 * 60 * 12}s",
                 }
@@ -88,6 +103,10 @@ def generate_batch_config():
     parser.add_argument("--container-command")
     parser.add_argument("--container-env", action="append", nargs="*", default=[])
     parser.add_argument("--container-arg", action="append", nargs="*", default=[])
+    parser.add_argument("--container-arg", action="append", nargs="*", default=[])
+    parser.add_argument("--vcpu", default=8)
+    parser.add_argument("--mem-gb", default=63)
+    parser.add_argument("--disk-gb", default=200)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
