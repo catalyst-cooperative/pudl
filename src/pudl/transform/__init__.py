@@ -76,6 +76,7 @@ from . import (
     ferc,
     ferc1,
     ferc714,
+    ferceqr,
     gridpathratoolkit,
     nrelatb,
     params,

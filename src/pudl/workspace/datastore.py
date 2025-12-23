@@ -226,7 +226,7 @@ class ZenodoFetcher:
     timeout: float
 
     def __init__(
-        self: Self, zenodo_dois: ZenodoDoiSettings | None = None, timeout: float = 15.0
+        self: Self, zenodo_dois: ZenodoDoiSettings | None = None, timeout: float = 100.0
     ):
         """Constructs ZenodoFetcher instance."""
         if not zenodo_dois:
@@ -235,7 +235,10 @@ class ZenodoFetcher:
         self.timeout = timeout
 
         retries = Retry(
-            backoff_factor=2, total=3, status_forcelist=[429, 500, 502, 503, 504]
+            backoff_factor=2,
+            total=10,
+            status_forcelist=[429, 500, 502, 503, 504],
+            backoff_max=300,
         )
         adapter = HTTPAdapter(max_retries=retries)
         self.http = requests.Session()

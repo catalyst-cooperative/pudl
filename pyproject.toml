@@ -22,6 +22,7 @@ dependencies = [
     "conda-lock>=3",
     "coverage>=7.10",
     "dagster>=1.12.1",
+    "dagster-dg-cli",
     "dagster-dbt", # Needs to follow dagster, but RTD can't deal with epochs
     "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
     "dbt-core>=1.10.13",
@@ -363,6 +364,7 @@ zip = ">=3.0"
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
+omit = ["src/pudl/*/ferceqr.py"]
 relative_files = true
 
 [tool.coverage.report]
