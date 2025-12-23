@@ -29,7 +29,7 @@ function run_ferceqr_etl() {
     initialize_postgres &&
         authenticate_gcp &&
         dagster dev &
-    dg run --job ferceqr_etl
+    dagster job backfill -j ferceqr_etl
     inotifywait -e create -t 18000 --include 'SUCCESS|FAILURE' "$PUDL_OUTPUT"
     killall dagster
 }
