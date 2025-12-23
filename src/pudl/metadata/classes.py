@@ -11,6 +11,7 @@ from hashlib import sha1
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
+import duckdb
 import frictionless
 import geopandas as gpd
 import jinja2
@@ -45,6 +46,7 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
     CONTRIBUTORS,
+    FIELD_DTYPES_DUCKDB,
     FIELD_DTYPES_PANDAS,
     FIELD_DTYPES_POLARS,
     FIELD_DTYPES_PYARROW,
@@ -529,7 +531,10 @@ class Encoder(PudlMeta):
         )
         rendered = template.render(
             Encoder=self,
-            description=RESOURCE_METADATA[self.name]["description"],
+            # just get the resolved resource summary & drop all the other sections of the description
+            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
+                "\n\n"
+            )[0],
             csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
             is_header=is_header,
         )
@@ -631,6 +636,10 @@ class Field(PudlMeta):
     def from_id(cls, x: str) -> "Field":
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
+
+    def to_duckdb_dtype(self) -> duckdb.sqltypes.DuckDBPyType:
+        """Return duckdb data type."""
+        return FIELD_DTYPES_DUCKDB[self.type]
 
     def to_polars_dtype(self) -> pl.DataType:
         """Return polars data type."""
@@ -961,7 +970,6 @@ class DataSource(PudlMeta):
     name: SnakeCase
     title: String | None = None
     description: String | None = None
-    field_namespace: String | None = None
     keywords: list[str] = []
     path: AnyHttpUrl | None = None
     contributors: list[Contributor] = []
@@ -1007,7 +1015,6 @@ class DataSource(PudlMeta):
         """Get source file metadata from the datastore."""
         dp_desc = Datastore(
             local_cache_path=PudlPaths().data_dir,
-            gcs_cache_path="gs://zenodo-cache.catalyst.coop",
         ).get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
@@ -1055,17 +1062,6 @@ class DataSource(PudlMeta):
             Path(output_path).write_text(rendered)
         else:
             sys.stdout.write(rendered)
-
-    @classmethod
-    def from_field_namespace(
-        cls, x: str, sources: dict[str, Any] = SOURCES
-    ) -> list["DataSource"]:
-        """Return list of DataSource objects by field namespace."""
-        return [
-            cls(**cls.dict_from_id(name, sources))
-            for name, val in sources.items()
-            if val.get("field_namespace") == x
-        ]
 
     @staticmethod
     def dict_from_id(x: str, sources: dict[str, Any]) -> dict:
@@ -1184,7 +1180,9 @@ class PudlResourceDescriptor(PudlMeta):
         timeseries and this value is None or otherwise left unset, will be filled in
         with a default resolution parsed from the resource id string."""
 
-        layer_code: Literal["raw", "_core", "core", "out", "test"] | None = None
+        layer_code: (
+            Literal["raw", "_core", "core", "out", "out_narrow", "test"] | None
+        ) = None
         """Indicates the degree of processing applied to the data in this resource.  If
         None or otherwise left unset, will be filled in with a default layer parsed from
         the resource id string."""
@@ -1455,6 +1453,7 @@ class Resource(PudlMeta):
             "epacems",
             "ferc1",
             "ferc714",
+            "ferceqr",
             "glue",
             "gridpathratoolkit",
             "ppe",
@@ -1481,6 +1480,7 @@ class Resource(PudlMeta):
             "ferc1",
             "ferc1_disabled",
             "ferc714",
+            "ferceqr",
             "glue",
             "gridpathratoolkit",
             "outputs",
@@ -1605,10 +1605,14 @@ class Resource(PudlMeta):
             del schema["foreign_key_rules"]
 
         # overwrite description components with rendered text block
-        obj["description"] = descriptions.ResourceDescriptionBuilder(
-            resource_id,
-            obj,
-        ).build(_get_jinja_environment())
+        obj["description"] = (
+            descriptions.ResourceDescriptionBuilder(
+                resource_id,
+                obj,
+            )
+            .build()
+            .jinja_render(_get_jinja_environment())
+        )
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -1695,6 +1699,10 @@ class Resource(PudlMeta):
         if self.schema.primary_key is not None:
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
+
+    def to_duckdb_dtypes(self) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
+        """Return Polars data type of each field by field name."""
+        return {f.name: f.to_duckdb_dtype() for f in self.schema.fields}
 
     def to_polars_dtypes(self) -> dict[str, pl.DataType]:
         """Return Polars data type of each field by field name."""

@@ -22,6 +22,7 @@ dependencies = [
     "conda-lock>=3",
     "coverage>=7.10",
     "dagster>=1.12.1",
+    "dagster-dg-cli",
     "dagster-dbt", # Needs to follow dagster, but RTD can't deal with epochs
     "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
     "dbt-core>=1.10.13",
@@ -34,7 +35,7 @@ dependencies = [
     "fsspec>=2025",
     "furo>=2024",
     "gcsfs>=2025",
-    "gdal==3.12.0", # pinned, because we need it to work with pudl-archiver
+    "gdal==3.12.1", # pinned, because we need it to work with pudl-archiver
     "geopandas>=1.1",
     "geoarrow-pyarrow>=0.2",
     "grpcio==1.73.1", # Required by dagster, binary dependencies are flaky
@@ -49,13 +50,13 @@ dependencies = [
     "nbconvert>=7",
     "nbformat>=5.10",
     "networkx>=3.6",
-    "numba>=0.62", # pandas[performance]
+    "numba>=0.63.1", # pandas[performance]
     "numexpr>=2.10", # pandas[performance]
     "numpy>=2.3",
     "packaging>=25",
     "pandas>=2.3",
     "pandera>=0.27",
-    "polars>=1.35",
+    "polars>=1.36",
     "pre-commit>=4",
     "pyarrow>=20,<21", # pandas[parquet]; <21 for Kaggle geopandas compatibility
     "pydantic>=2.12",
@@ -75,7 +76,7 @@ dependencies = [
     "responses>=0.25",
     "ruff>=0.14",
     "s3fs>=2025",
-    "scikit-learn>=1.7",
+    "scikit-learn>=1.8",
     "scipy>=1.16",
     "Shapely>=2.1.1",
     "splink>=4.0.10",
@@ -88,8 +89,8 @@ dependencies = [
     "sphinxcontrib_googleanalytics>=0.4",
     "sqlalchemy>=2",
     "timezonefinder>=8",
-    "typos>=1.39", # Spell-checker
-    "universal_pathlib>=0.2",
+    "typos>=1.40", # Spell-checker
+    "universal_pathlib>=0.3.7",
     "urllib3>=2.4",
     "xlsxwriter>=3.2", # pandas[excel]
 ]
@@ -363,6 +364,7 @@ zip = ">=3.0"
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
+omit = ["src/pudl/*/ferceqr.py"]
 relative_files = true
 
 [tool.coverage.report]

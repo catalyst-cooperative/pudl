@@ -12,6 +12,7 @@ Development
   testing
   data_validation_quickstart
   data_validation_reference
+  metadata
   build_docs
   datastore
   clone_ferc1
@@ -22,3 +23,4 @@ Development
   data_guidelines
   nightly_data_builds
   infrastructure_as_code
+  managing_external_contributions
