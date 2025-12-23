@@ -103,7 +103,6 @@ def generate_batch_config():
     parser.add_argument("--container-command")
     parser.add_argument("--container-env", action="append", nargs="*", default=[])
     parser.add_argument("--container-arg", action="append", nargs="*", default=[])
-    parser.add_argument("--container-arg", action="append", nargs="*", default=[])
     parser.add_argument("--vcpu", default=8)
     parser.add_argument("--mem-gb", default=63)
     parser.add_argument("--disk-gb", default=200)
