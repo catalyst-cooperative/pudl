@@ -25,4 +25,4 @@ function run_ferceqr_etl() {
         dg run --job ferceqr_etl
 }
 
-run_pudl_etl 2>&1 | tee "$LOGFILE"
+run_ferceqr_etl 2>&1 | tee "$LOGFILE"
