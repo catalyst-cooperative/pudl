@@ -1,0 +1,61 @@
+name: build-deploy-docs
+
+on:
+  # push:
+  #   branches:
+  #     - '!gh-pages'
+  # pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PUDL_OUTPUT: /home/runner/pudl-work/output/
+  PUDL_INPUT: /home/runner/pudl-work/input/
+  DAGSTER_HOME: /home/runner/pudl-work/dagster_home/
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Install conda-lock environment with micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: environments/conda-lock.yml
+          environment-name: pudl-dev
+          cache-environment: true
+
+      - name: Log environment details
+        run: |
+          conda info
+          conda list
+          conda config --show-sources
+          conda config --show
+          printenv | sort
+
+      - name: Make input, output and dagster dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+
+      - name: Lint and build PUDL documentation with Sphinx
+        run: |
+          pip install --no-deps --editable .
+          make docs-build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        # if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v20') }}
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
+          force_orphan: true
+          user_name: "pudlbot"
+          user_email: "pudl@catalyst.coop"

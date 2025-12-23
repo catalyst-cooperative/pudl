@@ -72,6 +72,9 @@ bibtex_bibfiles = [
     "further_reading.bib",
 ]
 
+# Set this to True if you need to debug generated file formatting.
+keep_generated_files = False
+
 # Redirects to keep folks from hitting 404 errors:
 redirects = {
     "data_dictionary": "data_dictionaries/pudl_db.html",
@@ -80,7 +83,7 @@ redirects = {
 
 # Automatically generate API documentation during the doc build:
 autoapi_type = "python"
-autoapi_keep_files = False  # Set to True to debug auto-generated RST files
+autoapi_keep_files = keep_generated_files
 autoapi_dirs = [
     "../src/pudl",
 ]
@@ -249,5 +252,6 @@ def setup(app):
     app.connect("builder-inited", data_dictionary_metadata_to_rst)
     app.connect("builder-inited", data_sources_metadata_to_rst)
     app.connect("builder-inited", static_dfs_to_rst)
-    app.connect("build-finished", cleanup_rsts)
-    app.connect("build-finished", cleanup_csv_dir)
+    if not keep_generated_files:
+        app.connect("build-finished", cleanup_rsts)
+        app.connect("build-finished", cleanup_csv_dir)

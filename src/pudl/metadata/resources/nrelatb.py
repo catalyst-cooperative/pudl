@@ -80,6 +80,16 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {  # }
                 "technology_description_detail_2 occasionally contain nulls, preventing this table from "
                 "having a primary key."
             ),
+            "additional_details_text": """This table includes NREL's projections
+for capital and operational costs as well as operational attributes for a variety of
+technologies for each of the NREL ATB scenarios. Each new year of ATB data includes
+projections for the next 25 years.
+
+All of the NREL tables are related. If you want to understand the financial assumptions
+of a given scenario in this table, see :ref:`core_nrelatb__yearly_projected_financial_cases`.
+The other two ``core_nrealatb`` tables include attributes about technologies in these
+projections.
+""",
         },
         "schema": {
             "fields": [

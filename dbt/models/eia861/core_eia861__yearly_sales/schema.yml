@@ -22,6 +22,23 @@ sources:
           - name: short_form
           - name: utility_name_eia
           - name: customers
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    row_condition: "utility_id_eia != 99999"
           - name: sales_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    row_condition: "utility_id_eia != 99999"
+                    error_if: ">30"
           - name: sales_revenue
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    row_condition: "utility_id_eia != 99999"
+                    error_if: ">300" # Relatively large, worth investigating
           - name: data_maturity

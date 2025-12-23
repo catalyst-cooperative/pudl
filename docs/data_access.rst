@@ -298,9 +298,34 @@ Raw FERC DBF & XBRL data converted to SQLite
 
 * FERC Form 714:
 
-  * `FERC-714 SQLite derived from XBRL (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.sqlite.zip>`__
+  * `FERC-714 SQLite derived from XBRL (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.sqlite.zip>`__
   * `FERC-714 Datapackage (JSON) describing SQLite derived from XBRL <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_datapackage.json>`__
-  * `FERC-714 XBRL Taxonomy Metadata as JSON (2021-2023) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_taxonomy_metadata.json>`__
+  * `FERC-714 XBRL Taxonomy Metadata as JSON (2021-2024) <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl_taxonomy_metadata.json>`__
+
+.. _access-raw-ferc-duckdb:
+
+Raw FERC XBRL data converted to DuckDB (EXPERIMENTAL)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To enable remote querying of the converted FERC databases, we are experimenting with
+DuckDB as an output format. Currently it only includes the more recent XBRL data. Within
+DuckDB you can now do queries like this:
+
+.. code-block:: sql
+
+   INSTALL httpfs; LOAD httpfs;
+   ATTACH 's3://pudl.catalyst.coop/nightly/ferc1_xbrl.duckdb' AS ferc1_xbrl (READ_ONLY);
+   SELECT * FROM ferc1_xbrl.transmission_lines_added_during_year_424_duration;
+
+You can also use the `DuckDB Python API <https://duckdb.org/docs/stable/clients/python/overview>`__
+to create a connection and execute the above statements, and then use that connection
+with :meth:`pandas.read_sql` and other libraries that understand DBAPI connections.
+
+* FERC Form 1: ``s3://pudl.catalyst.coop/nightly/ferc1_xbrl.duckdb`` (`direct download <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc1_xbrl.duckdb>`__)
+* FERC Form 2: ``s3://pudl.catalyst.coop/nightly/ferc2_xbrl.duckdb`` (`direct download <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc2_xbrl.duckdb>`__)
+* FERC Form 6: ``s3://pudl.catalyst.coop/nightly/ferc6_xbrl.duckdb`` (`direct download <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc6_xbrl.duckdb>`__)
+* FERC Form 60: ``s3://pudl.catalyst.coop/nightly/ferc60_xbrl.duckdb`` (`direct download <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.duckdb>`__)
+* FERC Form 714: ``s3://pudl.catalyst.coop/nightly/ferc714_xbrl.duckdb`` (`direct download <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.duckdb>`__)
 
 .. _access-zenodo:
 

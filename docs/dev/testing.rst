@@ -150,13 +150,15 @@ looking at the ``custom options`` section:
 
 .. code-block:: console
 
-  custom options:
-  --live-dbs            Use existing PUDL/FERC1 DBs instead of creating temporary ones.
-  --tmp-data            Download fresh input data for use with this test run only.
-  --etl-settings=ETL_SETTINGS
-                        Path to a non-standard ETL settings file to use.
-  --gcs-cache-path=GCS_CACHE_PATH
-                        If set, use this GCS path as a datastore cache layer.
+   Custom options:
+     --live-dbs            Use existing PUDL/FERC1 DBs instead of creating temporary ones.
+     --tmp-data            Download fresh input data for use with this test run only.
+     --etl-settings=ETL_SETTINGS
+                           Path to a non-standard ETL settings file to use.
+     --bypass-local-cache  If enabled, the local file cache for datastore will not be used.
+     --save-unmapped-ids   Write the unmapped IDs to disk.
+     --ignore-foreign-key-constraints
+                           If enabled, do not check the foreign keys.
 
 The main flexibility that these custom options provide is in selecting where the raw
 input data comes from and what data the tests should be run against. Being able to
@@ -183,14 +185,15 @@ We use the ``src/pudl/package_data/etl_full.yml`` settings file to specify an ex
 collection of input data.
 
 The raw input data that all the tests use is ultimately coming from our `archives on
-Zenodo <https://zenodo.org/communities/catalyst-cooperative>`__. However, you can
-optionally tell the tests to look in a different places for more rapidly accessible
-caches of that data and to force the download of a fresh copy (especially useful when
-you are testing the datastore functionality specifically). By default, the tests will
-use the datastore that's part of your local PUDL workspace.
+Zenodo <https://zenodo.org/communities/catalyst-cooperative>`__. A copy of that data
+is cached locally so that it can be re-used later without needing to be downloaded
+every time. Because downloading data directly from Zenodo can be slow and unreliable,
+by default we download from a cached copy in Amazon's S3 storage, in a free bucket
+provided by the AWS Open Data Registry at ``s3://pudl.catalyst.coop/zenodo``.
 
-For example, to run the ETL portion of the integration tests and download fresh input
-data to a temporary datastore that's later deleted automatically:
+You can also force the tests to download of a fresh copy of the data to use just once,
+even if you already have a local copy, which is useful when you are testing the
+datastore functionality specifically.
 
 .. code-block:: console
 

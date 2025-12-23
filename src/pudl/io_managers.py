@@ -313,11 +313,11 @@ class PudlParquetIOManager(IOManager):
     ) -> None:
         """Writes pudl dataframe to parquet file."""
         table_name = get_table_name_from_context(context)
+        res = Resource.from_id(table_name)
         parquet_path = PudlPaths().parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
         if isinstance(obj, pd.DataFrame):
-            res = Resource.from_id(table_name)
             df = res.enforce_schema(obj)
             pa_schema = res.to_pyarrow()
             df.to_parquet(
@@ -327,7 +327,7 @@ class PudlParquetIOManager(IOManager):
             )
         elif isinstance(obj, pl.LazyFrame):
             logger.warning("PudlParquetIOManager does not do any schema enforcement.")
-            obj.sink_parquet(
+            obj.cast(res.to_polars_dtypes()).sink_parquet(
                 parquet_path,
                 engine="streaming",
                 row_group_size=100_000,
