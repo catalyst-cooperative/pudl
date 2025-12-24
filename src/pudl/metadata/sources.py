@@ -673,7 +673,7 @@ SOURCES: dict[str, Any] = {
             "non-regulated or non-jurisdictional entities to obtain Company Identifier (CID) numbers "
             "in order to make required filings with the Commission including tariff filings and "
             "various required forms. Each regulatory program requires a unique CID number. These "
-            "CID numbers show up in FERC Form 1, 714, and EQR."
+            "CID numbers show up in various FERC filings, such as Forms 1, 2, 6, 60, 714, and EQR."
         ),
         "working_partitions": {},
         "keywords": sorted(
