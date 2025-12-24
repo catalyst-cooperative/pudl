@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: dbf0a60ef524ffbc1db1b1f5e51a31b48d6b8b163eeeb7a5a5a2443e026e9ad8
-    osx-64: 9b45d3fe6de35154a4d67af6a924e42b312eaa97e0184455788baebeb5f9b9da
-    osx-arm64: d2c101aff57c77784a6637fbb804df3a2956e432f1135b0098718736bc454766
+    linux-64: dc9786159036b25e802e7a7ea84fda45c81a74e8ea17bf451b6365ea9545b08f
+    osx-64: dea12bc99a625cf52e3b28b0b2c2808b7ac08dc69aa290630f5ca289b97a2745
+    osx-arm64: ed56aaadcf1b3cd62d10dad5418e10492d7ff711db7af6f54822c20b52160f25
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -4969,8 +4969,8 @@ package:
     hash:
       md5: 5ab6cbe098ff8d3e7019ae4c029a8719
       sha256: 66eed7f63b287f72dbf9e92c1d5f9255a91173c9a4d9a6e7fc3dde4151e69947
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: dagster-graphql
     version: 1.12.7
     manager: conda
@@ -4986,8 +4986,8 @@ package:
     hash:
       md5: 5ab6cbe098ff8d3e7019ae4c029a8719
       sha256: 66eed7f63b287f72dbf9e92c1d5f9255a91173c9a4d9a6e7fc3dde4151e69947
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: dagster-graphql
     version: 1.12.7
     manager: conda
@@ -5003,8 +5003,8 @@ package:
     hash:
       md5: 5ab6cbe098ff8d3e7019ae4c029a8719
       sha256: 66eed7f63b287f72dbf9e92c1d5f9255a91173c9a4d9a6e7fc3dde4151e69947
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: dagster-pipes
     version: 1.12.7
     manager: conda
@@ -5155,8 +5155,8 @@ package:
     hash:
       md5: 9fa72a21314d920033a2a2122b318c89
       sha256: dd0681d8f45170dbefd6478c6e192fb989d8168c2bfd0d13fed20f950a74e65b
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: dagster-webserver
     version: 1.12.7
     manager: conda
@@ -5172,8 +5172,8 @@ package:
     hash:
       md5: 9fa72a21314d920033a2a2122b318c89
       sha256: dd0681d8f45170dbefd6478c6e192fb989d8168c2bfd0d13fed20f950a74e65b
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: dagster-webserver
     version: 1.12.7
     manager: conda
@@ -5189,8 +5189,8 @@ package:
     hash:
       md5: 9fa72a21314d920033a2a2122b318c89
       sha256: dd0681d8f45170dbefd6478c6e192fb989d8168c2bfd0d13fed20f950a74e65b
-    category: dev
-    optional: true
+    category: main
+    optional: false
   - name: databricks-sdk
     version: 0.76.0
     manager: conda
@@ -14819,10 +14819,10 @@ package:
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libmpdec-4.0.0-hfdf4475_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libmpdec-4.0.0-h6e16a3a_0.conda
     hash:
-      md5: ed625b2e59dff82859c23dd24774156b
-      sha256: 791be3d30d8e37ec49bcc23eb8f1e1415d911a7c023fa93685f2ea485179e258
+      md5: 18b81186a6adb43f000ad19ed7b70381
+      sha256: 98299c73c7a93cd4f5ff8bb7f43cd80389f08b5a27a296d806bdef7841cc9b9e
     category: main
     optional: false
   - name: libmpdec
@@ -15134,11 +15134,12 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      libgcc-ng: ">=12"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libpciaccess-0.18-hd590300_0.conda
+      __glibc: ">=2.17,<3.0.a0"
+      libgcc: ">=13"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libpciaccess-0.18-hb9d3cd8_0.conda
     hash:
-      md5: 48f4330bfcd959c3cfb704d424903c82
-      sha256: c0a30ac74eba66ea76a4f0a39acc7833f5ed783a632ca3bb6665b2d81aabd2fb
+      md5: 70e3400cbbfa03e96dcde7fc13e38c7b
+      sha256: 0bd91de9b447a2991e666f284ae8c722ffb1d84acb594dbd0c031bd656fa32b2
     category: dev
     optional: true
   - name: libpng
@@ -15573,11 +15574,11 @@ package:
       __glibc: ">=2.17,<3.0.a0"
       libgcc: ">=13"
       libzlib: ">=1.3.1,<2.0a0"
-      openssl: ">=3.4.0,<4.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libssh2-1.11.1-hf672d98_0.conda
+      openssl: ">=3.5.0,<4.0a0"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libssh2-1.11.1-hcf80075_0.conda
     hash:
-      md5: be2de152d8073ef1c01b7728475f2fe7
-      sha256: 0407ac9fda2bb67e11e357066eff144c845801d00b5f664efbc48813af1e7bb9
+      md5: eecce068c7e4eddeb169591baac20ac4
+      sha256: fa39bfd69228a13e553bd24601332b7cfeb30ca11a3ca50bb028108fe90a7661
     category: main
     optional: false
   - name: libssh2
@@ -15760,11 +15761,11 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      libgcc-ng: ">=7.3.0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libunistring-0.9.10-h14c3975_0.tar.bz2
+      libgcc-ng: ">=9.3.0"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libunistring-0.9.10-h7f98852_0.tar.bz2
     hash:
-      md5: aefddf7f4a5a417c0678ba553203ea49
-      sha256: 9f5c1fe362a586fa1f5da8ef2ae09249c2806297706e9935b347bd58bfb695da
+      md5: 7245a044b4a1980ed83196176b78b73a
+      sha256: e88c45505921db29c08df3439ddb7f771bbff35f95e7d3103bf365d5d6ce2a6d
     category: dev
     optional: true
   - name: libunwind
@@ -24426,10 +24427,10 @@ package:
       python_abi: 3.13.*
       scipy: ">=1.10.0"
       threadpoolctl: ">=3.2.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/scikit-learn-1.8.0-np2py313h9d890a2_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/scikit-learn-1.8.0-np2py313h3b23316_1.conda
     hash:
-      md5: dfd8e9cfe0344f174a1c1721dab6ee99
-      sha256: a752d5225684f36b6f6b49b018d7e7c0a574e875c2e40eed0b074cafaf20b18e
+      md5: 4434adab69e6300db1e98aff4c3565f3
+      sha256: 5191a32a082c9b86f84fd5672e61fdd600a41f7ba0d900226348fa5f71fbfaa0
     category: main
     optional: false
   - name: scipy

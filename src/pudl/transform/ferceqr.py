@@ -11,7 +11,6 @@ from pudl.helpers import (
 from pudl.logging_helpers import get_logger
 from pudl.metadata.classes import Resource
 from pudl.settings import ferceqr_year_quarters
-from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
 
@@ -78,6 +77,8 @@ def core_ferceqr__quarterly_identity(
 ):
     """Apply data types to EQR ident table."""
     year_quarter = context.partition_key
+    logger.info(f"Transforming ferceqr identity table for {year_quarter}")
+
     with duckdb_relation_from_parquet(raw_ferceqr__ident, use_all_partitions=True) as (
         table,
         _,
@@ -113,6 +114,8 @@ def core_ferceqr__quarterly_identity(
 def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
     """Perform basic transforms on transactions table table."""
     year_quarter = context.partition_key
+    logger.info(f"Transforming ferceqr transactions table for {year_quarter}")
+
     with duckdb_relation_from_parquet(
         raw_ferceqr__transactions, use_all_partitions=True
     ) as (table, _):
@@ -183,6 +186,8 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
 def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
     """Perform basic transforms on contracts table table."""
     year_quarter = context.partition_key
+    logger.info(f"Transforming ferceqr contracts table for {year_quarter}")
+
     with duckdb_relation_from_parquet(
         raw_ferceqr__contracts, use_all_partitions=True
     ) as (table, _):
@@ -259,6 +264,8 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
 def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetData):
     """Perform basic transforms on indexPub table table."""
     year_quarter = context.partition_key
+    logger.info(f"Transforming ferceqr indexPub table for {year_quarter}")
+
     with duckdb_relation_from_parquet(
         raw_ferceqr__index_pub, use_all_partitions=True
     ) as (table, _):
@@ -279,27 +286,3 @@ def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetDa
                 ),
             },
         )
-
-
-@dg.asset(
-    deps=[
-        dg.AssetDep(
-            "core_ferceqr__contracts", partition_mapping=dg.AllPartitionMapping()
-        ),
-        dg.AssetDep(
-            "core_ferceqr__transactions", partition_mapping=dg.AllPartitionMapping()
-        ),
-        dg.AssetDep(
-            "core_ferceqr__quarterly_index_pub",
-            partition_mapping=dg.AllPartitionMapping(),
-        ),
-        dg.AssetDep(
-            "core_ferceqr__quarterly_identity",
-            partition_mapping=dg.AllPartitionMapping(),
-        ),
-    ],
-    automation_condition=dg.AutomationCondition.eager(),
-)
-def ferceqr__monitor():
-    """During ferceqr cloud builds execute after all upstream partitions are complete."""
-    (PudlPaths().output_dir / "SUCCESS").touch()

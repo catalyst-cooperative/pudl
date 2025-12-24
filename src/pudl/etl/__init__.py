@@ -22,6 +22,7 @@ from dagster import (
 
 import pudl
 from pudl.etl.asset_checks import asset_check_from_schema
+from pudl.etl.ferceqr_monitoring import ferceqr_sensor
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
@@ -236,40 +237,6 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     return dataset_settings
 
 
-ferceqr_job = define_asset_job(
-    name="ferceqr_etl",
-    description="This job executes the ferceqr ETL.",
-    config=pudl.helpers.get_dagster_execution_config(
-        tag_concurrency_limits=default_tag_concurrency_limits
-    ),
-    selection="key:*_ferceqr*",
-)
-
-ferceqr_sensor_status = (
-    DefaultSensorStatus.RUNNING
-    if os.getenv("FERCEQR_BUILD", None)
-    else DefaultSensorStatus.STOPPED
-)
-
-
-# Create the automation sensor with default_status=RUNNING
-ferceqr_success_sensor = AutomationConditionSensorDefinition(
-    name="ferceqr_success_sensor",
-    target="ferceqr__monitor",
-    default_status=ferceqr_sensor_status,
-)
-
-
-@run_status_sensor(
-    monitored_jobs=[ferceqr_job],
-    run_status=DagsterRunStatus.FAILURE,
-    default_status=ferceqr_sensor_status,
-)
-def ferceqr_failure_sensor():
-    """During ferc eqr cloud builds, monitor for any failed runs and alert."""
-    (PudlPaths().output_dir / "FAILURE").touch()
-
-
 defs: Definitions = Definitions(
     assets=default_assets,
     asset_checks=default_asset_checks,
@@ -301,9 +268,16 @@ defs: Definitions = Definitions(
             description="This job executes the most recent year of each asset.",
             selection="not key:*_ferceqr*",
         ),
-        ferceqr_job,
+        define_asset_job(
+            name="ferceqr_etl",
+            description="This job executes the ferceqr ETL.",
+            config=pudl.helpers.get_dagster_execution_config(
+                tag_concurrency_limits=default_tag_concurrency_limits
+            ),
+            selection="key:*_ferceqr*",
+        ),
     ],
-    sensors=[ferceqr_success_sensor, ferceqr_failure_sensor],
+    sensors=[ferceqr_sensor],
 )
 
 """A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL."""

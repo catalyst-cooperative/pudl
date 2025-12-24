@@ -23,6 +23,7 @@ dependencies = [
     "coverage>=7.10",
     "dagster>=1.12.1",
     "dagster-dg-cli",
+    "dagster-webserver>=1.12.1",
     "dagster-dbt", # Needs to follow dagster, but RTD can't deal with epochs
     "dagster-postgres", # Needs to follow dagster, but RTD can't deal with epochs
     "dbt-core>=1.10.13",
@@ -157,7 +158,6 @@ zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release
 
 [project.optional-dependencies]
 dev = [
-    "dagster-webserver>=1.12.1",
     "jupyterlab>4.4",
     "jupyter-lsp",
     "jupyterlab-lsp",
