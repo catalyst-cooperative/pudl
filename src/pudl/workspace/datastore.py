@@ -321,11 +321,11 @@ class Datastore:
         """Datastore manages input data retrieval for PUDL datasets.
 
         Args:
-            local_cache_path: if provided, :class:`FSSpecCache` pointed at the data
+            local_cache_path: if provided, :class:`UPathCache` pointed at the data
                 subdirectory of this path will be used with this Datastore. Should be
                 a local filesystem path (will be converted to file:// URL).
             cloud_cache_path: if provided, retrieve data from cloud object storage
-                using :class:`FSSpecCache` with the provided storage path. The path
+                using :class:`UPathCache` with the provided storage path. The path
                 is expected to have the format: {gs,s3}://bucket[/path_prefix]
             timeout: connection timeouts (in seconds) to use when connecting to Zenodo
                 servers.
