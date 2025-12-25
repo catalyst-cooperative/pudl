@@ -181,41 +181,41 @@ class TestUPathCache:
         """Test UPathCache initialization with local filesystem."""
         cache = resource_cache.UPathCache(temp_dir)
 
-        assert cache._scheme == "file"
+        assert cache._protocol == "file"
         assert cache._storage_options == {}
 
     def test_local_filesystem_with_file_scheme(self, temp_dir):
         """Test UPathCache initialization with file:// scheme."""
         cache = resource_cache.UPathCache(f"file://{temp_dir}")
 
-        assert cache._scheme == "file"
+        assert cache._protocol == "file"
 
     def test_s3_initialization_with_credentials(self, mock_s3_credentials):
         """Test UPathCache initialization with S3 when credentials are available."""
         cache = resource_cache.UPathCache("s3://test-bucket/prefix")
 
-        assert cache._scheme == "s3"
+        assert cache._protocol == "s3"
         assert cache._storage_options.get("anon") is False
 
     def test_s3_initialization_without_credentials(self, mock_s3_no_credentials):
         """Test UPathCache initialization with S3 when no credentials available."""
         cache = resource_cache.UPathCache("s3://public-bucket/path")
 
-        assert cache._scheme == "s3"
+        assert cache._protocol == "s3"
         assert cache._storage_options.get("anon") is True
 
     def test_gcs_initialization_with_credentials(self, mock_gcp_credentials):
         """Test UPathCache initialization with GCS when credentials are available."""
         cache = resource_cache.UPathCache("gs://test-bucket/prefix")
 
-        assert cache._scheme == "gs"
+        assert cache._protocol == "gs"
         assert cache._storage_options.get("project") == "test-project"
 
     def test_gcs_initialization_without_credentials(self, mock_gcp_no_credentials):
         """Test UPathCache initialization with GCS when no credentials available."""
         cache = resource_cache.UPathCache("gs://public-bucket/path")
 
-        assert cache._scheme == "gs"
+        assert cache._protocol == "gs"
         assert cache._storage_options.get("token") == "anon"
 
     def test_local_add_and_get(self, temp_dir):

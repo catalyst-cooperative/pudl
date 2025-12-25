@@ -3,7 +3,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, NamedTuple
-from urllib.parse import urlparse
 
 import boto3
 import google.auth
@@ -72,6 +71,8 @@ class UPathCache(AbstractCache):
         - file:///local/path or /local/path
     """
 
+    supported_protocols = ["s3", "gs", "file"]
+
     def __init__(self, storage_path: str, **kwargs: Any):
         """Constructs new cache using UPath for storage backend access.
 
@@ -86,43 +87,41 @@ class UPathCache(AbstractCache):
         """
         super().__init__(**kwargs)
 
-        # Parse the URL to determine the storage backend
-        parsed_url = urlparse(storage_path)
-        self._scheme = parsed_url.scheme if parsed_url.scheme else "file"
+        # Ensure that we're working with a URL:
+        if UPath(storage_path).protocol == "":
+            # Local filesystem path without scheme
+            storage_upath = UPath(f"file://{storage_path}")
+        else:
+            storage_upath = UPath(storage_path)
+        self._protocol = storage_upath.protocol
 
         # Validate supported schemes
-        if self._scheme not in ["s3", "gs", "file", ""]:
+        if self._protocol not in self.supported_protocols:
             raise ValueError(
-                f"Unsupported storage scheme: {self._scheme}. "
-                "Supported schemes are: s3, gs, file"
+                f"Unsupported storage scheme: {self._protocol}. "
+                f"Supported schemes are: {self.supported_protocols}"
             )
 
         # Initialize UPath with appropriate storage options
         self._storage_options = self._setup_credentials()
-
-        # Create the base UPath
-        if self._scheme in ["s3", "gs"]:
-            # For S3 and GCS, use the full URL
-            self._base_path = UPath(storage_path, **self._storage_options)
-        else:
-            # For local filesystem, handle both file:// URLs and plain paths
-            local_path = parsed_url.path if self._scheme == "file" else storage_path
-            self._base_path = UPath(local_path)
+        self._base_path = UPath(storage_upath, **self._storage_options)
 
         logger.debug(
-            f"UPathCache initialized with scheme={self._scheme}, "
+            f"UPathCache initialized with scheme={self._protocol}, "
             f"base_path={self._base_path}"
         )
 
     def _setup_credentials(self) -> dict[str, Any]:
         """Set up backend-specific credentials and storage options.
 
+        This should be the only place where backend-specific logic is required.
+
         Returns:
             Dictionary of storage options to pass to UPath
         """
         storage_options = {}
 
-        if self._scheme == "s3":
+        if self._protocol == "s3":
             # Check if AWS credentials are available
             session = boto3.Session()
             credentials = session.get_credentials()
@@ -135,7 +134,7 @@ class UPathCache(AbstractCache):
                 logger.debug("Using AWS credentials for S3 access")
                 storage_options["anon"] = False
 
-        elif self._scheme == "gs":
+        elif self._protocol == "gs":
             # For GCS, attempt to get default credentials
             try:
                 credentials, project_id = google.auth.default()
@@ -200,13 +199,13 @@ class UPathCache(AbstractCache):
             return
 
         # Check if we can write (for S3/GCS without credentials)
-        if self._scheme == "s3" and self._storage_options.get("anon", False):
+        if self._protocol == "s3" and self._storage_options.get("anon", False):
             raise RuntimeError(
                 "Cannot write to S3 without credentials. "
                 "Please configure AWS credentials to write to S3."
             )
 
-        if self._scheme == "gs" and self._storage_options.get("token") == "anon":
+        if self._protocol == "gs" and self._storage_options.get("token") == "anon":
             raise RuntimeError(
                 "Cannot write to GCS without credentials. "
                 "Please configure GCP credentials to write to GCS."
@@ -235,13 +234,13 @@ class UPathCache(AbstractCache):
             return
 
         # Check if we can write (for S3/GCS without credentials)
-        if self._scheme == "s3" and self._storage_options.get("anon", False):
+        if self._protocol == "s3" and self._storage_options.get("anon", False):
             raise RuntimeError(
                 "Cannot delete from S3 without credentials. "
                 "Please configure AWS credentials to delete from S3."
             )
 
-        if self._scheme == "gs" and self._storage_options.get("token") == "anon":
+        if self._protocol == "gs" and self._storage_options.get("token") == "anon":
             raise RuntimeError(
                 "Cannot delete from GCS without credentials. "
                 "Please configure GCP credentials to delete from GCS."

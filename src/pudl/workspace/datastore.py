@@ -352,6 +352,9 @@ class Datastore:
         )
         if local_cache_path is not None:
             # Normalize local_cache_path to a file:// URL string
+            if UPath(local_cache_path).protocol == "":
+                # Local filesystem path without scheme
+                local_cache_path = f"file://{local_cache_path}"
             local_cache_path = str(UPath(local_cache_path))
             protocol = UPath(local_cache_path).protocol
             if protocol == "file":
