@@ -15,7 +15,7 @@ from requests.exceptions import ConnectionError, RetryError  # noqa: A004
 from urllib3.exceptions import MaxRetryError, ResponseError
 
 from pudl.workspace import resource_cache
-from pudl.workspace.datastore import Datastore
+from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.resource_cache import PudlResourceKey
 
 
@@ -51,86 +51,12 @@ def gcs_test_cache_path():
 def sample_resource():
     """Provide a sample resource key for testing."""
     # Use a small file from eia176 dataset for testing
+    # Get the current DOI from datastore instead of hard-coding it
     return PudlResourceKey(
         dataset="eia176",
-        doi="10.5281/zenodo.17563679",
-        name="datapackage.json",
+        doi=ZenodoDoiSettings().eia176,
+        name="eia176-1997.zip",
     )
-
-
-class TestLocalFileCacheIntegration:
-    """Integration tests for LocalFileCache with real local filesystem."""
-
-    def test_cache_and_retrieve_local(self, temp_local_dir, sample_resource):
-        """Test caching and retrieving a resource using local filesystem."""
-        cache = resource_cache.LocalFileCache(Path(temp_local_dir))
-
-        # Add some test content
-        test_content = b'{"test": "data", "format": "json"}'
-        cache.add(sample_resource, test_content)
-
-        # Verify it was cached
-        assert cache.contains(sample_resource)
-
-        # Retrieve and verify content
-        retrieved = cache.get(sample_resource)
-        assert retrieved == test_content
-
-        # Clean up
-        cache.delete(sample_resource)
-        assert not cache.contains(sample_resource)
-
-
-class TestS3CacheIntegration:
-    """Integration tests for S3Cache with PUDL's public S3 bucket (read-only)."""
-
-    @pytest.mark.xfail(
-        raises=(
-            MaxRetryError,
-            ConnectionError,
-            RetryError,
-            ResponseError,
-        )
-    )
-    def test_read_from_public_s3_bucket(self, temp_local_dir):
-        """Test reading a real resource from PUDL's public S3 bucket."""
-        # Create a layered cache with S3 (read-only) and local (read-write)
-        s3_cache = resource_cache.S3Cache(
-            "s3://pudl.catalyst.coop/zenodo", read_only=True
-        )
-        local_cache = resource_cache.LocalFileCache(Path(temp_local_dir))
-        layered = resource_cache.LayeredCache(local_cache, s3_cache)
-
-        # Get the datapackage descriptor to find a real resource
-        ds = Datastore()
-        descriptor = ds.get_datapackage_descriptor("eia176")
-
-        # Get the first resource from the descriptor
-        resources = list(descriptor.get_resources())
-        if not resources:
-            pytest.skip("No resources found in eia176 datapackage")
-
-        resource = resources[0]
-
-        # Resource should not be in local cache yet
-        assert not local_cache.contains(resource)
-
-        # Check if it exists in S3
-        if not s3_cache.contains(resource):
-            pytest.skip(f"Resource {resource} not found in S3 cache")
-
-        # Retrieve from layered cache (should pull from S3)
-        content = layered.get(resource)
-        assert content is not None
-        assert len(content) > 0
-
-        # LayeredCache doesn't automatically populate earlier layers
-        # so we need to explicitly add to local cache if we want caching
-        layered.add(resource, content)
-
-        # Verify it was written to local cache
-        assert local_cache.contains(resource)
-        assert local_cache.get(resource) == content
 
 
 class TestUPathCacheIntegration:
@@ -303,23 +229,25 @@ class TestLayeredCacheIntegration:
 class TestCacheInteroperability:
     """Test that different cache implementations can interoperate."""
 
-    def test_mixed_cache_types_in_layered_cache(self, temp_local_dir, sample_resource):
-        """Test using different cache implementations in the same LayeredCache."""
-        # Create different cache types
-        local_file_cache = resource_cache.LocalFileCache(Path(temp_local_dir) / "lfc")
-        upath_cache = resource_cache.UPathCache(str(Path(temp_local_dir) / "upath"))
+    def test_multiple_upath_caches_in_layered_cache(
+        self, temp_local_dir, sample_resource
+    ):
+        """Test using multiple UPathCache instances in the same LayeredCache."""
+        # Create different UPath caches pointing to different directories
+        cache1 = resource_cache.UPathCache(str(Path(temp_local_dir) / "cache1"))
+        cache2 = resource_cache.UPathCache(str(Path(temp_local_dir) / "cache2"))
 
-        # Build layered cache with mixed types
-        layered = resource_cache.LayeredCache(local_file_cache, upath_cache)
+        # Build layered cache
+        layered = resource_cache.LayeredCache(cache1, cache2)
 
-        test_content = b"Mixed cache types test"
+        test_content = b"Multiple UPath caches test"
 
         # Add to layered cache (should go to first layer)
         layered.add(sample_resource, test_content)
 
         # Should be in first layer only
-        assert local_file_cache.contains(sample_resource)
-        assert not upath_cache.contains(sample_resource)
+        assert cache1.contains(sample_resource)
+        assert not cache2.contains(sample_resource)
 
         # Should be retrievable through layered cache
         assert layered.get(sample_resource) == test_content
