@@ -20,6 +20,7 @@ import requests
 from pydantic import HttpUrl, StringConstraints
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests.adapters import HTTPAdapter
+from upath import UPath
 from urllib3.util.retry import Retry
 
 import pudl
@@ -314,21 +315,30 @@ class Datastore:
 
     def __init__(
         self,
-        local_cache_path: Path | None = None,
-        cloud_cache_path: str | None = "s3://pudl.catalyst.coop/zenodo",
+        local_cache_path: str | Path | UPath | None = None,
+        cloud_cache_path: str | UPath | None = "s3://pudl.catalyst.coop/zenodo",
         timeout: float = 15.0,
     ):
         """Datastore manages input data retrieval for PUDL datasets.
 
+        Requires at least one of local_cache_path or cloud_cache_path to be provided.
+
         Args:
-            local_cache_path: if provided, :class:`UPathCache` pointed at the data
-                subdirectory of this path will be used with this Datastore. Should be
-                a local filesystem path (will be converted to file:// URL).
+            local_cache_path: if provided, :class:`UPathCache` pointed at Zenodo
+                archives stored in this directory will be used with this Datastore. Can
+                be: a local Path object, a string describing a local path, a file://
+                URL, or a UPath object with file:// scheme.
             cloud_cache_path: if provided, retrieve data from cloud object storage
-                using :class:`UPathCache` with the provided storage path. The path
-                is expected to have the format: {gs,s3}://bucket[/path_prefix]
+                using :class:`UPathCache` with the provided storage path. Can be: a
+                string describing a s3:// or gs:// URL or a UPath object with s3 or gs
+                scheme. The path is expected to have the format:
+                {gs,s3}://bucket[/path_prefix]
             timeout: connection timeouts (in seconds) to use when connecting to Zenodo
                 servers.
+
+        Raises:
+            ValueError: if neither local_cache_path nor cloud_cache_path is provided.
+            ValueError: if local_cache_path or cloud_cache_path has unsupported scheme.
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
@@ -341,16 +351,23 @@ class Datastore:
             "At least one of local_cache_path or cloud_cache_path must be provided."
         )
         if local_cache_path is not None:
-            logger.info(f"Adding local cache layer at {local_cache_path}")
-            local_storage_path = f"file://{local_cache_path}"
-            self._cache.add_cache_layer(resource_cache.UPathCache(local_storage_path))
+            # Normalize local_cache_path to a file:// URL string
+            local_cache_path = str(UPath(local_cache_path))
+            protocol = UPath(local_cache_path).protocol
+            if protocol == "file":
+                logger.info(f"Adding local cache layer at {local_cache_path}")
+                self._cache.add_cache_layer(resource_cache.UPathCache(local_cache_path))
+            else:
+                raise ValueError(
+                    f"Unsupported local storage scheme: {protocol}. "
+                    "Only 'file' scheme is supported for local_cache_path."
+                )
 
         if cloud_cache_path is not None:
-            parsed_url = urlparse(cloud_cache_path)
-            if parsed_url.scheme in ("s3", "gs"):
-                logger.info(
-                    f"Adding {parsed_url.scheme.upper()} cache layer at {cloud_cache_path}"
-                )
+            cloud_cache_path = str(cloud_cache_path)
+            protocol = UPath(cloud_cache_path).protocol
+            if protocol in ("s3", "gs"):
+                logger.info(f"Adding {protocol} cache layer at {cloud_cache_path}")
                 try:
                     self._cache.add_cache_layer(
                         resource_cache.UPathCache(cloud_cache_path)
@@ -362,7 +379,7 @@ class Datastore:
                     )
             else:
                 raise ValueError(
-                    f"Unsupported cloud storage scheme: {parsed_url.scheme}. "
+                    f"Unsupported cloud storage scheme: {protocol}. "
                     "Only 's3' and 'gs' are supported for cloud_cache_path."
                 )
 
