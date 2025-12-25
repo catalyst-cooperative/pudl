@@ -39,7 +39,10 @@
   the appropriate success or failure or exception to be raised for each test as
   appropriate.
 - Tests must be run inside the `pudl-dev` conda environment.
-- For example, the unit tests can be run with `mamba run -n pudl-dev pytest test/unit`.
+- Test coverage collection should be disabled using `--no-cov` when running individual
+  tests to avoid getting spurious warnings.
+- For example, the unit tests can be run with
+  `mamba run -n pudl-dev pytest --no-cov test/unit`.
 - We use dbt only for data validation, and NOT for data transformations. The PUDL data
   tests are under the `dbt/` directory.
 - The PUDL integration tests process a substantial amount of data and take up to an hour

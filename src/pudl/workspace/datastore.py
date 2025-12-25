@@ -17,7 +17,6 @@ from urllib.parse import ParseResult, urlparse
 import click
 import frictionless
 import requests
-from google.auth.exceptions import DefaultCredentialsError
 from pydantic import HttpUrl, StringConstraints
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests.adapters import HTTPAdapter
@@ -322,12 +321,12 @@ class Datastore:
         """Datastore manages input data retrieval for PUDL datasets.
 
         Args:
-            local_cache_path: if provided, :class:`LocalFileCache` pointed at the data
-                subdirectory of this path will be used with this Datastore.
+            local_cache_path: if provided, :class:`FSSpecCache` pointed at the data
+                subdirectory of this path will be used with this Datastore. Should be
+                a local filesystem path (will be converted to file:// URL).
             cloud_cache_path: if provided, retrieve data from cloud object storage
-                using :class:`GoogleCloudStorageCache` or :class:`S3Cache` depending on
-                the protocol specified in the URL. The path is expected to have the
-                format: {gs,s3}://bucket[/path_prefix]
+                using :class:`FSSpecCache` with the provided storage path. The path
+                is expected to have the format: {gs,s3}://bucket[/path_prefix]
             timeout: connection timeouts (in seconds) to use when connecting to Zenodo
                 servers.
         """
@@ -343,29 +342,28 @@ class Datastore:
         )
         if local_cache_path is not None:
             logger.info(f"Adding local cache layer at {local_cache_path}")
-            self._cache.add_cache_layer(resource_cache.LocalFileCache(local_cache_path))
+            local_storage_path = f"file://{local_cache_path}"
+            self._cache.add_cache_layer(resource_cache.UPathCache(local_storage_path))
 
         if cloud_cache_path is not None:
             parsed_url = urlparse(cloud_cache_path)
-            if parsed_url.scheme == "s3":
-                logger.info(f"Adding S3 cache layer at {cloud_cache_path}")
-                self._cache.add_cache_layer(resource_cache.S3Cache(cloud_cache_path))
-            elif parsed_url.scheme == "gs":
+            if parsed_url.scheme in ("s3", "gs"):
+                logger.info(
+                    f"Adding {parsed_url.scheme.upper()} cache layer at {cloud_cache_path}"
+                )
                 try:
-                    logger.info(f"Adding GCS cache layer at {cloud_cache_path}")
                     self._cache.add_cache_layer(
-                        resource_cache.GoogleCloudStorageCache(cloud_cache_path)
+                        resource_cache.UPathCache(cloud_cache_path)
                     )
-                except (DefaultCredentialsError, OSError) as e:
+                except RuntimeError as e:
                     logger.info(
-                        "Unable to obtain credentials for GCS Cache at "
-                        f" {cloud_cache_path}. "
+                        f"Unable to initialize cache at {cloud_cache_path}. "
                         f"Falling back to Zenodo if necessary. Error was: {e}"
                     )
             else:
                 raise ValueError(
                     f"Unsupported cloud storage scheme: {parsed_url.scheme}. "
-                    "Only 's3' and 'gs' are supported."
+                    "Only 's3' and 'gs' are supported for cloud_cache_path."
                 )
 
         self._zenodo_fetcher = ZenodoFetcher(timeout=timeout)

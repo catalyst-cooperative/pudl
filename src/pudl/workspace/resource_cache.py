@@ -16,6 +16,7 @@ from google.cloud import storage
 from google.cloud.storage.blob import Blob
 from google.cloud.storage.retry import _should_retry
 from google.resumable_media.common import DataCorruption
+from upath import UPath
 
 import pudl.logging_helpers
 
@@ -317,6 +318,221 @@ class S3Cache(AbstractCache):
             raise
 
 
+class UPathCache(AbstractCache):
+    """Implements file cache using UPath for unified access to multiple storage backends.
+
+    This cache uses universal_pathlib's UPath to provide a unified interface
+    for accessing data stored in S3, GCS, or local filesystems. It handles backend-specific
+    authentication and credential management internally.
+
+    Supports paths like:
+        - s3://bucket-name/path/prefix
+        - gs://bucket-name/path/prefix
+        - file:///local/path or /local/path
+    """
+
+    def __init__(self, storage_path: str, **kwargs: Any):
+        """Constructs new cache using UPath for storage backend access.
+
+        Args:
+            storage_path: path to where the data should be stored. Supported schemes:
+                - s3://bucket-name/path/prefix
+                - gs://bucket-name/path/prefix
+                - file:///local/path or /local/path
+
+        Raises:
+            ValueError: if storage_path uses an unsupported scheme
+        """
+        super().__init__(**kwargs)
+
+        # Parse the URL to determine the storage backend
+        parsed_url = urlparse(storage_path)
+        self._scheme = parsed_url.scheme if parsed_url.scheme else "file"
+
+        # Validate supported schemes
+        if self._scheme not in ["s3", "gs", "file", ""]:
+            raise ValueError(
+                f"Unsupported storage scheme: {self._scheme}. "
+                "Supported schemes are: s3, gs, file"
+            )
+
+        # Initialize UPath with appropriate storage options
+        self._storage_options = self._setup_credentials()
+
+        # Create the base UPath
+        if self._scheme in ["s3", "gs"]:
+            # For S3 and GCS, use the full URL
+            self._base_path = UPath(storage_path, **self._storage_options)
+        else:
+            # For local filesystem, handle both file:// URLs and plain paths
+            local_path = parsed_url.path if self._scheme == "file" else storage_path
+            self._base_path = UPath(local_path)
+
+        logger.debug(
+            f"UPathCache initialized with scheme={self._scheme}, "
+            f"base_path={self._base_path}"
+        )
+
+    def _setup_credentials(self) -> dict[str, Any]:
+        """Set up backend-specific credentials and storage options.
+
+        Returns:
+            Dictionary of storage options to pass to UPath
+        """
+        storage_options = {}
+
+        if self._scheme == "s3":
+            # Check if AWS credentials are available
+            session = boto3.Session()
+            credentials = session.get_credentials()
+
+            if credentials is None:
+                # No credentials available, use anonymous access for public buckets
+                logger.debug("No AWS credentials found, using anonymous S3 access")
+                storage_options["anon"] = True
+            else:
+                logger.debug("Using AWS credentials for S3 access")
+                storage_options["anon"] = False
+
+        elif self._scheme == "gs":
+            # For GCS, attempt to get default credentials
+            try:
+                credentials, project_id = google.auth.default()
+                logger.debug(f"Using GCP credentials with project_id={project_id}")
+                # fsspec's gcsfs will automatically use default credentials
+                # We can pass the project for requester-pays buckets
+                if project_id:
+                    storage_options["project"] = project_id
+            except Exception as e:
+                logger.warning(
+                    f"Could not load GCP credentials: {e}. Attempting anonymous access."
+                )
+                storage_options["token"] = "anon"  # noqa: S105
+
+        # For local filesystem, no special credentials needed
+        return storage_options
+
+    def _resource_path(self, resource: PudlResourceKey) -> UPath:
+        """Get the UPath for a given resource.
+
+        Args:
+            resource: The resource to get the path for
+
+        Returns:
+            UPath object pointing to the resource location
+        """
+        return self._base_path / resource.get_local_path()
+
+    def get(self, resource: PudlResourceKey) -> bytes:
+        """Retrieves value associated with given resource.
+
+        Args:
+            resource: The resource to retrieve
+
+        Returns:
+            The content of the resource as bytes
+
+        Raises:
+            KeyError: if the resource doesn't exist
+            Exception: for other storage backend errors
+        """
+        path = self._resource_path(resource)
+        logger.debug(f"Getting {resource} from UPath cache at {path}")
+
+        try:
+            return path.read_bytes()
+        except FileNotFoundError as e:
+            raise KeyError(f"{resource} not found at {path}") from e
+
+    def add(self, resource: PudlResourceKey, content: bytes):
+        """Adds (or updates) resource to the cache with given content.
+
+        Args:
+            resource: The resource to add
+            content: The content to store
+
+        Raises:
+            RuntimeError: if cache is read-only or credentials are insufficient
+        """
+        if self.is_read_only():
+            logger.warning(f"Read only cache: ignoring add({resource})")
+            return
+
+        # Check if we can write (for S3/GCS without credentials)
+        if self._scheme == "s3" and self._storage_options.get("anon", False):
+            raise RuntimeError(
+                "Cannot write to S3 without credentials. "
+                "Please configure AWS credentials to write to S3."
+            )
+
+        if self._scheme == "gs" and self._storage_options.get("token") == "anon":
+            raise RuntimeError(
+                "Cannot write to GCS without credentials. "
+                "Please configure GCP credentials to write to GCS."
+            )
+
+        path = self._resource_path(resource)
+        logger.debug(f"Adding {resource} to UPath cache at {path}")
+
+        # Ensure parent directories exist
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write the content
+        path.write_bytes(content)
+
+    def delete(self, resource: PudlResourceKey):
+        """Deletes resource from the cache.
+
+        Args:
+            resource: The resource to delete
+
+        Raises:
+            RuntimeError: if cache is read-only or credentials are insufficient
+        """
+        if self.is_read_only():
+            logger.warning(f"Read only cache: ignoring delete({resource})")
+            return
+
+        # Check if we can write (for S3/GCS without credentials)
+        if self._scheme == "s3" and self._storage_options.get("anon", False):
+            raise RuntimeError(
+                "Cannot delete from S3 without credentials. "
+                "Please configure AWS credentials to delete from S3."
+            )
+
+        if self._scheme == "gs" and self._storage_options.get("token") == "anon":
+            raise RuntimeError(
+                "Cannot delete from GCS without credentials. "
+                "Please configure GCP credentials to delete from GCS."
+            )
+
+        path = self._resource_path(resource)
+        logger.debug(f"Deleting {resource} from UPath cache at {path}")
+
+        try:
+            path.unlink(missing_ok=True)
+        except Exception as e:
+            logger.error(f"Error deleting {resource} from UPath cache: {e}")
+            raise
+
+    def contains(self, resource: PudlResourceKey) -> bool:
+        """Returns True if resource is present in the cache.
+
+        Args:
+            resource: The resource to check
+
+        Returns:
+            True if the resource exists, False otherwise
+        """
+        path = self._resource_path(resource)
+
+        try:
+            return path.exists()
+        except Exception as e:
+            logger.debug(f"Error checking if {resource} exists: {e}")
+            return False
+
+
 class LayeredCache(AbstractCache):
     """Implements multi-layered system of caches.
 
@@ -354,7 +570,7 @@ class LayeredCache(AbstractCache):
         for i, cache in enumerate(self._caches):
             if cache.contains(resource):
                 logger.debug(
-                    f"get:{resource} found in {i}-th layer ({cache.__class__.__name__})."
+                    f"get:{resource} found in layer {i} ({cache.__class__.__name__})."
                 )
                 return cache.get(resource)
         logger.debug(f"get:{resource} not found in the layered cache.")
@@ -391,7 +607,7 @@ class LayeredCache(AbstractCache):
         for i, cache in enumerate(self._caches):
             if cache.contains(resource):
                 logger.debug(
-                    f"contains: {resource} found in {i}-th layer ({cache.__class__.__name__})."
+                    f"contains: {resource} found in layer {i} ({cache.__class__.__name__})."
                 )
                 return True
         logger.debug(f"contains: {resource} not found in layered cache.")
