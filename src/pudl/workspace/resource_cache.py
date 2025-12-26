@@ -65,34 +65,26 @@ class UPathCache(AbstractCache):
     for accessing data stored in S3, GCS, or local filesystems. It handles backend-specific
     authentication and credential management internally.
 
-    Supports paths like:
+    Requires UPath objects with explicit protocols:
         - s3://bucket-name/path/prefix
         - gs://bucket-name/path/prefix
-        - file:///local/path or /local/path
+        - file:///local/path
     """
 
-    supported_protocols = ["s3", "gs", "file"]
+    supported_protocols: set[str] = {"s3", "gs", "file"}
 
-    def __init__(self, storage_path: str, **kwargs: Any):
+    def __init__(self, storage_upath: UPath, **kwargs: Any):
         """Constructs new cache using UPath for storage backend access.
 
         Args:
-            storage_path: path to where the data should be stored. Supported schemes:
-                - s3://bucket-name/path/prefix
-                - gs://bucket-name/path/prefix
-                - file:///local/path or /local/path
+            storage_upath: UPath object pointing to where data should be stored.
+                Must have an explicit protocol (file://, s3://, or gs://).
 
         Raises:
-            ValueError: if storage_path uses an unsupported scheme
+            ValueError: if storage_upath uses an unsupported scheme
         """
         super().__init__(**kwargs)
 
-        # Ensure that we're working with a URL:
-        if UPath(storage_path).protocol == "":
-            # Local filesystem path without scheme
-            storage_upath = UPath(f"file://{storage_path}")
-        else:
-            storage_upath = UPath(storage_path)
         self._protocol = storage_upath.protocol
 
         # Validate supported schemes

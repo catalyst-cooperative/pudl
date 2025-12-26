@@ -26,7 +26,7 @@ from urllib3.util.retry import Retry
 import pudl
 from pudl.helpers import retry
 from pudl.workspace import resource_cache
-from pudl.workspace.resource_cache import PudlResourceKey
+from pudl.workspace.resource_cache import PudlResourceKey, UPathCache
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -351,39 +351,43 @@ class Datastore:
             "At least one of local_cache_path or cloud_cache_path must be provided."
         )
         if local_cache_path is not None:
-            # Normalize local_cache_path to a file:// URL string
-            if UPath(local_cache_path).protocol == "":
-                # Local filesystem path without scheme
-                local_cache_path = f"file://{local_cache_path}"
-            local_cache_path = str(UPath(local_cache_path))
-            protocol = UPath(local_cache_path).protocol
-            if protocol == "file":
-                logger.info(f"Adding local cache layer at {local_cache_path}")
-                self._cache.add_cache_layer(resource_cache.UPathCache(local_cache_path))
-            else:
+            # Convert to UPath with explicit file:// protocol if needed
+            local_upath = UPath(local_cache_path)
+            if local_upath.protocol == "":
+                # Local filesystem path without scheme - add file:// protocol
+                local_upath = UPath(f"file://{local_cache_path}")
+
+            if local_upath.protocol != "file":
                 raise ValueError(
-                    f"Unsupported local storage scheme: {protocol}. "
+                    f"Unsupported local storage scheme: {local_upath.protocol}. "
                     "Only 'file' scheme is supported for local_cache_path."
                 )
 
+            logger.info(f"Adding local cache layer at {local_upath}")
+            self._cache.add_cache_layer(UPathCache(local_upath))
+
         if cloud_cache_path is not None:
-            cloud_cache_path = str(cloud_cache_path)
-            protocol = UPath(cloud_cache_path).protocol
-            if protocol in ("s3", "gs"):
-                logger.info(f"Adding {protocol} cache layer at {cloud_cache_path}")
-                try:
-                    self._cache.add_cache_layer(
-                        resource_cache.UPathCache(cloud_cache_path)
-                    )
-                except RuntimeError as e:
-                    logger.info(
-                        f"Unable to initialize cache at {cloud_cache_path}. "
-                        f"Falling back to Zenodo if necessary. Error was: {e}"
-                    )
-            else:
+            # Convert to UPath
+            cloud_upath = UPath(cloud_cache_path)
+
+            # Get supported cloud protocols (everything except 'file')
+            supported_cloud_protocols = UPathCache.supported_protocols - {"file"}
+
+            if cloud_upath.protocol not in supported_cloud_protocols:
                 raise ValueError(
-                    f"Unsupported cloud storage scheme: {protocol}. "
-                    "Only 's3' and 'gs' are supported for cloud_cache_path."
+                    f"Unsupported cloud storage scheme: {cloud_upath.protocol}. "
+                    f"Supported protocols: {', '.join(supported_cloud_protocols)}"
+                )
+
+            logger.info(
+                f"Adding {cloud_upath.protocol.upper()} cache layer at {cloud_upath}"
+            )
+            try:
+                self._cache.add_cache_layer(UPathCache(cloud_upath))
+            except RuntimeError as e:
+                logger.info(
+                    f"Unable to initialize cache at {cloud_upath}. "
+                    f"Falling back to Zenodo if necessary. Error was: {e}"
                 )
 
         self._zenodo_fetcher = ZenodoFetcher(timeout=timeout)

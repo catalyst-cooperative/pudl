@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 from google.cloud import storage
 from requests.exceptions import ConnectionError, RetryError  # noqa: A004
+from upath import UPath
 from urllib3.exceptions import MaxRetryError, ResponseError
 
 from pudl.workspace import resource_cache
@@ -64,7 +65,7 @@ class TestUPathCacheIntegration:
 
     def test_local_filesystem_via_upath(self, temp_local_dir, sample_resource):
         """Test UPathCache with local filesystem."""
-        cache = resource_cache.UPathCache(temp_local_dir)
+        cache = resource_cache.UPathCache(UPath(f"file://{temp_local_dir}"))
 
         test_content = b"UPath local test data"
         cache.add(sample_resource, test_content)
@@ -87,9 +88,9 @@ class TestUPathCacheIntegration:
         """Test reading from PUDL's public S3 bucket using UPathCache."""
         # Create UPath caches for S3 (read-only) and local (read-write)
         s3_cache = resource_cache.UPathCache(
-            "s3://pudl.catalyst.coop/zenodo", read_only=True
+            UPath("s3://pudl.catalyst.coop/zenodo"), read_only=True
         )
-        local_cache = resource_cache.UPathCache(temp_local_dir)
+        local_cache = resource_cache.UPathCache(UPath(f"file://{temp_local_dir}"))
         layered = resource_cache.LayeredCache(local_cache, s3_cache)
 
         # Get a real resource from eia176
@@ -124,7 +125,9 @@ class TestUPathCacheIntegration:
     def test_read_write_gcs_via_upath(self, gcs_test_cache_path, sample_resource):
         """Test read-write operations on GCS using UPathCache."""
         try:
-            cache = resource_cache.UPathCache(gcs_test_cache_path, read_only=False)
+            cache = resource_cache.UPathCache(
+                UPath(gcs_test_cache_path), read_only=False
+            )
         except Exception as e:
             pytest.skip(f"Could not initialize GCS cache: {e}")
 
@@ -170,15 +173,15 @@ class TestLayeredCacheIntegration:
     def test_three_layer_cache_with_s3(self, temp_local_dir, gcs_test_cache_path):
         """Test a three-layer cache: local -> GCS (read-write) -> S3 (read-only)."""
         # Create three cache layers
-        local_cache = resource_cache.UPathCache(temp_local_dir)
+        local_cache = resource_cache.UPathCache(UPath(f"file://{temp_local_dir}"))
 
         try:
-            gcs_cache = resource_cache.UPathCache(gcs_test_cache_path)
+            gcs_cache = resource_cache.UPathCache(UPath(gcs_test_cache_path))
         except Exception:
             pytest.skip("Could not initialize GCS cache")
 
         s3_cache = resource_cache.UPathCache(
-            "s3://pudl.catalyst.coop/zenodo", read_only=True
+            UPath("s3://pudl.catalyst.coop/zenodo"), read_only=True
         )
 
         # Build layered cache (fastest to slowest)
@@ -234,8 +237,12 @@ class TestCacheInteroperability:
     ):
         """Test using multiple UPathCache instances in the same LayeredCache."""
         # Create different UPath caches pointing to different directories
-        cache1 = resource_cache.UPathCache(str(Path(temp_local_dir) / "cache1"))
-        cache2 = resource_cache.UPathCache(str(Path(temp_local_dir) / "cache2"))
+        cache1 = resource_cache.UPathCache(
+            UPath(f"file://{Path(temp_local_dir) / 'cache1'}")
+        )
+        cache2 = resource_cache.UPathCache(
+            UPath(f"file://{Path(temp_local_dir) / 'cache2'}")
+        )
 
         # Build layered cache
         layered = resource_cache.LayeredCache(cache1, cache2)
