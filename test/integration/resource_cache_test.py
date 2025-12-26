@@ -15,9 +15,8 @@ from requests.exceptions import ConnectionError, RetryError  # noqa: A004
 from upath import UPath
 from urllib3.exceptions import MaxRetryError, ResponseError
 
-from pudl.workspace import resource_cache
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
-from pudl.workspace.resource_cache import PudlResourceKey
+from pudl.workspace.resource_cache import LayeredCache, PudlResourceKey, UPathCache
 
 
 @pytest.fixture
@@ -65,7 +64,7 @@ class TestUPathCacheIntegration:
 
     def test_local_filesystem_via_upath(self, temp_local_dir, sample_resource):
         """Test UPathCache with local filesystem."""
-        cache = resource_cache.UPathCache(UPath(f"file://{temp_local_dir}"))
+        cache = UPathCache(UPath(f"file://{temp_local_dir}"))
 
         test_content = b"UPath local test data"
         cache.add(sample_resource, test_content)
@@ -87,36 +86,24 @@ class TestUPathCacheIntegration:
     def test_read_from_s3_via_upath(self, temp_local_dir):
         """Test reading from PUDL's public S3 bucket using UPathCache."""
         # Create UPath caches for S3 (read-only) and local (read-write)
-        s3_cache = resource_cache.UPathCache(
-            UPath("s3://pudl.catalyst.coop/zenodo"), read_only=True
-        )
-        local_cache = resource_cache.UPathCache(UPath(f"file://{temp_local_dir}"))
-        layered = resource_cache.LayeredCache(local_cache, s3_cache)
+        s3_cache = UPathCache(UPath("s3://pudl.catalyst.coop/zenodo"), read_only=True)
+        local_cache = UPathCache(UPath(f"file://{temp_local_dir}"))
+        layered = LayeredCache(local_cache, s3_cache)
 
         # Get a real resource from eia176
         ds = Datastore()
         descriptor = ds.get_datapackage_descriptor("eia176")
-        resources = list(descriptor.get_resources())
-
-        if not resources:
-            pytest.skip("No resources found in eia176 datapackage")
-
-        resource = resources[0]
+        resource = list(descriptor.get_resources())[0]
 
         # Verify not in local cache initially
         assert not local_cache.contains(resource)
-
-        # Check if it exists in S3
-        if not s3_cache.contains(resource):
-            pytest.skip(f"Resource {resource} not found in S3 cache")
 
         # Retrieve through layered cache
         content = layered.get(resource)
         assert content is not None
         assert len(content) > 0
 
-        # LayeredCache doesn't automatically populate earlier layers
-        # Explicitly add to local cache
+        # Explicitly add the resource to the local cache via the layered cache
         layered.add(resource, content)
 
         # Should now be in local cache
@@ -125,9 +112,7 @@ class TestUPathCacheIntegration:
     def test_read_write_gcs_via_upath(self, gcs_test_cache_path, sample_resource):
         """Test read-write operations on GCS using UPathCache."""
         try:
-            cache = resource_cache.UPathCache(
-                UPath(gcs_test_cache_path), read_only=False
-            )
+            cache = UPathCache(UPath(gcs_test_cache_path), read_only=False)
         except Exception as e:
             pytest.skip(f"Could not initialize GCS cache: {e}")
 
@@ -173,39 +158,32 @@ class TestLayeredCacheIntegration:
     def test_three_layer_cache_with_s3(self, temp_local_dir, gcs_test_cache_path):
         """Test a three-layer cache: local -> GCS (read-write) -> S3 (read-only)."""
         # Create three cache layers
-        local_cache = resource_cache.UPathCache(UPath(f"file://{temp_local_dir}"))
+        local_cache = UPathCache(UPath(f"file://{temp_local_dir}"))
 
         try:
-            gcs_cache = resource_cache.UPathCache(UPath(gcs_test_cache_path))
+            gcs_cache = UPathCache(UPath(gcs_test_cache_path))
         except Exception:
+            # The test will be skipped if we do not have access to GCS credentials
             pytest.skip("Could not initialize GCS cache")
 
-        s3_cache = resource_cache.UPathCache(
-            UPath("s3://pudl.catalyst.coop/zenodo"), read_only=True
-        )
+        s3_cache = UPathCache(UPath("s3://pudl.catalyst.coop/zenodo"), read_only=True)
 
-        # Build layered cache (fastest to slowest)
-        layered = resource_cache.LayeredCache(local_cache, gcs_cache, s3_cache)
+        # Build a layered cache
+        layered = LayeredCache(local_cache, gcs_cache, s3_cache)
 
         assert layered.num_layers() == 3
 
         # Get a real resource from eia176
         ds = Datastore()
         descriptor = ds.get_datapackage_descriptor("eia176")
-        resources = list(descriptor.get_resources())
-
-        if not resources:
-            pytest.skip("No resources found in eia176 datapackage")
-
-        resource = resources[0]
+        resource = list(descriptor.get_resources())[0]
 
         # Verify not in any writable layer initially
         assert not local_cache.contains(resource)
         assert not gcs_cache.contains(resource)
 
-        # Check if resource exists in S3
-        if not s3_cache.contains(resource):
-            pytest.skip(f"Resource {resource} not found in S3 cache")
+        # Make sure the resource exists in S3
+        assert s3_cache.contains(resource)
 
         # Retrieve through layered cache (should pull from S3)
         content = layered.get(resource)
@@ -237,15 +215,11 @@ class TestCacheInteroperability:
     ):
         """Test using multiple UPathCache instances in the same LayeredCache."""
         # Create different UPath caches pointing to different directories
-        cache1 = resource_cache.UPathCache(
-            UPath(f"file://{Path(temp_local_dir) / 'cache1'}")
-        )
-        cache2 = resource_cache.UPathCache(
-            UPath(f"file://{Path(temp_local_dir) / 'cache2'}")
-        )
+        cache1 = UPathCache(UPath(f"file://{Path(temp_local_dir) / 'cache1'}"))
+        cache2 = UPathCache(UPath(f"file://{Path(temp_local_dir) / 'cache2'}"))
 
         # Build layered cache
-        layered = resource_cache.LayeredCache(cache1, cache2)
+        layered = LayeredCache(cache1, cache2)
 
         test_content = b"Multiple UPath caches test"
 

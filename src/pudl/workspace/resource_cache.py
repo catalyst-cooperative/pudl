@@ -276,7 +276,7 @@ class LayeredCache(AbstractCache):
     are read-only (get).
     """
 
-    def __init__(self, *caches: list[AbstractCache], **kwargs: Any):
+    def __init__(self, *caches: AbstractCache, **kwargs: Any):
         """Creates layered cache consisting of given cache layers.
 
         Args:
