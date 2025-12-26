@@ -99,7 +99,7 @@ repos:
         files: "^src/pudl/package_data/settings/zenodo_dois\\.yml$"
         pass_filenames: true
         always_run: false
-        entry: bash -c 'for file in "$@"; do sort "$file" -o "$file"; done' --
+        entry: bash -c 'for file in "$@"; do LC_ALL=C sort "$file" -o "$file"; done' --
 
       - id: sort-row-counts
         name: sort-row-counts
