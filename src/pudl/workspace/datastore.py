@@ -1,6 +1,7 @@
 """Datastore manages file retrieval for PUDL datasets."""
 
 import hashlib
+import importlib.resources
 import io
 import json
 import pathlib
@@ -17,6 +18,7 @@ from urllib.parse import ParseResult, urlparse
 import click
 import frictionless
 import requests
+import yaml
 from pydantic import HttpUrl, StringConstraints
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests.adapters import HTTPAdapter
@@ -187,35 +189,68 @@ class DatapackageDescriptor:
 class ZenodoDoiSettings(BaseSettings):
     """Digital Object Identifiers pointing to currently used Zenodo archives."""
 
-    censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
-    censuspep: ZenodoDoi = "10.5281/zenodo.15315316"
-    eia176: ZenodoDoi = "10.5281/zenodo.17563679"
-    eia191: ZenodoDoi = "10.5281/zenodo.10607837"
-    eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
-    eia860: ZenodoDoi = "10.5281/zenodo.17091669"
-    eia860m: ZenodoDoi = "10.5281/zenodo.17725393"
-    eia861: ZenodoDoi = "10.5281/zenodo.17846580"
-    eia923: ZenodoDoi = "10.5281/zenodo.17440792"
-    eia930: ZenodoDoi = "10.5281/zenodo.17500936"
-    eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
-    eiaaeo: ZenodoDoi = "10.5281/zenodo.15622378"
-    eiaapi: ZenodoDoi = "10.5281/zenodo.17500949"
-    epacamd_eia: ZenodoDoi = "10.5281/zenodo.17582121"
-    epacems: ZenodoDoi = "10.5281/zenodo.17500930"
-    ferc1: ZenodoDoi = "10.5281/zenodo.17563678"
-    ferc2: ZenodoDoi = "10.5281/zenodo.17223540"
-    ferc6: ZenodoDoi = "10.5281/zenodo.17119798"
-    ferc60: ZenodoDoi = "10.5281/zenodo.17223513"
-    ferc714: ZenodoDoi = "10.5281/zenodo.16676145"
-    gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
-    nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
-    phmsagas: ZenodoDoi = "10.5281/zenodo.17076661"
-    sec10k: ZenodoDoi = "10.5281/zenodo.15161694"
-    vcerare: ZenodoDoi = "10.5281/zenodo.15166129"
+    censusdp1tract: ZenodoDoi
+    censuspep: ZenodoDoi
+    eia176: ZenodoDoi
+    eia191: ZenodoDoi
+    eia757a: ZenodoDoi
+    eia860: ZenodoDoi
+    eia860m: ZenodoDoi
+    eia861: ZenodoDoi
+    eia923: ZenodoDoi
+    eia930: ZenodoDoi
+    eiawater: ZenodoDoi
+    eiaaeo: ZenodoDoi
+    eiaapi: ZenodoDoi
+    epacamd_eia: ZenodoDoi
+    epacems: ZenodoDoi
+    ferc1: ZenodoDoi
+    ferc2: ZenodoDoi
+    ferc6: ZenodoDoi
+    ferc60: ZenodoDoi
+    ferc714: ZenodoDoi
+    gridpathratoolkit: ZenodoDoi
+    nrelatb: ZenodoDoi
+    phmsagas: ZenodoDoi
+    sec10k: ZenodoDoi
+    vcerare: ZenodoDoi
 
     model_config = SettingsConfigDict(
         env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
     )
+
+    def __init__(self, **data: Any):
+        """Initialize ZenodoDoiSettings, loading from default YAML if no data provided.
+
+        Args:
+            **data: Field values to initialize the settings with. If empty, loads
+                from the default zenodo_dois.yml configuration file. If partial data
+                is provided, it will be merged with defaults from the YAML file.
+        """
+        # Load defaults from YAML file
+        default_path = (
+            importlib.resources.files("pudl.package_data.settings") / "zenodo_dois.yml"
+        )
+        with default_path.open() as f:
+            yaml_data = yaml.safe_load(f)
+
+        # Merge provided data with defaults (provided data takes precedence)
+        yaml_data.update(data)
+        super().__init__(**yaml_data)
+
+    @classmethod
+    def from_yaml(cls, path: str | Path) -> "ZenodoDoiSettings":
+        """Create a ZenodoDoiSettings instance from a YAML file path.
+
+        Args:
+            path: Path to a YAML file.
+
+        Returns:
+            A ZenodoDoiSettings object with DOIs loaded from the YAML file.
+        """
+        with Path(path).open() as f:
+            yaml_data = yaml.safe_load(f)
+        return cls(**yaml_data)
 
 
 class ZenodoFetcher:
@@ -231,6 +266,8 @@ class ZenodoFetcher:
         """Constructs ZenodoFetcher instance."""
         if not zenodo_dois:
             self.zenodo_dois = ZenodoDoiSettings()
+        else:
+            self.zenodo_dois = zenodo_dois
 
         self.timeout = timeout
 

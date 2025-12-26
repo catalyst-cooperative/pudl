@@ -233,17 +233,14 @@ jobs:
           which sqlite3
           sqlite3 --version
 
-      - name: Compile Zenodo datastore DOIs for cache invalidation
-        run:
-          grep -e '.*10\.\(5281\|5072\)/zenodo\..*' src/pudl/workspace/datastore.py
-          | sed -e 's/",*$//g' | sed -e 's/^.*"//g' | sort > datastore-dois.txt
-
       - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v5
         id: cache-zenodo-datastore
         with:
           path: ${{ env.PUDL_INPUT }}
-          key: zenodo-datastore-${{ hashFiles('datastore-dois.txt') }}
+          key: zenodo-datastore-${{ hashFiles('src/pudl/package_data/settings/zenodo_dois.yml') }}
+          restore-keys: |
+            zenodo-datastore-
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
