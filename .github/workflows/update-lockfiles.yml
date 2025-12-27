@@ -52,7 +52,7 @@ jobs:
           commit-message: Update pixi lockfile, pre-commit hooks, and dbt deps
           title: Update pixi lockfile for week of ${{ env.TODAY }}
           body-path: diff.md
-          branch: update-pixi
+          branch: update-lockfiles
           base: ${{ github.ref_name }}
           labels: pixi, dependencies
           delete-branch: true
