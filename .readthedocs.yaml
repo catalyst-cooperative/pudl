@@ -6,24 +6,17 @@
 # Required
 version: 2
 
-# Set the version of Python and other tools you might need
 build:
   os: ubuntu-24.04
   tools:
-    python: mambaforge-23.11
-
-# Define the python environment using conda / mamba
-conda:
-  environment: environments/conda-linux-64.lock.yml
-
-# Build documentation in the docs/ directory with Sphinx
-sphinx:
-  configuration: docs/conf.py
-  builder: html
-  fail_on_warning: true
-
-# Set the version of Python and requirements required to build your docs
-python:
-  install:
-    - method: pip
-      path: .
+    python: "3.13"
+  jobs:
+    create_environment:
+      - asdf plugin add pixi
+      - asdf install pixi latest
+      - asdf global pixi latest
+    install:
+      - pixi install
+    build:
+      html:
+        - pixi run docs-build

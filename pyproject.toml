@@ -170,6 +170,73 @@ docs = { features = ["docs"], solve-group = "default" }
 lint = { features = ["lint"], solve-group = "default" }
 dev = { features = ["test", "docs", "lint", "dev"], solve-group = "default" }
 
+[tool.pixi.activation.env]
+# Reusable variables for pixi tasks
+ETL_FAST_YML = "src/pudl/package_data/settings/etl_fast.yml"
+ETL_FULL_YML = "src/pudl/package_data/settings/etl_full.yml"
+PYTEST_ARGS = "--durations 20 --cov-fail-under=0"
+COVARGS = "--append"
+
+[tool.pixi.tasks]
+# Documentation tasks
+docs-clean = { cmd = """
+bash -c 'shopt -s nullglob; rm -rf \
+    docs/_build \
+    docs/autoapi \
+    docs/data_dictionaries/pudl_db.rst \
+    docs/data_dictionaries/codes_and_labels.rst \
+    docs/data_dictionaries/code_csvs \
+    docs/data_sources/census*.rst \
+    docs/data_sources/eia*.rst \
+    docs/data_sources/epacems*.rst \
+    docs/data_sources/epacamd*.rst \
+    docs/data_sources/ferc*.rst \
+    docs/data_sources/gridpathratoolkit*.rst \
+    docs/data_sources/nrelatb*.rst \
+    docs/data_sources/phmsagas*.rst \
+    docs/data_sources/sec10k*.rst \
+    docs/data_sources/vcerare*.rst'
+""" }
+
+docs-build = { cmd = """
+doc8 docs/ README.rst && \
+coverage run --append -m sphinx --jobs auto -v -W -b html docs docs/_build/html
+""", depends-on = ["docs-clean"] }
+
+# Testing tasks
+coverage-erase = { cmd = "coverage erase" }
+pytest-unit = { cmd = "pytest $PYTEST_ARGS --doctest-modules src/pudl test/unit" }
+pytest-integration = { cmd = "pytest $PYTEST_ARGS --etl-settings $ETL_FAST_YML test/integration" }
+pytest-ci = { depends-on = ["pytest-unit", "pytest-integration"] }
+pytest-coverage = { cmd = "coverage report", depends-on = ["coverage-erase", "docs-build", "pytest-ci"] }
+pytest-jupyter = { cmd = "pytest --live-dbs test/integration/jupyter_notebooks_test.py" }
+# Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
+# Identify any plant or utility IDs in the DBs that haven't yet been mapped
+# These outputs should be turned into normal dagster assets. See issue #4338
+unmapped-ids = { cmd = """
+pytest \
+    --save-unmapped-ids
+    --ignore-foreign-key-constraints \
+    --etl-settings $ETL_FULL_YML \
+    test/integration/glue_test.py
+""" }
+
+# ETL tasks
+ferc = { cmd = """
+bash -c 'shopt -s nullglob; rm -f \
+    $PUDL_OUTPUT/ferc*.sqlite \
+    $PUDL_OUTPUT/ferc*.duckdb \
+    $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
+    $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json' && \
+coverage run $COVARGS ferc_to_sqlite $ETL_FULL_YML
+""" }
+
+pudl = { cmd = """
+bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite' && \
+alembic upgrade head && \
+coverage run $COVARGS pudl_etl $ETL_FULL_YML
+""" }
+
 [project.scripts]
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
