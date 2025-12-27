@@ -18,6 +18,7 @@ build/
 dist/
 .eggs/
 .tox/
+src/pudl/_version.py
 coverage.xml
 .coverage
 .coverage.*
@@ -29,6 +30,7 @@ dask-worker-space*
 environments/user-requirements.txt
 environments/user-environment.yml
 .vscode/*
+.pixi/
 commit.txt
 devtools/profiles/
 mlruns/

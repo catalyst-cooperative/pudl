@@ -26,28 +26,18 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Install pudl environment with pixi
+        uses: prefix-dev/setup-pixi@0.9.3
         with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
       - name: Lint and build PUDL documentation with Sphinx
         run: |
-          pip install --no-deps --editable .
-          make docs-build
+          pixi run docs-build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

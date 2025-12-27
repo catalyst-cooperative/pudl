@@ -55,23 +55,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-west-2"
 
-      - name: Set up pudl-dev conda environment
-        uses: mamba-org/setup-micromamba@v2
+      - name: Install pudl environment using pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Install PUDL
-        run: |
-          pip install --no-deps --editable .
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Do a Zenodo data release
         env:
           ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
           ZENODO_TOKEN_UPLOAD: ${{ secrets.ZENODO_TOKEN_UPLOAD }}
         run: |
-          zenodo_data_release \
+          pixi run zenodo_data_release \
             --env "${{ inputs.env }}" \
             --source-dir "${{ inputs.source_dir }}" \
             ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
