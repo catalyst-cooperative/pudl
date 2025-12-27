@@ -20,7 +20,8 @@ build:
     build:
       html:
         - >-
-          mkdir -p $HOME/pudl-work/input $HOME/pudl-work/output &&
+          mkdir -p $HOME/pudl-work/input $HOME/pudl-work/output $READTHEDOCS_OUTPUT/html/ &&
           export PUDL_INPUT=$HOME/pudl-work/input &&
           export PUDL_OUTPUT=$HOME/pudl-work/output &&
-          pixi run docs-build
+          pixi run docs-build &&
+          cp -r docs/_build/html/* $READTHEDOCS_OUTPUT/html/
