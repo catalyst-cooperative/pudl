@@ -5,4 +5,4 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .coverage
-.git/
+# Keep .git/ - needed for hatch-vcs version detection
