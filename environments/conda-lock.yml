@@ -15,9 +15,9 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: dc9786159036b25e802e7a7ea84fda45c81a74e8ea17bf451b6365ea9545b08f
-    osx-64: dea12bc99a625cf52e3b28b0b2c2808b7ac08dc69aa290630f5ca289b97a2745
-    osx-arm64: ed56aaadcf1b3cd62d10dad5418e10492d7ff711db7af6f54822c20b52160f25
+    linux-64: 2dae7156d6d10cbbb730694ea7d3fd37f52bdc25a1cfd889723dbcb7e40c2177
+    osx-64: 66dbceb8705e024d77b180628f606c5d0b40f3d2aca12445da45f45fa7292af2
+    osx-arm64: 30409a92108d86ecc18dfa22b555177c1c43cf665d39a0fe877b60732a1e0f2a
   channels:
     - url: conda-forge
       used_env_vars: []
@@ -24781,6 +24781,42 @@ package:
     hash:
       md5: 3339e3b65d58accf4ca4fb8748ab16b3
       sha256: 458227f759d5e3fcec5d9b7acce54e10c9e1f4f4b7ec978f3bfd54ce4ee9853d
+    category: main
+    optional: false
+  - name: slack-sdk
+    version: 3.39.0
+    manager: conda
+    platform: linux-64
+    dependencies:
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.39.0-pyhd8ed1ab_0.conda
+    hash:
+      md5: 8fb0b000bb4644b675223dda6bfb135a
+      sha256: 12e3f8f38ec5e67e1848fcd5700bcfd5c0b3d17fd7c95a1a0641d75a8e37d2fc
+    category: main
+    optional: false
+  - name: slack-sdk
+    version: 3.39.0
+    manager: conda
+    platform: osx-64
+    dependencies:
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.39.0-pyhd8ed1ab_0.conda
+    hash:
+      md5: 8fb0b000bb4644b675223dda6bfb135a
+      sha256: 12e3f8f38ec5e67e1848fcd5700bcfd5c0b3d17fd7c95a1a0641d75a8e37d2fc
+    category: main
+    optional: false
+  - name: slack-sdk
+    version: 3.39.0
+    manager: conda
+    platform: osx-arm64
+    dependencies:
+      python: ">=3.10"
+    url: https://conda.anaconda.org/conda-forge/noarch/slack-sdk-3.39.0-pyhd8ed1ab_0.conda
+    hash:
+      md5: 8fb0b000bb4644b675223dda6bfb135a
+      sha256: 12e3f8f38ec5e67e1848fcd5700bcfd5c0b3d17fd7c95a1a0641d75a8e37d2fc
     category: main
     optional: false
   - name: smmap
