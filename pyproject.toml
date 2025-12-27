@@ -237,6 +237,9 @@ alembic upgrade head && \
 coverage run $COVARGS pudl_etl $ETL_FULL_YML
 """ }
 
+# Code quality tasks
+pre-commit = { cmd = "pre-commit run --all-files" }
+
 [project.scripts]
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
