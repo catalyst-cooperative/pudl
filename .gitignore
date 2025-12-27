@@ -29,6 +29,7 @@ dask-worker-space*
 environments/user-requirements.txt
 environments/user-environment.yml
 .vscode/*
+.pixi/
 commit.txt
 devtools/profiles/
 mlruns/
