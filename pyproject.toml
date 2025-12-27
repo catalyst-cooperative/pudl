@@ -68,8 +68,6 @@ grpcio-health-checking = "==1.73.1"
 grpcio-status = "==1.73.1"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
-matplotlib-base = ">=3.10"
-mlflow = ">=3.8"
 nbconvert = ">=7"
 nbformat = ">=5.10"
 networkx = ">=3.6"
@@ -149,26 +147,37 @@ typos = ">=1.40"
 [tool.pixi.feature.dev.dependencies]
 # Interactive development tools
 dagster-webserver = ">=1.12.7"
+memray = ">=1.18.0"
+ruff-lsp = "*"
+terraform = ">=1.14"
+
+[tool.pixi.feature.dataviz.dependencies]
+# Interactive data analysis and visualization
 jupyter = "*"
 jupyter-lsp = "*"
 jupyter-resource-usage = "*"
 jupyterlab = ">4.4"
 jupyterlab-lsp = "*"
-memray = ">=1.18.0"
+matplotlib-base = ">=3.10"
 pygraphviz = "*"
-ruff-lsp = "*"
-terraform = ">=1.14"
+
+[tool.pixi.feature.mlflow.dependencies]
+# ML experiment tracking - optional, not included in default environment
+mlflow = ">=3.8"
 
 [tool.pixi.environments]
 # Full development environment with all features
-default = { features = ["test", "docs", "lint", "dev"], solve-group = "default" }
-# Minimal runtime environment (no dev tools)
+default = { features = ["mlflow", "test", "docs", "lint", "dev", "dataviz"], solve-group = "default" }
+# Minimal runtime environment (no dev tools, no dataviz, no mlflow)
 minimal = { solve-group = "default" }
 # Individual feature environments
 test = { features = ["test", "lint"], solve-group = "default" }
 docs = { features = ["docs"], solve-group = "default" }
 lint = { features = ["lint"], solve-group = "default" }
-dev = { features = ["test", "docs", "lint", "dev"], solve-group = "default" }
+dev = { features = ["mlflow", "test", "docs", "lint", "dev", "dataviz"], solve-group = "default" }
+dataviz = { features = ["dataviz"], solve-group = "default" }
+# ML experiment tracking environment
+mlflow = { features = ["mlflow", "test", "docs", "lint", "dev", "dataviz"], solve-group = "default" }
 
 [tool.pixi.activation.env]
 # Reusable variables for pixi tasks
@@ -473,7 +482,6 @@ TOU = "TOU"
 TRE = "TRE"
 Worchester = "Worchester"
 wrk = "wrk"
-
 
 [tool.typos.files]
 extend-exclude = ["*.yml", "*.toml", "*.bib", "*.csv", "*.html", "src/pudl/metadata/codes.py", "migrations/", "notebooks/","devtools/","test/","src/pudl/transform/params/ferc1.py"]
