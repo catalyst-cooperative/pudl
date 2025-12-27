@@ -39,7 +39,7 @@ notebooks/*.pkl.gz
 notebooks/*.tgz
 **/.~lock*#
 **/*~
-
+diff.md
 **.tfstate
 **.tfstate.*
 terraform/.terraform/*
