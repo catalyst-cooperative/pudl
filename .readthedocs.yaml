@@ -19,4 +19,6 @@ build:
       - pixi install
     build:
       html:
+        - mkdir -p ~/pudl-work/input
+        - mkdir -p ~/pudl-work/output
         - pixi run docs-build
