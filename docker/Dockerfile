@@ -57,4 +57,4 @@ WORKDIR ${PUDL_REPO}
 RUN pixi install --locked
 
 # Run the unit tests:
-CMD ["pixi", "run", "pytest-unit"]
+CMD ["pixi", "run", "-v", "pytest-unit"]
