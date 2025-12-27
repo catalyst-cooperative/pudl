@@ -298,18 +298,41 @@ class LayeredCache(AbstractCache):
         return len(self._caches)
 
     def get(self, resource: PudlResourceKey) -> bytes:
-        """Returns content of a given resource."""
+        """Returns content of a given resource.
+
+        When a resource is found in a distant cache layer, it is automatically populated
+        into all closer (higher-priority) cache layers that are writable.  This ensures
+        optimal cache performance for subsequent accesses.
+        """
         for i, cache in enumerate(self._caches):
             if cache.contains(resource):
                 logger.debug(
                     f"get:{resource} found in layer {i} ({cache.__class__.__name__})."
                 )
-                return cache.get(resource)
+                content = cache.get(resource)
+
+                # Populate all closer cache layers with this content
+                for j in range(i):
+                    closer_cache = self._caches[j]
+                    if not closer_cache.is_read_only():
+                        logger.debug(
+                            f"Populating {resource} into closer layer {j} "
+                            f"({closer_cache.__class__.__name__}) from layer {i}"
+                        )
+                        try:
+                            closer_cache.add(resource, content)
+                        except Exception as e:
+                            logger.warning(
+                                f"Failed to populate {resource} into layer {j} "
+                                f"({closer_cache.__class__.__name__}): {e}"
+                            )
+
+                return content
         logger.debug(f"get:{resource} not found in the layered cache.")
         raise KeyError(f"{resource} not found in the layered cache")
 
-    def add(self, resource: PudlResourceKey, value):
-        """Adds (or replaces) resource into the cache with given value."""
+    def add(self, resource: PudlResourceKey, content):
+        """Adds (or replaces) resource into the cache with given content."""
         if self.is_read_only():
             logger.warning(f"Read only cache: ignoring set({resource})")
             return
@@ -317,11 +340,10 @@ class LayeredCache(AbstractCache):
             if cache_layer.is_read_only():
                 continue
             logger.debug(f"Adding {resource} to cache {cache_layer.__class__.__name__}")
-            cache_layer.add(resource, value)
+            cache_layer.add(resource, content)
             logger.debug(
                 f"Added {resource} to cache layer {cache_layer.__class__.__name__})"
             )
-            break
 
     def delete(self, resource: PudlResourceKey):
         """Removes resource from the cache if the cache is not in the read_only mode."""
@@ -332,7 +354,6 @@ class LayeredCache(AbstractCache):
             if cache_layer.is_read_only():
                 continue
             cache_layer.delete(resource)
-            break
 
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if resource is present in the cache."""

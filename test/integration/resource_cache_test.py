@@ -223,16 +223,21 @@ class TestCacheInteroperability:
 
         test_content = b"Multiple UPath caches test"
 
-        # Add to layered cache (should go to first layer)
+        # Add to layered cache (should go to all writable layers)
         layered.add(sample_resource, test_content)
 
-        # Should be in first layer only
+        # Should be in both layers since both are writable
         assert cache1.contains(sample_resource)
-        assert not cache2.contains(sample_resource)
+        assert cache2.contains(sample_resource)
+        # Content should match in both layers
+        assert cache1.get(sample_resource) == test_content
+        assert cache2.get(sample_resource) == test_content
 
         # Should be retrievable through layered cache
         assert layered.get(sample_resource) == test_content
 
-        # Clean up
+        # Clean up - should remove from all layers
         layered.delete(sample_resource)
         assert not layered.contains(sample_resource)
+        assert not cache1.contains(sample_resource)
+        assert not cache2.contains(sample_resource)

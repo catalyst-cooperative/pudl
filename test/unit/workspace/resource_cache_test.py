@@ -35,7 +35,7 @@ class TestLayeredCache:
         assert self.layered_cache.num_layers() == 2
 
     def test_add_to_first_layer(self):
-        """Adding to layered cache by default stores entires in the first layer."""
+        """Adding to layered cache stores entries in all writable layers."""
         self.layered_cache.add_cache_layer(self.cache_1)
         self.layered_cache.add_cache_layer(self.cache_2)
         res = PudlResourceKey("a", "b", "x.txt")
@@ -43,8 +43,12 @@ class TestLayeredCache:
         assert not self.layered_cache.contains(res)
         self.layered_cache.add(res, b"sampleContent")
         assert self.layered_cache.contains(res)
+        # Should be in both layers since both are writable
         assert self.cache_1.contains(res)
-        assert not self.cache_2.contains(res)
+        assert self.cache_2.contains(res)
+        # Content should match in both layers
+        assert self.cache_1.get(res) == b"sampleContent"
+        assert self.cache_2.get(res) == b"sampleContent"
 
     def test_get_uses_innermost_layer(self):
         """Resource is retrieved from the leftmost layer that contains it."""
@@ -58,18 +62,19 @@ class TestLayeredCache:
 
         self.cache_1.add(res, b"firstLayer")
         assert self.layered_cache.get(res) == b"firstLayer"
-        # Set on layered cache updates innermost layer
+        # Set on layered cache updates all writable layers
         self.layered_cache.add(res, b"newContents")
         assert self.layered_cache.get(res) == b"newContents"
         assert self.cache_1.get(res) == b"newContents"
-        assert self.cache_2.get(res) == b"secondLayer"
+        # Now both layers should have the new content
+        assert self.cache_2.get(res) == b"newContents"
 
-        # Deletion also only affects innermost layer
+        # Deletion now affects all writable layers
         self.layered_cache.delete(res)
-        assert self.layered_cache.contains(res)
+        # Should be deleted from all layers
+        assert not self.layered_cache.contains(res)
         assert not self.cache_1.contains(res)
-        assert self.cache_2.contains(res)
-        assert self.cache_2.get(res) == b"secondLayer"
+        assert not self.cache_2.contains(res)
 
     def test_add_with_no_layers_does_nothing(self):
         """When add() is called on cache with no layers nothing happens."""
