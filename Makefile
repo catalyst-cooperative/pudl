@@ -96,6 +96,7 @@ docs-build: docs-clean
 .PHONY: ferc
 ferc:
 	rm -f ${PUDL_OUTPUT}/ferc*.sqlite
+	rm -f ${PUDL_OUTPUT}/ferc*.duckdb
 	rm -f ${PUDL_OUTPUT}/ferc*_xbrl_datapackage.json
 	rm -f ${PUDL_OUTPUT}/ferc*_xbrl_taxonomy_metadata.json
 	coverage run ${covargs} -- src/pudl/ferc_to_sqlite/cli.py ${etl_full_yml}
