@@ -2,84 +2,6 @@
 build-backend = "hatchling.build"
 requires = ["hatchling", "hatch-vcs"]
 
-[project]
-name = "catalystcoop.pudl"
-description = "An open data processing pipeline for US energy data"
-readme = { file = "README.rst", content-type = "text/x-rst" }
-authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
-requires-python = ">=3.13,<3.14.0a0"
-dynamic = ["version"]
-license = { file = "LICENSE.txt" }
-# Dependencies are managed via pixi and installed from conda-forge.
-# See [tool.pixi.dependencies] and [tool.pixi.feature.*.dependencies] below.
-# This package is an application, not a library, and should only be installed
-# from the repository in editable mode using: pixi install
-dependencies = []
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Console",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Natural Language :: English",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python",
-    "Topic :: Scientific/Engineering",
-]
-keywords = [
-    "analysis",
-    "climate change",
-    "coal",
-    "data",
-    "economics",
-    "eia 860",
-    "eia 861",
-    "eia 923",
-    "electricity",
-    "emissions",
-    "energy",
-    "epa ampd",
-    "epa cems",
-    "ferc form 1",
-    "ferc form 2",
-    "ferc form 6",
-    "ferc form 60",
-    "ferc form 714",
-    "finance",
-    "fossil fuel",
-    "natural gas",
-    "oil",
-    "policy",
-    "utility",
-]
-
-[project.scripts]
-ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
-metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
-pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
-pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
-pudl_etl = "pudl.etl.cli:pudl_etl"
-pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
-dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
-pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
-resource_description = "pudl.scripts.resource_description:main"
-zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
-
-[project.urls]
-"Homepage" = "https://catalyst.coop/pudl/"
-"Source" = "https://github.com/catalyst-cooperative/pudl"
-"Documentation" = "https://catalystcoop-pudl.readthedocs.io"
-"Release Notes" = "https://catalystcoop-pudl.readthedocs.io/en/nightly/release_notes.html"
-"Issue Tracker" = "https://github.com/catalyst-cooperative/pudl/issues"
-"Support" = "https://github.com/catalyst-cooperative/pudl/discussions"
-"Funding" = "https://catalyst.coop/support-the-pudl-project/"
-
-[project.optional-dependencies]
-# All optional dependencies are now managed via pixi features.
-# See [tool.pixi.feature.*.dependencies] below.
-
 [tool.hatch.build.targets.wheel]
 packages = ["src/pudl"]
 
@@ -94,6 +16,171 @@ git_describe_command = ["git", "describe", "--tags", "--long", "--match", "v20*"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pudl/_version.py"
+
+[project]
+name = "catalystcoop.pudl"
+description = "An open data processing pipeline for US energy data"
+readme = { file = "README.rst", content-type = "text/x-rst" }
+authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
+requires-python = ">=3.13,<3.14.0a0"
+dynamic = ["version"]
+license = { file = "LICENSE.txt" }
+# Dependencies are managed via pixi and installed from conda-forge.
+# See [tool.pixi.dependencies] and [tool.pixi.feature.*.dependencies] below.
+# This package is an application, not a library, and should only be installed
+# from the repository in editable mode using: pixi install
+# All optional dependencies are now managed via pixi features.
+# See [tool.pixi.feature.*.dependencies] below.
+dependencies = []
+
+[tool.pixi.workspace]
+name = "catalystcoop.pudl"
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+channels = ["conda-forge"]
+
+[tool.pixi.dependencies]
+# Core runtime dependencies installed from conda-forge
+alembic = ">=1.17"
+boto3 = ">=1.35"
+bottleneck = ">=1.5.0"
+"catalystcoop.dbfread" = "<3.1,>=3.0"
+"catalystcoop.ferc_xbrl_extractor" = "<2,>=1.7.3"
+click = ">=8.3"
+coloredlogs = ">=14.0"
+curl = ">=8.17"
+dagster = ">=1.12.1"
+dagster-dbt = "*"
+dagster-dg-cli = "*"
+dagster-postgres = "*"
+dbt-core = ">=1.10.13"
+dbt-duckdb = ">=1.9.4"
+deepdiff = ">=8"
+email-validator = ">=1.0.3"
+frictionless = "<6,>=5"
+fsspec = ">=2025"
+gcsfs = ">=2025"
+gdal = "==3.12.1"
+geoarrow-pyarrow = ">=0.2"
+geopandas = ">=1.1"
+google-cloud-sdk = ">=535"
+grpcio = "==1.73.1"
+grpcio-health-checking = "==1.73.1"
+grpcio-status = "==1.73.1"
+jellyfish = ">=1"
+jinja2 = ">=3.1"
+matplotlib-base = ">=3.10"
+mlflow = ">=3.8"
+nbconvert = ">=7"
+nbformat = ">=5.10"
+networkx = ">=3.6"
+nodejs = ">=24"
+numba = ">=0.63.1"
+numexpr = ">=2.10"
+numpy = ">=2.3"
+packaging = ">=25"
+pandas = ">=2.3"
+pandera-core = ">=0.27"
+parallel = ">=20250822"
+pip = ">=25"
+polars = ">=1.36"
+pyarrow = "<21,>=20"
+pydantic = ">=2.12"
+pydantic-settings = ">=2.11"
+python = ">=3.13,<3.14.0a0"
+python-build = ">=1.2"
+python-calamine = ">=0.6.1"
+python-dotenv = ">=1"
+python-duckdb = ">=1.4"
+pytz = ">=2025"
+pyyaml = ">=6"
+requests = ">=2.32"
+s3fs = ">=2025"
+scikit-learn = ">=1.8"
+scipy = ">=1.16"
+shapely = ">=2.1.1"
+splink = ">=4.0.10"
+sqlalchemy = ">=2"
+sqlite = ">=3.51"
+timezonefinder = ">=8"
+universal-pathlib = ">=0.3.7"
+urllib3 = ">=2.4"
+xlsxwriter = ">=3.2"
+zip = ">=3.0"
+
+[tool.pixi.pypi-dependencies]
+# Install only the local package in editable mode with no dependencies.
+# All dependencies are explicitly managed via conda-forge in [tool.pixi.dependencies]
+# and [tool.pixi.feature.*.dependencies] above.
+"catalystcoop.pudl" = { path = ".", editable = true, extras = [] }
+
+[tool.pixi.feature.test.dependencies]
+# Testing infrastructure
+coverage = ">=7.10"
+hypothesis = ">=6.123"
+pytest = ">=9"
+pytest-console-scripts = ">=1.4"
+pytest-cov = ">=7"
+pytest-mock = ">=3.15"
+pytest-order = ">=1.3"
+pytest-xdist = ">=3.8"
+responses = ">=0.25"
+
+[tool.pixi.feature.docs.dependencies]
+# Documentation building tools
+doc8 = ">=1.1"
+furo = ">=2024"
+pandoc = ">=3.7"
+readthedocs-sphinx-ext = ">=2"
+sphinx = ">=8"
+sphinx-autoapi = ">=3.6.1"
+sphinx-issues = ">=5"
+sphinx-reredirects = ">=1"
+sphinx-tabs = ">=3.4"
+sphinxcontrib-bibtex = ">=2.6"
+sphinxcontrib-googleanalytics = ">=0.4"
+
+[tool.pixi.feature.lint.dependencies]
+# Code quality and formatting tools
+pre-commit = ">=4"
+prettier = ">=3.6,<4"
+ruff = ">=0.14"
+typos = ">=1.40"
+
+[tool.pixi.feature.dev.dependencies]
+# Interactive development tools
+dagster-webserver = ">=1.12.1"
+jupyter = "*"
+jupyter-lsp = "*"
+jupyter-resource-usage = "*"
+jupyterlab = ">4.4"
+jupyterlab-lsp = "*"
+memray = ">=1.18.0"
+pygraphviz = "*"
+ruff-lsp = "*"
+terraform = ">=1.14"
+
+[tool.pixi.environments]
+# Full development environment with all features
+default = { features = ["test", "docs", "lint", "dev"], solve-group = "default" }
+# Minimal runtime environment (no dev tools)
+minimal = { solve-group = "default" }
+# Individual feature environments
+test = { features = ["test", "lint"], solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
+lint = { features = ["lint"], solve-group = "default" }
+dev = { features = ["test", "docs", "lint", "dev"], solve-group = "default" }
+
+[project.scripts]
+ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
+metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
+pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
+pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
+pudl_etl = "pudl.etl.cli:pudl_etl"
+pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
+dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
+pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
+resource_description = "pudl.scripts.resource_description:main"
+zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -278,143 +365,6 @@ modules = [
     { type = "module", name = "pudl.etl" },
     { type = "module", name = "pudl.ferc_to_sqlite" },
 ]
-
-[tool.pixi.workspace]
-name = "catalystcoop.pudl"
-platforms = ["linux-64", "osx-64", "osx-arm64"]
-channels = ["conda-forge"]
-
-[tool.pixi.dependencies]
-# Core runtime dependencies installed from conda-forge
-alembic = ">=1.17"
-boto3 = ">=1.35"
-bottleneck = ">=1.5.0"
-"catalystcoop.dbfread" = "<3.1,>=3.0"
-"catalystcoop.ferc_xbrl_extractor" = "<2,>=1.7.3"
-click = ">=8.3"
-coloredlogs = ">=14.0"
-curl = ">=8.17"
-dagster = ">=1.12.1"
-dagster-dbt = "*"
-dagster-dg-cli = "*"
-dagster-postgres = "*"
-dbt-core = ">=1.10.13"
-dbt-duckdb = ">=1.9.4"
-deepdiff = ">=8"
-email-validator = ">=1.0.3"
-frictionless = "<6,>=5"
-fsspec = ">=2025"
-gcsfs = ">=2025"
-gdal = "==3.12.1"
-geoarrow-pyarrow = ">=0.2"
-geopandas = ">=1.1"
-google-cloud-sdk = ">=535"
-grpcio = "==1.73.1"
-grpcio-health-checking = "==1.73.1"
-grpcio-status = "==1.73.1"
-jellyfish = ">=1"
-jinja2 = ">=3.1"
-matplotlib-base = ">=3.10"
-mlflow = ">=3.8"
-nbconvert = ">=7"
-nbformat = ">=5.10"
-networkx = ">=3.6"
-nodejs = ">=24"
-numba = ">=0.63.1"
-numexpr = ">=2.10"
-numpy = ">=2.3"
-packaging = ">=25"
-pandas = ">=2.3"
-pandera-core = ">=0.27"
-parallel = ">=20250822"
-pip = ">=25"
-polars = ">=1.36"
-pyarrow = "<21,>=20"
-pydantic = ">=2.12"
-pydantic-settings = ">=2.11"
-python = ">=3.13,<3.14.0a0"
-python-build = ">=1.2"
-python-calamine = ">=0.6.1"
-python-dotenv = ">=1"
-python-duckdb = ">=1.4"
-pytz = ">=2025"
-pyyaml = ">=6"
-requests = ">=2.32"
-s3fs = ">=2025"
-scikit-learn = ">=1.8"
-scipy = ">=1.16"
-shapely = ">=2.1.1"
-splink = ">=4.0.10"
-sqlalchemy = ">=2"
-sqlite = ">=3.51"
-timezonefinder = ">=8"
-universal-pathlib = ">=0.3.7"
-urllib3 = ">=2.4"
-xlsxwriter = ">=3.2"
-zip = ">=3.0"
-
-[tool.pixi.pypi-dependencies]
-# Install only the local package in editable mode with no dependencies.
-# All dependencies are explicitly managed via conda-forge in [tool.pixi.dependencies]
-# and [tool.pixi.feature.*.dependencies] above.
-"catalystcoop.pudl" = { path = ".", editable = true, extras = [] }
-
-[tool.pixi.feature.test.dependencies]
-# Testing infrastructure
-coverage = ">=7.10"
-hypothesis = ">=6.123"
-pytest = ">=9"
-pytest-console-scripts = ">=1.4"
-pytest-cov = ">=7"
-pytest-mock = ">=3.15"
-pytest-order = ">=1.3"
-pytest-xdist = ">=3.8"
-responses = ">=0.25"
-
-[tool.pixi.feature.docs.dependencies]
-# Documentation building tools
-doc8 = ">=1.1"
-furo = ">=2024"
-pandoc = ">=3.7"
-readthedocs-sphinx-ext = ">=2"
-sphinx = ">=8"
-sphinx-autoapi = ">=3.6.1"
-sphinx-issues = ">=5"
-sphinx-reredirects = ">=1"
-sphinx-tabs = ">=3.4"
-sphinxcontrib-bibtex = ">=2.6"
-sphinxcontrib-googleanalytics = ">=0.4"
-
-[tool.pixi.feature.lint.dependencies]
-# Code quality and formatting tools
-pre-commit = ">=4"
-prettier = ">=3.6,<4"
-ruff = ">=0.14"
-typos = ">=1.40"
-
-[tool.pixi.feature.dev.dependencies]
-# Interactive development tools
-dagster-webserver = ">=1.12.1"
-jupyter = "*"
-jupyter-lsp = "*"
-jupyter-resource-usage = "*"
-jupyterlab = ">4.4"
-jupyterlab-lsp = "*"
-memray = ">=1.18.0"
-pygraphviz = "*"
-ruff-lsp = "*"
-terraform = ">=1.14"
-
-[tool.pixi.environments]
-# Full development environment with all features
-default = { features = ["test", "docs", "lint", "dev"], solve-group = "default" }
-# Minimal runtime environment (no dev tools)
-minimal = { solve-group = "default" }
-# Individual feature environments
-test = { features = ["test", "lint"], solve-group = "default" }
-docs = { features = ["docs"], solve-group = "default" }
-lint = { features = ["lint"], solve-group = "default" }
-dev = { features = ["test", "docs", "lint", "dev"], solve-group = "default" }
 
 [tool.typos.default]
 # Ignore spellchecking all lines with # spellchecker:ignore
