@@ -38,7 +38,7 @@ jobs:
         run: |
           set -o pipefail
           pixi update --json | pixi exec pixi-diff-to-markdown >> diff.md
-          pixi install
+          pixi install --locked
           pixi run pre-commit-autoupdate
           PUDL_OUTPUT="/home/runner/pudl-work/output/" pixi run dbt-deps-upgrade
       - name: Make a PR to merge updated lockfiles
