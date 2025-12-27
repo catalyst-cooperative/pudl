@@ -10,11 +10,6 @@ on:
 # - workflow_dispatch: Whatever branch it was run against.
 # - schedule: Always runs on main
 
-# Required to keep dbt happy when we run dbt deps upgrade
-env:
-  PUDL_OUTPUT: /home/runner/pudl-work/output/
-  PUDL_INPUT: /home/runner/pudl-work/input/
-
 jobs:
   update-lockfiles:
     runs-on: ubuntu-latest
@@ -44,7 +39,7 @@ jobs:
           pixi update --json | pixi exec pixi-diff-to-markdown >> diff.md
           pixi install
           pixi run pre-commit-autoupdate
-          pixi run dbt-deps-upgrade
+          PUDL_OUTPUT="/home/runner/pudl-work/output/" pixi run dbt-deps-upgrade
       - name: Make a PR to merge updated lockfiles
         # If we are relocking dependencies on a schedule or workflow_dispatch, we need
         # to make our own PR to check whether the updated environment actually solves
