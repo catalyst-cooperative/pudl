@@ -19,7 +19,6 @@ dependencies = [
     "catalystcoop.ferc-xbrl-extractor>=1.7.3,<2",
     "click>=8.3",
     "coloredlogs>=14.0", # Dagster requires 14.0
-    "conda-lock>=4",
     "coverage>=7.10",
     "dagster>=1.12.1",
     "dagster-dg-cli",
@@ -337,30 +336,6 @@ log_date_format = "%Y-%m-%d %H:%M:%S"
 log_cli = true
 log_cli_level = "DEBUG"
 doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
-
-[tool.conda-lock]
-channels = ["conda-forge"]
-platforms = [
-    "linux-64",
-    "osx-64",
-    "osx-arm64",
-    # The google-cloud-sdk conda package doesn't support Windows
-    # "win-64",
-]
-channel-priority = "strict"
-name = "pudl-dev"
-
-[tool.conda-lock.dependencies]
-curl = ">=8.17"
-google-cloud-sdk = ">=535"
-nodejs = ">=24"
-pandoc = ">=3.7"
-parallel = ">=20250822"
-pip = ">=25"
-prettier = ">=3.6,<4"
-python = ">=3.13,<3.14.0a0"
-sqlite = ">=3.51"
-zip = ">=3.0"
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]

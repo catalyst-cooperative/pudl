@@ -131,5 +131,5 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, conda-lock, shellcheck]
+  skip: [unit-tests, nb-output-clear, shellcheck]
   submodules: false
