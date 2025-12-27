@@ -18,6 +18,7 @@ build/
 dist/
 .eggs/
 .tox/
+src/pudl/_version.py
 coverage.xml
 .coverage
 .coverage.*
