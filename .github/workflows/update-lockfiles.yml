@@ -58,5 +58,5 @@ jobs:
           reviewers: zaneselvans
           add-paths: |
             pixi.lock
-            .pre-commit.yaml
+            .pre-commit-config.yaml
             dbt/package-lock.yml
