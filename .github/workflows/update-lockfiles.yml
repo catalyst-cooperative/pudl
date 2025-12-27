@@ -33,13 +33,13 @@ jobs:
       - uses: prefix-dev/setup-pixi@v0.9.3
         with:
           run-install: false
-      - name: Update pixi lockfile, pyproject.toml, pre-commit hooks, and dbt deps
+      - name: Update pixi lockfile, pre-commit hooks, and dbt deps
         run: |
           set -o pipefail
-          pixi upgrade --json --exclude gdal | pixi exec pixi-diff-to-markdown >> diff.md
-          pixi reinstall --all
-          pixi run pre-commit autoupdate
-          (cd dbt && pixi run dbt deps --upgrade)
+          pixi update --json | pixi exec pixi-diff-to-markdown >> diff.md
+          pixi install
+          pixi run pre-commit-autoupdate
+          pixi run dbt-deps-upgrade
       - name: Make a PR to merge updated pixi lockfiles
         # If we are relocking dependencies on a schedule or workflow_dispatch, we need
         # to make our own PR to check whether the updated environment actually solves
@@ -48,7 +48,7 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          commit-message: Update pixi lockfile, pyproject.toml, pre-commit hooks, and dbt deps
+          commit-message: Update pixi lockfile, pre-commit hooks, and dbt deps
           title: Update pixi lockfile for week of ${{ env.TODAY }}
           body-path: diff.md
           branch: update-pixi
@@ -58,6 +58,5 @@ jobs:
           reviewers: zaneselvans
           add-paths: |
             pixi.lock
-            pyproject.toml
             .pre-commit.yaml
             dbt/package-lock.yml
