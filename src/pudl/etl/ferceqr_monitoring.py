@@ -124,7 +124,7 @@ def ferceqr_sensor(context: dg.RunStatusSensorContext):
     # Don't do anything if there are still partitions that haven't finished running
     if (in_progress_parts | not_started_parts).any():
         logger.info("Partitions still in progress, continuing.")
-        return
+        return None
     # The backfill must be complete to reach this point
     # Check if any partitions failed
     if (asset_statuses == dg.AssetPartitionStatus.FAILED).any(axis=1).any():
@@ -132,13 +132,12 @@ def ferceqr_sensor(context: dg.RunStatusSensorContext):
         asset_statuses.to_csv(_get_etl_status_csv_path())
 
         # Execute asset to send slack notification about failure
-        dg.RunRequest(
+        return dg.RunRequest(
             run_key="ferceqr_deployment",
             asset_selection=[dg.AssetKey("handle_ferceqr_deployment_failure")],
         )
-    else:
-        # Publish parquet files after successful run
-        dg.RunRequest(
-            run_key="ferceqr_deployment",
-            asset_selection=[dg.AssetKey("deploy_ferceqr")],
-        )
+    # Publish parquet files after successful run
+    return dg.RunRequest(
+        run_key="ferceqr_deployment",
+        asset_selection=[dg.AssetKey("deploy_ferceqr")],
+    )
