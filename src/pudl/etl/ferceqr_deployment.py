@@ -62,6 +62,7 @@ def deploy_ferceqr():
     # Copy parquet files to GCS
     logger.info("Build successful, copying ferceqr data to GCS.")
     for table in FERCEQR_TRANSFORM_ASSETS:
+        logger.info(f"Copying {table} to GCS.")
         base_path = UPath(output_location) / table
         base_path.mkdir(exist_ok=True)
 
@@ -71,10 +72,11 @@ def deploy_ferceqr():
             destination_path.write_bytes(file.read_bytes())
 
     # Send slack notification about successful build
+    logger.info("Notifying slack about successful build.")
     _notify_slack_deployments_channel(
         ":large_green_circle: :sunglasses: :unicorn_face: :rainbow: ferceqr deployment succeeded!!"
         " :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
-        f"Parquet files written to: {output_location}"
+        f"Parquet files can be found at: {output_location}"
     )
     _write_status_file("SUCCESS")
 
