@@ -14819,10 +14819,10 @@ package:
     platform: osx-64
     dependencies:
       __osx: ">=10.13"
-    url: https://conda.anaconda.org/conda-forge/osx-64/libmpdec-4.0.0-h6e16a3a_0.conda
+    url: https://conda.anaconda.org/conda-forge/osx-64/libmpdec-4.0.0-hfdf4475_0.conda
     hash:
-      md5: 18b81186a6adb43f000ad19ed7b70381
-      sha256: 98299c73c7a93cd4f5ff8bb7f43cd80389f08b5a27a296d806bdef7841cc9b9e
+      md5: ed625b2e59dff82859c23dd24774156b
+      sha256: 791be3d30d8e37ec49bcc23eb8f1e1415d911a7c023fa93685f2ea485179e258
     category: main
     optional: false
   - name: libmpdec
@@ -15134,12 +15134,11 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      __glibc: ">=2.17,<3.0.a0"
-      libgcc: ">=13"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libpciaccess-0.18-hb9d3cd8_0.conda
+      libgcc-ng: ">=12"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libpciaccess-0.18-hd590300_0.conda
     hash:
-      md5: 70e3400cbbfa03e96dcde7fc13e38c7b
-      sha256: 0bd91de9b447a2991e666f284ae8c722ffb1d84acb594dbd0c031bd656fa32b2
+      md5: 48f4330bfcd959c3cfb704d424903c82
+      sha256: c0a30ac74eba66ea76a4f0a39acc7833f5ed783a632ca3bb6665b2d81aabd2fb
     category: dev
     optional: true
   - name: libpng
@@ -15574,11 +15573,11 @@ package:
       __glibc: ">=2.17,<3.0.a0"
       libgcc: ">=13"
       libzlib: ">=1.3.1,<2.0a0"
-      openssl: ">=3.5.0,<4.0a0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libssh2-1.11.1-hcf80075_0.conda
+      openssl: ">=3.4.0,<4.0a0"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libssh2-1.11.1-hf672d98_0.conda
     hash:
-      md5: eecce068c7e4eddeb169591baac20ac4
-      sha256: fa39bfd69228a13e553bd24601332b7cfeb30ca11a3ca50bb028108fe90a7661
+      md5: be2de152d8073ef1c01b7728475f2fe7
+      sha256: 0407ac9fda2bb67e11e357066eff144c845801d00b5f664efbc48813af1e7bb9
     category: main
     optional: false
   - name: libssh2
@@ -15761,11 +15760,11 @@ package:
     manager: conda
     platform: linux-64
     dependencies:
-      libgcc-ng: ">=9.3.0"
-    url: https://conda.anaconda.org/conda-forge/linux-64/libunistring-0.9.10-h7f98852_0.tar.bz2
+      libgcc-ng: ">=7.3.0"
+    url: https://conda.anaconda.org/conda-forge/linux-64/libunistring-0.9.10-h14c3975_0.tar.bz2
     hash:
-      md5: 7245a044b4a1980ed83196176b78b73a
-      sha256: e88c45505921db29c08df3439ddb7f771bbff35f95e7d3103bf365d5d6ce2a6d
+      md5: aefddf7f4a5a417c0678ba553203ea49
+      sha256: 9f5c1fe362a586fa1f5da8ef2ae09249c2806297706e9935b347bd58bfb695da
     category: dev
     optional: true
   - name: libunwind
@@ -24427,10 +24426,10 @@ package:
       python_abi: 3.13.*
       scipy: ">=1.10.0"
       threadpoolctl: ">=3.2.0"
-    url: https://conda.anaconda.org/conda-forge/osx-arm64/scikit-learn-1.8.0-np2py313h3b23316_1.conda
+    url: https://conda.anaconda.org/conda-forge/osx-arm64/scikit-learn-1.8.0-np2py313h9d890a2_1.conda
     hash:
-      md5: 4434adab69e6300db1e98aff4c3565f3
-      sha256: 5191a32a082c9b86f84fd5672e61fdd600a41f7ba0d900226348fa5f71fbfaa0
+      md5: dfd8e9cfe0344f174a1c1721dab6ee99
+      sha256: a752d5225684f36b6f6b49b018d7e7c0a574e875c2e40eed0b074cafaf20b18e
     category: main
     optional: false
   - name: scipy

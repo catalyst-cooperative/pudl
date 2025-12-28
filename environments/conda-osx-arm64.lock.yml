@@ -529,7 +529,7 @@ dependencies:
   - ruff-lsp=0.0.62=pyhd8ed1ab_0
   - s3fs=2025.10.0=pyhd8ed1ab_0
   - s3transfer=0.14.0=pyhd8ed1ab_0
-  - scikit-learn=1.8.0=np2py313h3b23316_1
+  - scikit-learn=1.8.0=np2py313h9d890a2_1
   - scipy=1.16.3=py313h29d7d31_2
   - semver=3.0.4=pyhd8ed1ab_0
   - send2trash=1.8.3=pyh31c8845_1

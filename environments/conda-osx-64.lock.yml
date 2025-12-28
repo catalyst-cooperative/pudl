@@ -320,7 +320,7 @@ dependencies:
   - libkml=1.3.0=h450b6c2_1022
   - liblapack=3.11.0=5_h859234e_openblas
   - liblzma=5.8.1=hd471939_2
-  - libmpdec=4.0.0=h6e16a3a_0
+  - libmpdec=4.0.0=hfdf4475_0
   - libnghttp2=1.67.0=h3338091_0
   - libntlm=1.8=h6e16a3a_0
   - libopenblas=0.3.30=openmp_h6006d49_4
