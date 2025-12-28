@@ -153,6 +153,7 @@ ETL_FAST_YML = "src/pudl/package_data/settings/etl_fast.yml"
 ETL_FULL_YML = "src/pudl/package_data/settings/etl_full.yml"
 PYTEST_ARGS = "--durations 20 --cov-fail-under=0"
 COVARGS = "--append"
+PIXI_LOCKED = "true"
 
 [tool.pixi.tasks]
 # Documentation tasks
