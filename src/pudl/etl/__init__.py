@@ -7,6 +7,7 @@ import os
 from dagster import (
     AssetKey,
     AssetsDefinition,
+    AssetSelection,
     AssetSpec,
     AutomationConditionSensorDefinition,
     DagsterRunStatus,
@@ -259,7 +260,7 @@ defs: Definitions = Definitions(
                     }
                 }
             },
-            selection="not key:*_ferceqr*",
+            selection="not key:*ferceqr*",
         ),
         define_asset_job(
             name="etl_fast",
@@ -272,7 +273,7 @@ defs: Definitions = Definitions(
                 }
             },
             description="This job executes the most recent year of each asset.",
-            selection="not key:*_ferceqr*",
+            selection="not key:*ferceqr*",
         ),
         define_asset_job(
             name="ferceqr_etl",
@@ -280,7 +281,8 @@ defs: Definitions = Definitions(
             config=pudl.helpers.get_dagster_execution_config(
                 tag_concurrency_limits=default_tag_concurrency_limits
             ),
-            selection="key:*_ferceqr*",
+            selection=AssetSelection.groups("raw_ferceqr")
+            | AssetSelection.groups("core_ferceqr"),
         ),
     ],
     sensors=[ferceqr_deployment.ferceqr_sensor],
