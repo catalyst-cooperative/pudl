@@ -91,6 +91,7 @@ jobs:
       - name: Install pudl environment using pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
+          locked: true
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
@@ -127,6 +128,7 @@ jobs:
       - name: Install pudl environment using pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
+          locked: true
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
@@ -173,6 +175,7 @@ jobs:
       - name: Install pudl environment using pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
+          locked: true
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
@@ -233,6 +236,7 @@ jobs:
       - name: Setup pixi and install coverage
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
+          locked: true
           global-environments: |
             coverage
       - name: Combine coverage data, output XML, and report

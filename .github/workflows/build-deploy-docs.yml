@@ -29,6 +29,7 @@ jobs:
       - name: Install pudl environment with pixi
         uses: prefix-dev/setup-pixi@0.9.3
         with:
+          locked: true
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
