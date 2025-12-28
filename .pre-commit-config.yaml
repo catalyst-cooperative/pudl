@@ -119,7 +119,7 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pixi run pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit -m "not slow"
+        entry: pixi run pytest --no-cov --doctest-modules src/pudl test/unit -m "not slow"
 
 # Configuration for pre-commit.ci
 ci:
