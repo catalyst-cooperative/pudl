@@ -21,8 +21,8 @@ from dagster import (
 )
 
 import pudl
+from pudl.etl import ferceqr_deployment
 from pudl.etl.asset_checks import asset_check_from_schema
-from pudl.etl.ferceqr_monitoring import ferceqr_sensor
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
     ferc1_xbrl_sqlite_io_manager,
@@ -121,7 +121,13 @@ out_module_groups = {
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
 
-all_asset_modules = raw_module_groups | core_module_groups | out_module_groups
+automation_assets = {
+    "ferceqr_deployment": [ferceqr_deployment],
+}
+
+all_asset_modules = (
+    raw_module_groups | core_module_groups | out_module_groups | automation_assets
+)
 default_assets = list(
     itertools.chain.from_iterable(
         load_assets_from_modules(
@@ -277,7 +283,7 @@ defs: Definitions = Definitions(
             selection="key:*_ferceqr*",
         ),
     ],
-    sensors=[ferceqr_sensor],
+    sensors=[ferceqr_deployment.ferceqr_sensor],
 )
 
 """A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL."""
