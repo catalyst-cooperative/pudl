@@ -151,8 +151,8 @@ zip = ">=3.0"
 # Reusable variables for pixi tasks
 ETL_FAST_YML = "src/pudl/package_data/settings/etl_fast.yml"
 ETL_FULL_YML = "src/pudl/package_data/settings/etl_full.yml"
-PYTEST_ARGS = "--durations 20 --cov-fail-under=0"
-COVARGS = "--append"
+# Prevents every single pixi run/install invocation from updating the lockfile.
+# Equivalent to `pixi install --locked` or `pixi run --locked`.
 PIXI_LOCKED = "true"
 
 [tool.pixi.tasks]
@@ -183,8 +183,8 @@ coverage run --append -m sphinx --jobs auto -v -W -b html docs docs/_build/html
 
 # Testing tasks
 coverage-erase = { cmd = "coverage erase", description = "Clear coverage data" }
-pytest-unit = { cmd = "pytest $PYTEST_ARGS --doctest-modules src/pudl test/unit", description = "Run unit tests and doctests" }
-pytest-integration = { cmd = "pytest $PYTEST_ARGS --etl-settings $ETL_FAST_YML test/integration", description = "Run integration tests with fast ETL settings" }
+pytest-unit = { cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit", description = "Run unit tests and doctests" }
+pytest-integration = { cmd = "pytest --cov-fail-under=0 --etl-settings $ETL_FAST_YML test/integration", description = "Run integration tests with fast ETL settings" }
 pytest-ci = { depends-on = ["pytest-unit", "pytest-integration"], description = "Run all tests (unit + integration)" }
 pytest-coverage = { cmd = "coverage report", depends-on = ["coverage-erase", "docs-build", "pytest-ci"], description = "Generate test coverage report" }
 pytest-jupyter = { cmd = "pytest --live-dbs test/integration/jupyter_notebooks_test.py", description = "Test Jupyter notebooks" }
@@ -206,13 +206,13 @@ bash -c 'shopt -s nullglob; rm -f \
     $PUDL_OUTPUT/ferc*.duckdb \
     $PUDL_OUTPUT/ferc*_xbrl_datapackage.json \
     $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json' && \
-coverage run $COVARGS ferc_to_sqlite $ETL_FULL_YML
+coverage run --append ferc_to_sqlite $ETL_FULL_YML
 """, description = "Build FERC databases from scratch" }
 
 pudl = { cmd = """
 bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite' && \
 alembic upgrade head && \
-coverage run $COVARGS pudl_etl $ETL_FULL_YML
+coverage run --append pudl_etl $ETL_FULL_YML
 """, description = "Run full PUDL ETL pipeline" }
 
 # Code quality tasks
@@ -379,6 +379,7 @@ addopts = [
     "--cov-append",
     "--cov-config=pyproject.toml",
     "--cov-report=",
+    "--durations=20",
 ]
 log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
