@@ -49,8 +49,8 @@ occurred:
     priority. If you're stumped, ask for help!
   * If the failure is due to an infrastructural issue like the build server running out
     of memory and the build process getting killed, then you need to notify the member
-    who is in charge of managing the builds (Currently :user:`bendnorman`), and hand off
-    responsibility for debugging and fixing the issue.
+    who is in charge of managing the builds (Currently :user:`zaneselvans`), and hand
+    off responsibility for debugging and fixing the issue.
   * If the failure is the result of a transient problem outside of our control like a
     network connection failing, then wait until the next morning and repeat the above
     process. If the "transient" problem persists, bring it up with the person
@@ -102,7 +102,7 @@ automatically.
 
 Docker
 ------
-The Docker image the VMs pull installs PUDL into a mamba environment. The VMs
+The Docker image the VMs pull installs the PUDL pixi environment. The VMs
 are configured to run the ``docker/gcp_pudl_etl.sh`` script. This script:
 
 1. Notifies the ``pudl-deployments`` Slack channel that a deployment has started.
@@ -121,64 +121,56 @@ permissions.
 How to access the nightly build outputs from AWS
 ------------------------------------------------
 You can download the outputs from a successful nightly build data directly from the
-``s3://pudl.catalyst.coop`` bucket. To do this, you'll
-need to `follow the instructions
-<https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>`__
-for installing the AWS CLI tool.
-
-To test that the AWS CLI tool and the bucket are working properly, run:
+``s3://pudl.catalyst.coop`` bucket using the ``gcloud storage`` CLI, which can
+access both GCS and S3 storage buckets.
 
 .. code-block::
 
-   aws s3 ls s3://pudl.catalyst.coop --no-sign-request
+   gcloud storage ls s3://pudl.catalyst.coop
 
 You should see a list of directories with version names:
 
 .. code-block::
 
-   PRE nightly/
-   PRE stable/
-   PRE v2022.11.30/
-   PRE v2023.12.01/
+   s3://pudl.catalyst.coop/nightly/
+   s3://pudl.catalyst.coop/stable/
+   s3://pudl.catalyst.coop/v2025.10.0/
+   s3://pudl.catalyst.coop/v2025.11.0/
+   s3://pudl.catalyst.coop/v2025.12.1/
+   s3://pudl.catalyst.coop/v2025.2.0/
+   s3://pudl.catalyst.coop/v2025.5.0/
+   s3://pudl.catalyst.coop/v2025.7.0/
+   s3://pudl.catalyst.coop/v2025.8.0/
+   s3://pudl.catalyst.coop/v2025.9.0/
+   s3://pudl.catalyst.coop/v2025.9.1/
    ...
-
-The ``--no-sign-request`` flag allows you to make requests to the public bucket without
-having to load AWS credentials. If you don't include this flag when interacting with the
-``s3://pudl.catalyst.coop`` bucket, ``aws`` will give you an authentication error.
 
 .. warning::
 
-   If you download the files directly with ``aws`` then you'll be responsible for
-   updating them, making sure you have the right version, putting them in the right
-   place on your computer, etc.
+   If you download the files locally then you'll be responsible for updating them,
+   making sure you have the right version, putting them in the right place on your
+   computer, etc.
 
-To copy these files directly to your computer you can use the ``aws s3 cp`` command,
-which behaves very much like the Unix ``cp`` command:
+To copy these files directly to your computer you can use the ``gcloud storage cp``
+command, which behaves very much like the Unix ``cp`` command:
 
 .. code::
 
-   aws s3 cp s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip ./ --no-sign-request
+   gcloud cp s3://pudl.catalyst.coop/nightly/pudl.sqlite.zip ./
 
-If you wanted to download all of the build outputs (more than 10GB!) you can use a
+If you wanted to download all of the build outputs (more than 25GB!) you can use a
 recursive copy:
 
 .. code::
 
-   aws s3 cp --recursive s3://pudl.catalyst.coop/nightly/ ./ --no-sign-request
-
-For more details on how to use ``aws`` in general see the
-`online documentation <https://docs.aws.amazon.com/cli/latest/reference/s3/>`__ or run:
-
-.. code::
-
-   aws help
+   gcloud cp --recursive s3://pudl.catalyst.coop/nightly/ ./
 
 How to access the nightly build outputs and logs (for the Catalyst team only)
 -----------------------------------------------------------------------------
 
 Sometimes it is helpful to download the logs and data outputs of nightly builds when
-debugging failures. To do this you'll need to set up the Google Cloud software
-Development Kit (SDK). It is installed as part of the ``pudl-dev`` conda environment.
+debugging failures. To do this you'll need to set up the Google Cloud Software
+Development Kit (SDK). It is installed as part of the PUDL pixi environment.
 
 To authenticate with Google Cloud Platform (GCP) you'll need to run the following:
 

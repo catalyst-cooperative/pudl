@@ -76,22 +76,21 @@ with ``entity_id``'s, which we rename to ``utility_id_ferc1_dbf`` and
     PUDL-assigned utility ID is used as a merge key.
 
 .. warning::
-    To fully map the FERC1 utilities you'll need to run the `make unmapped-ids`
-    step - documented below - twice because there are two layers of ID's as described
-    above.
+    To fully map the FERC1 utilities you'll need to run the unmapped IDs
+    check - documented below - twice because there are two layers of ID's as
+    described above.
 
 Checking for Unmapped Records
 -----------------------------
 
 With every new year of data comes the possibility of new plants and utilities. Once
-you've integrated the new data into PUDL
-:doc:`(see instructions) <existing_data_updates>`, you'll need to check for unmapped
-utility and plants. To do this, run the glue tests with specific arguments, or directly
-run the following ``make`` command.
+you've integrated the new data into PUDL :doc:`(see instructions)
+<existing_data_updates>`, you'll need to check for unmapped utility and plants. To do
+this, run the following command:
 
 .. code-block:: console
 
-    $ make unmapped-ids
+    $ pixi run unmapped-ids
 
 This invokes a script that identifies plants and utilities which exist in the updated
 FERC 1 and EIA datasets that do not yet appear in the stored ID maps. This will generate
@@ -101,11 +100,11 @@ unmapped IDs to the ``devtools/ferc1-eia-glue`` directory that correspond to unm
 plants and utilities from FERC 1 and EIA.
 
 If you have already generated a database without foreign-key constraints, you can run
-just the script that extracts the umapped IDs with:
+just the script that extracts the unmapped IDs with:
 
 .. code-block:: console
 
-    $ pytest test/integration/glue_test.py --live-dbs --save-unmapped-ids
+    $ pixi run pytest test/integration/glue_test.py --live-dbs --save-unmapped-ids
 
 The ``--save-unmapped-ids`` flag saves unmapped plants and utilities in the
 ``devtools/ferc1-eia-glue`` folder by default.
