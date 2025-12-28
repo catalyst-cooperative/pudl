@@ -50,7 +50,7 @@ def _notify_slack_deployments_channel(
     )
 
 
-def _write_success_failure_file(status: Literal["SUCCESS", "FAILURE"]):
+def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
     """To notify the top level build script that the job is complete, create a file in the output directory."""
     (PudlPaths().output_dir / status).touch()
 
@@ -60,6 +60,7 @@ def deploy_ferceqr():
     """Publish EQR outputs to cloud storage."""
     output_location = "gs://builds.catalyst.coop/ferceqr"
     # Copy parquet files to GCS
+    logger.info("Build successful, copying ferceqr data to GCS.")
     for table in FERCEQR_TRANSFORM_ASSETS:
         base_path = UPath(output_location) / table
         base_path.mkdir(exist_ok=True)
@@ -75,17 +76,18 @@ def deploy_ferceqr():
         " :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
         f"Parquet files written to: {output_location}"
     )
-    _write_success_failure_file("SUCCESS")
+    _write_status_file("SUCCESS")
 
 
 @dg.asset
 def handle_ferceqr_deployment_failure():
     """Send notification if EQR deployment failed."""
+    logger.info("Build failed, notifying slack.")
     _notify_slack_deployments_channel(
         message=":x: ferceqr deployment failed! See step status here:",
         attached_file_path=str(_get_etl_status_csv_path()),
     )
-    _write_success_failure_file("FAILURE")
+    _write_status_file("FAILURE")
 
 
 def _get_etl_status_csv_path() -> Path:
@@ -124,7 +126,6 @@ def ferceqr_sensor(context: dg.RunStatusSensorContext):
         logger.info("Partitions still in progress, continuing.")
         return
     # The backfill must be complete to reach this point
-    _notify_slack_deployments_channel(f"{os.environ['BUILD_ID']} status:")
     # Check if any partitions failed
     if (asset_statuses == dg.AssetPartitionStatus.FAILED).any(axis=1).any():
         # Write status to CSV file

@@ -63,7 +63,13 @@ jobs:
         run: |
           {
               echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)";
+              echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}";
           } >> "$GITHUB_ENV"
+
+      - name: Show freshly set envvars
+        run: |
+          echo "BUILD_ID: $BUILD_ID"
+          echo "BATCH_JOB_ID: $BATCH_JOB_ID"
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
@@ -87,6 +93,7 @@ jobs:
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env BUILD_REF=${{ github.ref_name }} \
+            --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env FERCEQR_BUILD=true \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
