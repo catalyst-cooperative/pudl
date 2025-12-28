@@ -50,7 +50,7 @@ jobs:
               - '!.github/workflows/docker-build-test.yml'
               - '!.github/workflows/q-update-issue-scheduler.yml'
               - '!.github/workflows/release.yml'
-              - '!.github/workflows/update-pixi-lock.yml'
+              - '!.github/workflows/update-lockfiles.yml'
               - '!.github/workflows/zenodo-cache-sync.yml'
               - '!.github/workflows/zenodo-data-release.yml'
               - '!AGENTS.md'
