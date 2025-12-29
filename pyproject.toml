@@ -26,11 +26,9 @@ requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
 license = { file = "LICENSE.txt" }
 # Dependencies are managed via pixi and installed from conda-forge.
-# See [tool.pixi.dependencies] and [tool.pixi.feature.*.dependencies] below.
+# See [tool.pixi.dependencies] below.
 # This package is an application, not a library, and should only be installed
 # from the repository in editable mode using: pixi install
-# All optional dependencies are now managed via pixi features.
-# See [tool.pixi.feature.*.dependencies] below.
 dependencies = []
 
 [tool.pixi.workspace]
@@ -148,6 +146,7 @@ zip = ">=3.0"
 # Install only the local package in editable mode with no dependencies.
 # All dependencies are explicitly managed via conda-forge in [tool.pixi.dependencies] above.
 "catalystcoop.pudl" = { path = ".", editable = true, extras = [] }
+# Furo is pure python and the conda package is like a year out of date.
 furo = ">=2025"
 
 [tool.pixi.activation.env]
