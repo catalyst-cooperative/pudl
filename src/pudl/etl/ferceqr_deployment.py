@@ -67,7 +67,7 @@ def deploy_ferceqr():
         base_path.mkdir(exist_ok=True)
 
         # Loop through partitioned parquet files for table and write to GCS
-        for file in ParquetData(table).parquet_directory.iterdir():
+        for file in ParquetData(table_name=table).parquet_directory.iterdir():
             destination_path = base_path / file.name
             destination_path.write_bytes(file.read_bytes())
 
