@@ -16,6 +16,54 @@ track bugs, enhancements, support requests, and just about any other work that g
 into the project. Try to make sure that issues have informative tags so we can find
 them easily.
 
+
+-------------------------------------------------------------------------------
+Bug triage
+-------------------------------------------------------------------------------
+
+When a new issue is discovered, we need to determine how urgent it is to
+address.
+
+Our core offering is complete, connected, and granular data. Issues that
+interrupt the availability of that data are of highest importance.
+
+However, not all datasets in PUDL are the same; some are mature and have many
+downstream users; others are more experimental. We've split them into "tier 1"
+and "tier 2" groups below.
+
+**Tier 1 datasets**
+* FERC 1 schedules XYZ
+* EIA 860 - XYZ tables
+* EIA 923 - XYZ tables
+* EPA CEMS
+
+**Tier 2 datasets**
+Everything else
+
+This then informs some reliability goals:
+
+For *tier 1* tables:
+
+- latest source data is incorporated into PUDL within 1 month of publication
+- nightly data build using latest PUDL code is available within 3 business days of any code changes
+- missing/incorrect data starts to be addressed within 2 weeks
+
+For *tier 2* tables we only shoot for nightly builds being available within 3 business days.
+
+Which then, in turn, informs our bug triage guidelines:
+
+**Urgent (find some way to address ASAP)**
+- nightly build failures
+- datasette not available
+- incorrect data in distribution buckets
+
+**High (prioritize in the upcoming sprint planning)**
+- missing/incorrect data in Tier 1 tables
+- new Tier 1 source data available
+
+**Medium (stuff in a backlog and don't forget about it)**
+- new Tier 2 source data available
+
 -------------------------------------------------------------------------------
 Our GitHub Workflow
 -------------------------------------------------------------------------------

@@ -14,12 +14,29 @@ pushes a Docker image with PUDL installed to `Docker Hub <https://hub.docker.com
 and deploys the image as a container to a GCE instance. The container runs the ETL and
 tests, then copies the outputs to a public AWS S3 bucket for distribution.
 
+
 Breaking the Builds
 -------------------
 The nightly data builds based on the ``main`` branch are our comprehensive integration
-tests. When they pass, we consider the results fit for public consumption.  The builds
-are expected to pass. If they don't then someone needs to take responsibility for
-getting them working again with some urgency.
+tests. When they pass, we consider the results fit for public consumption.
+
+When they don't pass, we need to fix them.
+
+Every morning, someone from inframundo will check the #pudl-deployments slack
+channel to see if the build has succeeded.
+
+If it has succeeded, they will track it in `this spreadsheet <https://docs.google.com/spreadsheets/d/11YdknGi4br51kxz03nNmxD-lOvilWFgm3jkUpiEdAzU/edit#gid=1678819446>`__.
+
+If it has failed, they will:
+
+1. Create a GitHub issue for the nightly build failure to hold the investigation & discussion.
+2. Track the GitHub issue and the build status in the above spreadsheet.
+3. Look in the logs and determine whether it was an "infrastructure failure," i.e. something went wrong with the code that *runs*
+the nightly build, or a "PUDL failure," i.e. something that went wrong with the PUDL ETL itself.
+4. Investigate the source of the issue & explore ways to fix it. Get help from the folks whose PRs broke the build.
+
+Avoiding breaking the builds
+----------------------------
 
 Because of how long the full build & tests take, we don't typically run them
 individually before merging every PR into ``main``. However, running ``make nuke``
@@ -28,33 +45,9 @@ data or made other changes that would be expected to break the data validations,
 the appropriate changes can be made prior to those changes hitting ``main`` and the
 nightly builds.
 
-If your PR causes the build to fail, you are probably the best person to fix the
-problem, since you already have context on all of the changes that went into it.
-
-Having multiple PRs merged into ``main`` simultaneously when the builds are breaking
-makes it ambiguous where the problem is coming from, makes debugging harder, and
-diffuses responsibility for the breakage across several people, so it's important to fix
-the breakage quickly. In some cases we may delay merging additional PRs into ``main``
-if the builds are failing to avoid ambiguity and facilitate debugging.
-
-Therefore, we've adopted the following etiquette regarding build breakage: On the
-morning after you merge a PR into ``main``, you should check whether the nightly builds
-succeeded by looking in the ``pudl-deployments`` Slack channel (which all team members
-should be subscribed to). If the builds failed, look at the logging output (which is
-included as an attachment to the notification) and figure out what kind of failure
-occurred:
-
-  * If the failure is due to your changes, then you are responsible for fixing the
-    problem and making a new PR to ``main`` that resolves it, and it should be a high
-    priority. If you're stumped, ask for help!
-  * If the failure is due to an infrastructural issue like the build server running out
-    of memory and the build process getting killed, then you need to notify the member
-    who is in charge of managing the builds (Currently :user:`bendnorman`), and hand off
-    responsibility for debugging and fixing the issue.
-  * If the failure is the result of a transient problem outside of our control like a
-    network connection failing, then wait until the next morning and repeat the above
-    process. If the "transient" problem persists, bring it up with the person
-    managing the builds.
+Once the nightly build is broken, we can't know if any new changes on ``main``
+are valid or not. So we should avoid merging unrelated changes to ``main``
+until the builds pass again.
 
 The GitHub Action
 -----------------
