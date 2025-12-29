@@ -51,7 +51,7 @@ def _notify_slack_deployments_channel(
 
 
 def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
-    """To notify the top level build script that the job is complete, create a file in the output directory."""
+    """Notify build script that job is complete by creating a status file."""
     (PudlPaths().output_dir / status).touch()
 
 
@@ -102,7 +102,7 @@ def _get_etl_status_csv_path() -> Path:
     asset_selection=["deploy_ferceqr", "handle_ferceqr_deployment_failure"],
 )
 def ferceqr_sensor(context: dg.RunStatusSensorContext):
-    """Generate a failure summary notification after all partitions have completed."""
+    """Check if the EQR backfill is complete and handle appropriately."""
     asset_statuses = {}
 
     # Query status of all assets across all partitions
