@@ -122,6 +122,12 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build"]
 
+# This is necessary because Sphinx 9.0+ is getting confused about class
+# attributes named type, and type[SomeClass] annotations in factory functions
+suppress_warnings = [
+    "ref.python",  # Suppress ambiguous Python reference warnings
+]
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.
