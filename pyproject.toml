@@ -67,6 +67,9 @@ gdal = "==3.12.1"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 google-cloud-sdk = ">=535"
+# grpcio packages need to be same version to avoid conflicts
+# Upgrade to 1.74.0 blocked by stale libgoogle-cloud on conda-forge
+# Upgrade to 1.76.0 blocked by stale grpcio on conda-forge
 grpcio = "==1.73.1"
 grpcio-health-checking = "==1.73.1"
 grpcio-status = "==1.73.1"
@@ -96,7 +99,8 @@ parallel = ">=20250822"
 pip = ">=25"
 polars = ">=1.36"
 pre-commit = ">=4.5"
-prettier = ">=3.6,<4"
+prettier = ">=3.7,<4"
+# pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
 pyarrow = "<21"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.11"
