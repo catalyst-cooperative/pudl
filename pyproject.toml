@@ -15,6 +15,9 @@ fallback-version = "0.0.0.dev0"
 [tool.hatch.version.raw-options]
 # Tell git to only consider version tags, not nightly-* or other tags
 git_describe_command = ["git", "describe", "--tags", "--long", "--match", "v20*"]
+# Don't increment version for dev releases (CalVer with monthly releases)
+# After v2024.12.1, dev versions are 2024.12.1.dev0, not 2024.12.2.dev0
+version_scheme = "no-guess-dev"
 # Disable local version identifier (no +g1234567 suffix)
 local_scheme = "no-local-version"
 
