@@ -26,11 +26,17 @@ function authenticate_gcp() {
 
 function run_ferceqr_etl() {
     echo "Running FERC EQR ETL"
+    # Launch dagster deployment in the background
     initialize_postgres &&
         authenticate_gcp &&
         dagster dev &
+
+    # Kick off the ferceqr_etl job asynchronously
     dagster job backfill --noprompt -j ferceqr_etl --location pudl.etl
-    inotifywait -e create -t 18000 --include 'SUCCESS|FAILURE' "$PUDL_OUTPUT"
+    # Wait for a file called 'SUCCESS' or 'FAILURE' to be created in PUDL_OUTPUT indicating completion
+    # Timeout after 6 hours if file still doesn't exist
+    inotifywait -e create -t 21600 --include 'SUCCESS|FAILURE' "$PUDL_OUTPUT"
+    # Kill dagster deployment
     killall dagster
 }
 
