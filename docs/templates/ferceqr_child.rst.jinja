@@ -1,0 +1,57 @@
+{% extends "data_source_parent.rst.jinja" %}
+
+{% block background %}
+FERC's Electric Quarterly Reports (EQR) record US electricity wholesale market
+activity in great detail - sellers report transactions and their contractual
+terms on timescales ranging from 5-minutes in real-time spot markets, up to
+multi-year PPAs. It’s a very large dataset, and the raw data is hard to access
+in its published form of quarterly nested zip files.
+
+In its raw form querying and analyzing EQR data requires deep industry knowledge
+and data engineering skills, thus it is underutilized as a data source. PUDL
+makes EQR accessible and conducts a minimal set of transformations to enable
+use of EQR in analysis of renewable energy financing at scale. This provides
+a view into otherwise opaque terms of the contracts and transactions that
+make up energy markets.
+{% endblock %}
+
+{% block download_docs %}
+{% for filename in download_paths %}
+    * :download:`{{ filename.stem.replace("_", " ").title() }} <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block availability %}
+We are in the process of creating infrastructure that runs on a quarterly basis
+to process all tables of EQR data between 2013 and present and publish the results
+as Parquet files. Tables include: Transactions, Contracts, Index Publications,
+Filer Identities, and FERC Company IDs.
+{% endblock %}
+
+{% block respondents %}
+EQR data is seller-reported.
+As outlined by the `EQR Filing Requirements Guide <https://cms.ferc.gov/media/eqr-filing-requirements-guide-0>`__,
+respondents are broken down into the following categories:
+
+* Public utilities: Public utilities as defined in section 201(e) of the Federal Power Act,
+  16 U.S.C. 824 (e) must file the EQR. If the utility has a Commission-jurisdictional contract, tariff or
+  rate schedule, it must file the EQR.
+* Non-public utilities: Non-public utilities must file the EQR if they make wholesale sales
+  above the de minimis market presence threshold. However, certain sales made by non-public
+  utilities above this threshold are not required to be reported in the EQR.
+* Qualifying facilities: Qualifying Facilities (QF) that are required to file rates under FPA
+  section 205 must file EQRs, unless their sales are exempted from FPA sections 205 and 206.
+* Exempt Wholesale Generators: The term ‘exempt wholesale generator’ means any person
+  engaged directly, or indirectly through one or more affiliates as defined in this subchapter,
+  and exclusively in the business of owning or operating, or both owning and operating,
+  all or part of one or more eligible facilities and selling electric energy at wholesale.
+* Electric Cooperatives: Electric cooperatives that sell 4,000,000 MWh or more of annual
+  wholesale sales must file EQRs.
+
+Notable exemptions are utilities located entirely in Alaska
+and Hawaii and utilities making sales within ERCOT
+boundaries.
+
+Annual responses are due in x of the following year. FERC typically releases the
+new data in October.
+{% endblock %}
