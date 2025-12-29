@@ -16,7 +16,7 @@ fallback-version = "0.0.0.dev0"
 # Tell git to only consider version tags, not nightly-* or other tags
 git_describe_command = ["git", "describe", "--tags", "--long", "--match", "v20*"]
 # Disable local version identifier (no +g1234567 suffix)
-# local_scheme = "no-local-version"
+local_scheme = "no-local-version"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pudl/_version.py"
