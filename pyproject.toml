@@ -7,12 +7,16 @@ packages = ["src/pudl"]
 
 [tool.hatch.version]
 source = "vcs"
+# Use CalVer-style versioning: YYYY.MM.PATCH (years 2000-2099)
+# Only consider tags matching v20*.*.* to avoid nightly and other non-version tags
+tag-pattern = "^v(?P<version>20\\d{2}\\.\\d{1,2}\\.\\d{1,2})$"
+fallback-version = "0.0.0.dev0"
 
 [tool.hatch.version.raw-options]
-version_scheme = "guess-next-dev"
-local_scheme = "no-local-version"
-tag_regex = "^v(?P<version>\\d{4}\\.\\d{1,2}\\.\\d{1,2})$"
+# Tell git to only consider version tags, not nightly-* or other tags
 git_describe_command = ["git", "describe", "--tags", "--long", "--match", "v20*"]
+# Disable local version identifier (no +g1234567 suffix)
+# local_scheme = "no-local-version"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pudl/_version.py"
