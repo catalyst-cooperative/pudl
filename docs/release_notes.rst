@@ -6,6 +6,27 @@ PUDL Release Notes
 v2026.X.x (2026-XX-XX)
 ---------------------------------------------------------------------------------------
 
+Application, not Library
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+From now on we will treat PUDL like an application rather than a library, since that's
+what it has become for all intents and purposes. There's no change in the licensing or
+openness of the project -- this is just a technical evolution, based on our experience
+that almost all users want the data, not the pipeline. Treating PUDL like a standalone
+application will make it easier for us to do releases, and ensure that we have a
+reproducible environment. See PR :pr:`4871` for where many of these changes happened.
+
+* We are no longer publishng PUDL releases as packages on `PyPI <https://pypi.org/project/catalystcoop.pudl/>`__
+  or `conda-forge <https://anaconda.org/channels/conda-forge/packages/catalystcoop.pudl/overview>`__.
+* Instead, PUDL will need to be installed from source, and is expected to be run in a
+  locked environment, and not specified as a normal dependency in other projects.
+* Tagged PUDL releases (corresponding to each of our data releases) will still be
+  archived automatically on `Zenodo <https://doi.org/10.5281/zenodo.3404014>`__ as well
+  as on our `GitHub Releases page
+  <https://github.com/catalyst-cooperative/pudl/releases>`__.
+* PUDL data releases will continue to be distributed through a variety of channels. See
+  :doc:`data_access` for the details.
+
 Enhancements
 ^^^^^^^^^^^^
 
@@ -36,6 +57,15 @@ Quality of Life Improvements
   authenticate to GCS, such as Read The Docs. This was partly an attempt to mitigate the
   Error 429 "too many requests" responses we have started getting from Zenodo, described
   in :issue:`4856`. See PR :pr:`4857`.
+* We've overhauled some of our tooling:
+
+  * Instead of using ``conda`` or ``mamba`` / ``micromamba`` to manage dependencies
+    and installation from ``conda-forge`` we've switched to `Pixi <https://pixi.prefix.dev/>`__
+  * The venerable ``setuptools`` has been replaced with `Hatch <https://hatch.pypa.io/latest/>`__
+  * ``setuptools_scm`` has been replaced with `hatch-vcs <https://github.com/ofek/hatch-vcs>`__
+  * Our ``make`` targets have been converted into `Pixi tasks <https://pixi.prefix.dev/latest/workspace/advanced_tasks/>`__
+
+  See issues :issue:`4604,4872` and PR :pr:`4871` for more details.
 
 .. _release-v2025.12.1:
 
@@ -72,7 +102,8 @@ EIA-176
 ~~~~~~~
 
 Thanks to open source contributions from `SwitchBox <https://switch.box>`__ and funding
-from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems>`__ we continue to bring in more EIA natural gas data.
+from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems>`__
+we continue to bring in more EIA natural gas data.
 
 * Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
   company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
