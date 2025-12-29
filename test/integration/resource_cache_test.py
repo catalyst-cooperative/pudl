@@ -5,12 +5,9 @@ storage backends (S3, GCS, local filesystem) to cache PUDL data.
 """
 
 import contextlib
-import shutil
-import tempfile
-from pathlib import Path
+import logging
 
 import pytest
-from google.cloud import storage
 from requests.exceptions import ConnectionError, RetryError  # noqa: A004
 from upath import UPath
 from urllib3.exceptions import MaxRetryError, ResponseError
@@ -18,13 +15,7 @@ from urllib3.exceptions import MaxRetryError, ResponseError
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.resource_cache import LayeredCache, PudlResourceKey, UPathCache
 
-
-@pytest.fixture
-def temp_local_dir():
-    """Create a temporary directory for local filesystem caching."""
-    test_dir = tempfile.mkdtemp()
-    yield test_dir
-    shutil.rmtree(test_dir, ignore_errors=True)
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
@@ -33,18 +24,15 @@ def gcs_test_cache_path():
     cache_path = "gs://test.catalyst.coop/zenodo"
     yield cache_path
 
-    # Cleanup: Remove all objects under the test path
+    # Cleanup: Remove all objects under the test path using UPath
     try:
-        client = storage.Client()
-        bucket = client.bucket("test.catalyst.coop")
-
-        # List and delete all blobs with the zenodo prefix
-        blobs = bucket.list_blobs(prefix="zenodo/")
-        for blob in blobs:
-            blob.delete()
+        zenodo_path = UPath(cache_path)
+        if zenodo_path.exists():
+            # Use rmtree equivalent through UPath's fs property
+            zenodo_path.fs.rm(str(zenodo_path), recursive=True)
     except Exception as e:
         # Log but don't fail if cleanup has issues
-        print(f"Warning: Could not clean up GCS test cache: {e}")
+        logger.warning(f"Could not clean up GCS test cache: {e}")
 
 
 @pytest.fixture
@@ -62,9 +50,9 @@ def sample_resource():
 class TestUPathCacheIntegration:
     """Integration tests for UPathCache with real storage backends."""
 
-    def test_local_filesystem_via_upath(self, temp_local_dir, sample_resource):
+    def test_local_filesystem_via_upath(self, tmp_path, sample_resource):
         """Test UPathCache with local filesystem."""
-        cache = UPathCache(UPath(f"file://{temp_local_dir}"))
+        cache = UPathCache(UPath(f"file://{tmp_path}"))
 
         test_content = b"UPath local test data"
         cache.add(sample_resource, test_content)
@@ -83,11 +71,11 @@ class TestUPathCacheIntegration:
             ResponseError,
         )
     )
-    def test_read_from_s3_via_upath(self, temp_local_dir):
+    def test_read_from_s3_via_upath(self, tmp_path):
         """Test reading from PUDL's public S3 bucket using UPathCache."""
         # Create UPath caches for S3 (read-only) and local (read-write)
         s3_cache = UPathCache(UPath("s3://pudl.catalyst.coop/zenodo"), read_only=True)
-        local_cache = UPathCache(UPath(f"file://{temp_local_dir}"))
+        local_cache = UPathCache(UPath(f"file://{tmp_path}"))
         layered = LayeredCache(local_cache, s3_cache)
 
         # Get a real resource from eia176
@@ -155,10 +143,10 @@ class TestLayeredCacheIntegration:
             ResponseError,
         )
     )
-    def test_three_layer_cache_with_s3(self, temp_local_dir, gcs_test_cache_path):
+    def test_three_layer_cache_with_s3(self, tmp_path, gcs_test_cache_path):
         """Test a three-layer cache: local -> GCS (read-write) -> S3 (read-only)."""
         # Create three cache layers
-        local_cache = UPathCache(UPath(f"file://{temp_local_dir}"))
+        local_cache = UPathCache(UPath(f"file://{tmp_path}"))
 
         try:
             gcs_cache = UPathCache(UPath(gcs_test_cache_path))
@@ -210,13 +198,11 @@ class TestLayeredCacheIntegration:
 class TestCacheInteroperability:
     """Test that different cache implementations can interoperate."""
 
-    def test_multiple_upath_caches_in_layered_cache(
-        self, temp_local_dir, sample_resource
-    ):
+    def test_multiple_upath_caches_in_layered_cache(self, tmp_path, sample_resource):
         """Test using multiple UPathCache instances in the same LayeredCache."""
         # Create different UPath caches pointing to different directories
-        cache1 = UPathCache(UPath(f"file://{Path(temp_local_dir) / 'cache1'}"))
-        cache2 = UPathCache(UPath(f"file://{Path(temp_local_dir) / 'cache2'}"))
+        cache1 = UPathCache(UPath(f"file://{tmp_path / 'cache1'}"))
+        cache2 = UPathCache(UPath(f"file://{tmp_path / 'cache2'}"))
 
         # Build layered cache
         layered = LayeredCache(cache1, cache2)
