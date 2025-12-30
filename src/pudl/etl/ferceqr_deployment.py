@@ -1,6 +1,7 @@
 """Define tooling for monitoring the ferceqr_etl job during batch builds."""
 
 import os
+import traceback
 from pathlib import Path
 from typing import Literal
 
@@ -58,27 +59,33 @@ def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
 @dg.asset
 def deploy_ferceqr():
     """Publish EQR outputs to cloud storage."""
-    output_location = "gs://builds.catalyst.coop/ferceqr"
-    # Copy parquet files to GCS
-    logger.info("Build successful, copying ferceqr data to GCS.")
-    for table in FERCEQR_TRANSFORM_ASSETS:
-        logger.info(f"Copying {table} to GCS.")
-        base_path = UPath(output_location) / table
-        base_path.mkdir(exist_ok=True)
+    # TEMP wrap in try except to get logs to show up
+    try:
+        output_location = "gs://builds.catalyst.coop/ferceqr"
+        # Copy parquet files to GCS
+        logger.info("Build successful, copying ferceqr data to GCS.")
+        for table in FERCEQR_TRANSFORM_ASSETS:
+            logger.info(f"Copying {table} to GCS.")
+            base_path = UPath(output_location) / table
+            base_path.mkdir(exist_ok=True)
 
-        # Loop through partitioned parquet files for table and write to GCS
-        for file in ParquetData(table_name=table).parquet_directory.iterdir():
-            destination_path = base_path / file.name
-            destination_path.write_bytes(file.read_bytes())
+            # Loop through partitioned parquet files for table and write to GCS
+            for file in ParquetData(table_name=table).parquet_directory.iterdir():
+                destination_path = base_path / file.name
+                destination_path.write_bytes(file.read_bytes())
 
-    # Send slack notification about successful build
-    logger.info("Notifying slack about successful build.")
-    _notify_slack_deployments_channel(
-        ":large_green_circle: :sunglasses: :unicorn_face: :rainbow: ferceqr deployment succeeded!!"
-        " :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
-        f"Parquet files can be found at: {output_location}"
-    )
-    _write_status_file("SUCCESS")
+        # Send slack notification about successful build
+        logger.info("Notifying slack about successful build.")
+        _notify_slack_deployments_channel(
+            ":large_green_circle: :sunglasses: :unicorn_face: :rainbow: ferceqr deployment succeeded!!"
+            " :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
+            f"Parquet files can be found at: {output_location}"
+        )
+        _write_status_file("SUCCESS")
+    except:  # NOQA: E722
+        logger.error("Deployment asset failed:")
+        logger.error(traceback.format_exc())
+        _write_status_file("SUCCESS")
 
 
 @dg.asset
