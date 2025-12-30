@@ -40,7 +40,23 @@ function run_ferceqr_etl() {
     killall dagster
 }
 
-run_ferceqr_etl 2>&1
+########################################################################################
+# MAIN SCRIPT
+########################################################################################
+LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
+
+run_ferceqr_etl 2>&1 | tee "$LOGFILE"
 
 # This needs to happen regardless of the ETL outcome:
 pg_ctlcluster "$PG_VERSION" dagster stop 2>&1
+
+# This way we also save the logs from latter steps in the script
+gcloud storage --quiet cp "$LOGFILE" "gs://builds.catalyst.coop/ferceqr/"
+
+# Check if build was successful and return appropriate return value
+if [ ! -f "${PUDL_OUTPUT}/SUCCESS" ]; then
+    echo "Build failed!"
+    exit 1
+fi
+
+echo "Build successful!"
