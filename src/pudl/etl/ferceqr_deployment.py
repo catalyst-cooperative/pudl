@@ -58,25 +58,29 @@ def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
 @dg.asset
 def deploy_ferceqr():
     """Publish EQR outputs to cloud storage."""
-    output_location = "gs://builds.catalyst.coop/ferceqr"
+    output_locations = [
+        "gs://builds.catalyst.coop/ferceqr",
+        "s3://pudl.catalyst.coop/ferceqr",
+    ]
     # Copy parquet files to GCS
     logger.info("Build successful, copying ferceqr data to GCS.")
-    for table in FERCEQR_TRANSFORM_ASSETS:
-        logger.info(f"Copying {table} to GCS.")
-        base_path = UPath(output_location) / table
-        base_path.mkdir(exist_ok=True)
+    for output_location in output_locations:
+        for table in FERCEQR_TRANSFORM_ASSETS:
+            logger.info(f"Copying {table} to {output_location}.")
+            base_path = UPath(output_location) / table
+            base_path.mkdir(exist_ok=True)
 
-        # Loop through partitioned parquet files for table and write to GCS
-        for file in ParquetData(table_name=table).parquet_directory.iterdir():
-            destination_path = base_path / file.name
-            destination_path.write_bytes(file.read_bytes())
+            # Loop through partitioned parquet files for table and write to GCS
+            for file in ParquetData(table_name=table).parquet_directory.iterdir():
+                destination_path = base_path / file.name
+                destination_path.write_bytes(file.read_bytes())
 
     # Send slack notification about successful build
     logger.info("Notifying slack about successful build.")
     _notify_slack_deployments_channel(
         ":large_green_circle: :sunglasses: :unicorn_face: :rainbow: ferceqr deployment succeeded!!"
         " :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
-        f"Parquet files can be found at: {output_location}"
+        f"Parquet files published to: {', '.join(output_locations)}"
     )
     _write_status_file("SUCCESS")
 

@@ -45,12 +45,22 @@ function run_ferceqr_etl() {
 ########################################################################################
 LOGFILE="${PUDL_OUTPUT}/${BUILD_ID}.log"
 
+# Save credentials for working with AWS S3
+# set +x / set -x is used to avoid printing the AWS credentials in the logs
+echo "Setting AWS credentials"
+mkdir -p ~/.aws
+echo "[default]" >~/.aws/credentials
+set +x
+echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
+echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
+set -x
+
 run_ferceqr_etl 2>&1 | tee "$LOGFILE"
 
 # This needs to happen regardless of the ETL outcome:
 pg_ctlcluster "$PG_VERSION" dagster stop 2>&1
 
-# This way we also save the logs from latter steps in the script
+# Copy logs to GCS build directory
 gcloud storage --quiet cp "$LOGFILE" "gs://builds.catalyst.coop/ferceqr/"
 
 # Check if build was successful and return appropriate return value
