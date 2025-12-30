@@ -95,6 +95,7 @@ jobs:
             --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env FERCEQR_BUILD=true \
+            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env OMP_NUM_THREADS=4 \
