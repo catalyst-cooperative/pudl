@@ -106,7 +106,17 @@ def _get_etl_status_csv_path() -> Path:
     asset_selection=["deploy_ferceqr", "handle_ferceqr_deployment_failure"],
 )
 def ferceqr_sensor(context: dg.RunStatusSensorContext):
-    """Check if the EQR backfill is complete and handle appropriately."""
+    """Check if the EQR backfill is complete and handle appropriately.
+
+    This sensor is configured to run every 60 seconds when the EQR deployment job is
+    running (it won't run at all in local development). Once it detects that the job
+    has completed, it will return a ``RunRequest`` object requesting dagster to execute
+    an asset to handle either a successful or failed run. We need to set ``run_key``
+    in the ``RunRequest`` because dagster will only execute one run per key, so if
+    the sensor executes while one of handler assets is still in progress, dagster will
+    not try to execute the handler asset again. We can also make ``run_key`` a static
+    key, because our batch jobs have no memory of previous executions.
+    """
     asset_statuses = {}
 
     # Query status of all assets across all partitions
