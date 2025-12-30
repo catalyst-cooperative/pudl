@@ -4,22 +4,7 @@ import importlib.resources
 import itertools
 import os
 
-from dagster import (
-    AssetKey,
-    AssetsDefinition,
-    AssetSelection,
-    AssetSpec,
-    AutomationConditionSensorDefinition,
-    DagsterRunStatus,
-    DefaultSensorStatus,
-    Definitions,
-    JobSelector,
-    define_asset_job,
-    load_asset_checks_from_modules,
-    load_assets_from_modules,
-    run_status_sensor,
-    sensor,
-)
+import dagster as dg
 
 import pudl
 from pudl.etl import ferceqr_deployment
@@ -39,7 +24,6 @@ from pudl.resources import (
     ferc_to_sqlite_settings,
 )
 from pudl.settings import EtlSettings
-from pudl.workspace.setup import PudlPaths
 
 from . import (
     eia_bulk_elec_assets,
@@ -122,16 +106,19 @@ out_module_groups = {
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
 
-automation_assets = {
+ferceqr_deployment_assets = {
     "ferceqr_deployment": [ferceqr_deployment],
 }
 
 all_asset_modules = (
-    raw_module_groups | core_module_groups | out_module_groups | automation_assets
+    raw_module_groups
+    | core_module_groups
+    | out_module_groups
+    | ferceqr_deployment_assets
 )
 default_assets = list(
     itertools.chain.from_iterable(
-        load_assets_from_modules(
+        dg.load_assets_from_modules(
             modules,
             group_name=group_name,
             include_specs=True,
@@ -143,7 +130,7 @@ default_assets = list(
 
 default_asset_checks = list(
     itertools.chain.from_iterable(
-        load_asset_checks_from_modules(
+        dg.load_asset_checks_from_modules(
             modules,
         )
         for modules in all_asset_modules.values()
@@ -151,7 +138,9 @@ default_asset_checks = list(
 )
 
 
-def _get_keys_from_assets(asset_def: AssetsDefinition | AssetSpec) -> list[AssetKey]:
+def _get_keys_from_assets(
+    asset_def: dg.AssetsDefinition | dg.AssetSpec,
+) -> list[dg.AssetKey]:
     """Get a list of asset keys.
 
     Most assets have one key, which can be retrieved as a list from
@@ -163,9 +152,9 @@ def _get_keys_from_assets(asset_def: AssetsDefinition | AssetSpec) -> list[Asset
     AssetSpecs always only have one key, and don't have ``asset.keys``. So we
     look for ``asset.key`` and wrap it in a list.
     """
-    if isinstance(asset_def, AssetsDefinition):
+    if isinstance(asset_def, dg.AssetsDefinition):
         return list(asset_def.keys)
-    if isinstance(asset_def, AssetSpec):
+    if isinstance(asset_def, dg.AssetSpec):
         return [asset_def.key]
     return []
 
@@ -244,12 +233,12 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     return dataset_settings
 
 
-defs: Definitions = Definitions(
+defs: dg.Definitions = dg.Definitions(
     assets=default_assets,
     asset_checks=default_asset_checks,
     resources=default_resources,
     jobs=[
-        define_asset_job(
+        dg.define_asset_job(
             name="etl_full",
             description="This job executes all years of all assets.",
             config=default_config
@@ -262,7 +251,7 @@ defs: Definitions = Definitions(
             },
             selection="not key:*ferceqr*",
         ),
-        define_asset_job(
+        dg.define_asset_job(
             name="etl_fast",
             config=default_config
             | {
@@ -275,14 +264,14 @@ defs: Definitions = Definitions(
             description="This job executes the most recent year of each asset.",
             selection="not key:*ferceqr*",
         ),
-        define_asset_job(
+        dg.define_asset_job(
             name="ferceqr_etl",
             description="This job executes the ferceqr ETL.",
             config=pudl.helpers.get_dagster_execution_config(
                 tag_concurrency_limits=default_tag_concurrency_limits
             ),
-            selection=AssetSelection.groups("raw_ferceqr")
-            | AssetSelection.groups("core_ferceqr"),
+            selection=dg.AssetSelection.groups("raw_ferceqr")
+            | dg.AssetSelection.groups("core_ferceqr"),
         ),
     ],
     sensors=[ferceqr_deployment.ferceqr_sensor],
