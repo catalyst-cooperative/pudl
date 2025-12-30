@@ -259,6 +259,7 @@ def core_epacems__hourly_emissions(
         ).sink_parquet(
             output_path,
             engine="streaming",
+            compression="zstd",
             row_group_size=100_000,
         )
 

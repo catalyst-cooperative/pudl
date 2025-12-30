@@ -51,6 +51,7 @@ jobs:
               - '!.github/workflows/q-update-issue-scheduler.yml'
               - '!.github/workflows/release.yml'
               - '!.github/workflows/update-conda-lockfile.yml'
+              - '!.github/workflows/update-lockfiles.yml'
               - '!.github/workflows/zenodo-cache-sync.yml'
               - '!.github/workflows/zenodo-data-release.yml'
               - '!AGENTS.md'
@@ -73,6 +74,9 @@ jobs:
           echo "merge_group ${{ github.event.merge_group }} is not null: ${{ github.event.merge_group != null }}"
 
   ci-docs:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -123,6 +127,9 @@ jobs:
           path: .coverage
 
   ci-unit:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -248,15 +255,7 @@ jobs:
           du -sh /home/runner/pudl-work/*
           du -sh /home/runner/_work/*
 
-      - name: Set default GCP credentials
-        id: gcloud-auth
-        continue-on-error: true
-        uses: "google-github-actions/auth@v3"
-        with:
-          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
-          service_account: "tox-pytest-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
-
-      - name: Run integration tests, trying to use GCS cache if possible
+      - name: Install PUDL, download some EPA CEMS data, and run the integration tests
         run: |
           pip install --no-deps --editable .
           pudl_datastore --dataset epacems --partition year_quarter=2023q1
