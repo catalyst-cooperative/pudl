@@ -3872,58 +3872,8 @@ packages:
   timestamp: 1741554795915
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2025.12.2.dev77
-  sha256: ec9b4bf7f8db290abb46cbd2713f19e9549bd0bd67112a842a183bfd4428fcb5
-  requires_dist:
-  - alembic>=1.17
-  - boto3>=1.35
-  - bottleneck>=1.5.0
-  - catalystcoop-dbfread>=3.0,<3.1
-  - catalystcoop-ferc-xbrl-extractor>=1.8,<1.9
-  - click>8,<8.2
-  - coloredlogs>=14.0
-  - dagster-dbt>=0.28.7
-  - dagster-postgres>=0.28.7
-  - dagster-webserver>=1.12.7
-  - dagster>=1.12.7
-  - dbt-core>=1.10.17
-  - dbt-duckdb>=1.9.4
-  - duckdb>=1.4
-  - email-validator>=1.0.3
-  - frictionless>=5,<6
-  - fsspec>=2025
-  - gcsfs>=2025
-  - geoarrow-pyarrow>=0.2
-  - geopandas>=1.1
-  - jellyfish>=1
-  - jinja2>=3.1
-  - matplotlib>=3.10
-  - mlflow>=3.8
-  - networkx>=3.6
-  - numba>=0.63.1
-  - numpy>=2.3
-  - packaging>=25
-  - pandas>=2.3
-  - pandera>=0.27
-  - polars>=1.36
-  - pyarrow>=17,<21
-  - pydantic-settings>=2.11
-  - pydantic>=2.12
-  - python-calamine>=0.6.1
-  - python-dotenv>=1
-  - pytz>=2025
-  - pyyaml>=6
-  - requests>=2.32
-  - s3fs>=2025
-  - scikit-learn>=1.8
-  - scipy>=1.16
-  - shapely>=2.1.1
-  - splink>=4.0.10
-  - sqlalchemy>=2
-  - timezonefinder>=8
-  - universal-pathlib>=0.3.7
-  - urllib3>=2.4
-  - xlsxwriter>=3.2
+  version: 2025.12.2.dev78
+  sha256: 7de7f9b9d9afec6a659037297c55bf963d27cd26172bde61ff2625bde3258bf8
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb

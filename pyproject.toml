@@ -25,74 +25,35 @@ version-file = "src/pudl/_version.py"
 name = "catalystcoop.pudl"
 description = "An open data processing pipeline for US energy data"
 readme = { file = "README.rst", content-type = "text/x-rst" }
-authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
+authors = [
+    { name = "Catalyst Cooperative", email = "pudl@catalyst.coop" },
+]
 requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
-license = { file = "LICENSE.txt" }
-dependencies = [
+license = "MIT"
 # NOTE: THERE ARE TWO COPIES OF MOST DEPENDENCIES.
 # Dependencies are specified here so that the pudl-archiver repo is able to install
 # PUDL with uv from the git repo URL. These are duplicates of the core runtime
-# dependencies specified below in [tool.pixi.dependencies]. Dependencies used for
-# development and testing are *only* specified in [tool.pixi.dependencies]. The local
+# dependencies specified below in tool.pixi.dependencies. Dependencies used for
+# development and testing are *only* specified in tool.pixi.dependencies. The local
 # package and any packages that *must* come from PyPI are specified in
-# [tool.pixi.pypi-dependencies].
-    "alembic>=1.17",
-    "boto3>=1.35",
-    "bottleneck>=1.5.0",
-    "catalystcoop.dbfread>=3.0,<3.1",
-    "catalystcoop.ferc-xbrl-extractor>=1.8,<1.9",
-    "click>8,<8.2",
-    "coloredlogs>=14.0",
-    "dagster>=1.12.7",
-    "dagster-dbt>=0.28.7",
-    "dagster-postgres>=0.28.7",
-    "dagster-webserver>=1.12.7",
-    "dbt-core>=1.10.17",
-    "dbt-duckdb>=1.9.4",
-    "email-validator>=1.0.3",
-    "frictionless>=5,<6",
-    "fsspec>=2025",
-    "gcsfs>=2025",
-    "geoarrow-pyarrow>=0.2",
-    "geopandas>=1.1",
-    "jellyfish>=1",
-    "jinja2>=3.1",
-    "matplotlib>=3.10",
-    "mlflow>=3.8",
-    "networkx>=3.6",
-    "numba>=0.63.1",
-    "numpy>=2.3",
-    "packaging>=25",
-    "pandas>=2.3",
-    "pandera>=0.27",
-    "polars>=1.36",
-    "pyarrow>=17,<21",
-    "pydantic>=2.12",
-    "pydantic-settings>=2.11",
-    "python-calamine>=0.6.1",
-    "python-dotenv>=1",
-    "duckdb>=1.4",
-    "pytz>=2025",
-    "pyyaml>=6",
-    "requests>=2.32",
-    "s3fs>=2025",
-    "scikit-learn>=1.8",
-    "scipy>=1.16",
-    "shapely>=2.1.1",
-    "splink>=4.0.10",
-    "sqlalchemy>=2",
-    "timezonefinder>=8",
-    "universal-pathlib>=0.3.7",
-    "urllib3>=2.4",
-    "xlsxwriter>=3.2",
-]
+# tool.pixi.pypi-dependencies.
+dependencies = []
+
+[project.urls]
+"Homepage" = "https://github.com/catalyst-cooperative/pudl"
+"Source" = "https://github.com/catalyst-cooperative/pudl"
+"Documentation" = "https://catalystcoop-pudl.readthedocs.io"
+"Issue Tracker" = "https://github.com/catalyst-cooperative/pudl/issues"
+"Support" = "https://github.com/catalyst-cooperative/pudl/discussions"
+"Funding" = "https://catalyst.coop/support-the-pudl-project/"
 
 [tool.pixi.workspace]
 name = "catalystcoop.pudl"
 platforms = ["linux-64", "osx-64", "osx-arm64"]
 channels = ["conda-forge"]
 channel-priority = "strict"
+preview = ["pixi-build"]
 
 [tool.pixi.dependencies]
 alembic = ">=1.17"
@@ -206,6 +167,76 @@ zip = ">=3.0"
 "catalystcoop.pudl" = { path = ".", editable = true }
 # Furo is pure python and the conda package is like a year out of date.
 furo = ">=2025"
+[tool.pixi.package]
+version = "v0.0.0"
+
+[tool.pixi.package.build.backend]
+name = "pixi-build-python"
+version = "0.4.*"
+channels = [
+    "https://prefix.dev/conda-forge",
+    "https://prefix.dev/pixi-build-backends",
+]
+
+[tool.pixi.package.build-dependencies]
+python = ">=3.13,<3.14.0"
+
+[tool.pixi.package.host-dependencies]
+hatchling = ">=1.16"
+hatch-vcs = ">=0.5"
+uv = ">=0.9.21"
+
+[tool.pixi.package.run-dependencies]
+alembic = ">=1.17"
+boto3 = ">=1.35"
+bottleneck = ">=1.5.0"
+"catalystcoop.dbfread" = ">=3.0,<3.1"
+"catalystcoop.ferc_xbrl_extractor" = ">=1.8,<1.9"
+click = ">8,<8.2"
+coloredlogs = ">=14.0"
+dagster = ">=1.12.7"
+dagster-dbt = ">=0.28.7"
+dagster-postgres = ">=0.28.7"
+dagster-webserver = ">=1.12.7"
+dbt-core = ">=1.10.17"
+dbt-duckdb = ">=1.9.4"
+email-validator = ">=1.0.3"
+frictionless = ">=5,<6"
+fsspec = ">=2025"
+gcsfs = ">=2025"
+geoarrow-pyarrow = ">=0.2"
+geopandas = ">=1.1"
+jellyfish = ">=1"
+jinja2 = ">=3.1"
+matplotlib-base = ">=3.10"
+mlflow = ">=3.8"
+networkx = ">=3.6"
+numba = ">=0.63.1"
+numexpr = ">=2.10"
+numpy = ">=2.3"
+packaging = ">=25"
+pandas = ">=2.3"
+pandera-core = ">=0.27"
+polars = ">=1.36"
+pyarrow = ">=17,<21"
+pydantic = ">=2.12"
+pydantic-settings = ">=2.11"
+python-calamine = ">=0.6.1"
+python-dotenv = ">=1"
+python-duckdb = ">=1.4"
+pytz = ">=2025"
+pyyaml = ">=6"
+requests = ">=2.32"
+s3fs = ">=2025"
+scikit-learn = ">=1.8"
+scipy = ">=1.16"
+shapely = ">=2.1.1"
+splink = ">=4.0.10"
+sqlalchemy = ">=2"
+timezonefinder = ">=8"
+universal-pathlib = ">=0.3.7"
+urllib3 = ">=2.4"
+xlsxwriter = ">=3.2"
 
 [tool.pixi.activation.env]
 # Reusable variables for pixi tasks
