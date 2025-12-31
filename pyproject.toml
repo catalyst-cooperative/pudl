@@ -320,7 +320,7 @@ coverage run --append pudl_etl $ETL_FULL_YML
 """, description = "Run full PUDL ETL pipeline" }
 
 # Code quality tasks
-pre-commit = { cmd = "pre-commit run --all-files", description = "Run all pre-commit hooks" }
+pre-commit-run = { cmd = "pre-commit run --all-files", description = "Run all pre-commit hooks" }
 
 # Dependency Update tasks
 pre-commit-install = { cmd = "pre-commit install", description = "Install pre-commit hooks" }
