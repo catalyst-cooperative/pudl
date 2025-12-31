@@ -13,7 +13,7 @@ before it's merged into the ``main`` branch you can use the following command:
 
 .. code-block:: console
 
-    $ pixi run pytest-coverage
+    $ pixi run pytest-ci
 
 This includes building the documentation, running unit & integration tests, and checking
 to make sure we've got sufficient test coverage.
