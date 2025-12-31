@@ -3872,8 +3872,8 @@ packages:
   timestamp: 1741554795915
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2025.12.2.dev75
-  sha256: ec9b4bf7f8db290abb46cbd2713f19e9549bd0bd67112a842a183bfd4428fcb5
+  version: 2025.12.2.dev76
+  sha256: 0353552398ede12f37ab351113fc1f83b6a50471bf015ab50bce55ff7855002c
   requires_dist:
   - alembic>=1.17
   - boto3>=1.35
@@ -3901,6 +3901,7 @@ packages:
   - mlflow>=3.8
   - networkx>=3.6
   - numba>=0.63.1
+  - numexpr>=2.10
   - numpy>=2.3
   - packaging>=25
   - pandas>=2.3
