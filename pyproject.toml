@@ -62,7 +62,6 @@ dependencies = [
     "mlflow>=3.8",
     "networkx>=3.6",
     "numba>=0.63.1",
-    "numexpr>=2.10",
     "numpy>=2.3",
     "packaging>=25",
     "pandas>=2.3",
