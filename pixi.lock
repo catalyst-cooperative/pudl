@@ -3872,15 +3872,15 @@ packages:
   timestamp: 1741554795915
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2025.12.2.dev73
-  sha256: 081dd2276bd9fb26dc95a905b296b945377f03ca4c38cae8f240a182059cb7f3
+  version: 2025.12.2.dev74
+  sha256: 016c50c8e7b0678cace62b2be91aab043ea1eec3caa48639153deaa30123b9fc
   requires_dist:
   - alembic>=1.17
   - boto3>=1.35
   - bottleneck>=1.5.0
   - catalystcoop-dbfread>=3.0,<3.1
   - catalystcoop-ferc-xbrl-extractor>=1.8.0,<2
-  - click!=8.3.0,!=8.3.1
+  - click<8.2
   - coloredlogs>=14.0
   - dagster-dbt>=0.28.7
   - dagster-postgres>=0.28.7
@@ -3898,6 +3898,7 @@ packages:
   - jellyfish>=1
   - jinja2>=3.1
   - matplotlib>=3.10
+  - mlflow>=3.8
   - networkx>=3.6
   - numba>=0.63.1
   - numexpr>=2.10
