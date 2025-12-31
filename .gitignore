@@ -45,6 +45,7 @@ diff.md
 terraform/.terraform/*
 .env
 .hypothesis/
+*.conda
 
 # dbt specific ignores
 dbt/dbt_packages/

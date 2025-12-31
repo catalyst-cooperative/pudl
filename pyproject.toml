@@ -31,13 +31,11 @@ authors = [
 requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
 license = "MIT"
-# NOTE: THERE ARE TWO COPIES OF MOST DEPENDENCIES.
-# Dependencies are specified here so that the pudl-archiver repo is able to install
-# PUDL with uv from the git repo URL. These are duplicates of the core runtime
-# dependencies specified below in tool.pixi.dependencies. Dependencies used for
-# development and testing are *only* specified in tool.pixi.dependencies. The local
-# package and any packages that *must* come from PyPI are specified in
-# tool.pixi.pypi-dependencies.
+# All dependencies are managed through pixi, ensuring they're always installed from
+# conda-forge if available. See tool.pixi.dependencies, tool.pixi.pypi-dependencies,
+# and tool.pixi.package.run-dependencies below. This means that the package cannot be
+# installed with pip or uv, but it is set up to be built with pixi into a conda package
+# which can be installed with conda, mamba, micromamba, pixi, etc.
 dependencies = []
 
 [project.urls]
@@ -55,6 +53,10 @@ channels = ["conda-forge"]
 channel-priority = "strict"
 preview = ["pixi-build"]
 
+# This is an expansive listing of all PUDL dependencies that are available via
+# conda-forge. It includes development, testing, and run-time dependencies.
+# For any dependency with an upper bound on the version, please add a
+# comment explaining why it's necessary.
 [tool.pixi.dependencies]
 alembic = ">=1.17"
 boto3 = ">=1.35"
@@ -77,14 +79,17 @@ dbt-duckdb = ">=1.9.4"
 deepdiff = ">=8"
 doc8 = ">=1.1"
 email-validator = ">=1.0.3"
-frictionless = "<6,>=5"
+frictionless = ">=5,<6"
 fsspec = ">=2025"
 gcsfs = ">=2025"
+# The Python geospatial stack is notoriously finnicky and full of compiled # extensions
+# that have to be kept in sync. If this isn't pinned things will probably break.
 gdal = "==3.12.1"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 google-cloud-sdk = ">=535"
-# grpcio packages need to be same version to avoid conflicts
+# grpcio packages all need to have same version to avoid conflicts.
+# They are also compiled and finnicky. Check compatibility before upgrading.
 # Upgrade to 1.74.0 blocked by stale libgoogle-cloud on conda-forge
 # Upgrade to 1.76.0 blocked by stale grpcio on conda-forge
 grpcio = "==1.73.1"
@@ -113,9 +118,9 @@ pandas = ">=2.3"
 pandoc = ">=3.7"
 pandera-core = ">=0.27"
 parallel = ">=20250822"
-pip = ">=25"
 polars = ">=1.36"
 pre-commit = ">=4.5"
+# potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.7,<4"
 # pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
 pyarrow = "<21"
@@ -137,7 +142,7 @@ readthedocs-sphinx-ext = ">=2"
 requests = ">=2.32"
 responses = ">=0.25"
 ruff = ">=0.14"
-ruff-lsp = "*"
+ruff-lsp = ">=0.0.62"
 s3fs = ">=2025"
 scikit-learn = ">=1.8"
 scipy = ">=1.16"
@@ -157,6 +162,7 @@ timezonefinder = ">=8"
 typos = ">=1.40"
 universal-pathlib = ">=0.3.7"
 urllib3 = ">=2.4"
+uv = ">=0.9.21"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
 
@@ -173,10 +179,7 @@ version = "v0.0.0"
 [tool.pixi.package.build.backend]
 name = "pixi-build-python"
 version = ">=0.4.3"
-channels = [
-    "https://prefix.dev/conda-forge",
-    "https://prefix.dev/pixi-build-backends",
-]
+channels = ["conda-forge"]
 
 [tool.pixi.package.build-dependencies]
 python = ">=3.13,<3.14.0"
@@ -186,6 +189,9 @@ hatchling = ">=1.16"
 hatch-vcs = ">=0.5"
 uv = ">=0.9.21"
 
+# This is a list of the minimal set of run-time dependencies required for PUDL to
+# be installed and function properly. These should be kept in sync with the more
+# expansive list in [tool.pixi.dependencies] above.
 [tool.pixi.package.run-dependencies]
 alembic = ">=1.17"
 boto3 = ">=1.35"
@@ -204,8 +210,18 @@ email-validator = ">=1.0.3"
 frictionless = ">=5,<6"
 fsspec = ">=2025"
 gcsfs = ">=2025"
+# The Python geospatial stack is notoriously finnicky and full of compiled # extensions
+# that have to be kept in sync. If this isn't pinned things will probably break.
+gdal = "==3.12.1"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
+# grpcio packages all need to have same version to avoid conflicts.
+# They are also compiled and finnicky. Check compatibility before upgrading.
+# Upgrade to 1.74.0 blocked by stale libgoogle-cloud on conda-forge
+# Upgrade to 1.76.0 blocked by stale grpcio on conda-forge
+grpcio = "==1.73.1"
+grpcio-health-checking = "==1.73.1"
+grpcio-status = "==1.73.1"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
 matplotlib-base = ">=3.10"
@@ -242,9 +258,6 @@ xlsxwriter = ">=3.2"
 # Reusable variables for pixi tasks
 ETL_FAST_YML = "src/pudl/package_data/settings/etl_fast.yml"
 ETL_FULL_YML = "src/pudl/package_data/settings/etl_full.yml"
-# Prevents every single pixi run/install invocation from updating the lockfile.
-# Equivalent to `pixi install --locked` or `pixi run --locked`.
-PIXI_LOCKED = "true"
 
 [tool.pixi.tasks]
 # Documentation tasks
