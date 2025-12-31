@@ -36,6 +36,14 @@ Quality of Life Improvements
   authenticate to GCS, such as Read The Docs. This was partly an attempt to mitigate the
   Error 429 "too many requests" responses we have started getting from Zenodo, described
   in :issue:`4856`. See PR :pr:`4857`.
+* Standardized ``max_steam_flow_1000_lbs_per_hour`` to ``max_steam_flow_lbs_per_hour``.
+  Units changed to "lbs_per_hour" and rounded to nearest 100 lbs in the
+  :ref:`_core_eia860__boilers` table. See issue :issue:`4301`
+  and PR :pr:`4810`.
+* Standardized ``steam_load_1000_lbs`` with ``steam_load_lbs``.
+  Units changed to "lbs" in the
+  :ref:`core_epacems__hourly_emissions` table. See issue :issue:`4301`
+  and PR :pr:`4810`.
 
 .. _release-v2025.12.1:
 
