@@ -477,7 +477,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pycparser-2.22-pyh29332c3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.12.5-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pydantic-core-2.41.5-py313h843e2db_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.10.6-pyh3cfb1c2_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.11.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-settings-2.12.0-pyh3cfb1c2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygls-2.0.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygments-2.19.2-pyhd8ed1ab_0.conda
@@ -1111,7 +1111,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pycparser-2.22-pyh29332c3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.12.5-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pydantic-core-2.41.5-py313hcc225dc_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.10.6-pyh3cfb1c2_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.11.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-settings-2.12.0-pyh3cfb1c2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygls-2.0.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygments-2.19.2-pyhd8ed1ab_0.conda
@@ -1726,7 +1726,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/pycparser-2.22-pyh29332c3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.12.5-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pydantic-core-2.41.5-py313h2c089d5_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.10.6-pyh3cfb1c2_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.11.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-settings-2.12.0-pyh3cfb1c2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygls-2.0.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pygments-2.19.2-pyhd8ed1ab_0.conda
@@ -3875,8 +3875,8 @@ packages:
   timestamp: 1741554795915
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2025.12.2.dev85
-  sha256: aff629e84ea2a55e69fa2ca46e17d688aeea086a8dcfe15e3e57db92a956e2da
+  version: 2025.12.2.dev86
+  sha256: 684457351fa2fe3fa56cabea2ffcd9b91589fbb0c80f085a50a8a5202a9f61a7
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -14434,26 +14434,25 @@ packages:
   - pkg:pypi/pydantic-core?source=hash-mapping
   size: 1778337
   timestamp: 1762989007829
-- conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.10.6-pyh3cfb1c2_0.conda
-  sha256: 0a03f1e0771be4bcc5b174b1b45453127d3cf006ab5801fb457d1b7b9421d1ad
-  md5: c60c737e23715462044d9dba67fdf10c
+- conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.11.0-pyhd8ed1ab_0.conda
+  sha256: e984052b8922b8996add05d595b68430e4f28b7d93846693b2729dc1e0504685
+  md5: b74145c95d910d3dd4195cf7d7567c35
   depends:
   - pydantic >=2.5.2
   - python >=3.10
   constrains:
-  - pycountry >=23
-  - phonenumbers >=8,<9
-  - pendulum >=3.0.0,<4.0.0
-  - pytz >=2024.1
-  - semver >=3.0.2,<4
-  - tzdata >=2024a
   - python-ulid >=1,<3
+  - phonenumbers >=8,<9
+  - pytz >=2024.1
+  - pycountry >=23
+  - tzdata >=2024a
+  - pendulum >=3.0.0,<4.0.0
+  - semver >=3.0.2,<4
   license: MIT
-  license_family: MIT
   purls:
-  - pkg:pypi/pydantic-extra-types?source=hash-mapping
-  size: 34430
-  timestamp: 1759937803985
+  - pkg:pypi/pydantic-extra-types?source=compressed-mapping
+  size: 64099
+  timestamp: 1767221123687
 - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-settings-2.12.0-pyh3cfb1c2_0.conda
   sha256: 17d552dd19501909d626ff50cd23753d56e03ab670ce9096f1c4068e1eb90f2a
   md5: 0a3042ce18b785982c64a8567cc3e512

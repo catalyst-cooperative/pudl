@@ -289,8 +289,8 @@ coverage run --append -m sphinx --jobs auto -v -W -b html docs docs/_build/html
 coverage-erase = { cmd = "coverage erase", description = "Clear coverage data" }
 pytest-unit = { cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit", description = "Run unit tests and doctests" }
 pytest-integration = { cmd = "pytest --cov-fail-under=0 --etl-settings $ETL_FAST_YML test/integration", description = "Run integration tests with fast ETL settings" }
-pytest-ci = { depends-on = ["pytest-unit", "pytest-integration"], description = "Run all tests (unit + integration)" }
-pytest-coverage = { cmd = "coverage report", depends-on = ["coverage-erase", "docs-build", "pytest-ci"], description = "Generate test coverage report" }
+pytest-ci = { cmd = "coverage report", depends-on = ["coverage-erase", "docs-build", "pytest-unit", "pytest-integration"], description = "Run all CI tests and report test coverage" }
+pytest-integration-full = { cmd = "pytest --live-dbs --no-cov --etl-settings $ETL_FULL_YML test/integration", description = "Run integration tests against local full ETL outputs" }
 pytest-jupyter = { cmd = "pytest --live-dbs test/integration/jupyter_notebooks_test.py", description = "Test Jupyter notebooks" }
 # Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
@@ -321,9 +321,9 @@ coverage run --append pudl_etl $ETL_FULL_YML
 
 # Code quality tasks
 pre-commit-run = { cmd = "pre-commit run --all-files", description = "Run all pre-commit hooks" }
+pre-commit-install = { cmd = "pre-commit install", description = "Install pre-commit hooks" }
 
 # Dependency Update tasks
-pre-commit-install = { cmd = "pre-commit install", description = "Install pre-commit hooks" }
 pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update pre-commit hook versions" }
 dbt-deps-upgrade = { cmd = "dbt deps --upgrade", cwd = "dbt", description = "Update dbt dependencies" }
 
