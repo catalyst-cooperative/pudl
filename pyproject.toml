@@ -174,7 +174,7 @@ version = "v0.0.0"
 name = "pixi-build-python"
 version = ">=0.4.3"
 channels = [
-    "conda-forge",
+    "https://prefix.dev/conda-forge",
     "https://prefix.dev/pixi-build-backends",
 ]
 
