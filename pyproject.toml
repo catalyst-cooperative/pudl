@@ -323,6 +323,7 @@ coverage run --append pudl_etl $ETL_FULL_YML
 pre-commit = { cmd = "pre-commit run --all-files", description = "Run all pre-commit hooks" }
 
 # Dependency Update tasks
+pre-commit-install = { cmd = "pre-commit install", description = "Install pre-commit hooks" }
 pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update pre-commit hook versions" }
 dbt-deps-upgrade = { cmd = "dbt deps --upgrade", cwd = "dbt", description = "Update dbt dependencies" }
 

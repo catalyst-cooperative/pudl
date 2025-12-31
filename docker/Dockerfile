@@ -49,7 +49,8 @@ RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_REPO}
 COPY docker/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
 
 # Copy the entire PUDL repo into the image.
-# This includes the .git directory, so it is a whole repo
+# We can't install the PUDL package without .git/ because the version is dynamically
+# determined using hatch-vcs, which needs access to the git tags.
 COPY --chown=${PIXI_USER}:${PIXI_USER} . ${PUDL_REPO}
 WORKDIR ${PUDL_REPO}
 

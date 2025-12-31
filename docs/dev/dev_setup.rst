@@ -24,45 +24,6 @@ Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
     * `Forking a Repository <https://help.github.com/en/articles/fork-a-repo>`__
     * `Cloning a Repository <https://help.github.com/articles/cloning-a-repository/>`__
 
-------------------------------------------------------------------------------
-Install ``pixi``
-------------------------------------------------------------------------------
-We use the ``pixi`` package manager to specify and update our development environment.
-Pixi uses the community maintained `conda-forge <https://conda-forge.org>`__
-distribution channel and provides reproducible environments through lockfiles.
-
-To install pixi, follow the instructions at https://pixi.sh or use one of these methods:
-
-**MacOS:**
-
-You can install pixi using Homebrew:
-
-.. code-block:: console
-
-    $ brew install pixi
-
-Or use the installation script:
-
-.. code-block:: console
-
-    $ curl -fsSL https://pixi.sh/install.sh | bash
-
-**Linux:**
-
-.. code-block:: console
-
-    $ curl -fsSL https://pixi.sh/install.sh | bash
-
-After installation, restart your shell or source your profile to make the ``pixi``
-command available.
-
-**Windows:**
-
-The PUDL development environment is not currently supported on Windows because some
-dependencies are not available for Windows through conda-forge.  Windows users should
-use the `Windows Subsystem for Linux (WSL)
-<https://learn.microsoft.com/en-us/windows/wsl/install>`__ and follow the Linux
-installation instructions above.
 
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
@@ -108,15 +69,19 @@ lockfile. Run this command once from within the cloned repository:
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
 -------------------------------------------------------------------------------
-We use `pixi <https://pixi.sh>`__ to manage our development environment. Pixi uses a
-lockfile (``pixi.lock``) to specify particular versions of all of PUDL's direct and
-indirect software dependencies, resulting in a stable, reproducible environment.
+We use the ``pixi`` package manager to specify and update our development environment.
 
-All dependencies are defined in the project's ``pyproject.toml`` file. The lockfile is
+Pixi installs software from the community-maintained `conda-forge
+<https://conda-forge.org>`__ distribution channel and provides reproducible environments
+through lockfiles to specify particular versions of all of PUDL's direct and indirect
+software dependencies, resulting in a stable, reproducible environment.  All
+dependencies are defined in the project's ``pyproject.toml`` file. The lockfile is
 updated automatically by a GitHub Action workflow that runs once a week.
 
-To install all dependencies and set up the development environment, from the root of the
-PUDL repository run:
+See `the Pixi installation guide <https://pixi.prefix.dev/latest/installation/>`__.
+
+With ``pixi`` installed, to install all of PUDL's dependencies and set up the
+development environment, from the root of the PUDL repository run:
 
 .. code-block:: console
 
@@ -159,9 +124,9 @@ update just that dependency:
     $ pixi add "package-name>=version"  # For new dependencies
     $ pixi update package-name           # To update an existing dependency
 
-For weekly bulk updates to all dependencies, our automated GitHub Action handles this.
-You should generally not need to update all dependencies manually unless you're
-specifically working on dependency management.
+Our automated GitHub Action handles weekly updates to all dependencies. You should
+not generally need to update all dependencies manually unless you're working on
+dependency management.
 
 .. note::
 
@@ -208,7 +173,7 @@ To make sure they are run before you commit any code, you need to enable the
 
 .. code-block:: console
 
-    $ pre-commit install
+    $ pixi run pre-commit-install
 
 The scripts that run are configured in the ``.pre-commit-config.yaml`` file.
 

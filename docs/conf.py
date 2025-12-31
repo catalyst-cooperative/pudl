@@ -124,6 +124,7 @@ exclude_patterns = ["_build"]
 
 # This is necessary because Sphinx 9.0+ is getting confused about class
 # attributes named type, and type[SomeClass] annotations in factory functions
+# See this issue: https://github.com/sphinx-doc/sphinx/issues/14223
 suppress_warnings = [
     "ref.python",  # Suppress ambiguous Python reference warnings
 ]

@@ -8,7 +8,7 @@ Setup
 -----
 
 The ``dbt/`` directory contains the PUDL dbt project which manages our `data tests
-<https://docs.getdbt.com/docs/build/data-tests>`__ and dbt is part of the PUDL pixi
+<https://docs.getdbt.com/docs/build/data-tests>`__. dbt is part of the PUDL pixi
 environment.
 
 The data validation tests run on the Parquet outputs that are in your

@@ -77,12 +77,9 @@ datastore instead by using our custom ``--tmp-data`` with ``pytest``:
 -------------------------------------------------------------------------------
 Running pytest Directly
 -------------------------------------------------------------------------------
-Running tests directly with ``pytest`` gives you the ability to run only
-tests from a particular test module or even a single individual test case.
-It's also faster because there's no testing environment to set up. Instead,
-it uses your pixi environment discussed in :doc:`/dev/dev_setup`. This is
-convenient if you're debugging something specific or developing new test
-cases.
+Running tests directly with ``pytest`` gives you the ability to run only tests from a
+particular test module or even a single individual test case.  This is convenient if
+you're debugging something specific or developing new test cases.
 
 You can run pytest directly without the ``pixi run`` prefix if you're working
 within the activated pixi environment, or use ``pixi run pytest`` to run it
