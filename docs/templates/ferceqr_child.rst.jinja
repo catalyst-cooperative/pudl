@@ -55,3 +55,19 @@ boundaries.
 Annual responses are due in x of the following year. FERC typically releases the
 new data in October.
 {% endblock %}
+
+{% block original_data_title %}
+Explore the raw FERC EQR data at:
+
+THe original data is published as nested zipfiles of CSVs.
+{% endblock %}
+{% block original_data %}{% endblock %}
+
+{% block notable_irregularities %}
+This block discusses any irregularities about the dataset that could be helpful for a
+user to know about.
+{% endblock %}
+
+{% block extra_pudl_transform_text %}
+This block adds any extra information about how PUDL transforms the original data.
+{% endblock %}
