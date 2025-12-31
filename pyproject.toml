@@ -29,19 +29,20 @@ authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
 requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
 license = { file = "LICENSE.txt" }
-# Dependencies are specified here only so that the pudl-archiver repo is able to install
-# PUDL using a git repo URL. They duplicate all of the core runtime dependencies
-# specified in [tool.pixi.dependencies] below. Dependencies used for development and
-# testing only are specified in [tool.pixi.dependencies] so that they are installed
-# from conda-forge. The local package and any packages that are only available via PyPI
-# are specified in [tool.pixi.pypi-dependencies] below.
 dependencies = [
+# NOTE: THERE ARE TWO COPIES OF MOST DEPENDENCIES.
+# Dependencies are specified here so that the pudl-archiver repo is able to install
+# PUDL with uv from the git repo URL. These are duplicates of the core runtime
+# dependencies specified below in [tool.pixi.dependencies]. Dependencies used for
+# development and testing are *only* specified in [tool.pixi.dependencies]. The local
+# package and any packages that *must* come from PyPI are specified in
+# [tool.pixi.pypi-dependencies].
     "alembic>=1.17",
     "boto3>=1.35",
     "bottleneck>=1.5.0",
     "catalystcoop.dbfread>=3.0,<3.1",
-    "catalystcoop.ferc-xbrl-extractor>=1.8.0,<2",
-    "click<8.2",
+    "catalystcoop.ferc-xbrl-extractor>=1.8,<1.9",
+    "click>8,<8.2",
     "coloredlogs>=14.0",
     "dagster>=1.12.7",
     "dagster-dbt>=0.28.7",
@@ -61,7 +62,6 @@ dependencies = [
     "mlflow>=3.8",
     "networkx>=3.6",
     "numba>=0.63.1",
-    "numexpr>=2.10",
     "numpy>=2.3",
     "packaging>=25",
     "pandas>=2.3",
@@ -92,15 +92,17 @@ dependencies = [
 name = "catalystcoop.pudl"
 platforms = ["linux-64", "osx-64", "osx-arm64"]
 channels = ["conda-forge"]
+channel-priority = "strict"
 
 [tool.pixi.dependencies]
 alembic = ">=1.17"
 boto3 = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
-"catalystcoop.ferc_xbrl_extractor" = ">=1.8.0,<2"
-# I/O bug in click 8.3.[0-1] https://github.com/pallets/click/issues/3110
-click = "<8.2"
+"catalystcoop.ferc_xbrl_extractor" = ">=1.8,<1.9"
+# We have some incompatibility with click 8.2.x
+# There's an I/O bug in click 8.3.[0-1] https://github.com/pallets/click/issues/3110
+click = ">8,<8.2"
 coloredlogs = ">=14.0"
 coverage = ">=7.10"
 curl = ">=8.17"
@@ -179,7 +181,7 @@ s3fs = ">=2025"
 scikit-learn = ">=1.8"
 scipy = ">=1.16"
 shapely = ">=2.1.1"
-sphinx = ">=8"
+sphinx = ">=9"
 sphinx-autoapi = ">=3.6.1"
 sphinx-issues = ">=5"
 sphinx-reredirects = ">=1"
