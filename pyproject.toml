@@ -29,11 +29,63 @@ authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
 requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
 license = { file = "LICENSE.txt" }
-# Dependencies are managed via pixi and installed from conda-forge.
-# See [tool.pixi.dependencies] below.
-# This package is an application, not a library, and should only be installed
-# from the repository in editable mode using: pixi install
-dependencies = []
+# Dependencies are specified here only so that the pudl-archiver repo is able to install
+# PUDL using a git repo URL. They duplicate all of the core runtime dependencies
+# specified in [tool.pixi.dependencies] below. Dependencies used for development and
+# testing only are specified in [tool.pixi.dependencies] so that they are installed
+# from conda-forge. The local package and any packages that are only available via PyPI
+# are specified in [tool.pixi.pypi-dependencies] below.
+dependencies = [
+    "alembic>=1.17",
+    "boto3>=1.35",
+    "bottleneck>=1.5.0",
+    "catalystcoop.dbfread>=3.0,<3.1",
+    "catalystcoop.ferc-xbrl-extractor>=1.8.0,<2",
+    "click!=8.3.0,!=8.3.1",
+    "coloredlogs>=14.0",
+    "dagster>=1.12.7",
+    "dagster-dbt>=0.28.7",
+    "dagster-postgres>=0.28.7",
+    "dagster-webserver>=1.12.7",
+    "dbt-core>=1.10.17",
+    "dbt-duckdb>=1.9.4",
+    "email-validator>=1.0.3",
+    "frictionless>=5,<6",
+    "fsspec>=2025",
+    "gcsfs>=2025",
+    "geoarrow-pyarrow>=0.2",
+    "geopandas>=1.1",
+    "jellyfish>=1",
+    "jinja2>=3.1",
+    "matplotlib>=3.10",
+    "networkx>=3.6",
+    "numba>=0.63.1",
+    "numexpr>=2.10",
+    "numpy>=2.3",
+    "packaging>=25",
+    "pandas>=2.3",
+    "pandera>=0.27",
+    "polars>=1.36",
+    "pyarrow>=17,<21",
+    "pydantic>=2.12",
+    "pydantic-settings>=2.11",
+    "python-calamine>=0.6.1",
+    "python-dotenv>=1",
+    "duckdb>=1.4",
+    "pytz>=2025",
+    "pyyaml>=6",
+    "requests>=2.32",
+    "s3fs>=2025",
+    "scikit-learn>=1.8",
+    "scipy>=1.16",
+    "shapely>=2.1.1",
+    "splink>=4.0.10",
+    "sqlalchemy>=2",
+    "timezonefinder>=8",
+    "universal-pathlib>=0.3.7",
+    "urllib3>=2.4",
+    "xlsxwriter>=3.2",
+]
 
 [tool.pixi.workspace]
 name = "catalystcoop.pudl"
@@ -112,7 +164,6 @@ pytest-cov = ">=7"
 pytest-mock = ">=3.15"
 pytest-order = ">=1.3"
 pytest-xdist = ">=3.8"
-python = ">=3.13,<3.14.0a0"
 python-calamine = ">=0.6.1"
 python-dotenv = ">=1"
 python-duckdb = ">=1.4"
@@ -146,8 +197,9 @@ xlsxwriter = ">=3.2"
 zip = ">=3.0"
 
 [tool.pixi.pypi-dependencies]
-# Install only the local package in editable mode with no dependencies.
-# All dependencies are explicitly managed via conda-forge in [tool.pixi.dependencies] above.
+# Install the local package in editable mode. Assume dependencies are specified either
+# above in [tools.pixi.dependenccies] (for conda packages) or in this section, if they
+# happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
 # Furo is pure python and the conda package is like a year out of date.
 furo = ">=2025"
