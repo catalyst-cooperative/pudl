@@ -95,7 +95,7 @@ def find_new_ferc1_strings(
         table: Name of the FERC Form 1 DB to search.
         field: Name of the column in that table to search.
         strdict: A string cleaning dictionary. See
-            e.g. `pudl.transform.ferc1.FUEL_UNIT_STRINGS`
+            e.g. :py:const:`pudl.transform.ferc1.FUEL_UNIT_STRINGS`
         ferc1_engine: SQL Alchemy DB connection engine for the FERC Form 1 DB.
 
     Returns:
@@ -580,7 +580,7 @@ def date_merge(
             If one of these temporal columns already exists in the dataframe it will not
             be clobbered by the merge, as the suffix "_temp_for_merge" is added when
             expanding the datetime column into year, quarter, month, and day. By default,
-            `date_on` will just include year.
+            ``date_on`` will just include year.
         how: How the dataframes should be merged. See :func:`pandas.DataFrame.merge`.
         report_at_start: Whether the data in the dataframe whose report date is not being
             kept in the merged output (in most cases the less frequently reported dataframe)
@@ -662,7 +662,7 @@ def expand_timeseries(
             frequency aliases.
         fill_through_freq: The frequency in which to fill in the data through. For
             example, if equal to "year" the data will be filled in through the end of
-            the last reported year for each grouping of `key_cols`. Valid frequencies
+            the last reported year for each grouping of ``key_cols``. Valid frequencies
             are only "year", "month", or "day".
 
     Raises:
@@ -844,8 +844,8 @@ def cleanstrings(
 ) -> pd.DataFrame:
     """Consolidate freeform strings in several dataframe columns.
 
-    This function will consolidate freeform strings found in `columns` into simplified
-    categories, as defined by `stringmaps`. This is useful when a field contains many
+    This function will consolidate freeform strings found in ``columns`` into simplified
+    categories, as defined by ``stringmaps``. This is useful when a field contains many
     different strings that are really meant to represent a finite number of categories,
     e.g. a type of fuel. It can also be used to create simplified categories that apply
     to similar attributes that are reported in various data sources from different
@@ -1211,7 +1211,7 @@ def convert_cols_dtypes(
     so we are keeping those columns as objects and preforming a simple mask for
     the boolean columns.
 
-    The other exception in here is with the `utility_id_eia` column. It is
+    The other exception in here is with the ``utility_id_eia`` column. It is
     often an object column of strings. All of the strings are numbers, so it
     should be possible to convert to :func:`pandas.Int32Dtype` directly, but it
     is requiring us to convert to int first. There will probably be other
@@ -1640,7 +1640,7 @@ def calc_capacity_factor(
     dataframe are pulled out to determine the hours in each period based on
     the frequency. The number of hours is used in calculating the capacity
     factor. Then records with capacity factors outside the range specified by
-    `min_cap_fact` and `max_cap_fact` are dropped.
+    ``min_cap_fact`` and ``max_cap_fact`` are dropped.
 
     Args:
         df: table with required inputs for capacity factor (``report_date``,
@@ -2039,7 +2039,7 @@ def get_dagster_execution_config(
             Dagster description: If a value is set, the limit is applied to
             only that key-value pair. If no value is set, the limit is applied
             across all values of that key. If the value is set to a dict with
-            `applyLimitPerUniqueValue: true`, the limit will apply to the
+            ``applyLimitPerUniqueValue: true``, the limit will apply to the
             number of unique values for that key. Note that these limits are
             per run, not global.
 
@@ -2328,7 +2328,7 @@ class ParquetData(BaseModel):
     @property
     def parquet_directory(self) -> Path:
         """Get path to directory for writing/reading parquet files."""
-        parquet_path = PudlPaths().parquet_transform_dir / self.table_name
+        parquet_path = PudlPaths().parquet_path() / self.table_name
         parquet_path.mkdir(exist_ok=True, parents=True)
         return parquet_path
 
@@ -2346,6 +2346,7 @@ def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
     partitions: dict = {},
+    compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
 ) -> ParquetData:
     """Write data from DataFrame or LazyFrame to disk as a parquet file.
 
@@ -2357,16 +2358,24 @@ def persist_table_as_parquet(
         table_name: Table name used to construct path to/name of parquet file.
         partitions: Partitions which correspond to the table_data. If passed
             ``{'years': 1995}`` then this method will produce a parquet file at the path
-            ``PudlPaths().parquet_transform_dir / table_name / '1995.parquet'``.
+            ``PudlPaths().parquet_path() / table_name / '1995.parquet'``.
     """
     # Create ParquetData class to get path to write parquet file
     parquet_data = ParquetData(table_name=table_name, partitions=partitions)
     if isinstance(table_data, pd.DataFrame):
-        table_data.to_parquet(parquet_data.parquet_path)
+        table_data.to_parquet(parquet_data.parquet_path, compression=compression)
     elif isinstance(table_data, pl.LazyFrame):
-        table_data.sink_parquet(parquet_data.parquet_path, engine="streaming")
+        table_data.sink_parquet(
+            parquet_data.parquet_path,
+            engine="streaming",
+            compression=compression,
+        )
     elif isinstance(table_data, duckdb.DuckDBPyRelation):
-        table_data.to_parquet(str(parquet_data.parquet_path), overwrite=True)
+        table_data.to_parquet(
+            str(parquet_data.parquet_path),
+            overwrite=True,
+            compression=compression,
+        )
     else:
         raise TypeError(
             "table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."
@@ -2408,7 +2417,7 @@ def df_from_parquet(
 @contextmanager
 def duckdb_relation_from_parquet(
     parquet_data: ParquetData, use_all_partitions: bool = False
-) -> duckdb.DuckDBPyRelation:
+) -> tuple[duckdb.DuckDBPyRelation, duckdb.DuckDBPyConnection]:
     """Create a duckdb relation to read from parquet files.
 
     This method is intended to be used as a context manager to keep the duckdb
@@ -2421,8 +2430,9 @@ def duckdb_relation_from_parquet(
     """
     with duckdb.connect() as conn:
         if use_all_partitions:
-            yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet")
-        yield conn.read_parquet(str(parquet_data.parquet_path))
+            yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet"), conn
+        else:
+            yield conn.read_parquet(str(parquet_data.parquet_path)), conn
 
 
 def duckdb_extract_zipped_csv(

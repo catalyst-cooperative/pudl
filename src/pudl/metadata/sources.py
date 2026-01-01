@@ -665,6 +665,29 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "ferccid": {
+        "title": "FERC CID - Company Identifier Listing",
+        "path": "https://data.ferc.gov/company-registration/ferc-company-identifier-listing/",
+        "description": (
+            "FERC's regulations require regulated or jurisdictional entities and some "
+            "non-regulated or non-jurisdictional entities to obtain Company Identifier (CID) numbers "
+            "in order to make required filings with the Commission including tariff filings and "
+            "various required forms. Each regulatory program requires a unique CID number. These "
+            "CID numbers show up in various FERC filings, such as Forms 1, 2, 6, 60, 714, and EQR."
+        ),
+        "working_partitions": {},
+        "keywords": sorted(
+            set(
+                ["ferc", "cid", "company identifier"]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+    },
     "ferceqr": {
         "title": "FERC Form 920 -- Electric Quarterly Report (EQR)",
         "path": "https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr",
@@ -686,6 +709,16 @@ SOURCES: dict[str, Any] = {
                 + KEYWORDS["electricity"]
             )
         ),
+        "working_partitions": {
+            "year_quarters": [
+                f"{year}q{quarter}"
+                for year in range(2013, 2026)
+                for quarter in range(1, 5)
+                if not (
+                    (year == 2013 and quarter < 3) or (year == 2025 and quarter > 3)
+                )
+            ],
+        },
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
