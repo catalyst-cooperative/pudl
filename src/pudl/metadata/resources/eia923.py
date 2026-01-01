@@ -1077,7 +1077,7 @@ and consumption is the net generation."""
                 "data_maturity",
                 "environmental_equipment_name",
                 "fgd_electricity_consumption_mwh",
-                "fgd_sorbent_consumption_1000_tons",
+                "fgd_sorbent_consumption_tons",
                 "hours_in_service",
                 "mercury_control_id_eia",
                 "mercury_emission_rate_lb_per_trillion_btu",

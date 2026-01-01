@@ -1680,6 +1680,13 @@ def _core_eia923__yearly_emissions_control(
 
     df = pudl.helpers.standardize_na_values(df)
 
+    # Convert thousands of tons to tons
+    df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
+    df.columns = df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
+    df.loc[:, "fgd_sorbent_consumption_tons"] = df.loc[
+        :, "fgd_sorbent_consumption_tons"
+    ].round(-2)
+
     # Fix malformed report-year string columns (i.e., should be MM-YYYY)
     def clean_date(val):
         if pd.isna(val):
