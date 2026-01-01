@@ -50,7 +50,6 @@ jobs:
               - '!.github/workflows/docker-build-test.yml'
               - '!.github/workflows/q-update-issue-scheduler.yml'
               - '!.github/workflows/release.yml'
-              - '!.github/workflows/update-conda-lockfile.yml'
               - '!.github/workflows/update-lockfiles.yml'
               - '!.github/workflows/zenodo-cache-sync.yml'
               - '!.github/workflows/zenodo-data-release.yml'
@@ -89,35 +88,19 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Install pudl environment using pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
       - name: Lint and build PUDL documentation with Sphinx
         run: |
-          pip install --no-deps --editable .
-          make docs-build
-
-      - name: Coverage debugging output
-        run: |
-          coverage debug config
-          coverage debug sys
-          coverage report --fail-under=0
-          ls -a
+          pixi run docs-build
 
       - name: Upload docs coverage artifact
         uses: actions/upload-artifact@v6
@@ -142,40 +125,19 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Install pudl environment using pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: Log SQLite3 version
-        run: |
-          which sqlite3
-          sqlite3 --version
-
       - name: Run PUDL unit tests and collect test coverage
         run: |
-          pip install --no-deps --editable .
-          make pytest-unit
-
-      - name: Coverage debugging output
-        run: |
-          coverage debug config
-          coverage debug sys
-          coverage report --fail-under=0
-          ls -a
+          pixi run pytest-unit
 
       - name: Upload unit tests coverage artifact
         uses: actions/upload-artifact@v6
@@ -210,29 +172,12 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Install Conda environment using mamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Install pudl environment using pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Show disk space usage 1
-        run: |
-          du -sh /home/runner/*
-
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
-
-      - name: Log SQLite3 version
-        run: |
-          which sqlite3
-          sqlite3 --version
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v5
@@ -246,31 +191,9 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: Show disk space usage 2
+      - name: Run the integration tests
         run: |
-          du -sh /home/runner/*
-          du -sh /home/runner/pudl-work/*
-          du -sh /home/runner/_work/*
-
-      - name: Install PUDL, download some EPA CEMS data, and run the integration tests
-        run: |
-          pip install --no-deps --editable .
-          pudl_datastore --dataset epacems --partition year_quarter=2023q1
-          make pytest-integration
-
-      - name: Show disk space usage 3
-        run: |
-          du -sh /home/runner/*
-          du -sh /home/runner/pudl-work/*
-          du -sh /home/runner/_work/*
-          du -sh /tmp/pytest-of-runner/
-
-      - name: Coverage debugging output
-        run: |
-          coverage debug config
-          coverage debug sys
-          coverage report --fail-under=0
-          ls -a
+          pixi run pytest-integration
 
       - name: Upload integration test coverage artifact
         uses: actions/upload-artifact@v6
@@ -307,19 +230,16 @@ jobs:
       - name: List downloaded files
         run: |
           find coverage -type f
-      - name: Install Micromamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Install pudl environment using pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          init-shell: bash
-          environment-name: coverage
-          create-args: >-
-            python=3.13
-            coverage>=7.6.1
+          locked: true
+          cache: true
       - name: Combine coverage data, output XML, and report
         run: |
-          micromamba run -n coverage coverage combine coverage/*/.coverage
-          micromamba run -n coverage coverage xml --fail-under=0
-          micromamba run -n coverage coverage report --fail-under=0
+          pixi run coverage combine coverage/*/.coverage
+          pixi run coverage xml --fail-under=0
+          pixi run coverage report --fail-under=0
       - name: Upload XML coverage report to CodeCov
         uses: codecov/codecov-action@v5
         with:
@@ -331,4 +251,4 @@ jobs:
           verbose: true
       - name: Run coverage report again but fail if we're under the minimum
         run: |
-          micromamba run -n coverage coverage report
+          pixi run coverage report

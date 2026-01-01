@@ -1,0 +1,7 @@
+# Exclude local pixi environment - will be rebuilt in container
+.pixi/
+*.egg-info/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage

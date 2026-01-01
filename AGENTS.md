@@ -19,13 +19,17 @@
 
 ## Development environment tips
 
-- PUDL uses mamba to manage its Python environment and dependencies.
-- PUDL's conda environment is named `pudl-dev`.
-- To run commands in the `pudl-dev` environment, prefix them with `mamba run -n pudl-dev`
+- PUDL uses pixi to manage its Python environment and dependencies. All dependencies and
+  configuration are defined in `pyproject.toml`.
+- The default pixi environment includes all development tools.
+- To run commands in the pixi environment, prefix them with `pixi run` (e.g.,
+  `pixi run pytest`)
+- Pixi environments and tasks are defined in `pyproject.toml` under `[tool.pixi]`
+  sections.
 - PUDL uses ruff to lint and automatically format python code. Before staging files for
-  a commit, always run `mamba run -n pudl-dev pre-commit run ruff-check --all-files` and
-  `mamba run -n pudl-dev pre-commit run ruff-format --all-files`
-- A number of pre-commit hooks are defined in .pre-config-config.yaml.
+  a commit, always run `pixi run pre-commit run ruff-check --all-files` and
+  `pixi run pre-commit run ruff-format --all-files`
+- A number of pre-commit hooks are defined in .pre-commit-config.yaml.
 - We try to use appropriate type annotations in function, class, and method definitions,
   but they are not yet checked or enforced. They are primarily to improve readability
   for humans, LLMs, and IDEs.
@@ -38,13 +42,16 @@
   tests should use the pytest.parametrize decorator to enumerate tests cases, specifying
   the appropriate success or failure or exception to be raised for each test as
   appropriate.
-- Tests must be run inside the `pudl-dev` conda environment.
+- Tests must be run inside the pixi environment.
+- When individual tests are run, we should turn off coverage collection, since otherwise
+  they will fail since they only cover a small portion of the codebase.
 - Test coverage collection should be disabled using `--no-cov` when running individual
   tests to avoid getting spurious warnings.
-- For example, the unit tests can be run with
-  `mamba run -n pudl-dev pytest --no-cov test/unit`.
+- For example, the unit tests can be run with `pixi run pytest --no-cov test/unit`.
 - We use dbt only for data validation, and NOT for data transformations. The PUDL data
   tests are under the `dbt/` directory.
+- dbt commands must be typically run from within the dbt directory, e.g.:
+  `cd dbt && pixi run dbt build`
 - The PUDL integration tests process a substantial amount of data and take up to an hour
   to run, and so should not generally be run during development interactively.
 
@@ -59,8 +66,9 @@
 - Use f-strings for string formatting, including in logging statements.
 - Write docstrings for all public functions/classes using Google style python
   docstrings.
-- Limit lines to 88 characters for better readability.
-- Do not use `print()` statements; use logging instead.
+- Limit lines to 88 characters for better readability. Do not artificially restrict line
+  length to 80 characters.
+- Do not use `print()` statements; use python's logging system instead.
 
 ## PUDL-Specific Patterns
 
