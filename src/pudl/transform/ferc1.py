@@ -2962,14 +2962,14 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         report_year, utility_id_ferc1_xbrl, and the primary key columns of the XBRL table
 
         Args:
-            df: table to assign `record_id` to
+            df: table to assign ``record_id`` to
             source_ferc1: data source of raw ferc1 database.
 
         Raises:
             ValueError: If any of the primary key columns are missing from the DataFrame
                 being processed.
             ValueError: If there are any null values in the primary key columns.
-            ValueError: If the resulting `record_id` column is non-unique.
+            ValueError: If the resulting ``record_id`` column is non-unique.
         """
         logger.debug(
             f"{self.table_id.value}: Assigning {source_ferc1.value} source record IDs."
@@ -5236,10 +5236,10 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
 
     @cache_df("main")
     def transform_main(self, df):
-        """Add `_previous_year` factoids after standard transform_main.
+        """Add ``_previous_year`` factoids after standard transform_main.
 
-        Add `_previous_year` factoids for `unappropriated_retained_earnings` and
-        `unappropriated_undistributed_subsidiary_earnings` after standard
+        Add ``_previous_year`` factoids for ``unappropriated_retained_earnings`` and
+        ``unappropriated_undistributed_subsidiary_earnings`` after standard
         transform_main. This should only affect XBRL data, but we do it after merging to
         enable access to DBF data to fill this in as well.
         """
@@ -5363,7 +5363,7 @@ class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
         starting and ending balance for the current year. The ending balance for the
         previous year should be the same as the starting balance for the current year.
 
-        We need to keep both pieces of data in order to calculate `ending_balances`,
+        We need to keep both pieces of data in order to calculate ``ending_balances``,
         so we want to check these assumptions, extract as much information from these
         two years of data, and keep both records for each of these two earnings
         types for each utility.
@@ -5734,17 +5734,19 @@ class DepreciationByFunctionTableTransformer(Ferc1AbstractTableTransformer):
     def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
         """Run standard :meth:`Ferc1AbstractTableTransformer.transform_end` plus a data validation step.
 
-        In :func:`infer_intra_factoid_totals`, we restrict the child calculation components to
-        only those without "total" in any of the dimension columns (e.g. `plant_status == "total"`).
-        Because of this, when there is more than one dimension with totals in a table, as in this table,
-        records with two totals (e.g. `plant_status == "total"` and `plant_function == "total"`) only get
-        linked to children with no "totals" in any of their subdimensions. This is fine and good because
-        it avoids possible double counting of mixed total and sub-dimension calculations. But it means
-        that records with totals in one sub-dimension (e.g. `plant_status == "in_service"` and
-        `plant_function == "total"`) aren't linked to double-total parent factoids. To ensure that there
-        aren't many instances of data where most or all of the data is reported in these mixed-total
-        records, we add a validation step to ward against large-scale data loss in
-        :class:`pudl.output.ferc1.Exploder`.
+        In :func:`infer_intra_factoid_totals`, we restrict the child calculation
+        components to only those without "total" in any of the dimension columns (e.g.
+        ``plant_status == "total"``).  Because of this, when there is more than one
+        dimension with totals in a table, as in this table, records with two totals
+        (e.g. ``plant_status == "total"`` and ``plant_function == "total"``) only get
+        linked to children with no "totals" in any of their subdimensions. This is fine
+        and good because it avoids possible double counting of mixed total and
+        sub-dimension calculations. But it means that records with totals in one
+        sub-dimension (e.g. ``plant_status == "in_service"`` and ``plant_function ==
+        "total"``) aren't linked to double-total parent factoids. To ensure that there
+        aren't many instances of data where most or all of the data is reported in these
+        mixed-total records, we add a validation step to ward against large-scale data
+        loss in :class:`pudl.output.ferc1.Exploder`.
         """
         df = super().transform_end(df)
         dimension_cols = ["plant_function", "plant_status"]
@@ -6960,7 +6962,7 @@ def add_calculation_component_corrections(
     calculations should also have correction records. For the core (non-subdimension)
     calculations, all calculation parents require a record with a correction child.
     For the total-to-subdimension calculations, we are assuming we can identify those
-    calculations with the `is_total_to_subdimensions_calc` boolean column. All
+    calculations with the ``is_total_to_subdimensions_calc`` boolean column. All
     total-to-subdimension
 
     All calculaitons will get a correction record in the calculation components table

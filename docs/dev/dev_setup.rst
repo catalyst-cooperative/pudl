@@ -11,10 +11,8 @@ Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
 
 .. warning::
 
-    While it should be possible to set up the development environment on Windows, we
-    haven't done it. In the future we may create a Docker image that provides the
-    development environment. E.g. for use with `VS Code's Containers extension
-    <https://code.visualstudio.com/docs/remote/containers>`__.
+    It's not currently possible to install the development environment on Windows unless
+    you use the Windows Subsystem for Linux (WSL).
 
 .. note::
 
@@ -26,30 +24,6 @@ Linux) and are already familiar with ``git``, GitHub, and the Unix shell.
     * `Forking a Repository <https://help.github.com/en/articles/fork-a-repo>`__
     * `Cloning a Repository <https://help.github.com/articles/cloning-a-repository/>`__
 
-------------------------------------------------------------------------------
-Install ``conda`` / ``mamba``
-------------------------------------------------------------------------------
-We use the ``mamba`` package manager to specify and update our development environment,
-preferentially installing packages from the community maintained `conda-forge
-<https://conda-forge.org>`__ distribution channel. We recommend using `miniforge
-<https://github.com/conda-forge/miniforge>`__ to install ``mamba`` and automatically
-default to the ``conda-forge`` channel.
-
-After installing your package manager, make sure it's configured to use
-`strict channel priority <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html#>`__
-with the following commands:
-
-.. code-block:: console
-
-    $ mamba update mamba
-    $ conda config --set channel_priority strict
-
-.. note::
-
-   Make sure that after you've installed ``conda`` or ``mamba`` that you can activate
-   and deactivate the ``base`` environment (which is created by default). Try creating
-   a simple new environment and activating it to make sure everything is working and
-   your shell has been correctly configured to use the new package manager.
 
 ------------------------------------------------------------------------------
 Fork and Clone the PUDL Repository
@@ -64,92 +38,101 @@ from your fork to your local computer where you'll be editing the code or docs. 
 will download the whole history of the project, including the most recent version, and
 put it in a local directory where you can make changes.
 
-Note that we use a special merge method for our environment lockfiles, which you need
-to explicitly enable locally in your git configuration for the PUDL repository with this
-command. You only need to run it once, from within the cloned repo:
+After cloning, you need to configure git to use the "ours" merge strategy for the
+lockfile. Run this command once from within the cloned repository:
 
 .. code-block:: console
 
     $ git config --local merge.ours.driver true
 
-.. note::
+.. warning::
 
-   If there have been changes to the environment on a branch (e.g. ``dev``) that you
-   merge into your own branch, the lockfiles will need to be regenerated. This can be
-   done automatically by pushing the merged changes to your branch on GitHub, waiting a
-   couple of minutes for the ``update-conda-lockfile`` GitHub Action to run, and then
-   pulling the fresh lockfiles to your local development environment. You can also
-   regenerate the lockfiles locally (see below).
+   **Never manually merge pixi.lock!** The lockfile (``pixi.lock``) is a
+   generated file that must be regenerated programmatically. The git configuration
+   above will automatically keep your version of the lockfile during merge conflicts,
+   but you must then regenerate it to reflect the merged dependencies.
+
+   After merging changes from another branch (e.g. ``main``) that modified
+   ``pyproject.toml``:
+
+   1. Complete the merge (the lockfile will keep your version due to the merge strategy)
+   2. Regenerate the lockfile to match the merged dependencies:
+
+   .. code-block:: console
+
+      $ pixi update
+
+   3. Commit the regenerated lockfile
+
+   This ensures your lockfile is consistent with the merged dependency specifications.
 
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
 -------------------------------------------------------------------------------
-We use `conda-lock <https://github.com/conda/conda-lock>`__ to specify particular
-versions of all of PUDL's direct and indirect software dependencies in a lockfile,
-resulting in a stable, reproducible environment. This lockfile and several
-platform-specific rendered environment files are stored under the ``environments/``
-directory in the main PUDL repository.
+We use the ``pixi`` package manager to specify and update our development environment.
 
-All of the dependencies in ``environments/conda-lock.yml`` are derived from packages
-listed in the project's ``pyproject.toml`` file.  The conda lockfile is updated
-automatically by a GitHub Action workflow that runs once a week, or any time
-``pyproject.toml`` is changed.
+Pixi installs software from the community-maintained `conda-forge
+<https://conda-forge.org>`__ distribution channel and provides reproducible environments
+through lockfiles to specify particular versions of all of PUDL's direct and indirect
+software dependencies, resulting in a stable, reproducible environment.  All
+dependencies are defined in the project's ``pyproject.toml`` file. The lockfile is
+updated automatically by a GitHub Action workflow that runs once a week.
 
-We use a ``Makefile`` to remember and automate some common shared tasks in the
-PUDL repository, including creating and updating the ``pudl-dev`` conda environment. If
-you are on a Unix-based platform (Linux or MacOS) the ``make`` command should already be
-installed. You'll typically want to use the predefined ``make`` commands rather than
-running the individual commands they wrap. If you'd like to learn more about how
-Makefiles work, check out `this excellent Makefile tutorial
-<https://makefiletutorial.com/>`__
+See `the Pixi installation guide <https://pixi.prefix.dev/latest/installation/>`__.
 
-To create the ``pudl-dev`` environment, install the local PUDL package, and activate the
-newly created environment, run:
+With ``pixi`` installed, to install all of PUDL's dependencies and set up the
+development environment, from the root of the PUDL repository run:
 
 .. code-block:: console
 
-    $ make install-pudl
-    $ mamba activate pudl-dev
+    $ pixi install
 
-If you want to see all the bundled commands we've defined, open up the ``Makefile``.
-There's also some additional information in the :doc:`testing` documentation.
+This will create the environment and install the PUDL package in editable mode. Pixi
+automatically activates the environment when you run commands with ``pixi run``, so you
+don't need to manually activate environments like you would with conda.
+
+To see all available tasks defined in the project, run:
+
+.. code-block:: console
+
+    $ pixi task list
+
+There's also additional information about running tests in the :doc:`testing`
+documentation.
 
 -------------------------------------------------------------------------------
 Updating the PUDL Development Environment
 -------------------------------------------------------------------------------
 
-You will need to periodically update your installed development (``pudl-dev``) conda
-environment to get newer versions of existing dependencies and incorporate any
-changes to the environment specification that have been made by other contributors. The
-most reliable way to do this is to remove the existing environment and recreate it.
+You will need to periodically update your development environment to get newer versions
+of existing dependencies and incorporate any changes to the environment specification
+that have been made by other contributors.
 
-Recreating the ``pudl-dev`` environment from scratch uses the same ``make`` command as
-creating it the first time:
+The simplest way to update your environment is to run:
 
 .. code-block:: console
 
-    $ make install-pudl
+    $ pixi install
 
-If you happen to be changing the dependencies listed in ``pyproject.toml`` and you want
-to re-create the conda lockfile from scratch to include any newly defined dependencies,
-and then create a fresh ``pudl-dev`` environment using the new lockfile, you can do:
+This will update the environment based on the committed ``pixi.lock`` file.
+
+If you are adding or updating specific dependencies in ``pyproject.toml``, you can
+update just that dependency:
 
 .. code-block:: console
 
-    $ make conda-clean
-    $ make conda-lock.yml
-    $ make install-pudl
+    $ pixi add "package-name>=version"  # For new dependencies
+    $ pixi update package-name           # To update an existing dependency
 
-However, unless you are adding or removing dependencies from ``pyproject.toml`` it is
-probably best to just use the already prepared lockfile, and allow it to be updated
-automatically by the weekly GitHub Action.
+Our automated GitHub Action handles weekly updates to all dependencies. You should
+not generally need to update all dependencies manually unless you're working on
+dependency management.
 
 .. note::
 
-    Different development branches within the repository may specify their own slightly
-    different versions of the ``pudl-dev`` conda environment. As a result, you may need
-    to update your environment when switching from one branch to another to ensure that
-    the codebase and the dependencies are in sync.
+    Different development branches within the repository may have different lockfiles.
+    When switching branches, run ``pixi install`` to sync your environment with the
+    branch's lockfile.
 
 If you want to work with the most recent version of the code on a branch named
 ``new-feature``, then from within the top directory of the PUDL repository you would do:
@@ -158,8 +141,7 @@ If you want to work with the most recent version of the code on a branch named
 
     $ git checkout new-feature
     $ git pull
-    $ make install-pudl
-    $ mamba activate pudl-dev
+    $ pixi install
 
 If you are working with locally processed data and there have been changes to the
 expectations about that data in the PUDL software, you may also need to regenerate your
@@ -174,10 +156,9 @@ We use several automated tools to apply uniform coding style and formatting acro
 project codebase. This is known as `code linting
 <https://en.wikipedia.org/wiki/Lint_(software)>`__, and it reduces merge conflicts,
 makes the code easier to read, and helps catch some types of bugs before they are
-committed. These tools are part of the ``pudl-dev`` conda environment and their
-configuration files are checked into the GitHub repository. If you've cloned the pudl
-repo and are working inside the pudl conda environment, they should be installed and
-ready to go.
+committed. These tools are part of the PUDL pixi environment and their configuration
+files are checked into the GitHub repository. If you've cloned the pudl repo and are
+working inside the pudl conda environment, they should be installed and ready to go.
 
 Git Pre-commit Hooks
 ^^^^^^^^^^^^^^^^^^^^
@@ -192,7 +173,7 @@ To make sure they are run before you commit any code, you need to enable the
 
 .. code-block:: console
 
-    $ pre-commit install
+    $ pixi run pre-commit-install
 
 The scripts that run are configured in the ``.pre-commit-config.yaml`` file.
 

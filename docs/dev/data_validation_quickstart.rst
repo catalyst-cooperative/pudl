@@ -8,8 +8,8 @@ Setup
 -----
 
 The ``dbt/`` directory contains the PUDL dbt project which manages our `data tests
-<https://docs.getdbt.com/docs/build/data-tests>`__. To run dbt you'll need to have the
-``pudl-dev`` conda environment activated (see :doc:`dev_setup`).
+<https://docs.getdbt.com/docs/build/data-tests>`__. dbt is part of the PUDL pixi
+environment.
 
 The data validation tests run on the Parquet outputs that are in your
 ``$PUDL_OUTPUT/parquet/`` directory. It's important that you ensure the outputs you're

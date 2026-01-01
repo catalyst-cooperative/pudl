@@ -19,8 +19,8 @@ jobs:
       - name: Get username if a discussion was created
         if: ${{ (github.event_name == 'discussion') }}
         run: |
-          echo "username=${{ github.event.discussion.user.login }}" >> $GITHUB_ENV
-          echo "url=${{ github.event.discussion.html_url }}" >> $GITHUB_ENV
+          echo "username=${{ github.event.discussion.user.login }}" >> "${GITHUB_ENV}"
+          echo "url=${{ github.event.discussion.html_url }}" >> "${GITHUB_ENV}"
 
       - name: Check if organization member
         id: is_organization_member

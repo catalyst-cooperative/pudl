@@ -18,6 +18,7 @@ build/
 dist/
 .eggs/
 .tox/
+src/pudl/_version.py
 coverage.xml
 .coverage
 .coverage.*
@@ -29,6 +30,7 @@ dask-worker-space*
 environments/user-requirements.txt
 environments/user-environment.yml
 .vscode/*
+.pixi/
 commit.txt
 devtools/profiles/
 mlruns/
@@ -37,12 +39,13 @@ notebooks/*.pkl.gz
 notebooks/*.tgz
 **/.~lock*#
 **/*~
-
+diff.md
 **.tfstate
 **.tfstate.*
 terraform/.terraform/*
 .env
 .hypothesis/
+*.conda
 
 # dbt specific ignores
 dbt/dbt_packages/
