@@ -233,12 +233,11 @@ jobs:
       - name: List downloaded files
         run: |
           find coverage -type f
-      - name: Setup pixi and install coverage
+      - name: Install pudl environment using pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
           locked: true
-          global-environments: |
-            coverage
+          cache: true
       - name: Combine coverage data, output XML, and report
         run: |
           pixi run coverage combine coverage/*/.coverage

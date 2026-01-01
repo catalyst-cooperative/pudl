@@ -613,7 +613,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.15.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_inspect-0.9.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_utils-0.1.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/typos-1.40.1-hdab8a38_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/typos-1.41.0-hdab8a38_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025c-hc9c84f9_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/uc-micro-py-1.0.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ukkonen-1.0.1-py313h7037e92_6.conda
@@ -1248,7 +1248,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.15.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_inspect-0.9.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_utils-0.1.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/typos-1.40.1-ha35cfd3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/typos-1.41.0-ha35cfd3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025c-hc9c84f9_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/uc-micro-py-1.0.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/ukkonen-1.0.1-py313hc551f4f_6.conda
@@ -1863,7 +1863,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.15.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_inspect-0.9.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_utils-0.1.0-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/typos-1.40.1-h748bcf4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/typos-1.41.0-h748bcf4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025c-hc9c84f9_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/uc-micro-py-1.0.3-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/ukkonen-1.0.1-py313hc50a443_6.conda
@@ -3875,8 +3875,8 @@ packages:
   timestamp: 1741554795915
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2025.12.2.dev86
-  sha256: 684457351fa2fe3fa56cabea2ffcd9b91589fbb0c80f085a50a8a5202a9f61a7
+  version: 2025.12.2.dev89
+  sha256: 68c094e6ecdd1764f6b8ae7f1ccbc8947e919a3b00dbe9c18523bfa58270b62c
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -3908,7 +3908,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/catalystcoop-ferc-xbrl-extractor?source=compressed-mapping
+  - pkg:pypi/catalystcoop-ferc-xbrl-extractor?source=hash-mapping
   size: 32930
   timestamp: 1766973126428
 - conda: https://conda.anaconda.org/conda-forge/noarch/cattrs-25.3.0-pyhd8ed1ab_0.conda
@@ -12340,7 +12340,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/networkx?source=compressed-mapping
+  - pkg:pypi/networkx?source=hash-mapping
   size: 1587439
   timestamp: 1765215107045
 - conda: https://conda.anaconda.org/conda-forge/linux-64/nlohmann_json-3.12.0-h54a6638_1.conda
@@ -15832,7 +15832,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/ruff?source=compressed-mapping
+  - pkg:pypi/ruff?source=hash-mapping
   size: 11472103
   timestamp: 1766094973645
 - conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.14.10-hb17bafe_0.conda
@@ -17214,9 +17214,9 @@ packages:
   - pkg:pypi/typing-utils?source=hash-mapping
   size: 15183
   timestamp: 1733331395943
-- conda: https://conda.anaconda.org/conda-forge/linux-64/typos-1.40.1-hdab8a38_0.conda
-  sha256: 15e65a76fa7b28d094edeeb314cf8298b3d5861cae78c046c8019000783e13b8
-  md5: 7d0e2d50a7cedd67c77462263b329aab
+- conda: https://conda.anaconda.org/conda-forge/linux-64/typos-1.41.0-hdab8a38_0.conda
+  sha256: f10cf3058ef09f68fb04652a50db3977493aff8e7a6e7bffffef0e6217a24685
+  md5: 916993451af8124da954919882e6e0ff
   depends:
   - __glibc >=2.17,<3.0.a0
   - libgcc >=14
@@ -17225,11 +17225,11 @@ packages:
   license: MIT
   license_family: MIT
   purls: []
-  size: 3338315
-  timestamp: 1767036310180
-- conda: https://conda.anaconda.org/conda-forge/osx-64/typos-1.40.1-ha35cfd3_0.conda
-  sha256: 0345abe8120f53ec9b8ab778fa176c47252bad9c0e4c3cc66635655f71324d4c
-  md5: 73e36d87169282efd90d2fb1edeefc45
+  size: 3344452
+  timestamp: 1767238507683
+- conda: https://conda.anaconda.org/conda-forge/osx-64/typos-1.41.0-ha35cfd3_0.conda
+  sha256: c8f91dece3046ebef45f5827e128194958e7a1357ea2a08d24655ac4769ce09a
+  md5: 8f4515449644e554638e8a7094851f8c
   depends:
   - __osx >=10.13
   constrains:
@@ -17237,11 +17237,11 @@ packages:
   license: MIT
   license_family: MIT
   purls: []
-  size: 3029833
-  timestamp: 1767036524146
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/typos-1.40.1-h748bcf4_0.conda
-  sha256: 68f0436838a42a158486db7ffd31fac6e8cf72625d6987e23307d1daa539608c
-  md5: bee6e55cd4041bddad6b88adf3ef15c6
+  size: 3031781
+  timestamp: 1767238758372
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/typos-1.41.0-h748bcf4_0.conda
+  sha256: 5edf6848afe47207ec4a3eee418260ceaf5a6f79f7b485d571200e0fc5ad40b2
+  md5: 53bf3e833da7b543368a43e0dfe65a18
   depends:
   - __osx >=11.0
   constrains:
@@ -17249,8 +17249,8 @@ packages:
   license: MIT
   license_family: MIT
   purls: []
-  size: 2985695
-  timestamp: 1767036524564
+  size: 2991592
+  timestamp: 1767239017570
 - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025c-hc9c84f9_1.conda
   sha256: 1d30098909076af33a35017eed6f2953af1c769e273a0626a04722ac4acaba3c
   md5: ad659d0a2b3e47e38d829aa8cad2d610
