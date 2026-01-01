@@ -494,7 +494,7 @@ doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIP
 
 [tool.coverage.run]
 source = ["src/pudl/", "test/integration/", "test/unit/"]
-omit = ["src/pudl/*/ferceqr.py"]
+omit = ["src/pudl/*/ferceqr.py", "src/pudl/_version.py"]
 relative_files = true
 
 [tool.coverage.report]
