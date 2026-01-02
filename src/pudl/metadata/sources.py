@@ -925,3 +925,5 @@ SOURCES: dict[str, Any] = {
     },
 }
 """Data source attributes by PUDL identifier."""
+
+ALL_PUDL_SOURCES = sorted(set(SOURCES.keys()).union(["epa", "eia", "ferc"]))
