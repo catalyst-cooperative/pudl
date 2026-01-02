@@ -210,7 +210,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "wet_dry_bottom",
             "fly_ash_reinjection",
             "hrsg",
-            "max_steam_flow_1000_lbs_per_hour",
+            "max_steam_flow_lbs_per_hour",
             "turndown_ratio",
             "efficiency_100pct_load",
             "efficiency_50pct_load",
