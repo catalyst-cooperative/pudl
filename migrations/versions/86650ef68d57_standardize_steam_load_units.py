@@ -1,8 +1,8 @@
-"""drop original steam_load column
+"""Standardize steam_load units
 
-Revision ID: 27a0267953ef
-Revises: 951164b9a674
-Create Date: 2025-12-30 16:12:53.144432
+Revision ID: 86650ef68d57
+Revises: e825be7a3ebe
+Create Date: 2026-01-01 21:56:32.280494
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '27a0267953ef'
-down_revision = '951164b9a674'
+revision = '86650ef68d57'
+down_revision = 'e825be7a3ebe'
 branch_labels = None
 depends_on = None
 
