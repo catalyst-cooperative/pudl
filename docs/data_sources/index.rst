@@ -22,6 +22,7 @@ The following data sources serve as the foundation for our data pipeline.
    epacems
    ferc1
    ferc714
+   ferceqr
    gridpathratoolkit
    nrelatb
    phmsagas
