@@ -4,28 +4,25 @@
 Testing PUDL
 ===============================================================================
 
-We use `pytest <https://pytest.org>`__ to specify software unit
-& integration tests, including calling ``dbt build`` to run our
-:doc:`data_validation_quickstart` tests. There are several ``pytest`` commands
-stored as targets in the PUDL ``Makefile`` for convenience and to ensure that
-we're all running the tests in similar ways by default.
+We use `pytest <https://pytest.org>`__ to specify software unit & integration tests,
+including calling ``dbt build`` to run our :doc:`data_validation_quickstart` tests.
+Several common test commands are available as pixi tasks for convenience.
 
 To run the tests that will be run on a PR by our continuous integration (CI) on GitHub
 before it's merged into the ``main`` branch you can use the following command:
 
 .. code-block:: console
 
-    $ make pytest-coverage
+    $ pixi run pytest-ci
 
 This includes building the documentation, running unit & integration tests, and checking
 to make sure we've got sufficient test coverage.
 
 .. note::
 
-    If you aren't familiar with pytest and Make already, you may want to check out:
+    If you aren't familiar with pytest already, you may want to check out:
 
     * `Getting Started with pytest <https://docs.pytest.org/en/latest/getting-started.html>`__
-    * `Makefile Tutorial <https://makefiletutorial.com/>`__
 
 -------------------------------------------------------------------------------
 Software Tests
@@ -46,43 +43,15 @@ each with its own subdirectory:
   most recent year of data. These tests take around 45 minutes to run.
 
 -------------------------------------------------------------------------------
-Running tests with Make
+Running the tests and other tasks with pixi
 -------------------------------------------------------------------------------
 
-The ``Makefile`` targets that pertain to software and data tests which are coordinated
-by ``pytest`` are prefixed with ``pytest-``
+The pixi tasks that pertain to software and data tests coordinated by
+``pytest`` are prefixed with ``pytest-``. To see all available pixi tasks:
 
-In addition to running the ``pytest-unit`` and ``pytest-integration`` targets mentioned
-above there are also:
+.. code-block:: console
 
-* ``pytest-integration-full``: The integration tests, but run on all years of data
-  rather than just the most recent year. This test assumes you already have the
-  complete outputs from the full PUDL ETL in your ``$PUDL_OUTPUT`` directory.
-* ``pytest-jupyter``: Check that select Jupyter notebooks checked into the repository
-  can run successfully. (Currently disabled)
-* ``pytest-coverage``: Run all the software tests and generate a test coverage report.
-  This will fail if test coverage has fallen below the threshold defined in
-  ``pyproject.toml``.
-* ``pytest-ci``: Run the unit and integration tests (those tests that get run in CI).
-
-Running Other Commands with Make
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-There are several non-test ``make`` targets. To see them all open the ``Makefile``.
-
-* ``ferc``: Delete all existing XBRL and DBF derived FERC databases and metadata and
-  re-extract them from scratch
-* ``pudl``: Delete your existing ``pudl.sqlite`` DB and Parquet outputs and re-run the
-  full ETL from scratch. Assumes that the FERC DBs already exist.
-* ``nuke``: delete your existing FERC and PUDL databases, rebuild
-  them from scratch, and run all of the tests and data validations (akin to running
-  the nightly builds) for an extensive check of everything. This will take 3 hours or
-  more to complete, and likely fully utilize your computer's CPU and memory.
-* ``install-pudl``: Remove your existing ``pudl-dev`` ``conda`` environment and
-  reinstall all dependencies as well as the ``catalystcoop.pudl`` package defined by
-  the repository in ``--editable`` mode for development.
-* ``docs-build``: Remove existing PUDL documentation outputs and rebuild from scratch.
-* ``jlab``: start up a JupyerLab notebook server (will remain running in your terminal
-  until you kill it with ``Control-C``).
+    $ pixi task list
 
 -------------------------------------------------------------------------------
 Selecting Input Data for Integration Tests
@@ -109,10 +78,12 @@ datastore instead by using our custom ``--tmp-data`` with ``pytest``:
 Running pytest Directly
 -------------------------------------------------------------------------------
 Running tests directly with ``pytest`` gives you the ability to run only tests from a
-particular test module or even a single individual test case. It's also faster because
-there's no testing environment to set up. Instead, it just uses your Python environment
-which should be the ``pudl-dev`` conda environment discussed in :doc:`/dev/dev_setup`.
-This is convenient if you're debugging something specific or developing new test cases.
+particular test module or even a single individual test case.  This is convenient if
+you're debugging something specific or developing new test cases.
+
+You can run pytest directly without the ``pixi run`` prefix if you're working
+within the activated pixi environment, or use ``pixi run pytest`` to run it
+explicitly.
 
 If you are working on integration tests, note that most of them require processed PUDL
 outputs. If you try to run a single integration test directly with pytest it will

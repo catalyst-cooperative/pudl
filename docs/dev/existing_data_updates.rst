@@ -455,7 +455,7 @@ run all the integration tests against your live PUDL DB with:
 
 .. code-block:: console
 
-    $ make pytest-integration-full
+    $ pixi run pytest-integration-full
 
 We expect ``test/integration/dbt_test.py::test_dbt`` to fail at this point, but
 everything else should pass. Fix any remaining failures and we'll fix dbt in the next
