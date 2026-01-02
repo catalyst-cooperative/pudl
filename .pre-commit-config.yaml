@@ -110,7 +110,7 @@ repos:
         files: ".*\\.ipynb"
         pass_filenames: true
         always_run: false
-        entry: jupyter nbconvert --clear-output
+        entry: pixi run jupyter nbconvert --clear-output
 
       - id: unit-tests
         name: unit-tests
@@ -119,16 +119,7 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit -m "not slow"
-
-      - id: conda-lock
-        name: conda-lock
-        stages: [pre-commit]
-        language: unsupported
-        verbose: false
-        files: "pyproject.toml"
-        always_run: false
-        entry: make conda-clean conda-lock.yml
+        entry: pixi run pytest --no-cov --doctest-modules src/pudl test/unit -m "not slow"
 
 # Configuration for pre-commit.ci
 ci:
@@ -140,5 +131,5 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, conda-lock, shellcheck]
+  skip: [unit-tests, nb-output-clear, shellcheck]
   submodules: false

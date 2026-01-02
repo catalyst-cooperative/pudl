@@ -1,10 +1,9 @@
 name: build-deploy-docs
 
 on:
-  # push:
-  #   branches:
-  #     - '!gh-pages'
-  # pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -24,30 +23,21 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
-      - name: Install conda-lock environment with micromamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Install pudl environment with pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
       - name: Lint and build PUDL documentation with Sphinx
         run: |
-          pip install --no-deps --editable .
-          make docs-build
+          pixi run docs-build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
