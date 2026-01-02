@@ -324,7 +324,7 @@ PLANT_STATUS = {
     }
 }
 
-FUEL_CATEGORIES: dict[str, set[str]] = {
+FUEL_CATEGORIES: dict[str, dict[str, set[str]]] = {
     "categories": {
         "coal": {
             "bit coal",
@@ -772,7 +772,7 @@ fuel in the FERC Form 1 Reporting.
 Case is ignored, as all fuel strings are converted to lower case in the data set.
 """
 
-SUPPORTING_STRUCTURE_TYPE_CATEGORIES: dict[str, set[str]] = {
+SUPPORTING_STRUCTURE_TYPE_CATEGORIES: dict[str, dict[str, set[str]]] = {
     "categories": {
         "pole": {
             "pole",
@@ -852,7 +852,7 @@ SUPPORTING_STRUCTURE_TYPE_CATEGORIES: dict[str, set[str]] = {
 Case is ignored, as all strings are converted to lower case in the data set.
 """
 
-SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES: dict[str, set[str]] = {
+SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES: dict[str, dict[str, set[str]]] = {
     "categories": {
         "steel": {
             "steel",
@@ -934,7 +934,7 @@ SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES: dict[str, set[str]] = {
 Case is ignored, as all strings are converted to lower case in the data set.
 """
 
-FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
+FUEL_UNIT_CATEGORIES: dict[str, dict[str, set[str]]] = {
     "categories": {
         "ton": {
             "ton",
@@ -1263,7 +1263,7 @@ FUEL_UNIT_CATEGORIES: dict[str, set[str]] = {
 """A mapping of canonical fuel units (keys) to sets of strings representing those fuel
 units (values)"""
 
-PLANT_TYPE_CATEGORIES: dict[str, set[str]] = {
+PLANT_TYPE_CATEGORIES: dict[str, dict[str, set[str]]] = {
     "categories": {
         "steam": {
             "*resp. share steam",
@@ -1802,7 +1802,7 @@ on Steam (e.g. "steam 72" and "steam and gas") were classified based on addition
 research of the plants on the Internet.
 """
 
-PLANT_TYPE_CATEGORIES_HYDRO: dict[str, set[str]] = {
+PLANT_TYPE_CATEGORIES_HYDRO: dict[str, dict[str, set[str]]] = {
     "categories": {
         "hydro": {
             "conventional",
@@ -1910,7 +1910,7 @@ in the context of a hydro plant means that it is conventional hydro-electric. In
 context of the steam table, however, it's unclear what conventional means.
 """
 
-CONSTRUCTION_TYPE_CATEGORIES: dict[str, set[str]] = {
+CONSTRUCTION_TYPE_CATEGORIES: dict[str, dict[str, set[str]]] = {
     "categories": {
         "outdoor": {
             "outdoor",
