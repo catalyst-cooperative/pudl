@@ -28,7 +28,7 @@ readme = { file = "README.rst", content-type = "text/x-rst" }
 authors = [
     { name = "Catalyst Cooperative", email = "pudl@catalyst.coop" },
 ]
-requires-python = ">=3.13,<3.14.0a0"
+requires-python = ">=3.14,<3.15.0a0"
 dynamic = ["version"]
 license = "MIT"
 # All dependencies are managed through pixi, ensuring they're always installed from
@@ -70,6 +70,7 @@ coloredlogs = ">=14.0"
 coverage = ">=7.13"
 curl = ">=8.17"
 dagster = ">=1.12.7"
+# dagster-dbt blocking python 3.14
 dagster-dbt = ">=1!0.28.7"
 dagster-dg-cli = ">=1.12.7"
 dagster-postgres = ">=1!0.28.7"
@@ -122,8 +123,9 @@ polars = ">=1.36"
 pre-commit = ">=4.5"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.7,<4"
-# pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
-pyarrow = "<21"
+# pyarrow >=21 blocked by stale geopandas 0.14 in Kaggle environment
+# But python 3.14 requires pyarrow>=21
+pyarrow = ">17"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.11"
 pygraphviz = ">=1"
@@ -182,7 +184,7 @@ version = ">=0.4.3"
 channels = ["conda-forge"]
 
 [tool.pixi.package.build-dependencies]
-python = ">=3.13,<3.14.0"
+python = ">=3.14,<3.15.0a0"
 
 [tool.pixi.package.host-dependencies]
 hatchling = ">=1.16"
@@ -210,15 +212,9 @@ email-validator = ">=1.0.3"
 frictionless = ">=5,<6"
 fsspec = ">=2025"
 gcsfs = ">=2025"
-# The Python geospatial stack is notoriously finnicky and full of compiled # extensions
-# that have to be kept in sync. If this isn't pinned things will probably break.
 gdal = "==3.12.1"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
-# grpcio packages all need to have same version to avoid conflicts.
-# They are also compiled and finnicky. Check compatibility before upgrading.
-# Upgrade to 1.74.0 blocked by stale libgoogle-cloud on conda-forge
-# Upgrade to 1.76.0 blocked by stale grpcio on conda-forge
 grpcio = "==1.73.1"
 grpcio-health-checking = "==1.73.1"
 grpcio-status = "==1.73.1"
@@ -234,7 +230,7 @@ packaging = ">=25"
 pandas = ">=2.3"
 pandera-core = ">=0.27"
 polars = ">=1.36"
-pyarrow = ">=17,<21"
+pyarrow = ">=17"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.11"
 python-calamine = ">=0.6.1"
