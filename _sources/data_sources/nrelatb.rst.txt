@@ -1,0 +1,158 @@
+===========================================================================================
+NREL Annual Technology Baseline (ATB) for Electricity
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://atb.nrel.gov/
+   * - Source Description
+     - The NREL Annual Technology Baseline (ATB) for Electricity publishes annual projections of operational and capital expenditures (by technology and vintage), as well as operating characteristics (by technology).
+   * - Source Format
+     - Parquet
+   * - Download Size
+     - 13 MB
+   * - Temporal Coverage
+     - 2021-2024
+   * - PUDL Code
+     - ``nrelatb``
+   * - Issues
+     - `Open NREL Annual Technology Baseline (ATB) for Electricity issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Anrelatb>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+We've segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_nrelatb__yearly_projected_cost_performance`
+     - https://data.catalyst.coop/search?q=name:core_nrelatb__yearly_projected_cost_performance
+   
+   * - :ref:`core_nrelatb__yearly_projected_financial_cases`
+     - https://data.catalyst.coop/search?q=name:core_nrelatb__yearly_projected_financial_cases
+   
+   * - :ref:`core_nrelatb__yearly_projected_financial_cases_by_scenario`
+     - https://data.catalyst.coop/search?q=name:core_nrelatb__yearly_projected_financial_cases_by_scenario
+   
+   * - :ref:`core_nrelatb__yearly_technology_status`
+     - https://data.catalyst.coop/search?q=name:core_nrelatb__yearly_technology_status
+   
+
+
+Background
+^^^^^^^^^^
+
+NREL publishes `Annual Technology Baseline (ATB) <https://atb.nrel.gov>`__ data for the
+`Electricity <https://atb.nrel.gov/electricity>`__ and
+`Transportation <https://atb.nrel.gov/transportation>`__ sectors.
+
+The NREL Annual Technology Baseline (ATB) provides a consistent set of technology cost
+and performance data for energy analysis.
+
+To inform electric and transportation sector analysis in the United States, each year
+NREL provides a robust set of modeling input assumptions for energy technologies (the
+Annual Technology Baseline).
+
+The ATB is a populated framework to identify technology-specific cost and performance
+parameters or other investment decision metrics across a range of fuel price conditions
+as well as site-specific conditions for electric generation technologies at present and
+with projections through 2050.
+
+
+
+
+Download additional documentation
+---------------------------------
+
+
+* :download:`Nrelatb Definitions 2020 (HTML) <nrelatb/nrelatb_definitions_2020.html>`
+* :download:`Nrelatb Definitions 2021 (HTML) <nrelatb/nrelatb_definitions_2021.html>`
+* :download:`Nrelatb Definitions 2022 (HTML) <nrelatb/nrelatb_definitions_2022.html>`
+* :download:`Nrelatb Definitions 2023 (HTML) <nrelatb/nrelatb_definitions_2023.html>`
+* :download:`Nrelatb Definitions 2024 (HTML) <nrelatb/nrelatb_definitions_2024.html>`
+
+
+
+
+Data available through PUDL
+---------------------------
+
+
+PUDL incorporates all NREL ATB data from 2021 through 2024. NREL publishes ATB on
+an annual basis since 2015, but only started publishing data about the
+transportation sector in 2020.
+
+NREL has been publishing ATB as parquet files since 2019 alongside the excel workbooks.
+See issue :issue:`3576` for why we have not integrated the 2019 and 2020 parquet files.
+
+
+
+
+Who submits this data?
+----------------------
+
+
+NREL ATB does not have respondents like utilities or plant operators submitting data the
+way that many other PUDL data sources do. NREL ATB is entirely developed by analysts at
+NREL as most of the data in ATB is projections about the future. NREL provides extensive
+documentation about how they've developed the ATB projections.
+
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+
+NREL has been publishing ATB in several formats: excel workbooks, CSV files, Tableau
+workbooks as well and parquet files. PUDL processes and republishes the parquet files,
+but if you'd like to explore any of the other formats they are easy to access on the
+`ATB site <https://atb.nrel.gov>`__. You can also access all of the formats on our
+`Zenodo archive of raw NREL ATB data <https://zenodo.org/records/15772175>`__.
+
+The workbooks are formatted well for exploring the data manually. The CSV and parquet
+data is reported in a very skinny format that enables the raw data to have the same
+schema over time. A column in the original data named ``core_metric_parameter``
+contains a string which indicates what type of data is being reported in the ``value``
+column. PUDL reformats this skinny table into four wider tables.
+
+NREL also publishes extensive `documentation <https://atb.nrel.gov/electricity/2024/about>`__.
+If there are any questions about their methodology or terms or variables, their
+documentation is a great place to start.
+
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+* In the skinny parquet and CSV version of NREL ATB, the column ``core_metric_parameter``
+  contains a string which indicates what type of data is being reported in the original
+  ``value`` column. In PUDL, the skinny ATB data is transposed and normalized into
+  multiple wider tidy tables, wherein most of the column names correspond to the strings
+  in the original ``core_metric_parameter`` column.
+* The convention for ATB data is to use an asterisk in the key columns as a wildcard
+  in the parquet files. In processing the ATB data for PUDL, we remove these wildcard
+  asterisks from the PUDL primary key columns by replacing these asterisks with all
+  values available.
+
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.nrelatb` created for each table's
+respective transform function.

@@ -1,0 +1,463 @@
+pudl.analysis.record_linkage.embed_dataframe
+============================================
+
+.. py:module:: pudl.analysis.record_linkage.embed_dataframe
+
+.. autoapi-nested-parse::
+
+   Tools for embedding a DataFrame to create feature matrix for models.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.embed_dataframe.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.embed_dataframe.FeatureMatrix
+   pudl.analysis.record_linkage.embed_dataframe.TransformStep
+   pudl.analysis.record_linkage.embed_dataframe.ColumnVectorizer
+   pudl.analysis.record_linkage.embed_dataframe.TextVectorizer
+   pudl.analysis.record_linkage.embed_dataframe.CategoricalVectorizer
+   pudl.analysis.record_linkage.embed_dataframe.NumericalVectorizer
+   pudl.analysis.record_linkage.embed_dataframe.NumericalNormalizer
+   pudl.analysis.record_linkage.embed_dataframe.ColumnCleaner
+   pudl.analysis.record_linkage.embed_dataframe.NameCleaner
+   pudl.analysis.record_linkage.embed_dataframe.FuelTypeFiller
+   pudl.analysis.record_linkage.embed_dataframe.StringSimilarityScorer
+   pudl.analysis.record_linkage.embed_dataframe.NumericSimilarityScorer
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.record_linkage.embed_dataframe.log_dataframe_embedder_config
+   pudl.analysis.record_linkage.embed_dataframe.dataframe_embedder_factory
+   pudl.analysis.record_linkage.embed_dataframe.dataframe_cleaner_factory
+   pudl.analysis.record_linkage.embed_dataframe._apply_cleaning_func
+   pudl.analysis.record_linkage.embed_dataframe._extract_keyword_from_column
+   pudl.analysis.record_linkage.embed_dataframe._fill_fuel_type_from_name
+   pudl.analysis.record_linkage.embed_dataframe._apply_string_similarity_func
+   pudl.analysis.record_linkage.embed_dataframe._apply_numeric_similarity_func
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: FeatureMatrix
+
+   Class to wrap a feature matrix returned from dataframe embedding.
+
+   Depending on the transformations applied, a feature matrix may be sparse or dense
+   matrix. Using this wrapper enables Dagsters type checking while allowing both dense
+   and sparse matrices underneath.
+
+
+   .. py:attribute:: matrix
+      :type:  numpy.ndarray | scipy.sparse.csr_matrix
+
+
+   .. py:attribute:: index
+      :type:  pandas.Index
+
+
+.. py:class:: TransformStep(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`, :py:obj:`abc.ABC`
+
+
+   TransformStep's can be combined to vectorize one or more columns.
+
+   This class defines a very simple interface for TransformStep's, which essentially
+   says that a TransformStep should take configuration and implement the method as_transformer.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:method:: as_transformer() -> sklearn.base.BaseEstimator
+      :abstractmethod:
+
+
+      This method should use configuration to produce a :class:`sklearn.base.BaseEstimator`.
+
+
+
+.. py:class:: ColumnVectorizer(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Define a set of transformations to apply to one or more columns.
+
+
+   .. py:attribute:: transform_steps
+      :type:  list[TransformStep]
+
+
+   .. py:attribute:: weight
+      :type:  float
+      :value: 1.0
+
+
+
+   .. py:attribute:: columns
+      :type:  list[str]
+
+
+   .. py:method:: as_pipeline()
+
+      Return :class:`sklearn.pipeline.Pipeline` with configuration.
+
+
+
+   .. py:method:: as_config_dict()
+
+      Return config dict formatted for logging to mlflow.
+
+
+
+.. py:function:: log_dataframe_embedder_config(embedder_name: str, vectorizers: dict[str, ColumnVectorizer], experiment_tracker: pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker)
+
+   Log embedder config to mlflow experiment.
+
+
+.. py:function:: dataframe_embedder_factory(name_prefix: str, vectorizers: dict[str, ColumnVectorizer])
+
+   Return a configured op graph to embed an input dataframe.
+
+
+.. py:function:: dataframe_cleaner_factory(name_prefix: str, vectorizers: dict[str, ColumnVectorizer])
+
+   Return a configured op graph to clean an input dataframe.
+
+
+.. py:class:: TextVectorizer(/, **data: Any)
+
+   Bases: :py:obj:`TransformStep`
+
+
+   Implement TransformStep for :class:`sklearn.feature_extraction.text.TfidfVectorizer`.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'tfidf_vectorizer'
+
+
+
+   .. py:attribute:: options
+      :type:  dict
+
+
+   .. py:method:: as_transformer()
+
+      Return configured TfidfVectorizer.
+
+
+
+.. py:class:: CategoricalVectorizer(/, **data: Any)
+
+   Bases: :py:obj:`TransformStep`
+
+
+   Implement TransformStep for :class:`sklearn.preprocessing.OneHotEncoder`.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'one_hot_encoder_vectorizer'
+
+
+
+   .. py:attribute:: options
+      :type:  dict
+
+
+   .. py:method:: as_transformer()
+
+      Return configured OneHotEncoder.
+
+
+
+.. py:class:: NumericalVectorizer(/, **data: Any)
+
+   Bases: :py:obj:`TransformStep`
+
+
+   Implement ColumnTransformation for MinMaxScaler.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'numerical_vectorizer'
+
+
+
+   .. py:attribute:: options
+      :type:  dict
+
+
+   .. py:method:: as_transformer()
+
+      Return configured MinMaxScalerConfig.
+
+
+
+.. py:class:: NumericalNormalizer(/, **data: Any)
+
+   Bases: :py:obj:`TransformStep`
+
+
+   Implement ColumnTransformation for Normalizer.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'numerical_normalizer'
+
+
+
+   .. py:attribute:: options
+      :type:  dict
+
+
+   .. py:method:: as_transformer()
+
+      Return configured NormalizerConfig.
+
+
+
+.. py:function:: _apply_cleaning_func(df, function_key: str = None)
+
+.. py:class:: ColumnCleaner(/, **data: Any)
+
+   Bases: :py:obj:`TransformStep`
+
+
+   Implement ColumnTransformation for cleaning functions.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'column_cleaner'
+
+
+
+   .. py:attribute:: cleaning_function
+      :type:  str
+
+
+   .. py:method:: as_transformer()
+
+      Return configured NormalizerConfig.
+
+
+
+.. py:class:: NameCleaner(/, **data: Any)
+
+   Bases: :py:obj:`TransformStep`
+
+
+   Implement ColumnTransformation for CompanyNameCleaner.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'name_cleaner'
+
+
+
+   .. py:attribute:: company_cleaner
+      :type:  pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner
+
+
+   .. py:attribute:: return_as_dframe
+      :type:  bool
+      :value: False
+
+
+
+   .. py:method:: as_transformer()
+
+      Return configured CompanyNameCleaner.
+
+
+
+.. py:class:: FuelTypeFiller(/, **data: Any)
+
+   Bases: :py:obj:`TransformStep`
+
+
+   Fill missing fuel types from another column.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'fuel_type_filler'
+
+
+
+   .. py:attribute:: fuel_type_col
+      :type:  str
+      :value: 'fuel_type_code_pudl'
+
+
+
+   .. py:attribute:: name_col
+      :type:  str
+      :value: 'plant_name'
+
+
+
+   .. py:method:: as_transformer()
+
+      Return configured FuelTypeFiller.
+
+
+
+.. py:function:: _extract_keyword_from_column(ser: pandas.Series, keyword_list: list[str]) -> pandas.Series
+
+   Extract keywords contained in a Pandas series with a regular expression.
+
+
+.. py:function:: _fill_fuel_type_from_name(df: pandas.DataFrame, fuel_type_col: str, name_col: str) -> pandas.DataFrame
+
+   Impute missing fuel type data from a name column.
+
+   If a missing fuel type code is contained in the plant name,
+   fill in the fuel type code PUDL for that record. E.g. "Washington Hydro"
+
+
+.. py:function:: _apply_string_similarity_func(df, function_key: str, col1: str, col2: str)
+
+.. py:class:: StringSimilarityScorer(/, **data: Any)
+
+   Bases: :py:obj:`TransformStep`
+
+
+   Vectorize two string columns with Jaro Winkler similarity.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'string_sim'
+
+
+
+   .. py:attribute:: metric
+      :type:  str
+
+
+   .. py:attribute:: col1
+      :type:  str
+
+
+   .. py:attribute:: col2
+      :type:  str
+
+
+   .. py:method:: as_transformer()
+
+      Return configured Jaro Winkler similarity function.
+
+
+
+.. py:function:: _apply_numeric_similarity_func(df, function_key: str, col1: str, col2: str, scale: float, offset: float, origin: float, missing_value: float, label: str)
+
+.. py:class:: NumericSimilarityScorer(/, **data: Any)
+
+   Bases: :py:obj:`TransformStep`
+
+
+   Vectorize two numeric columns with a similarity score.
+
+   If two values are the same the similarity is 1 and in case of complete
+   disagreement it is 0. The implementation is adapted from the recordlinkage
+   Python package Numeric comparison library and is similar with numeric
+   comparing in ElasticSearch, a full-text search tool.
+
+   :param name: The name of the transformation step. Default is numeric_sim.
+   :param col1: The name of the first column to compare. Must be a numeric column.
+   :param col2: The name of the second column to compare. Must be a numeric column.
+   :param output_name: The name of the output Series of compared values.
+   :param method: The metric used. Options are "exponential", "linear", "exact".
+   :param scale: The rate of decay, how quickly the score should drop the further
+                 from the origin that a value lies. Default is 1.0.
+   :param offset: Setting a nonzero offset expands the central point to cover a
+                  range of values instead of just the single point specified by the
+                  origin. Default is 0.
+   :param origin: The central point, or the best possible value for the difference
+                  between records. Differences that fall at the origin will get a
+                  similarity score of 1.0. The default is 0.
+   :param missing_value: The value if one or both records have a missing value on the
+                         compared field. Default 0.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'numeric_sim'
+
+
+
+   .. py:attribute:: col1
+      :type:  str
+
+
+   .. py:attribute:: col2
+      :type:  str
+
+
+   .. py:attribute:: output_name
+      :type:  str
+
+
+   .. py:attribute:: method
+      :type:  str
+      :value: 'linear'
+
+
+
+   .. py:attribute:: scale
+      :type:  float
+      :value: 1.0
+
+
+
+   .. py:attribute:: offset
+      :type:  float
+      :value: 0.0
+
+
+
+   .. py:attribute:: origin
+      :type:  float
+      :value: 0.0
+
+
+
+   .. py:attribute:: missing_value
+      :type:  float
+      :value: 0.0
+
+
+
+   .. py:method:: as_transformer()
+
+      Return configured exponential similarity function.
+
+
+

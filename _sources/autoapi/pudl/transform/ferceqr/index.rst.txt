@@ -1,0 +1,69 @@
+pudl.transform.ferceqr
+======================
+
+.. py:module:: pudl.transform.ferceqr
+
+.. autoapi-nested-parse::
+
+   Transform FERC EQR data.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.ferceqr.transform_eqr_table
+   pudl.transform.ferceqr._yn_to_bool
+   pudl.transform.ferceqr._na_to_null
+   pudl.transform.ferceqr.core_ferceqr__quarterly_identity
+   pudl.transform.ferceqr.core_ferceqr__transactions
+   pudl.transform.ferceqr.core_ferceqr__contracts
+   pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub
+
+
+Module Contents
+---------------
+
+.. py:function:: transform_eqr_table(table_name: str, table_data: duckdb.DuckDBPyRelation, year_quarter: str, col_expressions: dict[str, duckdb.Expression]) -> pudl.helpers.ParquetData
+
+   Generate a SQL query to transform an EQR table, then write outputs to parquet.
+
+   EQR transforms are implemented using the duckdb expression api, which allows us
+   to dynamically build SQL statements to operate on each column. By collecting all
+   of these expressions into a single select statement, we create a query that will
+   transform data from raw parquet files.
+
+   :param table_name: Name of table, which should have corresponding table level metadata.
+   :param col_expressions: Map column names to pre-generated expressions. Each of these
+                           expressions will have a ``cast`` added on to it to apply correct dtypes.
+
+
+.. py:function:: _yn_to_bool(col: str)
+
+.. py:function:: _na_to_null(col_name: str) -> duckdb.Expression
+
+   Convert string NA values to NULL.
+
+
+.. py:function:: core_ferceqr__quarterly_identity(context: dagster.AssetExecutionContext, raw_ferceqr__ident: pudl.helpers.ParquetData)
+
+   Apply data types to EQR ident table.
+
+
+.. py:function:: core_ferceqr__transactions(context, raw_ferceqr__transactions: pudl.helpers.ParquetData)
+
+   Perform basic transforms on transactions table table.
+
+
+.. py:function:: core_ferceqr__contracts(context, raw_ferceqr__contracts: pudl.helpers.ParquetData)
+
+   Perform basic transforms on contracts table table.
+
+
+.. py:function:: core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: pudl.helpers.ParquetData)
+
+   Perform basic transforms on indexPub table table.
+
+

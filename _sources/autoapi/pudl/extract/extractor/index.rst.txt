@@ -1,0 +1,293 @@
+pudl.extract.extractor
+======================
+
+.. py:module:: pudl.extract.extractor
+
+.. autoapi-nested-parse::
+
+   Generic functionality for extractors.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.extractor.StrInt
+   pudl.extract.extractor.PartitionSelection
+   pudl.extract.extractor.logger
+   pudl.extract.extractor.dagster_dict_str_strint
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.extractor.GenericMetadata
+   pudl.extract.extractor.GenericExtractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.extractor.concat_pages
+   pudl.extract.extractor._is_dict_str_strint
+   pudl.extract.extractor.partition_extractor_factory
+   pudl.extract.extractor.partitions_from_settings_factory
+   pudl.extract.extractor.raw_df_factory
+
+
+Module Contents
+---------------
+
+.. py:data:: StrInt
+
+.. py:data:: PartitionSelection
+
+.. py:data:: logger
+
+.. py:class:: GenericMetadata(dataset_name: str)
+
+   Load generic metadata from Python package data.
+
+   When metadata object is instantiated, it is given ${dataset} name and it
+   will attempt to load csv files from pudl.package_data.${dataset} package.
+
+   It expects the following kinds of files:
+
+   * column_map/${page}.csv currently informs us how to translate input column
+     names to standardized pudl names for given (partition, input_col_name). Relevant
+     page is encoded in the filename.
+
+
+   .. py:attribute:: _dataset_name
+
+
+   .. py:attribute:: _pkg
+      :value: 'pudl.package_data.Uninferable'
+
+
+
+   .. py:attribute:: _column_map
+
+
+   .. py:method:: get_dataset_name() -> str
+
+      Returns the name of the dataset described by this metadata.
+
+
+
+   .. py:method:: _load_csv(package: str, filename: str) -> pandas.DataFrame
+
+      Load metadata from a filename that is found in a package.
+
+
+
+   .. py:method:: _load_column_maps(column_map_pkg: str) -> dict
+
+      Create a dictionary of all column mapping CSVs to use in get_column_map().
+
+
+
+   .. py:method:: _get_partition_selection(partition: dict[str, PartitionSelection]) -> str
+
+      Grab the partition key.
+
+
+
+   .. py:method:: get_all_pages() -> list[str]
+
+      Returns list of all known pages.
+
+
+
+   .. py:method:: get_all_columns(page) -> list[str]
+
+      Returns list of all pudl columns for a given page across all partitions.
+
+
+
+   .. py:method:: get_column_map(page, **partition) -> dict[str, str]
+
+      Return dictionary of original columns to renamed columns for renaming in a given partition and page.
+
+      Columns that don't exist in this partition/page will show up as pd.nan, so we need to filter those out.
+
+
+
+.. py:class:: GenericExtractor(ds: pudl.workspace.datastore.Datastore)
+
+   Bases: :py:obj:`abc.ABC`
+
+
+   Generic extractor base class.
+
+
+   .. py:attribute:: METADATA
+      :type:  GenericMetadata
+      :value: None
+
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: BLACKLISTED_PAGES
+      :value: []
+
+
+      List of supported pages that should not be extracted.
+
+
+   .. py:attribute:: _metadata
+      :value: None
+
+
+
+   .. py:attribute:: _dataset_name
+
+
+   .. py:attribute:: ds
+
+
+   .. py:attribute:: cols_added
+      :type:  list[str]
+      :value: []
+
+
+
+   .. py:method:: source_filename(page: str, **partition: PartitionSelection) -> str
+      :abstractmethod:
+
+
+      Produce the source file name as it will appear in the archive.
+
+      :param page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                   "coal_stocks"
+      :param partition: partition to load. Examples:
+                        {'year': 2009}
+                        {'year_month': '2020-08'}
+
+      :returns: string name of the source file
+
+
+
+   .. py:method:: load_source(page: str, **partition: PartitionSelection) -> pandas.DataFrame
+      :abstractmethod:
+
+
+      Produce the source data for the given page and partition(s).
+
+      :param page: pudl name for the dataset contents, eg
+                   "boiler_generator_assn" or "coal_stocks"
+      :param partition: partition to load. Examples:
+                        {'year': 2009}
+                        {'year_month': '2020-08'}
+
+      :returns: pd.DataFrame instance with the source data
+
+
+
+   .. py:method:: process_raw(df: pandas.DataFrame, page: str, **partition: PartitionSelection) -> pandas.DataFrame
+
+      Takes any special steps for processing raw data and renaming columns.
+
+
+
+   .. py:method:: process_renamed(df: pandas.DataFrame, page: str, **partition: PartitionSelection) -> pandas.DataFrame
+
+      Takes any special steps for processing data after columns are renamed.
+
+
+
+   .. py:method:: get_page_cols(page: str, partition_selection: str) -> pandas.RangeIndex
+
+      Get the columns for a particular page and partition key.
+
+
+
+   .. py:method:: validate(df: pandas.DataFrame, page: str, **partition: PartitionSelection)
+
+      Check if there are any missing or extra columns.
+
+
+
+   .. py:method:: process_final_page(df: pandas.DataFrame, page: str) -> pandas.DataFrame
+
+      Final processing stage applied to a page DataFrame.
+
+
+
+   .. py:method:: combine(dfs: list[pandas.DataFrame], page: str) -> pandas.DataFrame
+
+      Concatenate dataframes into one, take any special steps for processing final page.
+
+
+
+   .. py:method:: extract(**partitions: PartitionSelection) -> dict[str, pandas.DataFrame]
+
+      Extracts dataframes.
+
+      Returns dict where keys are page names and values are
+      DataFrames containing data across given years.
+
+      :param partitions: keyword argument dictionary specifying how the source is partitioned and which
+                         particular partitions to extract. Examples:
+                         {'years': [2009, 2010]}
+                         {'year_month': '2020-08'}
+                         {'form': 'gas_distribution', 'year'='2020'}
+
+
+
+.. py:function:: concat_pages(paged_dfs: list[dict[str, pandas.DataFrame]]) -> dict[str, pandas.DataFrame]
+
+   Concatenate similar pages of data from different years into single dataframes.
+
+   Transform a list of dictionaries of dataframes into a single dictionary of
+   dataframes, where each dataframe is the concatenation of dataframes with identical
+   keys from the input list.
+
+   For the relatively large EIA930 dataset this is a very memory-intensive operation,
+   so the op is tagged with a high memory-use tag. For all the other datasets which use
+   this op, the time spent concatenating pages is very brief, so this tag should not
+   impact the overall concurrency of the DAG much.
+
+   :param paged_dfs: A list of dictionaries whose keys are page names, and values are
+                     extracted DataFrames. Each element of the list corresponds to a single
+                     year of the dataset being extracted.
+
+   :returns: A dictionary of DataFrames keyed by page name, where the DataFrame contains that
+             page's data from all extracted years concatenated together.
+
+
+.. py:function:: _is_dict_str_strint(_context: dagster.TypeCheckContext, x: Any) -> bool
+
+.. py:data:: dagster_dict_str_strint
+
+.. py:function:: partition_extractor_factory(extractor_cls: type[GenericExtractor], name: str) -> dagster.OpDefinition
+
+   Construct a Dagster op that extracts one partition of data, given an extractor.
+
+   :param extractor_cls: Class of type :class:`Extractor` used to extract the data.
+   :param name: Name of an Excel based dataset (e.g. "eia860").
+
+
+.. py:function:: partitions_from_settings_factory(name: str) -> dagster.OpDefinition
+
+   Construct a Dagster op to get target partitions from settings in Dagster context.
+
+   :param name: Name of an Excel based dataset (e.g. "eia860").
+
+
+.. py:function:: raw_df_factory(extractor_cls: type[GenericExtractor], name: str) -> dagster.AssetsDefinition
+
+   Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.
+
+   :param extractor_cls: The dataset-specific CSV or Excel extractor used to extract the
+                         data. Must correspond to the dataset identified by ``name``.
+   :param name: Name of a CSV or Excel based dataset (e.g. "eia860" or "eia930").
+
+

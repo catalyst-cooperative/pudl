@@ -1,0 +1,55 @@
+pudl.transform.eia930
+=====================
+
+.. py:module:: pudl.transform.eia930
+
+.. autoapi-nested-parse::
+
+   Module to perform data cleaning functions on EIA930 data tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.eia930.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.eia930.core_eia930__hourly_operations_assets
+   pudl.transform.eia930.core_eia930__hourly_subregion_demand
+   pudl.transform.eia930.core_eia930__hourly_interchange
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: core_eia930__hourly_operations_assets(raw_eia930__balance: pathlib.Path)
+
+   Separate raw_eia930__balance into net generation and demand tables.
+
+   Energy source starts out in the column names, but is stacked into a categorical
+   column. For structural purposes "interchange" is also treated as an "energy source"
+   and stacked into the same column. For the moment "total" (sum of all energy sources)
+   is also included, because the reported and calculated totals across all energy
+   sources have significant differences which should be further explored.
+
+
+.. py:function:: core_eia930__hourly_subregion_demand(raw_eia930__subregion: pathlib.Path)
+
+   Produce a normalized table of hourly electricity demand by BA subregion.
+
+
+.. py:function:: core_eia930__hourly_interchange(raw_eia930__interchange: pathlib.Path)
+
+   Produce a normalized table of hourly interchange by balancing authority.
+
+
