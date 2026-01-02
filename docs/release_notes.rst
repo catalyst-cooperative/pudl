@@ -51,12 +51,11 @@ Bug Fixes & Data Cleaning
 
 * Standardized ``max_steam_flow_1000_lbs_per_hour`` to ``max_steam_flow_lbs_per_hour``.
   Units changed to "lbs_per_hour" and rounded to nearest 100 lbs in the
-  :ref:`_core_eia860__boilers` table. See issue :issue:`4301`
-  and PR :pr:`4810`.
-* Standardized ``steam_load_1000_lbs`` with ``steam_load_lbs``.
-  Units changed to "lbs" in the
-  :ref:`core_epacems__hourly_emissions` table. See issue :issue:`4301`
-  and PR :pr:`4810`.
+  :ref:`core_eia860__scd_boilers` and :ref:`out_eia__yearly_boilers` tables. See issue
+  :issue:`4301` and PR :pr:`4810`.
+* Standardized ``steam_load_1000_lbs`` to ``steam_load_lbs``. Units changed to "lbs" in
+  the :ref:`core_epacems__hourly_emissions` table. See issue :issue:`4301` and PR
+  :pr:`4810`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
