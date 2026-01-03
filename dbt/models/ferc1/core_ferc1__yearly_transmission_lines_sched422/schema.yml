@@ -18,6 +18,7 @@ sources:
           - name: operating_voltage_kv
           - name: designed_voltage_kv
           - name: supporting_structure_type
+          - name: supporting_structure_material
           - name: transmission_line_length_miles
           - name: transmission_line_and_structures_length_miles
           - name: num_transmission_circuits
