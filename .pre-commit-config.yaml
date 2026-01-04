@@ -54,7 +54,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.40.0
+    rev: v1.41.0
     hooks:
       - id: typos
         exclude: |
@@ -82,7 +82,7 @@ repos:
 
   # Check Github Actions
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.9
+    rev: v1.7.10
     hooks:
       - id: actionlint
 
