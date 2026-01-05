@@ -200,7 +200,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-10", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-11", freq="M")
             ],
         },
         "keywords": sorted(
