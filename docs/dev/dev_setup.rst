@@ -69,14 +69,17 @@ lockfile. Run this command once from within the cloned repository:
 -------------------------------------------------------------------------------
 Create the PUDL Dev Environment
 -------------------------------------------------------------------------------
-We use the ``pixi`` package manager to specify and update our development environment.
+We use `pixi <https://pixi.prefix.dev>`__ to manage our development environment.
 
-Pixi installs software from the community-maintained `conda-forge
-<https://conda-forge.org>`__ distribution channel and provides reproducible environments
-through lockfiles to specify particular versions of all of PUDL's direct and indirect
-software dependencies, resulting in a stable, reproducible environment.  All
-dependencies are defined in the project's ``pyproject.toml`` file. The lockfile is
-updated automatically by a GitHub Action workflow that runs once a week.
+Pixi installs packages from `conda-forge <https://conda-forge.org>`__. It provides
+reproducible environments through lockfiles that specify particular versions of all
+PUDL's direct and indirect software dependencies. The dependencies are defined in
+``pyproject.toml``. The lockfile is updated weekly by our ``update-lockfiles.yml``
+GitHub Action workflow. Pixi also lets us define common tasks, e.g. for running
+our tests. Previously we used a mix of ``mamba``, ``conda-lock``, and ``make`` to
+provide this functionality. Pixi is much faster, more flexible, under very active,
+development, and lets us use one tool instead of three.
+
 
 See `the Pixi installation guide <https://pixi.prefix.dev/latest/installation/>`__.
 
@@ -89,7 +92,9 @@ development environment, from the root of the PUDL repository run:
 
 This will create the environment and install the PUDL package in editable mode. Pixi
 automatically activates the environment when you run commands with ``pixi run``, so you
-don't need to manually activate environments like you would with conda.
+don't need to manually activate environments like you would with conda. If you prefer
+to enable the environment and forget about it, you can use ``pixi shell``, but note
+that this may complicate switching between different environments.
 
 To see all available tasks defined in the project, run:
 
@@ -114,7 +119,8 @@ The simplest way to update your environment is to run:
 
     $ pixi install
 
-This will update the environment based on the committed ``pixi.lock`` file.
+This will update your local environment to be in sync with the committed ``pixi.lock``
+file.
 
 If you are adding or updating specific dependencies in ``pyproject.toml``, you can
 update just that dependency:
@@ -125,8 +131,18 @@ update just that dependency:
     $ pixi update package-name           # To update an existing dependency
 
 Our automated GitHub Action handles weekly updates to all dependencies. You should
-not generally need to update all dependencies manually unless you're working on
-dependency management.
+not generally need to update all dependencies yourself unless you're working on
+dependency management. The command to update everything in ``pixi.lock`` is:
+
+.. code-block:: console
+
+   $ pixi update
+
+You can also see what would be updated without actually changing ``pixi.lock`` with:
+
+.. code-block:: console
+
+   $ pixi update --dry-run
 
 .. note::
 
