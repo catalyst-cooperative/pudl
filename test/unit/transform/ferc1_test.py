@@ -1338,9 +1338,10 @@ def test_split_supporting_structure():
                 "tower",
                 "h-frame",
                 "pole",
+                "steel",  # "steel" is in both structure type (tower) and material mappings
                 pd.NA,
             ],
-            "num_transmission_circuits": [1, 2, 3, 4, 5, 6, 7, 8],
+            "num_transmission_circuits": [1, 2, 3, 4, 5, 6, 7, 8, 9],
         }
     )
 
@@ -1360,6 +1361,7 @@ def test_split_supporting_structure():
             "tower",
             "h_frame",
             "pole",
+            "tower",  # "steel" maps to tower structure type
             pd.NA,
         ],
         dtype=pd.StringDtype(),
@@ -1375,6 +1377,7 @@ def test_split_supporting_structure():
             pd.NA,  # tower without material specified
             pd.NA,  # h-frame without material specified
             pd.NA,  # pole without material specified
+            "steel",  # "steel" maps to steel material
             pd.NA,
         ],
         dtype=pd.StringDtype(),
@@ -1406,5 +1409,7 @@ def test_split_supporting_structure_fails_on_uncategorized():
         }
     )
 
-    with pytest.raises(ValueError, match="uncategorized supporting_structure_type"):
+    with pytest.raises(
+        ValueError, match="Found uncategorized supporting_structure_type"
+    ):
         transformer.split_supporting_structure(test_data)
