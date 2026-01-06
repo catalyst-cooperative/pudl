@@ -23,9 +23,8 @@ assignees: ""
 - [ ] Tag the release `git tag -as -m "PUDL vYYYY.M.x" vYYYY.M.x`
 - [ ] Push the release tag to `main`: `git push origin vYYYY.M.x`
 - [ ] Verify that the new [GitHub (software) release](https://github.com/catalyst-cooperative/pudl/releases) has been published
-- [ ] Verify [`catalystcoop.pudl` PyPI (software) release](https://pypi.org/project/catalystcoop.pudl/)
 - [ ] Verify that [PUDL repo archive on Zenodo](https://zenodo.org/doi/10.5281/zenodo.3404014) has been updated w/ new version
-- [ ] Wait 3-4 hours for a successful build to complete
+- [ ] Wait several hours for a successful build to complete ([monitor here](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24))
 - [ ] Activate new version on the [RTD admin panel](https://app.readthedocs.org/projects/catalystcoop-pudl/) and verify that it builds successfully.
 - [ ] Verify that `stable` and the version tag point at same git ref
 - [ ] Verify that [`stable` docs on RTD](https://catalystcoop-pudl.readthedocs.io/en/stable/) have been updated
@@ -38,8 +37,6 @@ assignees: ""
 - [ ] Manually publish the new Zenodo deposition with the updated metadata
 - [ ] Create an Announcement for the release in [our GitHub Discussions](https://github.com/orgs/catalyst-cooperative/discussions)
 - [ ] Update the [release documentation](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/run_a_release.html) to better reflect the actual process for next time
-- [ ] Wait 2-12 hours for a bot to create a PR in the [PUDL conda-forge feedstock](https://github.com/conda-forge/catalystcoop.pudl-feedstock/pulls)
-- [ ] Review the `conda-forge` PR, updating dependencies and CLI entrypoints if necessary. Our direct dependencies (from `pyproject.toml`) should be pinned to the actual version appearing in `environments/conda-linux-64.lock.yml`
 
 ### Zenodo Metadata Tasks
 

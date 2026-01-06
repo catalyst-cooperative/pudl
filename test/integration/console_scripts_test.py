@@ -128,6 +128,7 @@ def test_resource_description(script_runner, resource_id: str):
     "ZENODO_SANDBOX_TOKEN_PUBLISH" not in os.environ,
     reason="Zenodo sandbox token required to exercise uploads",
 )
+@pytest.mark.xfail(reason="Sadly the Zenodo sandbox has become flaketastic.")
 def test_zenodo_data_release(script_runner, tmp_path: Path):
     """Round-trip upload a tiny release directory to the Zenodo sandbox.
 

@@ -30,24 +30,12 @@ jobs:
       - name: Checkout desired branch
         uses: actions/checkout@v6
 
-      - name: Install Conda environment using mamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Install pudl environment using pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          environment-file: environments/conda-lock.yml
-          environment-name: pudl-dev
-          cache-environment: true
-
-      - name: Log environment details
-        run: |
-          conda info
-          conda list
-          conda config --show-sources
-          conda config --show
-          printenv | sort
-
-      - name: Install pudl package
-        run: |
-          pip install --editable ./
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Authenticate to AWS
         uses: aws-actions/configure-aws-credentials@v5
@@ -58,7 +46,7 @@ jobs:
 
       - name: Update AWS S3 cache with any new Zenodo archives
         run: |
-          pudl_datastore --cloud-cache-path ${{ env.CLOUD_CACHE_PATH }} --bypass-local-cache --loglevel DEBUG
+          pixi run pudl_datastore --cloud-cache-path ${{ env.CLOUD_CACHE_PATH }} --bypass-local-cache --loglevel DEBUG
 
   zenodo-cache-sync-notify:
     runs-on: ubuntu-latest
