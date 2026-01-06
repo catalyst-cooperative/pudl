@@ -15,6 +15,7 @@ build:
       - asdf --version
       - asdf plugin add pixi
       - asdf install pixi latest
+      - asdf global pixi latest
       - asdf list
     install:
       - pixi install
