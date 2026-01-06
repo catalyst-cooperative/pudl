@@ -12,8 +12,10 @@ build:
     python: "3.13"
   jobs:
     create_environment:
+      - asdf --version
       - asdf plugin add pixi
       - asdf install pixi latest
+      - asdf list
     install:
       - pixi install
     build:
