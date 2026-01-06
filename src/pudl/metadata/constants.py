@@ -21,7 +21,7 @@ FIELD_DTYPES_POLARS: dict[str, str] = {
     "string": pl.datatypes.String,
     "year": pl.datatypes.Datetime,
 }
-"""Polars data type by PUDL field type (Data Package `field.type`)."""
+"""Polars data type by simplified PUDL field type."""
 
 FIELD_DTYPES_DUCKDB: dict[str, str] = {
     "boolean": duckdb.sqltypes.BOOLEAN,
@@ -32,8 +32,7 @@ FIELD_DTYPES_DUCKDB: dict[str, str] = {
     "string": duckdb.sqltypes.VARCHAR,
     "year": duckdb.sqltypes.TIMESTAMP_MS,
 }
-"""Duckdb data type by PUDL field type (Data Package `field.type`)."""
-
+"""DuckDB data type by simplified PUDL field type."""
 FIELD_DTYPES_PANDAS: dict[str, str] = {
     "boolean": "boolean",
     "date": "datetime64[s]",
@@ -44,7 +43,7 @@ FIELD_DTYPES_PANDAS: dict[str, str] = {
     "string": "string",
     "year": "datetime64[s]",
 }
-"""Pandas data type by PUDL field type (Data Package `field.type`)."""
+"""Pandas data type by simplified PUDL field type."""
 
 FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
     "boolean": pa.bool_(),
@@ -69,7 +68,7 @@ FIELD_DTYPES_SQL: dict[str, type] = {
     "string": sa.Text,
     "year": sa.Integer,
 }
-"""SQLAlchemy column types by PUDL field type (Data Package `field.type`)."""
+"""SQLAlchemy column types by simplified PUDL field type."""
 
 CONSTRAINT_DTYPES: dict[str, type] = {
     "boolean": bool,
@@ -81,7 +80,7 @@ CONSTRAINT_DTYPES: dict[str, type] = {
     "string": str,
     "year": int,
 }
-"""Python types for field constraints by PUDL field type (Data Package `field.type`)."""
+"""Python types for field constraints by simplified PUDL field type."""
 
 LICENSES: dict[str, dict[str, str]] = {
     "cc-by-4.0": {
@@ -231,9 +230,21 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "zenodo_role": "producer",
         "organization": "Moment Energy Insights",
     },
+    "matthew-grimley": {
+        "title": "Matthew Grimley",
+        "email": "griml011@umn.edu",
+        "path": "https://www.hhh.umn.edu/directory/matthew-grimley",
+        "role": "contributor",
+        "zenodo_role": "data collector",
+        "organization": "University of Minnesota",
+        "orcid": "0000-0003-3969-505X",
+    },
 }
-"""PUDL Contributors for attribution. See the Data Package metadata https://specs.frictionlessdata.io/data-package/#metadata
-for examples. For zenodo_role, see the contributor types in the Zenodo documentation https://developers.zenodo.org/#representation."""
+"""PUDL Contributors for attribution.
+
+See the Data Package spec https://specs.frictionlessdata.io/data-package/#metadata
+For ``zenodo_role`` see the Zenodo documentation
+https://developers.zenodo.org/#representation."""
 
 KEYWORDS: dict[str, list[str]] = {
     "electricity": [
@@ -373,6 +384,16 @@ KEYWORDS: dict[str, list[str]] = {
         "water usage",
         "water energy nexus",
         "energy water nexus",
+    ],
+    "rus": [
+        "usda",
+        "rus",
+        "rural",
+        "rural utility",
+        "rural utilities service",
+        "department of agriculture",
+        "coop",
+        "cooperative",
     ],
 }
 
@@ -744,3 +765,4 @@ XBRL_TABLES = [
     "transactions_with_associated_affiliated_companies_provided_for_429_duration",
     "transactions_with_associated_affiliated_companies_provided_for_429_instant",
 ]
+"""List of all known to be valid FERC Form 1 XBRL tables."""
