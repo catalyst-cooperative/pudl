@@ -896,7 +896,7 @@ SOURCES: dict[str, Any] = {
             "of Information Access (FOIA) requests."
         ),
         "source_file_dict": {
-            "respondents": "Rural electric cooperatives borrowing from USDA RUS.",
+            "respondents": "Rural electric utilities borrowing from USDA RUS.",
             "source_format": "Comma Separated Value (.csv)",
         },
         "working_partitions": {
@@ -932,7 +932,7 @@ SOURCES: dict[str, Any] = {
             "of Information Access (FOIA) requests."
         ),
         "source_file_dict": {
-            "respondents": "Rural electric cooperatives borrowing from USDA RUS.",
+            "respondents": "Rural electric utilities borrowing from USDA RUS.",
             "source_format": "Comma Separated Value (.csv)",
         },
         "working_partitions": {
