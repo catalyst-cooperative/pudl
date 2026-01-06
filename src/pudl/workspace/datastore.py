@@ -210,6 +210,7 @@ class ZenodoDoiSettings(BaseSettings):
     gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
     nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
     phmsagas: ZenodoDoi = "10.5281/zenodo.17076661"
+    rus7: ZenodoDoi = "10.5281/zenodo.66666666"
     sec10k: ZenodoDoi = "10.5281/zenodo.15161694"
     vcerare: ZenodoDoi = "10.5281/zenodo.15166129"
 
