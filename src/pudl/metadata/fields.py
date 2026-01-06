@@ -225,7 +225,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the emissions control equipment controls acid (HCl) gas."
         ),
     },
-    "acid_gas_removal_efficiency": {
+    "acid_gas_removal_efficiency_pct": {
         "type": "number",
         "description": "Percent removal efficiency for acid gas emissions",
     },
@@ -4440,7 +4440,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "data from CEMS, where possible."
         ),
     },
-    "mercury_removal_efficiency": {
+    "mercury_removal_efficiency_pct": {
         "type": "number",
         "description": "Percent removal efficiency for mercury emissions rounded to nearest 0.1 percent of weight",
     },
@@ -5665,16 +5665,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Average annual emission removal rate for particulate matter.",
     },
-    "particulate_removal_efficiency_tested": {
+    "particulate_removal_efficiency_tested_pct": {
         "type": "number",
-        "description": "The tested efficiency for the removal of particulate matter of an equipment or strategy.",
+        "description": (
+            "The tested efficiency for the removal of particulate matter at 100 percent load. "
+            "If not tested at 100 percent load, then the load at which the test was conducted "
+            "is included as a comment on Schedule 9. If no test was conducted, the test date "
+            "and tested efficiency field should be blank."
+        ),
     },
-    "particulate_removal_efficiency_annual": {
+    "particulate_removal_efficiency_annual_pct": {
         "type": "number",
         "description": (
             "Particulate removal efficiency, based on the annual operating factor, "
             "which is defined as annual fuel consumption (MMBtu) divided by the product "
             "of the boiler design firing rate (MMBtu per hour) and hours of operation per year."
+            "When actual data are not available, estimates are provided based on equipment "
+            "design performance specifications."
         ),
     },
     "particulate_test_date": {
@@ -6920,16 +6927,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Designed removal efficiency for sulfur dioxide when operating at 100 percent load. Reported at the nearest 0.1 percent by weight of gases removed from the flue gas."
         ),
     },
-    "so2_removal_efficiency_tested": {
+    "so2_removal_efficiency_tested_pct": {
         "type": "number",
         "description": (
-            "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at tested rate at 100 percent load."
+            "The tested efficiency for the removal of sulfur dioxide at 100 percent load. "
+            "If not tested at 100 percent load, then the load at which the test was conducted "
+            "is included as a comment on Schedule 9. If no test was conducted, the test date "
+            "and tested efficiency field should be blank."
         ),
     },
-    "so2_removal_efficiency_annual": {
+    "so2_removal_efficiency_annual_pct": {
         "type": "number",
         "description": (
-            "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) based on designed firing rate and hours in operation (listed as a percentage)."
+            "Sulfur dioxide removal efficiency, based on the annual operating factor, "
+            "which is defined as annual fuel consumption (MMBtu) divided by the product "
+            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year."
+            "When actual data are not available, estimates are provided based on equipment "
+            "design performance specifications."
         ),
     },
     "so2_test_date": {
