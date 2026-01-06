@@ -59,11 +59,11 @@ def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
 def deploy_ferceqr():
     """Publish EQR outputs to cloud storage."""
     output_locations = [
-        "gs://builds.catalyst.coop/ferceqr",
-        "s3://pudl.catalyst.coop/ferceqr",
+        os.environ["GCS_OUTPUT_BUCKET"],
+        os.environ["S3_OUTPUT_BUCKET"],
     ]
     # Copy parquet files to GCS
-    logger.info("Build successful, copying ferceqr data to GCS.")
+    logger.info("Build successful, deploying ferceqr data.")
     for output_location in output_locations:
         for table in FERCEQR_TRANSFORM_ASSETS:
             logger.info(f"Copying {table} to {output_location}.")
