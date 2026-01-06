@@ -277,5 +277,4 @@ defs: dg.Definitions = dg.Definitions(
     ],
     sensors=[ferceqr_deployment.ferceqr_sensor],
 )
-
 """A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL."""
