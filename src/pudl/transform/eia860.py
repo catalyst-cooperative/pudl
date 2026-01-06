@@ -321,13 +321,13 @@ def _core_eia860__generators(
         & (gens_df.prime_mover_code == "OT")
         & (gens_df.energy_source_code_1 == "OG")
     )
-    expected_bad_tech_len = 1 if 2025 in gens_df.report_date.dt.year.unique() else 0
+    expected_bad_tech_len = 2 if 2025 in gens_df.report_date.dt.year.unique() else 0
     if len(gens_df[bad_tech_mask]) != expected_bad_tech_len:
         raise AssertionError(
             f"Spot fixing: We expect to find {expected_bad_tech_len} record "
             "which has what we assume is an incorrect technology description, "
             f"but we found: {len(gens_df[bad_tech_mask])}."
-            f"\n\n{gens_df[bad_tech_mask]}"
+            f"\n\n{gens_df[bad_tech_mask].dropna(axis=1, how='all')}"
         )
     gens_df.loc[bad_tech_mask, "technology_description"] = "Other Gases"
 
