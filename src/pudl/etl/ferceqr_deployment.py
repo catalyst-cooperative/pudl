@@ -1,4 +1,15 @@
-"""Define tooling for monitoring the ferceqr_etl job during batch builds."""
+"""Define tooling for monitoring the ferceqr_etl job during batch builds.
+
+In this module we define a Dagster Sensor that will monitor the status of
+a ``ferceqr`` backfill. This sensor will only run if the environment variable
+``FERCEQR_BUILD`` is set, which should only be the case when executing a job
+through our google batch build infrastructure. In this context, the sensor
+will get executed every 60 seconds to see if the backfill has completed.
+Once it determines that the backfill is complete, it will publish the results
+if the build was successful and send a notification via slack. Finally, it will
+create a specific file in the ``PUDL_OUTPUT`` directory indicating the status
+of the build, and triggering shutdown of the batch job.
+"""
 
 import os
 from pathlib import Path
