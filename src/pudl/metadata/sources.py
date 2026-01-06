@@ -904,7 +904,7 @@ SOURCES: dict[str, Any] = {
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["matt-grimley"],
+            CONTRIBUTORS["matthew-grimley"],
         ],
         "keywords": sorted(
             set(
@@ -940,7 +940,7 @@ SOURCES: dict[str, Any] = {
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
-            CONTRIBUTORS["matt-grimley"],
+            CONTRIBUTORS["matthew-grimley"],
         ],
         "keywords": sorted(
             set(

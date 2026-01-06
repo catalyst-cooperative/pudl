@@ -230,11 +230,12 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "zenodo_role": "producer",
         "organization": "Moment Energy Insights",
     },
-    "matt-grimley": {
-        "title": "Matt Grimley",
+    "matthew-grimley": {
+        "title": "Matthew Grimley",
         "email": "griml011@umn.edu",
         "path": "https://www.hhh.umn.edu/directory/matthew-grimley",
         "role": "contributor",
+        "zenodo_role": "data collector",
         "organization": "University of Minnesota",
     },
 }
