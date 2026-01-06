@@ -131,7 +131,7 @@ def ferceqr_sensor(context: dg.RunStatusSensorContext):
     asset_statuses = {}
 
     # Query status of all assets across all partitions
-    for asset_key in FERCEQR_TRANSFORM_ASSETS + ["extract_eqr"]:
+    for asset_key in FERCEQR_TRANSFORM_ASSETS + ["extract_ferceqr"]:
         partition_statuses = context.instance.get_status_by_partition(
             asset_key=dg.AssetKey(asset_key),
             partition_keys=ferceqr_year_quarters.get_partition_keys(),
@@ -146,7 +146,7 @@ def ferceqr_sensor(context: dg.RunStatusSensorContext):
     )
     not_started_parts = asset_statuses[FERCEQR_TRANSFORM_ASSETS].isnull().any(
         axis=1
-    ) & (asset_statuses["extract_eqr"] != dg.AssetPartitionStatus.FAILED)
+    ) & (asset_statuses["extract_ferceqr"] != dg.AssetPartitionStatus.FAILED)
 
     # Don't do anything if there are still partitions that haven't finished running
     if (in_progress_parts | not_started_parts).any():
