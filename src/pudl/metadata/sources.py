@@ -884,6 +884,81 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "rus7": {
+        "title": "USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution",
+        "path": "https://www.rd.usda.gov/resources/forms/rus-forms",
+        "description": (
+            "The United States Department of Agriculture (USDA) Financial and "
+            "Operating Report for Electric Distribution (formerly known as Form 7) "
+            "is an annual report submitted by rural electric utilities "
+            "that receive funding from the USDA Rural Utilities Service (RUS) for "
+            "distribution services. This data was obtained through multiple Freedom "
+            "of Information Access (FOIA) requests."
+        ),
+        "source_file_dict": {
+            "respondents": "Rural electric utilities borrowing from USDA RUS.",
+            "source_format": "Comma Separated Value (.csv)",
+        },
+        "working_partitions": {
+            "years": sorted(set(range(2006, 2022))),
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["matthew-grimley"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 7",
+                    "distribution",
+                ]
+                + KEYWORDS["rus"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["finance"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "rus12": {
+        "title": "USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply",
+        "path": "https://www.rd.usda.gov/resources/forms/rus-forms",
+        "description": (
+            "The United States Department of Agriculture (USDA) Financial and "
+            "Operating Report for Electric Power Supply (formerly known as Form 12) "
+            "is an annual report submitted by rural electric utilities "
+            "that receive funding from the USDA Rural Utilities Service (RUS) for "
+            "power supply (generation). This data was obtained through multiple Freedom "
+            "of Information Access (FOIA) requests."
+        ),
+        "source_file_dict": {
+            "respondents": "Rural electric utilities borrowing from USDA RUS.",
+            "source_format": "Comma Separated Value (.csv)",
+        },
+        "working_partitions": {
+            "years": sorted(set(range(2006, 2022))),
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["matthew-grimley"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 12",
+                    "power supply",
+                ]
+                + KEYWORDS["rus"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["finance"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["plants"]
+                + KEYWORDS["fuels"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "vcerare": {
         "title": "Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset",
         "path": "https://vibrantcleanenergy.com/products/datasets/",
