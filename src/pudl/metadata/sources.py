@@ -888,7 +888,7 @@ SOURCES: dict[str, Any] = {
         "title": "USDA Form 7 -- Financial and Operating Report Electric Distribution",
         "path": "https://www.rd.usda.gov/resources/forms/rus-forms",
         "description": (
-            "The United States Department of Agriculture (USDA) Form 7 is a "
+            "The United States Department of Agriculture (USDA) Form 7 is an annual "
             "financial and operating report submitted by rural electric utilities "
             "that receive funding from the USDA Rural Utilities Service (RUS) for "
             "distribution services."
@@ -921,7 +921,7 @@ SOURCES: dict[str, Any] = {
         "title": "USDA Form 12 -- Financial and Operating Report Electric Power Supply",
         "path": "https://www.rd.usda.gov/resources/forms/rus-forms",
         "description": (
-            "The United States Department of Agriculture (USDA) Form 12 is a "
+            "The United States Department of Agriculture (USDA) Form 12 is an annual "
             "financial and operating report submitted by rural electric utilities "
             "that receive funding from the USDA Rural Utilities Service (RUS) for "
             "power supply."
