@@ -42,9 +42,9 @@ New Data
 * Adds a new ETL for FERC EQR data, as well as associated infrastructure for running
   the job and publishing outputs, which can be found at
   ``s3://pudl.catalyst.coop/ferceqr``. There are 4 new tables which are produced by
-  this ETL including, ``core_ferceqr__quarterly_identity``,
-  ``core_ferceqr__contracts``, ``core_ferceqr__quarterly_index_pub``, and
-  ``core_ferceqr__transactions``. Due to the size of this data, the tables are split
+  this ETL including, :ref:`core_ferceqr__quarterly_identity`,
+  :ref:`core_ferceqr__contracts`, :ref:`core_ferceqr__quarterly_index_pub`, and
+  :ref:`core_ferceqr__transactions`. Due to the size of this data, the tables are split
   into a set of parquet files partitioned by year-quarter, and cannot be downloaded
   as a single file like other PUDL tables.
 
