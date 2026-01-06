@@ -14,7 +14,6 @@ build:
     create_environment:
       - asdf plugin add pixi
       - asdf install pixi latest
-      - asdf global pixi latest
     install:
       - pixi install
     build:
