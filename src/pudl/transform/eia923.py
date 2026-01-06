@@ -1677,9 +1677,12 @@ def _core_eia923__yearly_emissions_control(
     """
     # This column is dropped from all EIA 923 tables
     df = raw_eia923__emissions_control.drop(["early_release"], axis=1)
-
-    df = pudl.helpers.standardize_na_values(df)
-
+    # Convert dates and fix NA values
+    df = (
+        df.pipe(_yearly_to_monthly_records)
+        .pipe(pudl.helpers.standardize_na_values)
+        .pipe(pudl.helpers.convert_to_date)
+    )
     # Convert thousands of tons to tons
     df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
     df.columns = df.columns.str.replace("_1000_tons", "_tons")  # Rename columns

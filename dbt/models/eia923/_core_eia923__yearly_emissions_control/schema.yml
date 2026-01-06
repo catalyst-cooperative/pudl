@@ -11,7 +11,7 @@ sources:
                 partition_expr: report_year
         columns:
           - name: plant_id_eia
-          - name: report_year
+          - name: report_date
           - name: acid_gas_removal_efficiency_pct
           - name: annual_nox_emission_rate_lb_per_mmbtu
           - name: data_maturity

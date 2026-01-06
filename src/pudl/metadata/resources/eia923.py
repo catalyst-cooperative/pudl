@@ -1071,7 +1071,7 @@ and consumption is the net generation."""
         "schema": {
             "fields": [
                 "plant_id_eia",
-                "report_year",
+                "report_date",
                 "acid_gas_removal_efficiency_pct",
                 "annual_nox_emission_rate_lb_per_mmbtu",
                 "data_maturity",
@@ -1097,7 +1097,7 @@ and consumption is the net generation."""
             ],
             "primary_key": [
                 "plant_id_eia",
-                "report_year",
+                "report_date",
             ],
         },
         "field_namespace": "eia",
