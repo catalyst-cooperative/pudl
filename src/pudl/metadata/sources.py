@@ -884,14 +884,16 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "usda7": {
-        "title": "USDA Form 7 -- Financial and Operating Report Electric Distribution",
+    "rus7": {
+        "title": "USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution",
         "path": "https://www.rd.usda.gov/resources/forms/rus-forms",
         "description": (
-            "The United States Department of Agriculture (USDA) Form 7 is an annual "
-            "financial and operating report submitted by rural electric utilities "
+            "The United States Department of Agriculture (USDA) Financial and "
+            "Operating Report for Electric Distribution (formerly known as Form 7) "
+            "is an annual report submitted by rural electric utilities "
             "that receive funding from the USDA Rural Utilities Service (RUS) for "
-            "distribution services."
+            "distribution services. This data was obtained through multiple Freedom "
+            "of Information Access (FOIA) requests."
         ),
         "source_file_dict": {
             "respondents": "Rural electric cooperatives borrowing from USDA RUS.",
@@ -902,6 +904,7 @@ SOURCES: dict[str, Any] = {
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["matt-grimley"],
         ],
         "keywords": sorted(
             set(
@@ -909,7 +912,7 @@ SOURCES: dict[str, Any] = {
                     "form 7",
                     "distribution",
                 ]
-                + KEYWORDS["usda"]
+                + KEYWORDS["rus"]
                 + KEYWORDS["us_govt"]
                 + KEYWORDS["finance"]
             )
@@ -917,14 +920,16 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
-    "usda12": {
-        "title": "USDA Form 12 -- Financial and Operating Report Electric Power Supply",
+    "rus12": {
+        "title": "USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply",
         "path": "https://www.rd.usda.gov/resources/forms/rus-forms",
         "description": (
-            "The United States Department of Agriculture (USDA) Form 12 is an annual "
-            "financial and operating report submitted by rural electric utilities "
+            "The United States Department of Agriculture (USDA) Financial and "
+            "Operating Report for Electric Power Supply (formerly known as Form 12) "
+            "is an annual report submitted by rural electric utilities "
             "that receive funding from the USDA Rural Utilities Service (RUS) for "
-            "power supply."
+            "power supply (generation). This data was obtained through multiple Freedom "
+            "of Information Access (FOIA) requests."
         ),
         "source_file_dict": {
             "respondents": "Rural electric cooperatives borrowing from USDA RUS.",
@@ -935,6 +940,7 @@ SOURCES: dict[str, Any] = {
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["matt-grimley"],
         ],
         "keywords": sorted(
             set(
@@ -942,7 +948,7 @@ SOURCES: dict[str, Any] = {
                     "form 12",
                     "power supply",
                 ]
-                + KEYWORDS["usda"]
+                + KEYWORDS["rus"]
                 + KEYWORDS["us_govt"]
                 + KEYWORDS["finance"]
                 + KEYWORDS["electricity"]
