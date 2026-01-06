@@ -91,9 +91,15 @@ def generate_batch_config():
     parser.add_argument("--container-command")
     parser.add_argument("--container-env", action="append", nargs="*", default=[])
     parser.add_argument("--container-arg", action="append", nargs="*", default=[])
-    parser.add_argument("--vcpu", default=8, type=int)
-    parser.add_argument("--mem-gb", default=63, type=int)
-    parser.add_argument("--disk-gb", default=200, type=int)
+    parser.add_argument(
+        "--vcpu", default=8, type=int, help="Number of vCPUs to give VM"
+    )
+    parser.add_argument(
+        "--mem-gb", default=63, type=int, help="Total RAM in GB to give VM"
+    )
+    parser.add_argument(
+        "--disk-gb", default=200, type=int, help="Size of disk in GB to attach to VM"
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
