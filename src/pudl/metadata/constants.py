@@ -237,6 +237,7 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "role": "contributor",
         "zenodo_role": "data collector",
         "organization": "University of Minnesota",
+        "orcid": "0000-0003-3969-505X",
     },
 }
 """PUDL Contributors for attribution.
