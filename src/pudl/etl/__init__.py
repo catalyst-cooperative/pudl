@@ -249,7 +249,8 @@ defs: dg.Definitions = dg.Definitions(
                     }
                 }
             },
-            selection="not key:*ferceqr*",
+            selection=dg.AssetSelection.all()
+            - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
         ),
         dg.define_asset_job(
             name="etl_fast",
@@ -262,7 +263,8 @@ defs: dg.Definitions = dg.Definitions(
                 }
             },
             description="This job executes the most recent year of each asset.",
-            selection="not key:*ferceqr*",
+            selection=dg.AssetSelection.all()
+            - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
         ),
         dg.define_asset_job(
             name="ferceqr_etl",
@@ -270,8 +272,7 @@ defs: dg.Definitions = dg.Definitions(
             config=pudl.helpers.get_dagster_execution_config(
                 tag_concurrency_limits=default_tag_concurrency_limits
             ),
-            selection=dg.AssetSelection.groups("raw_ferceqr")
-            | dg.AssetSelection.groups("core_ferceqr"),
+            selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
         ),
     ],
     sensors=[ferceqr_deployment.ferceqr_sensor],
