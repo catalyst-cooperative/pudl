@@ -301,6 +301,25 @@ want to rerun the entire ETL.
 Read the :ref:`dev_dagster` documentation page to learn more about working
 with dagster.
 
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Running the FERC EQR ETL
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+All processing for FERC EQR data is contained in a separate ETL from the
+rest of PUDL. This is because the dataset is too large to archive the raw
+data on Zenodo. This means the ETL can only be run by developers with credentials
+to access private cloud storage containing the raw data. Any external
+contributors interested in on this ETL should contact the Catalyst team
+to set up access to the raw data.
+
+The FERC EQR ETL is contained in a Dagster job called ``ferceqr_etl``.
+Executing this job from the Dagster UI is slightly different from the main
+PUDL ETL jobs because the EQR job uses Dagster partitions. After selecting
+"Materialize All" (or "Materialize selected" for a selection of assets),
+a screen will popup allowing you to select the partitions to execute.
+From here you can select a set of year-quarter combinations. This will
+trigger a "backfill", which will execute each partition in its own "run".
+
+
 .. _run-cli:
 
 Running the ETL with CLI Commands
