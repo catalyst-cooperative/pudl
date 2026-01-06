@@ -376,6 +376,14 @@ KEYWORDS: dict[str, list[str]] = {
         "water energy nexus",
         "energy water nexus",
     ],
+    "usda": [
+        "usda",
+        "rus",
+        "rural",
+        "department of agriculture",
+        "coop",
+        "cooperative",
+    ],
 }
 
 XBRL_TABLES = [
