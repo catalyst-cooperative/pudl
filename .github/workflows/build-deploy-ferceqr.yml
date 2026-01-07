@@ -5,7 +5,7 @@ on:
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
-  GCS_OUTPUT_BUCKET: gs://pudl.catalyst.coop
+  GCS_OUTPUT_BUCKET: gs://pudl.catalyst.coop/ferceqr
   S3_OUTPUT_BUCKET: s3://pudl.catalyst.coop/ferceqr
   BATCH_JOB_JSON: batch_job.json
 
