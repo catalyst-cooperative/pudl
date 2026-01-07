@@ -20,5 +20,5 @@ works can be found in the :mod:`pudl.etl.ferceqr_deployment` module. One other
 major difference from the nightly builds is where data will be published.
 Due to the large size of the FERC EQR dataset, we do not maintain multiple
 versions of the data in S3, and instead have just one version, which will be
-overwritten each time a build is executed. This version can be found at
+overwritten each time a build is executed successfully. This version can be found at
 ``s3://pudl.catalyst.coop/ferceqr``.
