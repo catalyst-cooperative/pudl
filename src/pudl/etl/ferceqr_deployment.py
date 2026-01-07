@@ -70,15 +70,18 @@ def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
 def deploy_ferceqr():
     """Publish EQR outputs to cloud storage."""
     distribution_paths = [
-        os.environ["GCS_OUTPUT_BUCKET"],
-        os.environ["S3_OUTPUT_BUCKET"],
+        UPath(
+            os.environ["GCS_OUTPUT_BUCKET"],
+            storage_options={"user_project": os.environ["GCP_BILLING_PROJECT"]},
+        ),
+        UPath(os.environ["S3_OUTPUT_BUCKET"]),
     ]
     # Copy parquet files to GCS
     logger.info("Build successful, deploying ferceqr data.")
     for distribution_path in distribution_paths:
         for table in FERCEQR_TRANSFORM_ASSETS:
             logger.info(f"Copying {table} to {distribution_path}.")
-            base_path = UPath(distribution_path) / table
+            base_path = distribution_path / table
             base_path.mkdir(exist_ok=True)
 
             # Loop through partitioned parquet files for table and write to GCS
@@ -91,7 +94,7 @@ def deploy_ferceqr():
     _notify_slack_deployments_channel(
         ":large_green_circle: :sunglasses: :unicorn_face: :rainbow: ferceqr deployment succeeded!!"
         " :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
-        f"Parquet files published to: {', '.join(distribution_paths)}\n"
+        f"Parquet files published to: {', '.join(map(str, distribution_paths))}\n"
         f"Logfile can be found at: {os.environ['GCS_LOGS_BUCKET']}"
     )
     _write_status_file("SUCCESS")
