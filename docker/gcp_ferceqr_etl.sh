@@ -61,7 +61,7 @@ run_ferceqr_etl 2>&1 | tee "$LOGFILE"
 pg_ctlcluster "$PG_VERSION" dagster stop 2>&1
 
 # Copy logs to GCS build directory
-gcloud storage --quiet cp "$LOGFILE" "${GCS_OUTPUT_BUCKET}"
+gcloud storage --billing-project="$GCP_BILLING_PROJECT" --quiet cp "$LOGFILE" "${GCS_OUTPUT_BUCKET}"
 
 # Check if build was successful and return appropriate return value
 if [ ! -f "${PUDL_OUTPUT}/SUCCESS" ]; then
