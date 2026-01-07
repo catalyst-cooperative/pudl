@@ -91,7 +91,8 @@ def deploy_ferceqr():
     _notify_slack_deployments_channel(
         ":large_green_circle: :sunglasses: :unicorn_face: :rainbow: ferceqr deployment succeeded!!"
         " :partygritty: :database_parrot: :blob-dance: :large_green_circle:\n\n"
-        f"Parquet files published to: {', '.join(distribution_paths)}"
+        f"Parquet files published to: {', '.join(distribution_paths)}\n"
+        f"Logfile can be found at: {os.environ['GCS_LOGS_BUCKET']}"
     )
     _write_status_file("SUCCESS")
 
