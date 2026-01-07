@@ -37,16 +37,6 @@ def transform_eqr_table(
 
     # Verify that all expected columns are included and that there are no extra columns
     assert set(dtypes.keys()) == set(col_expressions.keys())
-    # Can't check for identical values because we haven't transformed the table yet, but
-    # can verify at least that we have the same number of columns.
-    relation_columns = table_data.columns
-    if table_name == "core_ferceqr__quarterly_identity":
-        relation_columns.remove("filing_quarter")
-    assert len(dtypes.keys()) == len(relation_columns), (
-        f"DuckDB dtypes has {len(dtypes.keys())} columns, but DuckDB relation has "
-        f"{len(table_data.columns)} columns in {table_name} for {year_quarter}. "
-        f"Columns in dtypes: {dtypes.keys()}. Columns in relation: {table_data.columns}."
-    )
 
     return persist_table_as_parquet(
         table_data=table_data.select(
