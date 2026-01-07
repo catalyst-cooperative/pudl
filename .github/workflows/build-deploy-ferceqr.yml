@@ -82,12 +82,8 @@ jobs:
         run: |-
           ./devtools/generate_batch_config.py \
             --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
-            --container-command "micromamba" \
+            --container-command "pixi" \
             --container-arg="run" \
-            --container-arg="--prefix" \
-            --container-arg="/home/mambauser/env" \
-            --container-arg="--attach" \
-            --container-arg='' \
             --container-arg="bash" \
             --container-arg="./docker/gcp_ferceqr_etl.sh" \
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
