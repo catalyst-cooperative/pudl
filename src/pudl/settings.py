@@ -562,6 +562,7 @@ class Rus12Settings(GenericDatasetSettings):
     years: list[int] = data_source.working_partitions["years"]
     """The list of years to validate."""
 
+
 class DatasetsSettings(FrozenBaseModel):
     """An immutable pydantic model to validate PUDL Dataset settings."""
 
