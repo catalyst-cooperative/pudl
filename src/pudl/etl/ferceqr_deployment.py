@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Literal
 
 import dagster as dg
+import gcsfs
 import pandas as pd
 from slack_sdk import WebClient
 from upath import UPath
@@ -69,25 +70,32 @@ def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
 @dg.asset
 def deploy_ferceqr():
     """Publish EQR outputs to cloud storage."""
+    # Explicitly create GCS filesystem to configure requester pays
+    fs = gcsfs.GCSFileSystem(
+        project=os.environ["GCP_BILLING_PROJECT"],
+        requester_pays=True,
+    )
+
+    # Get output locations for S3 and GCS
     distribution_paths = [
-        UPath(
-            os.environ["GCS_OUTPUT_BUCKET"],
-            storage_options={"user_project": os.environ["GCP_BILLING_PROJECT"]},
-        ),
+        UPath(os.environ["GCS_OUTPUT_BUCKET"], fs=fs),
         UPath(os.environ["S3_OUTPUT_BUCKET"]),
     ]
-    # Copy parquet files to GCS
+    # Loop through output locations and copy parquet files to buckets
     logger.info("Build successful, deploying ferceqr data.")
     for distribution_path in distribution_paths:
         for table in FERCEQR_TRANSFORM_ASSETS:
             logger.info(f"Copying {table} to {distribution_path}.")
             base_path = distribution_path / table
-            base_path.mkdir(exist_ok=True, parents=True)
+
+            # UPath's don't work well with requester pays buckets, so use the fsspec
+            # filesystem directly
+            base_path.fs.mkdirs(path=base_path, exist_ok=True)
 
             # Loop through partitioned parquet files for table and write to GCS
             for file in ParquetData(table_name=table).parquet_directory.iterdir():
                 destination_path = base_path / file.name
-                destination_path.write_bytes(file.read_bytes())
+                base_path.fs.put_file(file, destination_path)
 
     # Send slack notification about successful build
     logger.info("Notifying slack about successful build.")
