@@ -7,7 +7,7 @@ storage:
       db_name: dagster
       port: 5433
 compute_logs:
-  module: dagster.core.storage.gcs_compute_log_manager
+  module: dagster_gcp.gcs.compute_log_manager
   class: GCSComputeLogManager
   config:
     bucket:
