@@ -82,7 +82,7 @@ def deploy_ferceqr():
         for table in FERCEQR_TRANSFORM_ASSETS:
             logger.info(f"Copying {table} to {distribution_path}.")
             base_path = distribution_path / table
-            base_path.mkdir(exist_ok=True)
+            base_path.mkdir(exist_ok=True, parents=True)
 
             # Loop through partitioned parquet files for table and write to GCS
             for file in ParquetData(table_name=table).parquet_directory.iterdir():
