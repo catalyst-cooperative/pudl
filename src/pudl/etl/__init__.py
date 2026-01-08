@@ -59,6 +59,7 @@ raw_module_groups = {
     "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
     "raw_ferceqr": [pudl.extract.ferceqr],
+    "raw_rus12": [pudl.extract.rus12],
 }
 
 
