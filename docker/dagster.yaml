@@ -6,3 +6,11 @@ storage:
       hostname: 127.0.0.1
       db_name: dagster
       port: 5433
+compute_logs:
+  module: dagster.core.storage.gcs_compute_log_manager
+  class: GCSComputeLogManager
+  config:
+    bucket:
+      env: GCS_LOGS_BUCKET
+    prefix:
+      env: BUILD_ID
