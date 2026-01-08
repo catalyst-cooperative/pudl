@@ -49,6 +49,10 @@ New Data Tests & Validations
 Bug Fixes
 ^^^^^^^^^
 
+* Corrected incorrect column mappings in :ref:`core_eia861__yearly_reliability` and
+  ``raw_eia861__frame`` that were introduced for 2024 data during the EIA 861 2024
+  data update. See :issue:`4907` and :pr:`4908`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
