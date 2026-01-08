@@ -13,4 +13,4 @@ compute_logs:
     bucket:
       env: GCS_LOGS_BUCKET
     prefix:
-      env: BUILD_ID
+      env: GCS_LOGS_PREFIX
