@@ -18,6 +18,7 @@ from typing import Literal
 import dagster as dg
 import gcsfs
 import pandas as pd
+import s3fs
 from slack_sdk import WebClient
 from upath import UPath
 
@@ -70,32 +71,32 @@ def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
 @dg.asset
 def deploy_ferceqr():
     """Publish EQR outputs to cloud storage."""
-    # Explicitly create GCS filesystem to configure requester pays
-    fs = gcsfs.GCSFileSystem(
-        project=os.environ["GCP_BILLING_PROJECT"],
-        requester_pays=True,
-    )
-
     # Get output locations for S3 and GCS
     distribution_paths = [
-        UPath(os.environ["GCS_OUTPUT_BUCKET"], fs=fs),
-        UPath(os.environ["S3_OUTPUT_BUCKET"]),
+        (
+            UPath(os.environ["GCS_OUTPUT_BUCKET"]),
+            gcsfs.GCSFileSystem(
+                project=os.environ["GCP_BILLING_PROJECT"],
+                requester_pays=True,
+            ),
+        ),
+        (UPath(os.environ["S3_OUTPUT_BUCKET"]), s3fs.S3FileSystem()),
     ]
     # Loop through output locations and copy parquet files to buckets
     logger.info("Build successful, deploying ferceqr data.")
-    for distribution_path in distribution_paths:
+    for distribution_path, fs in distribution_paths:
         for table in FERCEQR_TRANSFORM_ASSETS:
             logger.info(f"Copying {table} to {distribution_path}.")
-            base_path = distribution_path / table
+            table_remote_path = distribution_path / table
 
             # UPath's don't work well with requester pays buckets, so use the fsspec
             # filesystem directly
-            base_path.fs.mkdirs(path=base_path, exist_ok=True)
-
-            # Loop through partitioned parquet files for table and write to GCS
-            for file in ParquetData(table_name=table).parquet_directory.iterdir():
-                destination_path = base_path / file.name
-                base_path.fs.put_file(file, destination_path)
+            fs.mkdirs(path=table_remote_path, exist_ok=True)
+            fs.put(
+                f"{ParquetData(table_name=table).parquet_directory}/",
+                f"{table_remote_path}/",
+                recursive=True,
+            )
 
     # Send slack notification about successful build
     logger.info("Notifying slack about successful build.")
