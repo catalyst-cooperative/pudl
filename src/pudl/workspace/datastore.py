@@ -7,6 +7,7 @@ import pathlib
 import re
 import sys
 import zipfile
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
@@ -21,6 +22,7 @@ from google.auth.exceptions import DefaultCredentialsError
 from pydantic import HttpUrl, StringConstraints
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests.adapters import HTTPAdapter
+from upath import UPath
 from urllib3.util.retry import Retry
 
 import pudl
@@ -46,13 +48,14 @@ class ChecksumMismatchError(ValueError):
 class DatapackageDescriptor:
     """A simple wrapper providing access to datapackage.json contents."""
 
-    def __init__(self, datapackage_json: dict, dataset: str, doi: ZenodoDoi):
+    def __init__(self, datapackage_json: dict, dataset: str, doi: str):
         """Constructs DatapackageDescriptor.
 
         Args:
           datapackage_json: parsed datapackage.json describing this datapackage.
           dataset: The name (an identifying string) of the dataset.
-          doi: A versioned Digital Object Identifier for the dataset.
+          doi: Unique identifier for the dataset. For Zenodo datasets this is a DOI,
+            for GCS datasets this is a synthetic identifier based on the GCS URI.
         """
         self.datapackage_json = datapackage_json
         self.dataset = dataset
@@ -218,7 +221,33 @@ class ZenodoDoiSettings(BaseSettings):
     )
 
 
-class ZenodoFetcher:
+class GcsDatasetSettings(BaseSettings):
+    """GCS URIs pointing to datasets stored in Google Cloud Storage."""
+
+    ferceqr: str = "gs://archives.catalyst.coop/ferceqr/published"
+
+    model_config = SettingsConfigDict(
+        env_prefix="pudl_gcs_uri_", env_file=".env", extra="ignore"
+    )
+
+
+class DatasetFetcher(ABC):
+    """Abstract base class for fetching datapackage descriptors from various backends."""
+
+    @abstractmethod
+    def get_known_datasets(self: Self) -> list[str]:
+        """Returns list of datasets supported by this fetcher."""
+
+    @abstractmethod
+    def get_doi(self: Self, dataset: str) -> str:
+        """Returns unique identifier for the dataset."""
+
+    @abstractmethod
+    def get_descriptor(self: Self, dataset: str) -> DatapackageDescriptor:
+        """Returns DatapackageDescriptor for given dataset."""
+
+
+class ZenodoFetcher(DatasetFetcher):
     """API for fetching datapackage descriptors and resource contents from zenodo."""
 
     _descriptor_cache: dict[str, DatapackageDescriptor]
@@ -246,7 +275,7 @@ class ZenodoFetcher:
         self.http.mount("https://", adapter)
         self._descriptor_cache = {}
 
-    def get_doi(self: Self, dataset: str) -> ZenodoDoi:
+    def get_doi(self: Self, dataset: str) -> str:
         """Returns DOI for given dataset."""
         try:
             doi = self.zenodo_dois.__getattribute__(dataset)
@@ -310,6 +339,48 @@ class ZenodoFetcher:
         return content
 
 
+class GcsFetcher(DatasetFetcher):
+    """API for fetching datapackage descriptors from Google Cloud Storage."""
+
+    gcs_uris: GcsDatasetSettings
+
+    def __init__(self: Self, gcs_uris: GcsDatasetSettings | None = None):
+        """Initialize the GCS dataset settings."""
+        if not gcs_uris:
+            self.gcs_uris = GcsDatasetSettings()
+
+    def get_gcs_uri(self: Self, dataset: str) -> str:
+        """Returns GCS URI for given dataset."""
+        try:
+            gcs_uri = self.gcs_uris.__getattribute__(dataset)
+        except AttributeError as err:
+            raise AttributeError(f"No GCS URI found for dataset {dataset}.") from err
+        return gcs_uri
+
+    def get_known_datasets(self: Self) -> list[str]:
+        """Returns list of supported GCS datasets."""
+        return [name for name, _ in sorted(self.gcs_uris)]
+
+    def get_doi(self: Self, dataset: str) -> str:
+        """Returns synthetic identifier.
+
+        Not a *real* DOI since we don't issue those on GCS, but we just need a
+        unique identifier for ourselves. Hence return value of str, not
+        ZenodoDoi.
+        """
+        gcs_uri = self.get_gcs_uri(dataset)
+        return gcs_uri.replace("://", "-").replace("/", "-")
+
+    def get_descriptor(self: Self, dataset: str) -> DatapackageDescriptor:
+        """Returns DatapackageDescriptor."""
+        gcs_uri = self.get_gcs_uri(dataset)
+        datapackage_path = UPath(gcs_uri) / "datapackage.json"
+        datapackage_json = json.loads(datapackage_path.read_text())
+        return DatapackageDescriptor(
+            datapackage_json, dataset=dataset, doi=self.get_doi(dataset)
+        )
+
+
 class Datastore:
     """Handle connections and downloading of Zenodo Source archives."""
 
@@ -369,14 +440,37 @@ class Datastore:
                 )
 
         self._zenodo_fetcher = ZenodoFetcher(timeout=timeout)
+        self._gcs_fetcher = GcsFetcher()
 
     def get_known_datasets(self) -> list[str]:
         """Returns list of supported datasets."""
-        return self._zenodo_fetcher.get_known_datasets()
+        return list(
+            set(self._zenodo_fetcher.get_known_datasets())
+            | set(self._gcs_fetcher.get_known_datasets())
+        )
+
+    def _get_fetcher_for_dataset(self, dataset: str) -> DatasetFetcher:
+        """Get the appropriate fetcher for a dataset.
+
+        2026-01-09: Prefers Zenodo over GCS... for now.
+
+        Args:
+            dataset: Name of the dataset
+
+        Returns:
+            Fetcher that implements DatasetFetcher interface.
+        """
+        if dataset in self._zenodo_fetcher.get_known_datasets():
+            return self._zenodo_fetcher
+        if dataset in self._gcs_fetcher.get_known_datasets():
+            return self._gcs_fetcher
+        raise ValueError(f"Dataset {dataset} not found in Zenodo or GCS datasets.")
 
     def get_datapackage_descriptor(self, dataset: str) -> DatapackageDescriptor:
-        """Fetch datapackage descriptor for dataset either from cache or Zenodo."""
-        doi = self._zenodo_fetcher.get_doi(dataset)
+        """Fetch datapackage descriptor for dataset from cache, Zenodo, or GCS."""
+        fetcher = self._get_fetcher_for_dataset(dataset)
+        doi = fetcher.get_doi(dataset)
+
         if doi not in self._datapackage_descriptors:
             res = PudlResourceKey(dataset, doi, "datapackage.json")
             if self._cache.contains(res):
@@ -386,7 +480,7 @@ class Datastore:
                     doi=doi,
                 )
             else:
-                desc = self._zenodo_fetcher.get_descriptor(dataset)
+                desc = fetcher.get_descriptor(dataset)
                 self._datapackage_descriptors[doi] = desc
                 self._cache.add(res, bytes(desc.get_json_string(), "utf-8"))
         return self._datapackage_descriptors[doi]
@@ -424,6 +518,13 @@ class Datastore:
                     self._cache.add(res, contents)
                 yield (res, contents)
             elif not cached_only:
+                # NOTE (2026-01-07): Resource fetching only works for Zenodo datasets.
+                # GCS datasets (like ferceqr) only support metadata retrieval via
+                # get_datapackage_descriptor(). If you're reading this because you hit an
+                # error fetching GCS resources, you can either: (1) add get_resource() to
+                # the DatasetFetcher interface and refactor dataset extraction code
+                # (e.g., pudl.extract.ferceqr) to use Datastore.get_resources(), or
+                # (2) directly access GCS resources using UPath (see ferceqr for example).
                 logger.info(f"Retrieved {res} from zenodo.")
                 contents = self._zenodo_fetcher.get_resource(res)
                 self._cache.add(res, contents)
@@ -479,9 +580,10 @@ class Datastore:
 def print_partitions(dstore: Datastore, datasets: list[str]) -> None:
     """Prints known partition keys and its values for each of the datasets."""
     for single_ds in datasets:
-        partitions = dstore.get_datapackage_descriptor(single_ds).get_partitions()
+        descriptor = dstore.get_datapackage_descriptor(single_ds)
+        partitions = descriptor.get_partitions()
 
-        print(f"\nPartitions for {single_ds} ({ZenodoFetcher().get_doi(single_ds)}):")
+        print(f"\nPartitions for {single_ds} ({descriptor.doi}):")
         for partition_key in sorted(partitions):
             # try-except required because ferc2 has parts with heterogenous types that
             # therefore can't be sorted: [1, 2, None]

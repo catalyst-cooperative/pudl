@@ -373,4 +373,43 @@ def test_get_zipfile_resources_eventual_success(mocker):
             assert test_file.read().decode(encoding="utf-8") == file_contents
 
 
+class TestGcsFetcher:
+    """Tests for GcsFetcher class."""
+
+    def test_get_known_datasets(self):
+        """Verify that get_known_datasets returns configured GCS datasets."""
+        gcs_fetcher = datastore.GcsFetcher()
+        known_datasets = gcs_fetcher.get_known_datasets()
+        assert "ferceqr" in known_datasets
+        assert isinstance(known_datasets, list)
+
+    def test_get_gcs_uri(self):
+        """Verify that get_gcs_uri returns correct URI for known datasets."""
+        gcs_fetcher = datastore.GcsFetcher()
+        uri = gcs_fetcher.get_gcs_uri("ferceqr")
+        assert uri == "gs://archives.catalyst.coop/ferceqr/published"
+
+    def test_get_gcs_uri_unknown_dataset(self):
+        """Verify that get_gcs_uri raises error for unknown datasets."""
+        gcs_fetcher = datastore.GcsFetcher()
+        with pytest.raises(AttributeError, match="No GCS URI found for dataset"):
+            gcs_fetcher.get_gcs_uri("nonexistent_dataset")
+
+    def test_get_doi(self):
+        """Verify that get_doi creates synthetic identifier from GCS URI."""
+        gcs_fetcher = datastore.GcsFetcher()
+        doi = gcs_fetcher.get_doi("ferceqr")
+        # Should convert gs://archives.catalyst.coop/ferceqr/published
+        # to gs-archives.catalyst.coop-ferceqr-published
+        assert doi == "gs-archives.catalyst.coop-ferceqr-published"
+        assert "://" not in doi
+        assert "/" not in doi
+
+    def test_get_doi_unknown_dataset(self):
+        """Verify that get_doi raises error for unknown datasets."""
+        gcs_fetcher = datastore.GcsFetcher()
+        with pytest.raises(AttributeError):
+            gcs_fetcher.get_doi("nonexistent_dataset")
+
+
 # TODO: add unit tests for Datasource class as well
