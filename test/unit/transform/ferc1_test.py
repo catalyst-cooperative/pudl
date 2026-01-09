@@ -1328,28 +1328,45 @@ def test_split_supporting_structure():
     transformer = TransmissionLinesTableTransformer(params=params)
 
     # Test data with various structure type values
+    original_values = [
+        "steel tower",
+        "wood pole",
+        "steel h-frame",
+        "underground",
+        "tower",
+        "h-frame",
+        "pole",
+        "steel",
+        "2-29.55",  # Unintelligible value (number pattern) - should map to NA
+        pd.NA,
+    ]
     test_data = pd.DataFrame(
         {
-            "supporting_structure_type": [
-                "steel tower",
-                "wood pole",
-                "steel h-frame",
-                "underground",
-                "tower",
-                "h-frame",
-                "pole",
-                "steel",  # "steel" is in both structure type (tower) and material mappings
-                pd.NA,
-            ],
-            "num_transmission_circuits": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "supporting_structure_type": original_values,
+            "num_transmission_circuits": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         }
     )
 
     result = transformer.split_supporting_structure(test_data)
 
-    # Check that both columns exist
+    # Check that all expected columns exist
+    assert "supporting_structure_type_original" in result.columns
     assert "supporting_structure_type" in result.columns
     assert "supporting_structure_material" in result.columns
+
+    # Check that original column preserves the input values
+    # Note: dtype may differ (object vs StringDtype), so we check values only
+    # We compare against the original_values list since test_data["supporting_structure_type"]
+    # gets modified by split_supporting_structure
+    expected_original = pd.Series(
+        original_values, name="supporting_structure_type_original"
+    )
+    pd.testing.assert_series_equal(
+        result["supporting_structure_type_original"],
+        expected_original,
+        check_names=False,
+        check_dtype=False,
+    )
 
     # Check categorization results
     expected_structure = pd.Series(
@@ -1362,6 +1379,7 @@ def test_split_supporting_structure():
             "h_frame",
             "pole",
             "tower",  # "steel" maps to tower structure type
+            pd.NA,  # Unintelligible value (number pattern) - should map to NA
             pd.NA,
         ],
         dtype=pd.StringDtype(),
@@ -1378,6 +1396,7 @@ def test_split_supporting_structure():
             pd.NA,  # h-frame without material specified
             pd.NA,  # pole without material specified
             "steel",  # "steel" maps to steel material
+            pd.NA,  # Unintelligible value (number pattern) - should map to NA
             pd.NA,
         ],
         dtype=pd.StringDtype(),
@@ -1385,15 +1404,21 @@ def test_split_supporting_structure():
     )
 
     pd.testing.assert_series_equal(
-        result["supporting_structure_type"], expected_structure, check_names=False
+        result["supporting_structure_type"],
+        expected_structure,
+        check_names=False,
+        check_dtype=False,
     )
     pd.testing.assert_series_equal(
-        result["supporting_structure_material"], expected_material, check_names=False
+        result["supporting_structure_material"],
+        expected_material,
+        check_names=False,
+        check_dtype=False,
     )
 
 
-def test_split_supporting_structure_fails_on_uncategorized():
-    """Test that split_supporting_structure fails on uncategorized values."""
+def test_split_supporting_structure_handles_uncategorized():
+    """Test that split_supporting_structure sets uncategorized values to NA."""
     from pudl.transform.params.ferc1 import TRANSFORM_PARAMS
 
     params = Ferc1TableTransformParams.from_dict(
@@ -1404,12 +1429,21 @@ def test_split_supporting_structure_fails_on_uncategorized():
     # Test data with uncategorized value
     test_data = pd.DataFrame(
         {
-            "supporting_structure_type": ["unknown_value"],
-            "num_transmission_circuits": [1],
+            "supporting_structure_type": ["unknown_value", "steel tower"],
+            "num_transmission_circuits": [1, 2],
         }
     )
 
-    with pytest.raises(
-        ValueError, match="Found uncategorized supporting_structure_type"
-    ):
-        transformer.split_supporting_structure(test_data)
+    result = transformer.split_supporting_structure(test_data)
+
+    # Check that original value is preserved
+    assert result["supporting_structure_type_original"].iloc[0] == "unknown_value"
+    assert result["supporting_structure_type_original"].iloc[1] == "steel tower"
+
+    # Check that uncategorized value results in NA for categorized columns
+    assert pd.isna(result["supporting_structure_type"].iloc[0])
+    assert pd.isna(result["supporting_structure_material"].iloc[0])
+
+    # Check that categorized value is still categorized
+    assert result["supporting_structure_type"].iloc[1] == "tower"
+    assert result["supporting_structure_material"].iloc[1] == "steel"

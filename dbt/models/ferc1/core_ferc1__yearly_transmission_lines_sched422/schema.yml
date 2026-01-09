@@ -17,6 +17,7 @@ sources:
           - name: end_point
           - name: operating_voltage_kv
           - name: designed_voltage_kv
+          - name: supporting_structure_type_original
           - name: supporting_structure_type
           - name: supporting_structure_material
           - name: transmission_line_length_miles

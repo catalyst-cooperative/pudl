@@ -4620,49 +4620,93 @@ class TransmissionLinesTableTransformer(Ferc1AbstractTableTransformer):
         or both. This method creates two new columns by applying categorization to
         extract both pieces of information from the original values.
 
+        Only straightforward values that clearly map to a single structure type and/or
+        material are categorized. Multi-category or ambiguous values are set to NA,
+        allowing users to interpret the original unstructured value if needed.
+
         Args:
             df: DataFrame with supporting_structure_type column.
 
         Returns:
-            DataFrame with supporting_structure_type and supporting_structure_material columns.
+            DataFrame with:
+            - supporting_structure_type_original: Original unstructured value
+            - supporting_structure_type: Categorized structure type (NA for ambiguous values)
+            - supporting_structure_material: Categorized material (NA for ambiguous values)
         """
         if "supporting_structure_type" not in df.columns:
             return df
 
         original_col = df["supporting_structure_type"].copy()
+
+        # Preserve original unstructured value for user interpretation
+        df["supporting_structure_type_original"] = original_col.copy()
+
         norm_params = {**FERC1_STRING_NORM, "nullable": True}
         normalized_col = normalize_strings(
             original_col, StringNormalization(**norm_params)
         )
 
-        # Check for uncategorized values and fail if found
         structure_type_params = StringCategories(**SUPPORTING_STRUCTURE_TYPE_CATEGORIES)
         material_params = StringCategories(**SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES)
 
-        uncategorized_structure = set(normalized_col.dropna()).difference(
-            structure_type_params.mapping
-        )
-        uncategorized_material = set(normalized_col.dropna()).difference(
-            material_params.mapping
-        )
+        # Determine uncategorized values by checking which normalized values don't have
+        # a mapped category (for logging purposes, not errors).
+        uncategorized_structure = {
+            value
+            for value in normalized_col.dropna().unique()
+            if structure_type_params.mapping.get(value) is None
+        }
+        uncategorized_material = {
+            value
+            for value in normalized_col.dropna().unique()
+            if material_params.mapping.get(value) is None
+        }
 
-        if uncategorized_structure or uncategorized_material:
-            raise ValueError(
-                f"{self.table_id.value}: Found uncategorized supporting_structure_type "
-                f"values. Structure: {uncategorized_structure}, "
-                f"Material: {uncategorized_material}. "
-                "These must be added to the category dictionaries before the ETL can proceed."
+        # Log uncategorized values for review
+        if uncategorized_structure:
+            logger.info(
+                f"{self.table_id.value}: Found {len(uncategorized_structure)} uncategorized "
+                f"structure type values. These will be set to NA in the categorized column. "
+                f"Sample values: {sorted(uncategorized_structure)[:10]}"
+            )
+        if uncategorized_material:
+            logger.info(
+                f"{self.table_id.value}: Found {len(uncategorized_material)} uncategorized "
+                f"material values. These will be set to NA in the categorized column. "
+                f"Sample values: {sorted(uncategorized_material)[:10]}"
             )
 
         # Categorize structure type (using normalized column)
-        df["supporting_structure_type"] = categorize_strings(
+        # categorize_strings will set uncategorized values to NA
+        categorized_structure = categorize_strings(
             normalized_col, structure_type_params
         )
 
         # Categorize material (using normalized column)
-        df["supporting_structure_material"] = categorize_strings(
-            normalized_col, material_params
+        # categorize_strings will set uncategorized values to NA
+        categorized_material = categorize_strings(normalized_col, material_params)
+
+        # Log categorization statistics
+        total_rows = len(df)
+        structure_categorized = (categorized_structure != "na_category").sum()
+        material_categorized = (categorized_material != "na_category").sum()
+
+        structure_pct = (
+            (structure_categorized / total_rows * 100) if total_rows > 0 else 0
         )
+        material_pct = (
+            (material_categorized / total_rows * 100) if total_rows > 0 else 0
+        )
+
+        logger.info(
+            f"{self.table_id.value}: Categorization statistics - "
+            f"Structure type: {structure_categorized:,}/{total_rows:,} ({structure_pct:.1f}%), "
+            f"Material: {material_categorized:,}/{total_rows:,} ({material_pct:.1f}%)"
+        )
+
+        # Set the categorized columns
+        df["supporting_structure_type"] = categorized_structure
+        df["supporting_structure_material"] = categorized_material
 
         return df
 
