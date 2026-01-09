@@ -43,11 +43,20 @@ New Data
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through November 2025. See :pr:`4903`.
+
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Bug Fixes
 ^^^^^^^^^
+
+* Corrected incorrect column mappings in :ref:`core_eia861__yearly_reliability` and
+  ``raw_eia861__frame`` that were introduced for 2024 data during the EIA 861 2024
+  data update. See :issue:`4907` and :pr:`4908`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -80,7 +89,7 @@ Quality of Life Improvements
 v2025.12.1 (2025-12-13)
 ---------------------------------------------------------------------------------------
 
-This is a monthly release primarily intended to update the generatores reporting in
+This is a monthly release primarily intended to update the generators reporting in
 EIA-860M, with some other minor improvements coming along for the ride. These include
 another new EIA Form 176 natural gas disposition table, and experimental access to the
 FERC XBRL derived databases using DuckDB. Details below.
