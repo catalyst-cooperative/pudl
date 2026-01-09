@@ -6,7 +6,7 @@ on:
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
   GCS_OUTPUT_BUCKET: gs://pudl.catalyst.coop/ferceqr
-  GCS_LOGS_BUCKET: builds.catalyst.coop
+  GCS_LOGS_BUCKET: gs://builds.catalyst.coop/ferceqr_logs
   S3_OUTPUT_BUCKET: s3://pudl.catalyst.coop/ferceqr
   BATCH_JOB_JSON: batch_job.json
 
@@ -66,13 +66,11 @@ jobs:
           {
               echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)";
               echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}";
-              echo "GCS_LOGS_PREFIX=ferceqr_logs/$BUILD_ID/"
           } >> "$GITHUB_ENV"
 
       - name: Show freshly set envvars
         run: |
           echo "BUILD_ID: $BUILD_ID"
-          echo "GCS_LOGS_PREFIX: $GCS_LOGS_PREFIX"
           echo "BATCH_JOB_ID: $BATCH_JOB_ID"
 
       # Setup gcloud CLI
@@ -99,7 +97,6 @@ jobs:
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GCS_OUTPUT_BUCKET=${{ env.GCS_OUTPUT_BUCKET }} \
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
-            --container-env GCS_LOGS_PREFIX=${{ env.GCS_LOGS_PREFIX }} \
             --container-env S3_OUTPUT_BUCKET=${{ env.S3_OUTPUT_BUCKET }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env OMP_NUM_THREADS=4 \
