@@ -208,8 +208,8 @@ class GenericExtractor(ABC):
         expected_cols = page_cols.union(self.cols_added)
         if set(df.columns) != set(expected_cols):
             # Ensure that expected and actually extracted columns match
-            extra_raw_cols = set(df.columns).difference(expected_cols)
-            missing_raw_cols = set(expected_cols).difference(df.columns)
+            extra_raw_cols = [col for col in df.columns if col not in expected_cols]
+            missing_raw_cols = [col for col in expected_cols if col not in df.columns]
             if extra_raw_cols:
                 raise ValueError(
                     f"{page}/{partition_selection}: Columns found in raw extracted table that are unmapped:"

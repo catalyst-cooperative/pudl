@@ -49,6 +49,7 @@ raw_module_groups = {
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
     "raw_nrelatb": [pudl.extract.nrelatb],
     "raw_phmsagas": [pudl.extract.phmsagas],
+    "raw_rus7": [pudl.extract.rus7],
     "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
     "raw_ferceqr": [pudl.extract.ferceqr],
