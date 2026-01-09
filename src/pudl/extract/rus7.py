@@ -17,6 +17,9 @@ class Extractor(CsvExtractor):
             ds (:class:datastore.Datastore): Initialized datastore.
         """
         self.METADATA = GenericMetadata("rus7")
+        # add this index_col arg bc if not read_csv assumes the first col
+        # is the index and weirdly shifts the header names over its insufferable
+        self.READ_CSV_KWARGS = {"index_col": False}
         super().__init__(*args, **kwargs)
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
