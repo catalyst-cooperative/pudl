@@ -230,6 +230,15 @@ CONTRIBUTORS: dict[str, dict[str, str]] = {
         "zenodo_role": "producer",
         "organization": "Moment Energy Insights",
     },
+    "matthew-grimley": {
+        "title": "Matthew Grimley",
+        "email": "griml011@umn.edu",
+        "path": "https://www.hhh.umn.edu/directory/matthew-grimley",
+        "role": "contributor",
+        "zenodo_role": "data collector",
+        "organization": "University of Minnesota",
+        "orcid": "0000-0003-3969-505X",
+    },
 }
 """PUDL Contributors for attribution.
 
@@ -375,6 +384,16 @@ KEYWORDS: dict[str, list[str]] = {
         "water usage",
         "water energy nexus",
         "energy water nexus",
+    ],
+    "rus": [
+        "usda",
+        "rus",
+        "rural",
+        "rural utility",
+        "rural utilities service",
+        "department of agriculture",
+        "coop",
+        "cooperative",
     ],
 }
 
