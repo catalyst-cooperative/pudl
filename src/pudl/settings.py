@@ -556,11 +556,7 @@ class EiaSettings(FrozenBaseModel):
 
 
 class Rus7Settings(GenericDatasetSettings):
-    """An immutable pydantic model to validate GridPath RA Toolkit settings.
-
-    Note that the default values for technology_types, processing_levels, and
-    daily_weather are such that by default, all working partitions will be included.
-    """
+    """An immutable pydantic model to validate RUS-7 datasets settings."""
 
     data_source: ClassVar[DataSource] = DataSource.from_id("rus7")
     years: list[int] = data_source.working_partitions["years"]
