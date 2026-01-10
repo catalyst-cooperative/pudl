@@ -31,6 +31,7 @@ pages for each source:
 * :doc:`data_sources/epacems`
 * :doc:`data_sources/ferc1`
 * :doc:`data_sources/ferc714`
+* :doc:`data_sources/ferceqr`
 * :doc:`data_sources/gridpathratoolkit`
 * :doc:`data_sources/nrelatb`
 * :doc:`data_sources/phmsagas`

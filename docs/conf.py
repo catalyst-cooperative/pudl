@@ -184,6 +184,7 @@ INCLUDED_SOURCES = [
     "eiaaeo",
     "ferc1",
     "ferc714",
+    "ferceqr",
     "epacems",
     "epacamd_eia",
     "phmsagas",
