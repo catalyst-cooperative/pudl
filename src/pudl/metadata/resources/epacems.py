@@ -33,7 +33,7 @@ CEMS data.
                 "operating_time_hours",
                 "gross_load_mw",
                 "heat_content_mmbtu",
-                "steam_load_1000_lbs",
+                "steam_load_lbs",
                 "so2_mass_lbs",
                 "so2_mass_measurement_code",
                 "nox_mass_lbs",
