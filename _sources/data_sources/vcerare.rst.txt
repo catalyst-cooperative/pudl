@@ -1,0 +1,156 @@
+===========================================================================================
+Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://vibrantcleanenergy.com/products/datasets/
+   * - Source Description
+     - This dataset was produced by Vibrant Clean Energy and is licensed to the public under the Creative Commons Attribution 4.0 International license (CC-BY-4.0). The data consists of hourly, county-level renewable generation profiles in the continental United States and was compiled based on outputs from the NOAA HRRR weather model. Profiles are stated as a capacity factor (a percentage of nameplate capacity) and exist for onshore wind, offshore wind, and fixed-tilt solar generation types.
+   * - Source Format
+     - Comma Separated Value (.csv)
+   * - Download Size
+     - 3744 MB
+   * - Temporal Coverage
+     - 2014-2023
+   * - PUDL Code
+     - ``vcerare``
+   * - Issues
+     - `Open Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Avcerare>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+We've segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`out_vcerare__hourly_available_capacity_factor`
+     - https://data.catalyst.coop/search?q=name:out_vcerare__hourly_available_capacity_factor
+   
+
+
+Background
+^^^^^^^^^^
+
+The data in the Resource Adequacy Renewable Energy (RARE) Power Dataset was produced by
+Vibrant Clean Energy based on outputs from the NOA HRRR model and are licensed
+to the public under the Creative Commons Attribution 4.0 International license
+(CC-BY-4.0).
+
+See the `README <https://doi.org/10.5281/zenodo.13937523>`__ archived on Zenodo for more
+detailed information.
+
+
+
+Download additional documentation
+---------------------------------
+
+
+
+* :download:`Vce Weather Dataset Overview August 2020 (PDF) <vcerare/VCE_Weather_Dataset_Overview_August_2020.pdf>`
+
+* `NOAA High Resolution Rapid Refresh (HRRR) Model Overview <https://rapidrefresh.noaa.gov/hrrr/>`__
+* `ESIG Weather Data for Power System Planning <https://www.esig.energy/weather-data-for-power-system-planning/>`__
+  White Paper
+
+
+
+Data available through PUDL
+---------------------------
+
+
+Hourly, county-level data from 2014 - 2023 is integrated into PUDL. Annual releases of
+the data are expected in Q1 while the high resolution rapid refresh (HRRR) remains an
+operational model at the National Oceanic and Atmospheric Administration (NOAA), with
+2024 data expected in Q1 of 2026. New releases will be integrated into PUDL pending
+funding availability.
+
+You can explore the VCE RARE dataset with
+`this Jupyter notebook on Kaggle <https://www.kaggle.com/code/catalystcooperative/04-renewable-generation-profiles>`__.
+
+
+
+Who submits this data?
+----------------------
+
+
+This data does not come from a government agency, and is not the result of compulsory
+data reporting.
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+The contents of the original CSVs are formatted so that Excel can display the
+data without crashing. There's one file per year per generation type, and each
+file contains an index column for time (simply 1, 2, 3...8760 to
+represent the hours in a year) and columns for each county populated with capacity
+factor values as a percentage from 0-100.
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+Non-county regions
+------------------
+
+The original data include capacity factors for some non-county areas including the Great
+Lakes and 2 small cities (Bedford City, VA and Clifton Forge City, VA). It associated
+"county" FIPS IDs with those areas, meaning that there was not a 1:1 relationship
+between the FIPS IDs and the named areas, and the geographic region implied by the
+FIPS IDs did not correspond to the named area. We've dropped the cities -- one of which
+contained no data -- and set the FIPS codes for the Great Lakes to NA. Note that lakes
+bordering multiple states will appear more than once in the data. VCE used a nearest
+neighbor technique to assign the state waters to the counties (this pertains to coastal
+areas as well).
+
+Name and ID issues
+------------------
+* The place name for Lake Huron is misspelled "Hurron" in the original data.
+* We update the ``place_name`` column using the latest Census PEP vintage data, to
+  ensure consistency of place names between this dataset and other PUDL data.
+
+Capacity factors > 1
+--------------------
+There are a couple of capacity factor values for the solar pv data that exceed
+the maximum value of 1 for capacity factor (or 100 for the raw data--PUDL converts the
+data from a percentage to a fraction to match other reported capacity factor data). This
+is due to power production performance being correlated with panel temperatures. During
+cold sunny periods, some solar capacity factor values are greater than 1 (but less that
+1.1). In 2016, 365 solar values exceeded 1.1 in the raw data and were clipped to 1.1.
+
+Null values
+-----------
+In the original data, 1,320 solar capacity values were reported as null in the year 2015.
+In conversation with the data providers, it was determined that these values should
+have been reported as zero and accordingly they have been updated as part of the
+transformation process.
+
+8760-hour years
+---------------
+This data is primarily used for modeling purposes and conforms to the 8760 hour/year
+standard regardless of leap years. This means that 2020 is missing data for December
+31st.
+
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.vcerare` created for each table's
+respective transform function.

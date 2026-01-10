@@ -1,0 +1,35 @@
+pudl.package_data
+=================
+
+.. py:module:: pudl.package_data
+
+.. autoapi-nested-parse::
+
+   Importable (dummy) package to include PUDL metadata structures.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/package_data/censuspep/index
+   /autoapi/pudl/package_data/eia176/index
+   /autoapi/pudl/package_data/eia191/index
+   /autoapi/pudl/package_data/eia757a/index
+   /autoapi/pudl/package_data/eia860/index
+   /autoapi/pudl/package_data/eia860m/index
+   /autoapi/pudl/package_data/eia861/index
+   /autoapi/pudl/package_data/eia923/index
+   /autoapi/pudl/package_data/eia930/index
+   /autoapi/pudl/package_data/epacems/index
+   /autoapi/pudl/package_data/ferc1/index
+   /autoapi/pudl/package_data/glue/index
+   /autoapi/pudl/package_data/phmsagas/index
+   /autoapi/pudl/package_data/settings/index
+   /autoapi/pudl/package_data/test/index
+   /autoapi/pudl/package_data/vcerare/index
+
+

@@ -1,0 +1,11 @@
+pudl.package_data.eia176.column_maps
+====================================
+
+.. py:module:: pudl.package_data.eia176.column_maps
+
+.. autoapi-nested-parse::
+
+   Metadata linking semantic meaning of EIA 176 CSV file columns across years.
+
+
+

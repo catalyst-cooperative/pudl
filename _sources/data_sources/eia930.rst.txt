@@ -1,0 +1,360 @@
+===========================================================================================
+EIA Form 930 -- Hourly and Daily Balancing Authority Operations Report
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.eia.gov/electricity/gridmonitor/
+   * - Source Description
+     - The EIA Form 930 provides hourly demand and generation statistics by balancing area (or sub-balancing area in the case of some larger areas). These statistics include a breakdown by energy source (coal, gas, hydro, wind, solar, etc.) as well as interchange between the balancing areas, including international exchanges with Canada and Mexico.
+   * - Respondents
+     - All entities in the contiguous United States that are listed in the North American Electric Reliability Corporation’s (NERC) Compliance Registry as a balancing authority.
+   * - Source Format
+     - Comma separated values (CSV)
+   * - Download Size
+     - 382 MB
+   * - Temporal Coverage
+     - 2015half2-2025half2
+   * - PUDL Code
+     - ``eia930``
+   * - Issues
+     - `Open EIA Form 930 -- Hourly and Daily Balancing Authority Operations Report issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia930>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+Clicking on the links will show you a description of the table as well as the names and
+descriptions of each of its fields. Due to the size of the EIA-930 hourly tables we only
+publish them as Parquet files, which are not browsable online, but they can be
+downloaded directly from :ref:`access-cloud` via the links embedded in the
+:doc:`/data_dictionaries/pudl_db` or accessed on :ref:`access-kaggle`.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_eia930__hourly_interchange`
+     - https://data.catalyst.coop/search?q=name:core_eia930__hourly_interchange
+   
+   * - :ref:`core_eia930__hourly_net_generation_by_energy_source`
+     - https://data.catalyst.coop/search?q=name:core_eia930__hourly_net_generation_by_energy_source
+   
+   * - :ref:`core_eia930__hourly_operations`
+     - https://data.catalyst.coop/search?q=name:core_eia930__hourly_operations
+   
+   * - :ref:`core_eia930__hourly_subregion_demand`
+     - https://data.catalyst.coop/search?q=name:core_eia930__hourly_subregion_demand
+   
+   * - :ref:`out_eia930__hourly_aggregated_demand`
+     - https://data.catalyst.coop/search?q=name:out_eia930__hourly_aggregated_demand
+   
+   * - :ref:`out_eia930__hourly_operations`
+     - https://data.catalyst.coop/search?q=name:out_eia930__hourly_operations
+   
+   * - :ref:`out_eia930__hourly_subregion_demand`
+     - https://data.catalyst.coop/search?q=name:out_eia930__hourly_subregion_demand
+   
+
+
+Background
+^^^^^^^^^^
+
+The EIA Form 930 provides hourly operating data about the high-voltage bulk electric
+power grid in the Lower 48 states. See the `official EIA-930 documentation
+<https://www.eia.gov/electricity/gridmonitor/about>`__ for additional details.
+
+The EIA-930 6-month consolidated CSVs contain the following hourly data elements:
+
+* Demand (MWh)
+* Demand by subregion (available for select BAs beginning 2018-07-01)
+* Day ahead demand forecasts
+* Net generation (MWh)
+* Net generation by energy source (beginning 2018-07-01)
+* Total net interchange (MWh)
+* Interchange with adjacent BAs (MWh)
+
+Additional CO2 emissions data is available through the per-BA Excel spreadsheet data,
+**but these spreadsheet data have not (yet) been integrated into PUDL**:
+
+* Estimated total CO2 emissions (beginning 2018-07-01)
+* Estimated CO2 emissions by fuel type (beginning 2018-07-01)
+* Estimated CO2 emissions for electricity imports or exports (beginning 2018-07-01)
+
+Demand and demand by subregion
+------------------------------
+
+Demand is a calculated value representing the amount of electricity load within a BA's
+electric system. A BA derives its demand value by taking the total metered net
+electricity generation within its electric system and subtracting the total metered net
+electricity interchange occurring between the BA and its neighboring BAs.
+
+For select BAs, demand by subregion data provide demand at a further level of geographic
+disaggregation (for example, load zones, weather zones, operating company areas, local
+BAs, etc.) within a BA's electric system. A BA's reporting demand by subregion section
+below provides more information on subregions. A mapping of BA codes to their subregions
+can be found in :ref:`core_eia__codes_balancing_authority_subregions`
+
+Day-ahead demand forecast
+-------------------------
+
+Each BA produces a day-ahead electricity demand forecast for every hour of the next day.
+These forecasts help BAs plan for and coordinate the reliable operation of their
+electric system.
+
+Net generation
+--------------
+
+Net generation represents the metered output of electric generating units in a BA's
+electric system. This generation only includes generating units that are managed by a BA
+or whose operations are visible to a BA.
+
+Generators on the distribution system—both large-scale resources and small-scale
+distributed resources, such as rooftop solar photovoltaic (PV) systems—are typically not
+included.
+
+BAs report generation from dual-fuel (switching from one fuel to another) and
+multiple-fuel (using multiple fuels simultaneously) generators under the actual energy
+source used, if known, and under the generator's primary energy source, if not known.
+
+To maintain generator confidentiality, generation may sometimes be reported in the Other
+category if too few generators are reported for a particular energy source category.
+
+In some of our electricity publications, we report generation from all utility-scale
+generating units in the United States. BAs only meter generating units that are from a
+subset of all utility-scale generating units. As a result, when hourly generation from
+the EIA-930 data is aggregated to monthly or annual levels, the results will be lower
+than monthly and annual aggregations in other electricity publications.
+
+Total interchange and interchange with adjacent BAs
+---------------------------------------------------
+
+Interchange is the net metered tie line flow from one BA to another directly
+interconnected BA. Total net interchange is the net sum of all interchange occurring
+between a BA and its directly interconnected neighboring BAs.
+
+Negative interchange values indicate net inflows, and positive interchange values
+indicate net outflows.
+
+
+
+Download additional documentation
+---------------------------------
+
+
+
+* :download:`Eia930 Instructions 2026-07-31 (PDF) <eia930/eia930_instructions_2026-07-31.pdf>`
+
+
+
+
+Data available through PUDL
+---------------------------
+
+
+With the exception of the hourly CO2 emisisons data, all of the data mentioned above is
+available through PUDL (demand, day ahead demand forecasts, demand by subregion, net
+generation, net generation by energy source, total net interchange, and interchange by
+adjacent BA)
+
+
+
+Who submits this data?
+----------------------
+
+
+
+The EIA-930 data is collected from electricity balancing authorities (BAs) that operate
+the grid.  Balancing authorities are a functional role defined by the `North American
+Electric Reliability Corporation <https://www.nerc.com>`__ (NERC), and are mainly
+responsible for balancing electricity supply, demand, and interchange on their electric
+systems in real time.
+
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+
+EIA publishes several versions of the Form 930:
+
+* Bulk CSVs each of which cover six months of data for all BAs (**this is the data
+  integrated into PUDL**)
+* Per-BA Excel spreadsheets with additional CO2 emissions data and other detailed
+  information about outlying values (not yet used by PUDL).
+* A REST API.
+
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+Be sure to check out `the official EIA-930 documentation <https://www.eia.gov/electricity/gridmonitor/about>`__.
+
+EIA publishes the original raw data as it is supplied by the balancing authorities, and
+it includes many irregularities including oulying and missing values, which they attempt
+to manage in their aggregated (daily or nationwide) data, but which are present in the
+original reported data.
+
+For the EIA-930 output tables published in PUDL, in addition to the original reported
+electricity demand, we provide a column with anomalous and missing values replaced by
+imputed values so the data can be more easily used in capacity expansion modeling
+and other applications where having complete and plausible (if not exactly correct)
+values is desirable. For an overview of that process and links to additional references,
+see :doc:`/methodology/timeseries_imputation`
+
+For a visual exploration of the imputed values and comparison with other imputations,
+check out the following notebooks on Kaggle:
+
+* `EIA-930 Sanity Checks <https://www.kaggle.com/code/catalystcooperative/03-eia-930-sanity-checks>`__
+* `PUDL Imputed Electricity Demand <https://www.kaggle.com/code/catalystcooperative/06-pudl-imputed-electricity-demand>`__
+
+.. _data-sources-eia930-changes-in-energy-source-granularity-over-time:
+
+Changes in energy source granularity over time
+----------------------------------------------
+
+In the Q2 2025 data release, imputed and adjusted columns for the "unknown" energy
+source were added to the raw dataset, so that tracking "unknown" behaves like
+tracking any other energy source. This change was backdated as zero to all years.
+
+In the Q1 2025 data release, the wind, solar, and hydro power energy source columns
+were removed from the raw dataset, and new columns for multiple different kinds of
+wind, solar, hydro power, and energy storage were added. The change takes effect
+starting in 2024half2. Analyses that cross this temporal boundary will need to
+aggregate in order to compare e.g. 2025 solar with 2023 solar.
+
+.. list-table::
+   :widths: 20 20
+   :header-rows: 1
+
+   * - Removed in Q1 2025 release
+     - Added in Q1 2025 release
+   * -
+     - ``battery_storage``
+   * -
+     - ``geothermal``
+   * - ``hydro``
+     - | ``hydro_excluding_pumped_storage``
+       | ``pumped_storage``
+   * -
+     - ``other_energy_storage``
+   * - ``solar``
+     - | ``solar_w_integrated_battery_storage``
+       | ``solar_wo_integrated_battery_storage``
+   * -
+     - ``unknown_energy_storage``
+   * - ``wind``
+     - | ``wind_w_integrated_battery_storage``
+       | ``wind_wo_integrated_battery_storage``
+
+
+Inconsistent interchange
+------------------------
+
+Balancing authorities do not always report symmetric, internally consistent interchange.
+For example, entity A might report receiving 100 MWh of energy from entity B, while
+entity B only reports sending 50 MWh of energy to entity A, so the data as reported do
+not satisfy conservation of energy, and may need additional processing for use as
+energy system modeling constraints.
+
+Localization of timestamps
+--------------------------
+
+In the raw EIA-930 data both UTC and local timestamps are provided. We have retained
+only the UTC times, because the timezones used by the balancing authorities do not
+always correspond to their physical location, and the localized times include gaps and
+duplicate hours due to daylight savings time shifts. The reporting timezone used by each
+BA can be found in the :ref:`core_eia__codes_balancing_authorities` table, and can be
+used to re-localize the UTC timestamps if needed.
+
+Inconsistent totals
+-------------------
+
+See PR :pr:`3584` and `this comment <https://github.com/catalyst-cooperative/pudl/pull/3584#issuecomment-2080346566>`__
+for an exploration of the following irregularities:
+
+* In some cases the sum of reported net generation by energy source does not equal the
+  total reported net generation for a BA. In most cases it's close, but for some BAs
+  (typically the smaller ones) it can be off by factor of 10 or more.
+* The sum of reported demand by subregion is very close to being equal to the total
+  demand for a BA, but the correspondence isn't perfect.
+* The sum of reported interchange with adjacent BAs does not always equal the total net
+  interchange for a BA.
+* Directly calculating demand as the total net generation minus interchange sometimes
+  results in very different values than the reported demand.
+
+BA consolidations and retirements
+---------------------------------
+
+Many smaller balancing authorities have been consolidated into larger organizations over
+the years, especially into the Southwest Power Pool and MISO. As a result there are a
+number of historical BA codes that **also** appear in the BA subregion codes. Compare
+these tables:
+
+* :ref:`core_eia__codes_balancing_authorities`
+* :ref:`core_eia__codes_balancing_authority_subregions`
+
+Pseudo-ties and dynamic scheduling
+----------------------------------
+
+Form EIA-930 data attempts to represent, as purely as possible, a physical picture of
+supply, demand, and energy flow (interchange) on the U.S. electric grid. For the
+purposes of Form EIA-930, interchange is the physical flow of electricity metered at the
+tie line boundaries between electric systems. Net generation is a metered value of the
+output of generating units in the BA. Demand (or load) is a calculated value based on
+the activity occurring within the tie line boundaries of the electric system.
+
+This physical picture of BA operations is not the way many electric systems account for
+and report how they dispatch their generators, manage interchange, and balance their
+systems. Utilities sometimes enter into commercial arrangements with other systems
+including:
+
+* **Dynamic scheduling:** the dispatch of generating units located in one system to
+  serve customers in another systems
+* **Pseudo-ties:** the transfer of electric energy through virtual interchange, where no
+  direct physical connections exist between the two systems.
+
+If operating data were reported with these commercial arrangements incorporated, then:
+
+* Demand might include demand served outside the BA's tie line boundaries or exclude
+  internal demand served by other BAs
+* Net generation might include the output of generating units outside the BA's tie line
+  boundaries or might exclude the output of internal units dispatched by other systems.
+* Energy flows might be reported between BAs that are not directly interconnected.
+
+BA Codes and Names
+------------------
+
+Note that the BA codes that appear in the EIA-930 are based on official NERC BA codes
+and so may not match the current full name of BAs because of changes in corporate
+ownership, mergers, or other business transactions.
+
+Other EIA-930 Projects
+----------------------
+
+* See the `Grid Emissions project <https://github.com/jdechalendar/gridemissions/>`__
+  from :user:`jdechalendar` at Stanford for one example of managing irregularities in
+  the reported data, and the related paper `A Physics-informed data reconciliation
+  framework for real-time electricity and emissions tracking
+  <https://arxiv.org/abs/2103.05663>`__ for a method of reconciling the reported data
+  with physical constraints.
+* The `Open Grid Emissions Initiative <https://github.com/singularity-energy/open-grid-emissions>`__
+  from :user:`grgmiller` at `Singularity Energy <https://singularity.energy>`__ builds
+  on the above method. See the `OGE Documentation <https://docs.singularity.energy/docs/open-grid-emissions/about_ogei-about-the-open-grid-emissions-initiative>`__.
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.eia930` created for each table's
+respective transform function.

@@ -1,0 +1,158 @@
+===========================================================================================
+GridPath Resource Adequacy Toolkit Data
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://gridlab.org/gridpathratoolkit/
+   * - Source Description
+     - Hourly renewable generation profiles compiled for the Western United States as part of the GridPath Resource Adequacy Toolkit. Profiles are stated as a capacity factor (a fraction of nameplate capacity). There are 3 different levels of processing or aggregation provided, all at hourly resolution: Individual plant (wind) or generator (solar) output, capacity-weighted averages of wind and solar output aggregated to the level of balancing authority territories (or transmission zones for larger balancing authorities), and that same aggregated output but with some problematic individual generator profiles modified such that they match the overall production curve of the balancing authority they are within. This data also contains some daily weather data from several sites across the western US and tables describing the way in which individual wind and solar projects were aggregated up to the level of balancing authority or transmission zone.
+   * - Download Size
+     - 2301 MB
+   * - Temporal Coverage
+     - 
+   * - PUDL Code
+     - ``gridpathratoolkit``
+   * - Issues
+     - `Open GridPath Resource Adequacy Toolkit Data issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Agridpathratoolkit>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+We've segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_gridpathratoolkit__assn_generator_aggregation_group`
+     - https://data.catalyst.coop/search?q=name:core_gridpathratoolkit__assn_generator_aggregation_group
+   
+   * - :ref:`out_gridpathratoolkit__hourly_available_capacity_factor`
+     - https://data.catalyst.coop/search?q=name:out_gridpathratoolkit__hourly_available_capacity_factor
+   
+
+
+Background
+^^^^^^^^^^
+
+The `GridPath RA Toolkit <https://gridlab.org/gridpathratoolkit/>`__ was created through a collaboration
+between `GridLab <https://gridlab.org>`__,
+`Moment Energy Insights <https://www.momentenergyinsights.com/>`__
+and `Blue Marble Analytics <https://www.bluemarble.run/>`__.
+It supports resource adequacy analysis for the Western United States, improving the
+characterization of three phenomena that will be increasingly important for
+understanding resource adequacy in future power systems: weather-driven relationships
+between load and resource availability; capabilities and constraints of energy limited
+resources; and transmission flows and regional coordination.
+
+The Toolkit leverages publicly available data and the
+`GridPath <https://www.gridpath.io/>`__ open-source power system modeling platform.
+To demonstrate the effectiveness of the Toolkit, a Western US 2026 resource adequacy
+analysis case study was developed. The GridPath RA Toolkit refers to both the datasets
+and the algorithms that were developed to support the 2026 Western US case study. With
+the support of GridLab, Catalyst has integrated datasets focusing on the hourly
+availability of wind and solar resources into PUDL under a
+`CC-BY-4.0 <https://creativecommons.org/licenses/by/4.0/>`__ license.
+
+
+
+Download additional documentation
+---------------------------------
+
+
+* `Full GridPath RA Toolkit Report (PDF) <https://gridlab.org/wp-content/uploads/2022/10/GridLab_RA-Toolkit-Report-10-12-22.pdf>`__
+* `Recorded presentation from ESIG (YouTube) <https://www.youtube.com/watch?v=CSd3faV-71o>`__
+* `Slide deck from that presentation (PDF) <https://gridlab.org/wp-content/uploads/2022/10/GridLab_RA-Toolkit_Presentation.pdf>`__
+* `GridPath RA Toolkit GitHub repository <https://github.com/MomentEI/GridPath_RA_Toolkit>`__
+* `GridPath model GitHub repository <https://github.com/blue-marble/gridpath>`__
+* `GridPath documentation <https://gridpath.readthedocs.io/en/latest/>`__
+* `Weather Data for Power System Planning <https://www.esig.energy/weather-data-for-power-system-planning/>`__
+
+
+
+Data available through PUDL
+---------------------------
+
+
+Initially, PUDL has only integrated the most processed version of the wind and solar
+generation profiles. These profiles are aggregated to the level of transmission zones,
+and extended with synthetic data to cover the period from 1998-2020. The wind data for
+2015-2020 and the solar data for 2020 are synthetic.
+
+Hybrid generators which have associated battery storage are broken out individually,
+with the hourly capacity factors representing just the renewable portion of the
+facility's generation.
+
+We have also integrated the tables which describe which individual plants and generators
+were aggregated in each group, so that users can programmatically access related data
+in other PUDL tables based on the EIA plant and generator IDs.
+
+
+
+Who submits this data?
+----------------------
+
+
+This data does not come from a government agency, and is not the result of compulsory
+data reporting.
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+We have archived the original GridPath RA Toolkit renewable generation profile data
+`on Zenodo <https://doi.org/10.5281/zenodo.10844661>`__. This is a manually compiled
+archive, because the source data is not being updated, and not all of the data included
+in the original release can be redistributed under an open license.
+
+The original data was published as a collection of CSV files. In many cases each CSV
+contains a capacity factor time series for a single transmission zone or generator,
+with the name of the file indicating what transmission zone or generator the data
+pertains to. The timestamps associated with those records are typically stored in a
+separate standalone CSV file, with the data and time index being aligned based on row
+number.
+
+The archive contains data at 3 different levels of processing and aggregation. Thus far
+we have only integrated the most processed, most immediately usable version. For more
+detail on the processing techniques see the Appendices of the `GridPath RA Toolkit
+report <https://gridlab.org/gridpathratoolkit/>`__
+
+The least processed version includes modeled hourly capacity factors for individual wind
+and solar resources, at the plant level for wind and the generator level for solar.
+With thousands of individual generators and data spanning multiple decades this data
+contains hundreds of millions of records.
+
+These profiles are aggregated to the level of transmission zones, weighted by the
+nameplate capacity of each facility.
+
+The data is then extended with synthetic data so that both the wind and solar data cover
+the same time period. The wind data for 2015-2020 is synthetic, as is the solar data
+from 2020. This is currently the only capacity data that has been integrated into PUDL.
+
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+We are still in the early stages of integrating the GridPath RA Toolkit data into PUDL.
+This section will be updated as we learn more about the particularities of this dataset.
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.gridpathratoolkit` created for each table's
+respective transform function.

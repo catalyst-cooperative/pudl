@@ -1,0 +1,30 @@
+pudl.metadata.resources.censusdp1tract
+======================================
+
+.. py:module:: pudl.metadata.resources.censusdp1tract
+
+.. autoapi-nested-parse::
+
+   Resources derived from the US Census Demographic Profile 1 dataset.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.censusdp1tract.CENSUS_DP1_DEMOGRAPHIC_COLUMNS
+   pudl.metadata.resources.censusdp1tract.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: CENSUS_DP1_DEMOGRAPHIC_COLUMNS
+   :value: ['dp0010001', 'dp0010002', 'dp0010003', 'dp0010004', 'dp0010005', 'dp0010006', 'dp0010007',...
+
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
