@@ -19,7 +19,7 @@ sources:
           - name: operating_time_hours
           - name: gross_load_mw
           - name: heat_content_mmbtu
-          - name: steam_load_1000_lbs
+          - name: steam_load_lbs
           - name: so2_mass_lbs
           - name: so2_mass_measurement_code
           - name: nox_mass_lbs

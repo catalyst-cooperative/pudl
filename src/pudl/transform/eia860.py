@@ -1012,6 +1012,15 @@ def _core_eia860__boilers(
         )
     )
 
+    # Convert max steam flow from '1000 lbs per hour' to 'lbs per hour'
+    b_df["max_steam_flow_1000_lbs_per_hour"] *= 1000
+    b_df.columns = b_df.columns.str.replace(
+        "1000_lbs_per_hour", "lbs_per_hour"
+    )  # Rename columns
+    b_df.loc[:, "max_steam_flow_lbs_per_hour"] = b_df.loc[
+        :, "max_steam_flow_lbs_per_hour"
+    ].round(-2)
+
     # Prior to 2012, efficiency was reported as a percentage, rather than
     # as a proportion, so we need to divide those values by 100.
     b_df.loc[b_df.report_date.dt.year < 2012, "efficiency_100pct_load"] = (
