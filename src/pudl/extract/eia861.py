@@ -36,7 +36,7 @@ class Extractor(excel.ExcelExtractor):
             stacklevel=1,
         )
 
-    def process_raw(self, df, page, **partition):
+    def process_raw(self, df: pd.DataFrame, page: str, **partition):
         """Rename columns with location."""
         # for 2024 we began mapping the columns using the string names instead of
         # the numeric location.
@@ -62,14 +62,14 @@ class Extractor(excel.ExcelExtractor):
         return df
 
     @staticmethod
-    def process_renamed(df, page, **partition):
+    def process_renamed(df: pd.DataFrame, page: str, **partition):
         """Adds report_year column if missing."""
         if "report_year" not in df.columns:
             df["report_year"] = list(partition.values())[0]
         return df
 
     @staticmethod
-    def get_dtypes(page, **partition):
+    def get_dtypes(page: str, **partition):
         """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),
