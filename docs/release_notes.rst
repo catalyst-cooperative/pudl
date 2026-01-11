@@ -39,6 +39,14 @@ Enhancements
 
 New Data
 ^^^^^^^^
+* Adds a new ETL for FERC EQR data, as well as associated infrastructure for running
+  the job and publishing outputs, which can be found at
+  ``s3://pudl.catalyst.coop/ferceqr``. There are 4 new tables which are produced by
+  this ETL including, :ref:`core_ferceqr__quarterly_identity`,
+  :ref:`core_ferceqr__contracts`, :ref:`core_ferceqr__quarterly_index_pub`, and
+  :ref:`core_ferceqr__transactions`. Due to the size of this data, the tables are split
+  into a set of parquet files partitioned by year-quarter, and cannot be downloaded
+  as a single file like other PUDL tables.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -51,8 +59,16 @@ EIA-860M
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Bug Fixes
-^^^^^^^^^
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Standardized ``max_steam_flow_1000_lbs_per_hour`` to ``max_steam_flow_lbs_per_hour``.
+  Units changed to "lbs_per_hour" and rounded to nearest 100 lbs in the
+  :ref:`core_eia860__scd_boilers` and :ref:`out_eia__yearly_boilers` tables. See issue
+  :issue:`4301` and PR :pr:`4810`.
+* Standardized ``steam_load_1000_lbs`` to ``steam_load_lbs``. Units changed to "lbs" in
+  the :ref:`core_epacems__hourly_emissions` table. See issue :issue:`4301` and PR
+  :pr:`4810`.
 
 * Corrected incorrect column mappings in :ref:`core_eia861__yearly_reliability` and
   ``raw_eia861__frame`` that were introduced for 2024 data during the EIA 861 2024
