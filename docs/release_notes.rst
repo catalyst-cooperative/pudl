@@ -40,6 +40,12 @@ Enhancements
 New Data
 ^^^^^^^^
 
+RUS-12
+~~~~~~
+
+* Extracted data for top ten USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
+
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
