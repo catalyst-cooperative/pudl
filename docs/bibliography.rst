@@ -5,8 +5,8 @@ Bibliography
 Catalyst Publications
 ---------------------------------
 Data, software, and analyses that we have published for public use. We self-archive
-all of our publications
-`on Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__
+all of our publications and the input data for PUDL in the
+`Catalyst Cooperative Zenodo Community <https://zenodo.org/communities/catalyst-cooperative/>`__.
 
 .. bibliography:: catalyst_pubs.bib
     :all:
