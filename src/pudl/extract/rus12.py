@@ -80,5 +80,8 @@ def raw_rus12_asset_factory(in_page: str, out_page: str | None = None):
 
 raw_rus12_assets = [
     raw_rus12_asset_factory(in_page=in_page, out_page=out_page)
-    for in_page, out_page in {"statement_of_operations": None}.items()
+    for in_page, out_page in {
+        "statement_of_operations": None,
+        "financial_and_operating_report_sources_and_distribution": None,
+    }.items()
 ]
