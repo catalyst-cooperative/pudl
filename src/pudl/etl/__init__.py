@@ -106,9 +106,11 @@ out_module_groups = {
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
 
-ferceqr_deployment_assets = {
-    "ferceqr_deployment": [ferceqr_deployment],
-}
+ferceqr_deployment_assets = (
+    {"ferceqr_deployment": [ferceqr_deployment]}
+    if os.getenv("FERCEQR_BUILD", None)
+    else {}
+)
 
 all_asset_modules = (
     raw_module_groups
