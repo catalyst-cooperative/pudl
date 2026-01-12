@@ -42,12 +42,12 @@ following criteria for three consecutive years prior to reporting:
 .. note::
 
    Publicly owned utilities and member-owned electric cooperatives are not required
-   to file the FERC Form 1. However, many of them do file the analogous USDA Forms
-   7 and 12.
+   to file the FERC Form 1. However, many of them do file the analogous USDA Rural
+   Utilities Service (RUS) Forms 7 and 12.
 
-Annual responses are due in April of the following year, with new XBRL filings being
-added to FERC's RSS feed on a rolling basis. Revisions and late filings typically
-continue to trickle in for months after the filing deadline.
+Annual responses are due in April of the following year, with new XBRL filings added to
+FERC's RSS feed on a rolling basis. Revisions and late filings typically continue to
+trickle in for months after the filing deadline.
 {% endblock %}
 
 {% block original_data %}
@@ -56,12 +56,12 @@ General Comments
 ~~~~~~~~~~~~~~~~
 
 The FERC 1 database is poorly normalized and the data itself does not appear to be
-subject to much quality control. For more detailed context and documentation on a
-table-by-table basis, look at :doc:`/data_dictionaries/ferc1_db`.
+subject to much quality control. For this reason, we strongly encourage the use of
+the processed FERC data in the PUDL database when it is available.
 
-Many of the FERC Form 1 tables in PUDL contain a ``record_id`` that indicates what
-original table and record in either the XBRL or DBF derived SQLite databases the data
-came from for forensic / data provenance purposes. The ``record_id`` is NOT in general a
+To identify the source data for each record, many of the FERC Form 1 tables in PUDL
+contain a ``record_id`` field that indicates what table and record originates from (in
+either the XBRL or DBF-derived SQLite databases). The ``record_id`` is not in general a
 unique identifier within a given PUDL database table, because in many cases the original
 data has been reshaped and normalized such that several records in the PUDL database can
 be traced back to a single record in the original data.
@@ -129,11 +129,21 @@ performed on the column inaccurate. Sometimes there are values reported for the 
 rows and not the individual plants making them difficult to simply remove. Moreover,
 these duplicate rows are incredibly difficult to identify.
 
-To improve the usability of this data we have manually compiled a mapping between the
-FERC utility IDs (which differ between the DBF and XBRL data) and EIA utility IDs,
-allowing individual utilities to be traced through all years of reporting across
-multiple datasets. We also manually map FERC plant names to EIA plant IDs, and associate
-related plant records across multiple years of reporting within the FERC data.
+To improve the usability of this data we have done a lot of work to link FERC plants
+and utilities to their EIA counterparts, and to associate related FERC plant records
+across different reporting years.
+
+* We have manually compiled a mapping between the FERC utility IDs for the DBF and XBRL
+  reporting eras.
+* We have manually compiled a mapping between those unified FERC utilities and the
+  corresponding EIA utilities.
+* We have compiled a manual mapping between the FERC plant names and corresponding EIA
+  plant IDs.
+* We have created a programmatic, probabilistic linkage between sub-plant parts
+  reporting in FERC Form 1 and the associated generators, prime movers, ownership, or
+  other slices of EIA plants.
+* We have created a programmatic, probabilistic linkage between related FERC plant
+  records, since FERC does not use plant IDs.
 
 We have only integrated a small subset of the available Form 1 tables. If there's data
 you need from Form 1 in bulk, you can `hire us <https://catalyst.coop/hire-catalyst/>`__

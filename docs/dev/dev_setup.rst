@@ -80,7 +80,6 @@ our tests. Previously we used a mix of ``mamba``, ``conda-lock``, and ``make`` t
 provide this functionality. Pixi is much faster, more flexible, under very active,
 development, and lets us use one tool instead of three.
 
-
 See `the Pixi installation guide <https://pixi.prefix.dev/latest/installation/>`__.
 
 With ``pixi`` installed, to install all of PUDL's dependencies and set up the
@@ -91,19 +90,24 @@ development environment, from the root of the PUDL repository run:
     $ pixi install
 
 This will create the environment and install the PUDL package in editable mode. Pixi
-automatically activates the environment when you run commands with ``pixi run``, so you
-don't need to manually activate environments like you would with conda. If you prefer
-to enable the environment and forget about it, you can use ``pixi shell``, but note
-that this may complicate switching between different environments.
+automatically runs commands within the environment associated with your current
+directory when you prefix them with ``pixi run``, so you don't need to manually activate
+environments like you would with conda. If you prefer to enable the environment and
+forget about it, you can use ``pixi shell``, but note that you will need to run ``exit``
+to get out of that shell when switching environments.
 
-To see all available tasks defined in the project, run:
+``pixi run`` is also used to run tasks that have been defined in ``pyproject.toml``.
+To see all the available tasks defined in the project, run:
 
 .. code-block:: console
 
     $ pixi task list
 
-There's also additional information about running tests in the :doc:`testing`
-documentation.
+When defining a new task, make sure the name doesn't clash with a generic shell command,
+otherwise the named task will take precedence and make it impossible to run the shell
+command in the pixi environment.
+
+There's additional information about running tests in the :doc:`testing` documentation.
 
 -------------------------------------------------------------------------------
 Updating the PUDL Development Environment
