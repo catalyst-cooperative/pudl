@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 import boto3
+import botocore.exceptions
+import gcsfs.retry
 import google.auth
+import google.auth.exceptions
 from upath import UPath
 
 import pudl.logging_helpers
@@ -96,6 +99,7 @@ class UPathCache(AbstractCache):
 
         # Initialize UPath with appropriate storage options
         self._storage_options = self._setup_credentials()
+
         self._base_path = UPath(storage_upath, **self._storage_options)
 
         logger.debug(
@@ -122,6 +126,11 @@ class UPathCache(AbstractCache):
                 # No credentials available, use anonymous access for public buckets
                 logger.debug("No AWS credentials found, using anonymous S3 access")
                 storage_options["anon"] = True
+                if not self._read_only:
+                    logger.warning(
+                        "Marking cache as read-only due to missing credentials."
+                    )
+                    self._read_only = True
             else:
                 logger.debug("Using AWS credentials for S3 access")
                 storage_options["anon"] = False
@@ -135,12 +144,16 @@ class UPathCache(AbstractCache):
                 # We can pass the project for requester-pays buckets
                 if project_id:
                     storage_options["project"] = project_id
-            except Exception as e:
+            except google.auth.exceptions.GoogleAuthError as e:
                 logger.warning(
                     f"Could not load GCP credentials: {e}. Attempting anonymous access."
                 )
                 storage_options["token"] = "anon"  # noqa: S105
-
+                if not self._read_only:
+                    logger.warning(
+                        "Marking cache as read-only due to missing credentials."
+                    )
+                    self._read_only = True
         # For local filesystem, no special credentials needed
         return storage_options
 
@@ -155,7 +168,7 @@ class UPathCache(AbstractCache):
         """
         return self._base_path / resource.get_local_path()
 
-    def _is_anonymous(self) -> bool:
+    def is_anonymous(self) -> bool:
         """Returns True if the cache is using anonymous access (no credentials)."""
         if self._protocol == "s3":
             return self._storage_options.get("anon", False)
@@ -195,14 +208,11 @@ class UPathCache(AbstractCache):
             RuntimeError: if cache is read-only or credentials are insufficient
         """
         if self.is_read_only():
-            logger.warning(f"Read only cache: ignoring add({resource})")
-            return
-
-        # Check if we can write (for S3/GCS without credentials)
-        if self._is_anonymous():
-            raise RuntimeError(
-                f"Cannot write to {self._protocol.upper()} without credentials."
-            )
+            if self.is_anonymous():
+                reason = "Only anonymous credentials are available."
+            else:
+                reason = "The cache was explicitly initialized with read_only=True."
+            raise RuntimeError(f"Cannot add {resource} to cache. {reason}")
 
         path = self._resource_path(resource)
         logger.debug(f"Adding {resource} to UPath cache at {path}")
@@ -211,7 +221,14 @@ class UPathCache(AbstractCache):
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Write the content
-        path.write_bytes(content)
+        try:
+            path.write_bytes(content)
+        except (OSError, botocore.exceptions.ClientError, gcsfs.retry.HttpError) as e:
+            # If we aren't read-only but writing failed, it's likely a permission issue
+            raise RuntimeError(
+                f"Failed to write {resource} to cache. You have credentials, "
+                "but they may not give you write permissions for this object."
+            ) from e
 
     def delete(self, resource: PudlResourceKey):
         """Deletes resource from the cache.
@@ -223,23 +240,23 @@ class UPathCache(AbstractCache):
             RuntimeError: if cache is read-only or credentials are insufficient
         """
         if self.is_read_only():
-            logger.warning(f"Read only cache: ignoring delete({resource})")
-            return
-
-        # Check if we can write (for S3/GCS without credentials)
-        if self._is_anonymous():
-            raise RuntimeError(
-                f"Cannot delete from {self._protocol.upper()} without credentials."  # noqa: S608
-            )
+            if self.is_anonymous():
+                reason = "Only anonymous credentials are available."
+            else:
+                reason = "The cache was explicitly initialized with read_only=True."
+            raise RuntimeError(f"Cannot delete {resource} from cache. {reason}")
 
         path = self._resource_path(resource)
         logger.debug(f"Deleting {resource} from UPath cache at {path}")
 
         try:
             path.unlink(missing_ok=True)
-        except Exception as e:
+        except (OSError, botocore.exceptions.ClientError, gcsfs.retry.HttpError) as e:
             logger.error(f"Error deleting {resource} from UPath cache: {e}")
-            raise
+            raise RuntimeError(
+                f"Failed to delete {resource} from cache. You have credentials, "
+                "but they may not give you write permissions for this object."
+            ) from e
 
     def contains(self, resource: PudlResourceKey) -> bool:
         """Returns True if resource is present in the cache.

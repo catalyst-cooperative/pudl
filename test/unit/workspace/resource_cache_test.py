@@ -1,5 +1,6 @@
 """Unit tests for resource_cache."""
 
+import google.auth.exceptions
 import pytest
 from upath import UPath
 
@@ -133,7 +134,9 @@ class TestUPathCache:
     def mock_gcp_no_credentials(self, mocker):
         """Fixture providing mocked GCP auth that fails."""
         mock_auth = mocker.patch("pudl.workspace.resource_cache.google.auth.default")
-        mock_auth.side_effect = Exception("No credentials found")
+        mock_auth.side_effect = google.auth.exceptions.DefaultCredentialsError(
+            "No credentials found"
+        )
         return {"auth": mock_auth}
 
     def test_invalid_schemes(self):
@@ -160,6 +163,7 @@ class TestUPathCache:
         s3_cache = UPathCache(UPath("s3://public-bucket/path"))
         assert s3_cache._protocol == "s3"
         assert s3_cache._storage_options.get("anon") is True
+        assert s3_cache.is_read_only()
 
     def test_gcs_with_credentials(self, mock_gcp_credentials):
         """Test GCS cache initialization with credentials."""
@@ -172,6 +176,7 @@ class TestUPathCache:
         gcs_cache = UPathCache(UPath("gs://public-bucket/path"))
         assert gcs_cache._protocol == "gs"
         assert gcs_cache._storage_options.get("token") == "anon"
+        assert gcs_cache.is_read_only()
 
     def test_local_filesystem_operations(self, tmp_path):
         """Test add, get, delete, contains, and resource path construction on local filesystem."""
@@ -212,18 +217,26 @@ class TestUPathCache:
         res = PudlResourceKey("dataset", "doi", "file.txt")
         write_cache.add(res, b"content")
 
-        # Read-only cache should not allow modifications
+        # Read-only cache should not allow modifications, and should raise RuntimeError
         ro_cache = UPathCache(UPath(f"file://{tmp_path}"), read_only=True)
         assert ro_cache.is_read_only()
         assert ro_cache.contains(res)
 
-        # Add should do nothing
+        # Add should raise RuntimeError
         new_res = PudlResourceKey("dataset", "doi", "new.txt")
-        ro_cache.add(new_res, b"content")
+        with pytest.raises(
+            RuntimeError,
+            match="Cannot add .* to cache. The cache was explicitly initialized with read_only=True.",
+        ):
+            ro_cache.add(new_res, b"content")
         assert not ro_cache.contains(new_res)
 
-        # Delete should do nothing
-        ro_cache.delete(res)
+        # Delete should raise RuntimeError
+        with pytest.raises(
+            RuntimeError,
+            match="Cannot delete .* from cache. The cache was explicitly initialized with read_only=True.",
+        ):
+            ro_cache.delete(res)
         assert ro_cache.contains(res)
 
     def test_s3_write_operations_without_credentials(self, mock_s3_no_credentials):
@@ -231,12 +244,14 @@ class TestUPathCache:
         res = PudlResourceKey("dataset", "doi", "file.txt")
         s3_cache = UPathCache(UPath("s3://public-bucket/path"))
 
+        assert s3_cache.is_read_only()
         with pytest.raises(
-            RuntimeError, match="Cannot write to S3 without credentials"
+            RuntimeError, match="Cannot add .* to cache. Only anonymous credentials"
         ):
             s3_cache.add(res, b"content")
         with pytest.raises(
-            RuntimeError, match="Cannot delete from S3 without credentials"
+            RuntimeError,
+            match="Cannot delete .* from cache. Only anonymous credentials",
         ):
             s3_cache.delete(res)
 
@@ -245,11 +260,13 @@ class TestUPathCache:
         res = PudlResourceKey("dataset", "doi", "file.txt")
         gcs_cache = UPathCache(UPath("gs://public-bucket/path"))
 
+        assert gcs_cache.is_read_only()
         with pytest.raises(
-            RuntimeError, match="Cannot write to GS without credentials"
+            RuntimeError, match="Cannot add .* to cache. Only anonymous credentials"
         ):
             gcs_cache.add(res, b"content")
         with pytest.raises(
-            RuntimeError, match="Cannot delete from GS without credentials"
+            RuntimeError,
+            match="Cannot delete .* from cache. Only anonymous credentials",
         ):
             gcs_cache.delete(res)

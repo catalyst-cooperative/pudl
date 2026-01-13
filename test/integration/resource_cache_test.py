@@ -93,7 +93,12 @@ class TestUPathCacheIntegration:
         try:
             cache = UPathCache(UPath(gcs_test_cache_path), read_only=False)
         except Exception as e:
-            pytest.skip(f"Could not initialize GCS cache: {e}")
+            if "Anonymous caller" in str(e) or "401" in str(e):
+                pytest.skip(f"Could not initialize writable GCS cache: {e}")
+            raise e
+
+        if cache.is_read_only():
+            pytest.skip("Could not initialize writable GCS cache (mode fallback).")
 
         # Test content
         test_content = b"UPath GCS integration test data"
@@ -131,11 +136,10 @@ class TestLayeredCacheIntegration:
         # Create three cache layers
         local_cache = UPathCache(UPath(f"file://{tmp_path}"))
 
-        try:
-            gcs_cache = UPathCache(UPath(gcs_test_cache_path))
-        except Exception:
-            # The test will be skipped if we do not have access to GCS credentials
-            pytest.skip("Could not initialize GCS cache")
+        gcs_cache = UPathCache(UPath(gcs_test_cache_path))
+        # The test will be skipped if we do not have access to GCS credentials
+        if gcs_cache.is_read_only():
+            pytest.skip("Could not initialize writeable GCS cache")
 
         s3_cache = UPathCache(UPath("s3://pudl.catalyst.coop/zenodo"), read_only=True)
 
