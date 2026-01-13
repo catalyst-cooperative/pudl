@@ -63,5 +63,6 @@ raw_rus7_assets = [
         "meeting_and_board": None,
         "long_term_debt": None,
         "power_requirements": None,
+        "energy_efficiency": None,
     }.items()
 ]
