@@ -1,3 +1,4 @@
+import contextlib
 import json
 import logging
 import re
@@ -93,14 +94,25 @@ def test_update_tables(
 
 # Has to run after test_dbt above otherwise dbt dependencies aren't installed
 @pytest.mark.order(5)
-def test_validate_asset_selection():
+def test_validate_asset_selection(caplog):
+    caplog.set_level(logging.INFO)
     runner = CliRunner()
-    result = runner.invoke(
-        dbt_helper,
-        ["validate", "--dry-run", "--asset-select", '+key:"core_eia860_*"'],
-    )
-    output = result.output
-    if "node_selection" not in result.output:
+    # Workaround for https://github.com/pallets/click/issues/3110
+    # Use isolation() directly instead of invoke() to avoid "ValueError: I/O operation on closed file"
+    with runner.isolation(), contextlib.suppress(SystemExit):
+        dbt_helper.main(
+            args=[
+                "validate",
+                "--dry-run",
+                "--asset-select",
+                '+key:"core_eia860_*"',
+            ],
+            prog_name="dbt_helper",
+            standalone_mode=False,
+        )
+
+    output = caplog.text
+    if "node_selection" not in output:
         raise AssertionError(f"Unexpected output: {output}")
     out_params = json.loads(re.search(r"({.+})", output).group(0))
     obs_node_selection = out_params["node_selection"].split(" ")
