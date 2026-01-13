@@ -84,5 +84,6 @@ raw_rus12_assets = [
         "statement_of_operations": None,
         "balance_sheet": None,
         "financial_and_operating_report_sources_and_distribution": None,
+        "renewable_summary": None,
     }.items()
 ]
