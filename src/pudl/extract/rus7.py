@@ -59,5 +59,6 @@ raw_rus7_assets = [
         "balance_sheet": None,
         "borrowers": None,
         "employee_statistics": None,
+        "patronage_capital": None,
     }.items()
 ]
