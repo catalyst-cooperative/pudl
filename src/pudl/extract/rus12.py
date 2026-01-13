@@ -48,10 +48,10 @@ class Extractor(CsvExtractor):
         """
         filename = self.source_filename(page, **partition)
         # Only use federal-level data (exclude state zipfiles)
-        partitions = {"year": partition.get("year"), "geography": "all"}
+        partition.update({"geography": "all"})
 
         with (
-            self.ds.get_zipfile_resource(self._dataset_name, **partitions) as zf,
+            self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
             zf.open(filename) as f,
         ):
             df = pd.read_csv(f, **self.READ_CSV_KWARGS)
