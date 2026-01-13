@@ -57,5 +57,6 @@ raw_rus7_assets = [
     for in_page, out_page in {
         "statement_of_operations": None,
         "balance_sheet": None,
+        "borrowers": None,
     }.items()
 ]
