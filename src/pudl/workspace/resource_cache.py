@@ -155,6 +155,14 @@ class UPathCache(AbstractCache):
         """
         return self._base_path / resource.get_local_path()
 
+    def _is_anonymous(self) -> bool:
+        """Returns True if the cache is using anonymous access (no credentials)."""
+        if self._protocol == "s3":
+            return self._storage_options.get("anon", False)
+        if self._protocol == "gs":
+            return self._storage_options.get("token") == "anon"
+        return False
+
     def get(self, resource: PudlResourceKey) -> bytes:
         """Retrieves value associated with given resource.
 
@@ -191,16 +199,9 @@ class UPathCache(AbstractCache):
             return
 
         # Check if we can write (for S3/GCS without credentials)
-        if self._protocol == "s3" and self._storage_options.get("anon", False):
+        if self._is_anonymous():
             raise RuntimeError(
-                "Cannot write to S3 without credentials. "
-                "Please configure AWS credentials to write to S3."
-            )
-
-        if self._protocol == "gs" and self._storage_options.get("token") == "anon":
-            raise RuntimeError(
-                "Cannot write to GCS without credentials. "
-                "Please configure GCP credentials to write to GCS."
+                f"Cannot write to {self._protocol.upper()} without credentials."
             )
 
         path = self._resource_path(resource)
@@ -226,16 +227,9 @@ class UPathCache(AbstractCache):
             return
 
         # Check if we can write (for S3/GCS without credentials)
-        if self._protocol == "s3" and self._storage_options.get("anon", False):
+        if self._is_anonymous():
             raise RuntimeError(
-                "Cannot delete from S3 without credentials. "
-                "Please configure AWS credentials to delete from S3."
-            )
-
-        if self._protocol == "gs" and self._storage_options.get("token") == "anon":
-            raise RuntimeError(
-                "Cannot delete from GCS without credentials. "
-                "Please configure GCP credentials to delete from GCS."
+                f"Cannot delete from {self._protocol.upper()} without credentials."  # noqa: S608
             )
 
         path = self._resource_path(resource)
@@ -256,13 +250,7 @@ class UPathCache(AbstractCache):
         Returns:
             True if the resource exists, False otherwise
         """
-        path = self._resource_path(resource)
-
-        try:
-            return path.exists()
-        except Exception as e:
-            logger.debug(f"Error checking if {resource} exists: {e}")
-            return False
+        return self._resource_path(resource).exists()
 
 
 class LayeredCache(AbstractCache):

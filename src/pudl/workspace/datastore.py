@@ -389,7 +389,7 @@ class Datastore:
         )
         if local_cache_path is not None:
             # Convert to UPath with explicit file:// protocol if needed
-            local_upath = UPath(local_cache_path)
+            local_upath = UPath(local_cache_path).resolve()
             if local_upath.protocol == "":
                 # Local filesystem path without scheme - add file:// protocol
                 local_upath = UPath(f"file://{local_cache_path}")

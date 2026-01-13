@@ -246,24 +246,10 @@ class TestUPathCache:
         gcs_cache = UPathCache(UPath("gs://public-bucket/path"))
 
         with pytest.raises(
-            RuntimeError, match="Cannot write to GCS without credentials"
+            RuntimeError, match="Cannot write to GS without credentials"
         ):
             gcs_cache.add(res, b"content")
         with pytest.raises(
-            RuntimeError, match="Cannot delete from GCS without credentials"
+            RuntimeError, match="Cannot delete from GS without credentials"
         ):
             gcs_cache.delete(res)
-
-    def test_contains_error_handling(self, tmp_path, mocker):
-        """Test that contains() handles exceptions gracefully."""
-        cache = UPathCache(UPath(f"file://{tmp_path}"))
-        res = PudlResourceKey("dataset", "doi", "file.txt")
-
-        # Mock the exists() method to raise an exception
-        mock_path = mocker.patch.object(cache, "_resource_path")
-        mock_upath = mocker.Mock()
-        mock_upath.exists.side_effect = Exception("Connection error")
-        mock_path.return_value = mock_upath
-
-        # Should return False instead of raising
-        assert not cache.contains(res)

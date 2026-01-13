@@ -6,11 +6,10 @@ storage backends (S3, GCS, local filesystem) to cache PUDL data.
 
 import contextlib
 import logging
+from uuid import uuid4
 
 import pytest
-from requests.exceptions import ConnectionError, RetryError  # noqa: A004
 from upath import UPath
-from urllib3.exceptions import MaxRetryError, ResponseError
 
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.resource_cache import LayeredCache, PudlResourceKey, UPathCache
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 @pytest.fixture
 def gcs_test_cache_path():
     """Provide the GCS test cache path and ensure cleanup after tests."""
-    cache_path = "gs://test.catalyst.coop/zenodo"
+    cache_path = f"gs://test.catalyst.coop/zenodo/{uuid4()}"
     yield cache_path
 
     # Cleanup: Remove all objects under the test path using UPath
@@ -63,14 +62,6 @@ class TestUPathCacheIntegration:
         cache.delete(sample_resource)
         assert not cache.contains(sample_resource)
 
-    @pytest.mark.xfail(
-        raises=(
-            MaxRetryError,
-            ConnectionError,
-            RetryError,
-            ResponseError,
-        )
-    )
     def test_read_from_s3_via_upath(self, tmp_path):
         """Test reading from PUDL's public S3 bucket using UPathCache."""
         # Create UPath caches for S3 (read-only) and local (read-write)
@@ -135,14 +126,6 @@ class TestUPathCacheIntegration:
 class TestLayeredCacheIntegration:
     """Integration tests for LayeredCache with real storage backends."""
 
-    @pytest.mark.xfail(
-        raises=(
-            MaxRetryError,
-            ConnectionError,
-            RetryError,
-            ResponseError,
-        )
-    )
     def test_three_layer_cache_with_s3(self, tmp_path, gcs_test_cache_path):
         """Test a three-layer cache: local -> GCS (read-write) -> S3 (read-only)."""
         # Create three cache layers
