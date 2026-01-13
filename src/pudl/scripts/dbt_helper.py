@@ -20,7 +20,7 @@ from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
-logger.parent.propagate = False
+# logger.parent.propagate = False
 
 
 ALL_TABLES = [r.name for r in PUDL_PACKAGE.resources]
