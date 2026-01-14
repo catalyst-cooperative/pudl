@@ -17,6 +17,9 @@ class Extractor(CsvExtractor):
             ds (:class:datastore.Datastore): Initialized datastore.
         """
         self.METADATA = GenericMetadata("rus12")
+        # add this index_col arg bc if not read_csv assumes the first col
+        # is the index and weirdly shifts the header names over its insufferable
+        self.READ_CSV_KWARGS = {"index_col": False}
         super().__init__(*args, **kwargs)
 
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
@@ -47,8 +50,6 @@ class Extractor(CsvExtractor):
             pd.DataFrame instance containing CSV data
         """
         filename = self.source_filename(page, **partition)
-        # Only use federal-level data (exclude state zipfiles)
-        partition.update({"geography": "all"})
 
         with (
             self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
@@ -83,7 +84,7 @@ raw_rus12_assets = [
     for in_page, out_page in {
         "statement_of_operations": None,
         "balance_sheet": None,
-        "financial_and_operating_report_sources_and_distribution": None,
+        "sources_and_distribution": None,
         "renewable_summary": None,
     }.items()
 ]
