@@ -48,6 +48,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "asset_type",  # enum (list below)
+                "assets",  # $s
                 "is_total",
             ],
             "primary_key": [
@@ -73,6 +74,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "liability_type",  # enum (list below)
+                "liabilities",  # $s
                 "is_total",
             ],
             "primary_key": [
