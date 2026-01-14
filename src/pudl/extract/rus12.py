@@ -84,5 +84,6 @@ raw_rus12_assets = [
     for in_page, out_page in {
         "statement_of_operations": None,
         "balance_sheet": None,
+        "sources_and_distribution": None,
     }.items()
 ]
