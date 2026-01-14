@@ -94,6 +94,7 @@ def test_update_tables(
 
 # Has to run after test_dbt above otherwise dbt dependencies aren't installed
 @pytest.mark.order(5)
+@pytest.mark.xfail(reason="Logs swallowed by pytest. Revisit when click >=8.3.2")
 def test_validate_asset_selection(caplog):
     caplog.set_level(logging.INFO)
     runner = CliRunner()
