@@ -3,8 +3,42 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2026.X.x (2026-XX-XX)
+v2026.XX.X (2026-XX-XX)
 ---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _release-v2026.1.0:
+
+---------------------------------------------------------------------------------------
+v2026.1.0 (2026-01-14)
+---------------------------------------------------------------------------------------
+
+This is a regular monthly data release, primarily intended to ensure that PUDL has the
+most up-to-date EIA-860M data. Along for the ride are the initial ETL for FERC EQR data,
+changes to the build system, and nicer units on a few columns.
 
 Application, not Library
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -23,7 +57,7 @@ who will continue to work within the development environment. See :doc:`dev/dev_
 for instructions on how to set it up. See PR :pr:`4871` for where many of these changes
 were made.
 
-* We are no longer publishng PUDL releases as packages on `PyPI <https://pypi.org/project/catalystcoop.pudl/>`__
+* We are no longer publishing PUDL releases as packages on `PyPI <https://pypi.org/project/catalystcoop.pudl/>`__
   or `conda-forge <https://anaconda.org/channels/conda-forge/packages/catalystcoop.pudl/overview>`__.
 * Instead, PUDL will need to be installed from source, and is expected to be run in a
   locked environment, and not specified as a normal dependency in other projects.
@@ -39,7 +73,7 @@ Enhancements
 
 New Data
 ^^^^^^^^
-* Adds a new ETL for FERC EQR data, as well as associated infrastructure for running
+* Added a new ETL for FERC EQR data, as well as associated infrastructure for running
   the job and publishing outputs, which can be found at
   ``s3://pudl.catalyst.coop/ferceqr``. There are 4 new tables which are produced by
   this ETL including, :ref:`core_ferceqr__quarterly_identity`,
