@@ -107,6 +107,10 @@ class UPathCache(AbstractCache):
             f"base_path={self._base_path}"
         )
 
+    def __repr__(self) -> str:
+        """Returns string representation of UPathCache."""
+        return f"UPathCache(storage_path={self._base_path})"
+
     def _setup_credentials(self) -> dict[str, Any]:
         """Set up backend-specific credentials and storage options.
 
@@ -311,25 +315,29 @@ class LayeredCache(AbstractCache):
         """
         for i, cache in enumerate(self._caches):
             if cache.contains(resource):
-                logger.debug(
-                    f"get:{resource} found in layer {i} ({cache.__class__.__name__})."
-                )
+                logger.debug(f"get:{resource} found in layer {i} ({cache}).")
                 content = cache.get(resource)
 
                 # Populate all closer cache layers with this content
                 for j in range(i):
                     closer_cache = self._caches[j]
                     if not closer_cache.is_read_only():
+                        if closer_cache.contains(resource):
+                            logger.debug(
+                                f"{resource} already exists in layer {j} "
+                                f"({closer_cache}). Skipping update."
+                            )
+                            continue
                         logger.debug(
                             f"Populating {resource} into closer layer {j} "
-                            f"({closer_cache.__class__.__name__}) from layer {i}"
+                            f"({closer_cache}) from layer {i}"
                         )
                         try:
                             closer_cache.add(resource, content)
                         except Exception as e:
                             logger.warning(
                                 f"Failed to populate {resource} into layer {j} "
-                                f"({closer_cache.__class__.__name__}): {e}"
+                                f"({closer_cache}): {e}"
                             )
 
                 return content
@@ -344,11 +352,15 @@ class LayeredCache(AbstractCache):
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue
-            logger.debug(f"Adding {resource} to cache {cache_layer.__class__.__name__}")
+            if cache_layer.contains(resource):
+                logger.debug(
+                    f"{resource} already exists in layer {cache_layer}. "
+                    "Skipping update."
+                )
+                continue
+            logger.debug(f"Adding {resource} to cache {cache_layer}")
             cache_layer.add(resource, content)
-            logger.debug(
-                f"Added {resource} to cache layer {cache_layer.__class__.__name__})"
-            )
+            logger.debug(f"Added {resource} to cache layer {cache_layer})")
 
     def delete(self, resource: PudlResourceKey):
         """Removes resource from the cache if the cache is not in the read_only mode."""
@@ -364,9 +376,7 @@ class LayeredCache(AbstractCache):
         """Returns True if resource is present in the cache."""
         for i, cache in enumerate(self._caches):
             if cache.contains(resource):
-                logger.debug(
-                    f"contains: {resource} found in layer {i} ({cache.__class__.__name__})."
-                )
+                logger.debug(f"contains: {resource} found in layer {i} ({cache}).")
                 return True
         logger.debug(f"contains: {resource} not found in layered cache.")
         return False
@@ -376,8 +386,6 @@ class LayeredCache(AbstractCache):
         for cache_layer in self._caches:
             if cache_layer.is_read_only():
                 continue
-            logger.debug(
-                f"{resource} optimally cached in {cache_layer.__class__.__name__}"
-            )
+            logger.debug(f"{resource} optimally cached in {cache_layer}")
             return cache_layer.contains(resource)
         return False

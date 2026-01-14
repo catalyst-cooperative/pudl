@@ -46,6 +46,7 @@ class TestLayeredCache:
         assert self.layered_cache.get(res) == b"firstLayer"
 
         # Test updating all layers
+        self.layered_cache.delete(res)
         self.layered_cache.add(res, b"newContents")
         assert self.layered_cache.get(res) == b"newContents"
         assert self.cache_1.get(res) == b"newContents"
@@ -101,6 +102,56 @@ class TestLayeredCache:
         r_new = PudlResourceKey("a", "b", "new")
         ro_cache.add(r_new, b"xyz")
         assert not ro_cache.contains(r_new)
+
+    def test_skip_update_if_closer_layer_has_resource(self, mocker):
+        """Test that get() doesn't overwrite closer layer if it already has the resource."""
+        # Setup mocks
+        layer1 = mocker.Mock(spec=UPathCache)
+        layer2 = mocker.Mock(spec=UPathCache)
+
+        # Configure layer1 (local):
+        # 1. contains() returns False (during search)
+        # 2. contains() returns True (during update attempt)
+        layer1.contains.side_effect = [False, True]
+        layer1.is_read_only.return_value = False
+
+        # Configure layer2 (remote):
+        # contains() returns True (found here)
+        layer2.contains.return_value = True
+        layer2.get.return_value = b"content"
+
+        # Create layered cache
+        lc = LayeredCache(layer1, layer2)
+        res = PudlResourceKey("a", "b", "x")
+
+        # Execute
+        lc.get(res)
+
+        # Verify
+        layer1.add.assert_not_called()
+
+    def test_add_skips_existing_layers(self, mocker):
+        """Test that add() does not write to layers that already contain the resource."""
+        layer1 = mocker.Mock(spec=UPathCache)
+        layer2 = mocker.Mock(spec=UPathCache)
+
+        layer1.is_read_only.return_value = False
+        layer2.is_read_only.return_value = False
+
+        # layer1 doesn't have it, layer2 has it
+        layer1.contains.return_value = False
+        layer2.contains.return_value = True
+
+        lc = LayeredCache(layer1, layer2)
+        res = PudlResourceKey("a", "b", "x")
+        content = b"content"
+
+        lc.add(res, content)
+
+        # layer1 should be written to
+        layer1.add.assert_called_once_with(res, content)
+        # layer2 should NOT be written to because it already has it
+        layer2.add.assert_not_called()
 
 
 class TestUPathCache:
