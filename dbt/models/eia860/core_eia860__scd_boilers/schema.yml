@@ -32,7 +32,7 @@ sources:
                   wet_dry_bottom: EXTRACT(year FROM report_date) >= 2009
                   fly_ash_reinjection: EXTRACT(year FROM report_date) >= 2009
                   hrsg: EXTRACT(year FROM report_date) >= 2016
-                  max_steam_flow_1000_lbs_per_hour: EXTRACT(year FROM report_date) >= 2009
+                  max_steam_flow_lbs_per_hour: EXTRACT(year FROM report_date) >= 2009
                   turndown_ratio: EXTRACT(year FROM report_date) >= 2013
                   efficiency_100pct_load: EXTRACT(year FROM report_date) >= 2009
                   efficiency_50pct_load: EXTRACT(year FROM report_date) >= 2009
@@ -127,7 +127,7 @@ sources:
           - name: wet_dry_bottom
           - name: fly_ash_reinjection
           - name: hrsg
-          - name: max_steam_flow_1000_lbs_per_hour
+          - name: max_steam_flow_lbs_per_hour
           - name: turndown_ratio
           - name: efficiency_100pct_load
           - name: efficiency_50pct_load
