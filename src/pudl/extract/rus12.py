@@ -50,8 +50,6 @@ class Extractor(CsvExtractor):
             pd.DataFrame instance containing CSV data
         """
         filename = self.source_filename(page, **partition)
-        # Only use federal-level data (exclude state zipfiles)
-        partition.update({"geography": "all"})
 
         with (
             self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
