@@ -36,34 +36,33 @@ class Extractor(CsvExtractor):
 raw_rus7__all_dfs = raw_df_factory(Extractor, name="rus7")
 
 
-def raw_rus7_asset_factory(in_page: str, out_page: str | None = None):
-    """Create raw RUS 7 asset for a specific page."""
-    out_page = in_page if out_page is None else out_page
+def raw_rus7_asset_factory(table_name: str):
+    """Create raw RUS Form 7 asset for a specific page."""
 
-    @asset(name=f"raw_rus7__{out_page}")
+    @asset(name=f"raw_rus7__{table_name}")
     def _raw_rus7__page(raw_rus7__all_dfs: dict[str, pd.DataFrame]):
-        """Extract raw EIA 176 data from CSV sheets into dataframes.
+        """Extract raw RUS Form 7 data from CSV sheets into dataframes.
 
         Returns:
-            An extracted EIA 176 dataframe.
+            An extracted RUS Form 7 dataframe.
         """
-        return raw_rus7__all_dfs[in_page]
+        return raw_rus7__all_dfs[table_name]
 
     return _raw_rus7__page
 
 
 raw_rus7_assets = [
-    raw_rus7_asset_factory(in_page=in_page, out_page=out_page)
-    for in_page, out_page in {
-        "statement_of_operations": None,
-        "balance_sheet": None,
-        "borrowers": None,
-        "employee_statistics": None,
-        "patronage_capital": None,
-        "meeting_and_board": None,
-        "long_term_debt": None,
-        "power_requirements": None,
-        "energy_efficiency": None,
-        "investments": None,
-    }.items()
+    raw_rus7_asset_factory(table_name=table_name)
+    for table_name in [
+        "statement_of_operations",
+        "balance_sheet",
+        "borrowers",
+        "employee_statistics",
+        "patronage_capital",
+        "annual_meeting_and_board",
+        "long_term_debt",
+        "power_requirements",
+        "energy_efficiency",
+        "investments",
+    ]
 ]

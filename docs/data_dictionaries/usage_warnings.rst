@@ -37,7 +37,7 @@ FERC:
   FERC data is notoriously difficult to extract cleanly, and often contains
   free-form strings, non-labeled total rows and lack of IDs. See `Notable
   Irregularities
-  <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`_
+  <https://catalystcoop-pudl.readthedocs.io/en/latest/data_sources/ferc1.html#notable-irregularities>`__
   for details.
 
 Free text:
