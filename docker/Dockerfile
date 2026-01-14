@@ -12,7 +12,7 @@ SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
 # Install some linux packages
 # hadolint ignore=DL3008
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y git postgresql ca-certificates && \
+    apt-get install --no-install-recommends -y git postgresql inotify-tools psmisc ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

@@ -312,22 +312,28 @@ def _core_eia860__generators(
     ] = "PACE"
     gens_df = PUDL_PACKAGE.encode(gens_df, copy=False)
 
-    # spot fix one assumed to be bad technology description. It's assumed to be wrong
+    # spot fix one or two assumed to be bad technology description. It's assumed to be wrong
     # because we learned via pudl.output.eia.fill_generator_technology_description
     # that all other combos of PM code and ESC have a different technology. See #4788
-    # we have to do this after encodeing bc we are dealin with codes
+    # we have to do this after encoding bc we are dealing with codes
     bad_tech_mask = (
         (gens_df.technology_description == "All Other")
         & (gens_df.prime_mover_code == "OT")
         & (gens_df.energy_source_code_1 == "OG")
     )
-    expected_bad_tech_len = 1 if 2025 in gens_df.report_date.dt.year.unique() else 0
-    if len(gens_df[bad_tech_mask]) != expected_bad_tech_len:
+    expected_bad_tech_len_min = 1 if 2025 in gens_df.report_date.dt.year.unique() else 0
+    expected_bad_tech_len_max = 0 if expected_bad_tech_len_min == 0 else 2
+    if not (
+        expected_bad_tech_len_min
+        <= len(gens_df[bad_tech_mask])
+        <= expected_bad_tech_len_max
+    ):
         raise AssertionError(
-            f"Spot fixing: We expect to find {expected_bad_tech_len} record "
+            f"Spot fixing: We expect to find between {expected_bad_tech_len_min} "
+            f"and {expected_bad_tech_len_max} records "
             "which has what we assume is an incorrect technology description, "
             f"but we found: {len(gens_df[bad_tech_mask])}."
-            f"\n\n{gens_df[bad_tech_mask]}"
+            f"\n\n{gens_df[bad_tech_mask].dropna(axis=1, how='all')}"
         )
     gens_df.loc[bad_tech_mask, "technology_description"] = "Other Gases"
 
@@ -1005,6 +1011,15 @@ def _core_eia860__boilers(
             null_value=pd.NA,
         )
     )
+
+    # Convert max steam flow from '1000 lbs per hour' to 'lbs per hour'
+    b_df["max_steam_flow_1000_lbs_per_hour"] *= 1000
+    b_df.columns = b_df.columns.str.replace(
+        "1000_lbs_per_hour", "lbs_per_hour"
+    )  # Rename columns
+    b_df.loc[:, "max_steam_flow_lbs_per_hour"] = b_df.loc[
+        :, "max_steam_flow_lbs_per_hour"
+    ].round(-2)
 
     # Prior to 2012, efficiency was reported as a percentage, rather than
     # as a proportion, so we need to divide those values by 100.
