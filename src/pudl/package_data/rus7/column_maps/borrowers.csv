@@ -1,4 +1,4 @@
-year_index,borrower_id_rus,borrower_name,region_code,borrower_reporting_type,base_year
+year_index,borrower_id_rus,borrower_name_rus,region_code,borrower_reporting_type,base_year
 2006,rusborrowerid,borrowername,region,,
 2007,rusborrowerid,borrowername,region,,
 2008,rusborrowerid,borrowername,region,,
