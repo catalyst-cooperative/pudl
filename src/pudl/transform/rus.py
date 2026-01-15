@@ -3,6 +3,27 @@
 import pandas as pd
 
 import pudl.helpers as helpers
+import pudl.logging_helpers
+
+logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def early_check_pk(
+    df: pd.DataFrame,
+    pk_early: list[str] = ["report_date", "borrower_id_rus"],
+    raise_fail=True,
+) -> None:
+    """Check the expected primary key of the table.
+
+    By default the expected primary key is ["report_date", "borrower_id_rus"].
+    """
+    dupes = df[df.duplicated(subset=pk_early, keep=False)]
+    if not dupes.empty:
+        message = "Found early indication of "
+        if raise_fail:
+            raise AssertionError(message)
+        logger.warning(message)
+    return
 
 
 def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataFrame:
@@ -17,9 +38,4 @@ def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataF
         )
         .pipe(helpers.simplify_strings, ["borrower_name_rus"])
     )
-    return df
-
-
-def reshape(df: pd.DataFrame) -> pd.DataFrame:
-    """Standard melt."""
     return df
