@@ -55,7 +55,15 @@ Here's how to do it!
 
 8. Verify that the Zenodo draft deposition has all the expected data (raw FERC
    databases, PUDL database, everything the right size. Compare to the files in
-   the GCS/S3 distribution buckets).
+   the GCS/S3 distribution buckets). If the ``zenodo-data-release`` action failed,
+   you can re-run it manually with settings:
+
+   * Zenodo server environment: ``production``
+   * Path to publish: path for the release tag
+   * Ignore regex: default
+   * Automatically publish: ``no-publish``
+
+   If Zenodo is extra cranky, upload the files to the draft deposition manually.
 
 9. Update the Zenodo metadata to include the description from the release notes and
    update the links to other resources related to the release. Make sure all the
