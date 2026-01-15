@@ -63,9 +63,19 @@ def core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
 
 
 @asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
-def core_rus7__yearly_borrowers(raw_rus7__borrowers):
-    """Transform the core_rus7__yearly_borrowers table."""
+def core_rus7__scd_borrowers(raw_rus7__borrowers):
+    """Transform the core_rus7__scd_borrowers table."""
     df = rus.early_transform(raw_df=raw_rus7__borrowers)
     rus.early_check_pk(df)
     # TODO: encode region_code?
+    return df
+
+
+@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+def core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
+    """Transform the core_rus7__yearly_borrowers table."""
+    df = rus.early_transform(raw_df=raw_rus7__employee_statistics)
+    rus.early_check_pk(df)
+    # TODO: decide if we should break this up into three lil bb tables or not
+    # (see note in metadata/resources)
     return df
