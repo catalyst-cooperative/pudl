@@ -13,7 +13,6 @@ from collections.abc import Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
-from urllib.parse import ParseResult, urlparse
 
 import click
 import frictionless
@@ -61,37 +60,27 @@ class DatapackageDescriptor:
         self.doi = doi
         self._validate_datapackage(datapackage_json)
 
-    def get_resource_path(self, name: str) -> str:
-        """Returns zenodo url that holds contents of given named resource."""
-        res = self._get_resource_metadata(name)
-        # In older cached archives, "remote_url" was used to refer to the original path
-        # to the file, while the canonical "path" field was updated by the datastore
-        # to refer to the local path to the associated file relative to the location of
-        # datapackage.json. This behavior is deprecated and no longer used, but we need
-        # to retain this logic to support older cached archives, e.g. censusdp1tract
-        # which hasn't changed since 2020.
-        resource_path = res.get("remote_url") or res.get("path")
-        parsed_path = urlparse(resource_path)
-        if parsed_path.path.startswith("/api/files"):
-            record_number = self.doi.lower().rsplit("zenodo.", 1)[-1]
-            new_path = f"/records/{record_number}/files/{name}"
-            new_url = ParseResult(**(parsed_path._asdict() | {"path": new_path}))
-
-            return new_url.geturl()
-        return resource_path
-
     def _get_resource_metadata(self, name: str) -> dict:
         for res in self.datapackage_json["resources"]:
             if res["name"] == name:
                 return res
         raise KeyError(f"Resource {name} not found for {self.dataset}/{self.doi}")
 
+    def get_resource_path(self, name: str) -> str:
+        """Returns zenodo url that holds contents of given named resource."""
+        resource_path = self._get_resource_metadata(name).get("path", False)
+        if not resource_path:
+            raise KeyError(
+                f"Resource {name} does not have a valid path for {self.dataset}/{self.doi}"
+            )
+        return resource_path
+
     def get_download_size(self) -> int:
         """Returns the total download size of all the resources in MB."""
         total_bytes = 0
         for res in self.datapackage_json["resources"]:
             total_bytes += res["bytes"]
-        return int(total_bytes / 1000000)
+        return int(total_bytes / 1_000_000)
 
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
@@ -199,7 +188,6 @@ class ZenodoDoiSettings(BaseSettings):
     eia861: ZenodoDoi
     eia923: ZenodoDoi
     eia930: ZenodoDoi
-    eiawater: ZenodoDoi
     eiaaeo: ZenodoDoi
     eiaapi: ZenodoDoi
     epacamd_eia: ZenodoDoi
@@ -209,6 +197,7 @@ class ZenodoDoiSettings(BaseSettings):
     ferc6: ZenodoDoi
     ferc60: ZenodoDoi
     ferc714: ZenodoDoi
+    ferceqr: ZenodoDoi
     gridpathratoolkit: ZenodoDoi
     nrelatb: ZenodoDoi
     phmsagas: ZenodoDoi
@@ -314,7 +303,7 @@ class ZenodoFetcher:
 
     def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
-        response = self.http.get(url, timeout=self.timeout)
+        response = self.http.get(str(url), timeout=self.timeout)
         if response.status_code == requests.codes.ok:
             logger.debug(f"Successfully downloaded {url}")
             return response
@@ -342,7 +331,11 @@ class ZenodoFetcher:
         """Given resource key, retrieve contents of the file from zenodo."""
         desc = self.get_descriptor(res.dataset)
         url = desc.get_resource_path(res.name)
-        content = self._fetch_from_url(url).content
+        if url.startswith("gs://"):
+            raise ValueError(
+                f"Resource {res.name} is stored in GCS ({desc.get_resource_path(res.name)}). ZenodoFetcher cannot retrieve it."
+            )
+        content = self._fetch_from_url(HttpUrl(url)).content
         desc.validate_checksum(res.name, content)
         return content
 
@@ -472,6 +465,12 @@ class Datastore:
         """
         desc = self.get_datapackage_descriptor(dataset)
         for res in desc.get_resources(**filters):
+            if desc.get_resource_path(res.name).startswith("gs://"):
+                logger.info(
+                    f"Resource {res.name} is stored in GCS ({desc.get_resource_path(res.name)}). Skipping download."
+                )
+                continue
+
             if self._cache.is_optimally_cached(res) and skip_optimally_cached:
                 logger.info(f"{res} is already optimally cached.")
                 continue

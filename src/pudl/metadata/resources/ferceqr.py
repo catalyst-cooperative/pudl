@@ -110,7 +110,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "ferceqr",
     },
     "core_ferceqr__transactions": {
-        "description": TABLE_DESCRIPTIONS["contracts"],
+        "description": TABLE_DESCRIPTIONS["transactions"],
         "schema": {
             "fields": [
                 "year_quarter",
