@@ -88,5 +88,6 @@ raw_rus12_assets = [
         "renewable_plants": None,
         "plant_labor": None,
         "power_supply_loans": None,
+        "long_term_debt": None,
     }.items()
 ]
