@@ -91,5 +91,6 @@ raw_rus12_assets = [
         "long_term_debt": None,
         "annual_meeting_and_board": None,
         "lines_and_stations_labor_materials": None,
+        "borrowers": None,
     }.items()
 ]
