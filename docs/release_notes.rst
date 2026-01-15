@@ -3,8 +3,74 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2026.X.x (2026-XX-XX)
+v2026.XX.X (2026-XX-XX)
 ---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+* Updated DOIs for the EIA-191 and EIA-757a (they pertain to natural gas) since we
+  extract them, even though we don't process the data yet. This added 2 more years to
+  the EIA-191 data. See PR :pr:`4879`.
+
+Documentation
+~~~~~~~~~~~~~
+
+* Added a data source documentation page for the :doc:`FERC EQR <data_sources/ferceqr>`.
+  See :issue:`4852` and PR :pr:`4879`.
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Consolidated local and remote Zenodo cache management under a single API that uses the
+  high-level abstraction of the :class:`upath.UPath` class. See issue :issue:`4860` and
+  PR :pr:`4870`.
+* Pulled the list of Zenodo DOIs that define the raw input data used by PUDL out into a
+  stand-alone settings file, rather than hard-coding them in the PUDL Datastore module.
+  This makes the DOIs more easily accessible for use in other contexts, such as when
+  calculating the GitHub Actions cache hash. Also made the GitHub Actions cache more
+  lenient, so that if it msises on an exact cache key, it will just download the most
+  recent cache of inputs. This should reduce the amount of data we need to download to
+  run the CI on GitHub and speed things up slightly. It also means we can be more
+  selective about when the ``zenodo-cache-sync`` workflow is run. Now it is only
+  triggered when the ``zenodo_dois.yml`` file is changed, not any time the Datastore
+  module is changed. See issue :issue:`4494` and PR :pr:`4870`.
+* Modernized the ``datapackage.json`` metadata stored on Zenodo for the
+  :doc:`Census DP1 <data_sources/censusdp1tract>` data source, enabling the removal of
+  a special case in the Datastore that only existed to deal with very old archive
+  metadata. See PR :pr:`4879`.
+* Data source documentation pages now display the source data concept DOI with a link to
+  the archive on Zenodo. See PR :pr:`4879`.
+* Made a change to the Datastore that allows it to obtain metadata from a
+  ``datapackage.json`` file stored on Zenodo, even if the data referenced by the data
+  package is stored on GCS, as is the case with FERC EQR. See the
+  `FERC EQR archive on Zenodo <https://doi.org/10.5281/zenodo.18251901>`__ as an
+  example. See PR :pr:`4879`.
+
+.. _release-v2026.1.0:
+
+---------------------------------------------------------------------------------------
+v2026.1.0 (2026-01-14)
+---------------------------------------------------------------------------------------
+
+This is a regular monthly data release, primarily intended to ensure that PUDL has the
+most up-to-date EIA-860M data. Along for the ride are the initial ETL for FERC EQR data,
+changes to the build system, and nicer units on a few columns.
 
 Application, not Library
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -23,7 +89,7 @@ who will continue to work within the development environment. See :doc:`dev/dev_
 for instructions on how to set it up. See PR :pr:`4871` for where many of these changes
 were made.
 
-* We are no longer publishng PUDL releases as packages on `PyPI <https://pypi.org/project/catalystcoop.pudl/>`__
+* We are no longer publishing PUDL releases as packages on `PyPI <https://pypi.org/project/catalystcoop.pudl/>`__
   or `conda-forge <https://anaconda.org/channels/conda-forge/packages/catalystcoop.pudl/overview>`__.
 * Instead, PUDL will need to be installed from source, and is expected to be run in a
   locked environment, and not specified as a normal dependency in other projects.
@@ -39,7 +105,7 @@ Enhancements
 
 New Data
 ^^^^^^^^
-* Adds a new ETL for FERC EQR data, as well as associated infrastructure for running
+* Added a new ETL for FERC EQR data, as well as associated infrastructure for running
   the job and publishing outputs, which can be found at
   ``s3://pudl.catalyst.coop/ferceqr``. There are 4 new tables which are produced by
   this ETL including, :ref:`core_ferceqr__quarterly_identity`,
@@ -88,7 +154,8 @@ Quality of Life Improvements
   PUDL inputs and associated metadata in environments where we may not easily be able to
   authenticate to GCS, such as Read The Docs. This was partly an attempt to mitigate the
   Error 429 "too many requests" responses we have started getting from Zenodo, described
-  in :issue:`4856`. See PR :pr:`4857`.
+  in :issue:`4856`. See PR :pr:`4857`. This should also address the timeouts and
+  new data download failures that came up in issue :issue:`4675`.
 * We've overhauled some of our tooling:
 
   * Instead of using ``conda`` or ``mamba`` / ``micromamba`` to manage dependencies

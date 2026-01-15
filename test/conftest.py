@@ -399,14 +399,17 @@ def logger_config():
     """Configure root logger to filter out excessive logs from certain dependencies."""
     pudl.logging_helpers.configure_root_logger(
         dependency_loglevels={
-            "numba": logging.WARNING,
-            "fsspec": logging.INFO,
-            "asyncio": logging.INFO,
-            "google": logging.INFO,
+            "aiobotocore": logging.WARNING,
             "alembic": logging.WARNING,
             "arelle": logging.INFO,
-            "urllib3": logging.INFO,
+            "asyncio": logging.INFO,
+            "boto3": logging.WARNING,
+            "botocore": logging.WARNING,
+            "fsspec": logging.INFO,
+            "google": logging.INFO,
             "matplotlib": logging.WARNING,
+            "numba": logging.WARNING,
+            "urllib3": logging.INFO,
         },
         propagate=True,
     )
