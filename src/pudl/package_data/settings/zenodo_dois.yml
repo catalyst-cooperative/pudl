@@ -1,8 +1,8 @@
-censusdp1tract: 10.5281/zenodo.4127049
+censusdp1tract: 10.5281/zenodo.15685568
 censuspep: 10.5281/zenodo.15315316
 eia176: 10.5281/zenodo.17563679
-eia191: 10.5281/zenodo.10607837
-eia757a: 10.5281/zenodo.10607839
+eia191: 10.5281/zenodo.18115099
+eia757a: 10.5281/zenodo.10635277
 eia860: 10.5281/zenodo.17091669
 eia860m: 10.5281/zenodo.18075026
 eia861: 10.5281/zenodo.17846580
@@ -10,7 +10,6 @@ eia923: 10.5281/zenodo.17440792
 eia930: 10.5281/zenodo.17500936
 eiaaeo: 10.5281/zenodo.15622378
 eiaapi: 10.5281/zenodo.17500949
-eiawater: 10.5281/zenodo.10806016
 epacamd_eia: 10.5281/zenodo.17582121
 epacems: 10.5281/zenodo.17500930
 ferc1: 10.5281/zenodo.17563678
@@ -18,6 +17,7 @@ ferc2: 10.5281/zenodo.17223540
 ferc60: 10.5281/zenodo.17223513
 ferc6: 10.5281/zenodo.17119798
 ferc714: 10.5281/zenodo.16676145
+ferceqr: 10.5072/zenodo.425643
 gridpathratoolkit: 10.5281/zenodo.10892394
 nrelatb: 10.5281/zenodo.12658647
 phmsagas: 10.5281/zenodo.17076661

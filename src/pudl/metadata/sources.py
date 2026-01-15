@@ -105,7 +105,7 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "JSON",
         },
-        "working_partitions": {"years": sorted(set(range(2014, 2024)))},
+        "working_partitions": {"years": sorted(set(range(2014, 2026)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
