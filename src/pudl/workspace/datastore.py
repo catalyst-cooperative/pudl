@@ -303,7 +303,7 @@ class ZenodoFetcher:
 
     def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
-        response = self.http.get(url, timeout=self.timeout)
+        response = self.http.get(str(url), timeout=self.timeout)
         if response.status_code == requests.codes.ok:
             logger.debug(f"Successfully downloaded {url}")
             return response
@@ -331,7 +331,11 @@ class ZenodoFetcher:
         """Given resource key, retrieve contents of the file from zenodo."""
         desc = self.get_descriptor(res.dataset)
         url = desc.get_resource_path(res.name)
-        content = self._fetch_from_url(url).content
+        if url.startswith("gs://"):
+            raise ValueError(
+                f"Resource {res.name} is stored in GCS ({desc.get_resource_path(res.name)}). ZenodoFetcher cannot retrieve it."
+            )
+        content = self._fetch_from_url(HttpUrl(url)).content
         desc.validate_checksum(res.name, content)
         return content
 
@@ -461,6 +465,12 @@ class Datastore:
         """
         desc = self.get_datapackage_descriptor(dataset)
         for res in desc.get_resources(**filters):
+            if desc.get_resource_path(res.name).startswith("gs://"):
+                logger.info(
+                    f"Resource {res.name} is stored in GCS ({desc.get_resource_path(res.name)}). Skipping download."
+                )
+                continue
+
             if self._cache.is_optimally_cached(res) and skip_optimally_cached:
                 logger.info(f"{res} is already optimally cached.")
                 continue

@@ -719,11 +719,19 @@ SOURCES: dict[str, Any] = {
             "as well as transaction information for short-term and long-term "
             "market-based power sales and cost-based power sales."
         ),
+        "concept_doi": "10.5281/zenodo.18251901",
         "keywords": sorted(
             set(
                 [
                     "ferceqr",
                     "electric quarterly report",
+                    "form 920",
+                    "transactions",
+                    "contracts",
+                    "power sales",
+                    "power purchase agreements",
+                    "ancillary services",
+                    "capacity",
                 ]
                 + KEYWORDS["ferc"]
                 + KEYWORDS["us_govt"]
