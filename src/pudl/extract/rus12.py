@@ -85,5 +85,7 @@ raw_rus12_assets = [
         "statement_of_operations": None,
         "balance_sheet": None,
         "sources_and_distribution": None,
+        "steam_plant_operations": None,
+        "steam_plant_costs": None,
     }.items()
 ]
