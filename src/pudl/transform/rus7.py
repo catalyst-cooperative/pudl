@@ -73,9 +73,33 @@ def core_rus7__scd_borrowers(raw_rus7__borrowers):
 
 @asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
 def core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
-    """Transform the core_rus7__yearly_borrowers table."""
+    """Transform the core_rus7__yearly_employee_statistics table."""
     df = rus.early_transform(raw_df=raw_rus7__employee_statistics)
     rus.early_check_pk(df)
     # TODO: decide if we should break this up into three lil bb tables or not
     # (see note in metadata/resources)
+    return df
+
+
+@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+def core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
+    """Transform the core_rus7__yearly_energy_efficiency table."""
+    df = rus.early_transform(raw_df=raw_rus7__energy_efficiency)
+    rus.early_check_pk(df)
+    # Multi-Stack
+    idx_ish = ["report_date", "borrower_id_rus", "borrower_name_rus"]
+    df = df.set_index(idx_ish)
+    data_cols = ["customers_num", "savings_mmbtu", "invested"]
+    df.columns = df.columns.str.split(
+        rf"^({'|'.join(data_cols)})_(.+)_(cumulative|new_in_report_year)$",
+        expand=True,
+    ).set_names([None, "data_cols", "customer_classification", "date_range", None])
+    df = df.stack(
+        level=["customer_classification", "date_range"], future_stack=True
+    ).reset_index()
+    # remove the remaining multi-index
+    df.columns = df.columns.map("".join)
+
+    # POST-MELT
+    df = df.dropna(subset=data_cols, how="all")
     return df
