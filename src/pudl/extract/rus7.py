@@ -67,7 +67,7 @@ raw_rus7_assets = [
         "borrowers",
         "employee_statistics",
         "patronage_capital",
-        "annual_meeting_and_board",
+        "meeting_and_board",
         "long_term_debt",
         "power_requirements",
         "energy_efficiency",

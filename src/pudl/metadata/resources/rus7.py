@@ -5,7 +5,7 @@ from typing import Any
 RESOURCE_METADATA = {}
 
 DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_rus7__yearly_annual_meeting_and_board": {
+    "core_rus7__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (""),
             "usage_warnings": ["experimental_wip"],
@@ -48,7 +48,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "asset_type",  # enum (list below)
-                "assets",  # $s
+                "balance",  # $s
                 "is_total",
             ],
             "primary_key": [
@@ -74,7 +74,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "liability_type",  # enum (list below)
-                "liabilities",  # $s
+                "balance",  # $s
                 "is_total",
             ],
             "primary_key": [
@@ -105,7 +105,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "region_code",  # TODO: N or S only reported through 2017
             ],
             "primary_key": [
                 "report_date",
@@ -129,10 +128,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                # TODO: decide - could break this up into three tables (seems a lil silly but is nicer):
-                # 1 w. employees_fte_num
-                # 2 w. employee_time_type, hours
-                # 3 w. payroll_type, payroll_expense
                 "employees_fte_num",
                 "employee_hours_worked_regular_time",
                 "employee_hours_worked_over_time",
