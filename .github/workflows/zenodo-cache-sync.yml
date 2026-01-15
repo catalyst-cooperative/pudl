@@ -7,7 +7,7 @@ on:
     - cron: "0 6 * * 1-5" # Weekdays at midnight on MST
   pull_request:
     paths:
-      - "src/pudl/workspace/datastore.py"
+      - "src/pudl/package_data/settings/zenodo_dois.yml"
 
 env:
   CLOUD_CACHE_PATH: s3://pudl.catalyst.coop/zenodo/
