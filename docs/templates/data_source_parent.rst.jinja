@@ -19,6 +19,8 @@
      - {{ source.get_temporal_coverage() }}
    * - PUDL Code
      - ``{{ source.name }}``
+   * - Source Data Concept DOI
+     - `{{ source.concept_doi }} <https://doi.org/{{ source.concept_doi }}>`__
    * - Issues
      - `Open {{ source.title }} issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A{{ source.name }}>`__
 
