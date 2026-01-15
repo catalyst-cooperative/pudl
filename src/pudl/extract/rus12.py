@@ -87,5 +87,17 @@ raw_rus12_assets = [
         "sources_and_distribution": None,
         "steam_plant_operations": None,
         "steam_plant_costs": None,
+        "plant_labor": None,
+        "plant_factors_and_maximum_demand": None,
+        "hydro_plant_operations": None,
+        "hydro_plant_cost": None,
+        "combined_cycle_plant_operations": None,
+        "combined_cycle_plant_costs": None,
+        "internal_combustion_plant_operations": None,
+        "internal_combustion_plant_costs": None,
+        "nuclear_plant_operations": None,
+        "nuclear_plant_costs": None,
+        "demand_output_delivery_points": None,
+        "demand_output_power_sources": None,
     }.items()
 ]
