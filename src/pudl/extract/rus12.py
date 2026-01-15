@@ -97,5 +97,7 @@ raw_rus12_assets = [
         "internal_combustion_plant_costs": None,
         "nuclear_plant_operations": None,
         "nuclear_plant_costs": None,
+        "demand_output_delivery_points": None,
+        "demand_output_power_sources": None,
     }.items()
 ]
