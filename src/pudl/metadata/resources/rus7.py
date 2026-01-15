@@ -89,16 +89,23 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus7__scd_borrowers": {  # this is kinda a SCD table? with just two things?
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": ("active RUS borrowers"),
             "usage_warnings": ["experimental_wip"],
-            "additional_details_text": "",
+            "additional_details_text": (
+                # note from readme about this table
+                "This table contains all of the Active Distribution Borrowers as of each report year "
+                "who were eligible to report to RUS Form 7.  If these Borrowers have reported to RUS "
+                "they will have records in the enclosed data tables, however a small number of these "
+                "Borrowers did not report for various reasons and these Borrowers will not be represented "
+                "in any of the other tables."
+            ),
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "region_code",
+                "region_code",  # TODO: N or S only reported through 2017
             ],
             "primary_key": [
                 "report_date",

@@ -81,6 +81,7 @@ from . import (
     nrelatb,
     params,
     phmsagas,
+    rus7,
     sec10k,
     vcerare,
 )
