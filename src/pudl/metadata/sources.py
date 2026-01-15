@@ -713,23 +713,26 @@ SOURCES: dict[str, Any] = {
         "title": "FERC Form 920 -- Electric Quarterly Report (EQR)",
         "path": "https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr",
         "description": (
-            "The EQR contains Seller-provided data summarizing contractual terms and "
-            "conditions in agreements for all jurisdictional services, including "
-            "cost-based sales, market-based rate sales, and transmission service, "
-            "as well as transaction information for short-term and long-term "
-            "market-based power sales and cost-based power sales."
+            "The Electric Quarterly Report (EQR) is submitted by sellers participating "
+            "in bilateral electricity market transactions. The reports summarize the "
+            "contractual terms and conditions in agreements for all jurisdictional "
+            "services, including cost-based sales, market-based rate sales, and "
+            "transmission service, as well as transaction information for short-term "
+            "and long-term market-based power sales and cost-based power sales."
         ),
         "concept_doi": "10.5281/zenodo.18251901",
         "keywords": sorted(
             set(
                 [
                     "ferceqr",
+                    "EQR",
                     "electric quarterly report",
                     "form 920",
                     "transactions",
                     "contracts",
                     "power sales",
                     "power purchase agreements",
+                    "PPA",
                     "ancillary services",
                     "capacity",
                 ]

@@ -68,7 +68,7 @@ broken down into the following categories:
 
 Notable exemptions are utilities located entirely in Alaska and Hawaii and utilities
 making sales within ERCOT boundaries, as these markets are not subject to FERC's
-jurisdiction.
+jurisdiction. See `18 CFR 35.10b Electric Quarterly Reports <https://www.ecfr.gov/current/title-18/chapter-I/subchapter-B/part-35/subpart-A/section-35.10b>`__.
 {% endblock %}
 
 {% block original_data_title %}{% endblock %}
@@ -85,7 +85,9 @@ jurisdiction.
 * The same data is also available as XML documents. We rely on the CSVs as they are much
   easier to parse and turn into tables for analytical use.
 * FERC has been engaged in a process to revise how the EQR data is collected and
-  distributed, as part of their wider shift to using XBRL. See these links:
+  distributed, as part of their wider shift to using XBRL. If or when that change
+  happens, we will need to revisit our FERC EQR archiving and processing, and may need
+  to secure additional funding for the project. See these links for background:
 
   * `XBRL-US presentation to FERC <https://www.ferc.gov/sites/default/files/2020-09/EQR_and_XBRL-CSV_Presentation.pdf>`__ (2020-09-23).
   * `FERC Docket RM23-9-000 <https://www.ferc.gov/media/e-2-rm23-9-000>`__ (2023-10-19)
@@ -94,6 +96,13 @@ jurisdiction.
 {% endblock %}
 
 {% block notable_irregularities %}
+
+.. warning::
+
+   As of 2026-01-15 integration of FERC EQR into PUDL is still underway, and the dataset
+   should be considered a work in progress. You can check the status of issues linked
+   below. See also tracking issues :issue:`4850,4786`
+
 * A small percentage of the individual filing zip archives included in the quarterly
   FERC EQR bulk data are corrupted, and cannot be extracted. We assume this is due to
   errors in the filing process, and that these filings are likely revised and corrected
@@ -131,13 +140,8 @@ to prepare it for programmatic usage. This includes:
 * Adding a column indicating what year and quarter each record was filed for.
 * Standardizing the case used in string fields that have a fixed set of expected values
   to eliminate meaningless variation.
-* Converting strings that indicate null values ("N/A" and "NA") into explicit ``NULL``
-  values.
-* Converting strings that indicate boolean values ("Y" and "N") into explicit DuckDB
-  ``BOOLEAN`` values.
-* Converting strings representing dates into explicit DuckDB ``DATE`` values.
-* Converting strings representing dates and times into explicit DuckDB ``TIMESTAMP``
-  values.
+* Converting string values into appropriate rich data types (boolean, datetime, etc.)
+  and standardizing null values.
 * Renaming a handful of columns to ensure they are uniform across all tables, and
   compatible with column naming conventions throughout the rest of PUDL. E.g. renaming
   ``company_id`` to ``seller_company_id_ferc`` to make it explicit which company in the
