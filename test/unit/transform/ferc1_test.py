@@ -1347,7 +1347,11 @@ def test_split_supporting_structure():
         }
     )
 
-    result = transformer.split_supporting_structure(test_data)
+    result = (
+        transformer.split_supporting_structure(test_data)
+        .pipe(transformer.normalize_strings)
+        .pipe(transformer.categorize_strings)
+    )
 
     # Check that all expected columns exist
     assert "supporting_structure_type_original" in result.columns
@@ -1434,7 +1438,11 @@ def test_split_supporting_structure_handles_uncategorized():
         }
     )
 
-    result = transformer.split_supporting_structure(test_data)
+    result = (
+        transformer.split_supporting_structure(test_data)
+        .pipe(transformer.normalize_strings)
+        .pipe(transformer.categorize_strings)
+    )
 
     # Check that original value is preserved
     assert result["supporting_structure_type_original"].iloc[0] == "unknown_value"

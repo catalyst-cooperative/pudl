@@ -12726,6 +12726,14 @@ TRANSFORM_PARAMS = {
             "start_point": {"replace_with_na": [""]},
             "end_point": {"replace_with_na": [""]},
         },
+        "normalize_strings": {
+            "supporting_structure_type": FERC1_STRING_NORM,
+            "supporting_structure_material": FERC1_STRING_NORM,
+        },
+        "categorize_strings": {
+            "supporting_structure_type": SUPPORTING_STRUCTURE_TYPE_CATEGORIES,
+            "supporting_structure_material": SUPPORTING_STRUCTURE_MATERIAL_CATEGORIES,
+        },
         "drop_invalid_rows": [
             {
                 "invalid_values": [pd.NA, np.nan, "", None, "None"],
