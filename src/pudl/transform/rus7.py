@@ -90,7 +90,7 @@ def core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     rus.early_check_pk(df)
     # Multi-Stack
     data_cols = ["customers_num", "savings_mmbtu", "invested"]
-    df = rus.split_stack(
+    df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
@@ -139,7 +139,7 @@ def core_rus7__yearly_power_requirements_electric_sales(
     df = _core_rus7__yearly_power_requirements
     # Multi-Stack
     data_cols = ["sales_kwh", "revenue"]
-    df = rus.split_stack(
+    df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,

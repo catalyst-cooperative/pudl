@@ -41,7 +41,7 @@ def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataF
     return df
 
 
-def split_stack(
+def multi_index_stack(
     df: pd.DataFrame,
     idx_ish: list[str],
     data_cols: list[str],
@@ -51,9 +51,9 @@ def split_stack(
 ) -> pd.DataFrame:
     """Make a multi-index with a regex pattern and stack."""
     df = df.set_index(idx_ish).filter(regex=pattern)
-    df.columns = df.columns.str.split(pattern, expand=True).set_names(
-        [None] + match_names + [None]
-    )
+    df.columns = pd.MultiIndex.from_frame(
+        df.columns.str.extract(pattern, expand=True)
+    ).set_names(match_names)
     df = df.stack(level=unstack_level, future_stack=True).reset_index()
     # remove the remaining multi-index
     df.columns = df.columns.map("".join)
