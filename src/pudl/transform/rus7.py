@@ -148,3 +148,22 @@ def core_rus7__yearly_power_requirements_electric_sales(
         unstack_level=["customer_classification"],
     )
     return df
+
+
+@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+def core_rus7__yearly_power_requirements_electric_customers(
+    _core_rus7__yearly_power_requirements: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the core_rus7__yearly_power_requirements_electric_sales table."""
+    df = _core_rus7__yearly_power_requirements
+    # Multi-Stack
+    data_cols = ["customers_num"]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^(.+)_({data_cols[0]})_(december|avg)$",
+        match_names=["customer_classification", "data_cols", "date_range"],
+        unstack_level=["customer_classification", "date_range"],
+    )
+    return df

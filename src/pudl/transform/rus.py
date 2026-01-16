@@ -44,12 +44,30 @@ def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataF
 def multi_index_stack(
     df: pd.DataFrame,
     idx_ish: list[str],
-    data_cols: list[str],
     pattern,
+    data_cols: list[str],
     match_names: list[str],
     unstack_level: list[str],
 ) -> pd.DataFrame:
-    """Make a multi-index with a regex pattern and stack."""
+    """Make a multi-index with a regex pattern and stack.
+
+    Args:
+        df: table to edit.
+        idx_ish: columns in df you want to set as index of stacked table.
+        pattern: a regex pattern of the df's column names. This pattern should have
+            match groups that correspond to the levels of the multi-index that will be
+            created. One of these match groups must include the string values of the
+            data_cols.
+        data_cols: names of data columns - these are strings within the df's original
+            column names that you will leave unstacked. The resulting dataframe will
+            include these columns.
+        match_names: the assigned names of each of the match groups in the pattern - in
+            the order they appear in the pattern. The match group's name we won't use is
+            the group containing the data_cols values - this can be named anything but for
+            clarity name this 'data_cols'.
+        unstack_level: list of match_names to unstack. Presumably this will be all of the
+            match_names expect 'data_cols'.
+    """
     df = df.set_index(idx_ish).filter(regex=pattern)
     df.columns = pd.MultiIndex.from_frame(
         df.columns.str.extract(pattern, expand=True)
