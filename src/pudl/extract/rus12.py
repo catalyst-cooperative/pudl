@@ -90,5 +90,6 @@ raw_rus12_assets = [
         "power_supply_loans": None,
         "long_term_debt": None,
         "meeting_and_board": None,
+        "lines_and_stations_labor_materials": None,
     }.items()
 ]
