@@ -108,7 +108,10 @@ def _core_rus7__yearly_power_requirements(raw_rus7__power_requirements):
     This main input gets used serval times and needs some dropping of duplicate
     records so we do it once.
     """
-    df = rus.early_transform(raw_df=raw_rus7__power_requirements)
+    df = rus.early_transform(
+        raw_df=raw_rus7__power_requirements,
+        boolean_columns_to_fix=["is_peak_coincident"],
+    )
     # PK duplicate management
     dupe_mask = df.duplicated(subset=["report_date", "borrower_id_rus"], keep=False)
     # visually inspecting these two dupes i learned that most of the values in
@@ -166,4 +169,26 @@ def core_rus7__yearly_power_requirements_electric_customers(
         match_names=["customer_classification", "data_cols", "date_range"],
         unstack_level=["customer_classification", "date_range"],
     )
+    return df
+
+
+@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+def core_rus7__yearly_power_requirements(
+    _core_rus7__yearly_power_requirements: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the core_rus7__yearly_power_requirements_electric_sales table."""
+    df = _core_rus7__yearly_power_requirements
+    # The electric sales portion of this table gets reshaped and pulled into two
+    # separate tables. The electric sales portion of this table ends with two totals
+    # the rest of the table pertains to other utility functions. The totals show up
+    # in the reshaped electric sales portion of the table but we also rename them
+    # and include them here as well.
+    df = df.rename(
+        columns={
+            "total_revenue": "electric_sales_revenue",
+            "total_sales_kwh": "electric_sales_kwh",
+        }
+    )
+    # this portion of the table does not need a reshape. Applying enforce_schema
+    # will effectively drop all the other columns in this table.
     return df

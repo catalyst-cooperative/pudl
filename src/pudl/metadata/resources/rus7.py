@@ -243,8 +243,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                # this field could show up in the electric_sales table as a total and here
+                # we could pull out the revenue/costs into one table and then the kwh into another.
                 "electric_sales_revenue",
+                "electric_sales_kwh",
                 "transmission_revenue",
                 "other_electric_revenue",
                 "own_use_kwh",
