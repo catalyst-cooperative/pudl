@@ -28,6 +28,7 @@ from . import (
     gridpathratoolkit,
     nrelatb,
     phmsagas,
+    rus12,
     sec10k,
     vcerare,
     xbrl,
