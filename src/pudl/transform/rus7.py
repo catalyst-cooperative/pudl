@@ -89,19 +89,62 @@ def core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     df = rus.early_transform(raw_df=raw_rus7__energy_efficiency)
     rus.early_check_pk(df)
     # Multi-Stack
-    idx_ish = ["report_date", "borrower_id_rus", "borrower_name_rus"]
-    df = df.set_index(idx_ish)
     data_cols = ["customers_num", "savings_mmbtu", "invested"]
-    df.columns = df.columns.str.split(
-        rf"^({'|'.join(data_cols)})_(.+)_(cumulative|new_in_report_year)$",
-        expand=True,
-    ).set_names([None, "data_cols", "customer_classification", "date_range", None])
-    df = df.stack(
-        level=["customer_classification", "date_range"], future_stack=True
-    ).reset_index()
-    # remove the remaining multi-index
-    df.columns = df.columns.map("".join)
+    df = rus.split_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(data_cols)})_(.+)_(cumulative|new_in_report_year)$",
+        match_names=["data_cols", "customer_classification", "date_range"],
+        unstack_level=["customer_classification", "date_range"],
+    )
+    return df
 
-    # POST-MELT
-    df = df.dropna(subset=data_cols, how="all")
+
+@asset
+def _core_rus7__yearly_power_requirements(raw_rus7__power_requirements):
+    """Early transform an internal power_requirements table.
+
+    This main input gets used serval times and needs some dropping of duplicate
+    records so we do it once.
+    """
+    df = rus.early_transform(raw_df=raw_rus7__power_requirements)
+    # PK duplicate management
+    dupe_mask = df.duplicated(subset=["report_date", "borrower_id_rus"], keep=False)
+    # visually inspecting these two dupes i learned that most of the values in
+    # one record are null. And all of the non-null values seem to be the exact same.
+    # Which led me to want to drop the mostly null record.
+    # First check this assumption: Are all of the non-null values the same?
+    assert (
+        df[dupe_mask]
+        .dropna(axis=1, how="any")
+        .reset_index(drop=True)
+        .T.assign(is_same=lambda x: x[0] == x[1])
+        .is_same.all()
+    )
+    # find the mostly null record of these two dupes and drop it
+    more_null_loc = (
+        df[dupe_mask].isna().sum(axis=1).sort_values(ascending=False).index[0]
+    )
+    df = df.drop(more_null_loc, axis="index")
+    rus.early_check_pk(df)
+    return df
+
+
+@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+def core_rus7__yearly_power_requirements_electric_sales(
+    _core_rus7__yearly_power_requirements: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the core_rus7__yearly_power_requirements_electric_sales table."""
+    df = _core_rus7__yearly_power_requirements
+    # Multi-Stack
+    data_cols = ["sales_kwh", "revenue"]
+    df = rus.split_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^(.+)_({'|'.join(data_cols)})$",
+        match_names=["customer_classification", "data_cols"],
+        unstack_level=["customer_classification"],
+    )
     return df

@@ -217,7 +217,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "customer_classification",
-                "sold_kwh",
+                "sales_kwh",
                 "revenue",
             ],
             "primary_key": [

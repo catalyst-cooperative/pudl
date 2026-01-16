@@ -19,7 +19,7 @@ def early_check_pk(
     """
     dupes = df[df.duplicated(subset=pk_early, keep=False)]
     if not dupes.empty:
-        message = "Found early indication of "
+        message = f"Found early indication of {len(dupes)} not good bad bad duplicates:\n{dupes}"
         if raise_fail:
             raise AssertionError(message)
         logger.warning(message)
@@ -38,4 +38,24 @@ def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataF
         )
         .pipe(helpers.simplify_strings, ["borrower_name_rus"])
     )
+    return df
+
+
+def split_stack(
+    df: pd.DataFrame,
+    idx_ish: list[str],
+    data_cols: list[str],
+    pattern,
+    match_names: list[str],
+    unstack_level: list[str],
+) -> pd.DataFrame:
+    """Make a multi-index with a regex pattern and stack."""
+    df = df.set_index(idx_ish).filter(regex=pattern)
+    df.columns = df.columns.str.split(pattern, expand=True).set_names(
+        [None] + match_names + [None]
+    )
+    df = df.stack(level=unstack_level, future_stack=True).reset_index()
+    # remove the remaining multi-index
+    df.columns = df.columns.map("".join)
+    df = df.dropna(subset=data_cols, how="all")
     return df
