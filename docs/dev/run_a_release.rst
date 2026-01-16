@@ -25,9 +25,13 @@ Here's how to do it!
    <https://github.com/catalyst-cooperative/pudl/issues/new/choose>`__ issue to
    track your progress.
 
-2. Update the release notes with a
+2. Update the release notes in ``docs/release_notes.rst``: Add a
    paragraph or two explaining what this new release is, and attach a specific
-   date to the release. Populate the top of the release notes with a blank
+   date to the release.
+   Review `PRs merged since the last release
+   <https://github.com/catalyst-cooperative/pudl/pulls?q=is%3Apr+is%3Amerged+merged%3A%3E2025-12-15>`__,
+   and ensure they're all listed in the notes.
+   Populate the top of the release notes with a blank
    section for the subsequent release.
 
 3. Wait for the nightly build to pass. Ideally, this build contains the updated
