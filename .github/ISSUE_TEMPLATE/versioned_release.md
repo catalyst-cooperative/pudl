@@ -37,6 +37,7 @@ assignees: ""
 - [ ] Verify that draft deposition for [this Zenodo archive](https://doi.org/10.5281/zenodo.3653158) has the new expected data
 - [ ] Update Zenodo description and other metadata based on release notes (see task list below)
 - [ ] Manually publish the new Zenodo deposition with the updated metadata
+- [ ] Notify team we're clear of the release, and remind them to move any release notes in open PRs to the next release section
 - [ ] Create an Announcement for the release in [our GitHub Discussions](https://github.com/orgs/catalyst-cooperative/discussions)
 - [ ] Update the [release documentation](https://catalystcoop-pudl.readthedocs.io/en/nightly/dev/run_a_release.html) to better reflect the actual process for next time
 
