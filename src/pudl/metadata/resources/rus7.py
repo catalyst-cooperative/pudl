@@ -173,28 +173,119 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+    "core_rus7__yearly_power_requirements_electric_customers": {
+        "description": {
+            "additional_summary_text": (
+                "power requirements - number of customers served by customer type."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part O)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "customer_classification",  # enum w/ things like residential_excluding_seasonal, residential_seasonal	irrigation etc.
+                "date_range",  # ?idk about that name enum w/ new_in_report_year, cumulative
+                "customers_num",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "customer_classification",
+                "date_range",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_power_requirements_electric_sales": {
+        "description": {
+            "additional_summary_text": (
+                "power requirements - revenue and energy sold by customer type."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part O)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "customer_classification",
+                "sold_kwh",
+                "revenue",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_power_requirements": {
+        "description": {
+            "additional_summary_text": (
+                "power requirements - revenue and generation summary."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part O)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                # this field could show up in the electric_sales table as a total and here
+                "electric_sales_revenue",
+                "transmission_revenue",
+                "other_electric_revenue",
+                "own_use_kwh",
+                "purchased_kwh",
+                "generated_kwh",
+                "purchases_and_generation_cost",
+                "interchange_kwh",
+                "peak_kwh",
+                "is_peak_coincident",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
     # "core_rus7__yearly_": {
-    #         "description": {
-    #             "additional_summary_text": (""),
-    #             "usage_warnings": ["experimental_wip"],
-    #             "additional_source_text": "(Part )",
-    #             "additional_details_text": "",
-    #         },
-    #         "schema": {
-    #             "fields": [
-    #                 "report_date",
-    #                 "borrower_id_rus",
-    #                 "borrower_name_rus",
-    #             ],
-    #             "primary_key": [
-    #                 "report_date",
-    #                 "borrower_id_rus",
-    #             ],
-    #         },
-    #         "sources": ["rus7"],
-    #         "etl_group": "rus7",
-    #         "field_namespace": "rus",
-    #     }
+    #     "description": {
+    #         "additional_summary_text": (""),
+    #         "usage_warnings": ["experimental_wip"],
+    #         "additional_source_text": "(Part )",
+    #         "additional_details_text": "",
+    #     },
+    #     "schema": {
+    #         "fields": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "borrower_name_rus",
+    #         ],
+    #         "primary_key": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #         ],
+    #     },
+    #     "sources": ["rus7"],
+    #     "etl_group": "rus7",
+    #     "field_namespace": "rus",
+    # },
 }
 
 asset_type_enum = [
