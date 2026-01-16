@@ -1028,7 +1028,7 @@ class DataSource(PudlMeta):
         docs_dir: DirectoryPath,
         source_resources: list,
         extra_resources: list,
-        output_path: str = None,
+        output_path: str | None = None,
     ) -> None:
         """Output a representation of the data source in RST for documentation."""
         self.add_datastore_metadata()
