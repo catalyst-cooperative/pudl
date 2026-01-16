@@ -7830,9 +7830,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Categorized values: pole, h_frame, tower, underground. "
             "Only filled for unambiguous values; set to NA for multi-category or ambiguous values."
         ),
-        "constraints": {
-            "enum": ["pole", "h_frame", "tower", "underground", "na_category"]
-        },
+        "constraints": {"enum": ["pole", "h_frame", "tower", "underground"]},
     },
     "supporting_structure_material": {
         "type": "string",
@@ -7840,7 +7838,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Material used in the supporting structure for the transmission line. "
             "Categorized values: steel, wood, concrete."
         ),
-        "constraints": {"enum": ["steel", "wood", "concrete", "na_category"]},
+        "constraints": {"enum": ["steel", "wood", "concrete"]},
     },
     "can_switch_oil_gas": {
         "type": "boolean",
