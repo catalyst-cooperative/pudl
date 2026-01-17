@@ -1,0 +1,17 @@
+year_index,borrower_id_rus,borrower_name_rus,region_code,borrower_reporting_type,base_year
+2006,rusborrowerid,borrowername,region,,
+2007,rusborrowerid,borrowername,region,,
+2008,rusborrowerid,borrowername,region,,
+2009,rusborrowerid,borrowername,region,,
+2010,rusborrowerid,borrowername,region,,
+2011,rusborrowerid,borrowername,region,,
+2012,rusborrowerid,borrowername,region,,
+2013,rusborrowerid,borrowername,region,,
+2014,rusborrowerid,borrowername,region,,
+2015,rusborrowerid,borrowername,region,borrowerreportingtype,baseyear
+2016,rusborrowerid,borrowername,region,,
+2017,rusborrowerid,borrowername,region,borrowerreportingtype,baseyear
+2018,rusborrowerid,borrowername,,,
+2019,rusborrowerid,borrowername,,,
+2020,rusborrowerid,borrowername,,,
+2021,rusborrowerid,borrowername,,,
