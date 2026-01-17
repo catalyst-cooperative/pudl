@@ -16,7 +16,11 @@ from pydantic import BaseModel
 
 from pudl.dbt_wrapper import DBT_DIR, build_with_context, dagster_to_dbt_selection
 from pudl.logging_helpers import configure_root_logger, get_logger
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import (
+    PUDL_PACKAGE,
+    PudlResourceName,
+    is_valid_pudl_resource_name,
+)
 from pudl.workspace.setup import PudlPaths
 
 logger = get_logger(__name__)
@@ -328,8 +332,10 @@ def _schema_diff_summary(old_schema: DbtSchema, new_schema: DbtSchema):
     return [line for line in stripped if line != ""]
 
 
-def get_data_source(table_name: str) -> str:
+def get_data_source(table_name: PudlResourceName) -> str:
     """Return the data source element of the table's name."""
+    if not is_valid_pudl_resource_name(table_name):
+        raise ValueError(f"Invalid PUDL resource name: {table_name}")
     return table_name.strip("_").split("_")[1]
 
 
