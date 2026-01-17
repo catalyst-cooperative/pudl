@@ -1,0 +1,336 @@
+===========================================================================================
+FERC Form 1 -- Annual Report of Major Electric Utilities
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual
+   * - Source Description
+     - The Federal Energy Regulatory Commission (FERC) Form 1 is a comprehensive financial and operating report submitted annually for electric rate regulation, market oversight analysis, and financial audits by Major electric utilities, licensees and others.
+   * - Respondents
+     - Major electric utilities and licenses.
+   * - Records Liberated
+     - ~13.2 million (116 raw tables), ~4.7 million (23 clean tables)
+   * - Source Format
+     - XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)
+   * - Download Size
+     - 2051 MB
+   * - Temporal Coverage
+     - 1994-2024
+   * - PUDL Code
+     - ``ferc1``
+   * - Unprocessed Source Data Archive
+     - `10.5281/zenodo.4127043 <https://doi.org/10.5281/zenodo.4127043>`__
+   * - Issues
+     - `Open FERC Form 1 -- Annual Report of Major Electric Utilities issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aferc1>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+We've segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_ferc1__yearly_balance_sheet_assets_sched110`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_balance_sheet_assets_sched110
+   
+   * - :ref:`core_ferc1__yearly_balance_sheet_liabilities_sched110`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_balance_sheet_liabilities_sched110
+   
+   * - :ref:`core_ferc1__yearly_cash_flows_sched120`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_cash_flows_sched120
+   
+   * - :ref:`core_ferc1__yearly_depreciation_by_function_sched219`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_by_function_sched219
+   
+   * - :ref:`core_ferc1__yearly_depreciation_changes_sched219`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_changes_sched219
+   
+   * - :ref:`core_ferc1__yearly_depreciation_summary_sched336`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_summary_sched336
+   
+   * - :ref:`core_ferc1__yearly_energy_dispositions_sched401`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_energy_dispositions_sched401
+   
+   * - :ref:`core_ferc1__yearly_energy_sources_sched401`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_energy_sources_sched401
+   
+   * - :ref:`core_ferc1__yearly_hydroelectric_plants_sched406`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_hydroelectric_plants_sched406
+   
+   * - :ref:`core_ferc1__yearly_income_statements_sched114`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_income_statements_sched114
+   
+   * - :ref:`core_ferc1__yearly_operating_expenses_sched320`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_operating_expenses_sched320
+   
+   * - :ref:`core_ferc1__yearly_operating_revenues_sched300`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_operating_revenues_sched300
+   
+   * - :ref:`core_ferc1__yearly_other_regulatory_liabilities_sched278`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_other_regulatory_liabilities_sched278
+   
+   * - :ref:`core_ferc1__yearly_plant_in_service_sched204`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_plant_in_service_sched204
+   
+   * - :ref:`core_ferc1__yearly_pumped_storage_plants_sched408`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_pumped_storage_plants_sched408
+   
+   * - :ref:`core_ferc1__yearly_purchased_power_and_exchanges_sched326`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_purchased_power_and_exchanges_sched326
+   
+   * - :ref:`core_ferc1__yearly_retained_earnings_sched118`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_retained_earnings_sched118
+   
+   * - :ref:`core_ferc1__yearly_sales_by_rate_schedules_sched304`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_sales_by_rate_schedules_sched304
+   
+   * - :ref:`core_ferc1__yearly_small_plants_sched410`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_small_plants_sched410
+   
+   * - :ref:`core_ferc1__yearly_steam_plants_fuel_sched402`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_steam_plants_fuel_sched402
+   
+   * - :ref:`core_ferc1__yearly_steam_plants_sched402`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_steam_plants_sched402
+   
+   * - :ref:`core_ferc1__yearly_transmission_lines_sched422`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_transmission_lines_sched422
+   
+   * - :ref:`core_ferc1__yearly_utility_plant_summary_sched200`
+     - https://data.catalyst.coop/search?q=name:core_ferc1__yearly_utility_plant_summary_sched200
+   
+
+We've also created the following tables mapping manually assigned PUDL IDs to FERC
+respondent IDs, enabling a connection between the FERC and EIA data sets.
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_pudl__assn_ferc1_dbf_pudl_utilities`
+     - https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_dbf_pudl_utilities
+   
+   * - :ref:`core_pudl__assn_ferc1_pudl_plants`
+     - https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_pudl_plants
+   
+   * - :ref:`core_pudl__assn_ferc1_pudl_utilities`
+     - https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_pudl_utilities
+   
+   * - :ref:`core_pudl__assn_ferc1_xbrl_pudl_utilities`
+     - https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_xbrl_pudl_utilities
+   
+
+Background
+^^^^^^^^^^
+
+The FERC Form 1, otherwise known as the **Electric Utility Annual Report**, contains
+financial and operating data for major utilities and licensees. Much of it is not
+publicly available anywhere else.
+
+
+
+Download additional documentation
+---------------------------------
+
+
+
+    * :download:`Ferc1 Blank 2005-03-31 <ferc1/ferc1_blank_2005-03-31.pdf>`
+
+    * :download:`Ferc1 Blank 2007-06-30 <ferc1/ferc1_blank_2007-06-30.pdf>`
+
+    * :download:`Ferc1 Blank 2008-07-31 <ferc1/ferc1_blank_2008-07-31.pdf>`
+
+    * :download:`Ferc1 Blank 2011-12-31 <ferc1/ferc1_blank_2011-12-31.pdf>`
+
+    * :download:`Ferc1 Blank 2014-12-31 <ferc1/ferc1_blank_2014-12-31.pdf>`
+
+    * :download:`Ferc1 Blank 2016-11-30 <ferc1/ferc1_blank_2016-11-30.pdf>`
+
+    * :download:`Ferc1 Blank 2019-12-31 <ferc1/ferc1_blank_2019-12-31.pdf>`
+
+    * :download:`Ferc1 Blank 2022-11-30 <ferc1/ferc1_blank_2022-11-30.pdf>`
+
+    * :download:`Ferc1 Blank 2025-07-31 <ferc1/ferc1_blank_2025-07-31.html>`
+
+    * :download:`Ferc1 Db Diagram 2015 <ferc1/ferc1_db_diagram_2015.pdf>`
+
+    * :download:`Ferc1A Blank 2025-07-31 <ferc1/ferc1a_blank_2025-07-31.html>`
+
+    * :download:`Ferc1F Blank 2025-07-31 <ferc1/ferc1f_blank_2025-07-31.html>`
+
+    * :download:`Ferc3Q Electric 2025-07-31 <ferc1/ferc3q_electric_2025-07-31.html>`
+
+    * :download:`Ferc3Q Gas 2025-07-31 <ferc1/ferc3q_gas_2025-07-31.html>`
+
+
+
+
+Data available through PUDL
+---------------------------
+
+
+PUDL integrates data from all years in which digital filings are available, spanning
+both the DBF (1994-2020) and XBRL (2021-present) reporting eras. There are more than
+100 tables in the raw databases, and PUDL has so far only integrated a subset of them
+(see list above). The integrated tables mostly pertain to plant-level operations,
+utility assets & liabilities, and utility income & expenses. Integrated tables combine
+data from the old DBF and new XBRL reporting formats into a single coherent structure
+covering all years from 1994 to the present.
+
+
+
+
+Who submits this data?
+----------------------
+
+
+As outlined in the Commission's Uniform System of Accounts Prescribed for Public
+Utilities and Licensees Subject To the Provisions of The Federal Power Act
+(`18 C.F.R. Part 101 <https://www.ecfr.gov/current/title-18/chapter-I/subchapter-C/part-101>`__),
+to qualify as a respondent, entities must exceed at least one of the
+following criteria for three consecutive years prior to reporting:
+
+* 1 million MWh of total sales
+* 100MWh of annual sales for resale
+* 500MWh of annual power exchanges delivered
+* 500MWh of annual wheeling for others (deliveries plus losses)
+
+.. note::
+
+   Publicly owned utilities and member-owned electric cooperatives are not required
+   to file the FERC Form 1. However, many of them do file the analogous USDA Rural
+   Utilities Service (RUS) Forms 7 and 12.
+
+Annual responses are due in April of the following year, with new XBRL filings added to
+FERC's RSS feed on a rolling basis. Revisions and late filings typically continue to
+trickle in for months after the filing deadline.
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+
+General Comments
+~~~~~~~~~~~~~~~~
+
+The FERC 1 database is poorly normalized and the data itself does not appear to be
+subject to much quality control. For this reason, we strongly encourage the use of
+the processed FERC data in the PUDL database when it is available.
+
+To identify the source data for each record, many of the FERC Form 1 tables in PUDL
+contain a ``record_id`` field that indicates what table and record originates from (in
+either the XBRL or DBF-derived SQLite databases). The ``record_id`` is not in general a
+unique identifier within a given PUDL database table, because in many cases the original
+data has been reshaped and normalized such that several records in the PUDL database can
+be traced back to a single record in the original data.
+
+DBF Reporting Era (1994-2020)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The data is published as a collection of Visual FoxPro databases: one per year
+beginning in 1994. The databases all share a very similar structure and contain a total
+of 116 data tables and ~8GB of raw data (though 90% of that data is in 3 tables
+containing binary data). The `final release of Visual FoxPro was v9.0 in 2007
+<https://en.wikipedia.org/wiki/Visual_FoxPro>`__. Its `extended support period ended
+in 2015 <https://www.foxpro.co.uk/foxpro-end-of-life-and-you/>`__. The bridge
+application which allowed this database to be used in Microsoft Access has been
+discontinued. FERC's use of this database format created a significant barrier to
+data access.
+
+The DBF files are no longer being updated by FERC. When revisions to older filings are
+submitted, they appear in the raw XBRL data, but those revisions are not currently being
+integrated into the PUDL outputs. The DBF files covering 1994-2020 reporting are
+archived on Zenodo under
+`concept DOI 10.5281/zenodo.4127043 <https://doi.org/10.5281/zenodo.4127043>`__
+
+XBRL Reporting Era (2021-present)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New XBRL filings are published on a rolling basis to an RSS feed as they are received
+by FERC. We periodically capture a snapshot of all available filings from that feed
+and archive it on Zenodo under
+`concept DOI 10.5281/zenodo.4127043 <https://doi.org/10.5281/zenodo.4127043>`__
+alongside the old DBF database files.
+
+The structure of the XBRL filings is defined by an XBRL taxonomy. The taxonomies
+defining the structure of all the FERC XBRL filings can be
+`browsed on the FERC website <https://xbrlview.ferc.gov/yeti/resources/yeti-gwt/Yeti.jsp#tax~(id~8*v~142)!net~(a~143*l~35)!lang~(code~en)!rg~(rg~4*p~1)>`__. Like the old DBF data base schemas,
+the XBRL taxonomies are updated annually, but typically change very slowly. We archive
+the taxonomies alongside the filing data and use them to define the structure of the
+database of raw filings that we build out of the XBRL.
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+We occasionally see revisions to older filings from the DBF reporting era appear in the
+XBRL data. Ideally these revised data would supersede the older data from the DBF files.
+We have not yet dedicated resources to implementing this refinement since it's a
+significant amount of work, and there are very few of these filings.
+
+The FERC Form 1 DBF databases are not particularly relational. The only foreign key
+relationships that exist map ``respondent_id`` fields in the individual data tables back
+to ``f1_respondent_id``. In theory, most of the data tables use ``report_year``,
+``respondent_id``, ``row_number``, ``spplmnt_num`` and ``report_prd`` as a composite
+primary key.
+
+In practice, there are several thousand records (out of ~12 million), including some
+in almost every table, that violate the uniqueness constraint on those primary keys.
+Since there aren't many meaningful foreign key relationships anyway, rather than
+dropping the records with non-unique natural composite keys, we chose to preserve all
+of the records and use surrogate auto-incrementing primary keys in the cloned SQLite
+database.
+
+Lots of the data included in the FERC tables is unstructured and difficult to parse.
+None of the tables have record identification and they sometimes contain multiple rows
+pertaining to the same plant or portion of a plant. For example, a utility might report
+values for individual plants as well as the sum total, rendering any aggregations
+performed on the column inaccurate. Sometimes there are values reported for the total
+rows and not the individual plants making them difficult to simply remove. Moreover,
+these duplicate rows are incredibly difficult to identify.
+
+To improve the usability of this data we have done a lot of work to link FERC plants
+and utilities to their EIA counterparts, and to associate related FERC plant records
+across different reporting years.
+
+* We have manually compiled a mapping between the FERC utility IDs for the DBF and XBRL
+  reporting eras.
+* We have manually compiled a mapping between those unified FERC utilities and the
+  corresponding EIA utilities.
+* We have compiled a manual mapping between the FERC plant names and corresponding EIA
+  plant IDs.
+* We have created a programmatic, probabilistic linkage between sub-plant parts
+  reporting in FERC Form 1 and the associated generators, prime movers, ownership, or
+  other slices of EIA plants.
+* We have created a programmatic, probabilistic linkage between related FERC plant
+  records, since FERC does not use plant IDs.
+
+We have only integrated a small subset of the available Form 1 tables. If there's data
+you need from Form 1 in bulk, you can `hire us <https://catalyst.coop/hire-catalyst/>`__
+to liberate it, or we're happy to accept open source contributions. Some tables only
+require a couple of hours of work, while others can be quite involved.
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.ferc1` created for each table's
+respective transform function.

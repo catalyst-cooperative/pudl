@@ -1,0 +1,20 @@
+pudl.package_data.ferc1
+=======================
+
+.. py:module:: pudl.package_data.ferc1
+
+.. autoapi-nested-parse::
+
+   Metadata required for extracting data from the FERC Form 1.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/package_data/ferc1/row_maps/index
+
+
