@@ -14,8 +14,8 @@ sources:
                   fgd_hours_in_service: EXTRACT(year FROM report_date) <= 2011
                   fgd_electricity_consumption_mwh: EXTRACT(year FROM report_date) <= 2011
                   fgd_sorbent_consumption_tons: EXTRACT(year FROM report_date) <= 2011
-                  so2_removal_efficiency_tested: EXTRACT(year FROM report_date) <= 2011
-                  so2_removal_efficiency_annual: EXTRACT(year FROM report_date) <= 2011
+                  so2_removal_efficiency_tested_pct: EXTRACT(year FROM report_date) <= 2011
+                  so2_removal_efficiency_annual_pct: EXTRACT(year FROM report_date) <= 2011
                   so2_test_date: EXTRACT(year FROM report_date) <= 2011
           - check_row_counts_per_partition:
               arguments:
@@ -48,7 +48,7 @@ sources:
           - name: fgd_hours_in_service
           - name: fgd_electricity_consumption_mwh
           - name: fgd_sorbent_consumption_tons
-          - name: so2_removal_efficiency_tested
-          - name: so2_removal_efficiency_annual
+          - name: so2_removal_efficiency_tested_pct
+          - name: so2_removal_efficiency_annual_pct
           - name: so2_test_date
           - name: data_maturity
