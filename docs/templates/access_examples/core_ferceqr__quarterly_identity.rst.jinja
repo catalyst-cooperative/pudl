@@ -1,5 +1,8 @@
-* `Browse and query this table online <https: //data.catalyst.coop/search?&q=name:{{ resource.name }}>`__
-* `Download this table as a Parquet file <https: //s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ resource.name }}.parquet>`__
+
+.. note::
+
+   This table is partitioned into multiple Parquet files which can be treated
+   as a single Parquet dataset.
 
 .. tabs::
 
@@ -8,8 +11,9 @@
       .. code-block:: python
 
          import pandas as pd
+         # Select all Parquet files under this bucket prefix.
          df = pd.read_parquet(
-             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+             "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
              dtype_backend="pyarrow",
          )
 
@@ -18,21 +22,26 @@
       .. code-block:: python
 
          import polars as pl
+         # Select all Parquet files under this bucket prefix.
          df = pl.read_parquet(
-             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+             "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
          )
 
    .. tab:: SQL (DuckDB)
 
       .. code-block:: sql
 
-         SELECT * FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet';
+         -- Use a wildcard to select all parquet files with this bucket prefix.
+         SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/*.parquet';
 
    .. tab:: R
 
       .. code-block:: r
 
          library(arrow)
-         df <- read_parquet(
-             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet"
-         )
+
+         # Establish S3 connection
+         bucket <- s3_bucket("pudl.catalyst.coop/ferceqr/{{ resource.name }}")
+
+         # Read all parquet files in that prefix
+         df <- read_parquet(bucket)

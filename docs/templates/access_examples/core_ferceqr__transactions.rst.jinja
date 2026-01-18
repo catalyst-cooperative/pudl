@@ -1,35 +1,70 @@
+
+.. note::
+
+   This table is partitioned into multiple Parquet files which can be treated
+   as a single Parquet dataset.
+
+.. warning::
+
+   This table will not fit in physical memory. Make sure to filter or aggregate
+   carefully when reading it. You may want to avoid using Pandas directly.
+
 .. tabs::
-
-   .. tab:: pandas
-
-      .. code-block:: python
-
-         import pandas as pd
-         df = pd.read_parquet(
-             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
-             dtype_backend="pyarrow",
-         )
 
    .. tab:: polars
 
       .. code-block:: python
 
          import polars as pl
-         df = pl.read_parquet(
-             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+         # Select some data relevant to tracking solar PPA prices
+         df = (
+             # Limit query to data from a single quarterly Parquet file
+             pl.scan_parquet("s3://pudl.catalyst.coop/ferceqr/core_ferceqr__transactions/2013q3.parquet")
+             .select(
+                 [
+                     "seller_company_name",
+                     "product_name",
+                     "price",
+                     "standardized_price",
+                     "transaction_quantity",
+                     "standardized_quantity",
+                     "total_transmission_charge",
+                     "total_transaction_charge",
+                     "rate_units",
+                     "trade_date"
+                 ]
+             )
+             .filter(
+                 pl.col("seller_company_name").str.contains("(?i)solar")
+                 & pl.col("standardized_price").is_not_null()
+                 & (pl.col("product_name") == "ENERGY")
+                 & (pl.col("rate_units") == "$/MWH")
+                 & (pl.col("trade_date") >= 0)
+             )
+             .collect()
          )
 
    .. tab:: SQL (DuckDB)
 
       .. code-block:: sql
 
-         SELECT * FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet';
-
-   .. tab:: R
-
-      .. code-block:: r
-
-         library(arrow)
-         df <- read_parquet(
-             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet"
-         )
+         -- Select some data relevant to tracking solar PPA prices
+         SELECT
+             -- Select a subset of columns to reduce network and memory usage
+             seller_company_name,
+             product_name,
+             price,
+             standardized_price,
+             transaction_quantity,
+             standardized_quantity,
+             total_transmission_charge,
+             total_transaction_charge,
+             rate_units,
+             trade_date
+         -- Limit to 2013Q3 data by querying only a single Parquet file
+         FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__transactions/2013q3.parquet'
+         WHERE seller_company_name ILIKE '%solar%'
+             AND standardized_price IS NOT NULL
+             AND product_name = 'ENERGY'
+             AND rate_units = '$/MWH'
+             AND trade_date >= '1970-01-01'::DATE;
