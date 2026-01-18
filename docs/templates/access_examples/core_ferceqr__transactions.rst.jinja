@@ -1,0 +1,35 @@
+.. tabs::
+
+   .. tab:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+             dtype_backend="pyarrow",
+         )
+
+   .. tab:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+         )
+
+   .. tab:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet';
+
+   .. tab:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+             "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet"
+         )
