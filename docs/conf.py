@@ -15,9 +15,11 @@ import shutil
 from pathlib import Path
 
 from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import CodeMetadata, DataSource, Package
+from pudl.metadata.classes import CodeMetadata, DataSource, Package, Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
+from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 DOCS_DIR = Path(__file__).parent.resolve()
 if os.environ.get("READTHEDOCS"):
@@ -204,10 +206,11 @@ def data_sources_metadata_to_rst(app):
         "ferc1": ["glue"],
         "epacamd_eia": ["glue"],
     }
+    datastore = Datastore(local_cache_path=PudlPaths().data_dir)
     for name in INCLUDED_SOURCES:
         source = DataSource.from_id(name)
         source_resources = [res for res in package.resources if res.etl_group == name]
-        extra_resources = None
+        extra_resources: list[Resource] = []
         if name in extra_etl_groups:
             # get resources for this source from extra etl groups
             extra_resources = [
@@ -218,9 +221,10 @@ def data_sources_metadata_to_rst(app):
             ]
         source.to_rst(
             docs_dir=DOCS_DIR,
-            output_path=DOCS_DIR / f"data_sources/{name}.rst",
+            output_path=str(DOCS_DIR / f"data_sources/{name}.rst"),
             source_resources=source_resources,
             extra_resources=extra_resources,
+            datastore=datastore,
         )
 
 
