@@ -2,6 +2,7 @@
 
 import copy
 import datetime
+import json
 import re
 import sys
 import warnings
@@ -1302,6 +1303,7 @@ class PudlResourceDescriptor(PudlMeta):
     etl_group_id: str = pydantic.Field(alias="etl_group")
     field_namespace_id: str = pydantic.Field(alias="field_namespace")
     create_database_schema: bool = True
+    output_partition_source_key: tuple[str, str] | None = None
 
 
 class Resource(PudlMeta):
@@ -1444,6 +1446,7 @@ class Resource(PudlMeta):
     sources: list[DataSource] = []
     keywords: list[String] = []
     encoder: Encoder | None = None
+    output_partition_source_key: tuple[str, str] | None = None
     field_namespace: (
         Literal[
             "censusdp1tract",
@@ -1678,19 +1681,32 @@ class Resource(PudlMeta):
 
     def to_frictionless(self) -> frictionless.Resource:
         """Convert to a Frictionless Resource."""
-        schema = frictionless.Schema(
-            fields=[
-                frictionless.Field(name=f.name, description=f.description)
+        schema = {
+            "fields": [
+                {
+                    "name": f.name,
+                    "description": f.description,
+                }
                 for f in self.schema.fields
             ],
-            primary_key=self.schema.primary_key,
-        )
-        return frictionless.Resource(
-            name=self.name,
-            description=self.description,
-            schema=schema,
-            path=f"{self.name}.parquet",
-        )
+            "primary_key": self.schema.primary_key,
+        }
+
+        if self.output_partition_source_key is not None:
+            source_name, partition_name = self.output_partition_source_key
+            [source] = [source for source in self.sources if source.name == source_name]
+            path = [
+                f"{self.name}/{partition}.parquet"
+                for partition in source.working_partitions[partition_name]
+            ]
+        else:
+            path = f"{self.name}.parquet"
+        return {
+            "name": self.name,
+            "description": self.description,
+            "schema": schema,
+            "path": path,
+        }
 
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
@@ -2345,11 +2361,13 @@ class Package(PudlMeta):
                 )
         return encoded_df
 
-    def to_frictionless(self) -> frictionless.Package:
+    def to_frictionless(self, output_path: str | Path) -> frictionless.Package:
         """Convert to a Frictionless Datapackage."""
         resources = [r.to_frictionless() for r in self.resources]
-        package = frictionless.Package(name=self.name, resources=resources)
-        return package
+        package = {"name": self.name, "resources": resources}
+        with Path(output_path).open(mode="w") as f:
+            json.dump(package, f)
+        return frictionless.Package(str(output_path))
 
 
 PUDL_PACKAGE = Package.from_resource_ids()

@@ -65,6 +65,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferceqr"],
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
+        "output_partition_source_key": ("ferceqr", "year_quarters"),
     },
     "core_ferceqr__contracts": {
         "description": TABLE_DESCRIPTIONS["contracts"],
@@ -108,6 +109,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferceqr"],
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
+        "output_partition_source_key": ("ferceqr", "year_quarters"),
     },
     "core_ferceqr__transactions": {
         "description": TABLE_DESCRIPTIONS["transactions"],
@@ -152,6 +154,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferceqr"],
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
+        "output_partition_source_key": ("ferceqr", "year_quarters"),
     },
     "core_ferceqr__quarterly_index_pub": {
         "description": TABLE_DESCRIPTIONS["index_pub"],
@@ -174,5 +177,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["ferceqr"],
         "etl_group": "ferceqr",
         "field_namespace": "ferceqr",
+        "output_partition_source_key": ("ferceqr", "year_quarters"),
     },
 }

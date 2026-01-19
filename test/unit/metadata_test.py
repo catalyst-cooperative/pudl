@@ -191,8 +191,8 @@ def test_resource_descriptor_schema_failures(error_msg, data, dummy_pandera_sche
         dummy_pandera_schema.validate(data)
 
 
-def test_frictionless_data_package_non_empty():
-    datapackage = PUDL_PACKAGE.to_frictionless()
+def test_frictionless_data_package_non_empty(tmp_path):
+    datapackage = PUDL_PACKAGE.to_frictionless(tmp_path / "datapackage.json")
     assert len(datapackage.resources) == len(RESOURCE_METADATA)
 
 
@@ -208,8 +208,8 @@ METADATA_OVERRIDE_KEYS = [
 ]
 
 
-def test_frictionless_data_package_resources_populated():
-    datapackage = PUDL_PACKAGE.to_frictionless()
+def test_frictionless_data_package_resources_populated(tmp_path):
+    datapackage = PUDL_PACKAGE.to_frictionless(tmp_path / "datapackage.json")
     for resource in datapackage.resources:
         assert resource.name in RESOURCE_METADATA
         expected_resource = RESOURCE_METADATA[resource.name]
@@ -229,7 +229,7 @@ def test_frictionless_data_package_resources_populated():
         ]
         assert (
             expected_resource["schema"].get("primary_key", [])
-            == resource.schema.primary_key
+            == resource.schema.to_dict()["primary_key"]
         )
 
 
