@@ -94,5 +94,18 @@ raw_rus12_assets = [
         "borrowers": None,
         "steam_plant_operations": None,
         "steam_plant_costs": None,
+<<<<<<< HEAD
+=======
+        "hydroelectric_plant_operations": None,
+        "hydroelectric_plant_cost": None,
+        "combined_cycle_plant_operations": None,
+        "combined_cycle_plant_costs": None,
+        "internal_combustion_plant_operations": None,
+        "internal_combustion_plant_costs": None,
+        "nuclear_plant_operations": None,
+        "nuclear_plant_costs": None,
+        "demand_output_delivery_points": None,
+        "demand_output_power_sources": None,
+>>>>>>> eb417e254 (Rename extraction)
     }.items()
 ]
