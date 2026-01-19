@@ -201,6 +201,7 @@ class ZenodoDoiSettings(BaseSettings):
     gridpathratoolkit: ZenodoDoi
     nrelatb: ZenodoDoi
     phmsagas: ZenodoDoi
+    rus7: ZenodoDoi
     sec10k: ZenodoDoi
     vcerare: ZenodoDoi
 
