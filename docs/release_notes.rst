@@ -35,6 +35,17 @@ Documentation
 
 * Added a data source documentation page for the :doc:`FERC EQR <data_sources/ferceqr>`.
   See :issue:`4852` and PR :pr:`4879`.
+* Added data access instructions for the :doc:`FERC EQR <data_sources/ferceqr>` and
+  created examples specific to our larger (>1GB) and partitioned tables in the
+  :doc:`data_dictionaries/pudl_db`. See issues :issue:`4869,4951` and PR :pr:`4958`.
+  Affected tables include:
+
+    * :ref:`core_epacems__hourly_emissions`
+    * :ref:`core_ferceqr__contracts`
+    * :ref:`core_ferceqr__quarterly_identity`
+    * :ref:`core_ferceqr__quarterly_index_pub`
+    * :ref:`core_ferceqr__transactions`
+    * :ref:`out_vcerare__hourly_available_capacity_factor`
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
