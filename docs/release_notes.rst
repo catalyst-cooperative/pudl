@@ -12,6 +12,11 @@ Enhancements
 New Data
 ^^^^^^^^
 
+RUS 7
+~~~~~
+
+* Extracted data for ten USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
+
 RUS-12
 ~~~~~~
 
