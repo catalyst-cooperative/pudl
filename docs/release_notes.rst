@@ -2791,11 +2791,11 @@ worth of work.
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
-* :doc:`data_sources/eia860` for 2004-2008 + 2019, plus eia860m through 2020.
+* :doc:`data_sources/eia860` for 2004-2008 + 2019, plus eia860m through 2020
 * :doc:`data_sources/eia923` for 2001-2008 + 2019
 * :doc:`data_sources/epacems` for 2019-2020
 * :doc:`data_sources/ferc1` for 2019
-* :ref:`US Census Demographic Profile (DP1) <data-censusdp1tract>` for 2010
+* :doc:`data_sources/censusdp1tract` for 2010
 * :doc:`data_sources/ferc714` for 2006-2019 (experimental)
 * :doc:`data_sources/eia861` for 2001-2019 (experimental)
 
