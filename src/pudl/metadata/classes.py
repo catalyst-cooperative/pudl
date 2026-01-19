@@ -1303,6 +1303,7 @@ class PudlResourceDescriptor(PudlMeta):
     etl_group_id: str = pydantic.Field(alias="etl_group")
     field_namespace_id: str = pydantic.Field(alias="field_namespace")
     create_database_schema: bool = True
+    #: Should be non-null if outputs are partitioned. Tuple specifying data source name and partition name
     output_partition_source_key: tuple[str, str] | None = None
 
 
