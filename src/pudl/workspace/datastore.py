@@ -202,6 +202,7 @@ class ZenodoDoiSettings(BaseSettings):
     nrelatb: ZenodoDoi
     phmsagas: ZenodoDoi
     rus7: ZenodoDoi
+    rus12: ZenodoDoi
     sec10k: ZenodoDoi
     vcerare: ZenodoDoi
 
