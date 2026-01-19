@@ -92,5 +92,7 @@ raw_rus12_assets = [
         "meeting_and_board": None,
         "lines_and_stations_labor_materials": None,
         "borrowers": None,
+        "steam_plant_operations": None,
+        "steam_plant_costs": None,
     }.items()
 ]
