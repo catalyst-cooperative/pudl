@@ -85,6 +85,13 @@ raw_rus12_assets = [
         "statement_of_operations": None,
         "balance_sheet": None,
         "sources_and_distribution": None,
+        "renewable_plants": None,
+        "plant_labor": None,
+        "power_supply_loans": None,
+        "long_term_debt": None,
+        "meeting_and_board": None,
+        "lines_and_stations_labor_materials": None,
+        "borrowers": None,
         "steam_plant_operations": None,
         "steam_plant_costs": None,
     }.items()
