@@ -32,33 +32,6 @@ class Extractor(CsvExtractor):
             str(self.METADATA._get_partition_selection(partition)), page
         ]
 
-    def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
-        """Produce the dataframe object for the given partition.
-
-        In this instance we need to specify both year and geography to get the right zipfile.
-        In 2010 there is a zipfile at the federal and state level, but for now we only want
-        to use the federal-level data.
-
-        Args:
-            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
-                "data"
-            partition: partition to load. Examples:
-                {'year': 2009}
-                {'year_month': '2020-08'}
-
-        Returns:
-            pd.DataFrame instance containing CSV data
-        """
-        filename = self.source_filename(page, **partition)
-
-        with (
-            self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
-            zf.open(filename) as f,
-        ):
-            df = pd.read_csv(f, **self.READ_CSV_KWARGS)
-
-        return df
-
 
 raw_rus12__all_dfs = raw_df_factory(Extractor, name="rus12")
 
