@@ -5,8 +5,46 @@ from typing import Any
 RESOURCE_METADATA = {}
 
 DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_rus12__yearly_meeting_and_board": {},
-    "core_rus12__yearly_balance_sheet_assets": {},
+    "core_rus12__yearly_meeting_and_board": {
+        "description": {
+            "additional_summary_text": (""),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section I)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "last_annual_meeting_date",
+                "members_num",
+                "members_present_at_meeting_num",
+                "was_quorum_present",
+                "members_voting_by_proxy_or_mail_num",
+                "board_members_num",
+                "fees_and_expenses_for_board_members",
+                "does_manager_have_written_contract",
+            ],
+            "primary_key": ["report_date", "borrower_id_rus"],
+        },
+    },
+    "core_rus12__yearly_balance_sheet_assets": {
+        "description": {
+            "additional_summary_text": (""),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part A - Section B)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+            ],
+            "primary_key": [],
+        },
+    },
     "core_rus12__yearly_balance_sheet_liabilities": {},
     "core_rus12__scd_borrowers": {
         "schema": {
