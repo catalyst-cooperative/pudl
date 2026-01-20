@@ -10,6 +10,7 @@ import sys
 import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
+from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
@@ -275,7 +276,7 @@ class ZenodoFetcher:
         # We add this to note where our project's requests are originating from.
         self.http.headers.update(
             {
-                "User-Agent": "pudl/v2026.1.0 (https://github.com/catalyst-cooperative/pudl)"
+                "User-Agent": f"pudl/{version('catalystcoop.pudl')} (https://github.com/catalyst-cooperative/pudl)"
             }
         )  # TODO: Better way to update version?
         self._descriptor_cache = {}
