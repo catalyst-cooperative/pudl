@@ -228,8 +228,54 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
         },
     },
-    "core_rus12__yearly_loans": {},
-    "core_rus12__yearly_long_term_debt": {},
+    "core_rus12__yearly_loans": {
+        "description": {
+            "additional_summary_text": ("loans guaranteed by RUS borrowers."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section F - Subsection II)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "loan_organization",
+                "loan_maturity_date",
+                "loan_original_amount",
+                "loan_balance",
+                "for_rural_development",  # this should maybe be is_for_rural_development
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "loan_organization",
+            ],
+        },
+    },
+    "core_rus12__yearly_long_term_debt": {
+        "description": {
+            "additional_summary_text": (
+                "long-term debt and debt service requirements for RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section H)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "debt_description",
+                "balance_end_of_report_year",
+                "interest",
+                "principal",
+                "total",  # this should probably be total_debt
+            ],
+            "primary_key": ["report_date", "borrower_id_rus", "debt_description"],
+        },
+    },
 }
 
 asset_type_enum = [
