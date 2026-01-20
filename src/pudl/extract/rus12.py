@@ -87,6 +87,7 @@ raw_rus12_assets = [
         "sources_and_distribution": None,
         "renewable_plants": None,
         "plant_labor": None,
+        "plant_factors_and_maximum_demand": None,
         "loans": None,
         "long_term_debt": None,
         "meeting_and_board": None,
