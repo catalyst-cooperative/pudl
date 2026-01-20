@@ -15,12 +15,12 @@ New Data
 RUS 7
 ~~~~~
 
-* Extracted data for twelve USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
+* Extracted data for ten USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
 
 RUS-12
 ~~~~~~
 
-* Extracted data for ten USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
+* Extracted data for twelve USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
