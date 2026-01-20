@@ -132,20 +132,42 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
+                "plant_name_rus",
                 "prime_mover_id",
             ],
         },
     },
     "core_rus12__yearly_statement_of_operations": {  # Need to decide how to split this up
+        "description": {
+            "additional_summary_text": (""),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part A - Section A)",
+            "additional_details_text": "",
+        },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-            ]
-        }
+                "operations_type"  # enum (list below)
+                "ytd_amount",
+                "ytd_budget",
+                "monthly_amount",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "operations_type",
+            ],
+        },
     },
     "core_rus12__yearly_plant_labor": {
+        "description": {
+            "additional_summary_text": (""),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Parts D, E, F, G - Section B)",
+            "additional_details_text": "",
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -158,10 +180,22 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "payroll_operating_plant",  # seems like we might want to put payroll as a suffix here
                 "payroll_other_accounts_plant",  # seems like we might want to put payroll as a suffix here
                 "total_plant_payroll",  # remove?
-            ]
-        }
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "plant_name_rus",
+                "plant_type",  # this should be the primary key but there are duplicates for borrower_oid IA0084 and plant Walter Scott
+            ],
+        },
     },
     "core_rus12__yearly_lines_and_stations_labor_materials": {
+        "description": {
+            "additional_summary_text": (""),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part I - Section C)",
+            "additional_details_text": "",
+        },
         "schema": {
             "fields": [
                 "report_date",
@@ -172,8 +206,15 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operation_or_maintenance",
                 "lines_or_stations",
                 "cost",
-            ]
-        }
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "labor_or_material",
+                "operation_or_maintenance",
+                "lines_or_stations",
+            ],
+        },
     },
 }
 
@@ -243,4 +284,47 @@ liability_type_enum = [
     "deferred_credits",
     "accumulated_deferred_income_taxes_credits",
     "total_liabilities_and_other_credits",
+]
+
+operations_type_enum = [
+    "electric_energy_revenues",
+    "electric_energy_revenues_report_month",
+    "income_from_leased_property",
+    "other_operating_revenue_and_income",
+    "total_operation_revenues_and_patronage_capital",
+    "operating_expense_production_excluding_fuel",
+    "operating_expense_production_fuel",
+    "operating_expense_other_power_supply",
+    "operating_expense_transmission",
+    "operating_expense_rto_iso",
+    "operating_expense_distribution",
+    "operating_expense_customer_accounts",
+    "operating_expense_customer_service_and_information",
+    "operating_expense_sales",
+    "operating_expense_administrative_and_general",
+    "total_operation_expense",
+    "maintenance_expense_production",
+    "maintenance_expense_transmission",
+    "maintenance_expense_rto_iso",
+    "maintenance_expense_distribution",
+    "maintenance_expense_general_plant",
+    "total_maintenance_expense",
+    "depreciation_and_amortization_expense",
+    "taxes",
+    "interest_on_long_term_debt",
+    "interest_charged_to_construction_credit",
+    "other_interest_expense",
+    "asset_retirement_obligations",
+    "other_deductions",
+    "total_cost_of_electric_service",
+    "operating_margins",
+    "interest_income",
+    "allowance_for_funds_used_during_construction",
+    "allowance_for_funds_used_during_construction_report_month",
+    "income_or_loss_from_equity_investments",  # need to fix this in the extraction PR -- was lossfrom
+    "other_non_operating_income",
+    "generation_and_transmission_capital_credits",
+    "generation_and_transmission_capital_credits_",
+    "other_capital_credits_and_patronage_dividends",
+    "extraordinary_items",
 ]
