@@ -24,7 +24,7 @@ def core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
     return df
 
 
-@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
     """Transform the core_rus7__yearly_balance_sheet_assets table."""
     df = rus.early_transform(raw_df=raw_rus7__balance_sheet)

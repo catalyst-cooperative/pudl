@@ -38,9 +38,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_balance_sheet_assets": {
         "description": {
             "additional_summary_text": (""),
@@ -67,6 +64,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_balance_sheet_liabilities": {
         "description": {
             "additional_summary_text": (""),
