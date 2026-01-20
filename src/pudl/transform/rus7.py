@@ -55,12 +55,12 @@ def core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
     df = df.melt(
         id_vars=idx_ish,
         value_vars=value_vars,
-        var_name="asset_type",
+        var_name="liability_type",
         value_name="balance",
     )
-    df.asset_type = df.asset_type.str.removesuffix("_liabilities")
+    df.liability_type = df.liability_type.str.removesuffix("_liabilities")
     # POST-MELT
-    df["is_total"] = df.asset_type.str.startswith("total_")
+    df["is_total"] = df.liability_type.str.startswith("total_")
     return df
 
 
