@@ -4621,15 +4621,12 @@ class TransmissionLinesTableTransformer(Ferc1AbstractTableTransformer):
             - supporting_structure_type: Categorized structure type (NA for ambiguous values)
             - supporting_structure_material: Categorized material (NA for ambiguous values)
         """
-        if "supporting_structure_type" not in df.columns:
-            return df
-
         original_col = df["supporting_structure_type"].copy()
 
         # Preserve original unstructured value for user interpretation
         df["supporting_structure_type_original"] = original_col.copy()
 
-        df["supporting_structure_type"] = original_col.copy()
+        # Create material column from original for independent categorization
         df["supporting_structure_material"] = original_col.copy()
 
         return df
