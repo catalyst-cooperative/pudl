@@ -17,6 +17,11 @@ RUS 7
 
 * Extracted data for ten USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
 
+RUS-12
+~~~~~~
+
+* Extracted data for twelve USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -118,6 +123,7 @@ New Data
   :ref:`core_ferceqr__transactions`. Due to the size of this data, the tables are split
   into a set of parquet files partitioned by year-quarter, and cannot be downloaded
   as a single file like other PUDL tables.
+
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
