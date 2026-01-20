@@ -555,6 +555,14 @@ class EiaSettings(FrozenBaseModel):
         return data
 
 
+class Rus7Settings(GenericDatasetSettings):
+    """An immutable pydantic model to validate RUS-7 datasets settings."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("rus7")
+    years: list[int] = data_source.working_partitions["years"]
+    """The list of years to validate."""
+
+
 class Rus12Settings(GenericDatasetSettings):
     """An immutable pydantic model to validate RUS Form 12 settings."""
 
@@ -577,6 +585,7 @@ class DatasetsSettings(FrozenBaseModel):
     sec10k: Sec10kSettings | None = None
     vcerare: VCERareSettings | None = None
     censuspep: CensusPepSettings | None = None
+    rus7: Rus7Settings | None = None
     rus12: Rus12Settings | None = None
 
     @model_validator(mode="before")
@@ -599,6 +608,7 @@ class DatasetsSettings(FrozenBaseModel):
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
             data["nrelatb"] = NrelAtbSettings()
             data["phmsagas"] = PhmsaGasSettings()
+            data["rus7"] = Rus7Settings()
             data["sec10k"] = Sec10kSettings()
             data["vcerare"] = VCERareSettings()
             data["censuspep"] = CensusPepSettings()
