@@ -32,6 +32,33 @@ class Extractor(CsvExtractor):
             str(self.METADATA._get_partition_selection(partition)), page
         ]
 
+    def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
+        """Produce the dataframe object for the given partition.
+
+        In this instance we need to specify both year and geography to get the right zipfile.
+        In 2010 there is a zipfile at the federal and state level, but for now we only want
+        to use the federal-level data.
+
+        Args:
+            page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                "data"
+            partition: partition to load. Examples:
+                {'year': 2009}
+                {'year_month': '2020-08'}
+
+        Returns:
+            pd.DataFrame instance containing CSV data
+        """
+        filename = self.source_filename(page, **partition)
+
+        with (
+            self.ds.get_zipfile_resource(self._dataset_name, **partition) as zf,
+            zf.open(filename) as f,
+        ):
+            df = pd.read_csv(f, **self.READ_CSV_KWARGS)
+
+        return df
+
 
 raw_rus12__all_dfs = raw_df_factory(Extractor, name="rus12")
 
@@ -67,8 +94,6 @@ raw_rus12_assets = [
         "borrowers": None,
         "steam_plant_operations": None,
         "steam_plant_costs": None,
-<<<<<<< HEAD
-=======
         "hydroelectric_plant_operations": None,
         "hydroelectric_plant_cost": None,
         "combined_cycle_plant_operations": None,
@@ -77,13 +102,7 @@ raw_rus12_assets = [
         "internal_combustion_plant_costs": None,
         "nuclear_plant_operations": None,
         "nuclear_plant_costs": None,
-<<<<<<< HEAD
-        "demand_output_delivery_points": None,
-        "demand_output_power_sources": None,
->>>>>>> eb417e254 (Rename extraction)
-=======
         "demand_and_energy_at_delivery_points": None,
         "demand_and_energy_at_power_sources": None,
->>>>>>> 8c286aefc (Drop net, rename demand_and_energy tables, drop monthly prefix, clean up mills_per_kwh)
     }.items()
 ]
