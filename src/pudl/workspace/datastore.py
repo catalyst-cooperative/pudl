@@ -10,6 +10,7 @@ import sys
 import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
+from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
@@ -271,6 +272,13 @@ class ZenodoFetcher:
         self.http = requests.Session()
         self.http.mount("http://", adapter)
         self.http.mount("https://", adapter)
+        # As of 01/2026, Zenodo rejects all Python requests with no custom user agent.
+        # We add this to note where our project's requests are originating from.
+        self.http.headers.update(
+            {
+                "User-Agent": f"pudl/{version('catalystcoop.pudl')} (https://github.com/catalyst-cooperative/pudl)"
+            }
+        )
         self._descriptor_cache = {}
 
     def get_doi(self: Self, dataset: str) -> ZenodoDoi:
