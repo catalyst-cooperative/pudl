@@ -30,6 +30,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["report_date", "borrower_id_rus"],
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
     "core_rus12__yearly_balance_sheet_assets": {
         "description": {
@@ -55,6 +58,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "asset_type",
             ],
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
     "core_rus12__yearly_balance_sheet_liabilities": {
         "description": {
@@ -80,6 +86,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "liability_type",
             ],
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
     "core_rus12__scd_borrowers": {
         "description": {
@@ -106,6 +115,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             # TODO: we could check to see if we could add a FK relationship here
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
     "core_rus12__yearly_renewable_plants": {
         "description": {
@@ -144,6 +156,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "prime_mover_id",
             ],
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
     "core_rus12__yearly_statement_of_operations": {  # Need to decide how to split this up
         "description": {
@@ -170,6 +185,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operations_type",
             ],
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
     "core_rus12__yearly_plant_labor": {
         "description": {
@@ -198,6 +216,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_type",  # this should be the primary key but there are duplicates for borrower_oid IA0084 and plant Walter Scott
             ],
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
     "core_rus12__yearly_lines_and_stations_labor_materials": {
         "description": {
@@ -227,7 +248,13 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "lines_or_stations",
             ],
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
+    "sources": ["rus12"],
+    "etl_group": "rus12",
+    "field_namespace": "rus",
     "core_rus12__yearly_loans": {
         "description": {
             "additional_summary_text": ("loans guaranteed by RUS borrowers."),
@@ -252,6 +279,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "loan_organization",
             ],
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
     "core_rus12__yearly_long_term_debt": {
         "description": {
@@ -275,6 +305,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "primary_key": ["report_date", "borrower_id_rus", "debt_description"],
         },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
     },
 }
 
