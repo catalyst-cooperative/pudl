@@ -278,7 +278,7 @@ class ZenodoFetcher:
             {
                 "User-Agent": f"pudl/{version('catalystcoop.pudl')} (https://github.com/catalyst-cooperative/pudl)"
             }
-        )  # TODO: Better way to update version?
+        )
         self._descriptor_cache = {}
 
     def get_doi(self: Self, dataset: str) -> ZenodoDoi:
