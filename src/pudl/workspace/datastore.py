@@ -271,6 +271,13 @@ class ZenodoFetcher:
         self.http = requests.Session()
         self.http.mount("http://", adapter)
         self.http.mount("https://", adapter)
+        # As of 01/2026, Zenodo rejects all Python requests with no custom user agent.
+        # We add this to note where our project's requests are originating from.
+        self.http.headers.update(
+            {
+                "User-Agent": "pudl/v2026.1.0 (https://github.com/catalyst-cooperative/pudl)"
+            }
+        )  # TODO: Better way to update version?
         self._descriptor_cache = {}
 
     def get_doi(self: Self, dataset: str) -> ZenodoDoi:
