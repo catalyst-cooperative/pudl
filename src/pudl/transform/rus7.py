@@ -115,22 +115,23 @@ def _core_rus7__yearly_power_requirements(raw_rus7__power_requirements):
     )
     # PK duplicate management
     dupe_mask = df.duplicated(subset=["report_date", "borrower_id_rus"], keep=False)
-    # visually inspecting these two dupes i learned that most of the values in
-    # one record are null. And all of the non-null values seem to be the exact same.
-    # Which led me to want to drop the mostly null record.
-    # First check this assumption: Are all of the non-null values the same?
-    assert (
-        df[dupe_mask]
-        .dropna(axis=1, how="any")
-        .reset_index(drop=True)
-        .T.assign(is_same=lambda x: x[0] == x[1])
-        .is_same.all()
-    )
-    # find the mostly null record of these two dupes and drop it
-    more_null_loc = (
-        df[dupe_mask].isna().sum(axis=1).sort_values(ascending=False).index[0]
-    )
-    df = df.drop(more_null_loc, axis="index")
+    if not df[dupe_mask].empty:
+        # visually inspecting these two dupes i learned that most of the values in
+        # one record are null. And all of the non-null values seem to be the exact same.
+        # Which led me to want to drop the mostly null record.
+        # First check this assumption: Are all of the non-null values the same?
+        assert (
+            df[dupe_mask]
+            .dropna(axis=1, how="any")
+            .reset_index(drop=True)
+            .T.assign(is_same=lambda x: x[0] == x[1])
+            .is_same.all()
+        )
+        # find the mostly null record of these two dupes and drop it
+        more_null_loc = (
+            df[dupe_mask].isna().sum(axis=1).sort_values(ascending=False).index[0]
+        )
+        df = df.drop(more_null_loc, axis="index")
     rus.early_check_pk(df)
     return df
 
