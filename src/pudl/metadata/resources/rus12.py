@@ -177,7 +177,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "operations_type"  # enum (list below)
                 "ytd_amount",
                 "ytd_budget",
-                "monthly_amount",
+                "report_month_amount",
             ],
             "primary_key": [
                 "report_date",
