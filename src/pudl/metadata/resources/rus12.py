@@ -7,7 +7,9 @@ RESOURCE_METADATA = {}
 DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_meeting_and_board": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": (
+                "annual meeting and board information for RUS borrowers."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section I)",
             "additional_details_text": "",
@@ -31,7 +33,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus12__yearly_balance_sheet_assets": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": (
+                "assets and other debts from the balance sheet."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part A - Section B)",
             "additional_details_text": "",
@@ -54,7 +58,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus12__yearly_balance_sheet_liabilities": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": (
+                "liabilities and other credits from the balance sheet."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part A - Section B)",
             "additional_details_text": "",
@@ -77,7 +83,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus12__scd_borrowers": {
         "description": {
-            "additional_summary_text": ("active RUS borrowers"),
+            "additional_summary_text": ("active RUS borrowers."),
             "usage_warnings": ["experimental_wip"],
             "additional_details_text": (
                 # note from readme about this table
@@ -103,7 +109,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus12__yearly_renewable_plants": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": (
+                "renewable energy plant generation information for RUS borrowers."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C RE)",
             "additional_details_text": "",
@@ -139,7 +147,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus12__yearly_statement_of_operations": {  # Need to decide how to split this up
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": (
+                "opex and cost of electric service for RUS borrowers."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part A - Section A)",
             "additional_details_text": "",
@@ -163,7 +173,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus12__yearly_plant_labor": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": ("plant-based labor report for RUS borrowers."),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Parts D, E, F, G - Section B)",
             "additional_details_text": "",
@@ -191,7 +201,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus12__yearly_lines_and_stations_labor_materials": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": (
+                "labor and material cost for lines and stations operated by RUS borrowers."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part I - Section C)",
             "additional_details_text": "",
@@ -216,6 +228,8 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
         },
     },
+    "core_rus12__yearly_loans": {},
+    "core_rus12__yearly_long_term_debt": {},
 }
 
 asset_type_enum = [
