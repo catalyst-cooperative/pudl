@@ -6,7 +6,7 @@ from dagster import asset
 import pudl.transform.rus as rus
 
 
-@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
     """Transform the core_rus7__meeting_and_board table."""
     df = rus.early_transform(
@@ -64,6 +64,7 @@ def core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
     return df
 
 
+# TODO: feed all rus7 tables into this and extract info
 @asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
 def core_rus7__scd_borrowers(raw_rus7__borrowers):
     """Transform the core_rus7__scd_borrowers table."""

@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_meeting_and_board
+        data_tests:
+          - expect_columns_not_all_null
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: last_annual_meeting_date
+          - name: members_num
+          - name: members_present_at_meeting_num
+          - name: was_quorum_present
+          - name: members_voting_by_proxy_or_mail_num
+          - name: board_members_num
+          - name: fees_and_expenses_for_board_members
+          - name: does_manager_have_written_contract

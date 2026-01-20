@@ -1462,6 +1462,7 @@ class Resource(PudlMeta):
             "vcerare",
             "phmsagas",
             "sec",
+            "rus",
         ]
         | None
     ) = None
@@ -1495,6 +1496,7 @@ class Resource(PudlMeta):
             "vcerare",
             "phmsagas",
             "sec10k",
+            "rus7",
         ]
         | None
     ) = None

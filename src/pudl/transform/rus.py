@@ -37,6 +37,8 @@ def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataF
             boolean_columns_to_fix=boolean_columns_to_fix,
         )
         .pipe(helpers.simplify_strings, ["borrower_name_rus"])
+        # TODO: remove .'s and ,'s bc they are inconsistent
+        .assign(state=lambda x: x.borrower_id_rus.str.extract(r"^([A-Z]{2})\d{4}$"))
     )
     return df
 

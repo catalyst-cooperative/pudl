@@ -9150,6 +9150,50 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " publisher identified in this record."
         ),
     },
+    "borrower_id_rus": {
+        "type": "string",
+        "description": (
+            "Unique identifier of RUS (Rural Utilities Service) borrower. These ID's "
+            "are structured as: two character state acronyms followed by four digits."
+        ),
+        "constraints": {
+            "pattern": r"^[A-Z]{2}\d{4}$",
+        },
+    },
+    "borrower_name_rus": {
+        "type": "string",
+        "description": "The name of the RUS (Rural Utilities Service) borrower.",
+    },
+    "last_annual_meeting_date": {
+        "type": "string",
+        "description": "The date of the last annual meeting.",
+    },
+    "members_num": {"type": "integer", "description": "The total number of members."},
+    "members_present_at_meeting_num": {
+        "type": "integer",
+        "description": "The number of members present at the last annual meeting.",
+    },
+    "was_quorum_present": {
+        "type": "boolean",
+        "description": "Whether or not quorum was met.",
+    },
+    "members_voting_by_proxy_or_mail_num": {
+        "type": "integer",
+        "description": "The number of members voting by mail or by proxy.",
+    },
+    "board_members_num": {
+        "type": "integer",
+        "description": "The total number of board members.",
+    },
+    "fees_and_expenses_for_board_members": {
+        "type": "integer",
+        "description": "The total amount of fees and expenses for board members.",
+        "unit": "USD",
+    },
+    "does_manager_have_written_contract": {
+        "type": "boolean",
+        "description": "Whether or not the RUS borrower's manager has a written contract.",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 

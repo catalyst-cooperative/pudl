@@ -2,15 +2,18 @@
 
 from typing import Any
 
-RESOURCE_METADATA = {}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": (
+                "borrower's governance - member meeting and board."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part M)",
-            "additional_details_text": "",
+            "additional_details_text": (
+                "This table contains governance information about RUS borrowers annual "
+                "member meetings as well as information about their board."
+            ),
         },
         "schema": {
             "fields": [
@@ -35,6 +38,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_balance_sheet_assets": {
         "description": {
             "additional_summary_text": (""),
@@ -105,6 +111,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
+                "state",
             ],
             "primary_key": [
                 "report_date",
