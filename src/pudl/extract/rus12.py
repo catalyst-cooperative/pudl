@@ -77,8 +77,13 @@ raw_rus12_assets = [
         "internal_combustion_plant_costs": None,
         "nuclear_plant_operations": None,
         "nuclear_plant_costs": None,
+<<<<<<< HEAD
         "demand_output_delivery_points": None,
         "demand_output_power_sources": None,
 >>>>>>> eb417e254 (Rename extraction)
+=======
+        "demand_and_energy_at_delivery_points": None,
+        "demand_and_energy_at_power_sources": None,
+>>>>>>> 8c286aefc (Drop net, rename demand_and_energy tables, drop monthly prefix, clean up mills_per_kwh)
     }.items()
 ]
