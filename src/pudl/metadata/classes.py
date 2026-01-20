@@ -1709,7 +1709,7 @@ class Resource(PudlMeta):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
-    def to_frictionless(self) -> frictionless.Resource:
+    def to_frictionless(self) -> dict:
         """Convert to a Frictionless Resource."""
         schema = {
             "fields": [
