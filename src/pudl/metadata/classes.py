@@ -1148,6 +1148,17 @@ class PudlResourceDescriptor(PudlMeta):
             """Return DataFrame to avoid warnings from default serializer."""
             return df
 
+    class PudlPartitionDescriptor(PudlMeta):
+        """Contains necessary information to construct paths for partitioned tables.
+
+        Certain large tables must be output as a directory of partitioned parquet
+        files to avoid massive unwieldy parquet files. This is done by specifying
+        a datasource and working partition key.
+        """
+
+        datasource: str
+        working_partition_key: str
+
     class PudlDescriptionComponents(PudlMeta):
         """Container to hold description configuration information.
 
@@ -1303,8 +1314,8 @@ class PudlResourceDescriptor(PudlMeta):
     etl_group_id: str = pydantic.Field(alias="etl_group")
     field_namespace_id: str = pydantic.Field(alias="field_namespace")
     create_database_schema: bool = True
-    #: Should be non-null if outputs are partitioned. Tuple specifying data source name and partition name
-    output_partition_source_key: tuple[str, str] | None = None
+    # Must be non-null if outputs are partitioned
+    output_partition_source_key: PudlPartitionDescriptor | None = None
 
 
 class Resource(PudlMeta):
@@ -1318,7 +1329,7 @@ class Resource(PudlMeta):
         >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
-        >>> resource = Resource(name='a', schema=schema, description='A')
+        >>> resource = Resource(name='a', schema=schema, description='A', path='a.parquet')
         >>> table = resource.to_sql()
         >>> table.columns.x
         Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
@@ -1339,6 +1350,7 @@ class Resource(PudlMeta):
         ...     'harvest': {'harvest': True},
         ...     'schema': {'fields': fields, 'primary_key': ['id']},
         ...     'description': 'A',
+        ...     'path': 'a.parquet',
         ... })
         >>> dfs = {
         ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
@@ -1418,6 +1430,7 @@ class Resource(PudlMeta):
         ...     'name': 'table', 'harvest': {'harvest': True},
         ...     'schema': {'fields': fields, 'primary_key': ['report_year']},
         ...     'description': 'Table',
+        ...     'path': 'table.parquet',
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
         >>> resource.format_df(df)
@@ -1439,7 +1452,7 @@ class Resource(PudlMeta):
     # Alias required to avoid shadowing Python built-in format()
     format_: String | None = pydantic.Field(alias="format", default=None)
     mediatype: String | None = None
-    path: String | None = None
+    path: String | list[String]
     dialect: dict[str, str] | None = None
     profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
@@ -1447,7 +1460,6 @@ class Resource(PudlMeta):
     sources: list[DataSource] = []
     keywords: list[String] = []
     encoder: Encoder | None = None
-    output_partition_source_key: tuple[str, str] | None = None
     field_namespace: (
         Literal[
             "censusdp1tract",
@@ -1639,6 +1651,23 @@ class Resource(PudlMeta):
                         f["encoder"] = encoder
                         break
 
+        # Construct path based on output partitions
+        if (part_key := descriptor.output_partition_source_key) is not None:
+            [source] = [
+                source
+                for source in obj["sources"]
+                if source.name == part_key.datasource
+            ]
+            obj["path"] = [
+                f"{resource_id}/{partition}.parquet"
+                for partition in source.working_partitions[
+                    part_key.working_partition_key
+                ]
+            ]
+        else:
+            obj["path"] = f"{resource_id}.parquet"
+        del obj["output_partition_source_key"]
+
         return obj
 
     @classmethod
@@ -1693,20 +1722,11 @@ class Resource(PudlMeta):
             "primary_key": self.schema.primary_key,
         }
 
-        if self.output_partition_source_key is not None:
-            source_name, partition_name = self.output_partition_source_key
-            [source] = [source for source in self.sources if source.name == source_name]
-            path = [
-                f"{self.name}/{partition}.parquet"
-                for partition in source.working_partitions[partition_name]
-            ]
-        else:
-            path = f"{self.name}.parquet"
         return {
             "name": self.name,
             "description": self.description,
             "schema": schema,
-            "path": path,
+            "path": self.path,
         }
 
     def to_pyarrow(self) -> pa.Schema:
@@ -1753,7 +1773,7 @@ class Resource(PudlMeta):
         Examples:
             >>> fields = [{'name': 'x_year', 'type': 'year', 'description': 'Year'}]
             >>> schema = {'fields': fields, 'primary_key': ['x_year']}
-            >>> resource = Resource(name='r', schema=schema, description='R')
+            >>> resource = Resource(name='r', schema=schema, description='R', path='r.parquet')
 
             By default, when :attr:`harvest` .`harvest=False`,
             exact matches are required.
@@ -2105,8 +2125,8 @@ class Package(PudlMeta):
         >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
-        >>> a = Resource(name='a', schema=schema, description='A')
-        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), description='B')
+        >>> a = Resource(name='a', schema=schema, description='A', path='a.parquet')
+        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), description='B', path='b.parquet')
         >>> Package(name='ab', resources=[a, b])
         Traceback (most recent call last):
         ValidationError: ...
