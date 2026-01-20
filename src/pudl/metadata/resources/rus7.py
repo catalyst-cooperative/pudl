@@ -40,10 +40,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus7__yearly_balance_sheet_assets": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": ("the assets on RUS borrower's balance sheet."),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
@@ -296,37 +295,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     # },
 }
 
-asset_type_enum = [
-    "utility_plant_in_service",
-    "construction_work_in_progress",
-    "total_utility_plant",
-    "depreciation_and_amortization",
-    "total_utility_plant",
-    "non_utility_property",
-    "investments_subsidiary_companies",
-    "investments_associated_orgs_patronage_capital",
-    "investments_associated_orgs_other_general_funds",
-    "investments_associated_orgs_other_non_general_funds",
-    "investments_economic_development",
-    "investments_other",
-    "special_funds",
-    "total_other_property_and_investments",
-    "cash_general_funds",
-    "cash_construction_funds_trustee",
-    "special_deposits",
-    "investments_temporary",
-    "notes_receivable",
-    "accounts_receivable_sales_of_energy",
-    "accounts_receivable_other",
-    "renewable_energy_credits",
-    "materials_and_supplies",
-    "prepayments",
-    "other_current_and_accrued",
-    "total_current_and_accrued",
-    "regulatory",
-    "other_deferred_debits",
-    "total",
-]
 liability_type_enum = [
     "memberships",
     "patronage_capital",

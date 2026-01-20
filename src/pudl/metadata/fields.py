@@ -13,6 +13,7 @@ from pudl.metadata.constants import FIELD_DTYPES_PANDAS, FIELD_DTYPES_POLARS
 from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
+    ASSET_TYPES_RUS7,
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     CUSTOMER_CLASSES_EIA176,
@@ -10181,25 +10182,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "description": (
                 "Type of asset being reported to the core_ferc1__yearly_balance_sheet_assets_sched110 table."
             ),
-            "constraints": {
-                "enum": ASSET_TYPES_FERC1.extend(
-                    # Add all possible correction records into enum
-                    [
-                        "accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_correction",
-                        "assets_and_other_debits_correction",
-                        "construction_work_in_progress_correction",
-                        "current_and_accrued_assets_correction",
-                        "deferred_debits_correction",
-                        "nuclear_fuel_in_process_of_refinement_conversion_enrichment_and_fabrication_correction",
-                        "nuclear_fuel_net_correction",
-                        "nuclear_materials_held_for_sale_correction",
-                        "other_property_and_investments_correction",
-                        "utility_plant_and_construction_work_in_progress_correction",
-                        "utility_plant_and_nuclear_fuel_net_correction",
-                        "utility_plant_net_correction",
-                    ]
-                )
-            },
+            "constraints": {"enum": ASSET_TYPES_RUS7},
         },
     },
 }
