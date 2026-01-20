@@ -49,8 +49,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "asset_type",  # enum (list below)
-                "balance",  # $s
+                "asset_type",
+                "balance",
                 "is_total",
             ],
             "primary_key": [
@@ -63,23 +63,21 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_balance_sheet_liabilities": {
         "description": {
-            "additional_summary_text": (""),
+            "additional_summary_text": (
+                "the liabilities on RUS borrower's balance sheet."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "liability_type",  # enum (list below)
-                "balance",  # $s
+                "liability_type",
+                "balance",
                 "is_total",
             ],
             "primary_key": [
@@ -92,6 +90,36 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+    "core_rus7__yearly_employee_statistics": {
+        "description": {
+            "additional_summary_text": ("statistics about employment and payroll."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "employees_fte_num",
+                "employee_hours_worked_regular_time",
+                "employee_hours_worked_over_time",
+                "payroll_expensed",
+                "payroll_capitalized",
+                "payroll_other",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__scd_borrowers": {  # this is kinda a SCD table? with just two things?
         "description": {
             "additional_summary_text": ("active RUS borrowers"),
@@ -117,34 +145,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
             ],
             # TODO: we could check to see if we could add a FK relationship here
-        },
-        "sources": ["rus7"],
-        "etl_group": "rus7",
-        "field_namespace": "rus",
-    },
-    "core_rus7__yearly_employee_statistics": {
-        "description": {
-            "additional_summary_text": (""),
-            "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part H)",
-            "additional_details_text": "",
-        },
-        "schema": {
-            "fields": [
-                "report_date",
-                "borrower_id_rus",
-                "borrower_name_rus",
-                "employees_fte_num",
-                "employee_hours_worked_regular_time",
-                "employee_hours_worked_over_time",
-                "payroll_expensed",
-                "payroll_capitalized",
-                "payroll_other",
-            ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-            ],
         },
         "sources": ["rus7"],
         "etl_group": "rus7",
@@ -294,34 +294,3 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     #     "field_namespace": "rus",
     # },
 }
-
-liability_type_enum = [
-    "memberships",
-    "patronage_capital",
-    "operating_margins_prior_years",
-    "operating_margins_current_year",
-    "non_operating_margins",
-    "other_margins_and_equities",
-    "total_margins_and_equities",
-    "long_term_debt_rus",
-    "long_term_debt_ffb_rus_guaranteed",
-    "long_term_debt_other_rus_guaranteed",
-    "long_term_debt_other",
-    "long_term_debt_rus_economic_development",
-    "payments_unapplied",
-    "total_long_term_debt",
-    "noncurrent_obligations_under_capital_leases",
-    "noncurrent_obligations_asset_retirement",
-    "total_noncurrent_obligations",
-    "notes_payable",
-    "accounts_payable",
-    "consumer_deposits",
-    "current_maturities_long_term_debt",
-    "economic_development",
-    "current_maturities_capital_leases",
-    "other_current_and_accrued_liabilities",
-    "total_current_and_accrued_liabilities",
-    "regulatory",
-    "other_deferred_credits",
-    "total_liabilities_and_other_credits",
-]

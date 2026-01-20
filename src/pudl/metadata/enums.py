@@ -836,12 +836,11 @@ DAMAGE_SUB_TYPES_PHMSAGAS = [
 ]
 INSTALL_DECADE_PATTERN_PHMSAGAS = r"(\d{4}s|unknown_decade|pre_1940|total_decades)"
 
-ASSET_TYPES_RUS7 = [
+ASSET_TYPES_RUS7: set[str] = [
     "utility_plant_in_service",
     "construction_work_in_progress",
     "total_utility_plant",
     "depreciation_and_amortization",
-    "total_utility_plant",
     "non_utility_property",
     "investments_subsidiary_companies",
     "investments_associated_orgs_patronage_capital",
@@ -866,4 +865,36 @@ ASSET_TYPES_RUS7 = [
     "regulatory",
     "other_deferred_debits",
     "total",
+]
+
+
+LIABILITY_TYPES_RUS7: set[str] = [
+    "memberships",
+    "patronage_capital",
+    "operating_margins_prior_years",
+    "operating_margins_current_year",
+    "non_operating_margins",
+    "other_margins_and_equities",
+    "total_margins_and_equities",
+    "long_term_debt_rus",
+    "long_term_debt_ffb_rus_guaranteed",
+    "long_term_debt_other_rus_guaranteed",
+    "long_term_debt_other",
+    "long_term_debt_rus_economic_development",
+    "payments_unapplied",
+    "total_long_term_debt",
+    "noncurrent_obligations_under_capital_leases",
+    "noncurrent_obligations_asset_retirement",
+    "total_noncurrent_obligations",
+    "notes_payable",
+    "accounts_payable",
+    "consumer_deposits",
+    "current_maturities_long_term_debt",
+    "economic_development",
+    "current_maturities_capital_leases",
+    "other_current_and_accrued_liabilities",
+    "total_current_and_accrued_liabilities",
+    "regulatory",
+    "other_deferred_credits",
+    "total_liabilities_and_other_credits",
 ]

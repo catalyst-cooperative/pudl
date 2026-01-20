@@ -35,6 +35,7 @@ from pudl.metadata.enums import (
     INSTALL_DECADE_PATTERN_PHMSAGAS,
     LEAK_SOURCE_PHMSAGAS,
     LIABILITY_TYPES_FERC1,
+    LIABILITY_TYPES_RUS7,
     MAIN_PIPE_SIZES_PHMSAGAS,
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
@@ -9199,6 +9200,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": "Whether or not this record represents a total.",
     },
+    "employees_fte_num": {
+        "type": "integer",
+        "description": "The number of full time employees.",
+    },
+    "employee_hours_worked_regular_time": {
+        "type": "integer",
+        "description": "The number of regular (non-overtime) hours worked by employees.",
+    },
+    "employee_hours_worked_over_time": {
+        "type": "integer",
+        "description": "The number of overtime hours worked by employees.",
+    },
+    "payroll_expensed": {
+        "type": "integer",
+        "description": "The amount of payroll spent that was expensed.",
+    },
+    "payroll_capitalized": {
+        "type": "integer",
+        "description": "The amount of payroll spent that was capitalized.",
+    },
+    "payroll_other": {
+        "type": "integer",
+        "description": "The amount of payroll spent that was funded by other means - not capitalized or expensed.",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -10176,13 +10201,22 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             },
         },
     },
-    "core_rus7__yearly_balance_sheet": {
+    "core_rus7__yearly_balance_sheet_assets": {
         "asset_type": {
             "type": "string",
             "description": (
-                "Type of asset being reported to the core_ferc1__yearly_balance_sheet_assets_sched110 table."
+                "Type of asset being reported to the core_rus7__yearly_balance_sheet_assets table."
             ),
             "constraints": {"enum": ASSET_TYPES_RUS7},
+        },
+    },
+    "core_rus7__yearly_balance_sheet_liabilities": {
+        "liability_type": {
+            "type": "string",
+            "description": (
+                "Type of liability being reported to the core_rus7__yearly_balance_sheet_liabilities table."
+            ),
+            "constraints": {"enum": LIABILITY_TYPES_RUS7},
         },
     },
 }
