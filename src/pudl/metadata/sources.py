@@ -932,6 +932,7 @@ SOURCES: dict[str, Any] = {
             "distribution services. This data was obtained through multiple Freedom "
             "of Information Access (FOIA) requests."
         ),
+        "concept_doi": "10.5281/zenodo.18248545",
         "source_file_dict": {
             "respondents": "Rural electric utilities borrowing from USDA RUS.",
             "source_format": "Comma Separated Value (.csv)",
@@ -968,6 +969,7 @@ SOURCES: dict[str, Any] = {
             "power supply (generation). This data was obtained through multiple Freedom "
             "of Information Access (FOIA) requests."
         ),
+        "concept_doi": "10.5281/zenodo.18315222",
         "source_file_dict": {
             "respondents": "Rural electric utilities borrowing from USDA RUS.",
             "source_format": "Comma Separated Value (.csv)",
