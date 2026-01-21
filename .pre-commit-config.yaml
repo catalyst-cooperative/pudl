@@ -31,14 +31,14 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.8
+    rev: v0.14.13
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.7.4
+    rev: v3.8.0
     hooks:
       - id: prettier
         types_or: [yaml]
@@ -54,7 +54,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.40.0
+    rev: v1.42.0
     hooks:
       - id: typos
         exclude: |
@@ -82,7 +82,7 @@ repos:
 
   # Check Github Actions
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.9
+    rev: v1.7.10
     hooks:
       - id: actionlint
 
@@ -91,6 +91,16 @@ repos:
   #####################################################################################
   - repo: local
     hooks:
+      - id: sort-zenodo-dois
+        name: sort-zenodo-dois
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        files: "^src/pudl/package_data/settings/zenodo_dois\\.yml$"
+        pass_filenames: true
+        always_run: false
+        entry: bash -c 'for file in "$@"; do LC_ALL=C sort "$file" -o "$file"; done' --
+
       - id: sort-row-counts
         name: sort-row-counts
         stages: [pre-commit]
@@ -110,7 +120,7 @@ repos:
         files: ".*\\.ipynb"
         pass_filenames: true
         always_run: false
-        entry: jupyter nbconvert --clear-output
+        entry: pixi run jupyter nbconvert --clear-output
 
       - id: unit-tests
         name: unit-tests
@@ -119,16 +129,7 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit -m "not slow"
-
-      - id: conda-lock
-        name: conda-lock
-        stages: [pre-commit]
-        language: unsupported
-        verbose: false
-        files: "pyproject.toml"
-        always_run: false
-        entry: make conda-clean conda-lock.yml
+        entry: pixi run pytest --no-cov --doctest-modules src/pudl test/unit -m "not slow"
 
 # Configuration for pre-commit.ci
 ci:
@@ -140,5 +141,5 @@ ci:
   autoupdate_branch: main
   autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
-  skip: [unit-tests, nb-output-clear, conda-lock, shellcheck]
+  skip: [unit-tests, nb-output-clear, shellcheck]
   submodules: false

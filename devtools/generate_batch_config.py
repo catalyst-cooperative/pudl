@@ -32,6 +32,9 @@ def to_config(
     container_env: list[list[str]],
     container_command: str,
     container_arg: str,
+    vcpu: int,
+    mem_gb: int,
+    disk_gb: int,
 ) -> dict:
     """Munge arguments into a configuration dictionary."""
     complete_env = sorted(_flat(container_env))
@@ -53,12 +56,12 @@ def to_config(
                                 "commands": [container_command] + _flat(container_arg),
                             },
                             "environment": {"variables": env_dict},
-                        }
+                        },
                     ],
                     "computeResource": {
-                        "cpuMilli": 8000,
-                        "memoryMib": int(63 * MIB_PER_GB),
-                        "bootDiskMib": 200 * 1024,
+                        "cpuMilli": vcpu * 1000,
+                        "memoryMib": int(mem_gb * MIB_PER_GB),
+                        "bootDiskMib": disk_gb * 1024,
                     },
                     "maxRunDuration": f"{60 * 60 * 12}s",
                 }
@@ -72,7 +75,6 @@ def to_config(
         "logsPolicy": {"destination": "CLOUD_LOGGING"},
         "labels": {
             "component": "build",
-            "build_ref": env_dict.get("BUILD_REF", None),
         },
     }
     return config
@@ -89,6 +91,15 @@ def generate_batch_config():
     parser.add_argument("--container-command")
     parser.add_argument("--container-env", action="append", nargs="*", default=[])
     parser.add_argument("--container-arg", action="append", nargs="*", default=[])
+    parser.add_argument(
+        "--vcpu", default=8, type=int, help="Number of vCPUs to give VM"
+    )
+    parser.add_argument(
+        "--mem-gb", default=63, type=int, help="Total RAM in GB to give VM"
+    )
+    parser.add_argument(
+        "--disk-gb", default=200, type=int, help="Size of disk in GB to attach to VM"
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
@@ -97,6 +108,9 @@ def generate_batch_config():
         container_command=args.container_command,
         container_arg=args.container_arg,
         container_env=args.container_env,
+        vcpu=args.vcpu,
+        mem_gb=args.mem_gb,
+        disk_gb=args.disk_gb,
     )
 
     logger.info(f"Writing to {args.output}")

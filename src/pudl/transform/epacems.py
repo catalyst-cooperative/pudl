@@ -211,8 +211,11 @@ def transform_epacems(
         .with_columns(
             gross_load_mw=pl.when(pl.col("gross_load_mw") > 2000)
             .then(pl.col("gross_load_mw") / 1000)
-            .otherwise(pl.col("gross_load_mw"))
+            .otherwise(pl.col("gross_load_mw")),
+            # transform steam_load_1000_lbs to lbs
+            steam_load_lbs=(pl.col("steam_load_1000_lbs") * 1000),
         )
+        .drop("steam_load_1000_lbs")  # drop original
         .pipe(apply_pudl_dtypes_polars, group="epacems")
     )
 
@@ -257,6 +260,7 @@ def core_epacems__hourly_emissions(
         ).sink_parquet(
             output_path,
             engine="streaming",
+            compression="zstd",
             row_group_size=100_000,
         )
 

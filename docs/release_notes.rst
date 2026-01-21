@@ -3,8 +3,196 @@ PUDL Release Notes
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-v2025.12.x (2025-12-XX)
+v2026.XX.X (2026-XX-XX)
 ---------------------------------------------------------------------------------------
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+
+RUS 7
+~~~~~
+
+* Extracted data for ten USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
+* Transformed and published USDA RUS tables. See :issue:`4885` and PR :pr:`4939`.
+
+RUS-12
+~~~~~~
+
+* Extracted data for twelve USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+* Updated DOIs for the EIA-191 and EIA-757a (they pertain to natural gas) since we
+  extract them, even though we don't process the data yet. This added 2 more years to
+  the EIA-191 data. See PR :pr:`4879`.
+
+Documentation
+~~~~~~~~~~~~~
+
+* Added a data source documentation page for the :doc:`FERC EQR <data_sources/ferceqr>`.
+  See :issue:`4852` and PR :pr:`4879`.
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Consolidated local and remote Zenodo cache management under a single API that uses the
+  high-level abstraction of the :class:`upath.UPath` class. See issue :issue:`4860` and
+  PR :pr:`4870`.
+* Pulled the list of Zenodo DOIs that define the raw input data used by PUDL out into a
+  stand-alone settings file, rather than hard-coding them in the PUDL Datastore module.
+  This makes the DOIs more easily accessible for use in other contexts, such as when
+  calculating the GitHub Actions cache hash. Also made the GitHub Actions cache more
+  lenient, so that if it msises on an exact cache key, it will just download the most
+  recent cache of inputs. This should reduce the amount of data we need to download to
+  run the CI on GitHub and speed things up slightly. It also means we can be more
+  selective about when the ``zenodo-cache-sync`` workflow is run. Now it is only
+  triggered when the ``zenodo_dois.yml`` file is changed, not any time the Datastore
+  module is changed. See issue :issue:`4494` and PR :pr:`4870`.
+* Modernized the ``datapackage.json`` metadata stored on Zenodo for the
+  :doc:`Census DP1 <data_sources/censusdp1tract>` data source, enabling the removal of
+  a special case in the Datastore that only existed to deal with very old archive
+  metadata. See PR :pr:`4879`.
+* Data source documentation pages now display the source data concept DOI with a link to
+  the archive on Zenodo. See PR :pr:`4879`.
+* Made a change to the Datastore that allows it to obtain metadata from a
+  ``datapackage.json`` file stored on Zenodo, even if the data referenced by the data
+  package is stored on GCS, as is the case with FERC EQR. See the
+  `FERC EQR archive on Zenodo <https://doi.org/10.5281/zenodo.18251901>`__ as an
+  example. See PR :pr:`4879`.
+
+.. _release-v2026.1.0:
+
+---------------------------------------------------------------------------------------
+v2026.1.0 (2026-01-14)
+---------------------------------------------------------------------------------------
+
+This is a regular monthly data release, primarily intended to ensure that PUDL has the
+most up-to-date EIA-860M data. Along for the ride are the initial ETL for FERC EQR data,
+changes to the build system, and nicer units on a few columns.
+
+Application, not Library
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+From now on we will treat PUDL like an application rather than a library that other
+projects are expected to install as a package and depend on.  There's no change in the
+licensing or openness of the project -- this is just a technical evolution.  Explicitly
+treating PUDL like a standalone application will make it easier for us to do releases
+and ensure that we have a reproducible environment. The packages which we've been
+distributing on PyPI and ``conda-forge`` have also had major dependency resolution
+issues for a while now.
+
+It's also been our experience that almost all users want the data, not the pipeline. The
+backend is primarily of interest to Catalyst developers and open source contributors,
+who will continue to work within the development environment. See :doc:`dev/dev_setup`
+for instructions on how to set it up. See PR :pr:`4871` for where many of these changes
+were made.
+
+* We are no longer publishing PUDL releases as packages on `PyPI <https://pypi.org/project/catalystcoop.pudl/>`__
+  or `conda-forge <https://anaconda.org/channels/conda-forge/packages/catalystcoop.pudl/overview>`__.
+* Instead, PUDL will need to be installed from source, and is expected to be run in a
+  locked environment, and not specified as a normal dependency in other projects.
+* Tagged PUDL releases (corresponding to each of our data releases) will still be
+  archived automatically on `Zenodo <https://doi.org/10.5281/zenodo.3404014>`__ as well
+  as on our `GitHub Releases page
+  <https://github.com/catalyst-cooperative/pudl/releases>`__.
+* PUDL data releases will continue to be distributed through a variety of channels. See
+  :doc:`data_access` for the details.
+
+Enhancements
+^^^^^^^^^^^^
+
+New Data
+^^^^^^^^
+* Added a new ETL for FERC EQR data, as well as associated infrastructure for running
+  the job and publishing outputs, which can be found at
+  ``s3://pudl.catalyst.coop/ferceqr``. There are 4 new tables which are produced by
+  this ETL including, :ref:`core_ferceqr__quarterly_identity`,
+  :ref:`core_ferceqr__contracts`, :ref:`core_ferceqr__quarterly_index_pub`, and
+  :ref:`core_ferceqr__transactions`. Due to the size of this data, the tables are split
+  into a set of parquet files partitioned by year-quarter, and cannot be downloaded
+  as a single file like other PUDL tables.
+
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through November 2025. See :pr:`4903`.
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Standardized ``max_steam_flow_1000_lbs_per_hour`` to ``max_steam_flow_lbs_per_hour``.
+  Units changed to "lbs_per_hour" and rounded to nearest 100 lbs in the
+  :ref:`core_eia860__scd_boilers` and :ref:`out_eia__yearly_boilers` tables. See issue
+  :issue:`4301` and PR :pr:`4810`.
+* Standardized ``steam_load_1000_lbs`` to ``steam_load_lbs``. Units changed to "lbs" in
+  the :ref:`core_epacems__hourly_emissions` table. See issue :issue:`4301` and PR
+  :pr:`4810`.
+
+* Corrected incorrect column mappings in :ref:`core_eia861__yearly_reliability` and
+  ``raw_eia861__frame`` that were introduced for 2024 data during the EIA 861 2024
+  data update. See :issue:`4907` and :pr:`4908`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Switched from caching Zenodo archives in GCS to AWS S3, using our free and public AWS
+  Open Data Registry bucket at ``s3://pudl.catalyst.coop/zenodo``. This will make it
+  easier for open source contributors to run continuous integration tests, since no
+  cloud credentials are required to download the raw data from S3, and they will not be
+  subject to the flakiness of the Zenodo API. It will also allow us to access the raw
+  PUDL inputs and associated metadata in environments where we may not easily be able to
+  authenticate to GCS, such as Read The Docs. This was partly an attempt to mitigate the
+  Error 429 "too many requests" responses we have started getting from Zenodo, described
+  in :issue:`4856`. See PR :pr:`4857`. This should also address the timeouts and
+  new data download failures that came up in issue :issue:`4675`.
+* We've overhauled some of our tooling:
+
+  * Instead of using ``conda`` or ``mamba`` / ``micromamba`` to manage dependencies
+    we've switched to `Pixi <https://pixi.prefix.dev/>`__
+  * The venerable ``setuptools`` has been replaced with `Hatch <https://hatch.pypa.io/latest/>`__
+  * ``setuptools_scm`` has been replaced with `hatch-vcs <https://github.com/ofek/hatch-vcs>`__
+  * Our ``make`` targets have been converted into `Pixi tasks <https://pixi.prefix.dev/latest/workspace/advanced_tasks/>`__
+
+  See issues :issue:`4604,4872` and PR :pr:`4871` for more details.
+
+.. _release-v2025.12.1:
+
+---------------------------------------------------------------------------------------
+v2025.12.1 (2025-12-13)
+---------------------------------------------------------------------------------------
+
+This is a monthly release primarily intended to update the generators reporting in
+EIA-860M, with some other minor improvements coming along for the ride. These include
+another new EIA Form 176 natural gas disposition table, and experimental access to the
+FERC XBRL derived databases using DuckDB. Details below.
+
+.. note::
+
+   There was a misconfiguration in the build for ``v2025.12.0`` that prevented it from
+   deploying.
 
 Enhancements
 ^^^^^^^^^^^^
@@ -14,20 +202,36 @@ Enhancements
   SQLite) can be queried remotely when stored in a cloud bucket. This will also let us
   provide access to this relatively raw but complete FERC data through the `PUDL Data
   Viewer <https://data.catalyst.coop>`__. Note that the XBRL data only covers 2021 to
-  the present. See PR :pr:`4782` for this change, which is mostly implemented in the
-  1.7.x releases of our
-  `FERC XBRL Extractor <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/releases>`__.
+  the present. For links and an access example, see :ref:`access-raw-ferc-duckdb`. See
+  PR :pr:`4782` for this change, which is mostly implemented in the
+  1.7.x releases of our `FERC XBRL Extractor <https://github.com/catalyst-cooperative/ferc-xbrl-extractor/releases>`__.
 
 New Data
 ^^^^^^^^
 
- * Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
-   company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
-   :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
+EIA-176
+~~~~~~~
 
+Thanks to open source contributions from `SwitchBox <https://switch.box>`__ and funding
+from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems>`__
+we continue to bring in more EIA natural gas data.
+
+* Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
+  company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
+  :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through October 2025. See :pr:`4788`.
+
+EIA-861
+~~~~~~~
+* Added EIA-861 re-released final release data from 2024. See :issue:`4826` and PR
+  :pr:`4827`.
 
 FERC Form 6
 ~~~~~~~~~~~
@@ -35,9 +239,6 @@ FERC Form 6
 * Updated to using the `latest archive of FERC Form 6
   <https://zenodo.org/records/17119798>`__ to capture a few late revisions. See PR
   :pr:`4784`.
-
-Documentation
-^^^^^^^^^^^^^
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,6 +258,9 @@ Bug Fixes
   file rather than uploading a zero-length file. Previously both types of errors
   (missing files and zero-length files) were only caught through manual inspection of
   draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
+* Remove row with plant ID 68815 and generator ID ``GAPPV`` that was erroneously
+  included in the 2024 from the EIA 860 generators data. See :issue:`4769` and PR
+  :pr:`4824`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^

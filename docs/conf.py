@@ -15,9 +15,11 @@ import shutil
 from pathlib import Path
 
 from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import CodeMetadata, DataSource, Package
+from pudl.metadata.classes import CodeMetadata, DataSource, Package, Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
+from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 DOCS_DIR = Path(__file__).parent.resolve()
 if os.environ.get("READTHEDOCS"):
@@ -72,6 +74,9 @@ bibtex_bibfiles = [
     "further_reading.bib",
 ]
 
+# Set this to True if you need to debug generated file formatting.
+keep_generated_files = False
+
 # Redirects to keep folks from hitting 404 errors:
 redirects = {
     "data_dictionary": "data_dictionaries/pudl_db.html",
@@ -80,7 +85,7 @@ redirects = {
 
 # Automatically generate API documentation during the doc build:
 autoapi_type = "python"
-autoapi_keep_files = False  # Set to True to debug auto-generated RST files
+autoapi_keep_files = keep_generated_files
 autoapi_dirs = [
     "../src/pudl",
 ]
@@ -118,6 +123,13 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build"]
+
+# This is necessary because Sphinx 9.0+ is getting confused about class
+# attributes named type, and type[SomeClass] annotations in factory functions
+# See this issue: https://github.com/sphinx-doc/sphinx/issues/14223
+suppress_warnings = [
+    "ref.python",  # Suppress ambiguous Python reference warnings
+]
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -174,6 +186,7 @@ INCLUDED_SOURCES = [
     "eiaaeo",
     "ferc1",
     "ferc714",
+    "ferceqr",
     "epacems",
     "epacamd_eia",
     "phmsagas",
@@ -193,10 +206,11 @@ def data_sources_metadata_to_rst(app):
         "ferc1": ["glue"],
         "epacamd_eia": ["glue"],
     }
+    datastore = Datastore(local_cache_path=PudlPaths().data_dir)
     for name in INCLUDED_SOURCES:
         source = DataSource.from_id(name)
         source_resources = [res for res in package.resources if res.etl_group == name]
-        extra_resources = None
+        extra_resources: list[Resource] = []
         if name in extra_etl_groups:
             # get resources for this source from extra etl groups
             extra_resources = [
@@ -207,9 +221,10 @@ def data_sources_metadata_to_rst(app):
             ]
         source.to_rst(
             docs_dir=DOCS_DIR,
-            output_path=DOCS_DIR / f"data_sources/{name}.rst",
+            output_path=str(DOCS_DIR / f"data_sources/{name}.rst"),
             source_resources=source_resources,
             extra_resources=extra_resources,
+            datastore=datastore,
         )
 
 
@@ -249,5 +264,6 @@ def setup(app):
     app.connect("builder-inited", data_dictionary_metadata_to_rst)
     app.connect("builder-inited", data_sources_metadata_to_rst)
     app.connect("builder-inited", static_dfs_to_rst)
-    app.connect("build-finished", cleanup_rsts)
-    app.connect("build-finished", cleanup_csv_dir)
+    if not keep_generated_files:
+        app.connect("build-finished", cleanup_rsts)
+        app.connect("build-finished", cleanup_csv_dir)

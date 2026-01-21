@@ -1,6 +1,7 @@
 """Datastore manages file retrieval for PUDL datasets."""
 
 import hashlib
+import importlib.resources
 import io
 import json
 import pathlib
@@ -9,24 +10,25 @@ import sys
 import zipfile
 from collections import defaultdict
 from collections.abc import Iterator
+from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated, Any, Self
-from urllib.parse import ParseResult, urlparse
 
 import click
 import frictionless
 import requests
-from google.auth.exceptions import DefaultCredentialsError
+import yaml
 from pydantic import HttpUrl, StringConstraints
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests.adapters import HTTPAdapter
+from upath import UPath
 from urllib3.util.retry import Retry
 
 import pudl
 from pudl.helpers import retry
 from pudl.workspace import resource_cache
-from pudl.workspace.resource_cache import PudlResourceKey
+from pudl.workspace.resource_cache import PudlResourceKey, UPathCache
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -59,37 +61,27 @@ class DatapackageDescriptor:
         self.doi = doi
         self._validate_datapackage(datapackage_json)
 
-    def get_resource_path(self, name: str) -> str:
-        """Returns zenodo url that holds contents of given named resource."""
-        res = self._get_resource_metadata(name)
-        # In older cached archives, "remote_url" was used to refer to the original path
-        # to the file, while the canonical "path" field was updated by the datastore
-        # to refer to the local path to the associated file relative to the location of
-        # datapackage.json. This behavior is deprecated and no longer used, but we need
-        # to retain this logic to support older cached archives, e.g. censusdp1tract
-        # which hasn't changed since 2020.
-        resource_path = res.get("remote_url") or res.get("path")
-        parsed_path = urlparse(resource_path)
-        if parsed_path.path.startswith("/api/files"):
-            record_number = self.doi.lower().rsplit("zenodo.", 1)[-1]
-            new_path = f"/records/{record_number}/files/{name}"
-            new_url = ParseResult(**(parsed_path._asdict() | {"path": new_path}))
-
-            return new_url.geturl()
-        return resource_path
-
     def _get_resource_metadata(self, name: str) -> dict:
         for res in self.datapackage_json["resources"]:
             if res["name"] == name:
                 return res
         raise KeyError(f"Resource {name} not found for {self.dataset}/{self.doi}")
 
+    def get_resource_path(self, name: str) -> str:
+        """Returns zenodo url that holds contents of given named resource."""
+        resource_path = self._get_resource_metadata(name).get("path", False)
+        if not resource_path:
+            raise KeyError(
+                f"Resource {name} does not have a valid path for {self.dataset}/{self.doi}"
+            )
+        return resource_path
+
     def get_download_size(self) -> int:
         """Returns the total download size of all the resources in MB."""
         total_bytes = 0
         for res in self.datapackage_json["resources"]:
             total_bytes += res["bytes"]
-        return int(total_bytes / 1000000)
+        return int(total_bytes / 1_000_000)
 
     def validate_checksum(self, name: str, content: str) -> bool:
         """Returns True if content matches checksum for given named resource."""
@@ -187,35 +179,70 @@ class DatapackageDescriptor:
 class ZenodoDoiSettings(BaseSettings):
     """Digital Object Identifiers pointing to currently used Zenodo archives."""
 
-    censusdp1tract: ZenodoDoi = "10.5281/zenodo.4127049"
-    censuspep: ZenodoDoi = "10.5281/zenodo.15315316"
-    eia176: ZenodoDoi = "10.5281/zenodo.17563679"
-    eia191: ZenodoDoi = "10.5281/zenodo.10607837"
-    eia757a: ZenodoDoi = "10.5281/zenodo.10607839"
-    eia860: ZenodoDoi = "10.5281/zenodo.17091669"
-    eia860m: ZenodoDoi = "10.5281/zenodo.17725393"
-    eia861: ZenodoDoi = "10.5281/zenodo.17293555"
-    eia923: ZenodoDoi = "10.5281/zenodo.17440792"
-    eia930: ZenodoDoi = "10.5281/zenodo.17500936"
-    eiawater: ZenodoDoi = "10.5281/zenodo.10806016"
-    eiaaeo: ZenodoDoi = "10.5281/zenodo.15622378"
-    eiaapi: ZenodoDoi = "10.5281/zenodo.17500949"
-    epacamd_eia: ZenodoDoi = "10.5281/zenodo.17582121"
-    epacems: ZenodoDoi = "10.5281/zenodo.17500930"
-    ferc1: ZenodoDoi = "10.5281/zenodo.17563678"
-    ferc2: ZenodoDoi = "10.5281/zenodo.17223540"
-    ferc6: ZenodoDoi = "10.5281/zenodo.17119798"
-    ferc60: ZenodoDoi = "10.5281/zenodo.17223513"
-    ferc714: ZenodoDoi = "10.5281/zenodo.16676145"
-    gridpathratoolkit: ZenodoDoi = "10.5281/zenodo.10892394"
-    nrelatb: ZenodoDoi = "10.5281/zenodo.12658647"
-    phmsagas: ZenodoDoi = "10.5281/zenodo.17076661"
-    sec10k: ZenodoDoi = "10.5281/zenodo.15161694"
-    vcerare: ZenodoDoi = "10.5281/zenodo.15166129"
+    censusdp1tract: ZenodoDoi
+    censuspep: ZenodoDoi
+    eia176: ZenodoDoi
+    eia191: ZenodoDoi
+    eia757a: ZenodoDoi
+    eia860: ZenodoDoi
+    eia860m: ZenodoDoi
+    eia861: ZenodoDoi
+    eia923: ZenodoDoi
+    eia930: ZenodoDoi
+    eiaaeo: ZenodoDoi
+    eiaapi: ZenodoDoi
+    epacamd_eia: ZenodoDoi
+    epacems: ZenodoDoi
+    ferc1: ZenodoDoi
+    ferc2: ZenodoDoi
+    ferc6: ZenodoDoi
+    ferc60: ZenodoDoi
+    ferc714: ZenodoDoi
+    ferceqr: ZenodoDoi
+    gridpathratoolkit: ZenodoDoi
+    nrelatb: ZenodoDoi
+    phmsagas: ZenodoDoi
+    rus7: ZenodoDoi
+    rus12: ZenodoDoi
+    sec10k: ZenodoDoi
+    vcerare: ZenodoDoi
 
     model_config = SettingsConfigDict(
         env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
     )
+
+    def __init__(self, **data: Any):
+        """Initialize ZenodoDoiSettings, loading from default YAML if no data provided.
+
+        Args:
+            **data: Field values to initialize the settings with. If empty, loads
+                from the default zenodo_dois.yml configuration file. If partial data
+                is provided, it will be merged with defaults from the YAML file.
+        """
+        # Load defaults from YAML file
+        default_path = (
+            importlib.resources.files("pudl.package_data.settings") / "zenodo_dois.yml"
+        )
+        with default_path.open() as f:
+            yaml_data = yaml.safe_load(f)
+
+        # Merge provided data with defaults (provided data takes precedence)
+        yaml_data.update(data)
+        super().__init__(**yaml_data)
+
+    @classmethod
+    def from_yaml(cls, path: str | Path) -> "ZenodoDoiSettings":
+        """Create a ZenodoDoiSettings instance from a YAML file path.
+
+        Args:
+            path: Path to a YAML file.
+
+        Returns:
+            A ZenodoDoiSettings object with DOIs loaded from the YAML file.
+        """
+        with Path(path).open() as f:
+            yaml_data = yaml.safe_load(f)
+        return cls(**yaml_data)
 
 
 class ZenodoFetcher:
@@ -226,21 +253,33 @@ class ZenodoFetcher:
     timeout: float
 
     def __init__(
-        self: Self, zenodo_dois: ZenodoDoiSettings | None = None, timeout: float = 15.0
+        self: Self, zenodo_dois: ZenodoDoiSettings | None = None, timeout: float = 100.0
     ):
         """Constructs ZenodoFetcher instance."""
         if not zenodo_dois:
             self.zenodo_dois = ZenodoDoiSettings()
+        else:
+            self.zenodo_dois = zenodo_dois
 
         self.timeout = timeout
 
         retries = Retry(
-            backoff_factor=2, total=3, status_forcelist=[429, 500, 502, 503, 504]
+            backoff_factor=2,
+            total=10,
+            status_forcelist=[429, 500, 502, 503, 504],
+            backoff_max=300,
         )
         adapter = HTTPAdapter(max_retries=retries)
         self.http = requests.Session()
         self.http.mount("http://", adapter)
         self.http.mount("https://", adapter)
+        # As of 01/2026, Zenodo rejects all Python requests with no custom user agent.
+        # We add this to note where our project's requests are originating from.
+        self.http.headers.update(
+            {
+                "User-Agent": f"pudl/{version('catalystcoop.pudl')} (https://github.com/catalyst-cooperative/pudl)"
+            }
+        )
         self._descriptor_cache = {}
 
     def get_doi(self: Self, dataset: str) -> ZenodoDoi:
@@ -274,7 +313,7 @@ class ZenodoFetcher:
 
     def _fetch_from_url(self: Self, url: HttpUrl) -> requests.Response:
         logger.info(f"Retrieving {url} from zenodo")
-        response = self.http.get(url, timeout=self.timeout)
+        response = self.http.get(str(url), timeout=self.timeout)
         if response.status_code == requests.codes.ok:
             logger.debug(f"Successfully downloaded {url}")
             return response
@@ -302,7 +341,11 @@ class ZenodoFetcher:
         """Given resource key, retrieve contents of the file from zenodo."""
         desc = self.get_descriptor(res.dataset)
         url = desc.get_resource_path(res.name)
-        content = self._fetch_from_url(url).content
+        if url.startswith("gs://"):
+            raise ValueError(
+                f"Resource {res.name} is stored in GCS ({desc.get_resource_path(res.name)}). ZenodoFetcher cannot retrieve it."
+            )
+        content = self._fetch_from_url(HttpUrl(url)).content
         desc.validate_checksum(res.name, content)
         return content
 
@@ -312,21 +355,30 @@ class Datastore:
 
     def __init__(
         self,
-        local_cache_path: Path | None = None,
-        gcs_cache_path: str | None = None,
+        local_cache_path: str | Path | UPath | None = None,
+        cloud_cache_path: str | UPath | None = "s3://pudl.catalyst.coop/zenodo",
         timeout: float = 15.0,
     ):
-        # TODO(rousik): figure out an efficient way to configure datastore caching
-        """Datastore manages file retrieval for PUDL datasets.
+        """Datastore manages input data retrieval for PUDL datasets.
+
+        Requires at least one of local_cache_path or cloud_cache_path to be provided.
 
         Args:
-            local_cache_path: if provided, LocalFileCache pointed at the data
-                subdirectory of this path will be used with this Datastore.
-            gcs_cache_path: if provided, GoogleCloudStorageCache will be used
-                to retrieve data files. The path is expected to have the following
-                format: gs://bucket[/path_prefix]
-            timeout: connection timeouts (in seconds) to use when connecting
-                to Zenodo servers.
+            local_cache_path: if provided, :class:`UPathCache` pointed at Zenodo
+                archives stored in this directory will be used with this Datastore. Can
+                be: a local Path object, a string describing a local path, a file://
+                URL, or a UPath object with file:// scheme.
+            cloud_cache_path: if provided, retrieve data from cloud object storage
+                using :class:`UPathCache` with the provided storage path. Can be: a
+                string describing a s3:// or gs:// URL or a UPath object with s3 or gs
+                scheme. The path is expected to have the format:
+                {gs,s3}://bucket[/path_prefix]
+            timeout: connection timeouts (in seconds) to use when connecting to Zenodo
+                servers.
+
+        Raises:
+            ValueError: if neither local_cache_path nor cloud_cache_path is provided.
+            ValueError: if local_cache_path or cloud_cache_path has unsupported scheme.
         """
         self._cache = resource_cache.LayeredCache()
         self._datapackage_descriptors: dict[str, DatapackageDescriptor] = {}
@@ -335,18 +387,46 @@ class Datastore:
         # object is deleted
         self.temporary_extraction_dir = TemporaryDirectory()
 
-        if local_cache_path:
-            logger.info(f"Adding local cache layer at {local_cache_path}")
-            self._cache.add_cache_layer(resource_cache.LocalFileCache(local_cache_path))
-        if gcs_cache_path:
-            try:
-                logger.info(f"Adding GCS cache layer at {gcs_cache_path}")
-                self._cache.add_cache_layer(
-                    resource_cache.GoogleCloudStorageCache(gcs_cache_path)
+        assert local_cache_path is not None or cloud_cache_path is not None, (
+            "At least one of local_cache_path or cloud_cache_path must be provided."
+        )
+        if local_cache_path is not None:
+            # Convert to UPath with explicit file:// protocol if needed
+            local_upath = UPath(local_cache_path).resolve()
+            if local_upath.protocol == "":
+                # Local filesystem path without scheme - add file:// protocol
+                local_upath = UPath(f"file://{local_cache_path}")
+
+            if local_upath.protocol != "file":
+                raise ValueError(
+                    f"Unsupported local storage scheme: {local_upath.protocol}. "
+                    "Only 'file' scheme is supported for local_cache_path."
                 )
-            except (DefaultCredentialsError, OSError) as e:
+
+            logger.info(f"Adding local cache layer at {local_upath}")
+            self._cache.add_cache_layer(UPathCache(local_upath))
+
+        if cloud_cache_path is not None:
+            # Convert to UPath
+            cloud_upath = UPath(cloud_cache_path)
+
+            # Get supported cloud protocols (everything except 'file')
+            supported_cloud_protocols = UPathCache.supported_protocols - {"file"}
+
+            if cloud_upath.protocol not in supported_cloud_protocols:
+                raise ValueError(
+                    f"Unsupported cloud storage scheme: {cloud_upath.protocol}. "
+                    f"Supported protocols: {', '.join(supported_cloud_protocols)}"
+                )
+
+            logger.info(
+                f"Adding {cloud_upath.protocol.upper()} cache layer at {cloud_upath}"
+            )
+            try:
+                self._cache.add_cache_layer(UPathCache(cloud_upath))
+            except RuntimeError as e:
                 logger.info(
-                    f"Unable to obtain credentials for GCS Cache at {gcs_cache_path}. "
+                    f"Unable to initialize cache at {cloud_upath}. "
                     f"Falling back to Zenodo if necessary. Error was: {e}"
                 )
 
@@ -395,6 +475,12 @@ class Datastore:
         """
         desc = self.get_datapackage_descriptor(dataset)
         for res in desc.get_resources(**filters):
+            if desc.get_resource_path(res.name).startswith("gs://"):
+                logger.info(
+                    f"Resource {res.name} is stored in GCS ({desc.get_resource_path(res.name)}). Skipping download."
+                )
+                continue
+
             if self._cache.is_optimally_cached(res) and skip_optimally_cached:
                 logger.info(f"{res} is already optimally cached.")
                 continue
@@ -508,7 +594,7 @@ def fetch_resources(
     dstore: Datastore,
     datasets: list[str],
     partition: dict[str, int | str],
-    gcs_cache_path: str,
+    cloud_cache_path: str,
     bypass_local_cache: bool,
 ) -> None:
     """Retrieve all matching resources and store them in the cache."""
@@ -517,9 +603,9 @@ def fetch_resources(
             single_ds, skip_optimally_cached=True, **partition
         ):
             logger.info(f"Retrieved {res}.")
-            # If the gcs_cache_path is specified and we don't want
+            # If the cloud_cache_path is specified and we don't want
             # to bypass the local cache, populate the local cache.
-            if gcs_cache_path and not bypass_local_cache:
+            if cloud_cache_path and not bypass_local_cache:
                 dstore._cache.add(res, contents)
 
 
@@ -592,19 +678,18 @@ def _parse_key_values(
     default=False,
     help=(
         "If enabled, locally cached data will not be used. Instead, a new copy will be "
-        "downloaded from Zenodo or the GCS cache if specified."
+        "downloaded from Zenodo or the cloud cache if specified."
     ),
 )
 @click.option(
-    "--gcs-cache-path",
+    "--cloud-cache-path",
     type=str,
+    default="s3://pudl.catalyst.coop/zenodo",
     help=(
-        "Load cached inputs from Google Cloud Storage if possible. This is usually "
-        "much faster and more reliable than downloading from Zenodo directly. The "
-        "path should be a URL of the form gs://bucket[/path_prefix]. Internally we use "
-        "gs://internal-zenodo-cache.catalyst.coop. A public cache is available at "
-        "gs://zenodo-cache.catalyst.coop but requires GCS authentication and a billing "
-        "project to pay data egress costs."
+        "Load cached inputs from cloud object storage (S3 or GCS) . This is typically "
+        "much faster and more reliable than downloading from Zenodo directly. By "
+        "default we read from the cache in PUDL's free, public AWS Open Data Registry "
+        "bucket."
     ),
 )
 @click.option(
@@ -628,7 +713,7 @@ def pudl_datastore(
     validate: bool,
     list_partitions: bool,
     partition: dict[str, int | str],
-    gcs_cache_path: str,
+    cloud_cache_path: str,
     bypass_local_cache: bool,
     logfile: pathlib.Path,
     loglevel: str,
@@ -662,7 +747,7 @@ def pudl_datastore(
         cache_path = PudlPaths().input_dir
 
     dstore = Datastore(
-        gcs_cache_path=gcs_cache_path,
+        cloud_cache_path=cloud_cache_path,
         local_cache_path=cache_path,
     )
 
@@ -678,7 +763,7 @@ def pudl_datastore(
             dstore=dstore,
             datasets=dataset,
             partition=partition,
-            gcs_cache_path=gcs_cache_path,
+            cloud_cache_path=cloud_cache_path,
             bypass_local_cache=bypass_local_cache,
         )
 

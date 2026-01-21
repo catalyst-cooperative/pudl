@@ -14,11 +14,11 @@ import sqlalchemy as sa
         # Force the download of one small partition from Zenodo
         "pudl_datastore --dataset ferc60 --bypass-local-cache --partition year=2020",
         # Force the download of one small partition from GCS
-        "pudl_datastore -d ferc60 --bypass-local-cache --gcs-cache-path gs://zenodo-cache.catalyst.coop --partition year=2020",
+        "pudl_datastore -d ferc60 --bypass-local-cache --cloud-cache-path s3://pudl.catalyst.coop/zenodo --partition year=2020",
         # Exercise the datastore validation code
         "pudl_datastore -d ferc60 --validate --partition year=2020",
         # Ensure that all data source partitions are legible
-        "pudl_datastore --list-partitions --gcs-cache-path gs://zenodo-cache.catalyst.coop",
+        "pudl_datastore --list-partitions --cloud-cache-path s3://pudl.catalyst.coop/zenodo",
     ],
 )
 @pytest.mark.script_launch_mode("inprocess")
@@ -128,6 +128,7 @@ def test_resource_description(script_runner, resource_id: str):
     "ZENODO_SANDBOX_TOKEN_PUBLISH" not in os.environ,
     reason="Zenodo sandbox token required to exercise uploads",
 )
+@pytest.mark.xfail(reason="Sadly the Zenodo sandbox has become flaketastic.")
 def test_zenodo_data_release(script_runner, tmp_path: Path):
     """Round-trip upload a tiny release directory to the Zenodo sandbox.
 

@@ -3,6 +3,10 @@
 from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.resource_helpers import (
+    canonical_harvested_details,
+    inherits_harvested_values_details,
+)
 
 AGG_FREQS = ["yearly", "monthly"]
 
@@ -119,6 +123,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_boilers": {
         "description": {
             "additional_summary_text": "boilers compiled from the EIA-860 and EIA-923.",
+            "additional_details_text": canonical_harvested_details("boilers", True),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -645,6 +651,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_generators": {
         "description": {
             "additional_summary_text": "generators compiled from across the EIA-860 and EIA-923.",
+            "additional_details_text": canonical_harvested_details("generators", True),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -720,6 +728,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_plants": {
         "description": {
             "additional_summary_text": "plants, compiled from across all EIA-860 and EIA-923 data.",
+            "additional_details_text": canonical_harvested_details("plants", True),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -805,6 +815,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia__entity_utilities": {
         "description": {
             "additional_summary_text": "utilities, compiled from all EIA data.",
+            "additional_details_text": canonical_harvested_details("utilities", True),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
@@ -875,6 +887,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_utilities": {
         "description": {
             "additional_summary_text": "all EIA utility attributes.",
+            "additional_details_text": inherits_harvested_values_details("utilities"),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -915,6 +929,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_plants": {
         "description": {
             "additional_summary_text": "all EIA plant attributes.",
+            "additional_details_text": inherits_harvested_values_details("plants"),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -982,6 +998,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_eia__yearly_boilers": {
         "description": {
             "additional_summary_text": "all EIA boiler attributes.",
+            "additional_details_text": inherits_harvested_values_details(
+                "boilers, plants, and utilities"
+            ),
+            "usage_warnings": ["harvested"],
         },
         "schema": {
             "fields": [
@@ -1024,7 +1044,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "hrsg",
                 "latitude",
                 "longitude",
-                "max_steam_flow_1000_lbs_per_hour",
+                "max_steam_flow_lbs_per_hour",
                 "mercury_control_existing_strategy_1",
                 "mercury_control_existing_strategy_2",
                 "mercury_control_existing_strategy_3",
@@ -1218,9 +1238,22 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     f"out_eia__{freq}_generators": {
         "description": {
             "additional_summary_text": "all generator attributes including calculated capacity factor, heat rate, fuel cost per MMBTU and fuel cost per MWh.",
-            "additional_details_text": """These calculations are based on
-the allocation of net generation reported on the basis of plant, prime mover and energy
-source to individual generators. Heat rates by generator-month are estimated by using
+            "additional_details_text": f"""This table includes all {freq} attributes
+for all generators reported to EIA-860 and EIA-923.
+
+To provide a complete picture of generator data, this table compiles data from many
+different EIA tables, including directly reported, imputed and calculated columns.
+We suggest using this table if you want to explore {freq} attributes about generators
+and would rather use a more complete and denormalized table. If you are more interested
+in the originally reported values, we recommend searching for core_eia with the column
+you are most interested in.
+
+The calculations of capacity factor, heat rate, fuel cost per MMBTU and fuel cost per MWh
+are based on the allocation of net generation reported on the basis of plant, prime mover
+and energy source to individual generators - which comes from this table:
+:ref:`out_eia923__{freq}_generation_fuel_by_generator`.
+
+Heat rates by generator-{freq} are estimated by using
 allocated estimates for per-generator net generation and fuel consumption as well as the
 :ref:`core_eia923__monthly_boiler_fuel` table, which reports fuel consumed by boiler.
 Heat rates are necessary to estimate the amount of fuel consumed by a generation unit,
@@ -1229,7 +1262,9 @@ and thus the fuel cost per MWh generated.
 Plant specific fuel prices are taken from the
 :ref:`core_eia923__monthly_fuel_receipts_costs` table, which only has ~70% coverage,
 leading to some generators with heat rate estimates still lacking fuel cost
-estimates.""",
+estimates.
+
+{inherits_harvested_values_details("generators, plants, and utilities")}""",
             "usage_warnings": [
                 "estimated_values",
                 {
@@ -1240,6 +1275,7 @@ estimates.""",
                     "type": "custom",
                     "description": "Not all columns are originally reported in or calculable from the input tables. Expect nulls.",
                 },
+                "harvested",
             ],
         },
         "schema": {

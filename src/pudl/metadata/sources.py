@@ -13,6 +13,7 @@ SOURCES: dict[str, Any] = {
         "description": (
             "US Census Demographic Profile 1 (DP1) County and Tract GeoDatabase."
         ),
+        "concept_doi": "10.5281/zenodo.4127048",
         "working_partitions": {},  # Census DP1 is monolithic.
         "keywords": sorted(
             {
@@ -40,6 +41,7 @@ SOURCES: dict[str, Any] = {
             "Reference files for Federal Information Processing Series (FIPS) Geographic Codes. "
             "These FIPS Codes are a subset of a broader Population Estimates dataset."
         ),
+        "concept_doi": "10.5281/zenodo.14624611",
         "working_partitions": {"years": [2009] + list(range(2011, 2025))},
         "keywords": sorted(
             {"fips", "census", "county", "state", "geography", "geocodes"}
@@ -56,6 +58,7 @@ SOURCES: dict[str, Any] = {
             "Supplemental Gas Supply and Disposition, describes the origins, suppliers, "
             "and disposition of natural gas on a yearly and state by state basis."
         ),
+        "concept_doi": "10.5281/zenodo.7682357",
         "source_file_dict": {
             "respondents": (
                 "Interstate natural gas pipeline companies; intrastate natural gas "
@@ -70,7 +73,6 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "Comma Separated Value (.csv)",
         },
-        "field_namespace": "eia",
         "working_partitions": {"years": sorted(set(range(1997, 2024)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
@@ -95,6 +97,7 @@ SOURCES: dict[str, Any] = {
             "Storage Report, describes the working and base gas in reservoirs, "
             "injections, withdrawals, and location of reservoirs by field monthly."
         ),
+        "concept_doi": "10.5281/zenodo.10607836",
         "source_file_dict": {
             "respondents": (
                 "All companies that operate underground natural gas storage fields in "
@@ -102,8 +105,7 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "JSON",
         },
-        "field_namespace": "eia",
-        "working_partitions": {"years": sorted(set(range(2014, 2024)))},
+        "working_partitions": {"years": sorted(set(range(2014, 2026)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
@@ -128,11 +130,11 @@ SOURCES: dict[str, Any] = {
             "status, operations and connecting infrastructure of natural gas processing "
             "plants. The form is completed tri-annually."
         ),
+        "concept_doi": "10.5281/zenodo.10607838",
         "source_file_dict": {
             "respondents": ("Natural gas processing plants."),
             "source_format": "JSON",
         },
-        "field_namespace": "eia",
         "working_partitions": {"years": sorted({2012, 2014, 2017})},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
@@ -159,12 +161,12 @@ SOURCES: dict[str, Any] = {
             "electric power plants with 1 megawatt or greater combined nameplate "
             "capacity."
         ),
+        "concept_doi": "10.5281/zenodo.4127026",
         "source_file_dict": {
             "respondents": "Utilities",
             "records_liberated": "~1 million",
             "source_format": "Microsoft Excel (.xls/.xlsx)",
         },
-        "field_namespace": "eia",
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
@@ -200,12 +202,12 @@ SOURCES: dict[str, Any] = {
             "capacity. Preliminary Monthly Electric Generator Inventory (based on "
             "Form EIA-860M as a supplement to Form EIA-860)"
         ),
-        "field_namespace": "eia",
+        "concept_doi": "10.5281/zenodo.4281336",
         "contributors": [],
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-10", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-11", freq="M")
             ],
         },
         "keywords": sorted(
@@ -232,7 +234,7 @@ SOURCES: dict[str, Any] = {
         "description": (
             "EIA Form 861 Annual Electric Power Industry Report, detailed data files."
         ),
-        "field_namespace": "eia",
+        "concept_doi": "10.5281/zenodo.4127028",
         "working_partitions": {
             "years": sorted(set(range(2001, 2025))),
         },
@@ -271,6 +273,7 @@ SOURCES: dict[str, Any] = {
             "power data on electricity generation, fuel consumption, fossil fuel "
             "stocks, and receipts at the power plant and prime mover level."
         ),
+        "concept_doi": "10.5281/zenodo.4127039",
         "source_file_dict": {
             "respondents": (
                 "Electric, CHP plants, and sometimes fuel transfer terminals with "
@@ -279,7 +282,6 @@ SOURCES: dict[str, Any] = {
             "records_liberated": "~5 million",
             "source_format": "Microsoft Excel (.xls/.xlsx)",
         },
-        "field_namespace": "eia",
         "working_partitions": {
             "years": sorted(set(range(2001, 2026))),
         },
@@ -314,6 +316,7 @@ SOURCES: dict[str, Any] = {
             "wind, solar, etc.) as well as interchange between the balancing areas, "
             "including international exchanges with Canada and Mexico."
         ),
+        "concept_doi": "10.5281/zenodo.10840077",
         "source_file_dict": {
             "respondents": (
                 "All entities in the contiguous United States that are listed in the "
@@ -322,7 +325,6 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "Comma separated values (CSV)",
         },
-        "field_namespace": "eia",
         "working_partitions": {
             "half_years": [
                 f"{year}half{half}" for year in range(2015, 2026) for half in [1, 2]
@@ -358,10 +360,10 @@ SOURCES: dict[str, Any] = {
             "energy supply and consumption, and carbon dioxide emissions by sector and "
             "region."
         ),
+        "concept_doi": "10.5281/zenodo.10838487",
         "source_file_dict": {
             "source_format": "JSON",
         },
-        "field_namespace": "eia",
         "working_partitions": {
             "years": [2023, 2025],
         },
@@ -394,10 +396,10 @@ SOURCES: dict[str, Any] = {
             "At present, PUDL integrates only a few specific data series related to "
             "fuel receipts and costs figures from the Bulk Electricity API."
         ),
+        "concept_doi": "10.5281/zenodo.7067366",
         "source_file_dict": {
             "source_format": "JSON",
         },
-        "field_namespace": "eia",
         "working_partitions": {"data_set": "electricity"},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -434,6 +436,7 @@ SOURCES: dict[str, Any] = {
             "Monthly cooling water usage by generator and boiler. Data "
             "collected in conjunction with the EIA-860 and EIA-923."
         ),
+        "concept_doi": "10.5281/zenodo.7683135",
         "keywords": sorted(
             set(KEYWORDS["eia"] + KEYWORDS["us_govt"] + KEYWORDS["eia_water"])
         ),
@@ -447,12 +450,12 @@ SOURCES: dict[str, Any] = {
             "US EPA hourly Continuous Emissions Monitoring System (CEMS) data."
             "Hourly CO2, SO2, NOx emissions and gross load."
         ),
+        "concept_doi": "10.5281/zenodo.10233185",
         "source_file_dict": {
             "respondents": "Coal and high-sulfur fueled plants over 25MW",
             "records_liberated": "~1 billion",
             "source_format": "Comma Separated Value (.csv)",
         },
-        "field_namespace": "epacems",
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
@@ -490,11 +493,11 @@ SOURCES: dict[str, Any] = {
             "one-to-many connection is necessary because pollutants from various plant "
             "parts are collecitvely emitted and measured from one point-source."
         ),
+        "concept_doi": "10.5281/zenodo.6633769",
         "source_file_dict": {
             "records_liberated": "~7000",
             "source_format": "Comma Separated Value (.csv)",
         },
-        "field_namespace": "glue",
         "working_partitions": {"years": sorted(set(range(2018, 2025)))},
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -530,12 +533,12 @@ SOURCES: dict[str, Any] = {
             "electric rate regulation, market oversight analysis, and financial audits "
             "by Major electric utilities, licensees and others."
         ),
+        "concept_doi": "10.5281/zenodo.4127043",
         "source_file_dict": {
             "respondents": "Major electric utilities and licenses.",
             "records_liberated": "~13.2 million (116 raw tables), ~4.7 million (23 clean tables)",
             "source_format": "XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)",
         },
-        "field_namespace": "ferc1",
         "working_partitions": {
             "years": sorted(set(range(1994, 2025))),
         },
@@ -567,7 +570,7 @@ SOURCES: dict[str, Any] = {
             "comprehensive financial and operating report submitted for natural gas "
             "pipelines rate regulation and financial audits."
         ),
-        "field_namespace": "ferc2",
+        "concept_doi": "10.5281/zenodo.5879542",
         "working_partitions": {
             # Years 1991-1995 use strange formats that need to be investigated further.
             # Years 1996-1999 come in split archives and full archives and we are going
@@ -598,7 +601,7 @@ SOURCES: dict[str, Any] = {
             "comprehensive financial and operating report submitted for oil "
             "pipelines rate regulation and financial audits."
         ),
-        "field_namespace": "ferc6",
+        "concept_doi": "10.5281/zenodo.7126395",
         "working_partitions": {
             # Years 2000-2020 are backed by DBF format.
             # Years 2021-present are backed by XBRL.
@@ -628,7 +631,7 @@ SOURCES: dict[str, Any] = {
             "comprehensive financial and operating report submitted for centralized "
             "service companies."
         ),
-        "field_namespace": "ferc60",
+        "concept_doi": "10.5281/zenodo.7126434",
         "working_partitions": {
             "years": sorted(set(range(2006, 2025))),
         },
@@ -659,7 +662,7 @@ SOURCES: dict[str, Any] = {
             "inter-balancing authority area power transfers, and net energy for load, "
             "summer-winter generation peaks and system lambda."
         ),
-        "field_namespace": "ferc714",
+        "concept_doi": "10.5281/zenodo.4127100",
         "working_partitions": {
             # 2021 and later data is in XBRL.
             # 2006-2020 data is in monolithic CSV files, so any year means all years.
@@ -682,27 +685,72 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "ferccid": {
+        "title": "FERC CID - Company Identifier Listing",
+        "path": "https://data.ferc.gov/company-registration/ferc-company-identifier-listing/",
+        "description": (
+            "FERC's regulations require regulated or jurisdictional entities and some "
+            "non-regulated or non-jurisdictional entities to obtain Company Identifier (CID) numbers "
+            "in order to make required filings with the Commission including tariff filings and "
+            "various required forms. Each regulatory program requires a unique CID number. These "
+            "CID numbers show up in various FERC filings, such as Forms 1, 2, 6, 60, 714, and EQR."
+        ),
+        "working_partitions": {},
+        "keywords": sorted(
+            set(
+                ["ferc", "cid", "company identifier"]
+                + KEYWORDS["ferc"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+        "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
+        "concept_doi": "10.5281/zenodo.18176680",
+    },
     "ferceqr": {
         "title": "FERC Form 920 -- Electric Quarterly Report (EQR)",
         "path": "https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr",
         "description": (
-            "The EQR contains Seller-provided data summarizing contractual terms and "
-            "conditions in agreements for all jurisdictional services, including "
-            "cost-based sales, market-based rate sales, and transmission service, "
-            "as well as transaction information for short-term and long-term "
-            "market-based power sales and cost-based power sales."
+            "The Electric Quarterly Report (EQR) is submitted by sellers participating "
+            "in bilateral electricity market transactions. The reports summarize the "
+            "contractual terms and conditions in agreements for all jurisdictional "
+            "services, including cost-based sales, market-based rate sales, and "
+            "transmission service, as well as transaction information for short-term "
+            "and long-term market-based power sales and cost-based power sales."
         ),
+        "concept_doi": "10.5281/zenodo.18251901",
         "keywords": sorted(
             set(
                 [
                     "ferceqr",
+                    "EQR",
                     "electric quarterly report",
+                    "form 920",
+                    "transactions",
+                    "contracts",
+                    "power sales",
+                    "power purchase agreements",
+                    "PPA",
+                    "ancillary services",
+                    "capacity",
                 ]
                 + KEYWORDS["ferc"]
                 + KEYWORDS["us_govt"]
                 + KEYWORDS["electricity"]
             )
         ),
+        "working_partitions": {
+            "year_quarters": [
+                f"{year}q{quarter}"
+                for year in range(2013, 2026)
+                for quarter in range(1, 5)
+                if not (
+                    (year == 2013 and quarter < 3) or (year == 2025 and quarter > 3)
+                )
+            ],
+        },
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
@@ -725,6 +773,7 @@ SOURCES: dict[str, Any] = {
             "individual wind and solar projects were aggregated up to the level of "
             "balancing authority or transmission zone."
         ),
+        "concept_doi": "10.5281/zenodo.10844661",
         "keywords": sorted(
             {
                 "solar",
@@ -770,6 +819,7 @@ SOURCES: dict[str, Any] = {
             "mine (Active, Abandoned, NonProducing, etc.), the current owner and "
             "operating company, commodity codes and physical attributes of the mine."
         ),
+        "concept_doi": "10.5281/zenodo.7683517",
         "keywords": sorted(set(KEYWORDS["msha"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
@@ -782,6 +832,7 @@ SOURCES: dict[str, Any] = {
             "annual projections of operational and capital expenditures (by technology "
             "and vintage), as well as operating characteristics (by technology)."
         ),
+        "concept_doi": "10.5281/zenodo.10839267",
         "source_file_dict": {
             "source_format": "Parquet",
         },
@@ -820,7 +871,7 @@ SOURCES: dict[str, Any] = {
             "pipeline mileage, facilities, commodities transported, miles by material, "
             "and installation dates."
         ),
-        "field_namespace": "phmsagas",
+        "concept_doi": "10.5281/zenodo.7683351",
         "working_partitions": {"years": sorted(set(range(1970, 2025)))},
         "keywords": sorted(set(KEYWORDS["phmsa"] + KEYWORDS["us_govt"])),
         "license_raw": LICENSES["us-govt"],
@@ -841,7 +892,6 @@ SOURCES: dict[str, Any] = {
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
         ],
-        "field_namespace": "pudl",
         "keywords": ["us", "electricity", "open data", "open source"],
         "license_raw": LICENSES["cc-by-4.0"],
         "license_pudl": LICENSES["cc-by-4.0"],
@@ -855,7 +905,7 @@ SOURCES: dict[str, Any] = {
             "Exchange Commission (SEC), that gives a comprehensive summary of a "
             "company's financial performance."
         ),
-        "field_namespace": "sec",
+        "concept_doi": "10.5281/zenodo.15161693",
         "working_partitions": {
             "tables": [
                 "raw_sec10k__quarterly_filings",
@@ -867,6 +917,83 @@ SOURCES: dict[str, Any] = {
         },
         "keywords": sorted(
             set(KEYWORDS["sec"] + KEYWORDS["us_govt"] + KEYWORDS["finance"])
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "rus7": {
+        "title": "USDA RUS Form 7 -- Financial and Operating Report: Electric Distribution",
+        "path": "https://www.rd.usda.gov/resources/forms/rus-forms",
+        "description": (
+            "The United States Department of Agriculture (USDA) Financial and "
+            "Operating Report for Electric Distribution (formerly known as Form 7) "
+            "is an annual report submitted by rural electric utilities "
+            "that receive funding from the USDA Rural Utilities Service (RUS) for "
+            "distribution services. This data was obtained through multiple Freedom "
+            "of Information Access (FOIA) requests."
+        ),
+        "concept_doi": "10.5281/zenodo.18248545",
+        "source_file_dict": {
+            "respondents": "Rural electric utilities borrowing from USDA RUS.",
+            "source_format": "Comma Separated Value (.csv)",
+        },
+        "working_partitions": {
+            "years": sorted(set(range(2006, 2022))),
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["matthew-grimley"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 7",
+                    "distribution",
+                ]
+                + KEYWORDS["rus"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["finance"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "rus12": {
+        "title": "USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply",
+        "path": "https://www.rd.usda.gov/resources/forms/rus-forms",
+        "description": (
+            "The United States Department of Agriculture (USDA) Financial and "
+            "Operating Report for Electric Power Supply (formerly known as Form 12) "
+            "is an annual report submitted by rural electric utilities "
+            "that receive funding from the USDA Rural Utilities Service (RUS) for "
+            "power supply (generation). This data was obtained through multiple Freedom "
+            "of Information Access (FOIA) requests."
+        ),
+        "concept_doi": "10.5281/zenodo.18315222",
+        "source_file_dict": {
+            "respondents": "Rural electric utilities borrowing from USDA RUS.",
+            "source_format": "Comma Separated Value (.csv)",
+        },
+        "working_partitions": {
+            "years": sorted(set(range(2006, 2022))),
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+            CONTRIBUTORS["matthew-grimley"],
+        ],
+        "keywords": sorted(
+            set(
+                [
+                    "form 12",
+                    "power supply",
+                ]
+                + KEYWORDS["rus"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["finance"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["plants"]
+                + KEYWORDS["fuels"]
+            )
         ),
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
@@ -883,6 +1010,7 @@ SOURCES: dict[str, Any] = {
             "as a capacity factor (a percentage of nameplate capacity) and exist for "
             "onshore wind, offshore wind, and fixed-tilt solar generation types."
         ),
+        "concept_doi": "10.5281/zenodo.13937522",
         "source_file_dict": {
             "source_format": "Comma Separated Value (.csv)",
         },

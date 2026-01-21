@@ -276,7 +276,7 @@ which should result in an error if encountered.
 
 
 class PartitionedDataFrame:
-    """This class bundles pandas.DataFrame with partition information."""
+    """This class bundles :class:`pandas.DataFrame` with partition information."""
 
     def __init__(self, df: pd.DataFrame, partition: dict[str, Any]):
         """Constructs new instance of PartitionedDataFrame."""

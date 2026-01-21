@@ -29,7 +29,7 @@ def configure_paths_for_tests(tmp_path_factory, request):
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")
 
     # We only use a temporary input directory when explicitly requested.
-    # This will force a re-download of raw inputs from Zenodo or the GCS cache.
+    # This will force a re-download of raw inputs from Zenodo or the S3 cache.
     if request.config.getoption("--tmp-data"):
         in_tmp = pudl_tmpdir / "input"
         in_tmp.mkdir()

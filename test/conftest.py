@@ -78,11 +78,6 @@ def pytest_addoption(parser):
         help="Path to a non-standard ETL settings file to use.",
     )
     parser.addoption(
-        "--gcs-cache-path",
-        default=None,
-        help="If set, use this GCS path as a datastore cache layer.",
-    )
-    parser.addoption(
         "--bypass-local-cache",
         action="store_true",
         default=False,
@@ -367,7 +362,7 @@ def configure_paths_for_tests(tmp_path_factory, request):
     # Just in case we need this later...
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")
     # We only use a temporary input directory when explicitly requested.
-    # This will force a re-download of raw inputs from Zenodo or the GCS cache.
+    # This will force a re-download of raw inputs from Zenodo or the S3 cache.
     if request.config.getoption("--tmp-data"):
         in_tmp = pudl_tmpdir / "input"
         in_tmp.mkdir()
@@ -404,14 +399,17 @@ def logger_config():
     """Configure root logger to filter out excessive logs from certain dependencies."""
     pudl.logging_helpers.configure_root_logger(
         dependency_loglevels={
-            "numba": logging.WARNING,
-            "fsspec": logging.INFO,
-            "asyncio": logging.INFO,
-            "google": logging.INFO,
+            "aiobotocore": logging.WARNING,
             "alembic": logging.WARNING,
             "arelle": logging.INFO,
-            "urllib3": logging.INFO,
+            "asyncio": logging.INFO,
+            "boto3": logging.WARNING,
+            "botocore": logging.WARNING,
+            "fsspec": logging.INFO,
+            "google": logging.INFO,
             "matplotlib": logging.WARNING,
+            "numba": logging.WARNING,
+            "urllib3": logging.INFO,
         },
         propagate=True,
     )
@@ -420,9 +418,7 @@ def logger_config():
 @pytest.fixture(scope="session")
 def pudl_datastore_config(request) -> dict[str, Any]:
     """Produce a :class:pudl.workspace.datastore.Datastore."""
-    gcs_cache_path = request.config.getoption("--gcs-cache-path")
     return {
-        "gcs_cache_path": gcs_cache_path if gcs_cache_path else "",
         "use_local_cache": not request.config.getoption("--bypass-local-cache"),
     }
 

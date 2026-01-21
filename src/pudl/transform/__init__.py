@@ -76,10 +76,13 @@ from . import (
     ferc,
     ferc1,
     ferc714,
+    ferceqr,
     gridpathratoolkit,
     nrelatb,
     params,
     phmsagas,
+    rus7,
+    rus12,
     sec10k,
     vcerare,
 )

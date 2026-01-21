@@ -11,6 +11,7 @@ from hashlib import sha1
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self, TypeVar
 
+import duckdb
 import frictionless
 import geopandas as gpd
 import jinja2
@@ -45,6 +46,7 @@ from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
     CONSTRAINT_DTYPES,
     CONTRIBUTORS,
+    FIELD_DTYPES_DUCKDB,
     FIELD_DTYPES_PANDAS,
     FIELD_DTYPES_POLARS,
     FIELD_DTYPES_PYARROW,
@@ -71,13 +73,13 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-# The BaseModel.schema attribute is deprecated and we are shadowing it to avoid needing
-# to define an inconvenient alias for it.
+# The 'schema' field in Resource shadows BaseModel.schema() (deprecated in Pydantic v2).
+# This is intentional to mirror the Frictionless Data standard and avoid the need to
+# define an inconvenient alias.
 warnings.filterwarnings(
     action="ignore",
-    message='Field name "schema" in "Resource" shadows an attribute in parent "PudlMeta"',
+    message=r'Field name "schema" in "Resource" shadows an attribute in parent',
     category=UserWarning,
-    module="pydantic._internal._fields",
 )
 
 # ---- Helpers ---- #
@@ -108,7 +110,7 @@ def _format_for_sql(x: Any, identifier: bool = False) -> str:  # noqa: C901
 
     Args:
         x: Value to format.
-        identifier: Whether `x` represents an identifier
+        identifier: Whether ``x`` represents an identifier
             (e.g. table, column) name.
 
     Examples:
@@ -350,10 +352,10 @@ class Encoder(PudlMeta):
     fixable, and ignored codes.
 
     In addition, a :class:`Package` class that has been instantiated using the
-    :meth:`Package.from_resource_ids` method will associate an `Encoder` object with any
+    :meth:`Package.from_resource_ids` method will associate an ``Encoder`` object with any
     column that has a foreign key constraint referring to a coding table (This
     column-level encoder is same as the encoder associated with the referenced table).
-    This `Encoder` can be used to standardize the codes found within the column.
+    This ``Encoder`` can be used to standardize the codes found within the column.
 
     :class:`Field` and :class:`Resource` objects have ``encode()`` methods that will
     use the column-level encoders to recode the original values, either for a single
@@ -458,7 +460,7 @@ class Encoder(PudlMeta):
     @field_validator("code_fixes")
     @classmethod
     def _check_fixed_codes_are_good_codes(cls, code_fixes, info: ValidationInfo):
-        """Check that every every fixed code is also one of the good codes."""
+        """Check that every fixed code is also one of the good codes."""
         if "df" not in info.data:
             return code_fixes
         errors = []
@@ -508,7 +510,7 @@ class Encoder(PudlMeta):
 
     @classmethod
     def from_id(cls, x: str) -> "Encoder":
-        """Construct an Encoder based on `Resource.name` of a coding table."""
+        """Construct an Encoder based on ``Resource.name`` of a coding table."""
         return cls(**cls.dict_from_id(x))
 
     @classmethod
@@ -529,7 +531,10 @@ class Encoder(PudlMeta):
         )
         rendered = template.render(
             Encoder=self,
-            description=RESOURCE_METADATA[self.name]["description"],
+            # just get the resolved resource summary & drop all the other sections of the description
+            description=PUDL_PACKAGE.get_resource(self.name).description.partition(
+                "\n\n"
+            )[0],
             csv_filepath=(Path("/") / csv_subdir / f"{self.name}.csv"),
             is_header=is_header,
         )
@@ -631,6 +636,10 @@ class Field(PudlMeta):
     def from_id(cls, x: str) -> "Field":
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
+
+    def to_duckdb_dtype(self) -> duckdb.sqltypes.DuckDBPyType:
+        """Return duckdb data type."""
+        return FIELD_DTYPES_DUCKDB[self.type]
 
     def to_polars_dtype(self) -> pl.DataType:
         """Return polars data type."""
@@ -938,7 +947,7 @@ class Contributor(PudlMeta):
     def __hash__(self):
         """Implements simple hash method.
 
-        Allows use of `set()` on a list of Contributor
+        Allows use of ``set()`` on a list of Contributor
         """
         return hash(str(self))
 
@@ -961,7 +970,6 @@ class DataSource(PudlMeta):
     name: SnakeCase
     title: String | None = None
     description: String | None = None
-    field_namespace: String | None = None
     keywords: list[str] = []
     path: AnyHttpUrl | None = None
     contributors: list[Contributor] = []
@@ -1003,12 +1011,11 @@ class DataSource(PudlMeta):
             temporal_coverage = ""
         return temporal_coverage
 
-    def add_datastore_metadata(self) -> None:
+    def add_datastore_metadata(self, datastore: Datastore | None = None) -> None:
         """Get source file metadata from the datastore."""
-        dp_desc = Datastore(
-            local_cache_path=PudlPaths().data_dir,
-            gcs_cache_path="gs://zenodo-cache.catalyst.coop",
-        ).get_datapackage_descriptor(self.name)
+        if datastore is None:
+            datastore = Datastore(local_cache_path=PudlPaths().data_dir)
+        dp_desc = datastore.get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
             partitions["years"] = partitions["year"]
@@ -1019,12 +1026,13 @@ class DataSource(PudlMeta):
     def to_rst(
         self,
         docs_dir: DirectoryPath,
-        source_resources: list,
-        extra_resources: list,
-        output_path: str = None,
+        source_resources: "list[Resource]",
+        extra_resources: "list[Resource]",
+        output_path: str | None = None,
+        datastore: Datastore | None = None,
     ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        self.add_datastore_metadata()
+        self.add_datastore_metadata(datastore=datastore)
         template = _get_jinja_environment(docs_dir).get_template(
             f"{self.name}_child.rst.jinja"
         )
@@ -1056,17 +1064,6 @@ class DataSource(PudlMeta):
         else:
             sys.stdout.write(rendered)
 
-    @classmethod
-    def from_field_namespace(
-        cls, x: str, sources: dict[str, Any] = SOURCES
-    ) -> list["DataSource"]:
-        """Return list of DataSource objects by field namespace."""
-        return [
-            cls(**cls.dict_from_id(name, sources))
-            for name, val in sources.items()
-            if val.get("field_namespace") == x
-        ]
-
     @staticmethod
     def dict_from_id(x: str, sources: dict[str, Any]) -> dict:
         """Look up the source by source name in the metadata."""
@@ -1086,7 +1083,7 @@ class ResourceHarvest(PudlMeta):
     harvest: StrictBool = False
     """Whether to harvest from dataframes based on field names.
 
-    If `False`, the dataframe with the same name is used and the process is limited to
+    If ``False``, the dataframe with the same name is used and the process is limited to
     dropping unwanted fields.
     """
 
@@ -1128,7 +1125,7 @@ class PudlResourceDescriptor(PudlMeta):
         """Describes a bunch of codes."""
 
         class CodeDataFrame(pr.DataFrameModel):
-            """The DF we use to represent code/label/description associations."""
+            """The DataFrame we use to represent code/label/description associations."""
 
             # TODO (daz) 2024-02-09: each of these | Nones are one-offs. Fix
             # the frickin data instead.
@@ -1184,7 +1181,9 @@ class PudlResourceDescriptor(PudlMeta):
         timeseries and this value is None or otherwise left unset, will be filled in
         with a default resolution parsed from the resource id string."""
 
-        layer_code: Literal["raw", "_core", "core", "out", "test"] | None = None
+        layer_code: (
+            Literal["raw", "_core", "core", "out", "out_narrow", "test"] | None
+        ) = None
         """Indicates the degree of processing applied to the data in this resource.  If
         None or otherwise left unset, will be filled in with a default layer parsed from
         the resource id string."""
@@ -1365,7 +1364,7 @@ class Resource(PudlMeta):
         True
 
         Alternatively, aggregate by primary key
-        (the default when :attr:`harvest`. `harvest=True`)
+        (the default when :attr:`harvest`. ``harvest=True``)
         and report aggregation errors.
 
         >>> df, report = resource.harvest_dfs(dfs)
@@ -1396,7 +1395,7 @@ class Resource(PudlMeta):
         Name: x, dtype: object
 
         Limit harvesting to the input dataframe of the same name
-        by setting :attr:`harvest`. `harvest=False`.
+        by setting :attr:`harvest`. ``harvest=False``.
 
         >>> resource.harvest.harvest = False
         >>> df, _ = resource.harvest_dfs(dfs, aggregate_kwargs={'raised': False})
@@ -1409,8 +1408,8 @@ class Resource(PudlMeta):
         a    2  2
 
         Harvesting can also handle conversion to longer time periods.
-        Period harvesting requires primary key fields with a `datetime` data type,
-        except for `year` fields which can be integer.
+        Period harvesting requires primary key fields with a ``datetime`` data type,
+        except for ``year`` fields which can be integer.
 
         >>> fields = [{'name': 'report_year', 'type': 'year', 'description': 'Report year'}]
         >>> resource = Resource(**{
@@ -1455,6 +1454,7 @@ class Resource(PudlMeta):
             "epacems",
             "ferc1",
             "ferc714",
+            "ferceqr",
             "glue",
             "gridpathratoolkit",
             "ppe",
@@ -1463,6 +1463,7 @@ class Resource(PudlMeta):
             "vcerare",
             "phmsagas",
             "sec",
+            "rus",
         ]
         | None
     ) = None
@@ -1481,6 +1482,7 @@ class Resource(PudlMeta):
             "ferc1",
             "ferc1_disabled",
             "ferc714",
+            "ferceqr",
             "glue",
             "gridpathratoolkit",
             "outputs",
@@ -1495,6 +1497,7 @@ class Resource(PudlMeta):
             "vcerare",
             "phmsagas",
             "sec10k",
+            "rus7",
         ]
         | None
     ) = None
@@ -1542,19 +1545,19 @@ class Resource(PudlMeta):
     ) -> dict:
         """Get a Resource-shaped dict from a PudlResourceDescriptor.
 
-        * `schema.fields`
+        * ``schema.fields``
 
           * Field names are expanded (:meth:`Field.from_id`).
           * Field attributes are replaced with any specific to the
-            `resource.group` and `field.name`.
+            ``resource.group`` and ``field.name``.
 
-        * `sources`: Source ids are expanded (:meth:`Source.from_id`).
-        * `licenses`: License ids are expanded (:meth:`License.from_id`).
-        * `contributors`: Contributor ids are fetched by source ids,
+        * ``sources``: Source ids are expanded (:meth:`Source.from_id`).
+        * ``licenses``: License ids are expanded (:meth:`License.from_id`).
+        * ``contributors``: Contributor ids are fetched by source ids,
           then expanded (:meth:`Contributor.from_id`).
-        * `keywords`: Keywords are fetched by source ids.
-        * `schema.foreign_keys`: Foreign keys are fetched by resource name.
-        * `description`: Full description text block is rendered from its component parts.
+        * ``keywords``: Keywords are fetched by source ids.
+        * ``schema.foreign_keys``: Foreign keys are fetched by resource name.
+        * ``description``: Full description text block is rendered from its component parts.
         """
         obj = descriptor.model_dump(by_alias=True)
         obj["name"] = resource_id
@@ -1605,10 +1608,14 @@ class Resource(PudlMeta):
             del schema["foreign_key_rules"]
 
         # overwrite description components with rendered text block
-        obj["description"] = descriptions.ResourceDescriptionBuilder(
-            resource_id,
-            obj,
-        ).build(_get_jinja_environment())
+        obj["description"] = (
+            descriptions.ResourceDescriptionBuilder(
+                resource_id,
+                obj,
+            )
+            .build()
+            .jinja_render(_get_jinja_environment())
+        )
 
         # Add encoders to columns as appropriate, based on FKs.
         # Foreign key relationships determine the set of codes to use
@@ -1696,6 +1703,10 @@ class Resource(PudlMeta):
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
 
+    def to_duckdb_dtypes(self) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
+        """Return Polars data type of each field by field name."""
+        return {f.name: f.to_duckdb_dtype() for f in self.schema.fields}
+
     def to_polars_dtypes(self) -> dict[str, pl.DataType]:
         """Return Polars data type of each field by field name."""
         return {f.name: f.to_polars_dtype() for f in self.schema.fields}
@@ -1723,7 +1734,7 @@ class Resource(PudlMeta):
 
         Returns:
             The name matching each primary key field (if any) as a :class:`dict`,
-            or `None` if not all primary key fields have a match.
+            or ``None`` if not all primary key fields have a match.
 
         Examples:
             >>> fields = [{'name': 'x_year', 'type': 'year', 'description': 'Year'}]
@@ -1793,8 +1804,8 @@ class Resource(PudlMeta):
         * All columns are cast to their specified pandas dtypes.
         * Primary key columns must be present and non-null.
         * Periodic primary key fields are snapped to the start of the desired period.
-        * If the primary key fields could not be matched to columns in `df`
-          (:meth:`match_primary_key`) or if `df=None`, an empty dataframe is returned.
+        * If the primary key fields could not be matched to columns in ``df``
+          (:meth:`match_primary_key`) or if ``df=None``, an empty dataframe is returned.
 
         Args:
             df: Dataframe to format.
@@ -1894,39 +1905,39 @@ class Resource(PudlMeta):
 
         The dataframe is grouped by primary key fields
         and aggregated with the aggregate function of each field
-        (:attr:`schema_`. `fields[*].harvest.aggregate`).
+        (:attr:`schema_`. ``fields[*].harvest.aggregate``).
 
         The report is formatted as follows:
 
-        * `valid` (bool): Whether resource is valid.
-        * `stats` (dict): Error statistics for resource fields.
-        * `fields` (dict):
+        * ``valid`` (bool): Whether resource is valid.
+        * ``stats`` (dict): Error statistics for resource fields.
+        * ``fields`` (dict):
 
-          * `<field_name>` (str)
+          * ``<field_name>`` (str)
 
-            * `valid` (bool): Whether field is valid.
-            * `stats` (dict): Error statistics for field groups.
-            * `errors` (:class:`pandas.Series`): Error values indexed by primary key.
+            * ``valid`` (bool): Whether field is valid.
+            * ``stats`` (dict): Error statistics for field groups.
+            * ``errors`` (:class:`pandas.Series`): Error values indexed by primary key.
 
           * ...
 
-        Each `stats` (dict) contains the following:
+        Each ``stats`` (dict) contains the following:
 
-        * `all` (int): Number of entities (field or field group).
-        * `invalid` (int): Invalid number of entities.
-        * `tolerance` (float): Fraction of invalid entities below which
+        * ``all`` (int): Number of entities (field or field group).
+        * ``invalid`` (int): Invalid number of entities.
+        * ``tolerance`` (float): Fraction of invalid entities below which
           parent entity is considered valid.
-        * `actual` (float): Actual fraction of invalid entities.
+        * ``actual`` (float): Actual fraction of invalid entities.
 
         Args:
             df: Dataframe to aggregate. It is assumed to have column names and
               data types matching the resource fields.
             raised: Whether aggregation errors are raised or
                replaced with :obj:`np.nan` and returned in an error report.
-            error: A function with signature `f(x, e) -> Any`,
-              where `x` are the original field values as a :class:`pandas.Series`
-              and `e` is the original error.
-              If provided, the returned value is reported instead of `e`.
+            error: A function with signature ``f(x, e) -> Any``,
+              where ``x`` are the original field values as a :class:`pandas.Series`
+              and ``e`` is the original error.
+              If provided, the returned value is reported instead of ``e``.
 
         Raises:
             ValueError: A primary key is required for aggregating.
@@ -2001,25 +2012,25 @@ class Resource(PudlMeta):
     ) -> tuple[pd.DataFrame, dict]:
         """Harvest from named dataframes.
 
-        For standard resources (:attr:`harvest`. `harvest=False`), the columns
+        For standard resources (:attr:`harvest`. ``harvest=False``), the columns
         matching all primary key fields and any data fields are extracted from
         the input dataframe of the same name.
 
-        For harvested resources (:attr:`harvest`. `harvest=True`), the columns
+        For harvested resources (:attr:`harvest`. ``harvest=True``), the columns
         matching all primary key fields and any data fields are extracted from
         each compatible input dataframe, and concatenated into a single
         dataframe.  Periodic key fields (e.g. 'report_month') are matched to any
         column of the same name with an equal or smaller period (e.g.
         'report_day') and snapped to the start of the desired period.
 
-        If `aggregate=False`, rows are indexed by the name of the input dataframe.
-        If `aggregate=True`, rows are indexed by primary key fields.
+        If ``aggregate=False``, rows are indexed by the name of the input dataframe.
+        If ``aggregate=True``, rows are indexed by primary key fields.
 
         Args:
             dfs: Dataframes to harvest.
             aggregate: Whether to aggregate the harvested rows by their primary key.
-                By default, this is `True` if `self.harvest.harvest=True` and
-                `False` otherwise.
+                By default, this is ``True`` if ``self.harvest.harvest=True`` and
+                ``False`` otherwise.
             aggregate_kwargs: Optional arguments to :meth:`aggregate_df`.
             format_kwargs: Optional arguments to :meth:`format_df`.
 

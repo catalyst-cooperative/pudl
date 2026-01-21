@@ -1,0 +1,109 @@
+---
+name: build-deploy-ferceqr
+on:
+  workflow_dispatch:
+
+env:
+  GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
+  GCS_OUTPUT_BUCKET: gs://pudl.catalyst.coop/ferceqr
+  GCS_LOGS_BUCKET: gs://builds.catalyst.coop/ferceqr_logs
+  S3_OUTPUT_BUCKET: s3://pudl.catalyst.coop/ferceqr
+  BATCH_JOB_JSON: batch_job.json
+
+jobs:
+  build_and_deploy_eqr:
+    name: Build Docker image, push to Docker Hub and deploy to Google Batch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Docker Metadata
+        id: docker_metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: catalystcoop/pudl-etl
+          flavor: |
+            latest=auto
+          tags: |
+            type=raw,value=${{ github.ref_name }}
+            type=ref,event=tag
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image and push to Docker Hub
+        id: docker-build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: ${{ steps.docker_metadata.outputs.tags }}
+          labels: ${{ steps.docker_metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "deploy-pudl-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+
+      - name: Set action environment variables
+        run: |
+          {
+              echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)";
+              echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}";
+          } >> "$GITHUB_ENV"
+
+      - name: Show freshly set envvars
+        run: |
+          echo "BUILD_ID: $BUILD_ID"
+          echo "BATCH_JOB_ID: $BATCH_JOB_ID"
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      # Deploy PUDL image to GCE
+      # Dagster Postgres connection configured in docker/dagster.yaml - otherwise we get a str for port num
+      - name: Make GCP Batch config file
+        run: |-
+          ./devtools/generate_batch_config.py \
+            --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
+            --container-command "pixi" \
+            --container-arg="run" \
+            --container-arg="bash" \
+            --container-arg="./docker/gcp_ferceqr_etl.sh" \
+            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            --container-env BUILD_REF=${{ github.ref_name }} \
+            --container-env BUILD_ID=${{ env.BUILD_ID }} \
+            --container-env FERCEQR_BUILD=true \
+            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
+            --container-env GCS_OUTPUT_BUCKET=${{ env.GCS_OUTPUT_BUCKET }} \
+            --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
+            --container-env S3_OUTPUT_BUCKET=${{ env.S3_OUTPUT_BUCKET }} \
+            --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
+            --container-env OMP_NUM_THREADS=4 \
+            --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
+            --disk-gb 1000 \
+            --output ${{ env.BATCH_JOB_JSON }}
+
+      # Start the batch job
+      - name: Kick off batch job
+        run: gcloud batch jobs submit run-ferceqr-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-east1

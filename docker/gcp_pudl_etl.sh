@@ -10,8 +10,7 @@ function send_slack_msg() {
 }
 
 function authenticate_gcp() {
-    # Set the default gcloud project id so the zenodo-cache bucket
-    # knows what project to bill for egress
+    # Set the default gcloud project id so the gcloud storage operations know what project to bill
     echo "Authenticating to GCP"
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
@@ -20,7 +19,7 @@ function initialize_postgres() {
     echo "initializing postgres."
     # This is sort of a fiddly set of postgres admin tasks:
     #
-    # 1. start the dagster cluster, which is set to be owned by mambauser in the Dockerfile
+    # 1. start the dagster cluster, which is set to be owned by ubuntu in the Dockerfile
     # 2. create a db within this cluster so we can do things
     # 3. tell it to actually fail when we mess up, instead of continuing blithely
     # 4. create a *dagster* user, whose creds correspond with those in docker/dagster.yaml
@@ -40,16 +39,13 @@ function run_pudl_etl() {
         alembic upgrade head &&
         ferc_to_sqlite \
             --loglevel DEBUG \
-            --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
             --workers 8 \
             "$PUDL_SETTINGS_YML" &&
         pudl_etl \
             --loglevel DEBUG \
-            --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
             "$PUDL_SETTINGS_YML" &&
         pytest \
             -n auto \
-            --gcs-cache-path gs://internal-zenodo-cache.catalyst.coop \
             --etl-settings "$PUDL_SETTINGS_YML" \
             --live-dbs test/integration test/unit \
             --no-cov &&
@@ -244,7 +240,7 @@ fi
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
-: "${PUDL_SETTINGS_YML:=/home/mambauser/pudl/src/pudl/package_data/settings/etl_full.yml}"
+: "${PUDL_SETTINGS_YML:=/home/ubuntu/pudl/src/pudl/package_data/settings/etl_full.yml}"
 
 # Save credentials for working with AWS S3
 # set +x / set -x is used to avoid printing the AWS credentials in the logs
