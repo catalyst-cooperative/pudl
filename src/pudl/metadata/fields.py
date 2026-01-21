@@ -13,6 +13,7 @@ from pudl.metadata.constants import FIELD_DTYPES_PANDAS, FIELD_DTYPES_POLARS
 from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
+    ASSET_TYPES_RUS7,
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     CUSTOMER_CLASSES_EIA176,
@@ -34,6 +35,7 @@ from pudl.metadata.enums import (
     INSTALL_DECADE_PATTERN_PHMSAGAS,
     LEAK_SOURCE_PHMSAGAS,
     LIABILITY_TYPES_FERC1,
+    LIABILITY_TYPES_RUS7,
     MAIN_PIPE_SIZES_PHMSAGAS,
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
@@ -9171,6 +9173,78 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             " publisher identified in this record."
         ),
     },
+    "borrower_id_rus": {
+        "type": "string",
+        "description": (
+            "Unique identifier of RUS (Rural Utilities Service) borrower. These ID's "
+            "are structured as: two character state acronyms followed by four digits."
+        ),
+        "constraints": {
+            "pattern": r"^[A-Z]{2}\d{4}$",
+        },
+    },
+    "borrower_name_rus": {
+        "type": "string",
+        "description": "The name of the RUS (Rural Utilities Service) borrower.",
+    },
+    "last_annual_meeting_date": {
+        "type": "string",
+        "description": "The date of the last annual meeting.",
+    },
+    "members_num": {"type": "integer", "description": "The total number of members."},
+    "members_present_at_meeting_num": {
+        "type": "integer",
+        "description": "The number of members present at the last annual meeting.",
+    },
+    "was_quorum_present": {
+        "type": "boolean",
+        "description": "Whether or not quorum was met.",
+    },
+    "members_voting_by_proxy_or_mail_num": {
+        "type": "integer",
+        "description": "The number of members voting by mail or by proxy.",
+    },
+    "board_members_num": {
+        "type": "integer",
+        "description": "The total number of board members.",
+    },
+    "fees_and_expenses_for_board_members": {
+        "type": "integer",
+        "description": "The total amount of fees and expenses for board members.",
+        "unit": "USD",
+    },
+    "does_manager_have_written_contract": {
+        "type": "boolean",
+        "description": "Whether or not the RUS borrower's manager has a written contract.",
+    },
+    "is_total": {
+        "type": "boolean",
+        "description": "Whether or not this record represents a total.",
+    },
+    "employees_fte_num": {
+        "type": "integer",
+        "description": "The number of full time employees.",
+    },
+    "employee_hours_worked_regular_time": {
+        "type": "integer",
+        "description": "The number of regular (non-overtime) hours worked by employees.",
+    },
+    "employee_hours_worked_over_time": {
+        "type": "integer",
+        "description": "The number of overtime hours worked by employees.",
+    },
+    "payroll_expensed": {
+        "type": "integer",
+        "description": "The amount of payroll spent that was expensed.",
+    },
+    "payroll_capitalized": {
+        "type": "integer",
+        "description": "The amount of payroll spent that was capitalized.",
+    },
+    "payroll_other": {
+        "type": "integer",
+        "description": "The amount of payroll spent that was funded by other means - not capitalized or expensed.",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -10146,6 +10220,24 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "UPLIFT",
                 ]
             },
+        },
+    },
+    "core_rus7__yearly_balance_sheet_assets": {
+        "asset_type": {
+            "type": "string",
+            "description": (
+                "Type of asset being reported to the core_rus7__yearly_balance_sheet_assets table."
+            ),
+            "constraints": {"enum": ASSET_TYPES_RUS7},
+        },
+    },
+    "core_rus7__yearly_balance_sheet_liabilities": {
+        "liability_type": {
+            "type": "string",
+            "description": (
+                "Type of liability being reported to the core_rus7__yearly_balance_sheet_liabilities table."
+            ),
+            "constraints": {"enum": LIABILITY_TYPES_RUS7},
         },
     },
 }

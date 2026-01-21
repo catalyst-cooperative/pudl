@@ -1011,11 +1011,11 @@ class DataSource(PudlMeta):
             temporal_coverage = ""
         return temporal_coverage
 
-    def add_datastore_metadata(self) -> None:
+    def add_datastore_metadata(self, datastore: Datastore | None = None) -> None:
         """Get source file metadata from the datastore."""
-        dp_desc = Datastore(
-            local_cache_path=PudlPaths().data_dir,
-        ).get_datapackage_descriptor(self.name)
+        if datastore is None:
+            datastore = Datastore(local_cache_path=PudlPaths().data_dir)
+        dp_desc = datastore.get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
             partitions["years"] = partitions["year"]
@@ -1026,12 +1026,13 @@ class DataSource(PudlMeta):
     def to_rst(
         self,
         docs_dir: DirectoryPath,
-        source_resources: list,
-        extra_resources: list,
+        source_resources: "list[Resource]",
+        extra_resources: "list[Resource]",
         output_path: str | None = None,
+        datastore: Datastore | None = None,
     ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        self.add_datastore_metadata()
+        self.add_datastore_metadata(datastore=datastore)
         template = _get_jinja_environment(docs_dir).get_template(
             f"{self.name}_child.rst.jinja"
         )
@@ -1462,6 +1463,7 @@ class Resource(PudlMeta):
             "vcerare",
             "phmsagas",
             "sec",
+            "rus",
         ]
         | None
     ) = None
@@ -1495,6 +1497,7 @@ class Resource(PudlMeta):
             "vcerare",
             "phmsagas",
             "sec10k",
+            "rus7",
         ]
         | None
     ) = None
