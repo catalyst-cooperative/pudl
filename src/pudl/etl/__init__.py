@@ -83,6 +83,7 @@ core_module_groups = {
     "core_vcerare": [pudl.transform.vcerare],
     "core_phmsagas": [pudl.transform.phmsagas],
     "core_rus7": [pudl.transform.rus7],
+    "core_rus12": [pudl.transform.rus12],
 }
 
 out_module_groups = {

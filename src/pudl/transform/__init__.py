@@ -82,6 +82,7 @@ from . import (
     params,
     phmsagas,
     rus7,
+    rus12,
     sec10k,
     vcerare,
 )
