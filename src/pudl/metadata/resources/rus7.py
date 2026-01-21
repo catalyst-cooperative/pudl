@@ -6,14 +6,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (
-                "borrower's governance - member meeting and board."
+                "governance information about RUS borrowers' annual "
+                "member meetings as well as information about their board."
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part M)",
-            "additional_details_text": (
-                "This table contains governance information about RUS borrowers annual "
-                "member meetings as well as information about their board."
-            ),
         },
         "schema": {
             "fields": [
@@ -40,7 +37,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus7__yearly_balance_sheet_assets": {
         "description": {
-            "additional_summary_text": ("the assets on RUS borrower's balance sheet."),
+            "additional_summary_text": (
+                "assets and other debts from the balance sheet."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C)",
         },
@@ -66,7 +65,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_balance_sheet_liabilities": {
         "description": {
             "additional_summary_text": (
-                "the liabilities on RUS borrower's balance sheet."
+                "liabilities and other credits from the balance sheet."
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C)",
