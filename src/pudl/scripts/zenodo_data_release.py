@@ -31,6 +31,7 @@ import tempfile
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from importlib.metadata import version
 from pathlib import Path
 from typing import IO
 
@@ -121,7 +122,12 @@ class ZenodoClient:
                 f"Got unexpected {env=}, expected {SANDBOX} or {PRODUCTION}"
             )
 
-        self.auth_headers = {"Authorization": f"Bearer {token}"}
+        # As of 01/2026, Zenodo rejects all Python requests with no custom user agent.
+        # We add this to note where our project's requests are originating from.
+        self.auth_headers = {
+            "Authorization": f"Bearer {token}",
+            "User-Agent": f"pudl/{version('catalystcoop.pudl')} (https://github.com/catalyst-cooperative/pudl)",
+        }
 
         logger.info(f"Using Zenodo token: {token[:4]}...{token[-4:]}")
 
