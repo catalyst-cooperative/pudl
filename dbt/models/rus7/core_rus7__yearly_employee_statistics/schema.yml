@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_employee_statistics
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: employees_fte_num
+          - name: employee_hours_worked_regular_time
+          - name: employee_hours_worked_over_time
+          - name: payroll_expensed
+          - name: payroll_capitalized
+          - name: payroll_other
