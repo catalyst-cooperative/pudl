@@ -35,17 +35,16 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: Lint and build PUDL documentation with Sphinx
+      - name: Lint and build PUDL documentation with Sphinx and install it to the appropriate version path
         run: |
-          pixi run docs-build
+          pixi run docs-install
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
-        # if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v20') }}
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build/html
-          force_orphan: true
+          publish_dir: docs/_install
+          keep_files: true
           user_name: "pudlbot"
           user_email: "pudl@catalyst.coop"

@@ -285,6 +285,27 @@ doc8 docs/ README.rst && \
 coverage run --append -m sphinx --jobs auto -v -W -b html docs docs/_build/html
 """, depends-on = ["docs-clean"], description = "Build Sphinx documentation" }
 
+docs-install = { cmd = """
+bash -c 'current_branch=`git rev-parse --abbrev-ref HEAD`; \
+current_tag=`git tag --points-at HEAD`; \
+echo "current branch ${current_branch}"; \
+echo "current tag ${current_tag}"; \
+docs_install_version=""; \
+case ${current_branch} in \
+    main) docs_install_version="latest";; \
+    nightly | stable) docs_install_version=${current_branch};; \
+esac || if [ ${current_tag} =~ ^v20.* ]; then \
+    docs_install_version=${current_tag}; \
+fi; \
+echo "docs install version \"${docs_install_version}\""; \
+mkdir -p docs/_install/en; \
+cp docs/latest_redirect.html docs/_install/index.html; \
+if [ -n "${docs_install_version}" ]; then \
+    rm -rf "docs/_install/en/${docs_install_version}"; \
+    cp -r "docs/_build/html docs/_install/en/${docs_install_version}"; \
+fi'
+""", depends-on = ["docs-build"], description = "Install Sphinx documentation to version tree" }
+
 # Testing tasks
 coverage-erase = { cmd = "coverage erase", description = "Clear coverage data" }
 pytest-unit = { cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit", description = "Run unit tests and doctests" }
