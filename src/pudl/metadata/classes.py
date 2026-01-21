@@ -34,6 +34,8 @@ from pydantic import (
     StrictInt,
     StrictStr,
     StringConstraints,
+    TypeAdapter,
+    ValidationError,
     ValidationInfo,
     field_serializer,
     field_validator,
@@ -67,7 +69,7 @@ from pudl.metadata.helpers import (
     split_period,
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA
-from pudl.metadata.sources import SOURCES
+from pudl.metadata.sources import ALL_PUDL_SOURCES, SOURCES
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
@@ -186,10 +188,33 @@ String = Annotated[
 SnakeCase = Annotated[
     str,
     StringConstraints(
-        min_length=1, strict=True, pattern=r"^[a-z_][a-z0-9_]*(_[a-z0-9]+)*$"
+        min_length=1,
+        strict=True,
+        pattern=r"^[a-z_][a-z0-9_]*(_[a-z0-9]+)*$",
     ),
 ]
 """Snake-case variable name :class:`str` (e.g. 'pudl', 'entity_eia860')."""
+
+PudlResourceName = Annotated[
+    str,
+    StringConstraints(
+        min_length=1,
+        strict=True,
+        pattern=rf"^(_?core_|out_)({'|'.join(ALL_PUDL_SOURCES)})__([a-z0-9_]+)$",
+    ),
+]
+"""A valid PUDL resource name conforming to our naming conventions :class:`str`."""
+
+
+def is_valid_pudl_resource_name(name: str) -> bool:
+    """Check if a string is a valid PUDL resource name."""
+    adapter = TypeAdapter(PudlResourceName)
+    try:
+        adapter.validate_python(name)
+        return True
+    except ValidationError:
+        return False
+
 
 PositiveInt = Annotated[int, pydantic.Field(ge=0, strict=True)]
 """Positive :class:`int`."""
@@ -1314,14 +1339,14 @@ class Resource(PudlMeta):
         A simple example illustrates the conversion to SQLAlchemy objects.
 
         >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
-        >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
+        >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'core_eia__b', 'fields': ['x', 'y']}}]
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
-        >>> resource = Resource(name='a', schema=schema, description='A')
+        >>> resource = Resource(name='core_eia__a', schema=schema, description='A')
         >>> table = resource.to_sql()
         >>> table.columns.x
-        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
+        Column('x', Integer(), ForeignKey('core_eia__b.x'), CheckConstraint(...), table=<core_eia__a>, primary_key=True, nullable=False, comment='X')
         >>> table.columns.y
-        Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>, comment='Y')
+        Column('y', Text(), ForeignKey('core_eia__b.y'), CheckConstraint(...), table=<core_eia__a>, comment='Y')
 
         To illustrate harvesting operations,
         say we have a resource with two fields - a primary key (`id`) and a data field -
@@ -1333,14 +1358,14 @@ class Resource(PudlMeta):
         ...     {'name': 'x', 'type': 'integer', 'harvest': {'aggregate': unique, 'tolerance': 0.25}, 'description': 'X'}
         ... ]
         >>> resource = Resource(**{
-        ...     'name': 'a',
+        ...     'name': 'core_eia__a',
         ...     'harvest': {'harvest': True},
         ...     'schema': {'fields': fields, 'primary_key': ['id']},
         ...     'description': 'A',
         ... })
         >>> dfs = {
-        ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
-        ...     'b': pd.DataFrame({'id': [2, 3, 3], 'x': [3, 4, 4]})
+        ...     'core_eia__a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
+        ...     'core_eia__b': pd.DataFrame({'id': [2, 3, 3], 'x': [3, 4, 4]})
         ... }
 
         Skip aggregation to access all the rows concatenated from the input dataframes.
@@ -1350,13 +1375,13 @@ class Resource(PudlMeta):
         >>> df
             id  x
         df
-        a    1  1
-        a    1  1
-        a    2  2
-        a    2  2
-        b    2  3
-        b    3  4
-        b    3  4
+        core_eia__a    1  1
+        core_eia__a    1  1
+        core_eia__a    2  2
+        core_eia__a    2  2
+        core_eia__b    2  3
+        core_eia__b    3  4
+        core_eia__b    3  4
 
         Field names and data types are enforced.
 
@@ -1391,7 +1416,7 @@ class Resource(PudlMeta):
         ... )
         >>> report['fields']['x']['errors']
         id
-        2    {'a': [2, 2], 'b': [3]}
+        2    {'core_eia__a': [2, 2], 'core_eia__b': [3]}
         Name: x, dtype: object
 
         Limit harvesting to the input dataframe of the same name
@@ -1402,10 +1427,10 @@ class Resource(PudlMeta):
         >>> df
             id  x
         df
-        a    1  1
-        a    1  1
-        a    2  2
-        a    2  2
+        core_eia__a    1  1
+        core_eia__a    1  1
+        core_eia__a    2  2
+        core_eia__a    2  2
 
         Harvesting can also handle conversion to longer time periods.
         Period harvesting requires primary key fields with a ``datetime`` data type,
@@ -1413,7 +1438,7 @@ class Resource(PudlMeta):
 
         >>> fields = [{'name': 'report_year', 'type': 'year', 'description': 'Report year'}]
         >>> resource = Resource(**{
-        ...     'name': 'table', 'harvest': {'harvest': True},
+        ...     'name': 'core_eia__table', 'harvest': {'harvest': True},
         ...     'schema': {'fields': fields, 'primary_key': ['report_year']},
         ...     'description': 'Table',
         ... })
@@ -1429,7 +1454,7 @@ class Resource(PudlMeta):
         1  2000-01-01
     """
 
-    name: SnakeCase
+    name: PudlResourceName
     title: String | None = None
     description: String
     harvest: ResourceHarvest = ResourceHarvest()
@@ -1739,7 +1764,7 @@ class Resource(PudlMeta):
         Examples:
             >>> fields = [{'name': 'x_year', 'type': 'year', 'description': 'Year'}]
             >>> schema = {'fields': fields, 'primary_key': ['x_year']}
-            >>> resource = Resource(name='r', schema=schema, description='R')
+            >>> resource = Resource(name='core_eia__r', schema=schema, description='R')
 
             By default, when :attr:`harvest` .`harvest=False`,
             exact matches are required.
@@ -2089,10 +2114,10 @@ class Package(PudlMeta):
         Foreign keys between resources are checked for completeness and consistency.
 
         >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
-        >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
+        >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'core_eia__b', 'fields': ['x', 'y']}}
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
-        >>> a = Resource(name='a', schema=schema, description='A')
-        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), description='B')
+        >>> a = Resource(name='core_eia__a', schema=schema, description='A')
+        >>> b = Resource(name='core_eia__b', schema=Schema(fields=fields, primary_key=['x']), description='B')
         >>> Package(name='ab', resources=[a, b])
         Traceback (most recent call last):
         ValidationError: ...
@@ -2104,7 +2129,7 @@ class Package(PudlMeta):
 
         >>> metadata = package.to_sql()
         >>> [table.name for table in metadata.sorted_tables]
-        ['b', 'a']
+        ['core_eia__b', 'core_eia__a']
     """
 
     name: String

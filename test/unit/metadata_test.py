@@ -137,7 +137,7 @@ def dummy_pandera_schema():
     )
     resource = Resource.model_validate(
         Resource.dict_from_resource_descriptor(
-            "test_eia__entity_plants", resource_descriptor
+            "out_eia__entity_plants", resource_descriptor
         )
     )
     return resource.schema.to_pandera()

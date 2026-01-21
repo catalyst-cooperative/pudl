@@ -25,7 +25,7 @@ def _assert_frame_equal(a: pd.DataFrame, b: pd.DataFrame, **kwargs: Any) -> None
 
 
 STANDARD: dict[str, Any] = {
-    "name": "r",
+    "name": "core_pudl__resource",
     "harvest": {"harvest": False},
     "schema": {
         "fields": [
@@ -56,7 +56,7 @@ STANDARD: dict[str, Any] = {
         ],
         "primary_key": ["i", "j"],
     },
-    "description": "letter r",
+    "description": "Core PUDL Resource",
 }
 
 HARVEST: dict[str, Any] = {**STANDARD, "harvest": {"harvest": True}}
@@ -280,7 +280,7 @@ FIELD_DTYPES: dict[str, str] = {
 
 RESOURCES: list[dict[str, Any]] = [
     {
-        "name": "test_eia860__entity_plants",
+        "name": "core_eia860__entity_plants",
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["plant_id_eia", "state", "balancing_authority_code_eia"],
@@ -288,7 +288,7 @@ RESOURCES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "test_eia860__entity_generators",
+        "name": "core_eia860__entity_generators",
         "harvest": {"harvest": True},
         "schema": {
             "fields": [
@@ -309,7 +309,7 @@ RESOURCES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "utility_entity_eia",
+        "name": "out_eia__utility_entity_eia",
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["utility_id_eia", "utility_name_eia"],
@@ -317,7 +317,7 @@ RESOURCES: list[dict[str, Any]] = [
         },
     },
     {
-        "name": "utility_assn_eia",
+        "name": "out_eia__utility_assn_eia",
         "harvest": {"harvest": True},
         "schema": {
             "fields": ["utility_id_eia", "report_year", "state", "county"],
@@ -365,11 +365,11 @@ for i, d in enumerate(RESOURCES):
     RESOURCES[i] = Resource(**d)
 
 EXPECTED_DFS: dict[str, pd.DataFrame] = {
-    "test_eia860__entity_plants": pd.DataFrame(
+    "core_eia860__entity_plants": pd.DataFrame(
         columns=["plant_id_eia", "state", "balancing_authority_code_eia"],
         data=[(3, "AL", "SOCO"), (4, np.nan, np.nan)],
     ),
-    "test_eia860__entity_generators": pd.DataFrame(
+    "core_eia860__entity_generators": pd.DataFrame(
         columns=[
             "plant_id_eia",
             "generator_id",
@@ -394,14 +394,14 @@ EXPECTED_DFS: dict[str, pd.DataFrame] = {
             (4, "b", "2017-01-01", np.nan),
         ],
     ),
-    "utility_entity_eia": pd.DataFrame(
+    "out_eia__utility_entity_eia": pd.DataFrame(
         columns=["utility_id_eia", "utility_name_eia"],
         data=[
             (195, "Alabama Power Co"),
             (3989, "City of Colorado Springs - (CO)"),
         ],
     ),
-    "utility_assn_eia": pd.DataFrame(
+    "out_eia__utility_assn_eia": pd.DataFrame(
         columns=["utility_id_eia", "report_year", "state", "county"],
         data=[
             (3989, "2017-01-01", "CO", "El Paso"),
