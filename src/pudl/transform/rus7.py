@@ -8,7 +8,7 @@ import pudl.transform.rus as rus
 
 @asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
-    """Transform the core_rus7__meeting_and_board table."""
+    """Transform the core_rus7__yearly_meeting_and_board table."""
     df = rus.early_transform(
         raw_df=raw_rus7__meeting_and_board,
         boolean_columns_to_fix=[
@@ -71,7 +71,9 @@ def core_rus7__scd_borrowers(raw_rus7__borrowers):
     df = rus.early_transform(raw_df=raw_rus7__borrowers)
     rus.early_check_pk(df)
     # TODO: encode region_code?
-    return df
+    return df.assign(
+        state=lambda x: x.borrower_id_rus.str.extract(r"^([A-Z]{2})\d{4}$")
+    )
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -104,14 +106,16 @@ def core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
 def _core_rus7__yearly_power_requirements(raw_rus7__power_requirements):
     """Early transform an internal power_requirements table.
 
-    This main input gets used serval times and needs some dropping of duplicate
-    records so we do it once.
+    This main input gets used serval times in several downstream
+    ``core_rus7__yearly_power_requirements*`` assets. The raw asset needs some
+    cleaning and dropping of duplicate records so we do it once.
     """
     df = rus.early_transform(
         raw_df=raw_rus7__power_requirements,
         boolean_columns_to_fix=["is_peak_coincident"],
     )
     # PK duplicate management
+    df = df.reset_index(drop=True)
     dupe_mask = df.duplicated(subset=["report_date", "borrower_id_rus"], keep=False)
     if not df[dupe_mask].empty:
         # visually inspecting these two dupes i learned that most of the values in
