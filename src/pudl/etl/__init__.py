@@ -46,6 +46,7 @@ raw_module_groups = {
     "raw_eiaaeo": [pudl.extract.eiaaeo],
     "raw_ferc1": [pudl.extract.ferc1],
     "raw_ferc714": [pudl.extract.ferc714],
+    "raw_ferccid": [pudl.extract.ferccid],
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
     "raw_nrelatb": [pudl.extract.nrelatb],
     "raw_phmsagas": [pudl.extract.phmsagas],

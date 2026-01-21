@@ -198,6 +198,7 @@ class ZenodoDoiSettings(BaseSettings):
     ferc60: ZenodoDoi
     ferc714: ZenodoDoi
     ferceqr: ZenodoDoi
+    ferccid: ZenodoDoi
     gridpathratoolkit: ZenodoDoi
     nrelatb: ZenodoDoi
     phmsagas: ZenodoDoi
