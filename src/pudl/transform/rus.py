@@ -73,7 +73,7 @@ def multi_index_stack(
             pattern should have match groups that correspond to the levels of the
             multi-index that will be created. One of these match groups must include
             the string values of the ``data_cols``. For example, the
-            :ref:`raw_rus7__power_requirements` table contains a set of columns which
+            ``raw_rus7__power_requirements`` table contains a set of columns which
             have sales_kwh and revenue pertaining to many different customer
             classifications. The raw columns always have many different types of
             customer_classifications at the beginning and either the sales or revenue
@@ -81,13 +81,13 @@ def multi_index_stack(
             ``rf"^(.+)_(sales_kwh|revenue)$"``
         data_cols: names of data columns - these are strings within the df's original
             column names that you will leave unstacked. The resulting dataframe will
-            include these columns. Using the same :ref:`raw_rus7__power_requirements`
+            include these columns. Using the same ``raw_rus7__power_requirements``
             example, the data columns would be: ``["sales_kwh", "revenue"]``
         match_names: the assigned names of each of the match groups in the regex
             pattern - in the order they appear in the pattern. The match group's name
             we won't use is the group containing the data_cols values - this can be
             named anything but for clarity name this 'data_cols'. Using the same
-            :ref:`raw_rus7__power_requirements` example, the ``match_names`` would be
+            ``raw_rus7__power_requirements`` example, the ``match_names`` would be
             ``["customer_classification", "data_cols"]`` because the customer
             classification is the first match in the ``pattern`` and the data columns
             are the second match in the pattern.
