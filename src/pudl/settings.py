@@ -157,8 +157,9 @@ class Ferc714Settings(GenericDatasetSettings):
 class FercCidSettings(GenericDatasetSettings):
     """An immutable pydantic model to validate FERC CID settings."""
 
+    disabled: bool = True
     data_source: ClassVar[DataSource] = DataSource.from_id("ferccid")
-    years: list[int] = [2023]
+    years: list[int] = data_source.working_partitions["years"]
 
 
 class EpaCemsSettings(GenericDatasetSettings):
