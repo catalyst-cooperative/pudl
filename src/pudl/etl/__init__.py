@@ -50,9 +50,11 @@ raw_module_groups = {
     "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
     "raw_nrelatb": [pudl.extract.nrelatb],
     "raw_phmsagas": [pudl.extract.phmsagas],
+    "raw_rus7": [pudl.extract.rus7],
     "raw_sec10k": [pudl.extract.sec10k],
     "raw_vcerare": [pudl.extract.vcerare],
     "raw_ferceqr": [pudl.extract.ferceqr],
+    "raw_rus12": [pudl.extract.rus12],
 }
 
 
@@ -81,6 +83,8 @@ core_module_groups = {
     "core_nrelatb": [pudl.transform.nrelatb],
     "core_vcerare": [pudl.transform.vcerare],
     "core_phmsagas": [pudl.transform.phmsagas],
+    "core_rus7": [pudl.transform.rus7],
+    "core_rus12": [pudl.transform.rus12],
 }
 
 out_module_groups = {
