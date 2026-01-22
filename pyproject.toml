@@ -124,7 +124,8 @@ prettier = ">=3.7,<4"
 # pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
 pyarrow = "<21"
 pydantic = ">=2.12"
-pydantic-settings = ">=2.13"
+pydantic-settings = ">=2.11"
+pydata-sphinx-theme = ">=0.16.1"
 pygraphviz = ">=1"
 pytest = ">=9"
 pytest-console-scripts = ">=1.4"
@@ -149,6 +150,7 @@ shapely = ">=2.1.1"
 slack-sdk = ">=3.39.0"
 sphinx = ">=9"
 sphinx-autoapi = ">=3.6.1"
+sphinx-design = ">=0.7.0"
 sphinx-issues = ">=5"
 sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
@@ -170,9 +172,6 @@ zip = ">=3.0"
 # above in [tools.pixi.dependenccies] (for conda packages) or in this section, if they
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
-# Furo is pure python and the conda package is like a year out of date.
-furo = ">=2025"
-sphinx-tabs = ">=3.4.7"
 
 [tool.pixi.package]
 version = "v0.0.0"
