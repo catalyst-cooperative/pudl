@@ -2,9 +2,7 @@
 
 from typing import Any
 
-RESOURCE_METADATA = {}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+RESOURCE_METADATA = {
     "core_rus12__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (
@@ -34,6 +32,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_balance_sheet_assets": {
         "description": {
             "additional_summary_text": (
