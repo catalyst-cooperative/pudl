@@ -20,6 +20,7 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
+    if: contains('refs/heads/main refs/heads/stable refs/heads/nightly', github.ref) || contains(github.ref, 'refs/heads/v20')
     steps:
       - uses: actions/checkout@v6
         with:
@@ -35,16 +36,21 @@ jobs:
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
 
-      - name: Lint and build PUDL documentation with Sphinx and install it to the appropriate version path
+      - name: Lint and build PUDL documentation with Sphinx
         run: |
           pixi run docs-build
 
-      - name: Deploy to GitHub Pages
+      - name: Compute destination dir
+        run: |
+          DEST_DIR=${{ case(github.ref == 'refs/heads/main', 'latest', github.ref) }}
+          echo DEST_DIR=${DEST_DIR#refs/heads/} > $GITHUB_ENV
+
+      - name: Deploy to GitHub Pages at the appropriate version path
         uses: peaceiris/actions-gh-pages@v4
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_install
-          keep_files: true
+          publish_dir: docs/_build/html
+          destination_dir: en/${{ env.DEST_DIR }}
           user_name: "pudlbot"
           user_email: "pudl@catalyst.coop"
