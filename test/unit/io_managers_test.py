@@ -36,9 +36,7 @@ def test_pkg() -> Package:
         },
     ]
     schema = {"fields": fields, "primary_key": ["artistid"]}
-    artist_resource = Resource(
-        name="artist", schema=schema, description="Artist", path="artist.parquet"
-    )
+    artist_resource = Resource(name="artist", schema=schema, description="Artist")
 
     fields = [
         {"name": "artistid", "type": "integer", "description": "artistid"},
@@ -55,7 +53,6 @@ def test_pkg() -> Package:
         schema=schema,
         description="Artist view",
         create_database_schema=False,
-        path="artist_view.parquet",
     )
 
     fields = [
@@ -75,9 +72,7 @@ def test_pkg() -> Package:
         }
     ]
     schema = {"fields": fields, "primary_key": ["trackid"], "foreign_keys": fkeys}
-    track_resource = Resource(
-        name="track", schema=schema, description="Track", path="track.parquet"
-    )
+    track_resource = Resource(name="track", schema=schema, description="Track")
     return Package(
         name="music", resources=[track_resource, artist_resource, view_resource]
     )

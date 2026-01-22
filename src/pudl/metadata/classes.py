@@ -2,7 +2,6 @@
 
 import copy
 import datetime
-import json
 import re
 import sys
 import warnings
@@ -10,6 +9,7 @@ from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
 from hashlib import sha1
 from pathlib import Path
+from re import Pattern
 from typing import Annotated, Any, Literal, Self, TypeVar
 
 import duckdb
@@ -1148,17 +1148,6 @@ class PudlResourceDescriptor(PudlMeta):
             """Return DataFrame to avoid warnings from default serializer."""
             return df
 
-    class PudlPartitionDescriptor(PudlMeta):
-        """Contains necessary information to construct paths for partitioned tables.
-
-        Certain large tables must be output as a directory of partitioned parquet
-        files to avoid massive unwieldy parquet files. This is done by specifying
-        a datasource and working partition key.
-        """
-
-        datasource: str
-        working_partition_key: str
-
     class PudlDescriptionComponents(PudlMeta):
         """Container to hold description configuration information.
 
@@ -1314,8 +1303,8 @@ class PudlResourceDescriptor(PudlMeta):
     etl_group_id: str = pydantic.Field(alias="etl_group")
     field_namespace_id: str = pydantic.Field(alias="field_namespace")
     create_database_schema: bool = True
-    # Must be non-null if outputs are partitioned
-    output_partition_source_key: PudlPartitionDescriptor | None = None
+    path: str | None = None
+    extrapaths: list[str] | None = None
 
 
 class Resource(PudlMeta):
@@ -1329,7 +1318,7 @@ class Resource(PudlMeta):
         >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkeys = [{'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}]
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': fkeys}
-        >>> resource = Resource(name='a', schema=schema, description='A', path='a.parquet')
+        >>> resource = Resource(name='a', schema=schema, description='A')
         >>> table = resource.to_sql()
         >>> table.columns.x
         Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
@@ -1350,7 +1339,6 @@ class Resource(PudlMeta):
         ...     'harvest': {'harvest': True},
         ...     'schema': {'fields': fields, 'primary_key': ['id']},
         ...     'description': 'A',
-        ...     'path': 'a.parquet',
         ... })
         >>> dfs = {
         ...     'a': pd.DataFrame({'id': [1, 1, 2, 2], 'x': [1, 1, 2, 2]}),
@@ -1430,7 +1418,6 @@ class Resource(PudlMeta):
         ...     'name': 'table', 'harvest': {'harvest': True},
         ...     'schema': {'fields': fields, 'primary_key': ['report_year']},
         ...     'description': 'Table',
-        ...     'path': 'table.parquet',
         ... })
         >>> df = pd.DataFrame({'report_date': ['2000-02-02', '2000-03-03']})
         >>> resource.format_df(df)
@@ -1460,6 +1447,8 @@ class Resource(PudlMeta):
     sources: list[DataSource] = []
     keywords: list[String] = []
     encoder: Encoder | None = None
+    path: str = pydantic.Field(default_factory=lambda data: f"{data['name']}.parquet")
+    extrapaths: list[str] | None = None
     field_namespace: (
         Literal[
             "censusdp1tract",
@@ -1651,22 +1640,9 @@ class Resource(PudlMeta):
                         f["encoder"] = encoder
                         break
 
-        # Construct path based on output partitions
-        if (part_key := descriptor.output_partition_source_key) is not None:
-            [source] = [
-                source
-                for source in obj["sources"]
-                if source.name == part_key.datasource
-            ]
-            obj["path"] = [
-                f"{resource_id}/{partition}.parquet"
-                for partition in source.working_partitions[
-                    part_key.working_partition_key
-                ]
-            ]
-        else:
-            obj["path"] = f"{resource_id}.parquet"
-        del obj["output_partition_source_key"]
+        # If path is None, completely remove it so Resource class uses default factory
+        if obj["path"] is None:
+            del obj["path"]
 
         return obj
 
@@ -1711,23 +1687,24 @@ class Resource(PudlMeta):
 
     def to_frictionless(self) -> dict:
         """Convert to a Frictionless Resource."""
-        schema = {
-            "fields": [
-                {
-                    "name": f.name,
-                    "description": f.description,
-                }
+        schema = frictionless.Schema(
+            fields=[
+                frictionless.Field(
+                    name=f.name,
+                    description=f.description,
+                )
                 for f in self.schema.fields
             ],
-            "primary_key": self.schema.primary_key,
-        }
+            primary_key=self.schema.primary_key,
+        )
 
-        return {
-            "name": self.name,
-            "description": self.description,
-            "schema": schema,
-            "path": self.path,
-        }
+        return frictionless.Resource(
+            name=self.name,
+            description=self.description,
+            schema=schema,
+            path=self.path,
+            extrapaths=self.extrapaths,
+        )
 
     def to_pyarrow(self) -> pa.Schema:
         """Construct a PyArrow schema for the resource."""
@@ -1773,7 +1750,7 @@ class Resource(PudlMeta):
         Examples:
             >>> fields = [{'name': 'x_year', 'type': 'year', 'description': 'Year'}]
             >>> schema = {'fields': fields, 'primary_key': ['x_year']}
-            >>> resource = Resource(name='r', schema=schema, description='R', path='r.parquet')
+            >>> resource = Resource(name='r', schema=schema, description='R')
 
             By default, when :attr:`harvest` .`harvest=False`,
             exact matches are required.
@@ -2125,8 +2102,8 @@ class Package(PudlMeta):
         >>> fields = [{'name': 'x', 'type': 'year', 'description': 'X'}, {'name': 'y', 'type': 'string', 'description': 'Y'}]
         >>> fkey = {'fields': ['x', 'y'], 'reference': {'resource': 'b', 'fields': ['x', 'y']}}
         >>> schema = {'fields': fields, 'primary_key': ['x'], 'foreign_keys': [fkey]}
-        >>> a = Resource(name='a', schema=schema, description='A', path='a.parquet')
-        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), description='B', path='b.parquet')
+        >>> a = Resource(name='a', schema=schema, description='A')
+        >>> b = Resource(name='b', schema=Schema(fields=fields, primary_key=['x']), description='B')
         >>> Package(name='ab', resources=[a, b])
         Traceback (most recent call last):
         ValidationError: ...
@@ -2382,13 +2359,24 @@ class Package(PudlMeta):
                 )
         return encoded_df
 
-    def to_frictionless(self, output_path: str | Path) -> frictionless.Package:
+    def to_frictionless(
+        self,
+        exclude_pattern: Pattern[str] | None = None,
+        include_pattern: Pattern[str] | None = None,
+    ) -> frictionless.Package:
         """Convert to a Frictionless Datapackage."""
         resources = [r.to_frictionless() for r in self.resources]
-        package = {"name": self.name, "resources": resources}
-        with Path(output_path).open(mode="w") as f:
-            json.dump(package, f)
-        return frictionless.Package(str(output_path))
+
+        if exclude_pattern is not None:
+            resources = [
+                r for r in resources if re.match(exclude_pattern, r.name) is None
+            ]
+        if include_pattern is not None:
+            resources = [
+                r for r in resources if re.match(include_pattern, r.name) is not None
+            ]
+
+        return frictionless.Package(name=self.name, resources=resources)
 
 
 PUDL_PACKAGE = Package.from_resource_ids()
