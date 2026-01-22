@@ -14,7 +14,9 @@ of the build, and triggering shutdown of the batch job.
 import os
 import traceback
 from collections.abc import Callable
+from contextlib import contextmanager
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Literal
 
 import dagster as dg
@@ -26,6 +28,7 @@ from upath import UPath
 
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.settings import ferceqr_year_quarters
 from pudl.workspace.setup import PudlPaths
 
@@ -82,6 +85,17 @@ def _write_status_file(status: Literal["SUCCESS", "FAILURE"]):
     (PudlPaths().output_dir / status).touch()
 
 
+@contextmanager
+def _write_datapackage_json() -> str:
+    """Write datapackage json file to a temporary directory and yield filepath as string."""
+    with TemporaryDirectory() as tmpdir:
+        datapackage_path = Path(tmpdir) / "ferceqr_parquet_datapackage.json"
+        datapackage_path.write_text(
+            PUDL_PACKAGE.to_frictionless(include_pattern=r"core_ferceqr.*").to_json()
+        )
+        yield str(datapackage_path)
+
+
 def deployment_status_asset(
     handler: Callable,
 ) -> dg.AssetsDefinition:
@@ -121,19 +135,22 @@ def deploy_ferceqr():
     ]
     # Loop through output locations and copy parquet files to buckets
     logger.info("Build successful, deploying ferceqr data.")
-    for distribution_path, fs in distribution_paths:
-        for table in FERCEQR_TRANSFORM_ASSETS:
-            logger.info(f"Copying {table} to {distribution_path}.")
-            table_remote_path = distribution_path / table
+    with _write_datapackage_json() as datapackage_path:
+        for distribution_path, fs in distribution_paths:
+            for table in FERCEQR_TRANSFORM_ASSETS:
+                logger.info(f"Copying {table} to {distribution_path}.")
+                table_remote_path = distribution_path / table
 
-            # UPath's don't work well with requester pays buckets, so use the fsspec
-            # filesystem directly
-            fs.mkdirs(path=table_remote_path, exist_ok=True)
-            fs.put(
-                f"{ParquetData(table_name=table).parquet_directory}/",
-                f"{table_remote_path}/",
-                recursive=True,
-            )
+                # UPath's don't work well with requester pays buckets, so use the fsspec
+                # filesystem directly
+                fs.mkdirs(path=table_remote_path, exist_ok=True)
+                fs.put(
+                    f"{ParquetData(table_name=table).parquet_directory}/",
+                    f"{table_remote_path}/",
+                    recursive=True,
+                )
+            # Copy datapackage to distribution path
+            fs.put_file(datapackage_path, f"{distribution_path}/")
 
     # Send slack notification about successful build
     logger.info("Notifying slack about successful build.")
