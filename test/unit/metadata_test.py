@@ -122,19 +122,22 @@ def test_resource_descriptors_valid():
 
 
 @pytest.fixture()
-def dummy_pandera_schema():
-    resource_descriptor = PudlResourceDescriptor.model_validate(
-        {
-            "description": "test resource based on core_eia__entity_plants",
-            "schema": {
-                "fields": ["plant_id_eia", "city", "capacity_mw"],
-                "primary_key": ["plant_id_eia"],
-            },
-            "sources": ["eia860", "eia923"],
-            "etl_group": "entity_eia",
-            "field_namespace": "eia",
-        }
-    )
+def dummy_resource_dict():
+    return {
+        "description": "test resource based on core_eia__entity_plants",
+        "schema": {
+            "fields": ["plant_id_eia", "city", "capacity_mw"],
+            "primary_key": ["plant_id_eia"],
+        },
+        "sources": ["eia860", "eia923"],
+        "etl_group": "entity_eia",
+        "field_namespace": "eia",
+    }
+
+
+@pytest.fixture()
+def dummy_pandera_schema(dummy_resource_dict):
+    resource_descriptor = PudlResourceDescriptor.model_validate(dummy_resource_dict)
     resource = Resource.model_validate(
         Resource.dict_from_resource_descriptor(
             "test_eia__entity_plants", resource_descriptor
@@ -253,6 +256,61 @@ def test_merge_descriptions():
     assert merge_descriptions(left, right) == result
     # make sure we didn't accidentally modify the source list during the merge
     assert left["usage_warnings"] == ["red"]
+
+
+def test_multiple_path_resources(dummy_resource_dict):
+    """Test that resources with multiple paths can be constructed properly."""
+    default_path_resource = Resource(
+        **Resource.dict_from_resource_descriptor(
+            "out_pudl__default_path_resource",
+            PudlResourceDescriptor.model_validate(dummy_resource_dict),
+        )
+    )
+    assert default_path_resource.path == "out_pudl__default_path_resource.parquet"
+
+    override_single_path_resource = Resource(
+        **Resource.dict_from_resource_descriptor(
+            "out_pudl__override_single_path_resource",
+            PudlResourceDescriptor.model_validate(
+                dummy_resource_dict | {"path": "fake_path.parquet"}
+            ),
+        )
+    )
+    assert override_single_path_resource.path == "fake_path.parquet"
+
+    paths = [f"fake_path{i}" for i in range(1, 5)]
+    multiple_path_resource = Resource(
+        **Resource.dict_from_resource_descriptor(
+            "out_pudl__multiple_path_resource",
+            PudlResourceDescriptor.model_validate(
+                dummy_resource_dict
+                | {
+                    "path": paths[0],
+                    "extrapaths": paths[1:],
+                }
+            ),
+        )
+    )
+    assert multiple_path_resource.path == paths[0]
+    assert set(multiple_path_resource.extrapaths) == set(paths[1:])
+
+
+def test_frictionless_data_package_filter_resources():
+    """Test that filtering resources when converting Package to frictionless works as expected."""
+    eqr_pattern = r"core_ferceqr.*"
+    expected_num_eqr_resources = 4
+    all_resources = PUDL_PACKAGE.to_frictionless().resources
+    no_eqr_resources = PUDL_PACKAGE.to_frictionless(
+        exclude_pattern=eqr_pattern
+    ).resources
+    only_eqr_resources = PUDL_PACKAGE.to_frictionless(
+        include_pattern=eqr_pattern
+    ).resources
+
+    assert len(no_eqr_resources) == (len(all_resources) - expected_num_eqr_resources)
+    assert len(only_eqr_resources) == expected_num_eqr_resources
+    assert not any("eqr" in r.name for r in no_eqr_resources)
+    assert all("eqr" in r.name for r in only_eqr_resources)
 
 
 # TODO: flip this to true after we do the second pass to set description_primary_key
