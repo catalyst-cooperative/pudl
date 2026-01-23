@@ -1,9 +1,15 @@
 """This module extracts the raw FERC Company Identifier (CID) table."""
 
+from io import BytesIO
+
+import pandas as pd
 from dagster import Output, asset
 
+import pudl
 from pudl.extract.csv import CsvExtractor
-from pudl.extract.extractor import GenericMetadata, raw_df_factory
+from pudl.extract.extractor import GenericMetadata
+
+logger = pudl.logging_helpers.get_logger(__name__)
 
 
 class Extractor(CsvExtractor):
@@ -18,18 +24,33 @@ class Extractor(CsvExtractor):
         self.METADATA = GenericMetadata("ferccid")
         super().__init__(*args, **kwargs)
 
+    def load_source(
+        self, partition: dict[str, str] = {"data_set": "data_table"}
+    ) -> pd.DataFrame:
+        """Produce the dataframe object.
 
-raw_ferccid__all_dfs = raw_df_factory(Extractor, name="ferccid")
+        Args:
+            partition: the data set partition to load from Zenodo
+
+        Returns:
+            pd.DataFrame instance containing CSV data
+        """
+        zf = self.ds.get_unique_resource(self._dataset_name, **partition)
+        df = pd.read_csv(BytesIO(zf), **self.READ_CSV_KWARGS)
+        return df
 
 
-@asset
-def raw_ferccid__data(context, raw_ferccid__all_dfs):
+@asset(
+    required_resource_keys={"datastore"},
+)
+def raw_ferccid__data(
+    context,
+):
     """Extract raw FERC CID data from CSV files to one dataframe.
 
     Returns:
         An extracted FERC CID dataframe.
     """
-    # put a breakpoint here to see what the key values are
-    # look at implementing source_filename in the Extractor class
-    context.pdb.set_trace()
-    return Output(value=raw_ferccid__all_dfs["data"])
+    ds = context.resources.datastore
+    df = Extractor(ds=ds).load_source()
+    return Output(value=df)
