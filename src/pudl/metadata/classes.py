@@ -1439,7 +1439,6 @@ class Resource(PudlMeta):
     # Alias required to avoid shadowing Python built-in format()
     format_: String | None = pydantic.Field(alias="format", default=None)
     mediatype: String | None = None
-    path: String | list[String]
     dialect: dict[str, str] | None = None
     profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
