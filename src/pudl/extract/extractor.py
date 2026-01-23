@@ -206,8 +206,6 @@ class GenericExtractor(ABC):
         partition_selection = self._metadata._get_partition_selection(partition)
         page_cols = self.get_page_cols(page, partition_selection)
         expected_cols = page_cols.union(self.cols_added)
-        logger.info(f"EXPECTED COLS: {expected_cols}")
-        logger.info(f"DF COLUMNS: {df.columns}")
         if set(df.columns) != set(expected_cols):
             # Ensure that expected and actually extracted columns match
             extra_raw_cols = [col for col in df.columns if col not in expected_cols]
