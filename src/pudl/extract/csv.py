@@ -37,6 +37,13 @@ class CsvExtractor(GenericExtractor):
     def source_filename(self, page: str, **partition: PartitionSelection) -> str:
         """Produce the source CSV file name as it will appear in the archive.
 
+        This method assumes the CSV files within each partition are structured as
+        the: f"{self._dataset_name}_{partition_selection}.csv"
+
+        If you have a dataset with multiple pages within each partition you'll need
+        to use a filemap.csv like we use in the excel extractor. For an example of
+        how to do this in the CSV extractor framework, see the RUS extractors.
+
         Args:
             page: pudl name for the dataset contents, eg "boiler_generator_assn" or
                 "data"
