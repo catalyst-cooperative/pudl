@@ -32,9 +32,6 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_balance_sheet_assets": {
         "description": {
             "additional_summary_text": (
@@ -49,7 +46,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "asset_type",  # enum (list below)
+                "asset_type",
                 "balance",
                 "is_total",
             ],
@@ -63,6 +60,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_balance_sheet_liabilities": {
         "description": {
             "additional_summary_text": (
@@ -311,39 +311,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "rus",
     },
 }
-
-asset_type_enum = [
-    "construction_work_in_progress",
-    "total_utility_plant",
-    "depreciation_and_amortization",
-    "non_utility_property_asset",
-    "investments_subsidiary_companies",
-    "investments_associated_orgs_patronage_capital",
-    "investments_associated_orgs_other_general_funds",
-    "investments_associated_orgs_other_non_general_funds",
-    "investments_economic_development",
-    "investments_other",
-    "special_funds",
-    "total_other_property_and_investments",
-    "cash_general_funds",
-    "cash_construction_funds_trustee",
-    "special_deposits",
-    "investments_temporary",
-    "notes_receivable",
-    "accounts_receivable_sales_of_energy",
-    "accounts_receivable_other",
-    "fuel_stock",
-    "renewable_energy_credits",
-    "materials_and_supplies",
-    "prepayments",
-    "other_current_and_accrued",
-    "total_current_and_accrued",
-    "unamortized_debt_discount_property_losses",
-    "regulatory",
-    "other_deferred_debits",
-    "accumulated_deferred_income_taxes_debits",
-    "total",
-]
 
 liability_type_enum = [
     "memberships",

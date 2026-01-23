@@ -866,8 +866,6 @@ ASSET_TYPES_RUS7: set[str] = [
     "other_deferred_debits",
     "total",
 ]
-
-
 LIABILITY_TYPES_RUS7: set[str] = [
     "memberships",
     "patronage_capital",
@@ -897,4 +895,39 @@ LIABILITY_TYPES_RUS7: set[str] = [
     "regulatory",
     "other_deferred_credits",
     "total_liabilities_and_other_credits",
+]
+
+ASSET_TYPES_RUS12: set[str] = [
+    "utility_plant_in_service",
+    "construction_work_in_progress",
+    "total_utility_plant",
+    "depreciation_and_amortization",
+    "net_utility_plant",
+    "non_utility_property_asset",
+    "investments_subsidiary_companies",
+    "investments_associated_orgs_patronage_capital",
+    "investments_associated_orgs_other_general_funds",
+    "investments_associated_orgs_other_non_general_funds",
+    "investments_economic_development",
+    "investments_other",
+    "special_funds",
+    "total_other_property_and_investments",
+    "cash_general_funds",
+    "cash_construction_funds_trustee",
+    "special_deposits",
+    "investments_temporary",
+    "notes_receivable",
+    "accounts_receivable_sales_of_energy",
+    "accounts_receivable_other",
+    "fuel_stock",
+    "renewable_energy_credits",
+    "materials_and_supplies",
+    "prepayments",
+    "other_current_and_accrued",
+    "total_current_and_accrued",
+    "unamortized_debt_discount_property_losses",
+    "regulatory",
+    "other_deferred_debits",
+    "accumulated_deferred_income_taxes_debits",
+    "total",
 ]

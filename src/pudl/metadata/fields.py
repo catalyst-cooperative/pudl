@@ -14,6 +14,7 @@ from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
     ASSET_TYPES_RUS7,
+    ASSET_TYPES_RUS12,
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     CUSTOMER_CLASSES_EIA176,
@@ -10217,6 +10218,15 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Type of liability being reported to the core_rus7__yearly_balance_sheet_liabilities table."
             ),
             "constraints": {"enum": LIABILITY_TYPES_RUS7},
+        },
+    },
+    "core_rus12__yearly_balance_sheet_assets": {
+        "asset_type": {
+            "type": "string",
+            "description": (
+                "Type of asset being reported to the core_rus12__yearly_balance_sheet_assets table."
+            ),
+            "constraints": {"enum": ASSET_TYPES_RUS12},
         },
     },
 }
