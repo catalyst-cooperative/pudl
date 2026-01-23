@@ -1560,7 +1560,7 @@ class Resource(PudlMeta):
         * ``schema.foreign_keys``: Foreign keys are fetched by resource name.
         * ``description``: Full description text block is rendered from its component parts.
         """
-        obj = descriptor.model_dump(by_alias=True)
+        obj = descriptor.model_dump(by_alias=True, exclude_none=True)
         obj["name"] = resource_id
         schema = obj["schema"]
         # Expand fields
@@ -1638,10 +1638,6 @@ class Resource(PudlMeta):
                     if f["name"] == field:
                         f["encoder"] = encoder
                         break
-
-        # If path is None, completely remove it so Resource class uses default factory
-        if obj["path"] is None:
-            del obj["path"]
 
         return obj
 
