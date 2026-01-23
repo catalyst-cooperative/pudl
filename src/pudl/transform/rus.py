@@ -104,3 +104,35 @@ def multi_index_stack(
     df.columns = df.columns.map("".join)
     df = df.dropna(subset=data_cols, how="all")
     return df
+
+
+def convert_units(
+    df: pd.DataFrame, old_unit: str, new_unit: str, converter: float | int
+) -> pd.DataFrame:
+    """Convert units within a column and rename column with new units.
+
+    This function assumes that the old units are suffixes in the snake-cased column
+    names, separated by an underscore.
+
+    Ex: if you want to convert from kWh's to MWh's the df must have column names like
+    ``electric_sales_kwh`` or ``purchased_kwh``, the old unit would be ``kwh``, the new
+    unit would be ``mwh`` and the converter would be ``0.001``.
+
+    Args:
+        df: data table with units you'd like to convert.
+        old_unit: the unit in the df. This must be the suffix of the column
+            names you'd like to convert.
+        new_unit: the new unit label you want as the new suffix of the resulting
+            dataframe.
+        converter: the float or integer you need to multiply the old values by to
+            convert the units.
+    """
+    convert_cols = df.filter(regex=rf"_{old_unit}$").columns
+    df.loc[:, convert_cols] = df.loc[:, convert_cols].astype("float") * converter
+    df = df.rename(
+        columns={
+            col_name: col_name.removesuffix(f"_{old_unit}") + f"_{new_unit}"
+            for col_name in convert_cols
+        }
+    )
+    return df

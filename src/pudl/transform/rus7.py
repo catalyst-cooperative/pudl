@@ -84,7 +84,7 @@ def core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
     return df
 
 
-@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     """Transform the core_rus7__yearly_energy_efficiency table."""
     df = rus.early_transform(raw_df=raw_rus7__energy_efficiency)
@@ -96,8 +96,8 @@ def core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
         pattern=rf"^({'|'.join(data_cols)})_(.+)_(cumulative|new_in_report_year)$",
-        match_names=["data_cols", "customer_classification", "date_range"],
-        unstack_level=["customer_classification", "date_range"],
+        match_names=["data_cols", "customer_class", "date_range"],
+        unstack_level=["customer_class", "date_range"],
     )
     return df
 
@@ -138,7 +138,7 @@ def _core_rus7__yearly_power_requirements(raw_rus7__power_requirements):
     return df
 
 
-@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_power_requirements_electric_sales(
     _core_rus7__yearly_power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -151,13 +151,20 @@ def core_rus7__yearly_power_requirements_electric_sales(
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
         pattern=rf"^(.+)_({'|'.join(data_cols)})$",
-        match_names=["customer_classification", "data_cols"],
-        unstack_level=["customer_classification"],
+        match_names=["customer_class", "data_cols"],
+        unstack_level=["customer_class"],
+    )
+    # then convert all of the units from kWh to MWh
+    df = rus.convert_units(
+        df,
+        old_unit="kwh",
+        new_unit="mwh",
+        converter=0.001,
     )
     return df
 
 
-@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_power_requirements_electric_customers(
     _core_rus7__yearly_power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -170,13 +177,13 @@ def core_rus7__yearly_power_requirements_electric_customers(
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
         pattern=rf"^(.+)_({data_cols[0]})_(december|avg)$",
-        match_names=["customer_classification", "data_cols", "date_range"],
-        unstack_level=["customer_classification", "date_range"],
+        match_names=["customer_class", "data_cols", "date_range"],
+        unstack_level=["customer_class", "date_range"],
     )
     return df
 
 
-@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_power_requirements(
     _core_rus7__yearly_power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -187,11 +194,26 @@ def core_rus7__yearly_power_requirements(
     # the rest of the table pertains to other utility functions. The totals show up
     # in the reshaped electric sales portion of the table but we also rename them
     # and include them here as well.
-    df = df.rename(
-        columns={
-            "total_revenue": "electric_sales_revenue",
-            "total_sales_kwh": "electric_sales_kwh",
-        }
+    df = (
+        df.rename(
+            columns={
+                "total_revenue": "electric_sales_revenue",
+                "total_sales_kwh": "electric_sales_kwh",
+            }
+        )
+        # then convert all of the units from kW* to MW*
+        .pipe(
+            rus.convert_units,
+            old_unit="kwh",
+            new_unit="mwh",
+            converter=0.001,
+        )
+        .pipe(
+            rus.convert_units,
+            old_unit="kw",
+            new_unit="mw",
+            converter=0.001,
+        )
     )
     # this portion of the table does not need a reshape. Applying enforce_schema
     # will effectively drop all the other columns in this table.
