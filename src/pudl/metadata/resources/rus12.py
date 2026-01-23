@@ -312,6 +312,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
 }
 
+
 operations_type_enum = [
     "electric_energy_revenues",
     "electric_energy_revenues_report_month",
