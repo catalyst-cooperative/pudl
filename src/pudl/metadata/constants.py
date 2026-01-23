@@ -50,7 +50,7 @@ FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
     "date": pa.date32(),
     "datetime": pa.timestamp("ms"),
     "geometry": ga.wkb(),
-    "integer": pa.int64(),
+    "integer": pa.int32(),
     "number": pa.float32(),
     "string": pa.string(),
     "year": pa.int32(),

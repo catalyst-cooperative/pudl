@@ -119,7 +119,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_energy_efficiency": {
         "description": {
             "additional_summary_text": (""),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": [
+                "experimental_wip",
+                {
+                    "type": "custom",
+                    "description": "The savings_mmbtu likely contains values with incorrect units.",
+                },
+            ],
             "additional_source_text": "(Part P)",
         },
         "schema": {

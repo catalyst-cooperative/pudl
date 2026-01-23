@@ -1,8 +1,8 @@
 """Add moar cool rus7 tables
 
-Revision ID: b42ee99260c9
+Revision ID: 9c66ca6fcafa
 Revises: dcbe4c9e66d4
-Create Date: 2026-01-23 11:02:04.841135
+Create Date: 2026-01-23 12:16:56.167671
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b42ee99260c9'
+revision = '9c66ca6fcafa'
 down_revision = 'dcbe4c9e66d4'
 branch_labels = None
 depends_on = None
@@ -22,11 +22,11 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('customer_class', sa.Enum('commercial_and_industrial_small', 'residential_seasonal', 'sales_for_resale_rus_borrowers', 'transmission', 'residential_excluding_seasonal', 'other_electric', 'public_other', 'total', 'irrigation', 'public_street_lighting', 'sales_for_resale_other', 'commercial_and_industrial_large'), nullable=False, comment='High level categorization of customer type.'),
-    sa.Column('date_range', sa.Enum('new_in_report_year', 'avg', 'cumulative', 'december'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
+    sa.Column('customer_class', sa.Enum('total', 'sales_for_resale_other', 'other_electric', 'commercial_and_industrial_large', 'residential_seasonal', 'commercial_and_industrial_small', 'sales_for_resale_rus_borrowers', 'residential_excluding_seasonal', 'public_street_lighting', 'irrigation', 'transmission', 'public_other'), nullable=False, comment='High level categorization of customer type.'),
+    sa.Column('date_range', sa.Enum('december', 'avg', 'new_in_report_year', 'cumulative'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
     sa.Column('customers_num', sa.Float(), nullable=True, comment='Number of customers.'),
     sa.Column('invested', sa.Integer(), nullable=True, comment='The amount of money invested.'),
-    sa.Column('savings_mmbtu', sa.Integer(), nullable=True, comment='The estimated amount of energy savings from energy efficiency programs.'),
+    sa.Column('savings_mmbtu', sa.Float(), nullable=True, comment='The estimated amount of energy savings from energy efficiency programs. Warning: We found values much larger than expected that we have not yet cleaned - this is likely a reporting unit error.'),
     sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', 'date_range', name=op.f('pk_core_rus7__yearly_energy_efficiency'))
     )
     op.create_table('core_rus7__yearly_power_requirements',
@@ -50,8 +50,8 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('customer_class', sa.Enum('commercial_and_industrial_small', 'residential_seasonal', 'sales_for_resale_rus_borrowers', 'transmission', 'residential_excluding_seasonal', 'other_electric', 'public_other', 'total', 'irrigation', 'public_street_lighting', 'sales_for_resale_other', 'commercial_and_industrial_large'), nullable=False, comment='High level categorization of customer type.'),
-    sa.Column('date_range', sa.Enum('new_in_report_year', 'avg', 'cumulative', 'december'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
+    sa.Column('customer_class', sa.Enum('total', 'sales_for_resale_other', 'other_electric', 'commercial_and_industrial_large', 'residential_seasonal', 'commercial_and_industrial_small', 'sales_for_resale_rus_borrowers', 'residential_excluding_seasonal', 'public_street_lighting', 'irrigation', 'transmission', 'public_other'), nullable=False, comment='High level categorization of customer type.'),
+    sa.Column('date_range', sa.Enum('december', 'avg', 'new_in_report_year', 'cumulative'), nullable=False, comment="The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of December only, while 'avg' implies this record pertains to the average of the reporting period."),
     sa.Column('customers_num', sa.Float(), nullable=True, comment='Number of customers.'),
     sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', 'date_range', name=op.f('pk_core_rus7__yearly_power_requirements_electric_customers'))
     )
@@ -59,7 +59,7 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('customer_class', sa.Enum('commercial_and_industrial_small', 'residential_seasonal', 'sales_for_resale_rus_borrowers', 'transmission', 'residential_excluding_seasonal', 'other_electric', 'public_other', 'total', 'irrigation', 'public_street_lighting', 'sales_for_resale_other', 'commercial_and_industrial_large'), nullable=False, comment='High level categorization of customer type.'),
+    sa.Column('customer_class', sa.Enum('total', 'sales_for_resale_other', 'other_electric', 'commercial_and_industrial_large', 'residential_seasonal', 'commercial_and_industrial_small', 'sales_for_resale_rus_borrowers', 'residential_excluding_seasonal', 'public_street_lighting', 'irrigation', 'transmission', 'public_other'), nullable=False, comment='High level categorization of customer type.'),
     sa.Column('sales_mwh', sa.Float(), nullable=True, comment='Quantity of electricity sold in MWh.'),
     sa.Column('revenue', sa.Float(), nullable=True, comment='Amount of revenue.'),
     sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'customer_class', name=op.f('pk_core_rus7__yearly_power_requirements_electric_sales'))

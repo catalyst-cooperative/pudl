@@ -9241,8 +9241,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "savings_mmbtu": {
-        "type": "integer",
-        "description": "The estimated amount of energy savings from energy efficiency programs.",
+        "type": "number",
+        "description": (
+            "The estimated amount of energy savings from energy efficiency programs. "
+            "Warning: We found values much larger than expected that we have not yet "
+            "cleaned - this is likely a reporting unit error."
+        ),
         "unit": "MMBtu",
     },
     "electric_sales_revenue": {
