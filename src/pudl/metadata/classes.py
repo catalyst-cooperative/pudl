@@ -2364,7 +2364,18 @@ class Package(PudlMeta):
         exclude_pattern: Pattern[str] | None = None,
         include_pattern: Pattern[str] | None = None,
     ) -> frictionless.Package:
-        """Convert to a Frictionless Datapackage."""
+        """Convert to a Frictionless Datapackage.
+
+        Allows filtering out specific resources by passing regex patterns to include
+        or exclude resources by name. This is used to generate an independent
+        'datapackage.json' file for ``ferceqr`` assets, which are distributed separately
+        from the rest of PUDL. This method will only look for table names that exactly
+        match the supplied patterns, not substring matches.
+
+        Args:
+            exclude_pattern: Exclude resources whose names exactly match this pattern.
+            include_pattern: Only include resources whose names exactly match this pattern.
+        """
         resources = [r.to_frictionless() for r in self.resources]
 
         if exclude_pattern is not None:
