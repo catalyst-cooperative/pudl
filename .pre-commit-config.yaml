@@ -14,6 +14,7 @@ repos:
     rev: v6.0.0
     hooks:
       - id: check-added-large-files # Don't accidentally commit giant files.
+        args: ["--maxkb=800"]
       - id: check-merge-conflict # Watch for lingering merge markers.
       - id: check-yaml # Validate all YAML files.
       - id: check-toml
