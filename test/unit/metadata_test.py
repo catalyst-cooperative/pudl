@@ -2,6 +2,7 @@
 
 import json
 
+import frictionless
 import pandas as pd
 import pandera.pandas as pr
 import pytest
@@ -268,8 +269,10 @@ def test_multiple_path_resources(dummy_resource_dict):
             PudlResourceDescriptor.model_validate(dummy_resource_dict),
         )
     )
-    json_output = json.loads(default_path_resource.to_frictionless().to_json())
-    assert json_output["path"] == "out_pudl__default_path_resource.parquet"
+    frictionless_resource = frictionless.Resource(
+        json.loads(default_path_resource.to_frictionless().to_json())
+    )
+    assert frictionless_resource.path == "out_pudl__default_path_resource.parquet"
 
     override_single_path_resource = Resource(
         **Resource.dict_from_resource_descriptor(
@@ -279,8 +282,10 @@ def test_multiple_path_resources(dummy_resource_dict):
             ),
         )
     )
-    json_output = json.loads(override_single_path_resource.to_frictionless().to_json())
-    assert json_output["path"] == "fake_path.parquet"
+    frictionless_resource = frictionless.Resource(
+        json.loads(override_single_path_resource.to_frictionless().to_json())
+    )
+    assert frictionless_resource.path == "fake_path.parquet"
 
     paths = [f"fake_path{i}" for i in range(1, 5)]
     multiple_path_resource = Resource(
@@ -295,9 +300,12 @@ def test_multiple_path_resources(dummy_resource_dict):
             ),
         )
     )
-    json_output = json.loads(multiple_path_resource.to_frictionless().to_json())
-    assert json_output["path"] == paths[0]
-    assert set(json_output["extrapaths"]) == set(paths[1:])
+    frictionless_resource = frictionless.Resource(
+        json.loads(multiple_path_resource.to_frictionless().to_json())
+    )
+    assert frictionless_resource.path == paths[0]
+    assert set(frictionless_resource.extrapaths) == set(paths[1:])
+    assert set(frictionless_resource.normpaths) == set(paths)
 
 
 def test_frictionless_data_package_filter_resources():
