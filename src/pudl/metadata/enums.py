@@ -840,6 +840,7 @@ ASSET_TYPES_RUS7: set[str] = [
     "utility_plant_in_service",
     "construction_work_in_progress",
     "total_utility_plant",
+    "net_utility_plant",
     "depreciation_and_amortization",
     "non_utility_property",
     "investments_subsidiary_companies",
