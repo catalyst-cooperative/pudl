@@ -1149,6 +1149,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    # "comments": {
+    #     "type": "string",
+    #     "description": "General comments field.",
+    # },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -2618,6 +2622,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
     },
+    # "employees_num": {
+    #     "type": "integer",
+    #     "description": "Number of employees.",
+    # },
     "end_point": {
         "type": "string",
         "description": "The end point of a transmission line.",
@@ -5493,6 +5501,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether a plant part record has a duplicate record with different ownership status."
         ),
     },
+    # "ownership_pct": {
+    #     "type": "number",
+    #     "description": "Percentage of the plant owned by the respondent.",
+    # },
     "parent_company_central_index_key": {
         "type": "string",
         "description": "Central index key (CIK) of the parent company.",
@@ -5928,6 +5940,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    # "power_cost_dollars_mer_mwh": {
+    #     "type": "number",
+    #     "description": ("The cost of power per mwh."),
+    #     "unit": "USD/MWh",
+    # },
     "power_requirement_mw": {
         "description": (
             "Maximum power requirement for cooling towers at 100 percent load"
@@ -5992,6 +6009,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant"
         ),
     },
+    # "primary_renewable_fuel_type": {
+    #     "type": "string",
+    #     "description": ("Primary renewable fuel type used by the plant."),
+    # },
+    # "primary_renewable_fuel_type_id": {
+    #     "type": "integer",
+    #     "description": ("Unique numeric identifier for each renewable fuel type."),
+    # },
     "primary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the longest distance transported.",
@@ -6006,6 +6031,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Code for the type of prime mover (e.g. CT, CG) associated with the record_id_eia_plant_gen."
         ),
     },
+    # "prime_mover_id": {
+    #     "type": "integer",
+    #     "description": "Unique numeric identifier for each prime mover type.",
+    # },
+    # "prime_mover_type": {
+    #     "type": "string",
+    #     "description": "Type of prime mover (e.g. Hydro, Internal Combustion).",
+    # },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
     "pudl_version": {
         "type": "string",
@@ -6202,6 +6235,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Indicates whether the plant is regulated or non-regulated.",
     },
+    # "renewable_fuel_pct": {
+    #     "type": "number",
+    #     "description": "Percentage of renewable fuel used.",
+    # },
     "report_date": {"type": "date", "description": "Date reported."},
     "report_timezone": {
         "type": "string",
@@ -6445,6 +6482,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The ISOs/RTOs, in which the respondent conducts operations.",
         "constraints": {"enum": RTO_CLASSES},
     },
+    # "rus_funding": {
+    #     "type": "number",
+    #     "description": (
+    #         "Amount of funding received from the Rural Utilities Service (RUS)."
+    #     ),
+    #     "unit": "USD",
+    # },
     "saidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number",
         "description": (
@@ -7549,6 +7593,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total annual reported fuel costs for the plant part. Includes costs from all fuels."
         ),
     },
+    # "total_investment": {
+    #     "type": "number",
+    #     "description": ("Total amount of money investmented."),
+    #     "unit": "USD",
+    # },
     "total_mmbtu": {
         "type": "number",
         "description": (
@@ -7567,6 +7616,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total annual heat content of fuel consumed by a plant part record in the plant parts list."
         ),
     },
+    # "total_opex_dollars_per_mwh": {
+    #     "type": "number",
+    #     "description": ("Total operating expenses per mwh generated (USD/MWh)."),
+    #     "unit": "USD/MWh",
+    # },
     "total_settlement": {
         "type": "number",
         "description": (

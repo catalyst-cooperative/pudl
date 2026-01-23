@@ -139,15 +139,15 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "primary_renewable_fuel_type_id",
                 "primary_renewable_fuel_type",
                 "renewable_fuel_pct",
-                "capacity_kw",  # do we convert to mw here?
+                "capacity_kw",  # TODO: convert to mw
                 "net_generation_mwh",
                 "capacity_factor",
                 "employees_num",
                 "total_opex_dollars_per_mwh",
                 "power_cost_dollars_per_mwh",
-                "total_investment_thousand_dollars",  # will want to convert this to NOT thousand dollars
+                "total_investment_thousand_dollars",  # TODO: convert to dollars
                 "ownership_pct",
-                "rus_funding_thousand_dollars",  # will want to convert this to NOT thousand dollars
+                "rus_funding_thousand_dollars",  # TODO: convert to dollars
                 "comments",
             ],
             "primary_key": [
@@ -253,9 +253,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "sources": ["rus12"],
-    "etl_group": "rus12",
-    "field_namespace": "rus",
     "core_rus12__yearly_loans": {
         "description": {
             "additional_summary_text": ("loans guaranteed by RUS borrowers."),

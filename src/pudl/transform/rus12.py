@@ -74,3 +74,21 @@ def core_rus12__scd_borrowers(raw_rus12__borrowers):
     return df.assign(
         state=lambda x: x.borrower_id_rus.str.extract(r"^([A-Z]{2})\d{4}$")
     )
+
+
+@asset  # (io_manager_key="pudl_io_manager") # add this when units can be converted and column names have changed
+def core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
+    """Transform the core_rus12__yearly_renewable_plant table."""
+    df = rus.early_transform(raw_df=raw_rus12__renewable_plants)
+
+    # Convert date_created to datetime
+    df.date_created = pd.to_datetime(df.date_created, format="mixed")
+
+    # Convert units
+    # TODO: use Christina's convert_units function once it's merged in for $1000s to $1
+    # TODO: use Christina's convert_units function once it's merged in for kw to mw
+
+    # Transform ideas
+    # - Make primary_renewable_fuel_type look like renewable fuels from other sources.
+
+    return df
