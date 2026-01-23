@@ -1,5 +1,7 @@
 """Tests for metadata not covered elsewhere."""
 
+import json
+
 import pandas as pd
 import pandera.pandas as pr
 import pytest
@@ -259,14 +261,15 @@ def test_merge_descriptions():
 
 
 def test_multiple_path_resources(dummy_resource_dict):
-    """Test that resources with multiple paths can be constructed properly."""
+    """Test that resources paths are output to json as expected after converting to frictionless."""
     default_path_resource = Resource(
         **Resource.dict_from_resource_descriptor(
             "out_pudl__default_path_resource",
             PudlResourceDescriptor.model_validate(dummy_resource_dict),
         )
     )
-    assert default_path_resource.path == "out_pudl__default_path_resource.parquet"
+    json_output = json.loads(default_path_resource.to_frictionless().to_json())
+    assert json_output["path"] == "out_pudl__default_path_resource.parquet"
 
     override_single_path_resource = Resource(
         **Resource.dict_from_resource_descriptor(
@@ -276,7 +279,8 @@ def test_multiple_path_resources(dummy_resource_dict):
             ),
         )
     )
-    assert override_single_path_resource.path == "fake_path.parquet"
+    json_output = json.loads(override_single_path_resource.to_frictionless().to_json())
+    assert json_output["path"] == "fake_path.parquet"
 
     paths = [f"fake_path{i}" for i in range(1, 5)]
     multiple_path_resource = Resource(
@@ -291,8 +295,9 @@ def test_multiple_path_resources(dummy_resource_dict):
             ),
         )
     )
-    assert multiple_path_resource.path == paths[0]
-    assert set(multiple_path_resource.extrapaths) == set(paths[1:])
+    json_output = json.loads(multiple_path_resource.to_frictionless().to_json())
+    assert json_output["path"] == paths[0]
+    assert set(json_output["extrapaths"]) == set(paths[1:])
 
 
 def test_frictionless_data_package_filter_resources():
