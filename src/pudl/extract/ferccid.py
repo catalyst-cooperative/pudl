@@ -5,15 +5,12 @@ from io import BytesIO
 import pandas as pd
 from dagster import Output, asset
 
-import pudl
-from pudl.extract.csv import CsvExtractor
-from pudl.extract.extractor import GenericMetadata
-
-logger = pudl.logging_helpers.get_logger(__name__)
+from pudl.extract.extractor import GenericExtractor, GenericMetadata
+from pudl.metadata.classes import DataSource
 
 
-class Extractor(CsvExtractor):
-    """Extractor for FERC CID."""
+class Extractor(GenericExtractor):
+    """Extractor for FERC Company Identifier table."""
 
     def __init__(self, *args, **kwargs):
         """Initialize the module.
@@ -24,19 +21,28 @@ class Extractor(CsvExtractor):
         self.METADATA = GenericMetadata("ferccid")
         super().__init__(*args, **kwargs)
 
-    def load_source(
-        self, partition: dict[str, str] = {"data_set": "data_table"}
-    ) -> pd.DataFrame:
-        """Produce the dataframe object.
+    def source_filename(self):  # noqa: D102
+        pass
+
+    def load_source(self, partition: dict[str, str]):
+        """Produce the raw CSV data for the FERC CID table."""
+        zf = self.ds.get_unique_resource(self._dataset_name, **partition)
+        df = pd.read_csv(BytesIO(zf))
+        return df
+
+    def extract(self, partition: dict[str, str] = {"data_set": "data_table"}):
+        """Extract FERC CID data table as a dataframe.
 
         Args:
-            partition: the data set partition to load from Zenodo
+            ds: DataStore object
+            partition: Dictionary containing the data set partition to extract.
 
         Returns:
-            pd.DataFrame instance containing CSV data
+            DataFrame with the FERC CID table.
         """
-        zf = self.ds.get_unique_resource(self._dataset_name, **partition)
-        df = pd.read_csv(BytesIO(zf), **self.READ_CSV_KWARGS)
+        df = self.load_source(partition)
+        partition_value = list(partition.values())[0]
+        self.validate(df, page=partition_value, partition=partition_value)
         return df
 
 
@@ -52,5 +58,6 @@ def raw_ferccid__data(
         An extracted FERC CID dataframe.
     """
     ds = context.resources.datastore
-    df = Extractor(ds=ds).load_source()
+    partition = DataSource.from_id("ferccid").working_partitions
+    df = Extractor(ds=ds).extract(partition=partition)
     return Output(value=df)

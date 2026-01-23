@@ -154,14 +154,6 @@ class Ferc714Settings(GenericDatasetSettings):
         return [year for year in self.years if year >= 2021]
 
 
-class FercCidSettings(GenericDatasetSettings):
-    """An immutable pydantic model to validate FERC CID settings."""
-
-    disabled: bool = True
-    data_source: ClassVar[DataSource] = DataSource.from_id("ferccid")
-    years: list[int] = data_source.working_partitions["years"]
-
-
 class EpaCemsSettings(GenericDatasetSettings):
     """An immutable pydantic model to validate EPA CEMS settings."""
 
@@ -586,7 +578,6 @@ class DatasetsSettings(FrozenBaseModel):
     epacems: EpaCemsSettings | None = None
     ferc1: Ferc1Settings | None = None
     ferc714: Ferc714Settings | None = None
-    ferccid: FercCidSettings | None = None
     glue: GlueSettings | None = None
     gridpathratoolkit: GridPathRAToolkitSettings | None = None
     nrelatb: NrelAtbSettings | None = None
@@ -613,7 +604,6 @@ class DatasetsSettings(FrozenBaseModel):
             data["epacems"] = EpaCemsSettings()
             data["ferc1"] = Ferc1Settings()
             data["ferc714"] = Ferc714Settings()
-            data["ferccid"] = FercCidSettings()
             data["glue"] = GlueSettings()
             data["gridpathratoolkit"] = GridPathRAToolkitSettings()
             data["nrelatb"] = NrelAtbSettings()
