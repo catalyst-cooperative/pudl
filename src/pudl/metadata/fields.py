@@ -37,6 +37,7 @@ from pudl.metadata.enums import (
     LEAK_SOURCE_PHMSAGAS,
     LIABILITY_TYPES_FERC1,
     LIABILITY_TYPES_RUS7,
+    LIABILITY_TYPES_RUS12,
     MAIN_PIPE_SIZES_PHMSAGAS,
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
@@ -10227,6 +10228,15 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Type of asset being reported to the core_rus12__yearly_balance_sheet_assets table."
             ),
             "constraints": {"enum": ASSET_TYPES_RUS12},
+        },
+    },
+    "core_rus12__yearly_balance_sheet_liabilities": {
+        "liability_type": {
+            "type": "string",
+            "description": (
+                "Type of liability being reported to the core_rus12__yearly_balance_sheet_liabilities table."
+            ),
+            "constraints": {"enum": LIABILITY_TYPES_RUS12},
         },
     },
 }

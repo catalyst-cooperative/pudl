@@ -60,9 +60,6 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_balance_sheet_liabilities": {
         "description": {
             "additional_summary_text": (
@@ -77,7 +74,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "liability_type",  # enum (list below)
+                "liability_type",
                 "balance",
                 "is_total",
             ],
@@ -91,6 +88,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__scd_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
@@ -311,41 +311,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "rus",
     },
 }
-
-liability_type_enum = [
-    "memberships",
-    "assigned_and_assignable_patronage_capital",
-    "retired_this_year_patronage_capital",
-    "retired_prior_years_patronage_capital",
-    "patronage_capital",
-    "operating_margins_prior_years",
-    "operating_margins_current_year",
-    "non_operating_margins",
-    "other_margins_and_equities",
-    "total_margins_and_equities",
-    "long_term_debt_rus",
-    "payments_unapplied",
-    "long_term_debt_rus_economic_development",
-    "long_term_debt_ffb_rus_guaranteed",
-    "long_term_debt_other_rus_guaranteed",
-    "long_term_debt_other",
-    "total_long_term_debt",
-    "noncurrent_obligations_under_capital_leases",
-    "accumulated_operating_provisions",
-    "total_other_noncurrent_liabilities",
-    "notes_payable",
-    "accounts_payable",
-    "current_maturities_long_term_debt",
-    "rural_development",
-    "current_maturities_capital_leases",
-    "taxes_accrued",
-    "interest_accrued",
-    "other_current_and_accrued",
-    "total_current_and_accrued",
-    "deferred_credits",
-    "accumulated_deferred_income_taxes_credits",
-    "total_liabilities_and_other_credits",
-]
 
 operations_type_enum = [
     "electric_energy_revenues",
