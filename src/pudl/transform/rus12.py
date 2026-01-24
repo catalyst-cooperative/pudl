@@ -92,3 +92,10 @@ def core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     # - Make primary_renewable_fuel_type look like renewable fuels from other sources.
 
     return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt):
+    """Transform the core_rus12__yearly_long_term_debt table."""
+    # TODO: the debt_description column could potentially get some cleaning.
+    return rus.early_transform(raw_df=raw_rus12__long_term_debt)
