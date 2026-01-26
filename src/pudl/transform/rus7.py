@@ -218,3 +218,98 @@ def core_rus7__yearly_power_requirements(
     # this portion of the table does not need a reshape. Applying enforce_schema
     # will effectively drop all the other columns in this table.
     return df
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus7__yearly_investments(
+    raw_rus7__investments: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the core_rus7__yearly_investments table."""
+    df = rus.early_transform(
+        raw_df=raw_rus7__investments,
+        boolean_columns_to_fix=["is_rural_development_investment"],
+    )
+    # TODO: encode investment_type_code
+    # No PK in this table
+    return df
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus7__yearly_long_term_debt(
+    raw_rus7__long_term_debt: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the core_rus7__yearly_investments table."""
+    df = rus.early_transform(raw_df=raw_rus7__long_term_debt)
+    # No PK in this table
+    return df
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus7__yearly_patronage_capital(
+    raw_rus7__patronage_capital: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the core_rus7__yearly_patronage_capital table."""
+    df = rus.early_transform(
+        raw_df=raw_rus7__patronage_capital,
+        boolean_columns_to_fix=[],
+    )
+    rus.early_check_pk(df)
+
+    def _melt_on_date(df, date_range):
+        idx_ish = ["report_date", "borrower_id_rus", "borrower_name_rus"]
+        value_vars = list(df.filter(regex=rf"_{date_range}$").columns)
+        range_df = df.melt(
+            id_vars=idx_ish,
+            value_vars=value_vars,
+            var_name="patronage_type",
+            value_name=f"patronage_{date_range}",
+        )
+        range_df.patronage_type = range_df.patronage_type.str.removesuffix(
+            f"_{date_range}"
+        )
+        return range_df.set_index(idx_ish + ["patronage_type"])
+
+    df = pd.merge(
+        _melt_on_date(df, "cumulative"),
+        _melt_on_date(df, "report_year"),
+        right_index=True,
+        left_index=True,
+        how="outer",
+    ).reset_index()
+    df["is_total"] = df.patronage_type.str.startswith("total_")
+    return df
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus7__yearly_statement_of_operations(
+    raw_rus7__statement_of_operations: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the core_rus7__yearly_statement_of_operations table."""
+    df = rus.early_transform(
+        raw_df=raw_rus7__statement_of_operations,
+        boolean_columns_to_fix=[],
+    )
+    rus.early_check_pk(df)
+
+    # Add a suffix at end
+    statement_types = [
+        "operating_revenue",
+        "opex",
+        "electric_service_expense",
+        "patronage_and_operating_margins",
+    ]
+    date_ranges = ["ytd", "ytd_budget", "report_month"]
+    base_pattern = rf"^({'|'.join(statement_types)})_(.+)_({'|'.join(date_ranges)})"
+    df = df.rename(
+        columns={
+            col: f"{col}_amount" for col in df.filter(regex=base_pattern + "$").columns
+        }
+    ).pipe(
+        rus.multi_index_stack,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=["amount"],
+        pattern=base_pattern + r"_(amount)$",
+        match_names=["statement_type", "statement_item_type", "date_range", "expense"],
+        unstack_level=["statement_type", "statement_item_type", "date_range"],
+    )
+    return df

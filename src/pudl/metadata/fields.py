@@ -9232,7 +9232,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "December only, while 'avg' implies this record pertains to the average of the reporting period."
         ),
         "constraints": {
-            "enum": {"avg", "december", "new_in_report_year", "cumulative"}
+            "enum": {
+                "avg",
+                "december",
+                "new_in_report_year",
+                "cumulative",
+                "report_year",
+                "report_month",
+                "ytd",
+                "ytd_budget",
+            }
         },
     },
     "invested": {
@@ -9298,6 +9307,128 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Whether or not the peak_kw is coincident or non-coincident peak.",
         "unit": "boolean",
+    },
+    "investment_description": {
+        "type": "string",
+        "description": "Description of investment. This is a free-form text field and thus contains a wide variety of values.",
+    },
+    "investment_type_code": {
+        "type": "integer",
+        "description": "Investment type code.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_rus7__codes_investment_types"]["df"]["code"]
+            )
+        },
+    },
+    "included_investments": {
+        "type": "number",
+        "description": "Included investment.",
+    },
+    "excluded_investments": {
+        "type": "number",
+        "description": "Excluded investment.",
+    },
+    "income_or_loss": {
+        "type": "number",
+        "description": "Income or loss from investment.",
+    },
+    "is_rural_development_investment": {
+        "type": "boolean",
+        "description": "Whether or not the investment is Rural Development.",
+    },
+    "debt_description": {
+        "type": "string",
+        "description": (
+            "Description of debt or loan. On the original form, there are nine provided "
+            "descriptions and a section to add other free-form descriptions."
+        ),
+    },
+    "balance_end_of_report_year": {
+        "type": "number",
+        "description": "Loan or debt balance at end of report year.",
+    },
+    "loan_interest": {
+        "type": "number",
+        "description": "Loan or debt interest billed during this report year.",
+    },
+    "loan_principal": {
+        "type": "number",
+        "description": "Loan or debt principal billed during this report year.",
+    },
+    "loan_total": {
+        "type": "number",
+        "description": "Loan or debt total billed during this report year.",
+    },
+    "patronage_type": {
+        "type": "string",
+        "description": ("Type of patronage capital distributed or received."),
+        "constraints": {
+            "enum": {
+                "distributions_general_retirements",
+                "distributions_special_retirements",
+                "received_lenders_of_electric_power",
+                "received_supplier_of_electric_power",
+                "total_distributions_retirements",
+                "total_received",
+            }
+        },
+    },
+    "patronage_cumulative": {
+        "type": "number",
+        "description": (
+            "Amount of patronage distributed or received cumulatively. "
+            "Received patronage capital is notreported cumulatively and thus will be null."
+        ),
+        "unit": "USD",
+    },
+    "patronage_report_year": {
+        "type": "number",
+        "description": "Amount of patronage distributed or received within report year.",
+        "unit": "USD",
+    },
+    "statement_type": {
+        "type": "string",
+        "description": (
+            "High level section from the statement of operations table. Most of these "
+            "types have subcomponents broken out in the ``statement_item_type`` column."
+        ),
+        "constraints": {
+            "enum": {
+                "electric_service_expense",
+                "operating_revenue",
+                "opex",
+                "patronage_and_operating_margins",
+            }
+        },
+    },
+    "statement_item_type": {
+        "type": "string",
+        "description": "Type of item from the statement of operations.",
+        "constraints": {
+            "enum": {
+                "admin",
+                "customer_accounts",
+                "customer_service",
+                "deprecation",
+                "distribution_maintenance",
+                "distribution_operation",
+                "interest_charged_to_construction",
+                "interest_long_term_debt",
+                "interest_other",
+                "operating_revenue",
+                "other_deductions",
+                "power_production",
+                "purchased_power",
+                "regional_market",
+                "sales",
+                "tax_other",
+                "tax_property",
+                "total",
+                "total_minus",
+                "transmission",
+            }
+        },
     },
 }
 """Field attributes by PUDL identifier (`field.name`)."""

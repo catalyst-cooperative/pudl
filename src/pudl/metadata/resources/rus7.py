@@ -247,6 +247,118 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+    "core_rus7__yearly_investments": {
+        "description": {
+            "additional_summary_text": ("investments, loan guarantees and loans."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part P - Section I)",
+            "additional_details_text": (
+                "Reporting of investments is required by 7 CFR 1717, Subpart N. Investment "
+                "categories reported on this Part correspond to Balance Sheet items in Part C."
+            ),
+            "additional_primary_key_text": (
+                "This table has no native primary key. It is a list of all investments or loan "
+                "in each year and borrowers can have multiple records with the same ``investment_description``."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "investment_description",
+                "investment_type_code",
+                "included_investments",
+                "excluded_investments",
+                "income_or_loss",
+                "is_rural_development_investment",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_long_term_debt": {
+        "description": {
+            "additional_summary_text": (
+                "long term debt and debt service requirements."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part N)",
+            "additional_details_text": "",
+            "additional_primary_key_text": (
+                "This table has no native primary key. It is a list of all investments or loan "
+                "in each year and borrowers can have multiple records with the same ``investment_description``."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "debt_description",
+                "balance_end_of_report_year",
+                "loan_interest",
+                "loan_principal",
+                "loan_total",
+            ],
+            "primary_key": ["report_date", "borrower_id_rus"],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_patronage_capital": {
+        "description": {
+            "additional_summary_text": ("patronage capital distributed and received."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part I)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "patronage_type",
+                "patronage_report_year",
+                "patronage_cumulative",
+                "is_total",
+            ],
+            "primary_key": ["report_date", "borrower_id_rus", "patronage_type"],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_statement_of_operations": {
+        "description": {
+            "additional_summary_text": (
+                "statement of operations broken out by types and a variety of time periods."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part A)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "statement_type",
+                "statement_item_type",
+                "date_range",
+                "amount",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "statement_item_type",
+                "date_range",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
 }
 
 DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -280,26 +392,4 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-    # "core_rus7__yearly_": {
-    #     "description": {
-    #         "additional_summary_text": (""),
-    #         "usage_warnings": ["experimental_wip"],
-    #         "additional_source_text": "(Part )",
-    #         "additional_details_text": "",
-    #     },
-    #     "schema": {
-    #         "fields": [
-    #             "report_date",
-    #             "borrower_id_rus",
-    #             "borrower_name_rus",
-    #         ],
-    #         "primary_key": [
-    #             "report_date",
-    #             "borrower_id_rus",
-    #         ],
-    #     },
-    #     "sources": ["rus7"],
-    #     "etl_group": "rus7",
-    #     "field_namespace": "rus",
-    # },
 }

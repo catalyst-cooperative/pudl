@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_long_term_debt
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: debt_description
+          - name: balance_end_of_report_year
+          - name: loan_interest
+          - name: loan_principal
+          - name: loan_total
