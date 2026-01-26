@@ -8,7 +8,7 @@ import pudl.transform.rus as rus
 
 @asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
-    """Transform the core_rus7__yearly_meeting_and_board table."""
+    """Transform the meeting and board (aka governance) table."""
     df = rus.early_transform(
         raw_df=raw_rus7__meeting_and_board,
         boolean_columns_to_fix=[
@@ -26,7 +26,7 @@ def core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
 
 @asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
-    """Transform the core_rus7__yearly_balance_sheet_assets table."""
+    """Transform the balance sheet assets table."""
     df = rus.early_transform(raw_df=raw_rus7__balance_sheet)
     rus.early_check_pk(df)
     # MELT
@@ -46,7 +46,7 @@ def core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
 
 @asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
-    """Transform the core_rus7__yearly_balance_sheet_liabilities table."""
+    """Transform the balance sheet liabilities table."""
     df = rus.early_transform(raw_df=raw_rus7__balance_sheet)
     rus.early_check_pk(df)
     # MELT
@@ -67,7 +67,7 @@ def core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
 # TODO: feed all rus7 tables into this and extract info
 @asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
 def core_rus7__scd_borrowers(raw_rus7__borrowers):
-    """Transform the core_rus7__scd_borrowers table."""
+    """Transform the borrowers table."""
     df = rus.early_transform(raw_df=raw_rus7__borrowers)
     rus.early_check_pk(df)
     # TODO: encode region_code?
@@ -78,7 +78,7 @@ def core_rus7__scd_borrowers(raw_rus7__borrowers):
 
 @asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
-    """Transform the core_rus7__yearly_employee_statistics table."""
+    """Transform the employee statistics table."""
     df = rus.early_transform(raw_df=raw_rus7__employee_statistics)
     rus.early_check_pk(df)
     return df
@@ -86,7 +86,7 @@ def core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
 
 @asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
-    """Transform the core_rus7__yearly_energy_efficiency table."""
+    """Transform the energy efficiency table."""
     df = rus.early_transform(raw_df=raw_rus7__energy_efficiency)
     rus.early_check_pk(df)
     # Multi-Stack
@@ -96,8 +96,8 @@ def core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
         pattern=rf"^({'|'.join(data_cols)})_(.+)_(cumulative|new_in_report_year)$",
-        match_names=["data_cols", "customer_class", "date_range"],
-        unstack_level=["customer_class", "date_range"],
+        match_names=["data_cols", "customer_class", "observation_period"],
+        unstack_level=["customer_class", "observation_period"],
     )
     return df
 
@@ -142,7 +142,11 @@ def _core_rus7__yearly_power_requirements(raw_rus7__power_requirements):
 def core_rus7__yearly_power_requirements_electric_sales(
     _core_rus7__yearly_power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the core_rus7__yearly_power_requirements_electric_sales table."""
+    """Transform the power requirements of electric sales table.
+
+    The resulting table is a portion of the power_requirements tables, which
+    pertains to the sales and revenue of electricity.
+    """
     df = _core_rus7__yearly_power_requirements
     # Multi-Stack
     data_cols = ["sales_kwh", "revenue"]
@@ -168,7 +172,11 @@ def core_rus7__yearly_power_requirements_electric_sales(
 def core_rus7__yearly_power_requirements_electric_customers(
     _core_rus7__yearly_power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the core_rus7__yearly_power_requirements_electric_sales table."""
+    """Transform the power requirements of electric customers table.
+
+    The resulting table is a portion of the power_requirements tables, which
+    pertains to the number of customers in different customer classes.
+    """
     df = _core_rus7__yearly_power_requirements
     # Multi-Stack
     data_cols = ["customers_num"]
@@ -177,8 +185,8 @@ def core_rus7__yearly_power_requirements_electric_customers(
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
         pattern=rf"^(.+)_({data_cols[0]})_(december|avg)$",
-        match_names=["customer_class", "data_cols", "date_range"],
-        unstack_level=["customer_class", "date_range"],
+        match_names=["customer_class", "data_cols", "observation_period"],
+        unstack_level=["customer_class", "observation_period"],
     )
     return df
 
@@ -187,13 +195,19 @@ def core_rus7__yearly_power_requirements_electric_customers(
 def core_rus7__yearly_power_requirements(
     _core_rus7__yearly_power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the core_rus7__yearly_power_requirements_electric_sales table."""
+    """Transform the power requirements table.
+
+    The resulting table is a portion of the power_requirements tables, which
+    pertains to the revenue from several portions of the borrower's business as well
+    as several types of electricity generated, purchased or used.
+    """
     df = _core_rus7__yearly_power_requirements
     # The electric sales portion of this table gets reshaped and pulled into two
     # separate tables. The electric sales portion of this table ends with two totals
     # the rest of the table pertains to other utility functions. The totals show up
     # in the reshaped electric sales portion of the table but we also rename them
-    # and include them here as well.
+    # and include them here as well. That way this table has all of the sectors of
+    # power requirements reported in one place.
     df = (
         df.rename(
             columns={

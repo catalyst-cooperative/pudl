@@ -9225,7 +9225,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The amount of payroll spent that was funded by other means - not capitalized or expensed.",
     },
     "customers_num": {"description": "Number of customers.", "type": "number"},
-    "date_range": {
+    "observation_period": {
         "type": "string",
         "description": (
             "The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of "
@@ -9266,12 +9266,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "other_electric_revenue": {
         "type": "integer",
-        "description": "Other electric revenue - other than electric_sales_revenue.",
+        "description": "Electric revenue other than electric_sales_revenue.",
         "unit": "USD",
     },
     "own_use_mwh": {
         "type": "number",
-        "description": "The electricity in kWh used internally.",
+        "description": "The electricity in MWh used for the borrower's own internal use.",
         "unit": "MWh",
     },
     "generated_mwh": {
@@ -9286,17 +9286,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "interchange_mwh": {
         "type": "number",
-        "description": "The net interchange of electricity..",
+        "description": "The net interchange of electricity. The net amount of electricity exchanged in purchases and sales.",
         "unit": "MWh",
     },
     "peak_mw": {
         "type": "number",
-        "description": "The peak system kWh - the sum of all MW.",
+        "description": "The peak system MWh - the sum of all MW.",
         "unit": "MW",
     },
     "is_peak_coincident": {
         "type": "integer",
-        "description": "Whether or not the peak_kw is coincident or non-coincident peak.",
+        "description": "Whether or not the peak_mw is coincident or non-coincident peak.",
         "unit": "boolean",
     },
 }
