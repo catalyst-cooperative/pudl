@@ -356,7 +356,7 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 359,225,"Westar Energy, Inc.",22500,Westar Energy Inc
 359,348,"Westar Generating, Inc.",22500,Westar Energy Inc
 360,245,Western Massachusetts Electric Company,56999,Western Massachusetts Electric Company
-361,207,Wheeling Power Company,,
+361,207,Wheeling Power Company,20521,wheeling power co
 362,137,"White River Electric Association, Inc.",,
 363,280,Wisconsin Electric Power Company,20847,Wisconsin Electric Power Co
 364,219,Wisconsin Power and Light Company,20856,Wisconsin Power & Light Co
@@ -12219,7 +12219,6 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 12290,,,20510,wheatland electric coop inc
 12291,,,20512,wheatland town of
 12292,,,20519,westmoreland energy inc
-361,,,20521,wheeling power co
 12294,,,20524,wheeled electric power company
 12295,,,20534,whigham city of
 12296,,,20535,white mountain city of
