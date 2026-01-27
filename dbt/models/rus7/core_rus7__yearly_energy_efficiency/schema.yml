@@ -8,7 +8,7 @@ sources:
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: customer_class
-          - name: date_range
+          - name: observation_period
           - name: customers_num
           - name: invested
           - name: savings_mmbtu

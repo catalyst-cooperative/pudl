@@ -107,7 +107,7 @@ def multi_index_stack(
 
 
 def convert_units(
-    df: pd.DataFrame, old_unit: str, new_unit: str, converter: float | int
+    df: pd.DataFrame, old_unit: str, new_unit: str | None, converter: float | int
 ) -> pd.DataFrame:
     """Convert units within a column and rename column with new units.
 
@@ -123,15 +123,19 @@ def convert_units(
         old_unit: the unit in the df. This must be the suffix of the column
             names you'd like to convert.
         new_unit: the new unit label you want as the new suffix of the resulting
-            dataframe.
+            dataframe. If you want no new unit added, this value can be None or an
+            empty string ()"").
         converter: the float or integer you need to multiply the old values by to
             convert the units.
     """
     convert_cols = df.filter(regex=rf"_{old_unit}$").columns
     df.loc[:, convert_cols] = df.loc[:, convert_cols].astype("float") * converter
+    new_unit_to_add = ""
+    if new_unit:
+        new_unit_to_add = f"_{new_unit}"
     df = df.rename(
         columns={
-            col_name: col_name.removesuffix(f"_{old_unit}") + f"_{new_unit}"
+            col_name: col_name.removesuffix(f"_{old_unit}") + new_unit_to_add
             for col_name in convert_cols
         }
     )

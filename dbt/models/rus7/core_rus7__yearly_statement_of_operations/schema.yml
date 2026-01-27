@@ -9,5 +9,5 @@ sources:
           - name: borrower_name_rus
           - name: statement_type
           - name: statement_item_type
-          - name: date_range
+          - name: observation_period
           - name: amount
