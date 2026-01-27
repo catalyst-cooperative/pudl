@@ -9,4 +9,7 @@ def core_ferccid__data(raw_ferccid__data):
     """Clean the FERC Company Identifier table."""
     out_df = raw_ferccid__data.copy()
     out_df.columns = out_df.columns.str.lower()
+    # dtypes
+    # primary key
+    # standardize field names
     return out_df
