@@ -695,6 +695,7 @@ SOURCES: dict[str, Any] = {
             "various required forms. Each regulatory program requires a unique CID number. These "
             "CID numbers show up in various FERC filings, such as Forms 1, 2, 6, 60, 714, and EQR."
         ),
+        # we only want the data table, not the data dictionary table
         "working_partitions": {"data_set": "data_table"},
         "keywords": sorted(
             set(
