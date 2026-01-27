@@ -3,7 +3,7 @@ name: build-deploy-ferceqr
 on:
   workflow_dispatch:
   schedule:
-    - cron: "48 0 1 * *" # 00:48 UTC on the first of every month
+    - cron: "48 0 3 * *" # 00:48 UTC on the third of every month
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
