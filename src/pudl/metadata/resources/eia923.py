@@ -912,8 +912,8 @@ is for those supplies."""
                 "fgd_hours_in_service",
                 "fgd_electricity_consumption_mwh",
                 "fgd_sorbent_consumption_tons",
-                "so2_removal_efficiency_tested",
-                "so2_removal_efficiency_annual",
+                "so2_removal_efficiency_tested_pct",
+                "so2_removal_efficiency_annual_pct",
                 "so2_test_date",
                 "data_maturity",
             ],
@@ -1053,6 +1053,51 @@ and consumption is the net generation."""
             "primary_key": [
                 "plant_id_eia",
                 "report_year",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "_core_eia923__yearly_emissions_control": {
+        "description": {
+            "additional_summary_text": (
+                "Actual rate and removal efficiency for air emissions reported by "
+                "thermoelectric or combined-cycle power plants with a total steam turbine capacity "
+                "greater than or equal to 10 megawatts."
+            ),
+            "additional_source_text": "(Schedule 8C)",
+        },
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
+                "acid_gas_removal_efficiency_pct",
+                "annual_nox_emission_rate_lb_per_mmbtu",
+                "data_maturity",
+                "environmental_equipment_name",
+                "fgd_electricity_consumption_mwh",
+                "fgd_sorbent_consumption_tons",
+                "hours_in_service",
+                "mercury_control_id_eia",
+                "mercury_emission_rate_lb_per_trillion_btu",
+                "mercury_removal_efficiency_pct",
+                "nox_control_id_eia",
+                "operational_status",
+                "ozone_season_nox_emission_rate_lb_per_mmbtu",
+                "particulate_control_id_eia",
+                "particulate_emission_rate_lb_per_mmbtu",
+                "particulate_removal_efficiency_tested_pct",
+                "particulate_removal_efficiency_annual_pct",
+                "particulate_test_date",
+                "so2_control_id_eia",
+                "so2_removal_efficiency_tested_pct",
+                "so2_removal_efficiency_annual_pct",
+                "so2_test_date",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
             ],
         },
         "field_namespace": "eia",

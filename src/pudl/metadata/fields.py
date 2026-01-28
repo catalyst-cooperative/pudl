@@ -227,6 +227,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the emissions control equipment controls acid (HCl) gas."
         ),
     },
+    "acid_gas_removal_efficiency_pct": {
+        "type": "number",
+        "description": "Percent removal efficiency for acid gas emissions",
+    },
     "actual_peak_demand_savings_mw": {
         "type": "number",
         "description": (
@@ -361,6 +365,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Maximum cooling water temperature at outlet in winter",
         "type": "number",
         "unit": "F",
+    },
+    "annual_nox_emission_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": (
+            "Actual controlled (or uncontrolled) nitrogen oxides emission rate. "
+            "Based on data from CEMS where possible."
+        ),
     },
     "annual_total_chlorine_lbs": {
         "description": (
@@ -2897,6 +2908,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Entity type of principal owner.",
     },
+    "environmental_equipment_name": {
+        "type": "string",
+        "description": "Type of equipment or strategy for the control of air emissions.",
+    },
     "estimated_or_actual_capacity_data": {
         "type": "string",
         "description": "Whether the reported capacity data is estimated or actual.",
@@ -3777,6 +3792,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Number of AMI meters with home area network (HAN) gateway enabled."
         ),
     },
+    "hours_in_service": {
+        "type": "integer",
+        "description": (
+            "Total hours the emissions control was in service during the reporting year, "
+            "rounded to the nearest hour."
+        ),
+        "unit": "hr",
+    },
     "hrsg": {
         "type": "boolean",
         "description": (
@@ -4411,6 +4434,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Proposed strategy to comply with the most stringent mercury regulation."
         ),
+    },
+    "mercury_emission_rate_lb_per_trillion_btu": {
+        "type": "number",
+        "description": (
+            "Actual controlled (or uncontrolled) mercury emission rate, based on "
+            "data from CEMS, where possible."
+        ),
+    },
+    "mercury_removal_efficiency_pct": {
+        "type": "number",
+        "description": "Percent removal efficiency for mercury emissions rounded to nearest 0.1 percent of weight",
     },
     "merge_address": {
         "type": "string",
@@ -5491,6 +5525,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether a plant part record has a duplicate record with different ownership status."
         ),
     },
+    "ozone_season_nox_emission_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": "Actual controlled (or uncontrolled) nitrogen oxides emission rate during the ozone season (May to September)",
+    },
     "parent_company_central_index_key": {
         "type": "string",
         "description": "Central index key (CIK) of the parent company.",
@@ -5624,6 +5662,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "If boiler is not in compliance with particulate matter regulations, strategy for compliance."
         ),
+    },
+    "particulate_emission_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": "Average annual emission removal rate for particulate matter.",
+    },
+    "particulate_removal_efficiency_tested_pct": {
+        "type": "number",
+        "description": (
+            "The tested efficiency for the removal of particulate matter at 100 percent load. "
+            "If not tested at 100 percent load, then the load at which the test was conducted "
+            "is included as a comment on Schedule 9. If no test was conducted, the test date "
+            "and tested efficiency field should be blank."
+        ),
+    },
+    "particulate_removal_efficiency_annual_pct": {
+        "type": "number",
+        "description": (
+            "Particulate removal efficiency, based on the annual operating factor, "
+            "which is defined as annual fuel consumption (MMBtu) divided by the product "
+            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year."
+            "When actual data are not available, estimates are provided based on equipment "
+            "design performance specifications."
+        ),
+    },
+    "particulate_test_date": {
+        "type": "date",
+        "description": "Date of the latest efficiency test for the removal of particulate matter.",
     },
     "partitions": {
         "type": "string",
@@ -6864,16 +6929,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Designed removal efficiency for sulfur dioxide when operating at 100 percent load. Reported at the nearest 0.1 percent by weight of gases removed from the flue gas."
         ),
     },
-    "so2_removal_efficiency_tested": {
+    "so2_removal_efficiency_tested_pct": {
         "type": "number",
         "description": (
-            "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at tested rate at 100 percent load."
+            "The tested efficiency for the removal of sulfur dioxide at 100 percent load. "
+            "If not tested at 100 percent load, then the load at which the test was conducted "
+            "is included as a comment on Schedule 9. If no test was conducted, the test date "
+            "and tested efficiency field should be blank."
         ),
     },
-    "so2_removal_efficiency_annual": {
+    "so2_removal_efficiency_annual_pct": {
         "type": "number",
         "description": (
-            "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) based on designed firing rate and hours in operation (listed as a percentage)."
+            "Sulfur dioxide removal efficiency, based on the annual operating factor, "
+            "which is defined as annual fuel consumption (MMBtu) divided by the product "
+            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year."
+            "When actual data are not available, estimates are provided based on equipment "
+            "design performance specifications."
         ),
     },
     "so2_test_date": {

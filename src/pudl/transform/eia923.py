@@ -1475,8 +1475,8 @@ def fgd_continuity_check(fgd):
             "fgd_electricity_consumption_mwh": 0.3,
             "fgd_hours_in_service": 0.1,
             "fgd_sorbent_consumption_tons": 0.2,
-            "so2_removal_efficiency_tested": 0.1,
-            "so2_removal_efficiency_annual": 0.1,
+            "so2_removal_efficiency_tested_pct": 0.1,
+            "so2_removal_efficiency_annual_pct": 0.1,
         },
         groupby_col="report_date",
         n_outliers_allowed=1,
@@ -1651,5 +1651,80 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     # Convert thousands of dollars to dollars and remove suffix from column name
     df.loc[:, df.columns.str.endswith("_1000_dollars")] *= 1000
     df.columns = df.columns.str.replace("_1000_dollars", "")
+
+    return df
+
+
+# Comment this out for the moment since we have some more data cleaning to do before
+# all the fields are compatible with their assigned dtypes.
+# @asset(io_manager_key="pudl_io_manager")
+@asset
+def _core_eia923__yearly_emissions_control(
+    raw_eia923__emissions_control: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__emissions_control table.
+
+    Transformations include:
+    * Standardize NA values
+    * Clean month-year date string columns
+
+    Args:
+        raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
+        dataframe.
+
+    Returns:
+        Cleaned ``_core_eia923__yearly_emissions_control`` dataframe ready for harvesting.
+    """
+    # This column is dropped from all EIA 923 tables
+    df = raw_eia923__emissions_control.drop(["early_release"], axis=1)
+    # Convert dates and fix NA values
+    df = (
+        df.pipe(_yearly_to_monthly_records)
+        .pipe(pudl.helpers.standardize_na_values)
+        .pipe(pudl.helpers.convert_to_date)
+    )
+    # Convert thousands of tons to tons
+    df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
+    df.columns = df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
+    df.loc[:, "fgd_sorbent_consumption_tons"] = df.loc[
+        :, "fgd_sorbent_consumption_tons"
+    ].round(-2)
+
+    # Fix malformed report-year string columns (i.e., should be MM-YYYY)
+    def clean_date(val):
+        if pd.isna(val):
+            return None
+        val = str(val).strip()
+        year = val[-4:]
+        month = val[:-4].replace("-", "").zfill(2)
+        if not (month.isdigit() and year.isdigit()):
+            return None
+        return f"{month}-{year}"
+
+    date_cols = ["so2_test_date", "particulate_test_date"]
+    for col in date_cols:
+        df[col] = df[col].apply(clean_date)
+
+    # Encode operational_status (and potentially other columns):
+    # This will standardize the categorical values in any columns that have foreign key
+    # relationships that point at one of the coding tables. It requires the table
+    # metadata to be defined, but the table doesn't actually need to be written to the
+    # database yet. We can't write the table to the DB yet because some of the date
+    # columns have invalid values.
+    df = PUDL_PACKAGE.encode(df)
+
+    # df["operational_status"] = df.operational_status.str.upper().map(
+    #     pudl.helpers.label_map(
+    #         CODE_METADATA["core_eia__codes_operational_status"]["df"],
+    #         from_col="code",
+    #         to_col="operational_status",
+    #         null_value=pd.NA,
+    #     )
+    # )
+
+    # This will fail because the dates columns contain some invalid values, but would
+    # get the dtypes close to their final form, allowing the pandera schema check to
+    # pass
+    # return pudl.metadata.fields.apply_pudl_dtypes(df, group="eia", strict=True)
 
     return df
