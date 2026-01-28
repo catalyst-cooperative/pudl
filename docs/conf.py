@@ -69,6 +69,7 @@ googleanalytics_enabled = True
 
 todo_include_todos = True
 bibtex_bibfiles = [
+    "cooperative_cites.bib",
     "catalyst_pubs.bib",
     "catalyst_cites.bib",
     "further_reading.bib",
