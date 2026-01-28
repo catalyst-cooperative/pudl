@@ -70,10 +70,12 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from functools import wraps
 from itertools import combinations
+from pathlib import Path
 from typing import Annotated, Any, Protocol, Self
 
 import numpy as np
 import pandas as pd
+import yaml
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -448,6 +450,18 @@ class StringCategories(TransformParams):
     given the many different values which can be used to represent NA. See
     :func:`categorize_strings` to see how it is used.
     """
+
+    def __init__(self, **kwargs):
+        """Intervene in construction without sacrificing validation."""
+        # deserialize categories from disk if needed
+        if isinstance(kwargs["categories"], Path):
+            with kwargs["categories"].open() as f:
+                data = yaml.safe_load(f)
+                kwargs["categories"] = {
+                    cat: set(values) for cat, values in data.items()
+                }
+        # but still do all the normal BaseModel constructor things
+        super().__init__(**kwargs)
 
     @field_validator("categories")
     @classmethod
