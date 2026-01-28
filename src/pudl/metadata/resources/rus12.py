@@ -2,9 +2,7 @@
 
 from typing import Any
 
-RESOURCE_METADATA = {}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+RESOURCE_METADATA = {
     "core_rus12__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (
@@ -48,7 +46,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "asset_type",  # enum (list below)
+                "asset_type",
                 "balance",
                 "is_total",
             ],
@@ -76,7 +74,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "liability_type",  # enum (list below)
+                "liability_type",
                 "balance",
                 "is_total",
             ],
@@ -90,6 +88,37 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__yearly_long_term_debt": {
+        "description": {
+            "additional_summary_text": (
+                "long-term debt and debt service requirements for RUS borrowers."
+            ),
+            "additional_primary_key_text": (
+                "This table has no primary key because some borrowers report multiple debt values from "
+                "the same entity in a given year."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section H)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "debt_description",
+                "debt_balance_end_of_report_year",
+                "debt_interest_billed",
+                "debt_principal_billed",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__scd_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
@@ -138,15 +167,15 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "primary_renewable_fuel_type_id",
                 "primary_renewable_fuel_type",
                 "renewable_fuel_pct",
-                "capacity_kw",  # do we convert to mw here?
+                "capacity_kw",  # TODO: convert to mw
                 "net_generation_mwh",
                 "capacity_factor",
                 "employees_num",
                 "total_opex_dollars_per_mwh",
                 "power_cost_dollars_per_mwh",
-                "total_investment_thousand_dollars",  # will want to convert this to NOT thousand dollars
+                "total_investment_thousand_dollars",  # TODO: convert to dollars
                 "ownership_pct",
-                "rus_funding_thousand_dollars",  # will want to convert this to NOT thousand dollars
+                "rus_funding_thousand_dollars",  # TODO: convert to dollars
                 "comments",
             ],
             "primary_key": [
@@ -252,9 +281,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "sources": ["rus12"],
-    "etl_group": "rus12",
-    "field_namespace": "rus",
     "core_rus12__yearly_loans": {
         "description": {
             "additional_summary_text": ("loans guaranteed by RUS borrowers."),
@@ -311,73 +337,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
 }
 
-asset_type_enum = [
-    "construction_work_in_progress",
-    "total_utility_plant",
-    "depreciation_and_amortization",
-    "non_utility_property_asset",
-    "investments_subsidiary_companies",
-    "investments_associated_orgs_patronage_capital",
-    "investments_associated_orgs_other_general_funds",
-    "investments_associated_orgs_other_non_general_funds",
-    "investments_economic_development",
-    "investments_other",
-    "special_funds",
-    "total_other_property_and_investments",
-    "cash_general_funds",
-    "cash_construction_funds_trustee",
-    "special_deposits",
-    "investments_temporary",
-    "notes_receivable",
-    "accounts_receivable_sales_of_energy",
-    "accounts_receivable_other",
-    "fuel_stock",
-    "renewable_energy_credits",
-    "materials_and_supplies",
-    "prepayments",
-    "other_current_and_accrued",
-    "total_current_and_accrued",
-    "unamortized_debt_discount_property_losses",
-    "regulatory",
-    "other_deferred_debits",
-    "accumulated_deferred_income_taxes_debits",
-    "total",
-]
-
-liability_type_enum = [
-    "memberships",
-    "assigned_and_assignable_patronage_capital",
-    "retired_this_year_patronage_capital",
-    "retired_prior_years_patronage_capital",
-    "patronage_capital",
-    "operating_margins_prior_years",
-    "operating_margins_current_year",
-    "non_operating_margins",
-    "other_margins_and_equities",
-    "total_margins_and_equities",
-    "long_term_debt_rus",
-    "payments_unapplied",
-    "long_term_debt_rus_economic_development",
-    "long_term_debt_ffb_rus_guaranteed",
-    "long_term_debt_other_rus_guaranteed",
-    "long_term_debt_other",
-    "total_long_term_debt",
-    "noncurrent_obligations_under_capital_leases",
-    "accumulated_operating_provisions",
-    "total_other_noncurrent_liabilities",
-    "notes_payable",
-    "accounts_payable",
-    "current_maturities_long_term_debt",
-    "rural_development",
-    "current_maturities_capital_leases",
-    "taxes_accrued",
-    "interest_accrued",
-    "other_current_and_accrued",
-    "total_current_and_accrued",
-    "deferred_credits",
-    "accumulated_deferred_income_taxes_credits",
-    "total_liabilities_and_other_credits",
-]
 
 operations_type_enum = [
     "electric_energy_revenues",
