@@ -6,8 +6,10 @@
 
 .. warning::
 
-   This table will not fit in physical memory. Make sure to filter or aggregate
-   carefully when reading it. You may want to avoid using Pandas directly.
+   This table will likely not fit in your computer's memory.
+   Make sure to filter or aggregate to reduce the amount of data read in.
+   This is easier in ``polars`` and ``duckdb`` than in ``pandas``,
+   so we only provide examples for these.
 
 .. tabs::
 
@@ -19,7 +21,10 @@
          # Select some data relevant to tracking solar PPA prices
          df = (
              # Limit query to data from a single quarterly Parquet file
-             pl.scan_parquet("s3://pudl.catalyst.coop/ferceqr/core_ferceqr__transactions/2013q3.parquet")
+             pl.scan_parquet(
+                 "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__transactions/2013q3.parquet",
+                 storage_options={"aws_region": "us-west-2"},
+             )
              .select(
                  [
                      "seller_company_name",

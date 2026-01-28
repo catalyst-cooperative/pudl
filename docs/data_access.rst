@@ -393,7 +393,8 @@ examples:
         # Use scan_parquet (lazy evaluation) and filter
         df = (
             pl.scan_parquet(
-                "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet"
+                "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet",
+                storage_options={"aws_region": "us-west-2"},
             )
             .filter(pl.col("seller_company_name").str.contains("Bonneville"))
             .head(10)
