@@ -1,0 +1,57 @@
+pudl.etl.asset_checks
+=====================
+
+.. py:module:: pudl.etl.asset_checks
+
+.. autoapi-nested-parse::
+
+   Programmatically defined Dagster asset checks for PUDL.
+
+   We primarily use Dagster asset checks to validate the schemas of PUDL tables. We use
+   Pandera to programmatically define dataframe schemas based on the PUDL metadata with the
+   asset check factory :func:`asset_check_from_schema` defined below.
+
+   For data validation we almost entirely rely on dbt data tests.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.etl.asset_checks._collect_asset_metadata
+   pudl.etl.asset_checks._collect_dtype_metadata
+   pudl.etl.asset_checks._collect_geometry_metadata
+   pudl.etl.asset_checks._process_schema_errors
+   pudl.etl.asset_checks.asset_check_from_schema
+
+
+Module Contents
+---------------
+
+.. py:function:: _collect_asset_metadata(asset_value) -> dict[str, Any]
+
+   Collect basic metadata about the asset.
+
+
+.. py:function:: _collect_dtype_metadata(asset_value, resource: pudl.metadata.classes.Resource) -> dict[str, Any]
+
+   Collect comprehensive column and data type information for comparison.
+
+
+.. py:function:: _collect_geometry_metadata(asset_value) -> dict[str, Any]
+
+   Collect GeoPandas-specific metadata.
+
+
+.. py:function:: _process_schema_errors(schema_errors: pandera.errors.SchemaErrors) -> dict[str, Any]
+
+   Process Pandera schema errors into structured metadata.
+
+
+.. py:function:: asset_check_from_schema(asset_key: dagster.AssetKey, package: pudl.metadata.classes.Package) -> dagster.AssetChecksDefinition | None
+
+   Create a dagster asset check based on the resource schema, if defined.
+
+

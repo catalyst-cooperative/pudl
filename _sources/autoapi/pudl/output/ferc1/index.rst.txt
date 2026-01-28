@@ -1,0 +1,1160 @@
+pudl.output.ferc1
+=================
+
+.. py:module:: pudl.output.ferc1
+
+.. autoapi-nested-parse::
+
+   A collection of denormalized FERC assets and helper functions.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.output.ferc1.logger
+   pudl.output.ferc1.EXPLOSION_CALCULATION_TOLERANCES
+   pudl.output.ferc1.MANUAL_DBF_METADATA_FIXES
+   pudl.output.ferc1.out_ferc1_assets
+   pudl.output.ferc1.EXPLOSION_ARGS
+   pudl.output.ferc1.exploded_ferc1_assets
+   pudl.output.ferc1.check_specs_detailed_tables_tags
+   pudl.output.ferc1._tag_checks
+   pudl.output.ferc1.check_specs
+   pudl.output.ferc1._idx_checks
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.output.ferc1.NodeId
+   pudl.output.ferc1.OffByFactoid
+   pudl.output.ferc1.Exploder
+   pudl.output.ferc1.XbrlCalculationForestFerc1
+   pudl.output.ferc1.Ferc1DetailedCheckSpec
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.output.ferc1.get_core_ferc1_asset_description
+   pudl.output.ferc1.ferc1_output_asset_factory
+   pudl.output.ferc1._out_ferc1__yearly_plants_utilities
+   pudl.output.ferc1.out_ferc1__yearly_steam_plants_sched402
+   pudl.output.ferc1.out_ferc1__yearly_small_plants_sched410
+   pudl.output.ferc1.out_ferc1__yearly_hydroelectric_plants_sched406
+   pudl.output.ferc1.out_ferc1__yearly_pumped_storage_plants_sched408
+   pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_sched402
+   pudl.output.ferc1.out_ferc1__yearly_all_plants
+   pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_by_plant_sched402
+   pudl.output.ferc1.calc_annual_capital_additions_ferc1
+   pudl.output.ferc1.add_mean_cap_additions
+   pudl.output.ferc1._out_ferc1__detailed_tags
+   pudl.output.ferc1._get_tags
+   pudl.output.ferc1._aggregatable_dimension_tags
+   pudl.output.ferc1.exploded_table_asset_factory
+   pudl.output.ferc1.create_exploded_table_assets
+   pudl.output.ferc1.nodes_to_df
+   pudl.output.ferc1._propagate_tags_leafward
+   pudl.output.ferc1._propagate_tag_rootward
+   pudl.output.ferc1._propagate_tags_to_corrections
+   pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags
+   pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag
+   pudl.output.ferc1.make_check_tag_propagation
+   pudl.output.ferc1.make_check_correction_tags
+   pudl.output.ferc1.out_ferc1__yearly_rate_base
+   pudl.output.ferc1.replace_dimension_columns_with_aggregatable
+   pudl.output.ferc1.make_idx_check
+   pudl.output.ferc1.prep_cash_working_capital
+   pudl.output.ferc1.disaggregate_null_or_total_tag
+   pudl.output.ferc1.get_column_value_ratio
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: EXPLOSION_CALCULATION_TOLERANCES
+   :type:  dict[str, pudl.transform.ferc1.GroupMetricChecks]
+
+.. py:data:: MANUAL_DBF_METADATA_FIXES
+   :type:  dict[str, dict[str, str | int | pandas._libs.missing.NAType]]
+
+   Manually compiled metadata from DBF-only or PUDL-generated xbrl_factios.
+
+   Note: the factoids beginning with "less" here could be removed after a transition
+   of expectations from assuming the calculation components in any given explosion
+   is a tree structure to being a dag. These xbrl_factoids were added in
+   `transform.ferc1` and could be removed upon this transition.
+
+.. py:function:: get_core_ferc1_asset_description(asset_name: str) -> str
+
+   Get the asset description portion of a core FERC FORM 1 asset.
+
+   This is useful when programmatically constructing output assets
+   from core assets using asset factories.
+
+   :param asset_name: The name of the core asset.
+
+   :returns: The asset description portion of the asset name.
+   :rtype: asset_description
+
+
+.. py:function:: ferc1_output_asset_factory(table_name: str) -> dagster.AssetsDefinition
+
+   Define an output asset for the FERC1 table by adding in utility IDs.
+
+
+.. py:data:: out_ferc1_assets
+
+.. py:function:: _out_ferc1__yearly_plants_utilities(core_pudl__assn_ferc1_pudl_plants: pandas.DataFrame, core_pudl__assn_ferc1_pudl_utilities: pandas.DataFrame, core_pudl__assn_ferc1_dbf_pudl_utilities: pandas.DataFrame, core_pudl__assn_ferc1_xbrl_pudl_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   A denormalized table containing FERC plant and utility names and IDs.
+
+
+.. py:function:: out_ferc1__yearly_steam_plants_sched402(_out_ferc1__yearly_plants_utilities: pandas.DataFrame, _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: pandas.DataFrame) -> pandas.DataFrame
+
+   Select and joins some useful fields from the FERC Form 1 steam table.
+
+   Select the FERC Form 1 steam plant table entries, add in the reporting utility's
+   name, and the PUDL ID for the plant and utility for readability and integration with
+   other tables that have PUDL IDs.  Also calculates ``capacity_factor`` (based on
+   ``net_generation_mwh`` & ``capacity_mw``)
+
+   :param _out_ferc1__yearly_plants_utilities: Denormalized dataframe of FERC Form 1
+                                               plants and utilities data.
+   :param _out_ferc1__yearly_steam_plants_sched402_with_plant_ids: The FERC Form 1 steam
+                                                                   table with imputed plant IDs to group plants across report years.
+
+   :returns: A DataFrame containing useful fields from the FERC Form 1 steam table.
+
+
+.. py:function:: out_ferc1__yearly_small_plants_sched410(core_ferc1__yearly_small_plants_sched410: pandas.DataFrame, _out_ferc1__yearly_plants_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Pull a useful dataframe related to the FERC Form 1 small plants.
+
+
+.. py:function:: out_ferc1__yearly_hydroelectric_plants_sched406(core_ferc1__yearly_hydroelectric_plants_sched406: pandas.DataFrame, _out_ferc1__yearly_plants_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Pull a useful dataframe related to the FERC Form 1 hydro plants.
+
+
+.. py:function:: out_ferc1__yearly_pumped_storage_plants_sched408(core_ferc1__yearly_pumped_storage_plants_sched408: pandas.DataFrame, _out_ferc1__yearly_plants_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Pull a dataframe of FERC Form 1 Pumped Storage plant data.
+
+
+.. py:function:: out_ferc1__yearly_steam_plants_fuel_sched402(core_ferc1__yearly_steam_plants_fuel_sched402: pandas.DataFrame, _out_ferc1__yearly_plants_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Pull a useful dataframe related to FERC Form 1 fuel information.
+
+   This function pulls the FERC Form 1 fuel data, and joins in the name of the
+   reporting utility, as well as the PUDL IDs for that utility and the plant, allowing
+   integration with other PUDL tables. Useful derived values include:
+
+   * ``fuel_consumed_mmbtu`` (total fuel heat content consumed)
+   * ``fuel_consumed_total_cost`` (total cost of that fuel)
+
+
+.. py:function:: out_ferc1__yearly_all_plants(out_ferc1__yearly_steam_plants_sched402: pandas.DataFrame, out_ferc1__yearly_small_plants_sched410: pandas.DataFrame, out_ferc1__yearly_hydroelectric_plants_sched406: pandas.DataFrame, out_ferc1__yearly_pumped_storage_plants_sched408: pandas.DataFrame) -> pandas.DataFrame
+
+   Combine the steam, small generators, hydro, and pumped storage tables.
+
+   While this table may have many purposes, the main one is to prepare it for
+   integration with the EIA Master Unit List (MUL). All subtables included in this
+   output table must have pudl ids. Table prepping involves ensuring that the
+   individual tables can merge correctly (like columns have the same name) both with
+   each other and the EIA MUL.
+
+
+.. py:function:: out_ferc1__yearly_steam_plants_fuel_by_plant_sched402(context, core_ferc1__yearly_steam_plants_fuel_sched402: pandas.DataFrame, _out_ferc1__yearly_plants_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Summarize FERC fuel data by plant for output.
+
+   This is mostly a wrapper around
+   :func:`pudl.analysis.record_linkage.classify_plants_ferc1.fuel_by_plant_ferc1`
+   which calculates some summary values on a per-plant basis (as indicated
+   by ``utility_id_ferc1`` and ``plant_name_ferc1``) related to fuel
+   consumption.
+
+   :param context: Dagster context object
+   :param core_ferc1__yearly_steam_plants_fuel_sched402: Normalized FERC fuel table.
+   :param _out_ferc1__yearly_plants_utilities: Denormalized table of FERC1 plant & utility
+                                               IDs.
+
+   :returns: A DataFrame with fuel use summarized by plant.
+
+
+.. py:function:: calc_annual_capital_additions_ferc1(steam_df: pandas.DataFrame, window: int = 3) -> pandas.DataFrame
+
+   Calculate annual capital additions for FERC1 steam records.
+
+   Convert the ``capex_total`` column into annual capital additions. The
+   ``capex_total`` column is the cumulative capital poured into the plant over
+   time. This function takes the annual difference should generate the annual
+   capital additions. It also want generates a rolling average, to smooth out
+   the big annual fluctuations.
+
+   :param steam_df: result of `prep_plants_ferc()`
+   :param window: number of years for window to generate rolling average. Argument for
+                  :func:`pudl.helpers.generate_rolling_avg`
+
+   :returns: ``capex_annual_addition`` and ``capex_annual_addition_rolling``.
+   :rtype: Augemented version of steam_df with two additional columns
+
+
+.. py:function:: add_mean_cap_additions(steam_df)
+
+   Add mean capital additions over lifetime of plant.
+
+
+.. py:class:: NodeId
+
+   Bases: :py:obj:`NamedTuple`
+
+
+   The primary keys which identify a node in a calculation tree.
+
+   Since NodeId is just a :class:`NamedTuple` a list of NodeId instances can also be
+   used to index into a :class:pandas.DataFrame` that uses these fields as its index.
+   This is convenient since many :mod:`networkx` functions and methods return iterable
+   containers of graph nodes, which can be turned into lists and used directly to index
+   into dataframes.
+
+   The additional dimensions (``utility_type``, ``plant_status``, and
+   ``plant_function``) each have a small number of allowable values, which we could
+   further impose as constraints on the values here using Pydantic if we wanted.
+
+
+   .. py:attribute:: table_name
+      :type:  str
+
+
+   .. py:attribute:: xbrl_factoid
+      :type:  str
+
+
+   .. py:attribute:: utility_type
+      :type:  str | pandas._libs.missing.NAType
+
+
+   .. py:attribute:: plant_status
+      :type:  str | pandas._libs.missing.NAType
+
+
+   .. py:attribute:: plant_function
+      :type:  str | pandas._libs.missing.NAType
+
+
+.. py:class:: OffByFactoid
+
+   Bases: :py:obj:`NamedTuple`
+
+
+   A calculated factoid which is off by one other factoid.
+
+   A factoid where a sizeable majority of utilities are using a non-standard and
+   non-reported calculation to generate it. These calculated factoids are either
+   missing one factoid, or include an additional factoid not included in the FERC
+   metadata. Thus, the calculations are 'off by' this factoid.
+
+
+   .. py:attribute:: table_name
+      :type:  str
+
+
+   .. py:attribute:: xbrl_factoid
+      :type:  str
+
+
+   .. py:attribute:: utility_type
+      :type:  str | pandas._libs.missing.NAType
+
+
+   .. py:attribute:: plant_status
+      :type:  str | pandas._libs.missing.NAType
+
+
+   .. py:attribute:: plant_function
+      :type:  str | pandas._libs.missing.NAType
+
+
+   .. py:attribute:: table_name_off_by
+      :type:  str
+
+
+   .. py:attribute:: xbrl_factoid_off_by
+      :type:  str
+
+
+   .. py:attribute:: utility_type_off_by
+      :type:  str | pandas._libs.missing.NAType
+
+
+   .. py:attribute:: plant_status_off_by
+      :type:  str | pandas._libs.missing.NAType
+
+
+   .. py:attribute:: plant_function_off_by
+      :type:  str | pandas._libs.missing.NAType
+
+
+.. py:function:: _out_ferc1__detailed_tags(_core_ferc1__table_dimensions) -> pandas.DataFrame
+
+   Grab the stored tables of tags and add inferred dimension.
+
+
+.. py:function:: _get_tags(file_name: str, _core_ferc1__table_dimensions: pandas.DataFrame) -> pandas.DataFrame
+
+   Grab tags from a stored CSV file and apply :func:`make_xbrl_factoid_dimensions_explicit`.
+
+
+.. py:function:: _aggregatable_dimension_tags(_core_ferc1__table_dimensions: pandas.DataFrame, dimension: Literal['plant_status', 'plant_function']) -> pandas.DataFrame
+
+.. py:function:: exploded_table_asset_factory(root_table: str, table_names: list[str], seed_nodes: list[NodeId], group_metric_checks: pudl.transform.ferc1.GroupMetricChecks, off_by_facts: list[OffByFactoid], io_manager_key: str | None = None) -> dagster.AssetsDefinition
+
+   Create an exploded table based on a set of related input tables.
+
+
+.. py:data:: EXPLOSION_ARGS
+
+.. py:function:: create_exploded_table_assets() -> list[dagster.AssetsDefinition]
+
+   Create a list of exploded FERC Form 1 assets.
+
+   :returns: A list of :class:`AssetsDefinitions` where each asset is an exploded FERC Form 1
+             table.
+
+
+.. py:data:: exploded_ferc1_assets
+
+.. py:class:: Exploder(table_names: list[str], root_table: str, metadata_xbrl_ferc1: pandas.DataFrame, calculation_components_xbrl_ferc1: pandas.DataFrame, seed_nodes: list[NodeId], tags: pandas.DataFrame = pd.DataFrame(), group_metric_checks: pudl.transform.ferc1.GroupMetricChecks = GroupMetricChecks(), off_by_facts: list[OffByFactoid] = None)
+
+   Get unique, granular datapoints from a set of related, nested FERC1 tables.
+
+   The controlling method of this class which executes its primary function is
+   :meth:`boom`.
+
+
+   .. py:attribute:: table_names
+      :type:  list[str]
+
+
+   .. py:attribute:: root_table
+      :type:  str
+
+
+   .. py:attribute:: group_metric_checks
+
+
+   .. py:attribute:: metadata_xbrl_ferc1
+
+
+   .. py:attribute:: calculation_components_xbrl_ferc1
+
+
+   .. py:attribute:: seed_nodes
+
+
+   .. py:attribute:: tags
+
+
+   .. py:attribute:: off_by_facts
+      :value: None
+
+
+
+   .. py:property:: exploded_calcs
+
+      Remove any calculation components that aren't relevant to the explosion.
+
+      At the end of this process several things should be true:
+
+      - Only parents with table_name in the explosion tables should be retained.
+      - All calculations in which *any* components were outside of the tables in
+        the explosion should be turned into leaves -- i.e. they should be replaced
+        with a single calculation component filled with NA values.
+      - Every remaining calculation component must also appear as a parent (if it
+        is a leaf, then it will have a single null calculation component)
+      - There should be no records where only one of table_name or xbrl_factoid
+        are null. They should either both or neither be null.
+      - table_name_parent and xbrl_factoid_parent should be non-null.
+
+
+   .. py:method:: add_sizable_minority_corrections_to_calcs(exploded_calcs: pandas.DataFrame) -> pandas.DataFrame
+
+      Add correction calculation records for the sizable fuck up utilities.
+
+
+
+   .. py:property:: exploded_meta
+      :type: pandas.DataFrame
+
+
+      Combine a set of interrelated tables' metadata for use in :class:`Exploder`.
+
+      Any calculations containing components that are part of tables outside the
+      set of exploded tables will be converted to reported values with an empty
+      calculation. Then we verify that all referenced calculation components actually
+      appear as their own records within the concatenated metadata dataframe.
+
+
+   .. py:property:: calculation_forest
+      :type: XbrlCalculationForestFerc1
+
+
+      Construct a calculation forest based on class attributes.
+
+
+   .. py:property:: dimensions
+      :type: list[str]
+
+
+      Get all of the column names for the other dimensions.
+
+
+   .. py:property:: exploded_pks
+      :type: list[str]
+
+
+      Get the joint primary keys of the exploded tables.
+
+
+   .. py:property:: value_col
+      :type: str
+
+
+      Get the value column for the exploded tables.
+
+
+   .. py:property:: calc_idx
+      :type: list[str]
+
+
+      Primary key columns for calculations in this explosion.
+
+
+   .. py:method:: prep_table_to_explode(table_name: str, table_df: pandas.DataFrame) -> pandas.DataFrame
+
+      Assign table name and rename factoid column in preparation for explosion.
+
+
+
+   .. py:method:: boom(tables_to_explode: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+
+      Explode a set of nested tables.
+
+      There are seven main stages of this process:
+
+      #. Prep all of the individual tables for explosion (via :meth:`prep_table_to_explode`).
+      #. Concatenate all of the tables together (via :meth:`initial_explosion_concatenation`).
+      #. Manage specific calculated values when a sizable minority of utilities report in a
+         non-standard way (via :meth:`add_sizable_minority_corrections`).
+      #. Reconcile the inter-table calculations (via :meth:`reconcile_intertable_calculations`)
+      #. Annotate the data with additional metadata (via:meth:`XbrlCalculationForestFerc1.annotated_forest`).
+      #. Identify the most granular ``xbrl_factoids`` (via
+         :meth:`XbrlCalculationForestFerc1.leafy_meta`).
+      #. Reconcile a calculation of least granular records using the most granular
+         records (i.e. the seed to leaves calculation) (not yet implemented).
+
+      :param tables_to_explode: dictionary of table name (key) to transformed table (value).
+
+
+
+   .. py:method:: initial_explosion_concatenation(tables_to_explode: dict[str, pandas.DataFrame]) -> pandas.DataFrame
+
+      Concatenate all of the tables for the explosion.
+
+      Merge in some basic pieces of the each table's metadata and add ``table_name``.
+      At this point in the explosion, there will be a lot of duplicaiton in the
+      output.
+
+
+
+   .. py:method:: calculate_intertable_non_total_calculations(exploded: pandas.DataFrame) -> pandas.DataFrame
+
+      Calculate the inter-table non-total calculable xbrl_factoids.
+
+
+
+   .. py:method:: add_sizable_minority_corrections(calculated_df: pandas.DataFrame) -> pandas.DataFrame
+
+      Identify and fix the utilities that report calcs off-by one other fact.
+
+      We noticed that there are a sizable minority of utilities that report some
+      calculated values with a different set of child subcomponents. Our tooling
+      for these calculation expects all utilities to report in the same manner.
+      So we have identified the handful of worst calculable ``xbrl_factiod``
+      offenders :attr:`self.off_by_facts`. This method identifies data corrections
+      for those :attr:`self.off_by_facts` and adds them into the exploded data table.
+
+      The data corrections are identified by calculating the absolute difference
+      between the reported value and calculable value from the standard set of
+      subcomponents (via :func:`pudl.transform.ferc1.calculate_values_from_components`)
+      and finding the child factiods that have the same value as the absolute difference.
+      This indicates that the calculable parent factiod is off by that corresponding
+      child fact.
+
+      Relatedly, :meth:`add_sizable_minority_corrections_to_calcs` adds these
+      :attr:`self.off_by_facts` to :attr:`self.exploded_calcs`.
+
+
+
+   .. py:method:: reconcile_intertable_calculations(exploded: pandas.DataFrame) -> pandas.DataFrame
+
+      Generate calculated values for inter-table calculated factoids.
+
+      This function sums components of calculations for a given factoid when the
+      components originate entirely or partially outside of the table. It also
+      accounts for components that only sum to a factoid within a particular dimension
+      (e.g., for an electric utility or for plants whose plant_function is
+      "in_service"). This returns a dataframe with a "calculated_value" column.
+
+      :param exploded: concatenated tables for table explosion.
+
+
+
+.. py:class:: XbrlCalculationForestFerc1(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   A class for manipulating groups of hierarchically nested XBRL calculations.
+
+   We expect that the facts reported in less granular FERC tables like
+   :ref:`core_ferc1__yearly_income_statements_sched114` and
+   :ref:`core_ferc1__yearly_balance_sheet_assets_sched110` should be
+   calculable from many individually reported granular values, based on the
+   calculations encoded in the XBRL Metadata, and that these relationships should have
+   a hierarchical tree structure. Several individual values from the less granular
+   tables will appear as root nodes, and the leaves in the tree structure are the
+   individually reported non-calculated values that make them up (i.e. the most
+   granular values). Because the less granular tables have several distinct values in
+   them, composed of disjunct sets of reported values, we have a forest (a group of
+   several trees) rather than a single tree.
+
+   The information required to build a calculation forest is most readily found in the
+   :meth:`Exploder.exploded_calcs`. Seed nodes can be used to indicate which nodes
+   should be the root(s) of the tree(s) we want to built.This can be used to prune
+   irrelevant portions of the overall forest out of the exploded metadata. If no seeds
+   are provided, then all of the nodes referenced in the exploded_calcs input dataframe
+   will be used as seeds.
+
+   This class makes heavy use of :mod:`networkx` to manage the graph that we build
+   from calculation relationships and relies heavily on :mod:`networkx` terminology.
+
+
+   .. py:attribute:: calc_cols
+      :type:  list[str]
+      :value: ['table_name', 'xbrl_factoid', 'utility_type', 'plant_status', 'plant_function']
+
+
+
+   .. py:attribute:: exploded_calcs
+      :type:  pandas.DataFrame
+
+
+   .. py:attribute:: seeds
+      :type:  list[NodeId]
+      :value: []
+
+
+
+   .. py:attribute:: tags
+      :type:  pandas.DataFrame
+
+
+   .. py:attribute:: group_metric_checks
+      :type:  pudl.transform.ferc1.GroupMetricChecks
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:property:: parent_cols
+      :type: list[str]
+
+
+      Construct parent_cols based on the provided calc_cols.
+
+
+   .. py:method:: unique_associations()
+
+      Ensure parent-child associations in exploded calculations are unique.
+
+
+
+   .. py:method:: calcs_have_required_cols()
+
+      Ensure exploded calculations include all required columns.
+
+
+
+   .. py:method:: calc_parents_notna()
+
+      Ensure that parent table_name and xbrl_factoid columns are non-null.
+
+
+
+   .. py:method:: tags_have_required_cols(v: pandas.DataFrame, info: pydantic.ValidationInfo) -> pandas.DataFrame
+      :classmethod:
+
+
+      Ensure tagging dataframe contains all required index columns.
+
+
+
+   .. py:method:: tags_cols_notnull(v: pandas.DataFrame) -> pandas.DataFrame
+      :classmethod:
+
+
+      Ensure all tags have non-null table_name and xbrl_factoid.
+
+
+
+   .. py:method:: single_valued_tags(v: pandas.DataFrame, info: pydantic.ValidationInfo) -> pandas.DataFrame
+      :classmethod:
+
+
+      Ensure all tags have unique values.
+
+
+
+   .. py:method:: seeds_within_bounds()
+
+      Ensure that all seeds are present within exploded_calcs index.
+
+      For some reason this validator is being run before exploded_calcs has been
+      added to the values dictionary, which doesn't make sense, since "seeds" is
+      defined after exploded_calcs in the model.
+
+
+
+   .. py:method:: exploded_calcs_to_digraph(exploded_calcs: pandas.DataFrame) -> networkx.DiGraph
+
+      Construct :class:`networkx.DiGraph` of all calculations in exploded_calcs.
+
+      First we construct a directed graph based on the calculation components. The
+      "parent" or "source" nodes are the results of the calculations, and the "child"
+      or "target" nodes are the individual calculation components. The structure of
+      the directed graph is determined entirely by the primary key columns in the
+      calculation components table.
+
+      Then we compile a dictionary of node attributes, based on the individual
+      calculation components in the exploded calcs dataframe.
+
+
+
+   .. py:property:: node_attrs
+      :type: dict[NodeId, dict[str, dict[str, str]]]
+
+
+      Construct a dictionary of node attributes for application to the forest.
+
+      Note attributes consist of the manually assigned tags.
+
+
+   .. py:property:: edge_attrs
+      :type: dict[Any, Any]
+
+
+      Construct a dictionary of edge attributes for application to the forest.
+
+      The only edge attribute is the calculation component weight.
+
+
+   .. py:property:: annotated_forest
+      :type: networkx.DiGraph
+
+
+      Annotate the calculation forest with node calculation weights and tags.
+
+      The annotated forest should have exactly the same structure as the forest, but
+      with additional data associated with each of the nodes. This method also does
+      some error checking to try and ensure that the weights and tags that are being
+      associated with the forest are internally self-consistent.
+
+      We check whether there are multiple different weights associated with the same
+      node in the calculation components. There are a few instances where this is
+      expected, but if there a lot of conflicting weights something is probably wrong.
+
+      We check whether any of the nodes that were orphaned (never connected to the
+      graph) or that were pruned in the course of enforcing a forest structure had
+      manually assigned tags (e.g. indicating whether they contribute to rate base).
+      If they do, then the final exploded data table may not capture all of the
+      manually assigned metadata, and we either need to edit the metadata, or figure
+      out why those nodes aren't being included in the final calculation forest.
+
+
+   .. py:method:: propagate_node_attributes(annotated_forest: networkx.DiGraph)
+
+      Propagate tags.
+
+      Propagate tag values root-ward, leaf-wards &  to the _correction nodes. We
+      propagate the tags root-ward first because we primarily manually compiled
+      tags for the leaf nodes, so we want to send the values for the leafy tags
+      root-ward first before trying to send tags leaf-ward.
+
+
+
+   .. py:method:: check_lost_tags(lost_nodes: list[NodeId]) -> None
+
+      Check whether any of the input lost nodes were also tagged nodes.
+
+      It is not necessarily a problem if there are "lost" tags. This is mostly
+      here as a debugging tool.
+
+
+
+   .. py:method:: check_conflicting_tags(annotated_forest: networkx.DiGraph) -> None
+      :staticmethod:
+
+
+      Check for conflicts between ancestor and descendant tags.
+
+      This check should be applied before we have propagated tags via
+      :meth:`propagate_node_attributes` so we can check conflicts within the tags
+      that we've manually compiled.These kinds of conflicts are probably due to
+      errors in the tagging metadata, and should be investigated.
+
+
+
+   .. py:property:: full_digraph
+      :type: networkx.DiGraph
+
+
+      A digraph of all calculations described by the exploded metadata.
+
+
+   .. py:method:: prune_unrooted(graph: networkx.DiGraph) -> networkx.DiGraph
+
+      Prune those parts of the input graph that aren't reachable from the roots.
+
+      Build a table of exploded calculations that includes only those nodes that
+      are part of the input graph, and that are reachable from the roots of the
+      calculation forest. Then use that set of exploded calculations to construct a
+      new graph.
+
+      This is complicated by the fact that some nodes may have already been pruned
+      from the input graph, and so when selecting both parent and child nodes from
+      the calculations, we need to make sure that they are present in the input graph,
+      as well as the complete set of calculation components.
+
+
+
+   .. py:property:: seeded_digraph
+      :type: networkx.DiGraph
+
+
+      A digraph of all calculations that contribute to the seed values.
+
+      Prune the full digraph to contain only those nodes in the :meth:`full_digraph`
+      that are descendants of the seed nodes -- i.e. that are reachable along the
+      directed edges, and thus contribute to the values reported to the XBRL facts
+      associated with the seed nodes.
+
+      We compile a list of all the :class:`NodeId` values that should be included in
+      the pruned graph, and then use that list to select a subset of the exploded
+      metadata to pass to :meth:`exploded_calcs_to_digraph`, so that all of the
+      associated metadata is also added to the pruned graph.
+
+
+   .. py:property:: forest
+      :type: networkx.DiGraph
+
+
+      A pruned version of the seeded digraph that should be one or more trees.
+
+      This method contains any special logic that's required to convert the
+      :meth:`seeded_digraph` into a collection of trees. The main issue we currently
+      have to deal with is passthrough calculations that we've added to avoid having
+      duplicated calculations in the graph.
+
+      In practice this method will probably return a single tree rather than a forest,
+      but a forest with several root nodes might also be appropriate, since the root
+      table may or may not have a top level summary value that includes all underlying
+      calculated values of interest.
+
+
+   .. py:method:: roots(graph: networkx.DiGraph) -> list[NodeId]
+      :staticmethod:
+
+
+      Identify all root nodes in a digraph.
+
+
+
+   .. py:property:: full_digraph_roots
+      :type: list[NodeId]
+
+
+      Find all roots in the full digraph described by the exploded metadata.
+
+
+   .. py:property:: seeded_digraph_roots
+      :type: list[NodeId]
+
+
+      Find all roots in the seeded digraph.
+
+
+   .. py:property:: forest_roots
+      :type: list[NodeId]
+
+
+      Find all roots in the pruned calculation forest.
+
+
+   .. py:method:: leaves(graph: networkx.DiGraph) -> list[NodeId]
+      :staticmethod:
+
+
+      Identify all leaf nodes in a digraph.
+
+
+
+   .. py:property:: full_digraph_leaves
+      :type: list[NodeId]
+
+
+      All leaf nodes in the full digraph.
+
+
+   .. py:property:: seeded_digraph_leaves
+      :type: list[NodeId]
+
+
+      All leaf nodes in the seeded digraph.
+
+
+   .. py:property:: forest_leaves
+      :type: list[NodeId]
+
+
+      All leaf nodes in the pruned forest.
+
+
+   .. py:property:: orphans
+      :type: list[NodeId]
+
+
+      Identify all nodes that appear in the exploded_calcs but not in the full digraph.
+
+      Because we removed the metadata and are now building the tree entirely based on
+      the exploded_calcs, this should now never produce any orphans and is a bit redundant.
+
+
+   .. py:property:: pruned
+      :type: list[NodeId]
+
+
+      List of all nodes that appear in the DAG but not in the pruned forest.
+
+
+   .. py:method:: stepchildren(graph: networkx.DiGraph) -> list[NodeId]
+
+      Find all nodes in the graph that have more than one parent.
+
+
+
+   .. py:method:: stepparents(graph: networkx.DiGraph) -> list[NodeId]
+
+      Find all nodes in the graph with children having more than one parent.
+
+
+
+   .. py:method:: _get_path_weight(path: list[NodeId], graph: networkx.DiGraph) -> float
+
+      Multiply all weights along a path together.
+
+
+
+   .. py:property:: leafy_meta
+      :type: pandas.DataFrame
+
+
+      Identify leaf facts and compile their metadata.
+
+      - identify the root and leaf nodes of those minimal trees
+      - adjust the weights associated with the leaf nodes to equal the
+        product of the weights of all their ancestors.
+      - Set leaf node tags to be the union of all the tags associated
+        with all of their ancestors.
+
+      Leafy metadata in the output dataframe includes:
+
+      - The ID of the leaf node itself (this is the index).
+      - The ID of the root node the leaf is descended from.
+      - What tags the leaf has inherited from its ancestors.
+      - The leaf node's xbrl_factoid_original
+      - The weight associated with the leaf, in relation to its root.
+
+
+   .. py:property:: root_calculations
+      :type: pandas.DataFrame
+
+
+      Produce a calculation components dataframe containing only roots and leaves.
+
+      This dataframe has a format similar to exploded_calcs and can be used with the
+      exploded data to verify that the root values can still be correctly calculated
+      from the leaf values.
+
+
+   .. py:property:: table_names
+      :type: list[str]
+
+
+      Produce the list of tables involved in this explosion.
+
+
+   .. py:method:: plot_graph(graph: networkx.DiGraph) -> None
+
+      Visualize a CalculationForest graph.
+
+
+
+   .. py:method:: plot_nodes(nodes: list[NodeId]) -> None
+
+      Plot a list of nodes based on edges found in exploded_calcs.
+
+
+
+   .. py:method:: plot(graph: Literal['full_digraph', 'seeded_digraph', 'forest']) -> None
+
+      Visualize various stages of the calculation forest.
+
+
+
+   .. py:method:: leafy_data(exploded_data: pandas.DataFrame, value_col: str) -> pandas.DataFrame
+
+      Use the calculation forest to prune the exploded dataframe.
+
+      - Drop all rows that don't correspond to either root or leaf facts.
+      - Verify that the reported root values can still be generated by calculations
+        that only refer to leaf values. (not yet implemented)
+      - Merge the leafy metadata onto the exploded data, keeping only those rows
+        which refer to the leaf facts.
+      - Use the leaf weights to adjust the reported data values.
+
+      TODO: This method could either live here, or in the Exploder class, which would
+      also have access to exploded_meta, exploded_data, and the calculation forest.
+      - Still need to validate the root node calculations.
+
+
+
+
+   .. py:property:: forest_as_table
+      :type: pandas.DataFrame
+
+
+      Construct a tabular representation of the calculation forest.
+
+      Each generation of nodes, starting with the root(s) of the calculation forest,
+      make up a set of columns in the table. Each set of columns is merged onto
+
+
+   .. py:method:: _add_layers_to_forest_as_table(df: pandas.DataFrame) -> pandas.DataFrame
+
+      Recursively add additional layers of nodes from the forest to the table.
+
+      Given a dataframe with one or more set of columns with names corresponding to
+      the components of a NodeId with suffixes of the form _layerN, identify the
+      children of the nodes in the set of columns with the largest N, and merge them
+      onto the table, recursively until there are no more children to add. Creating a
+      tabular representation of the calculation forest that can be inspected in Excel.
+
+      Include inter-layer calculation weights and tags associated with the nodes pre
+      propagation.
+
+
+
+.. py:function:: nodes_to_df(calc_forest: networkx.DiGraph, nodes: list[NodeId]) -> pandas.DataFrame
+
+   Construct a dataframe from a list of nodes, including their annotations.
+
+   NodeIds that are not present in the calculation forest will be ignored.
+
+   :param calc_forest: A calculation forest made of nodes with "weight" and "tags" data.
+   :param nodes: List of :class:`NodeId` values to extract from the calculation forest.
+
+   :returns: A tabular dataframe representation of the nodes, including their tags, extracted
+             from the calculation forest.
+
+
+.. py:function:: _propagate_tags_leafward(annotated_forest: networkx.DiGraph, leafward_inherited_tags: list[str]) -> networkx.DiGraph
+
+   Push a parent's tags down to its descendants.
+
+   Only push the `leafward_inherited_tags` - others will be left alone.
+
+
+.. py:function:: _propagate_tag_rootward(annotated_forest: networkx.DiGraph, tag_name: Literal['in_rate_base']) -> networkx.DiGraph
+
+   Set the tag for nodes when all of its children have same tag.
+
+   This function returns the value of a tag, but also sets node attributes
+   down the tree when all children of a node share the same tag.
+
+
+.. py:function:: _propagate_tags_to_corrections(annotated_forest: networkx.DiGraph) -> networkx.DiGraph
+
+.. py:function:: check_tag_propagation_compared_to_compiled_tags(df: pandas.DataFrame, propagated_tag: Literal['in_rate_base'], _out_ferc1__explosion_tags: pandas.DataFrame)
+
+   Check if tags got propagated.
+
+   :param df: table to check. This should be either the
+              :func:`out_ferc1__yearly_rate_base`, ``exploded_balance_sheet_assets_ferc1``
+              or ``exploded_balance_sheet_liabilities_ferc1``. The
+              ``exploded_income_statement_ferc1`` table does not currently have propagated
+              tags.
+   :param propagated_tag: name of tag. Currently ``in_rate_base`` is the only propagated tag.
+   :param _out_ferc1__explosion_tags: manually compiled tags. This table includes tags from
+                                      many of the explosion tables so we will filter it before checking if the tag was
+                                      propagated.
+
+   :raises AssertionError: If there are more manually compiled tags for the ``xbrl_factoids``
+       in ``df`` than found in ``_out_ferc1__explosion_tags``.
+   :raises AssertionError: If there are more manually compiled tags for the correction
+       ``xbrl_factoids`` in ``df`` than found in ``_out_ferc1__explosion_tags``.
+
+
+.. py:function:: check_for_correction_xbrl_factoids_with_tag(df: pandas.DataFrame, propagated_tag: Literal['in_rate_base'])
+
+   Check if any correction records have tags.
+
+   :param df: table to check. This should be either the
+              :func:`out_ferc1__yearly_rate_base`, ``exploded_balance_sheet_assets_ferc1``
+              or ``exploded_balance_sheet_liabilities_ferc1``. The
+              ``exploded_income_statement_ferc1`` table does not currently have propagated
+              tags.
+   :param propagated_tag: name of tag. Currently ``in_rate_base`` is the only propagated tag.
+
+   :raises AssertionError: If there are zero correction ``xbrl_factoids`` in ``df`` with tags.
+
+
+.. py:data:: check_specs_detailed_tables_tags
+
+.. py:function:: make_check_tag_propagation(spec) -> dagster.AssetChecksDefinition
+
+   Check the propagation of tags.
+
+
+.. py:function:: make_check_correction_tags(spec) -> dagster.AssetChecksDefinition
+
+   Check the propagation of tags.
+
+
+.. py:data:: _tag_checks
+
+.. py:function:: out_ferc1__yearly_rate_base(out_ferc1__yearly_detailed_balance_sheet_assets: pandas.DataFrame, out_ferc1__yearly_detailed_balance_sheet_liabilities: pandas.DataFrame, core_ferc1__yearly_operating_expenses_sched320: pandas.DataFrame, core_pudl__assn_ferc1_pudl_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Make a table of granular utility rate base data.
+
+   This table contains granular data consisting of what utilities can
+   include in their rate bases. This information comes from two core
+   inputs: ``out_ferc1__yearly_detailed_balance_sheet_assets`` and
+   ``out_ferc1__yearly_detailed_balance_sheet_liabilities``. These two detailed tables
+   are generated from seven different core_ferc1_* accounting tables with
+   nested calculations. We chose only the most granular data from these tables.
+   See :class:`Exploder` for more details.
+
+   This rate base table also contains one new "cash_working_capital" xbrl_factoid
+   from :ref:`core_ferc1__yearly_operating_expenses_sched320` via
+   :func:`prep_cash_working_capital`.
+
+   We also disaggregate records that have nulls or totals in two of the key
+   columns: ``utility_type`` and ``in_rate_base`` via
+   :func:`disaggregate_null_or_total_tag`.
+
+
+.. py:function:: replace_dimension_columns_with_aggregatable(df: pandas.DataFrame) -> pandas.DataFrame
+
+   Replace the dimension columns with their aggregatable counterparts.
+
+
+.. py:class:: Ferc1DetailedCheckSpec
+
+   Define some simple checks that can run on FERC 1 assets.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: asset
+      :type:  str
+
+
+   .. py:attribute:: idx
+      :type:  dict[int, int]
+
+
+.. py:data:: check_specs
+
+.. py:function:: make_idx_check(spec: Ferc1DetailedCheckSpec) -> dagster.AssetChecksDefinition
+
+   Turn the Ferc1DetailedCheckSpec into an actual Dagster asset check.
+
+
+.. py:data:: _idx_checks
+
+.. py:function:: prep_cash_working_capital(core_ferc1__yearly_operating_expenses_sched320) -> pandas.DataFrame
+
+   Extract a new ``cash_working_capital`` ``xbrl_factoid`` for the rate base table.
+
+   In standard ratemaking processes, utilities are allowed to include working
+   capital - sometimes referred to as cash on hand or cash reverves - in their rate
+   base. A standard ratemaking process considers the available rate-baseable working
+   capital to be one eighth of the average operations and maintenance expense. This
+   function grabs that expense and calculated this new ``xbrl_factoid`` in preparation
+   to concatenate it with the rest of the assets and liabilities from the detailed rate
+   base data.
+
+   ``cash_working_capital`` is a new ``xbrl_factiod`` because it is not reported
+   in the FERC1 data, but it is included in rate base so we had to calculate it.
+
+
+.. py:function:: disaggregate_null_or_total_tag(rate_base_df: pandas.DataFrame, tag_col: str) -> pandas.DataFrame
+
+   Disaggregate records with an null or total value in the ``tag_col``.
+
+   We have records in the rate base table with total and/or null values for
+   key tag columns which we want to separate into component parts because the
+   null or total values does not convey a level of detail we want for the
+   rate base table. This is done in two steps:
+
+   * :func:`get_tag_col_ratio` : for each ``report_year`` and ``utility_id_ferc1``,
+     get a ratio of all of the ``ending_balance`` for all of the non-null and
+     non-total tags.
+   * use this ratio to disaggregate the ``ending_balance`` from records with total
+     and null tag values across the other tag values.
+
+   :param rate_base_df: full table of rate base data.
+   :param tag_col: column with the tags that contains null or total values to be
+                   disaggregated.
+
+
+.. py:function:: get_column_value_ratio(rate_base_df: pandas.DataFrame, ratio_idx: list[str], column: str) -> pandas.DataFrame
+
+   Calculate the percentage of the ``ending_balance`` within each value in the column.
+
+   Make ratio column with a 0-1 value of the sum of ``ending_balance`` in each
+   of the values in ``column`` within each ``ratio_idx``.
+
+   In practice, this was built to be used within :func:`disaggregate_null_or_total_tag`.
+   For each ``report_year``, ``utility_id_ferc1`` and value within the ``tag_col`` this
+   function will calculate the ratio of ``ending_balance``. For example, if the tag
+   column is ``utility_type`` and utility X has values of electric and gas, this function will calculate what ratio of that utility's annual
+   ``ending_balance`` is electric and gas.
+
+

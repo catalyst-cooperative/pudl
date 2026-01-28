@@ -1,0 +1,11 @@
+pudl.transform.rus12
+====================
+
+.. py:module:: pudl.transform.rus12
+
+.. autoapi-nested-parse::
+
+   Transform the RUS12 tables.
+
+
+

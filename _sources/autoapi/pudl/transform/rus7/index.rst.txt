@@ -1,0 +1,85 @@
+pudl.transform.rus7
+===================
+
+.. py:module:: pudl.transform.rus7
+
+.. autoapi-nested-parse::
+
+   Transform the RUS7 tables.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.rus7.core_rus7__yearly_meeting_and_board
+   pudl.transform.rus7.core_rus7__yearly_balance_sheet_assets
+   pudl.transform.rus7.core_rus7__yearly_balance_sheet_liabilities
+   pudl.transform.rus7.core_rus7__scd_borrowers
+   pudl.transform.rus7.core_rus7__yearly_employee_statistics
+   pudl.transform.rus7.core_rus7__yearly_energy_efficiency
+   pudl.transform.rus7._core_rus7__yearly_power_requirements
+   pudl.transform.rus7.core_rus7__yearly_power_requirements_electric_sales
+   pudl.transform.rus7.core_rus7__yearly_power_requirements_electric_customers
+   pudl.transform.rus7.core_rus7__yearly_power_requirements
+
+
+Module Contents
+---------------
+
+.. py:function:: core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board)
+
+   Transform the core_rus7__yearly_meeting_and_board table.
+
+
+.. py:function:: core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet)
+
+   Transform the core_rus7__yearly_balance_sheet_assets table.
+
+
+.. py:function:: core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet)
+
+   Transform the core_rus7__yearly_balance_sheet_liabilities table.
+
+
+.. py:function:: core_rus7__scd_borrowers(raw_rus7__borrowers)
+
+   Transform the core_rus7__scd_borrowers table.
+
+
+.. py:function:: core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics)
+
+   Transform the core_rus7__yearly_employee_statistics table.
+
+
+.. py:function:: core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency)
+
+   Transform the core_rus7__yearly_energy_efficiency table.
+
+
+.. py:function:: _core_rus7__yearly_power_requirements(raw_rus7__power_requirements)
+
+   Early transform an internal power_requirements table.
+
+   This main input gets used serval times in several downstream
+   ``core_rus7__yearly_power_requirements*`` assets. The raw asset needs some
+   cleaning and dropping of duplicate records so we do it once.
+
+
+.. py:function:: core_rus7__yearly_power_requirements_electric_sales(_core_rus7__yearly_power_requirements: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the core_rus7__yearly_power_requirements_electric_sales table.
+
+
+.. py:function:: core_rus7__yearly_power_requirements_electric_customers(_core_rus7__yearly_power_requirements: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the core_rus7__yearly_power_requirements_electric_sales table.
+
+
+.. py:function:: core_rus7__yearly_power_requirements(_core_rus7__yearly_power_requirements: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform the core_rus7__yearly_power_requirements_electric_sales table.
+
+

@@ -1,0 +1,43 @@
+pudl.metadata.resources.rus12
+=============================
+
+.. py:module:: pudl.metadata.resources.rus12
+
+.. autoapi-nested-parse::
+
+   Table definitions for the RUS12 tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.rus12.RESOURCE_METADATA
+   pudl.metadata.resources.rus12.DRAFT_RESOURCE_METADATA
+   pudl.metadata.resources.rus12.asset_type_enum
+   pudl.metadata.resources.rus12.liability_type_enum
+   pudl.metadata.resources.rus12.operations_type_enum
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+
+.. py:data:: DRAFT_RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+.. py:data:: asset_type_enum
+   :value: ['construction_work_in_progress', 'total_utility_plant', 'depreciation_and_amortization',...
+
+
+.. py:data:: liability_type_enum
+   :value: ['memberships', 'assigned_and_assignable_patronage_capital',...
+
+
+.. py:data:: operations_type_enum
+   :value: ['electric_energy_revenues', 'electric_energy_revenues_report_month',...
+
+

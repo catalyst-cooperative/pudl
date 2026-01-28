@@ -1,0 +1,64 @@
+pudl.output.censusdp1tract
+==========================
+
+.. py:module:: pudl.output.censusdp1tract
+
+.. autoapi-nested-parse::
+
+   Functions for reading data out of the Census DP1 SQLite Database.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.output.censusdp1tract.logger
+   pudl.output.censusdp1tract.census_dp1_layers
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.output.censusdp1tract.LayerParams
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.output.censusdp1tract.census_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: LayerParams
+
+   Bases: :py:obj:`TypedDict`
+
+
+   Simple class defining the expected structure of the layer processing params.
+
+
+   .. py:attribute:: plural
+      :type:  str
+
+
+   .. py:attribute:: rename
+      :type:  dict[str, str]
+
+
+.. py:function:: census_asset_factory(layer: Literal['state', 'county', 'tract']) -> dagster.AssetsDefinition
+
+   An asset factory for finished EIA tables.
+
+
+.. py:data:: census_dp1_layers
+

@@ -1,0 +1,71 @@
+pudl.etl.static_assets
+======================
+
+.. py:module:: pudl.etl.static_assets
+
+.. autoapi-nested-parse::
+
+   Dagster assets of static data tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.etl.static_assets.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.etl.static_assets._read_static_encoding_tables
+   pudl.etl.static_assets.static_pudl_tables
+   pudl.etl.static_assets.static_eia_tables
+   pudl.etl.static_assets.static_ferc1_tables
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: _read_static_encoding_tables(etl_group: Literal['static_eia', 'static_ferc1']) -> dict[str, pandas.DataFrame]
+
+   Build dataframes of static tables from a data source for use as foreign keys.
+
+   There are many values specified within the data that are essentially constant, but
+   which we need to store for data validation purposes, for use as foreign keys.  E.g.
+   the list of valid EIA fuel type codes, or the possible state and country codes
+   indicating a coal delivery's location of origin. For now these values are primarily
+   stored in a large collection of lists, dictionaries, and dataframes which are
+   specified in the :mod:`pudl.metadata` subpackage.  This function uses those data
+   structures to populate a bunch of small infrastructural tables within the PUDL DB.
+
+   :param etl_group: name of static table etl group.
+
+   :returns: a dictionary with table names as keys and dataframes as values for all tables
+             labeled as static tables in their resource ``etl_group``
+
+
+.. py:function:: static_pudl_tables(context)
+
+   Read static tables compiled as part of PUDL and not from any agency dataset.
+
+
+.. py:function:: static_eia_tables()
+
+   Create static EIA tables.
+
+
+.. py:function:: static_ferc1_tables()
+
+   Compile static tables for FERC1 for foreign key constraints.
+
+   This function grabs static encoded tables via :func:`_read_static_encoding_tables`
+   as well as two static tables that are non-encoded tables (``ferc_accounts``).
+
+
