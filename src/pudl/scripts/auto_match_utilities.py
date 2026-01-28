@@ -225,6 +225,83 @@ def write_updated_matches(test_run: bool, dataframe: pd.DataFrame):
     default=False,
     help="If passed, will save the updated spreadsheet to a test file rather than overwriting the existing package data.",
 )
+def get_likely_address_matches(test_run: bool):
+    """Match EIA and FERC utilities based on utility address.
+
+    This is intended to be run after main() in order to catch additional
+    utilities with more drastic name differences between EIA and FERC.
+    """
+    # Read in the data, keeping only utility IDs, names and addresses
+    eia_df = get_parquet_table(
+        "out_eia__yearly_utilities",
+        columns=[
+            "utility_id_eia",
+            "utility_id_pudl",
+            "utility_name_eia",
+            "street_address",
+            "city",
+            "state",
+            "zip_code",
+        ],
+    ).drop_duplicates()
+
+    # Drop records without any addresses
+    eia_df = eia_df.dropna(
+        subset=["street_address", "city", "state", "zip_code"], how="all"
+    )
+
+    ferc_df = get_parquet_table("core_pudl__assn_ferc1_pudl_utilities")
+    # Clean the data
+    eia_df["cleaned_utility_name"] = clean_utility_name(eia_df["utility_name_eia"])
+    ferc_df["cleaned_utility_name"] = clean_utility_name(ferc_df["utility_name_ferc1"])
+    # Exactly match the cleaned name
+    matched_utilities = match_utility_names(eia_df=eia_df, ferc_df=ferc_df)
+
+    # Warn about duplicated utilities
+    logger.warning("The following utilities are matched to more than one FERC ID:")
+    logger.info(
+        matched_utilities[matched_utilities.utility_id_ferc1.duplicated(keep=False)]
+    )
+    logger.warning("The following utilities are matched to more than one EIA ID:")
+    logger.info(
+        matched_utilities[matched_utilities.utility_id_eia.duplicated(keep=False)]
+    )
+
+    # Get the override spreadsheet
+    overrides = get_existing_overrides()
+    ## Get matches from the CSV
+    override_matches = overrides[
+        overrides.utility_id_eia.notnull() & overrides.utility_id_ferc1.notnull()
+    ]
+    # Unmatched records
+    unmatched = overrides[
+        ~(overrides.utility_id_eia.notnull() & overrides.utility_id_ferc1.notnull())
+    ]
+
+    for entity in ["ferc1", "eia"]:
+        overrides = drop_records_with_matches(
+            entity=entity,
+            matches=matched_utilities,
+            overrides=overrides,
+            override_matches=override_matches,
+            override_unmatched=unmatched,
+        )
+
+    updated_spreadsheet = add_new_matches_to_spreadsheet(
+        matches=matched_utilities, overrides=overrides
+    )
+    write_updated_matches(test_run=test_run, dataframe=updated_spreadsheet)
+
+
+@click.command(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
+@click.option(
+    "--test-run",
+    is_flag=True,
+    default=False,
+    help="If passed, will save the updated spreadsheet to a test file rather than overwriting the existing package data.",
+)
 def main(test_run: bool):
     """Match EIA and FERC utilities based on utility name alone."""
     # Read in the data, keeping only utility IDs and name
@@ -272,9 +349,9 @@ def main(test_run: bool):
     updated_spreadsheet = add_new_matches_to_spreadsheet(
         matches=matched_utilities, overrides=overrides
     )
-
     write_updated_matches(test_run=test_run, dataframe=updated_spreadsheet)
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    get_likely_address_matches()
