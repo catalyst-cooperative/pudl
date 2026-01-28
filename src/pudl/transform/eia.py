@@ -171,7 +171,7 @@ def occurrence_consistency(
         col_df["record_occurrences"] / col_df["entity_occurrences"]
     )
     col_df[f"{col}_is_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
-    col_df = col_df.sort_values(f"{col}_consistent_rate")
+    col_df = col_df.sort_values(f"{col}_consistent_rate", ascending=False)
     return col_df
 
 
