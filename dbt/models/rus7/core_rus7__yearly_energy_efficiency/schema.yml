@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_energy_efficiency
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: customer_class
+          - name: observation_period
+          - name: customers_num
+          - name: invested
+          - name: savings_mmbtu
