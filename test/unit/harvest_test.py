@@ -56,6 +56,7 @@ STANDARD: dict[str, Any] = {
         ],
         "primary_key": ["i", "j"],
     },
+    "path": "fake_path.parquet",
     "description": "letter r",
 }
 
@@ -286,6 +287,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["plant_id_eia", "state", "balancing_authority_code_eia"],
             "primary_key": ["plant_id_eia"],
         },
+        "path": "fake_path.parquet",
     },
     {
         "name": "test_eia860__entity_generators",
@@ -299,6 +301,7 @@ RESOURCES: list[dict[str, Any]] = [
             ],
             "primary_key": ["plant_id_eia", "generator_id"],
         },
+        "path": "fake_path.parquet",
     },
     {
         "name": "core_eia860__scd_generators",
@@ -307,6 +310,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["plant_id_eia", "generator_id", "report_year", "capacity_mw"],
             "primary_key": ["plant_id_eia", "generator_id", "report_year"],
         },
+        "path": "fake_path.parquet",
     },
     {
         "name": "utility_entity_eia",
@@ -315,6 +319,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["utility_id_eia", "utility_name_eia"],
             "primary_key": ["utility_id_eia"],
         },
+        "path": "fake_path.parquet",
     },
     {
         "name": "utility_assn_eia",
@@ -323,6 +328,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["utility_id_eia", "report_year", "state", "county"],
             "primary_key": ["utility_id_eia", "report_year", "state", "county"],
         },
+        "path": "fake_path.parquet",
     },
     {
         "name": "core_eia923__monthly_generation",
@@ -336,6 +342,7 @@ RESOURCES: list[dict[str, Any]] = [
             ],
             "primary_key": ["plant_id_eia", "generator_id", "report_month"],
         },
+        "path": "fake_path.parquet",
     },
     {
         "name": "core_eia861__yearly_sales",
@@ -344,6 +351,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["utility_id_eia", "report_year", "state", "county", "sales"],
             "primary_key": ["utility_id_eia", "report_year", "state", "county"],
         },
+        "path": "fake_path.parquet",
     },
     {
         "name": "core_eia860__assn_boiler_generator",
@@ -352,6 +360,7 @@ RESOURCES: list[dict[str, Any]] = [
             "fields": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
             "primary_key": ["plant_id_eia", "generator_id", "report_year", "boiler_id"],
         },
+        "path": "fake_path.parquet",
     },
 ]
 
