@@ -34,7 +34,6 @@ class Extractor(GenericExtractor):
         """Extract FERC CID data table as a dataframe.
 
         Args:
-            ds: DataStore object
             partition: Dictionary containing the data set partition to extract.
 
         Returns:
