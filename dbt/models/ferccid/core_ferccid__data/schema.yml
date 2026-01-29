@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_ferccid__data
+        data_tests:
+          - expect_columns_not_all_null
+        columns:
+          - name: company_identifier_ferccid
+            data_tests:
+              - unique
+          - name: company_name
+          - name: program
+          - name: company_website
+          - name: street_address
+          - name: address_2
+          - name: city
+          - name: state
+          - name: zip_code
+          - name: zip_4
