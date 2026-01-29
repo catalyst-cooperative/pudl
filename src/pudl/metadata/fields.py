@@ -1147,10 +1147,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "company_id_ferccid": {
-        "type": "string",
-        "description": "The unique identifier for the FERC company or organization, used for tracking and reference purposes.",
-    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -9984,20 +9980,10 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         "opex_rents": {"description": "Rent expenses for the transmission line."},
         "opex_total": {"description": "Overall expenses for the transmission line."},
     },
-    "core_ferccid_data": {
+    "core_ferc__entity_companies": {
         # descriptions from the FERC CID data dictionary
         "company_name": {
             "description": "The name of the FERC-reporting organization or company."
-        },
-        "street_address": {
-            "description": "The primary street address of the organization, used for physical location and mailing purposes."
-        },
-        "city": {"description": "The city where the organization is located."},
-        "state": {
-            "description": "The two-letter state code where the organization operates."
-        },
-        "zip_code": {
-            "description": "The postal code or zip code of the organization's location, used for mailing and shipping purposes."
         },
     },
     "out_ferc714__hourly_planning_area_demand": {

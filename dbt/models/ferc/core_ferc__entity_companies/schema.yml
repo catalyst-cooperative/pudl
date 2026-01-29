@@ -2,11 +2,11 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: core_ferccid__data
+      - name: core_ferc__entity_companies
         data_tests:
           - expect_columns_not_all_null
         columns:
-          - name: company_identifier_ferccid
+          - name: company_id_ferc
             data_tests:
               - unique
           - name: company_name
