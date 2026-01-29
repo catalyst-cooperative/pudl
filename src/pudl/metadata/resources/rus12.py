@@ -284,6 +284,10 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_loans": {
         "description": {
             "additional_summary_text": ("loans guaranteed by RUS borrowers."),
+            "additional_primary_key_text": (
+                "This table has no primary key because some borrowers report multiple loan values from "
+                "the same entity in a given year."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section F - Subsection II)",
             "additional_details_text": "",
@@ -297,12 +301,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "loan_maturity_date",
                 "loan_original_amount",
                 "loan_balance",
-                "for_rural_development",  # this should maybe be is_for_rural_development
-            ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-                "loan_organization",
+                "for_rural_development",
             ],
         },
         "sources": ["rus12"],

@@ -128,3 +128,19 @@ def core_rus12__yearly_lines_stations_labor_materials_cost(
     )
     # NOTE: this multi_index_stack function is dropping the employees_num column for now. I'm assuming we can get this data from another table, else I can circle back.
     return df
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus12__yearly_loans(raw_rus12__loans):
+    """Transform the raw_rus12__loans table."""
+    df = rus.early_transform(raw_df=raw_rus12__loans)
+    df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date, format="mixed")
+    df.for_rural_development = df.for_rural_development.astype("boolean")
+
+    # Make sure loan balance isn't more than original loan amount
+    loan_diff = df.loan_original_amount - df.loan_balance
+    assert len(loan_diff[loan_diff < 0]) == 0, (
+        "Loan balance exceeds original loan amount for some loans."
+    )
+
+    return df
