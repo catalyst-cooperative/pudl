@@ -1,8 +1,20 @@
 """Clean the FERC Company Identifier table."""
 
+import pandas as pd
 from dagster import asset
 
 from pudl.helpers import convert_cols_dtypes
+
+
+def clean_cid_string_cols(col: pd.Series) -> pd.Series:
+    """Clean string columns: remove unicode, strip whitespace, enforce single spaces, standardize NAs."""
+    col = (
+        col.str.replace(r"[\x00-\x1f\x7f-\x9f]", "", regex=True)
+        .str.strip()
+        .str.replace(r"\s+", " ", regex=True)
+        .replace(to_replace=r"^(?i:\s*|na|nan|none)$", value=pd.NA, regex=True)
+    )
+    return col
 
 
 @asset(  # io_manager_key="pudl_io_manager"
@@ -14,6 +26,7 @@ def core_ferccid__data(raw_ferccid__data):
     # override with field descriptions from data dictionary
     cid_df = cid_df.rename(
         columns={
+            "cid": "company_id_ferccid",
             "organization_name": "company_name",
             "address": "street_address",
             "address2": "address_2",
@@ -21,23 +34,21 @@ def core_ferccid__data(raw_ferccid__data):
         }
     )
     # split out 4 digit zip code suffix from zip code
-
-    # na handling? is there an existing helper for string NA value handling?
-
+    reg = r"(\d{5})(?:-(\d{4}))*"
+    cid_df[["zip_code", "zip_4"]] = cid_df["zip_code"].str.extract(reg)
+    # remove unicode, strip whitespace, enforce single spaces, standardize NA values
+    for col in ["company_name", "street_address", "address_2"]:
+        cid_df[col] = clean_cid_string_cols(cid_df[col])
     cid_df = convert_cols_dtypes(cid_df)
     # Make CID the primary key by dropping
     # the CID values we know have duplicates that should be removed.
     known_dupe = cid_df.loc[
-        (cid_df["cid"] == "C003521")
+        (cid_df["company_id_ferccid"] == "C003521")
         & (cid_df["company_name"] == "Chestnut Flats Wind Lessee, LLC")
     ]
     cid_df = cid_df.drop(known_dupe.index)
-    if not cid_df["cid"].is_unique:
+    if not cid_df["company_id_ferccid"].is_unique:
         raise ValueError(
             f"Duplicate CIDs found in core_ferccid_data: {cid_df[cid_df['cid'].duplicated(keep=False)]}"
         )
-
-    # fk constraints to other tables with CID?
-
-    # add regex constraints to company website in field metadata
     return cid_df

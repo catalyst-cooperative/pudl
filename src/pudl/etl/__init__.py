@@ -77,6 +77,7 @@ core_module_groups = {
     "core_epacems": [pudl.transform.epacems],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
+    "core_ferccid": [pudl.transform.ferccid],
     "core_ferceqr": [pudl.transform.ferceqr],
     "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
     "core_sec10k": [pudl.transform.sec10k],
