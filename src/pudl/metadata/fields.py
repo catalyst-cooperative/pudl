@@ -1162,9 +1162,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "company_website": {
         "type": "string",
         "description": "The website URL of the company, which can provide additional information about the organization.",
-        "constraints": {
-            "pattern": r"\.[a-z]{3}$",
-        },
     },
     "compliance_year_nox": {
         "type": "integer",

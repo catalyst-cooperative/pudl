@@ -17,8 +17,7 @@ def clean_cid_string_cols(col: pd.Series) -> pd.Series:
     return col
 
 
-@asset(  # io_manager_key="pudl_io_manager"
-)
+@asset(io_manager_key="pudl_io_manager")
 def core_ferc__entity_companies(
     raw_ferc__entity_companies: pd.DataFrame,
 ) -> pd.DataFrame:
