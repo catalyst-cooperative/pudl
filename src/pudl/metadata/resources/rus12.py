@@ -309,32 +309,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_long_term_debt": {
-        "description": {
-            "additional_summary_text": (
-                "long-term debt and debt service requirements for RUS borrowers."
-            ),
-            "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part H - Section H)",
-            "additional_details_text": "",
-        },
-        "schema": {
-            "fields": [
-                "report_date",
-                "borrower_id_rus",
-                "borrower_name_rus",
-                "debt_description",
-                "balance_end_of_report_year",
-                "interest",
-                "principal",
-                "total",  # this should probably be total_debt
-            ],
-            "primary_key": ["report_date", "borrower_id_rus", "debt_description"],
-        },
-        "sources": ["rus12"],
-        "etl_group": "rus12",
-        "field_namespace": "rus",
-    },
 }
 
 

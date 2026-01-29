@@ -99,3 +99,32 @@ def core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt):
     """Transform the core_rus12__yearly_long_term_debt table."""
     # TODO: the debt_description column could potentially get some cleaning.
     return rus.early_transform(raw_df=raw_rus12__long_term_debt)
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus12__lines_stations_labor_materials_cost(
+    raw_rus12__lines_and_stations_labor_materials,
+):
+    """Transform the raw_rus12__lines_and_stations_labor_materials table."""
+    df = rus.early_transform(raw_df=raw_rus12__lines_and_stations_labor_materials)
+
+    data_cols = ["cost"]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=r"^(labor|material)_(maintenance|operation)_(lines|stations)_(cost)$",
+        match_names=[
+            "labor_or_material",
+            "operation_or_maintenance",
+            "lines_or_stations",
+            "data_cols",
+        ],
+        unstack_level=[
+            "labor_or_material",
+            "operation_or_maintenance",
+            "lines_or_stations",
+        ],
+    )
+    # NOTE: this multi_index_stack function is dropping the employees_num column for now. I'm assuming we can get this data from another table, else I can circle back.
+    return df
