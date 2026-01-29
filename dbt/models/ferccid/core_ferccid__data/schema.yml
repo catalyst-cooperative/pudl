@@ -17,4 +17,4 @@ sources:
           - name: city
           - name: state
           - name: zip_code
-          - name: zip_4
+          - name: zip_code_4

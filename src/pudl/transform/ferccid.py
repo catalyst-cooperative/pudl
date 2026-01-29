@@ -35,7 +35,7 @@ def core_ferccid__data(raw_ferccid__data):
     )
     # split out 4 digit zip code suffix from zip code
     reg = r"(\d{5})(?:-(\d{4}))*"
-    cid_df[["zip_code", "zip_4"]] = cid_df["zip_code"].str.extract(reg)
+    cid_df[["zip_code", "zip_code_4"]] = cid_df["zip_code"].str.extract(reg)
     # remove unicode, strip whitespace, enforce single spaces, standardize NA values
     for col in ["company_name", "street_address", "address_2"]:
         cid_df[col] = clean_cid_string_cols(cid_df[col])

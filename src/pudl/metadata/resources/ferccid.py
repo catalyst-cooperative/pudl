@@ -4,7 +4,9 @@ from typing import Any
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_ferccid__data": {
-        # TODO: fill in "description":
+        "description": {
+            "additional_summary_text": "the companies that submit required filings to FERC."
+        },
         "schema": {
             "fields": [
                 "company_id_ferccid",
@@ -16,14 +18,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "city",
                 "state",
                 "zip_code",
-                "zip_4",
+                "zip_code_4",
             ],
             "primary_key": [
                 "company_id_ferccid",
             ],
         },
         "sources": ["ferccid"],
-        "etl_group": ["ferccid", "ferceqr"],
+        "etl_group": "ferccid",
         "field_namespace": "ferccid",
     },
 }
