@@ -1159,6 +1159,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of company prior to name change.",
     },
+    "company_website": {
+        "type": "string",
+        "description": "The website URL of the company, which can provide additional information about the organization.",
+    },
     "compliance_year_nox": {
         "type": "integer",
         "description": (
@@ -6005,6 +6009,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
+    "program": {
+        "type": "string",
+        "description": "The specific program or initiative associated with the FERC organization, which can provide context for the company's activities.",
+        "constraints": {
+            "enum": [
+                "FPA (Market Based Rate) Public Utilities",
+                "FPA (Traditional Cost of Service and Market Based Rates) Public Utilities",
+                "ICA Oil Pipelines",
+                "NGA Gas Pipelines",
+                "NGPA 311 and NGA Hinshaw Gas Pipelines",
+                "Power Administrations",
+            ]
+        },
+    },
     "pudl_version": {
         "type": "string",
         "description": "The version of PUDL used to generate this database.",
@@ -9979,6 +9997,12 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "opex_rents": {"description": "Rent expenses for the transmission line."},
         "opex_total": {"description": "Overall expenses for the transmission line."},
+    },
+    "core_ferc__entity_companies": {
+        # descriptions from the FERC CID data dictionary
+        "company_name": {
+            "description": "The name of the FERC-reporting organization or company."
+        },
     },
     "out_ferc714__hourly_planning_area_demand": {
         "timezone": {"constraints": {"enum": US_TIMEZONES}},
