@@ -144,3 +144,12 @@ def core_rus12__yearly_loans(raw_rus12__loans):
     )
 
     return df
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
+    """Transform the raw_rus12__plant_labor table."""
+    df = rus.early_transform(raw_df=raw_rus12__plant_labor)
+    df.employees_fte_num = df.employees_fte_num.astype("Int64")
+    df.employees_part_time_num = df.employees_part_time_num.astype("Int64")
+    return df
