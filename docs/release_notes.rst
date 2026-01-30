@@ -23,6 +23,15 @@ RUS-12
 
 * Extracted data for twelve USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
 
+FERC EQR
+~~~~~~~~
+
+* Added the company identifiers (CID) table from EQR. See :issue:`4851` and
+  :pr:`4967`. Also, note that the actual FERC EQR data is available on `PUDL
+  Viewer <https://data.catalyst.coop/search?q=ferceqr>`__ as well as `on S3 for
+  direct download
+  <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#ferc-eqr-experimental>`__
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
