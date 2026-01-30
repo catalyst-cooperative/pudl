@@ -206,6 +206,18 @@ def core_rus12__yearly_sources_and_distribution(
     This function process all columns from the Sources and Distribution table
     that are not plant type specific. The plant type specific columns are processed
     in core_rus12__yearly_sources_and_distribution_by_plant_type.
+
+    The multi_index_stack function intentionally drops a few columns that don't
+    show up in other tables. This include:
+    - ``total_energy_losses_pct`` (calculable with other cols, dropped because pct value
+      was an outlier column and not easily stacked with other columns).
+    - ``total_plant_num`` (calculable with the sources_and_distribution_by_plant_type table).
+    - ``total_capacity_kw`` (calculable with the sources_and_distribution_by_plant_type table).
+
+    This function keeps the ``total_plant_cost`` and ``total_plant_mwh`` columns even though
+    they are also calculable with the other table, because they are components of other
+    totals included in this table.
+
     """
     df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
     # Remove plant type columns handled in sources_and_distribution_by_plant_type function
