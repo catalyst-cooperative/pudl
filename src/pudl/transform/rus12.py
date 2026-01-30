@@ -195,3 +195,41 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     # TODO: use Christina's convert_units function once it's merged in for kw to mw
 
     return df
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus12__yearly_sources_and_distribution(
+    raw_rus12__sources_and_distribution,
+):
+    """Transform the raw_rus12__sources_and_distribution table.
+
+    This function process all columns from the Sources and Distribution table
+    that are not plant type specific. The plant type specific columns are processed
+    in core_rus12__yearly_sources_and_distribution_by_plant_type.
+    """
+    df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
+    # Remove plant type columns handled in sources_and_distribution_by_plant_type function
+    plant_types = [
+        "fossil_steam",
+        "hydro",
+        "internal_combustion",
+        "combined_cycle",
+        "nuclear",
+        "other",
+    ]
+    plant_type_mask = df.columns.str.startswith(tuple(f"{p}_" for p in plant_types))
+    df = df.loc[:, ~plant_type_mask]
+
+    data_cols = ["cost", "mwh"]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^(.+)_({'|'.join(data_cols)})$",
+        match_names=["source_of_energy", "data_cols"],
+        unstack_level=[
+            "source_of_energy",
+        ],
+        drop_zero_rows=True,
+    )
+    return df

@@ -107,6 +107,6 @@ def multi_index_stack(
     df.columns = df.columns.map("".join)
     df = df.dropna(subset=data_cols, how="all")
     if drop_zero_rows:
-        all_zero_mask = (df[data_cols] == 0).all(axis=1)
+        all_zero_mask = (df.fillna(0)[data_cols] == 0).all(axis=1)
         df = df[~all_zero_mask]
     return df
