@@ -167,6 +167,7 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     """
     df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
     data_cols = ["capacity_kw", "cost", "plants_num", "net_energy_mwh"]
+
     # This list excludes total values and instead includes them in the sources_and_distribution table.
     plant_types = [
         "fossil_steam",
@@ -176,8 +177,8 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
         "nuclear",
         "other",
     ]
-    # This function intentionally drops all cols that aren't plant_type related.
-    # They are processed in the core_rus12__yearly_sources_and_distribution function.
+
+    # Stack by plant type
     df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
@@ -189,11 +190,11 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
         ],
         drop_zero_rows=True,
     )
+
     # Make sure plant num is only int values and then convert to integer
     assert (df.plants_num.dropna() % 1 == 0).all()
     df.plants_num = df.plants_num.astype("Int64")
     # TODO: use Christina's convert_units function once it's merged in for kw to mw
-
     return df
 
 
@@ -232,6 +233,7 @@ def core_rus12__yearly_sources_and_distribution(
     plant_type_mask = df.columns.str.startswith(tuple(f"{p}_" for p in plant_types))
     df = df.loc[:, ~plant_type_mask]
 
+    # Stack by cost and mwh
     data_cols = ["cost", "mwh"]
     df = rus.multi_index_stack(
         df,
