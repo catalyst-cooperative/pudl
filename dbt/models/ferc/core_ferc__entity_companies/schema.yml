@@ -9,6 +9,10 @@ sources:
           - name: company_id_ferc
             data_tests:
               - unique
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  arguments:
+                    regex: "^C\\d{6}$"
+                    is_raw: True
           - name: company_name
           - name: program
           - name: company_website
