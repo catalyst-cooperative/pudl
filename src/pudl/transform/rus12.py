@@ -187,7 +187,7 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
         unstack_level=[
             "plant_type",
         ],
-        drop_zeros_rows=True,
+        drop_zero_rows=True,
     )
     # Make sure plant num is only int values and then convert to integer
     assert (df.plants_num.dropna() % 1 == 0).all()
