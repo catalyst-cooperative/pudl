@@ -153,3 +153,45 @@ def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     df.employees_fte_num = df.employees_fte_num.astype("Int64")
     df.employees_part_time_num = df.employees_part_time_num.astype("Int64")
     return df
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus12__yearly_sources_and_distribution_by_plant_type(
+    raw_rus12__sources_and_distribution,
+):
+    """Transform the raw_rus12__sources_and_distribution table.
+
+    This function pivots the cost, capacity, net-energy, and plant num data by plant type
+    from the Sources and Distribution table. The rest of the table contents are in
+    core_rus12__yearly_sources_and_distribution.
+    """
+    df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
+    data_cols = ["capacity_kw", "cost", "plants_num", "net_energy_mwh"]
+    # This list excludes total values and instead includes them in the sources_and_distribution table.
+    plant_types = [
+        "fossil_steam",
+        "hydro",
+        "internal_combustion",
+        "combined_cycle",
+        "nuclear",
+        "other",
+    ]
+    # This function intentionally drops all cols that aren't plant_type related.
+    # They are processed in the core_rus12__yearly_sources_and_distribution function.
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(plant_types)})_({'|'.join(data_cols)})$",
+        match_names=["plant_type", "data_cols"],
+        unstack_level=[
+            "plant_type",
+        ],
+        drop_zeros_rows=True,
+    )
+    # Make sure plant num is only int values and then convert to integer
+    assert (df.plants_num.dropna() % 1 == 0).all()
+    df.plants_num = df.plants_num.astype("Int64")
+    # TODO: use Christina's convert_units function once it's merged in for kw to mw
+
+    return df
