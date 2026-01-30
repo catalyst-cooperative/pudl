@@ -234,8 +234,8 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "plant_type",
                 "employees_fte_num",
                 "employees_part_time_num",
-                "payroll_operating_plant",  # seems like we might want to put payroll as a suffix here
-                "payroll_other_accounts_plant",  # seems like we might want to put payroll as a suffix here
+                "operating_plant_payroll",
+                "other_accounts_plant_payroll",
                 "total_plant_payroll",  # remove?
             ],
             "primary_key": [
@@ -302,6 +302,64 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "loan_original_amount",
                 "loan_balance",
                 "for_rural_development",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_sources_and_distribution": {
+        "description": {
+            "additional_summary_text": (
+                "MWh and cost of energy sources and distribution by RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part C)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "source_of_energy",
+                "cost",
+                "mwh",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "source_of_energy",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_sources_and_distribution_by_plant_type": {
+        "description": {
+            "additional_summary_text": (
+                "capacity, plant num, MWh, and cost of energy by plant type for RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part C)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "plant_type",
+                "capacity_mw",  # still need to update this in the function
+                "plant_num",
+                "cost",
+                "mwh",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "plant_type",
             ],
         },
         "sources": ["rus12"],
