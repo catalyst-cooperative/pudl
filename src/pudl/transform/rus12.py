@@ -251,17 +251,22 @@ def core_rus12__yearly_sources_and_distribution(
 
 @asset  # (io_manager_key="pudl_io_manager")
 def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations):
-    """Transform the raw_rus12__statement_of_operations table."""
+    """Transform the raw_rus12__statement_of_operations table.
+
+    This function drops a number of columns that contain per_kwh values that are
+    entirely NA through all years. It then reshapes the table by stacking expense
+    types by the name of the total column for which they are calculation components.
+    """
     df = rus.early_transform(raw_df=raw_rus12__statement_of_operations)
 
-    # Setting this assertion before pivoting the table to make sure the PK holds
+    # Setting this assertion before stacking the table to make sure the PK holds
     assert (
         df[["borrower_id_rus", "borrower_name_rus", "report_date"]].duplicated().any()
         is not True
     ), "Primary key violation found in core_rus12__yearly_statement_of_operations"
 
     # There are a bunch of cols ending in per_kwh that seem to have no information in them.
-    # Verify this so we feel good dropping them
+    # Verify this so we feel good dropping them. (They get dropped in multi_index_stack).
     per_kwh_cols = df.columns[df.columns.str.contains("per_kwh")]
     assert df[per_kwh_cols].notna().any().any() is not True, (
         "Expected per_kwh columns to be entirely NA."
