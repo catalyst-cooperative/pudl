@@ -189,7 +189,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_statement_of_operations": {  # Need to decide how to split this up
+    "core_rus12__yearly_statement_of_operations": {
         "description": {
             "additional_summary_text": (
                 "opex and cost of electric service for RUS borrowers."
@@ -203,15 +203,17 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "operations_type"  # enum (list below)
-                "ytd_amount",
+                "operation_expense_group",
+                "operation_expense_type",
+                "ytd"  # I think this should be more descriptive
                 "ytd_budget",
-                "report_month_amount",
+                "report_month",
             ],
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "operations_type",
+                "operation_expense_group",
+                "operation_expense_type",
             ],
         },
         "sources": ["rus12"],

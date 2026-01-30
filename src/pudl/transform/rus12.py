@@ -247,3 +247,46 @@ def core_rus12__yearly_sources_and_distribution(
         drop_zero_rows=True,
     )
     return df
+
+
+@asset  # (io_manager_key="pudl_io_manager")
+def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations):
+    """Transform the raw_rus12__statement_of_operations table."""
+    df = rus.early_transform(raw_df=raw_rus12__statement_of_operations)
+
+    # Setting this assertion before pivoting the table to make sure the PK holds
+    assert (
+        df[["borrower_id_rus", "borrower_name_rus", "report_date"]].duplicated().any()
+        is not True
+    ), "Primary key violation found in core_rus12__yearly_statement_of_operations"
+
+    # There are a bunch of cols ending in per_kwh that seem to have no information in them.
+    # Verify this so we feel good dropping them
+    per_kwh_cols = df.columns[df.columns.str.contains("per_kwh")]
+    assert df[per_kwh_cols].notna().any().any() is not True, (
+        "Expected per_kwh columns to be entirely NA."
+    )
+
+    # Stack by operating revenue group and expense type
+    data_cols = ["report_month", "ytd", "ytd_budget"]
+    operation_expense_group = {
+        "oprev": "operation_revenue_and_patronage_capital",
+        "opex": "operation_expense",
+        "maintex": "maintenance_expense",
+        "ces": "cost_of_electric_service",
+        "npc": "net_patronage_capital_or_margins",
+    }
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(operation_expense_group.keys())})_(.+)_({'|'.join(data_cols)})$",
+        match_names=["operation_expense_group", "operation_expense", "data_cols"],
+        unstack_level=["operation_expense_group", "operation_expense_type"],
+    )
+
+    # Map operation_expense_group codes to full names
+    df.operation_expense_group = df.operation_expense_group.map(operation_expense_group)
+
+    # TODO: could remove total columns that aren't used as part of the calculation for others.
+    return df
