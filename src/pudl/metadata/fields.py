@@ -9242,6 +9242,81 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "The amount of payroll spent that was funded by other means - not capitalized or expensed.",
     },
+    "customers_num": {"description": "Number of customers.", "type": "number"},
+    "observation_period": {
+        "type": "string",
+        "description": (
+            "The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of "
+            "December only, while 'avg' implies this record pertains to the average of the reporting period."
+        ),
+        "constraints": {
+            "enum": {"avg", "december", "new_in_report_year", "cumulative"}
+        },
+    },
+    "invested": {
+        "type": "integer",
+        "description": "The amount of money invested.",
+        "unit": "USD",
+    },
+    "savings_mmbtu": {
+        "type": "number",
+        "description": (
+            "The estimated amount of energy savings from energy efficiency programs. "
+            "Warning: We found values much larger than expected that we have not yet "
+            "cleaned - this is likely a reporting unit error."
+        ),
+        "unit": "MMBtu",
+    },
+    "electric_sales_revenue": {
+        "type": "integer",
+        "description": "Total Revenue Received From Sales of Electric Energy. Total of lines 1c thru 9c on the original form.",
+        "unit": "USD",
+    },
+    "electric_sales_mwh": {
+        "type": "number",
+        "description": "Total MWh Sold to electric sales. Total of lines 1b thru 9b on the original form.",
+        "unit": "MWh",
+    },
+    "transmission_revenue": {
+        "type": "integer",
+        "description": "Transmission revenue.",
+        "unit": "USD",
+    },
+    "other_electric_revenue": {
+        "type": "integer",
+        "description": "Electric revenue other than electric_sales_revenue.",
+        "unit": "USD",
+    },
+    "own_use_mwh": {
+        "type": "number",
+        "description": "The electricity in MWh used for the borrower's own internal use.",
+        "unit": "MWh",
+    },
+    "generated_mwh": {
+        "type": "number",
+        "description": "The total electricity generated.",
+        "unit": "MWh",
+    },
+    "purchases_and_generation_cost": {
+        "type": "integer",
+        "description": "The cost of purchases and generation of electricity.",
+        "unit": "UDS",
+    },
+    "interchange_mwh": {
+        "type": "number",
+        "description": "The net interchange of electricity. The net amount of electricity exchanged in purchases and sales.",
+        "unit": "MWh",
+    },
+    "peak_mw": {
+        "type": "number",
+        "description": "The peak system MWh - the sum of all MW.",
+        "unit": "MW",
+    },
+    "is_peak_coincident": {
+        "type": "integer",
+        "description": "Whether or not the peak_mw is coincident or non-coincident peak.",
+        "unit": "boolean",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -9297,6 +9372,34 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
         },
         "longitude": {
             "description": "Longitude of the place centroid (e.g., county centroid)."
+        },
+    },
+    "rus": {
+        "customer_class": {
+            "description": "High level categorization of customer type.",
+            "constraints": {
+                "enum": {
+                    "commercial_and_industrial_large",
+                    "commercial_and_industrial_small",
+                    "irrigation",
+                    "other_electric",
+                    "public_street_lighting",
+                    "public_other",
+                    "residential_excluding_seasonal",
+                    "residential_seasonal",
+                    "sales_for_resale_other",
+                    "sales_for_resale_rus_borrowers",
+                    "total",
+                    "transmission",
+                },
+            },
+        },
+        # the standard description for this column is much too specific/ has more details which may
+        # or may not be true for RUS.
+        "purchased_mwh": {
+            "type": "number",
+            "description": "The total electricity purchased.",
+            "unit": "MWh",
         },
     },
 }
