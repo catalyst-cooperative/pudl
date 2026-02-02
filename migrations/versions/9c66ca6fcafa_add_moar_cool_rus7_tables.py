@@ -1,7 +1,7 @@
 """Add moar cool rus7 tables
 
 Revision ID: 9c66ca6fcafa
-Revises: dcbe4c9e66d4
+Revises: fdea3b18cdb5
 Create Date: 2026-01-23 12:16:56.167671
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '9c66ca6fcafa'
-down_revision = 'dcbe4c9e66d4'
+down_revision = 'fdea3b18cdb5'
 branch_labels = None
 depends_on = None
 
