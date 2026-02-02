@@ -26,6 +26,7 @@ from upath import UPath
 
 from pudl.helpers import ParquetData
 from pudl.logging_helpers import get_logger
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.settings import ferceqr_year_quarters
 from pudl.workspace.setup import PudlPaths
 
@@ -119,6 +120,13 @@ def deploy_ferceqr():
         ),
         (UPath(os.environ["S3_OUTPUT_BUCKET"]), s3fs.S3FileSystem()),
     ]
+    # Get 'datapackage.json' data to write to distribution paths
+    datapackage_bytes = (
+        PUDL_PACKAGE.to_frictionless(include_pattern=r"core_ferceqr.*")
+        .to_json()
+        .encode(encoding="utf-8")
+    )
+
     # Loop through output locations and copy parquet files to buckets
     logger.info("Build successful, deploying ferceqr data.")
     for distribution_path, fs in distribution_paths:
@@ -134,6 +142,11 @@ def deploy_ferceqr():
                 f"{table_remote_path}/",
                 recursive=True,
             )
+        # Copy datapackage to distribution path
+        fs.pipe(
+            f"{distribution_path}/ferceqr_parquet_datapackage.json",
+            value=datapackage_bytes,
+        )
 
     # Send slack notification about successful build
     logger.info("Notifying slack about successful build.")
