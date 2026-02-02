@@ -18,10 +18,10 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 20,349.0,Alcoa Generating Corporation,,,
 20,282.0,"alcoa power generating, inc.",,,
 21,282.0,Alcoa Power Generating Inc.,317.0,Alcoa Power Generating Inc Yadkin Div,
+23,307.0,"ALLETE, Inc.",55155.0,ALLETE Inc,These records were automatically matched based on utility name on 02/02/2026
 23,307.0,"ALLETE, Inc.",12647.0,"ALLETE, Inc.",
-23,307.0,"ALLETE, Inc.",55155.0,ALLETE Inc,These records were automatically matched based on utility name on 01/27/2026
 24,72.0,Amerada Hess Corporation,,,
-25,222.0,Ameren Illinois Company,56697.0,Ameren Illinois Company,These records were automatically matched based on utility name on 01/27/2026
+25,222.0,Ameren Illinois Company,56697.0,Ameren Illinois Company,These records were automatically matched based on utility name on 02/02/2026
 25,222.0,Ameren Illinois Company,61576.0,Ameren Illinois,
 26,328.0,Ameren Transmission Company of Illinois,,,
 27,92.0,American Transmission Company LLC,,,
@@ -76,10 +76,10 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 87,117.0,Dixie-Escalante Rural Electric Association,,,
 88,70.0,"Dixie-Escalante Rural Electric Association, Inc.",,,
 89,184.0,DTE Electric Company,5109.0,DTE Electric Company,
-90,170.0,"Duke Energy Carolinas, LLC",54905.0,Duke Energy Carolinas LLC,These records were automatically matched based on utility name on 01/27/2026
 90,170.0,"Duke Energy Carolinas, LLC",5416.0,"Duke Energy Carolinas, LLC",
-91,161.0,"Duke Energy Florida, Inc.",6455.0,"Duke Energy Florida, Inc",
+90,170.0,"Duke Energy Carolinas, LLC",54905.0,Duke Energy Carolinas LLC,These records were automatically matched based on utility name on 02/02/2026
 91,161.0,"duke energy florida, llc",,,
+91,161.0,"Duke Energy Florida, Inc.",6455.0,"Duke Energy Florida, Inc",
 92,169.0,"duke energy indiana, llc",,,
 92,169.0,"Duke Energy Indiana, Inc.",15470.0,"Duke Energy Indiana, LLC",
 93,171.0,"Duke Energy Kentucky, Inc.",55729.0,Duke Energy Kentucky Inc,
@@ -88,16 +88,16 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 95,,,21336.0,Duke Energy Oakland LLC,
 95,66.0,Duke Energy Oakland LLC,,,
 96,172.0,"Duke Energy Ohio, Inc.",3542.0,Duke Energy Ohio Inc,
-97,160.0,"Duke Energy Progress, Inc.",3046.0,Duke Energy Progress - (NC),
 97,160.0,"duke energy progress, llc",,,
+97,160.0,"Duke Energy Progress, Inc.",3046.0,Duke Energy Progress - (NC),
 100,402.0,"East Texas Electric Cooperative, Inc.",39347.0,"East Texas Electric Coop, Inc",
 103,186.0,El Paso Electric Company,5701.0,El Paso Electric Co,
 104,321.0,"Electric Energy, Inc.",5748.0,Electric Energy Inc,
 105,158.0,Emera Maine,1179.0,Emera Maine,
 106,226.0,"Entergy Arkansas, Inc.",814.0,Entergy Arkansas Inc,
 107,231.0,"Entergy Gulf States Louisiana, L.L.C.",11241.0,Entergy Louisiana LLC,
-107,411.0,"Entergy Louisiana, LLC",11241.0,Entergy Louisiana LLC,
 107,362.0,"Entergy Louisiana, LLC",11241.0,Entergy Louisiana LLC,
+107,411.0,"Entergy Louisiana, LLC",11241.0,Entergy Louisiana LLC,
 108,411.0,el investment company,,,
 109,382.0,"entergy mississippi, llc",12685.0,Entergy Mississippi Inc,
 110,233.0,"entergy new orleans, llc",13478.0,Entergy New Orleans Inc,
@@ -119,6 +119,7 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 133,121.0,Harney Electric Cooperative,,,
 134,105.0,"Hawaii Electric Light Company, Inc.",8287.0,Hawaii Electric Light Co Inc,
 135,400.0,"Hawaiian Electric Company, Inc.",19547.0,Hawaiian Electric Co Inc,
+136,345.0,"Hermiston Generating Company, L.P.",39240.0,Hermiston Generating Co LP,These records were automatically matched based on utility name on 02/02/2026
 136,345.0,"Hermiston Generating Company, L.P.",8503.0,Hermiston Generating Co LP,
 138,,,8779.0,Holyoke Water Power Company,
 138,18.0,Holyoke Water Power Company,,,
@@ -126,23 +127,23 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 140,216.0,Idaho Power Company,9191.0,Idaho Power Co,
 141,19.0,IES Utilities Inc.,,,
 143,223.0,Illinois Power Generating Company,520.0,Illinois Power Generating Co,
-144,201.0,Indiana Michigan Power Company,9249.0,Indiana Michigan Power Co,These records were automatically matched based on utility name on 01/27/2026
 144,201.0,Indiana Michigan Power Company,9324.0,Indiana Michigan Power Co,
+144,201.0,Indiana Michigan Power Company,9249.0,Indiana Michigan Power Co,These records were automatically matched based on utility name on 02/02/2026
+145,444.0,indiana-kentucky electric corporation,9269.0,Indiana-Kentucky Electric Corp,These records were automatically matched based on utility name on 02/02/2026
 145,409.0,Indiana-Kentucky Electric Corporation,9269.0,Indiana-Kentucky Electric Corp,
-145,444.0,indiana-kentucky electric corporation,9269.0,Indiana-Kentucky Electric Corp,These records were automatically matched based on utility name on 01/27/2026
-146,279.0,Indianapolis Power & Light Company,55305.0,Indianapolis Power & Light Co,These records were automatically matched based on utility name on 01/27/2026
+146,279.0,Indianapolis Power & Light Company,55305.0,Indianapolis Power & Light Co,These records were automatically matched based on utility name on 02/02/2026
 146,279.0,Indianapolis Power & Light Company,9273.0,Indianapolis Power & Light Co,
-146,279.0,Indianapolis Power & Light Company,55304.0,Indianapolis Power & Light Co,These records were automatically matched based on utility name on 01/27/2026
-148,333.0,International Transmission Company,,,
+146,279.0,Indianapolis Power & Light Company,55304.0,Indianapolis Power & Light Co,These records were automatically matched based on utility name on 02/02/2026
 148,442.0,International Transmission Company,,,
+148,333.0,International Transmission Company,,,
 150,220.0,Interstate Power and Light Company,9417.0,Interstate Power and Light Co,
 153,152.0,ISO New England Inc.,,,
 154,341.0,"ITC Great Plains, LLC",,,
 156,173.0,Jersey Central Power & Light Company,9726.0,Jersey Central Power & Lt Co,
 159,254.0,Kansas City Power & Light Company,10000.0,Kansas City Power & Light Co,
 160,356.0,"evergy kansas south, inc.",10005.0,Kansas Gas & Electric Co,
-161,255.0,KCP&L Greater Missouri Operations Company,56211.0,KCP&L Greater Missouri Operations Co,
 161,255.0,"evergy missouri west, inc.",,,
+161,255.0,KCP&L Greater Missouri Operations Company,56211.0,KCP&L Greater Missouri Operations Co,
 162,202.0,Kentucky Power Company,22053.0,Kentucky Power Co,
 163,210.0,Kentucky Utilities Company,10171.0,Kentucky Utilities Co,
 166,276.0,Liberty Utilities (Granite State Electric) Corp.,,,
@@ -151,10 +152,10 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 171,335.0,Madison Gas and Electric Company,11479.0,Madison Gas & Electric Co,
 175,277.0,Massachusetts Electric Company,11804.0,Massachusetts Electric Co,
 176,25.0,"MAUI ELECTRIC COMPANY, LIMITED",11843.0,Maui Electric Co Ltd,
+178,28.0,Montana-Dakota Utilities Company,12819.0,Montana-Dakota Utilities Co,These records were automatically matched based on utility name on 02/02/2026
 178,28.0,Montana-Dakota Utilities Company,12199.0,Montana-Dakota Utilities Co,
 178,254.0,"evergy metro, inc.",,,
 178,319.0,"MDU Resources Group, Inc.",,,
-178,28.0,Montana-Dakota Utilities Company,12819.0,Montana-Dakota Utilities Co,These records were automatically matched based on utility name on 01/27/2026
 179,52.0,Medina Power Company,,,
 181,91.0,Michigan Electric Transmission Company (04/02),,,
 182,324.0,Michigan Electric Transmission Company LLC (10/06),,,
@@ -168,11 +169,11 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 191,238.0,MONONGAHELA POWER COMPANY,12796.0,Monongahela Power Co,
 195,126.0,"Moon Lake Electric Association, Inc.",12866.0,Moon Lake Electric Assn Inc,
 196,55.0,Moreau Manufacturing,,,
-201,,,13204.0,Nantahala Power & Light Co,
 201,30.0,Nantahala Power and Light Company,,,
+201,,,13204.0,Nantahala Power & Light Co,
 202,426.0,Nantucket Electric Company,13206.0,Nantucket Electric Co,
+203,69.0,KeySpan Generation LLC,26751.0,KeySpan Generation LLC,These records were automatically matched based on utility name on 02/02/2026
 203,281.0,National Grid Generation LLC,56505.0,National Grid Generation LLC,
-203,69.0,KeySpan Generation LLC,26751.0,KeySpan Generation LLC,These records were automatically matched based on utility name on 01/27/2026
 203,,,26751.0,"National Grid Generation, LLC",
 204,301.0,"Nevada Power Company, d/b/a NV Energy",13407.0,Nevada Power Co,
 205,357.0,Nevada Sun-Peak Limited Partnership,,,
@@ -213,8 +214,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 246,303.0,PacifiCorp,14354.0,PacifiCorp,
 247,338.0,"Path Allegheny Transmission Company, LLC",,,
 248,398.0,"Path West Virginia Transmission Company, L.L.C.",,,
-250,178.0,Pennsylvania Electric Company,,,
 250,,,14711.0,Pennsylvania Electric Co,
+250,178.0,Pennsylvania Electric Company,,,
 251,,,14716.0,Pennsylvania Power Co,
 251,177.0,Pennsylvania Power Company,,,
 252,130.0,Penoyer Valley Electric Company,,,
@@ -226,11 +227,11 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 265,267.0,PPL Electric Utilities Corporation,,,
 266,332.0,"Prairie Wind Transmission, LLC",,,
 267,261.0,PSEG Energy Resources & Trade LLC,,,
-268,90.0,PSEG Fossil LLC,55443.0,PSEG Fossil LLC,These records were automatically matched based on utility name on 01/27/2026
+268,90.0,PSEG Fossil LLC,55443.0,PSEG Fossil LLC,These records were automatically matched based on utility name on 02/02/2026
 268,90.0,PSEG Fossil LLC,15147.0,PSEG Fossil LLC,
 269,262.0,PSEG Nuclear LLC,15478.0,PSEG Nuclear LLC,
+270,86.0,PSEG Power LLC,34600.0,PSEG Power LLC,These records were automatically matched based on utility name on 02/02/2026
 270,86.0,PSEG Power LLC,15452.0,PSEG Power Connecticut LLC,
-270,86.0,PSEG Power LLC,34600.0,PSEG Power LLC,These records were automatically matched based on utility name on 01/27/2026
 271,87.0,PSEG Power New York Inc.,14294.0,PSEG Power New York Inc,
 272,227.0,Public Service Company of Colorado,15466.0,Public Service Co of Colorado,
 273,244.0,Public Service Company of New Hampshire,15472.0,Public Service Co of NH,
@@ -242,11 +243,10 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 279,141.0,"RITELine Illinois, LLC",,,
 280,214.0,Rochester Gas and Electric Corporation,16183.0,Rochester Gas & Electric Corp,
 282,311.0,Safe Harbor Water Power Corporation,59364.0,Safe Harbor,
-282,311.0,Safe Harbor Water Power Corporation,16537.0,Safe Harbor Water Power Corp,These records were automatically matched based on utility name on 01/27/2026
+282,311.0,Safe Harbor Water Power Corporation,16537.0,Safe Harbor Water Power Corp,These records were automatically matched based on utility name on 02/02/2026
 284,218.0,San Diego Gas & Electric Company,16609.0,San Diego Gas & Electric Co,
 285,,,16687.0,Savannah Electric & Power Co,
 285,35.0,Savannah Electric and Power Company,,,
-286,419.0,"Sharyland Utilities, L.P.",,,
 287,300.0,Sierra Pacific Power Company d/b/a NV Energy,17166.0,Sierra Pacific Power Co,
 289,344.0,Smoky Mountain Transmission LLC,,,
 290,132.0,Somerset Rural Electric Cooperative Inc.,,,
@@ -268,21 +268,21 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 305,320.0,"Startrans IO, LLC",,,
 306,436.0,SU FERC L.L.C,,,
 307,134.0,Sun River Electric Cooperative,,,
-309,,,18344.0,Susquehanna Electric Co,
 309,38.0,Susquehanna Electric Company,,,
+309,,,18344.0,Susquehanna Electric Co,
 310,135.0,Sussex Rural Electric Cooperative,,,
 311,235.0,"System Energy Resources, Inc.",12465.0,"System Energy Resources, Inc",
 312,96.0,Talbot EMC,,,
 313,157.0,Tampa Electric Company,18454.0,Tampa Electric Co,
 314,39.0,Terra Comfort Corporation,,,
-315,41.0,Texas-New Mexico Power Company,,,
 315,,,40051.0,Texas-New Mexico Power Co,
+315,41.0,Texas-New Mexico Power Company,,,
 317,211.0,The Dayton Power and Light Company,4922.0,Dayton Power & Light Co,
 318,249.0,The Empire District Electric Company,5860.0,Empire District Electric Co,
 322,299.0,The United Illuminating Company,19497.0,United Illuminating Co,
 323,93.0,The Walton E.M.C.,,,
-324,176.0,"Toledo Edison Company, The",,,
 324,,,18997.0,The Toledo Edison Co,
+324,176.0,"Toledo Edison Company, The",,,
 325,330.0,Trans Bay Cable LLC,,,
 326,378.0,Trans-Allegheny Interstate Line Company,,,
 327,104.0,TransCanada Hydro NorthEast Inc.,50048.0,"TransCanada Hydro Northeast Inc.,",
@@ -290,8 +290,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 329,67.0,Trigen-Kansas City Energy Corporation,,,
 330,257.0,Tucson Electric Power Company,24211.0,Tucson Electric Power Co,
 332,37.0,TXU SESCO Company,,,
-333,323.0,"UGI Utilities, Inc.",,,
 333,,,19390.0,"UGI Utilities, Inc",
+333,323.0,"UGI Utilities, Inc.",,,
 334,221.0,UNION ELECTRIC COMPANY,19436.0,Union Electric Co - (MO),
 335,136.0,"United Power, Inc.",19499.0,"United Power, Inc",
 336,265.0,"Unitil Energy Systems, Inc.",,,
@@ -307,24 +307,24 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 351,181.0,"Wabash Valley Energy Marketing, Inc.",,,
 352,156.0,"Wabash Valley Power Association, Inc.",40211.0,"Wabash Valley Power Assn, Inc",
 354,74.0,"Washington Electric Cooperative, Inc.",20151.0,Washington Electric Coop - (VT),
-354,74.0,"Washington Electric Cooperative, Inc.",20150.0,"Washington Electric Coop, Inc",These records were automatically matched based on utility name on 01/27/2026
+354,74.0,"Washington Electric Cooperative, Inc.",20150.0,"Washington Electric Coop, Inc",These records were automatically matched based on utility name on 02/02/2026
 355,78.0,Wayne-White Counties Electric Cooperative,,,
 357,89.0,Wellsboro Electric Company,,,
-359,225.0,"Westar Energy, Inc.",55329.0,Westar Energy Inc.,These records were automatically matched based on utility name on 01/27/2026
-359,348.0,"Westar Generating, Inc.",22500.0,Westar Energy Inc,
 359,225.0,"Westar Energy, Inc.",22500.0,Westar Energy Inc,
-359,348.0,"evergy generating, inc.",,,
+359,225.0,"Westar Energy, Inc.",55329.0,Westar Energy Inc.,These records were automatically matched based on utility name on 02/02/2026
 359,225.0,"evergy kansas central, inc.",,,
+359,348.0,"evergy generating, inc.",,,
+359,348.0,"Westar Generating, Inc.",22500.0,Westar Energy Inc,
 360,245.0,Western Massachusetts Electric Company,56999.0,Western Massachusetts Electric Company,
 361,207.0,Wheeling Power Company,20521.0,wheeling power co,
 363,280.0,Wisconsin Electric Power Company,20847.0,Wisconsin Electric Power Co,
+364,219.0,Wisconsin Power and Light Company,61646.0,Wisconsin Power and Light Co,These records were automatically matched based on utility name on 02/02/2026
 364,219.0,Wisconsin Power and Light Company,20856.0,Wisconsin Power & Light Co,
-364,219.0,Wisconsin Power and Light Company,61646.0,Wisconsin Power and Light Co,These records were automatically matched based on utility name on 01/27/2026
 365,187.0,Wisconsin Public Service Corporation,20860.0,Wisconsin Public Service Corp,
 366,189.0,Wisconsin River Power Company,20863.0,Wisconsin River Power Company,
 367,94.0,Wolf Creek Nuclear Operating Corporation,20893.0,Wolf Creek Nuclear Optg Corp,
 368,259.0,"Wolverine Power Supply Cooperative, Inc.",20910.0,Wolverine Power Supply Coop,
-371,379.0,York Haven Power Company,21686.0,York Haven Power Company,These records were automatically matched based on utility name on 01/27/2026
+371,379.0,York Haven Power Company,21686.0,York Haven Power Company,These records were automatically matched based on utility name on 02/02/2026
 371,379.0,York Haven Power Company,56065.0,York Haven Power Company LLC,
 372,,,58164.0,"180 Raritan Energy Solutions, LLC",
 373,,,21260.0,191 Peachtree Associates,
@@ -1952,8 +1952,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 1993,,,8543.0,Hibbing Public Utilities Comm,
 1994,,,57189.0,Hidden Hollow Energy LLC,
 1995,,,59093.0,"Hidden View Dairy, LLC",
-1996,,,56559.0,High Desert Power Project LLC,
 1996,,,8654.0,High Desert Power Project LLC,
+1996,,,56559.0,High Desert Power Project LLC,
 1997,,,57396.0,High Mesa Energy LLC,
 1998,,,56046.0,High Plains,
 1999,,,56762.0,"High Plains Ranch II, LLC",
@@ -2225,8 +2225,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 2266,,,56355.0,LES Project Holdings LLC,
 2267,,,58980.0,Lewiston Solar LLC,
 2268,,,27031.0,Liberty Electric Power LLC,
-2269,,,57222.0,Liberty Utilities (CalPeco Electric) LLC,
 2269,241.0,liberty utilities (calpeco electric) llc,,,
+2269,,,57222.0,Liberty Utilities (CalPeco Electric) LLC,
 2270,,,58358.0,Light Beam Power Co LLC,
 2271,,,58581.0,"Lightning Dock Geothermal HI-01, LLC",
 2272,,,57122.0,Lime Wind LLC,
@@ -2431,12 +2431,12 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 2471,,,12670.0,Missouri Jnt Muni.Pwr Elec. Ut. Comm.,
 2472,,,58793.0,Missouri University of Science and Technology,
 2473,,,57229.0,MM Albany Energy LLC,
-2474,,,30772.0,MM Lopez Energy LLC,
 2474,,,57232.0,MM Lopez Energy LLC,
+2474,,,30772.0,MM Lopez Energy LLC,
 2475,,,57253.0,MM Mid Valley Genco LLC,
 2476,,,57254.0,MM Milliken Genco LLC,
-2477,,,13181.0,MM Prima Deshecha Energy LLC,
 2477,,,57250.0,MM Prima Deshecha Energy LLC,
+2477,,,13181.0,MM Prima Deshecha Energy LLC,
 2478,,,57230.0,MM Prince William Energy LLC,
 2479,,,57227.0,MM San Diego Energy-Miramar,
 2480,,,57235.0,MM San Diego Energy-North City,
@@ -2824,8 +2824,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 2863,,,15142.0,Plains End Operating Services LLC,
 2864,,,15143.0,Platte River Power Authority,
 2865,,,59188.0,Pleasant Hill Wind Energy LLC,
-2866,,,55749.0,Pleasants Energy LLC,
 2866,,,15136.0,Pleasants Energy LLC,
+2866,,,55749.0,Pleasants Energy LLC,
 2867,,,57353.0,Plumas Sierra Rural Electric Coop,
 2868,,,59190.0,Plymouth State University,
 2869,,,59300.0,PNM Resources,
@@ -3473,9 +3473,9 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 3511,,,56856.0,Trexlertown Solar Array North and South,
 3512,,,58771.0,Tri-County Water Conservancy District,
 3513,,,19560.0,Tri-Dam Power Authority,
+3514,353.0,tri-state generation and transmission association (pudl determined),,,
 3514,353.0,"tri-state generation and transmission association, inc.",,,
 3514,,,30151.0,"Tri-State G & T Assn, Inc",
-3514,353.0,tri-state generation and transmission association (pudl determined),,,
 3515,,,19198.0,"Trigen Inner Harbor East, LLC",
 3516,,,50130.0,Trigen St Louis Energy Corporation,
 3517,,,19165.0,Trigen-Cinergy Solutions College Park,
@@ -3567,8 +3567,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 3603,,,19537.0,University of Texas at Austin,
 3604,,,19664.0,University of Washington,
 3605,,,58521.0,University of Wisconsin Oshkosh Foundation,
-3606,,,57043.0,University Park Energy LLC,
 3606,,,27694.0,University Park Energy LLC,
+3606,,,57043.0,University Park Energy LLC,
 3607,,,59392.0,"Upchurch Solar Center, LLC",
 3608,,,58604.0,US Air Force,
 3609,,,50118.0,US Army Corps of Engineers,
@@ -4126,8 +4126,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 4164,,,49982.0,Trigen Oklahoma City,
 4165,,,50025.0,Matthew D. Swift WC Bradley Co.,
 4166,,,50031.0,"Grubb & Ellis Management Services, Inc.",
-4167,,,24.0,AE Operations LLC,
 4167,,,50081.0,AE Operations LLC,
+4167,,,24.0,AE Operations LLC,
 4168,,,50082.0,Boise Cascade Wood Products LLC,
 4169,,,50084.0,Algonquin-Cambrian Pacific GenLLC,
 4170,,,50096.0,RRI Energy Florida LLC,
@@ -5457,10 +5457,10 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 5511,,,60290.0,"Crocker Wind Farm, LLC",
 5512,,,60292.0,"Advanced Solar Power Holdings, Inc",
 5513,,,60293.0,"DG Colorado Solar, LLC",
-5514,372.0,aep texas inc.,,,
 5514,372.0,aep texas (pudl determined),,,
-5515,,,61029.0,Upper Michigan Energy Resources Company,
+5514,372.0,aep texas inc.,,,
 5515,368.0,upper michigan energy resources company (pudl determined),,,
+5515,,,61029.0,Upper Michigan Energy Resources Company,
 5516,241.0,"luning energy holdings llc, invenergy investments (pudl determined)",,,
 5521,,,4158.0,Conectiv Atlantic Generation Inc,
 5522,,,54787.0,The Premcor Refining Group Inc,
@@ -5498,7 +5498,7 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 5554,,,61854.0,Veolia Energy Operating Service,
 5555,,,61905.0,Oleander Holdings LLC,
 5556,,,62027.0,"LaPorte Power, LLC",
-5557,453.0,stanton clean energy llc,61904.0,Stanton Clean Energy LLC ,These records were automatically matched based on utility name on 01/27/2026
+5557,453.0,stanton clean energy llc,61904.0,Stanton Clean Energy LLC ,These records were automatically matched based on utility name on 02/02/2026
 5557,453.0,stanton clean energy llc,61903.0,Stanton Clean Energy LLC,
 5558,,,61913.0,"Kestrel Acquisition, LLC",
 5559,,,61505.0,NRG Chalk Point CT,
@@ -6706,22 +6706,22 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 6762,59.0,missing respondent 223,,,
 6763,79.0,missing respondent 252,,,
 6764,80.0,missing respondent 253,,,
-6766,376.0,"new york transco, llc",,,
 6766,439.0,missing respondent 515,,,
-6767,370.0,"Mid-Atlantic Interstate Transmission, LLC",,,
+6766,376.0,"new york transco, llc",,,
 6767,370.0,"mid-atlantic interstate transmission, llc",,,
+6767,370.0,"Mid-Atlantic Interstate Transmission, LLC",,,
 6768,375.0,cube yadkin transmission llc,,,
 6768,375.0,missing respondent 517,,,
-6769,371.0,missing respondent 518,,,
 6769,371.0,gridliance west llc,,,
-6771,373.0,"transource pennsylvania, llc",,,
+6769,371.0,missing respondent 518,,,
 6771,440.0,missing respondent 520,,,
+6771,373.0,"transource pennsylvania, llc",,,
 6772,441.0,missing respondent 521,,,
 6772,374.0,"transource maryland, llc",,,
-6773,331.0,"pioneer transmission, llc",,,
 6773,377.0,Trans-Allegheny Interstate Line Company,,,
-6774,355.0,missing respondent 527,,,
+6773,331.0,"pioneer transmission, llc",,,
 6774,355.0,"midamerican central california transco, llc",,,
+6774,355.0,missing respondent 527,,,
 6775,380.0,citizens sycamore-penasquitos transmission llc,,,
 6775,380.0,missing respondent 528,,,
 6778,146.0,missing respondent 900,,,
@@ -6759,8 +6759,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 6820,,,6767.0,Free State Electric LLC,
 6821,,,17129.0,Shreveport-Bossier Port of,
 6822,,,739.0,IPA Operations Inc,
-6823,,,63558.0,Chickahominy Power LLC,
 6823,,,3560.0,Chickahominy Power LLC,
+6823,,,63558.0,Chickahominy Power LLC,
 6824,,,770.0,"Aquila, Inc.",
 6825,,,63843.0,"Ormond Beach Power, LLC",
 6826,,,14207.0,Orion Power Holdings Inc,
@@ -6797,8 +6797,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 6860,,,12617.0,Mirant Americas Inc,
 6861,,,5491.0,Duke Energy North Amer-Murray,
 6862,,,10786.0,Liberty Generating Co LLC,
-6863,,,9271.0,Indeck-Niles LLC,
 6863,,,61395.0,"Indeck Niles, LLC",
+6863,,,9271.0,Indeck-Niles LLC,
 6865,,,50106.0,CED Operating Co LLC,
 6866,,,49934.0,Calpine Eastern Corp-Blue Heron,
 6867,,,16008.0,Ridge Energy Stor&Grid Serv LP,
@@ -7628,8 +7628,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 7744,,,20567.0,Wheelabrator Westchester LP,
 7745,,,63290.0,Taylor Creek Solar LLC,
 7745,144.0,"taylor creek solar, llc",,,
-7746,145.0,"harmony florida solar, llc",,,
 7746,,,63292.0,Harmony Florida Solar LLC,
+7746,145.0,"harmony florida solar, llc",,,
 7747,,,61634.0,"SR Terrell, LLC",
 7748,,,60776.0,Aksamit Resource Management,
 7749,,,64179.0,"Ranchland Wind Storage, LLC",
@@ -10835,8 +10835,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 11016,,,12006.0,mccormick town of,
 11017,,,12030.0,mccook electric coop inc,
 11018,,,12035.0,mcculloch electric coop inc,
-11020,,,12087.0,mckenzie electric coop inc,
 11020,387.0,"mckenzie electric cooperative, inc.",,,
+11020,,,12087.0,mckenzie electric coop inc,
 11021,,,12090.0,mclean electric coop inc,
 11022,,,12155.0,mclennan county elec coop inc,
 11023,,,12187.0,mcminnville city of,
@@ -11544,7 +11544,6 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 11743,,,16992.0,stanton city of,
 11744,,,16993.0,shawmut bank,
 11745,,,17004.0,sharpsburg city of,
-11746,,,17008.0,sharyland utilities lp,
 11747,,,17011.0,shawano municipal utilities,
 11748,,,17022.0,shell offshore inc,
 11749,,,17028.0,sheboygan falls city of,
@@ -11888,8 +11887,8 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 12089,,,19356.0,ultramar diamond shamrock corp,
 12090,,,19383.0,u s bank national assoc,
 12091,,,19384.0,u s military academy,
-12092,,,19389.0,upper missouri g&t el coop inc,
 12092,386.0,"upper missouri g & t electric cooperative, inc. dba upper missouri poe",,,
+12092,,,19389.0,upper missouri g&t el coop inc,
 12093,,,19396.0,tri-county electric coop,
 12094,,,19420.0,usce-wilmgton,
 12095,,,19424.0,undercurrents,
@@ -12668,7 +12667,6 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 12884,,,39184.0,aquila power corp,
 12885,,,39186.0,"aes power, inc",
 12886,,,39188.0,conagra energy services inc,
-12887,,,39240.0,hermiston generating co lp,
 12888,,,40020.0,tate & lyle north am suger inc,
 12889,,,40033.0,midamerican power llc,
 12890,,,40036.0,westfield milling & el lgt co,
@@ -17238,99 +17236,100 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 17474,,,67428.0,NAPS - Hastings LLC,
 17475,,,67426.0,RP SCG Texas Solar LLC,
 17476,,,67432.0,Kelso Community Solar II LLC,
-17476,365.0,"4C Acquisition, Llc",60769.0,"4C Acquisition, LLC",These records were automatically matched based on utility name on 01/27/2026
-17477,113.0,Access Energy Cooperative,16611.0,Access Energy Coop,These records were automatically matched based on utility name on 01/27/2026
-17478,198.0,AEP Texas Central Company,3278.0,AEP Texas Central Company,These records were automatically matched based on utility name on 01/27/2026
-17478,198.0,AEP Texas Central Company,55130.0,AEP Texas Central Company,These records were automatically matched based on utility name on 01/27/2026
-17479,199.0,AEP Texas North Company,20404.0,AEP Texas North Company,These records were automatically matched based on utility name on 01/27/2026
-17480,114.0,AJO Improvement Company,176.0,Ajo Improvement Co,These records were automatically matched based on utility name on 01/27/2026
-17481,81.0,"Alfalfa Electric Cooperative, Inc.",296.0,"Alfalfa Electric Coop, Inc",These records were automatically matched based on utility name on 01/27/2026
-17482,239.0,THE ALLEGHENY GENERATING COMPANY,338.0,Allegheny Generating Company,These records were automatically matched based on utility name on 01/27/2026
-17485,180.0,"American Transmission Systems, Incorporated",56162.0,American Transmission Systems Inc,These records were automatically matched based on utility name on 01/27/2026
-17486,248.0,Baltimore Gas and Electric Company,1167.0,Baltimore Gas & Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17487,54.0,BeeBee Island Corporation,1462.0,Beebee Island Corporation,These records were automatically matched based on utility name on 01/27/2026
-17488,2.0,Blackstone Valley Electric Company,1796.0,Blackstone Valley Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17489,3.0,Boston Edison Company,1998.0,Boston Edison Co,These records were automatically matched based on utility name on 01/27/2026
-17490,4.0,Cambridge Electric Light Company,2886.0,Cambridge Electric Light Co,These records were automatically matched based on utility name on 01/27/2026
-17491,5.0,CANAL ELECTRIC COMPANY,2951.0,Canal Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17492,318.0,"CenterPoint Energy Houston Electric, LLC",8901.0,"CenterPoint Energy Houston Electric, LLC",These records were automatically matched based on utility name on 01/27/2026
-17493,6.0,Central Illinois Light Company,3252.0,Central Illinois Light Co,These records were automatically matched based on utility name on 01/27/2026
-17494,212.0,Central Maine Power Company,3266.0,Central Maine Power Co,These records were automatically matched based on utility name on 01/27/2026
-17495,8.0,Century Power Corporation,316.0,Century Power Corp,These records were automatically matched based on utility name on 01/27/2026
-17496,9.0,CITIZENS' ELECTRIC COMPANY,3597.0,Citizens Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17497,97.0,Citizens Electric Corporation,3600.0,Citizens Electric Corporation,These records were automatically matched based on utility name on 01/27/2026
-17498,406.0,Columbus Southern Power Company,4062.0,Columbus Southern Power Co,These records were automatically matched based on utility name on 01/27/2026
-17499,165.0,Commonwealth Edison Company,4110.0,Commonwealth Edison Co,These records were automatically matched based on utility name on 01/27/2026
-17500,11.0,Commonwealth Electric Company,4089.0,Commonwealth Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17501,57.0,Connexus Energy,689.0,Connexus Energy,These records were automatically matched based on utility name on 01/27/2026
-17502,291.0,Delmarva Power & Light Company,5027.0,Delmarva Power & Light Co,These records were automatically matched based on utility name on 01/27/2026
-17504,284.0,Duquesne Light Company,5487.0,Duquesne Light Co,These records were automatically matched based on utility name on 01/27/2026
-17505,336.0,"EAM Nelson Holding, LLC",58235.0,EAM Nelson Holding LLC,These records were automatically matched based on utility name on 01/27/2026
-17506,13.0,Eastern Edison Company,5389.0,Eastern Edison Co,These records were automatically matched based on utility name on 01/27/2026
-17507,14.0,Edison Sault Electric Company,5659.0,Edison Sault Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17508,109.0,"Entergy Power Ventures, LP",6041.0,Entergy Power Ventures LP,These records were automatically matched based on utility name on 01/27/2026
-17509,15.0,Exeter & Hampton Electric Company,6077.0,Exeter & Hampton Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17510,83.0,First Electric Cooperative Corporation,6342.0,First Electric Coop Corp,These records were automatically matched based on utility name on 01/27/2026
-17511,120.0,"Flowell Electric Association, Inc.",21514.0,"Flowell Electric Assn, Inc",These records were automatically matched based on utility name on 01/27/2026
-17512,62.0,"Graham County Electric Cooperative, Inc.",7456.0,Graham County Electric Coop Inc,These records were automatically matched based on utility name on 01/27/2026
-17513,16.0,Great Bay Power Corporation,5971.0,Great Bay Power Corporation,These records were automatically matched based on utility name on 01/27/2026
-17514,116.0,Hagerstown Light Department,7908.0,Hagerstown Light Department,These records were automatically matched based on utility name on 01/27/2026
-17515,17.0,Holyoke Power and Electric Company,8778.0,Holyoke Power & Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17516,20.0,Illinois Power Company,9208.0,Illinois Power Co,These records were automatically matched based on utility name on 01/27/2026
-17520,61.0,Inland Power & Light Company,8699.0,Inland Power & Light Company,These records were automatically matched based on utility name on 01/27/2026
-17521,21.0,Interstate Power Company,9392.0,Interstate Power Co,These records were automatically matched based on utility name on 01/27/2026
-17522,22.0,Iowa-Illinois Gas and Electric Company,9438.0,Iowa-Illinois Gas&Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17523,337.0,ITC Midwest LLC,56161.0,ITC Midwest LLC,These records were automatically matched based on utility name on 01/27/2026
-17524,23.0,Kanawha Valley Power Company,40045.0,Kanawha Valley Power Co,These records were automatically matched based on utility name on 01/27/2026
-17525,123.0,Kandiyohi  Power Cooperative,9991.0,Kandiyohi Power Coop,These records were automatically matched based on utility name on 01/27/2026
-17527,203.0,Kingsport Power Company,10331.0,Kingsport Power Co,These records were automatically matched based on utility name on 01/27/2026
-17528,24.0,"Long Sault, Inc.",11180.0,Long Sault Inc,These records were automatically matched based on utility name on 01/27/2026
-17529,124.0,Lyon Rural Electric Cooperative,11298.0,Lyon Rural Electric Coop,These records were automatically matched based on utility name on 01/27/2026
-17530,213.0,"Maine Electric Power Company, Inc.",11521.0,"Maine Electric Power Co, Inc",These records were automatically matched based on utility name on 01/27/2026
-17531,302.0,Maine Public Service Company,11522.0,Maine Public Service Co,These records were automatically matched based on utility name on 01/27/2026
-17532,350.0,Maine Yankee Atomic Power Company,11525.0,Maine Yankee Atomic Power Co,These records were automatically matched based on utility name on 01/27/2026
-17533,125.0,McDonough Power Cooperative,12070.0,McDonough Power Coop,These records were automatically matched based on utility name on 01/27/2026
-17534,179.0,Metropolitan Edison Company,12390.0,Metropolitan Edison Co,These records were automatically matched based on utility name on 01/27/2026
-17535,26.0,Midwest Power Systems Inc.,23333.0,"Midwest Power Systems, Inc",These records were automatically matched based on utility name on 01/27/2026
-17537,27.0,"Montana Power Company, The",12825.0,Montana Power Co,These records were automatically matched based on utility name on 01/27/2026
-17538,29.0,Montaup Electric Company,12833.0,Montaup Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17539,68.0,The Morenci Water & Electric Company,12919.0,Morenci Water and Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17540,106.0,"Mountainview Power Company, LLC",13069.0,"Mountainview Power Company, LLC",These records were automatically matched based on utility name on 01/27/2026
-17541,397.0,Mt. Carmel Public Utility Co,13032.0,Mt Carmel Public Utility Co,These records were automatically matched based on utility name on 01/27/2026
-17542,127.0,"Mt. Wheeler Power, Inc.",13073.0,"Mt Wheeler Power, Inc",These records were automatically matched based on utility name on 01/27/2026
-17542,71.0,"Mt. Wheeler Power, Inc.",13073.0,"Mt Wheeler Power, Inc",These records were automatically matched based on utility name on 01/27/2026
-17543,278.0,The Narragansett Electric Company,13214.0,The Narragansett Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17544,274.0,New England Power Company,13433.0,New England Power Company,These records were automatically matched based on utility name on 01/27/2026
-17545,31.0,Newport Electric Corporation,13549.0,Newport Electric Corp,These records were automatically matched based on utility name on 01/27/2026
-17546,275.0,Niagara Mohawk Power Corporation,13573.0,Niagara Mohawk Power Corp.,These records were automatically matched based on utility name on 01/27/2026
-17547,32.0,North Atlantic Energy Corporation,13714.0,North Atlantic Energy Corp,These records were automatically matched based on utility name on 01/27/2026
-17548,128.0,North West Rural Electric Cooperative,17260.0,North West Rural Electric Coop,These records were automatically matched based on utility name on 01/27/2026
-17549,85.0,Northeast Generation Company,27972.0,Northeast Generation Co,These records were automatically matched based on utility name on 01/27/2026
-17550,204.0,Ohio Power Company,14006.0,Ohio Power Co,These records were automatically matched based on utility name on 01/27/2026
-17551,167.0,PECO Energy Company,14940.0,PECO Energy Co,These records were automatically matched based on utility name on 01/27/2026
-17552,49.0,Peoples Electric Cooperative,66748.0,Peoples Electric Cooperative,These records were automatically matched based on utility name on 01/27/2026
-17553,429.0,Pike County Light and Power Company,15045.0,Pike County Light & Power Co,These records were automatically matched based on utility name on 01/27/2026
-17554,108.0,Pinnacle West Capital Corporation,15026.0,Pinnacle West Capital Corp,These records were automatically matched based on utility name on 01/27/2026
-17555,414.0,Pioneer Power and Light Company,15086.0,Pioneer Power and Light Co,These records were automatically matched based on utility name on 01/27/2026
-17556,153.0,"PJM Interconnection, LLC",56095.0,PJM Interconnection LLC,These records were automatically matched based on utility name on 01/27/2026
-17557,84.0,Platte-Clay Electric Cooperative Inc.,15138.0,"Platte-Clay Electric Coop, Inc",These records were automatically matched based on utility name on 01/27/2026
-17558,240.0,THE POTOMAC EDISON COMPANY,15263.0,Potomac Edison Co,These records were automatically matched based on utility name on 01/27/2026
-17559,290.0,Potomac Electric Power Company,15270.0,Potomac Electric Power Co,These records were automatically matched based on utility name on 01/27/2026
-17562,191.0,Rockland Electric Company,16213.0,Rockland Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17564,138.0,"Salmon River Electric Cooperative, Inc.",16565.0,Salmon River Electric Coop Inc,These records were automatically matched based on utility name on 01/27/2026
-17565,73.0,Smarr EMC,22056.0,Smarr EMC,These records were automatically matched based on utility name on 01/27/2026
-17566,34.0,St. Joseph Light & Power Company,17881.0,St Joseph Light & Power Co,These records were automatically matched based on utility name on 01/27/2026
-17568,395.0,"Superior Water, Light and Power Company",18336.0,"Superior Water, Light and Power Co",These records were automatically matched based on utility name on 01/27/2026
-17569,40.0,TXU Electric Company,44372.0,TXU Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17570,269.0,UNITIL Power Corp.,19486.0,UNITIL Power Corp,These records were automatically matched based on utility name on 01/27/2026
-17570,42.0,UNITIL Power Corp.,19486.0,UNITIL Power Corp,These records were automatically matched based on utility name on 01/27/2026
-17571,346.0,Valley Electric Association Inc.,19840.0,"Valley Electric Assn, Inc",These records were automatically matched based on utility name on 01/27/2026
-17572,75.0,"Vermont Electric Cooperative, Inc.",19791.0,"Vermont Electric Cooperative, Inc.",These records were automatically matched based on utility name on 01/27/2026
-17573,308.0,"Vermont Electric Power Company, Inc.",19792.0,"Vermont Electric Power Co, Inc",These records were automatically matched based on utility name on 01/27/2026
-17574,110.0,"Warren Power, LLC",22294.0,Warren Power LLC,These records were automatically matched based on utility name on 01/27/2026
-17576,347.0,Wells Rural Electric Company,20332.0,Wells Rural Electric Co,These records were automatically matched based on utility name on 01/27/2026
-17577,237.0,WEST PENN POWER COMPANY,20387.0,West Penn Power Co,These records were automatically matched based on utility name on 01/27/2026
-17579,137.0,"White River Electric Association, Inc.",20576.0,"White River Electric Assn, Inc",These records were automatically matched based on utility name on 01/27/2026
-17581,44.0,"Yadkin, Inc.",27721.0,Yadkin Inc,These records were automatically matched based on utility name on 01/27/2026
-17581,44.0,"Yadkin, Inc.",55631.0,Yadkin Inc,These records were automatically matched based on utility name on 01/27/2026
-17582,327.0,Yankee Atomic Electric Company,21083.0,Yankee Atomic Electric Co,These records were automatically matched based on utility name on 01/27/2026
+17476,365.0,"4C Acquisition, Llc",60769.0,"4C Acquisition, LLC",These records were automatically matched based on utility name on 02/02/2026
+17477,113.0,Access Energy Cooperative,16611.0,Access Energy Coop,These records were automatically matched based on utility name on 02/02/2026
+17478,198.0,AEP Texas Central Company,55130.0,AEP Texas Central Company,These records were automatically matched based on utility name on 02/02/2026
+17478,198.0,AEP Texas Central Company,3278.0,AEP Texas Central Company,These records were automatically matched based on utility name on 02/02/2026
+17479,199.0,AEP Texas North Company,20404.0,AEP Texas North Company,These records were automatically matched based on utility name on 02/02/2026
+17480,114.0,AJO Improvement Company,176.0,Ajo Improvement Co,These records were automatically matched based on utility name on 02/02/2026
+17481,81.0,"Alfalfa Electric Cooperative, Inc.",296.0,"Alfalfa Electric Coop, Inc",These records were automatically matched based on utility name on 02/02/2026
+17482,239.0,THE ALLEGHENY GENERATING COMPANY,338.0,Allegheny Generating Company,These records were automatically matched based on utility name on 02/02/2026
+17485,180.0,"American Transmission Systems, Incorporated",56162.0,American Transmission Systems Inc,These records were automatically matched based on utility name on 02/02/2026
+17486,248.0,Baltimore Gas and Electric Company,1167.0,Baltimore Gas & Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17487,54.0,BeeBee Island Corporation,1462.0,Beebee Island Corporation,These records were automatically matched based on utility name on 02/02/2026
+17488,2.0,Blackstone Valley Electric Company,1796.0,Blackstone Valley Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17489,3.0,Boston Edison Company,1998.0,Boston Edison Co,These records were automatically matched based on utility name on 02/02/2026
+17490,4.0,Cambridge Electric Light Company,2886.0,Cambridge Electric Light Co,These records were automatically matched based on utility name on 02/02/2026
+17491,5.0,CANAL ELECTRIC COMPANY,2951.0,Canal Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17492,318.0,"CenterPoint Energy Houston Electric, LLC",8901.0,"CenterPoint Energy Houston Electric, LLC",These records were automatically matched based on utility name on 02/02/2026
+17493,6.0,Central Illinois Light Company,3252.0,Central Illinois Light Co,These records were automatically matched based on utility name on 02/02/2026
+17494,212.0,Central Maine Power Company,3266.0,Central Maine Power Co,These records were automatically matched based on utility name on 02/02/2026
+17495,8.0,Century Power Corporation,316.0,Century Power Corp,These records were automatically matched based on utility name on 02/02/2026
+17496,9.0,CITIZENS' ELECTRIC COMPANY,3597.0,Citizens Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17497,97.0,Citizens Electric Corporation,3600.0,Citizens Electric Corporation,These records were automatically matched based on utility name on 02/02/2026
+17498,406.0,Columbus Southern Power Company,4062.0,Columbus Southern Power Co,These records were automatically matched based on utility name on 02/02/2026
+17499,165.0,Commonwealth Edison Company,4110.0,Commonwealth Edison Co,These records were automatically matched based on utility name on 02/02/2026
+17500,11.0,Commonwealth Electric Company,4089.0,Commonwealth Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17501,57.0,Connexus Energy,689.0,Connexus Energy,These records were automatically matched based on utility name on 02/02/2026
+17502,291.0,Delmarva Power & Light Company,5027.0,Delmarva Power & Light Co,These records were automatically matched based on utility name on 02/02/2026
+17504,284.0,Duquesne Light Company,5487.0,Duquesne Light Co,These records were automatically matched based on utility name on 02/02/2026
+17505,336.0,"EAM Nelson Holding, LLC",58235.0,EAM Nelson Holding LLC,These records were automatically matched based on utility name on 02/02/2026
+17506,13.0,Eastern Edison Company,5389.0,Eastern Edison Co,These records were automatically matched based on utility name on 02/02/2026
+17507,14.0,Edison Sault Electric Company,5659.0,Edison Sault Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17508,109.0,"Entergy Power Ventures, LP",6041.0,Entergy Power Ventures LP,These records were automatically matched based on utility name on 02/02/2026
+17509,15.0,Exeter & Hampton Electric Company,6077.0,Exeter & Hampton Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17510,83.0,First Electric Cooperative Corporation,6342.0,First Electric Coop Corp,These records were automatically matched based on utility name on 02/02/2026
+17511,120.0,"Flowell Electric Association, Inc.",21514.0,"Flowell Electric Assn, Inc",These records were automatically matched based on utility name on 02/02/2026
+17512,62.0,"Graham County Electric Cooperative, Inc.",7456.0,Graham County Electric Coop Inc,These records were automatically matched based on utility name on 02/02/2026
+17513,16.0,Great Bay Power Corporation,5971.0,Great Bay Power Corporation,These records were automatically matched based on utility name on 02/02/2026
+17514,116.0,Hagerstown Light Department,7908.0,Hagerstown Light Department,These records were automatically matched based on utility name on 02/02/2026
+17516,17.0,Holyoke Power and Electric Company,8778.0,Holyoke Power & Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17517,20.0,Illinois Power Company,9208.0,Illinois Power Co,These records were automatically matched based on utility name on 02/02/2026
+17521,61.0,Inland Power & Light Company,8699.0,Inland Power & Light Company,These records were automatically matched based on utility name on 02/02/2026
+17522,21.0,Interstate Power Company,9392.0,Interstate Power Co,These records were automatically matched based on utility name on 02/02/2026
+17523,22.0,Iowa-Illinois Gas and Electric Company,9438.0,Iowa-Illinois Gas&Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17524,337.0,ITC Midwest LLC,56161.0,ITC Midwest LLC,These records were automatically matched based on utility name on 02/02/2026
+17525,23.0,Kanawha Valley Power Company,40045.0,Kanawha Valley Power Co,These records were automatically matched based on utility name on 02/02/2026
+17526,123.0,Kandiyohi  Power Cooperative,9991.0,Kandiyohi Power Coop,These records were automatically matched based on utility name on 02/02/2026
+17528,203.0,Kingsport Power Company,10331.0,Kingsport Power Co,These records were automatically matched based on utility name on 02/02/2026
+17529,24.0,"Long Sault, Inc.",11180.0,Long Sault Inc,These records were automatically matched based on utility name on 02/02/2026
+17530,124.0,Lyon Rural Electric Cooperative,11298.0,Lyon Rural Electric Coop,These records were automatically matched based on utility name on 02/02/2026
+17531,213.0,"Maine Electric Power Company, Inc.",11521.0,"Maine Electric Power Co, Inc",These records were automatically matched based on utility name on 02/02/2026
+17532,302.0,Maine Public Service Company,11522.0,Maine Public Service Co,These records were automatically matched based on utility name on 02/02/2026
+17533,350.0,Maine Yankee Atomic Power Company,11525.0,Maine Yankee Atomic Power Co,These records were automatically matched based on utility name on 02/02/2026
+17534,125.0,McDonough Power Cooperative,12070.0,McDonough Power Coop,These records were automatically matched based on utility name on 02/02/2026
+17535,179.0,Metropolitan Edison Company,12390.0,Metropolitan Edison Co,These records were automatically matched based on utility name on 02/02/2026
+17536,26.0,Midwest Power Systems Inc.,23333.0,"Midwest Power Systems, Inc",These records were automatically matched based on utility name on 02/02/2026
+17538,27.0,"Montana Power Company, The",12825.0,Montana Power Co,These records were automatically matched based on utility name on 02/02/2026
+17539,29.0,Montaup Electric Company,12833.0,Montaup Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17540,68.0,The Morenci Water & Electric Company,12919.0,Morenci Water and Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17541,106.0,"Mountainview Power Company, LLC",13069.0,"Mountainview Power Company, LLC",These records were automatically matched based on utility name on 02/02/2026
+17542,397.0,Mt. Carmel Public Utility Co,13032.0,Mt Carmel Public Utility Co,These records were automatically matched based on utility name on 02/02/2026
+17543,127.0,"Mt. Wheeler Power, Inc.",13073.0,"Mt Wheeler Power, Inc",These records were automatically matched based on utility name on 02/02/2026
+17543,71.0,"Mt. Wheeler Power, Inc.",13073.0,"Mt Wheeler Power, Inc",These records were automatically matched based on utility name on 02/02/2026
+17544,278.0,The Narragansett Electric Company,13214.0,The Narragansett Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17545,274.0,New England Power Company,13433.0,New England Power Company,These records were automatically matched based on utility name on 02/02/2026
+17546,31.0,Newport Electric Corporation,13549.0,Newport Electric Corp,These records were automatically matched based on utility name on 02/02/2026
+17547,275.0,Niagara Mohawk Power Corporation,13573.0,Niagara Mohawk Power Corp.,These records were automatically matched based on utility name on 02/02/2026
+17548,32.0,North Atlantic Energy Corporation,13714.0,North Atlantic Energy Corp,These records were automatically matched based on utility name on 02/02/2026
+17549,128.0,North West Rural Electric Cooperative,17260.0,North West Rural Electric Coop,These records were automatically matched based on utility name on 02/02/2026
+17550,85.0,Northeast Generation Company,27972.0,Northeast Generation Co,These records were automatically matched based on utility name on 02/02/2026
+17551,204.0,Ohio Power Company,14006.0,Ohio Power Co,These records were automatically matched based on utility name on 02/02/2026
+17552,167.0,PECO Energy Company,14940.0,PECO Energy Co,These records were automatically matched based on utility name on 02/02/2026
+17553,49.0,Peoples Electric Cooperative,66748.0,Peoples Electric Cooperative,These records were automatically matched based on utility name on 02/02/2026
+17554,429.0,Pike County Light and Power Company,15045.0,Pike County Light & Power Co,These records were automatically matched based on utility name on 02/02/2026
+17555,108.0,Pinnacle West Capital Corporation,15026.0,Pinnacle West Capital Corp,These records were automatically matched based on utility name on 02/02/2026
+17556,414.0,Pioneer Power and Light Company,15086.0,Pioneer Power and Light Co,These records were automatically matched based on utility name on 02/02/2026
+17557,153.0,"PJM Interconnection, LLC",56095.0,PJM Interconnection LLC,These records were automatically matched based on utility name on 02/02/2026
+17558,84.0,Platte-Clay Electric Cooperative Inc.,15138.0,"Platte-Clay Electric Coop, Inc",These records were automatically matched based on utility name on 02/02/2026
+17559,240.0,THE POTOMAC EDISON COMPANY,15263.0,Potomac Edison Co,These records were automatically matched based on utility name on 02/02/2026
+17560,290.0,Potomac Electric Power Company,15270.0,Potomac Electric Power Co,These records were automatically matched based on utility name on 02/02/2026
+17563,191.0,Rockland Electric Company,16213.0,Rockland Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17565,138.0,"Salmon River Electric Cooperative, Inc.",16565.0,Salmon River Electric Coop Inc,These records were automatically matched based on utility name on 02/02/2026
+17566,419.0,"Sharyland Utilities, L.P.",17008.0,Sharyland Utilities LP,These records were automatically matched based on utility name on 02/02/2026
+17567,73.0,Smarr EMC,22056.0,Smarr EMC,These records were automatically matched based on utility name on 02/02/2026
+17568,34.0,St. Joseph Light & Power Company,17881.0,St Joseph Light & Power Co,These records were automatically matched based on utility name on 02/02/2026
+17570,395.0,"Superior Water, Light and Power Company",18336.0,"Superior Water, Light and Power Co",These records were automatically matched based on utility name on 02/02/2026
+17571,40.0,TXU Electric Company,44372.0,TXU Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17572,42.0,UNITIL Power Corp.,19486.0,UNITIL Power Corp,These records were automatically matched based on utility name on 02/02/2026
+17572,269.0,UNITIL Power Corp.,19486.0,UNITIL Power Corp,These records were automatically matched based on utility name on 02/02/2026
+17573,346.0,Valley Electric Association Inc.,19840.0,"Valley Electric Assn, Inc",These records were automatically matched based on utility name on 02/02/2026
+17574,75.0,"Vermont Electric Cooperative, Inc.",19791.0,"Vermont Electric Cooperative, Inc.",These records were automatically matched based on utility name on 02/02/2026
+17575,308.0,"Vermont Electric Power Company, Inc.",19792.0,"Vermont Electric Power Co, Inc",These records were automatically matched based on utility name on 02/02/2026
+17576,110.0,"Warren Power, LLC",22294.0,Warren Power LLC,These records were automatically matched based on utility name on 02/02/2026
+17578,347.0,Wells Rural Electric Company,20332.0,Wells Rural Electric Co,These records were automatically matched based on utility name on 02/02/2026
+17579,237.0,WEST PENN POWER COMPANY,20387.0,West Penn Power Co,These records were automatically matched based on utility name on 02/02/2026
+17581,137.0,"White River Electric Association, Inc.",20576.0,"White River Electric Assn, Inc",These records were automatically matched based on utility name on 02/02/2026
+17583,44.0,"Yadkin, Inc.",27721.0,Yadkin Inc,These records were automatically matched based on utility name on 02/02/2026
+17583,44.0,"Yadkin, Inc.",55631.0,Yadkin Inc,These records were automatically matched based on utility name on 02/02/2026
+17584,327.0,Yankee Atomic Electric Company,21083.0,Yankee Atomic Electric Co,These records were automatically matched based on utility name on 02/02/2026
