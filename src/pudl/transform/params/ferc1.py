@@ -4952,6 +4952,62 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
+    "core_ferc1__yearly_identification": {
+        "rename_columns_ferc1": {
+            "dbf": {
+                "columns": {
+                    "respondent_id": "utility_id_ferc1_dbf",
+                    # "filing_name": "filing_name",
+                    "cntc_phone": "contact_phone",
+                    "respondent_name": "utility_name_ferc1",
+                    "cntc_name": "contact name",
+                    "chg_dt_prev_name": "prior_utility_name_ferc1",  # or "company_name_old"?
+                    "rpt_date": "filing_date",
+                    "date_name_changed": "name_change_date",
+                    "submission_type": "report_filing_type",
+                    "cntc_ttl": "contact_title",
+                    "cntc_addr": "contact_address",
+                    "report_prd": "report_period",
+                    "report_year": "report_year",
+                    "addr_prncpl_offc": "office_street_address",
+                    "attestation_name": "attestation_name",
+                    "attestation_ttl": "attestation_title",
+                    "attestation_date": "attestation_date",
+                    "poc_email": "contact_email",
+                }
+            },
+            "xbrl": {
+                "columns": {
+                    "entity_id": "utility_id_ferc1_xbrl",
+                    # "filing_name": "filing_name",
+                    "publication_time": "publication_date",
+                    "start_date": "start_date",
+                    "end_date": "end_date",
+                    "telephone_of_contact_person": "contact_phone",
+                    "respondent_legal_name": "utility_name_ferc1",
+                    "migrated_data": "is_migrated_data",
+                    "vendor_name": "filing_software_vendor_name",
+                    "name_of_contact_person": "contact name",
+                    "previous_name": "prior_utility_name_ferc1",  # or "company_name_old"?
+                    "report_date": "filing_date",
+                    "name_change_date": "name_change_date",
+                    "form_type": "ferc_form",
+                    "submission_type": "report_filing_type",
+                    "title_of_contact_person": "contact_title",
+                    "address_of_contact_person": "contact_address",
+                    "report_period": "report_period",
+                    "report_year": "report_year",
+                    "company_identifier": "company_id_ferc",
+                    "legal_entity_identifier": "entity_id_gleif",
+                    "address_of_principal_office_at_end_of_period": "office_street_address",
+                    "attestation_title": "attestation_title",
+                    "attestation_name": "attestation_name",
+                    "corporate_officer_certification_signature": "attestation_signature",
+                    "attestation_date": "attestation_date",
+                }
+            },
+        },
+    },
 }
 """The full set of parameters used to transform the FERC Form 1 data.
 

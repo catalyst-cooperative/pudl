@@ -158,6 +158,7 @@ class TableIdFerc1(enum.Enum):
     OTHER_REGULATORY_LIABILITIES = (
         "core_ferc1__yearly_other_regulatory_liabilities_sched278"
     )
+    IDENTIFICATION = "core_ferc1__yearly_identification"
 
 
 ################################################################################
@@ -3067,6 +3068,12 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 params=params,
             )
         return df
+
+
+class IdentificationTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for the :ref:`core_ferc1__yearly_identification` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.IDENTIFICATION
 
 
 class SteamPlantsFuelTableTransformer(Ferc1AbstractTableTransformer):
