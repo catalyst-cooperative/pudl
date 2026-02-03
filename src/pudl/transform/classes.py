@@ -457,7 +457,7 @@ class StringCategories(TransformParams):
                 f
             )
 
-We recommend putting any YAML files within a dataset directory in `pudl/scr/package_data`.
+    We recommend putting any YAML files within a dataset directory in `pudl/scr/package_data`.
     """
 
     na_category: str = "na_category"
