@@ -141,10 +141,13 @@ def drop_records_with_matches(
     assert drop_records[matching_utility_column].isnull().all()
     # Check that no other plants are mapped to this ID before we drop it
     pudl_ids = drop_records.utility_id_pudl
-    assert existing_glue_df[
-        (existing_glue_df.utility_id_pudl.isin(pudl_ids))
-        & (existing_glue_df[matching_utility_column].notnull())
-    ].empty
+    if not (
+        other_records := existing_glue_df[
+            (existing_glue_df.utility_id_pudl.isin(pudl_ids))
+            & (existing_glue_df[matching_utility_column].notnull())
+        ]
+    ).empty:
+        f"Other records are mapped to the ID we want to drop: \n{other_records.reset_index(drop=True)}"
     # Drop these unmatched records so we can replace them with matches.
     logger.info(
         f"Dropping {len(drop_records)} unmatched {entity} records to replace with matches."
