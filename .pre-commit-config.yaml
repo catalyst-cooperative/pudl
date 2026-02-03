@@ -55,7 +55,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.42.1
+    rev: v1.42.3
     hooks:
       - id: typos
         exclude: |

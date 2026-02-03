@@ -327,6 +327,80 @@ with :meth:`pandas.read_sql` and other libraries that understand DBAPI connectio
 * FERC Form 60: ``s3://pudl.catalyst.coop/nightly/ferc60_xbrl.duckdb`` (`direct download <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc60_xbrl.duckdb>`__)
 * FERC Form 714: ``s3://pudl.catalyst.coop/nightly/ferc714_xbrl.duckdb`` (`direct download <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/ferc714_xbrl.duckdb>`__)
 
+.. _access-ferceqr:
+
+FERC EQR (EXPERIMENTAL)
+^^^^^^^^^^^^^^^^^^^^^^^
+
+In early 2026 we started processing and distributing the
+:doc:`FERC Electric Quarterly Reports (EQR) <data_sources/ferceqr>` dataset as a
+partitioned Apache Parquet dataset. Even as Parquet the EQR is close to 100 GB, so
+unlike the other PUDL data products, we can't archive it on Zenodo or provide access to
+multiple historical versions through S3. Instead, we update a single set of outputs in
+S3 on a quarterly basis. The current outputs can be found at:
+
+.. code-block:: bash
+
+   aws s3 ls --no-sign-request s3://pudl.catalyst.coop/ferceqr/
+
+Each of the subdirectories corresponds to a table. Like the main PUDL database, these
+tables are documented in the :doc:`data_dictionaries/pudl_db`:
+
+   * :ref:`core_ferceqr__contracts`
+   * :ref:`core_ferceqr__quarterly_identity`
+   * :ref:`core_ferceqr__quarterly_index_pub`
+   * :ref:`core_ferceqr__transactions`
+
+The subdirectories contain a number of Parquet files (``2025q3.parquet``,
+``2025q2.parquet``, etc.), each containing one quarter of data for that table. Most
+tools for reading Parquet files out of cloud storage are able to query and read from
+many files sharing the same schema at the same time, typically with file globbing
+wildcards. Note that the EQR tables (particularly :ref:`core_ferceqr__transactions`) can
+be much larger than memory, so you will need to select only a subset of the data and/or
+use tools that are designed to work with large data efficiently like `DuckDB
+<https://duckdb.org/docs/stable/>`__ or `Polars <https://docs.pola.rs/>`__. Some brief
+examples:
+
+.. tabs::
+
+   .. tab:: SQL (DuckDB)
+
+      .. code:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'
+         WHERE seller_company_name LIKE '%Bonneville%'
+         LIMIT 10;
+
+  .. tab:: Python (DuckDB/Pandas)
+
+     .. code:: python
+
+        import duckdb
+        import pandas as pd
+        # Query S3 with DuckDB and convert the result to pandas
+        df = duckdb.query("""
+            SELECT *
+            FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'
+            WHERE seller_company_name LIKE '%Bonneville%'
+            LIMIT 10
+        """).to_df()
+
+  .. tab:: Python (Polars)
+
+     .. code:: python
+
+        import polars as pl
+        # Use scan_parquet (lazy evaluation) and filter
+        df = (
+            pl.scan_parquet(
+                "s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet",
+                storage_options={"aws_region": "us-west-2"},
+            )
+            .filter(pl.col("seller_company_name").str.contains("Bonneville"))
+            .head(10)
+            .collect()
+        )
+
 .. _access-zenodo:
 
 ---------------------------------------------------------------------------------------
