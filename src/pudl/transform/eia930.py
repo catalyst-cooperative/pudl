@@ -3,9 +3,11 @@
 from pathlib import Path
 
 import pandas as pd
+import polars as pl
 from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
+from pudl.helpers import ParquetData, persist_table_as_parquet, lf_from_parquet, duckdb_relation_from_parquet
 from pudl.metadata.enums import GENERATION_ENERGY_SOURCES_EIA930
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -16,12 +18,12 @@ logger = pudl.logging_helpers.get_logger(__name__)
         "core_eia930__hourly_net_generation_by_energy_source": AssetOut(
             io_manager_key="parquet_io_manager"
         ),
-        "core_eia930__hourly_operations": AssetOut(io_manager_key="parquet_io_manager"),
+        "core_eia930__hourly_operations": AssetOut(),
     },
     compute_kind="pandas",
 )
 def core_eia930__hourly_operations_assets(
-    raw_eia930__balance: Path,
+    raw_eia930__balance: ParquetData,
 ):
     """Separate raw_eia930__balance into net generation and demand tables.
 
@@ -31,62 +33,57 @@ def core_eia930__hourly_operations_assets(
     is also included, because the reported and calculated totals across all energy
     sources have significant differences which should be further explored.
     """
-    raw_eia930__balance_df = pd.read_parquet(raw_eia930__balance)
     nondata_cols = [
         "datetime_utc",
         "balancing_authority_code_eia",
     ]
-    # Select all columns that aren't energy source specific
-    operations = raw_eia930__balance_df[
-        nondata_cols
-        + list(
-            raw_eia930__balance_df.filter(
-                regex=r"(demand|interchange|net_generation_total)"
+    data_cols = [
+        (f"net_generation_{fuel}_{status}_mwh", f"{fuel}_{status}")
+        for fuel in GENERATION_ENERGY_SOURCES_EIA930
+        for status in ["reported", "adjusted", "imputed"]
+    ]
+    with duckdb_relation_from_parquet(raw_eia930__balance) as (tbl, conn,):
+        conn.sql("SET memory_limit = '16GB';")
+        _ = tbl.select(
+            ", ".join(
+                nondata_cols + [f"COALESCE(CAST({long} AS BIGINT), -1) AS {short}" for long, short in data_cols]
             )
+        ).to_view("raw")
+        _ = conn.query(
+            "UNPIVOT raw "
+            f"ON {', '.join([short for _, short in data_cols])} "
+            "INTO NAME category VALUE net_generation_mwh",
+        ).to_view("long")
+        _ = conn.query(
+            "SELECT * EXCLUDE(category), "
+            "regexp_extract(category, '^(.*)_([^_]*)$', 1) AS generation_energy_source, "
+            "regexp_extract(generation_energy_source, '^(.*)_([^_]*)$', 2) AS value_type "
+            "FROM long",
+        ).to_view("long_cols_split")
+        table = conn.query(
+            "PIVOT long_cols_split "
+            "ON value_type "
+            "USING first(net_generation_mwh)"
         )
-    ].rename(columns=lambda x: x.replace("net_generation_total_", "net_generation_"))
-    # Select only the columns that pertain to individual energy sources. Note that for
-    # the "unknown" energy source there are only "reported" values.
-    netgen_by_source = (
-        raw_eia930__balance_df[
-            nondata_cols
-            + [
-                f"net_generation_{fuel}_{status}_mwh"
-                for fuel in GENERATION_ENERGY_SOURCES_EIA930
-                for status in ["reported", "adjusted", "imputed"]
-            ]
-        ]
-        .rename(
-            # Rename columns so that they contain only the energy source and the level
-            # of processing with the pattern: energysource_levelofprocessing so the
-            # column name can be rsplit on "_" to build a MultiIndex before stacking.
-            lambda col: col.removeprefix("net_generation_").removesuffix("_mwh"),
-            axis="columns",
-        )
-        .set_index(nondata_cols)
-    )
-    netgen_by_source.columns = pd.MultiIndex.from_tuples(
-        # Some of our energy sources have multiple terms in them, so we rsplit on
-        # a maximum of one underscore to ensure we get the exact two results we need:
-        [x.rsplit("_", maxsplit=1) for x in netgen_by_source.columns],
-        names=["generation_energy_source", None],
-    )
-    netgen_by_source = (
-        netgen_by_source.stack(level="generation_energy_source", future_stack=True)
-        .rename(columns=lambda x: f"net_generation_{x}_mwh")
-        .reset_index()
-    )
+        table.to_parquet("test.parquet")
 
-    netgen_by_source = netgen_by_source.rename(
-        columns={"net_generation_imputed_mwh": "net_generation_imputed_eia_mwh"}
-    )
+    # Select all columns that aren't energy source specific
+    """
+    operations = raw_eia930__balance_lf.select(
+        pl.col(nondata_cols),
+        pl.selectors.contains("demand", "interchange", "net_generation_total"),
+    ).rename(lambda x: x.replace("net_generation_total_", "net_generation_"))
+    """
+    # Select only the columns that pertain to individual energy sources. Note that for
+    """
     operations = operations.rename(
-        columns={
+        mapping={
             "net_generation_imputed_mwh": "net_generation_imputed_eia_mwh",
             "demand_imputed_mwh": "demand_imputed_eia_mwh",
             "interchange_imputed_mwh": "interchange_imputed_eia_mwh",
         }
     )
+    """
 
     # NOTE: currently there are some BIG differences between the calculated totals and
     # the reported for net generation.
@@ -96,7 +93,7 @@ def core_eia930__hourly_operations_assets(
             output_name="core_eia930__hourly_net_generation_by_energy_source",
         ),
         Output(
-            value=operations,
+            value=None,
             output_name="core_eia930__hourly_operations",
         ),
     )
