@@ -471,7 +471,6 @@ class StringCategories(TransformParams):
     @classmethod
     def maybe_load_categories(cls, v):
         """If categories was specified as a Path, load it from disk."""
-        # deserialize categories from disk if needed
         if isinstance(v, Path):
             with v.open() as f:
                 data = yaml.safe_load(f)
