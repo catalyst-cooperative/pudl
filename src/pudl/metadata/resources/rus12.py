@@ -145,9 +145,6 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_renewable_plants": {
         "description": {
             "additional_summary_text": (
@@ -155,27 +152,27 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C RE)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
+                "plant_name_rus",
                 "prime_mover_id",
                 "prime_mover_type",
-                "primary_renewable_fuel_type_id",
+                "primary_renewable_fuel_type_id",  # could maybe get rid of this?
                 "primary_renewable_fuel_type",
                 "renewable_fuel_pct",
-                "capacity_kw",  # TODO: convert to mw
+                "capacity_mw",
                 "net_generation_mwh",
                 "capacity_factor",
                 "employees_num",
-                "total_opex_dollars_per_mwh",
+                "opex_dollars_per_mwh",
                 "power_cost_dollars_per_mwh",
-                "total_investment_thousand_dollars",  # TODO: convert to dollars
+                "invested",
                 "ownership_pct",
-                "rus_funding_thousand_dollars",  # TODO: convert to dollars
+                "rus_funding",
                 "comments",
             ],
             "primary_key": [
@@ -189,6 +186,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_statement_of_operations": {  # Need to decide how to split this up
         "description": {
             "additional_summary_text": (
