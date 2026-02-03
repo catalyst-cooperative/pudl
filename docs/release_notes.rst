@@ -96,7 +96,7 @@ Quality of Life Improvements
 * Added handling to :class:`pudl.transform.classes.StringCategories` so that the
   ``categories`` key of transform params can be specified as a Path to a YAML file.
   This will make it possible to include large categorization sets without the params
-  Python files becoming unwieldy.
+  Python files becoming unwieldy. See PR :pr:`4978`.
 
 .. _release-v2026.1.0:
 
