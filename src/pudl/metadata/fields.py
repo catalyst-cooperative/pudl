@@ -1605,20 +1605,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether limited on-site fuel storage is a factor that limits the generator's ability to switch between oil and natural gas."
         ),
     },
-    "debt_balance_end_of_report_year": {
+    "debt_description": {"type": "string", "description": "The"},
+    "debt_ending_balance": {
         "type": "number",
         "description": (
             "The amount of principal still owned on the debt at the end of the report year."
         ),
         "unit": "USD",
     },
-    "debt_description": {"type": "string", "description": "The"},
-    "debt_interest_billed": {
+    "debt_interest": {
         "type": "number",
         "description": ("The interest expense on the debt for the report year."),
         "unit": "USD",
     },
-    "debt_principal_billed": {
+    "debt_principal": {
         "type": "number",
         "description": ("The principal paid on the debt during the report year."),
         "unit": "USD",

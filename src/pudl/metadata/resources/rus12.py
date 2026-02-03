@@ -99,7 +99,6 @@ RESOURCE_METADATA = {
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section H)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
@@ -107,18 +106,15 @@ RESOURCE_METADATA = {
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "debt_description",
-                "debt_balance_end_of_report_year",
-                "debt_interest_billed",
-                "debt_principal_billed",
+                "debt_ending_balance",
+                "debt_interest",
+                "debt_principal",
             ],
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__scd_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
@@ -137,6 +133,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
+                "state",
             ],
             "primary_key": [
                 "report_date",
@@ -148,6 +145,9 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_renewable_plants": {
         "description": {
             "additional_summary_text": (

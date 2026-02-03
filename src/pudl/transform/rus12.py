@@ -64,8 +64,7 @@ def core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
     return df
 
 
-# TODO: feed all rus12 tables into this and extract info
-@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__scd_borrowers(raw_rus12__borrowers):
     """Transform the core_rus12__scd_borrowers table."""
     df = rus.early_transform(raw_df=raw_rus12__borrowers)
