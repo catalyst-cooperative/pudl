@@ -186,6 +186,36 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__yearly_lines_stations_labor_materials_cost": {
+        "description": {
+            "additional_summary_text": (
+                "labor and material cost for lines and stations operated by RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part I - Section C)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "labor_or_material",
+                "operation_or_maintenance",
+                "lines_or_stations",
+                "cost",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "labor_or_material",
+                "operation_or_maintenance",
+                "lines_or_stations",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
 }
 
 DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -243,38 +273,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "plant_name_rus",
                 "plant_type",  # this should be the primary key but there are duplicates for borrower_oid IA0084 and plant Walter Scott
-            ],
-        },
-        "sources": ["rus12"],
-        "etl_group": "rus12",
-        "field_namespace": "rus",
-    },
-    "core_rus12__yearly_lines_and_stations_labor_materials": {
-        "description": {
-            "additional_summary_text": (
-                "labor and material cost for lines and stations operated by RUS borrowers."
-            ),
-            "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part I - Section C)",
-            "additional_details_text": "",
-        },
-        "schema": {
-            "fields": [
-                "report_date",
-                "borrower_id_rus",
-                "borrower_name_rus",
-                "employees_num",  # might want to separate this out.
-                "labor_or_material",
-                "operation_or_maintenance",
-                "lines_or_stations",
-                "cost",
-            ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-                "labor_or_material",
-                "operation_or_maintenance",
-                "lines_or_stations",
             ],
         },
         "sources": ["rus12"],

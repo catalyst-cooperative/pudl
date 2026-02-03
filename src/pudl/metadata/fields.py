@@ -1323,6 +1323,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "type": "string",
     },
+    "cost": {
+        "type": "number",
+        "description": "Cost value.",
+        "unit": "USD",
+    },
     "county": {"type": "string", "description": "County name."},
     "county_id_fips": {
         "type": "string",
@@ -4221,6 +4226,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
+    "labor_or_material": {
+        "type": "string",
+        "description": (
+            "Indicates whether the cost reported is for labor or material."
+        ),
+        "constraints": {"enum": ["labor", "material"]},
+    },
+    "lines_or_stations": {
+        "type": "string",
+        "description": (
+            "Indicates whether the cost reported pertains to  lines or stations."
+        ),
+        "constraints": {"enum": ["lines", "stations"]},
+    },
     "load_management_annual_actual_peak_reduction_mw": {
         "type": "number",
         "description": (
@@ -5045,6 +5064,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The operating voltage, expressed kilo-volts, for three-phase 60 cycle alternative current transmission lines."
         ),
         "unit": "KV",
+    },
+    "operation_or_maintenance": {
+        "type": "string",
+        "description": (
+            "Indicates whether the expenditure is for operation or maintenance."
+        ),
+        "constraints": {"enum": ["operation", "maintenance"]},
     },
     "operational_status": {
         "type": "string",

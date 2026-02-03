@@ -105,7 +105,7 @@ def core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt):
     return rus.early_transform(raw_df=raw_rus12__long_term_debt)
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_lines_stations_labor_materials_cost(
     raw_rus12__lines_and_stations_labor_materials,
 ):
