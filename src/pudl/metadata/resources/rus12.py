@@ -10,7 +10,6 @@ RESOURCE_METADATA = {
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section I)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
@@ -109,6 +108,7 @@ RESOURCE_METADATA = {
                 "debt_ending_balance",
                 "debt_interest",
                 "debt_principal",
+                "debt_total",
             ],
         },
         "sources": ["rus12"],
@@ -168,8 +168,8 @@ RESOURCE_METADATA = {
                 "net_generation_mwh",
                 "capacity_factor",
                 "employees_num",
-                "opex_dollars_per_mwh",
-                "power_cost_dollars_per_mwh",
+                "opex_per_mwh",
+                "power_cost_per_mwh",
                 "invested",
                 "ownership_pct",
                 "rus_funding",

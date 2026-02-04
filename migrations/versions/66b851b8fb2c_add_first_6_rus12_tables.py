@@ -1,8 +1,8 @@
-"""rus12
+"""Add first 6 rus12 tables
 
-Revision ID: df0d2dc875f8
+Revision ID: 66b851b8fb2c
 Revises: 9c66ca6fcafa
-Create Date: 2026-02-03 15:36:18.837804
+Create Date: 2026-02-04 13:32:25.892553
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'df0d2dc875f8'
+revision = '66b851b8fb2c'
 down_revision = '9c66ca6fcafa'
 branch_labels = None
 depends_on = None
@@ -60,7 +60,8 @@ def upgrade() -> None:
     sa.Column('debt_description', sa.Text(), nullable=True, comment='The'),
     sa.Column('debt_ending_balance', sa.Float(), nullable=True, comment='The amount of principal still owned on the debt at the end of the report year.'),
     sa.Column('debt_interest', sa.Float(), nullable=True, comment='The interest expense on the debt for the report year.'),
-    sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.')
+    sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.'),
+    sa.Column('debt_total', sa.Float(), nullable=True, comment='The total amount of debt.')
     )
     op.create_table('core_rus12__yearly_meeting_and_board',
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
@@ -82,16 +83,16 @@ def upgrade() -> None:
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
     sa.Column('plant_name_rus', sa.Text(), nullable=False, comment='Name of the plant as reported to RUS.'),
     sa.Column('prime_mover_id', sa.Integer(), nullable=False, comment='Unique numeric identifier for each prime mover type used by RUS borrowers.'),
-    sa.Column('prime_mover_type', sa.Text(), nullable=True, comment='Type of prime mover (e.g. Hydro, Internal Combustion).'),
+    sa.Column('prime_mover_type', sa.Enum('Hydro', 'Internal Combustion', 'Large Wind', 'Steam', 'Photovoltaic'), nullable=True, comment='Type of prime mover (e.g. Hydro, Internal Combustion).'),
     sa.Column('primary_renewable_fuel_type_id', sa.Integer(), nullable=True, comment='Unique numeric identifier for each renewable fuel type.'),
-    sa.Column('primary_renewable_fuel_type', sa.Text(), nullable=True, comment='Primary renewable fuel type used by the plant.'),
+    sa.Column('primary_renewable_fuel_type', sa.Enum('Hydro', 'Methane - landfill gas', 'Wind', 'Biomass - wood', 'Methane - waste', 'Hybrid', 'Solar - photvoltaic', 'Solar - thermal generation', 'Other'), nullable=True, comment='Primary renewable fuel type used by the plant.'),
     sa.Column('renewable_fuel_pct', sa.Float(), nullable=True, comment='Percentage of renewable fuel used.'),
     sa.Column('capacity_mw', sa.Float(), nullable=True, comment='Total installed (nameplate) capacity, in megawatts.'),
     sa.Column('net_generation_mwh', sa.Float(), nullable=True, comment='Net electricity generation for the specified period in megawatt-hours (MWh).'),
     sa.Column('capacity_factor', sa.Float(), nullable=True, comment='Fraction of potential generation that was actually reported for a plant part.'),
     sa.Column('employees_num', sa.Integer(), nullable=True, comment='Number of employees.'),
-    sa.Column('opex_dollars_per_mwh', sa.Float(), nullable=True, comment='Total operating expenses per mwh generated (USD/MWh).'),
-    sa.Column('power_cost_dollars_per_mwh', sa.Float(), nullable=True, comment='The cost of power per mwh.'),
+    sa.Column('opex_per_mwh', sa.Float(), nullable=True, comment='Total production expenses (USD per MWh generated).'),
+    sa.Column('power_cost_per_mwh', sa.Float(), nullable=True, comment='The cost of power per mwh.'),
     sa.Column('invested', sa.Float(), nullable=True, comment='The amount of money invested.'),
     sa.Column('ownership_pct', sa.Float(), nullable=True, comment='Percentage of the plant owned by the respondent.'),
     sa.Column('rus_funding', sa.Float(), nullable=True, comment='Amount of funding received from the Rural Utilities Service (RUS).'),

@@ -13,3 +13,4 @@ sources:
           - name: debt_ending_balance
           - name: debt_interest
           - name: debt_principal
+          - name: debt_total

@@ -966,3 +966,22 @@ LIABILITY_TYPES_RUS12: set[str] = [
     "accumulated_deferred_income_taxes_credits",
     "total_liabilities_and_other_credits",
 ]
+
+PRIME_MOVER_TYPES_RUS12: set[str] = [
+    "Hydro",
+    "Internal Combustion",
+    "Large Wind",
+    "Steam",
+    "Photovoltaic",
+]
+RENEWABLE_FUEL_TYPES_RUS12: set[str] = [
+    "Hydro",
+    "Methane - landfill gas",
+    "Wind",
+    "Biomass - wood",
+    "Methane - waste",
+    "Hybrid",
+    "Solar - photvoltaic",
+    "Solar - thermal generation",
+    "Other",
+]

@@ -19,8 +19,8 @@ sources:
           - name: net_generation_mwh
           - name: capacity_factor
           - name: employees_num
-          - name: opex_dollars_per_mwh
-          - name: power_cost_dollars_per_mwh
+          - name: opex_per_mwh
+          - name: power_cost_per_mwh
           - name: invested
           - name: ownership_pct
           - name: rus_funding

@@ -43,7 +43,9 @@ from pudl.metadata.enums import (
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
     PLANT_PARTS,
+    PRIME_MOVER_TYPES_RUS12,
     RELIABILITY_STANDARDS,
+    RENEWABLE_FUEL_TYPES_RUS12,
     REVENUE_CLASSES_EIA176,
     REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
@@ -1626,6 +1628,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "debt_principal": {
         "type": "number",
         "description": ("The principal paid on the debt during the report year."),
+        "unit": "USD",
+    },
+    "debt_total": {
+        "type": "number",
+        "description": ("The total amount of debt."),
         "unit": "USD",
     },
     "depreciation_type": {
@@ -5149,11 +5156,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "USD",
     },
-    "opex_dollars_per_mwh": {
-        "type": "number",
-        "description": ("Total operating expenses per mwh generated (USD/MWh)."),
-        "unit": "USD/MWh",
-    },
     "opex_electric": {
         "type": "number",
         "description": "Production expenses: electric expenses (USD).",
@@ -5997,7 +5999,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "power_cost_dollars_per_mwh": {
+    "power_cost_per_mwh": {
         "type": "number",
         "description": ("The cost of power per mwh."),
         "unit": "USD/MWh",
@@ -6069,10 +6071,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "primary_renewable_fuel_type": {
         "type": "string",
         "description": ("Primary renewable fuel type used by the plant."),
+        "constraints": {
+            "enum": RENEWABLE_FUEL_TYPES_RUS12,
+        },
     },
     "primary_renewable_fuel_type_id": {
         "type": "integer",
         "description": ("Unique numeric identifier for each renewable fuel type."),
+        "constraints": {
+            "enum": list(range(1, 16)),
+        },
     },
     "primary_transportation_mode_code": {
         "type": "string",
@@ -6095,6 +6103,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "prime_mover_type": {
         "type": "string",
         "description": "Type of prime mover (e.g. Hydro, Internal Combustion).",
+        "constraints": {
+            "enum": PRIME_MOVER_TYPES_RUS12,
+        },
     },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
     "program": {

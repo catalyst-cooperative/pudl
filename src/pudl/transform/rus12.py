@@ -77,7 +77,7 @@ def core_rus12__scd_borrowers(raw_rus12__borrowers):
 
 @asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
-    """Transform the core_rus12__yearly_renewable_plant table."""
+    """Transform the core_rus12__yearly_renewable_plants table."""
     df = rus.early_transform(raw_df=raw_rus12__renewable_plants)
 
     # Convert date_created to datetime
