@@ -33,26 +33,33 @@ def _transform_netgen_by_source(
         for status in statuses
     ]
 
+    # Select only the columns that pertain to individual energy sources. Note that for
+    # the "unknown" energy source there are only "reported" values.
     table.select(
         ", ".join(
             nondata_cols
             + [
+                # Set NULL vals to -1 to avoid rows being dropped in UNPIVOT
                 f"COALESCE(CAST({long} AS FLOAT), -1) AS {short}"
                 for long, short in data_cols
             ]
         )
     ).to_view("raw")
     conn.query(
+        # Transform wide table to long
+        # category column will contain values formatted like ``{energy_source}_{adjusted|imputed|reported}``
         "UNPIVOT raw "
         f"ON {', '.join([short for _, short in data_cols])} "
         "INTO NAME category VALUE net_generation_mwh",
     ).select(
+        # Split category column to separate generation_energy_source and status columns
         "* EXCLUDE(category, net_generation_mwh), "
         "regexp_extract(category, '^(.*)_([^_]*)$', 1) AS generation_energy_source, "
         "regexp_extract(category, '^(.*)_([^_]*)$', 2) AS value_type, "
         "CASE WHEN net_generation_mwh = -1 THEN NULL ELSE net_generation_mwh END as net_generation_mwh"
     ).to_view("long")
     netgen_by_source = (
+        # Widen table slightly contain one column per status
         conn.query("PIVOT long ON value_type USING first(net_generation_mwh)")
         .select(
             f"* EXCLUDE({', '.join(statuses)}), "
@@ -68,12 +75,41 @@ def _transform_netgen_by_source(
     )
 
 
+def _transform_hourly_operations(
+    table: duckdb.DuckDBPyRelation, conn: duckdb.DuckDBPyConnection
+) -> ParquetData:
+    """Transform the eia930 hourly operations table."""
+    operations = table.select(
+        duckdb.ColumnExpression("datetime_utc"),
+        duckdb.ColumnExpression("balancing_authority_code_eia"),
+        duckdb.ColumnExpression("net_generation_total_reported_mwh").alias(
+            "net_generation_reported_mwh"
+        ),
+        duckdb.ColumnExpression("net_generation_total_adjusted_mwh").alias(
+            "net_generation_adjusted_mwh"
+        ),
+        duckdb.ColumnExpression("net_generation_total_imputed_mwh").alias(
+            "net_generation_imputed_eia_mwh"
+        ),
+        duckdb.ColumnExpression("interchange_reported_mwh"),
+        duckdb.ColumnExpression("interchange_adjusted_mwh"),
+        duckdb.ColumnExpression("interchange_imputed_mwh").alias(
+            "interchange_imputed_eia_mwh"
+        ),
+        duckdb.ColumnExpression("demand_reported_mwh"),
+        duckdb.ColumnExpression("demand_adjusted_mwh"),
+        duckdb.ColumnExpression("demand_imputed_mwh").alias("demand_imputed_eia_mwh"),
+        duckdb.ColumnExpression("demand_forecast_mwh"),
+    )
+    return persist_table_as_parquet(operations, "core_eia930__hourly_operations")
+
+
 @multi_asset(
     outs={
         "core_eia930__hourly_net_generation_by_energy_source": AssetOut(
             io_manager_key="parquet_io_manager"
         ),
-        "core_eia930__hourly_operations": AssetOut(),
+        "core_eia930__hourly_operations": AssetOut(io_manager_key="parquet_io_manager"),
     },
     compute_kind="pandas",
 )
@@ -94,24 +130,7 @@ def core_eia930__hourly_operations_assets(
     ):
         conn.sql("SET memory_limit = '16GB';")
         netgen_parquet = _transform_netgen_by_source(tbl, conn)
-
-    # Select all columns that aren't energy source specific
-    """
-    operations = raw_eia930__balance_lf.select(
-        pl.col(nondata_cols),
-        pl.selectors.contains("demand", "interchange", "net_generation_total"),
-    ).rename(lambda x: x.replace("net_generation_total_", "net_generation_"))
-    """
-    # Select only the columns that pertain to individual energy sources. Note that for
-    """
-    operations = operations.rename(
-        mapping={
-            "net_generation_imputed_mwh": "net_generation_imputed_eia_mwh",
-            "demand_imputed_mwh": "demand_imputed_eia_mwh",
-            "interchange_imputed_mwh": "interchange_imputed_eia_mwh",
-        }
-    )
-    """
+        operations = _transform_hourly_operations(tbl, conn)
 
     # NOTE: currently there are some BIG differences between the calculated totals and
     # the reported for net generation.
@@ -121,7 +140,7 @@ def core_eia930__hourly_operations_assets(
             output_name="core_eia930__hourly_net_generation_by_energy_source",
         ),
         Output(
-            value=None,
+            value=lf_from_parquet(operations),
             output_name="core_eia930__hourly_operations",
         ),
     )
