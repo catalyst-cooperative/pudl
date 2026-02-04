@@ -63,6 +63,12 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* We added an automatic script to help match FERC and EIA utilities with near-identical
+  utility names as part of our ongoing data updates. As a result, we have matched an
+  additional 115 utilities and resolved a small handful of cases where a utility was
+  mapped to more than one PUDL ID. See :issue:`1317`, :issue:`4934` and :issue:`4913`,
+  as well as PR :pr:`4975`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
