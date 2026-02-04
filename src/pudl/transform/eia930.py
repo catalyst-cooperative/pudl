@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import duckdb
 import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
@@ -15,6 +16,56 @@ from pudl.helpers import (
 from pudl.metadata.enums import GENERATION_ENERGY_SOURCES_EIA930
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+def _transform_netgen_by_source(
+    table: duckdb.DuckDBPyRelation, conn: duckdb.DuckDBPyConnection
+) -> ParquetData:
+    """Transform the eia930 netgen by source table."""
+    statuses = ["reported", "adjusted", "imputed"]
+    nondata_cols = [
+        "datetime_utc",
+        "balancing_authority_code_eia",
+    ]
+    data_cols = [
+        (f"net_generation_{fuel}_{status}_mwh", f"{fuel}_{status}")
+        for fuel in GENERATION_ENERGY_SOURCES_EIA930
+        for status in statuses
+    ]
+
+    table.select(
+        ", ".join(
+            nondata_cols
+            + [
+                f"COALESCE(CAST({long} AS FLOAT), -1) AS {short}"
+                for long, short in data_cols
+            ]
+        )
+    ).to_view("raw")
+    conn.query(
+        "UNPIVOT raw "
+        f"ON {', '.join([short for _, short in data_cols])} "
+        "INTO NAME category VALUE net_generation_mwh",
+    ).select(
+        "* EXCLUDE(category, net_generation_mwh), "
+        "regexp_extract(category, '^(.*)_([^_]*)$', 1) AS generation_energy_source, "
+        "regexp_extract(category, '^(.*)_([^_]*)$', 2) AS value_type, "
+        "CASE WHEN net_generation_mwh = -1 THEN NULL ELSE net_generation_mwh END as net_generation_mwh"
+    ).to_view("long")
+    netgen_by_source = (
+        conn.query("PIVOT long ON value_type USING first(net_generation_mwh)")
+        .select(
+            f"* EXCLUDE({', '.join(statuses)}), "
+            "imputed as net_generation_imputed_eia_mwh, "
+            "reported as net_generation_reported_mwh, "
+            "adjusted as net_generation_adjusted_mwh"
+        )
+        .order("datetime_utc, balancing_authority_code_eia, generation_energy_source")
+    )
+
+    return persist_table_as_parquet(
+        netgen_by_source, "core_eia930__hourly_net_generation_by_energy_source"
+    )
 
 
 @multi_asset(
@@ -37,56 +88,12 @@ def core_eia930__hourly_operations_assets(
     is also included, because the reported and calculated totals across all energy
     sources have significant differences which should be further explored.
     """
-    statuses = ["reported", "adjusted", "imputed"]
-    nondata_cols = [
-        "datetime_utc",
-        "balancing_authority_code_eia",
-    ]
-    data_cols = [
-        (f"net_generation_{fuel}_{status}_mwh", f"{fuel}_{status}")
-        for fuel in GENERATION_ENERGY_SOURCES_EIA930
-        for status in statuses
-    ]
     with duckdb_relation_from_parquet(raw_eia930__balance) as (
         tbl,
         conn,
     ):
         conn.sql("SET memory_limit = '16GB';")
-        tbl.select(
-            ", ".join(
-                nondata_cols
-                + [
-                    f"COALESCE(CAST({long} AS FLOAT), -1) AS {short}"
-                    for long, short in data_cols
-                ]
-            )
-        ).to_view("raw")
-        conn.query(
-            "UNPIVOT raw "
-            f"ON {', '.join([short for _, short in data_cols])} "
-            "INTO NAME category VALUE net_generation_mwh",
-        ).select(
-            "* EXCLUDE(category, net_generation_mwh), "
-            "regexp_extract(category, '^(.*)_([^_]*)$', 1) AS generation_energy_source, "
-            "regexp_extract(category, '^(.*)_([^_]*)$', 2) AS value_type, "
-            "CASE WHEN net_generation_mwh = -1 THEN NULL ELSE net_generation_mwh END as net_generation_mwh"
-        ).to_view("long")
-        netgen_by_source = (
-            conn.query("PIVOT long ON value_type USING first(net_generation_mwh)")
-            .select(
-                f"* EXCLUDE({', '.join(statuses)}), "
-                "imputed as net_generation_imputed_eia_mwh, "
-                "reported as net_generation_reported_mwh, "
-                "adjusted as net_generation_adjusted_mwh"
-            )
-            .order(
-                "datetime_utc, balancing_authority_code_eia, generation_energy_source"
-            )
-        )
-
-        netgen_parquet = persist_table_as_parquet(
-            netgen_by_source, "core_eia930__hourly_net_generation_by_energy_source"
-        )
+        netgen_parquet = _transform_netgen_by_source(tbl, conn)
 
     # Select all columns that aren't energy source specific
     """
