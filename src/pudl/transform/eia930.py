@@ -1,5 +1,7 @@
 """Module to perform data cleaning functions on EIA930 data tables."""
 
+import re
+
 import duckdb
 from dagster import AssetOut, Output, asset, multi_asset
 
@@ -77,27 +79,23 @@ def _transform_hourly_operations(
     table: duckdb.DuckDBPyRelation, conn: duckdb.DuckDBPyConnection
 ) -> ParquetData:
     """Transform the eia930 hourly operations table."""
+    nondata_cols = [
+        "datetime_utc",
+        "balancing_authority_code_eia",
+    ]
+    data_col_pattern = r"(demand|interchange|net_generation_total)"
+
+    # Grab columns and rename as needed
     operations = table.select(
-        duckdb.ColumnExpression("datetime_utc"),
-        duckdb.ColumnExpression("balancing_authority_code_eia"),
-        duckdb.ColumnExpression("net_generation_total_reported_mwh").alias(
-            "net_generation_reported_mwh"
-        ),
-        duckdb.ColumnExpression("net_generation_total_adjusted_mwh").alias(
-            "net_generation_adjusted_mwh"
-        ),
-        duckdb.ColumnExpression("net_generation_total_imputed_mwh").alias(
-            "net_generation_imputed_eia_mwh"
-        ),
-        duckdb.ColumnExpression("interchange_reported_mwh"),
-        duckdb.ColumnExpression("interchange_adjusted_mwh"),
-        duckdb.ColumnExpression("interchange_imputed_mwh").alias(
-            "interchange_imputed_eia_mwh"
-        ),
-        duckdb.ColumnExpression("demand_reported_mwh"),
-        duckdb.ColumnExpression("demand_adjusted_mwh"),
-        duckdb.ColumnExpression("demand_imputed_mwh").alias("demand_imputed_eia_mwh"),
-        duckdb.ColumnExpression("demand_forecast_mwh"),
+        *[
+            duckdb.ColumnExpression(name).alias(
+                name.replace("net_generation_total_", "net_generation_").replace(
+                    "imputed_mwh", "imputed_eia_mwh"
+                )
+            )
+            for name in table.columns
+            if name in nondata_cols or re.search(data_col_pattern, name)
+        ],
     )
     return persist_table_as_parquet(operations, "core_eia930__hourly_operations")
 
