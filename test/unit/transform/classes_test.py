@@ -10,12 +10,14 @@ import enum
 import random
 from contextlib import nullcontext as does_not_raise
 from datetime import date
+from pathlib import Path
 from string import ascii_letters
 from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
 import pytest
+import yaml
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pydantic import ValidationError
 
@@ -181,6 +183,24 @@ ANIMAL_CATS: dict[str, set[str]] = {
         },
     },
 }
+
+
+@pytest.fixture
+def inline_animal_cats() -> dict[str, set[str]]:
+    """Fixture for a version of ANIMAL_CATS where the categories dict is defined inline."""
+    return ANIMAL_CATS
+
+
+@pytest.fixture
+def serialized_animal_cats(tmp_path) -> dict[str, Path]:
+    """Fixture for a version of ANIMAL_CATS where the categories dict must be loaded from disk."""
+    serialized_cats = tmp_path / "animal_cats.yml"
+    # proper format is just the category data, as sorted lists
+    serialized_cats.write_text(
+        yaml.dump({cat: sorted(val) for cat, val in ANIMAL_CATS["categories"].items()})
+    )
+    return {"categories": serialized_cats}
+
 
 STRING_PARAMS = {
     "test_table": {
@@ -609,12 +629,32 @@ def test_normalize_strings(series: pd.Series, expected: pd.Series, params) -> No
 
 
 @pytest.mark.parametrize(
-    "series,expected,params", [(STRING_DATA.norm, STRING_DATA.cat, ANIMAL_CATS)]
+    "series,expected,params",
+    [
+        (STRING_DATA.norm, STRING_DATA.cat, "inline_animal_cats"),
+        (STRING_DATA.norm, STRING_DATA.cat, "serialized_animal_cats"),
+    ],
 )
-def test_categorize_strings(series: pd.Series, expected: pd.Series, params) -> None:
+def test_categorize_strings(
+    series: pd.Series, expected: pd.Series, params, request
+) -> None:
     """Test string categorization function in isolation."""
-    categorized = categorize_strings(series, params=StringCategories(**params))
+    categorized = categorize_strings(
+        series, params=StringCategories(**request.getfixturevalue(params))
+    )
     assert_series_equal(categorized, expected, check_names=False)
+
+
+def test_string_categories_params(serialized_animal_cats) -> None:
+    """Make sure StringCategories params class correctly loads from disk when "categories" is a Path."""
+    # reference case: parse params when "categories" is a dict
+    inline_params = StringCategories(**ANIMAL_CATS)
+
+    # test case: parse params when "categories" is a Path
+    serialized_params = StringCategories(**serialized_animal_cats)
+
+    # must match
+    assert inline_params == serialized_params
 
 
 @pytest.mark.parametrize(
