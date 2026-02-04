@@ -23,6 +23,8 @@ RUS-12
 ~~~~~~
 
 * Extracted data for twelve USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
+* Transformed and published USDA RUS tables. See :issue:`4901`, PR :pr:`4970` and PR
+  :pr:`4979`.
 
 FERC EQR
 ~~~~~~~~

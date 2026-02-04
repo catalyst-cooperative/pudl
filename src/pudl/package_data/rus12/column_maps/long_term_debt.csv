@@ -1,4 +1,4 @@
-year_index,borrower_id_rus,borrower_name_rus,report_year,report_month,debt_description,balance_end_of_report_year,interest,principal,total
+year_index,borrower_id_rus,borrower_name_rus,report_year,report_month,debt_description,debt_ending_balance,debt_interest,debt_principal,debt_total
 2006,rusborrowerid,borrowername,year,period,description,endofyearbalance,interest,principal,total
 2007,rusborrowerid,borrowername,year,period,description,endofyearbalance,interest,principal,total
 2008,rusborrowerid,borrowername,year,period,description,endofyearbalance,interest,principal,total

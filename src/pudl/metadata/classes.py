@@ -1504,6 +1504,7 @@ class Resource(PudlMeta):
             "phmsagas",
             "sec10k",
             "rus7",
+            "rus12",
         ]
         | None
     ) = None
