@@ -40,6 +40,13 @@ Expanded Data Coverage
   extract them, even though we don't process the data yet. This added 2 more years to
   the EIA-191 data. See PR :pr:`4879`.
 
+EPA CEMS
+~~~~~~~~
+
+* Updated EPA CEMS hourly emissions data through December 2025. See :issue:`4986`
+  and :pr:`4990`.
+
+
 Documentation
 ~~~~~~~~~~~~~
 
