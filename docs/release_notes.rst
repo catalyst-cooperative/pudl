@@ -93,6 +93,10 @@ Quality of Life Improvements
   package is stored on GCS, as is the case with FERC EQR. See the
   `FERC EQR archive on Zenodo <https://doi.org/10.5281/zenodo.18251901>`__ as an
   example. See PR :pr:`4879`.
+* Added handling to :class:`pudl.transform.classes.StringCategories` so that the
+  ``categories`` key of transform params can be specified as a Path to a YAML file.
+  This will make it possible to include large categorization sets without the params
+  Python files becoming unwieldy. See PR :pr:`4978`.
 
 .. _release-v2026.1.0:
 
