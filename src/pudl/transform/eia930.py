@@ -1,14 +1,12 @@
 """Module to perform data cleaning functions on EIA930 data tables."""
 
-from pathlib import Path
-
 import duckdb
-import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl
 from pudl.helpers import (
     ParquetData,
+    df_from_parquet,
     duckdb_relation_from_parquet,
     lf_from_parquet,
     persist_table_as_parquet,
@@ -151,10 +149,10 @@ def core_eia930__hourly_operations_assets(
     compute_kind="pandas",
 )
 def core_eia930__hourly_subregion_demand(
-    raw_eia930__subregion: Path,
+    raw_eia930__subregion: ParquetData,
 ):
     """Produce a normalized table of hourly electricity demand by BA subregion."""
-    raw_eia930__subregion_df = pd.read_parquet(raw_eia930__subregion)
+    raw_eia930__subregion_df = df_from_parquet(raw_eia930__subregion)
     return raw_eia930__subregion_df.assign(
         balancing_authority_subregion_code_eia=lambda df: df[
             "balancing_authority_subregion_code_eia"
@@ -175,10 +173,10 @@ def core_eia930__hourly_subregion_demand(
     compute_kind="pandas",
 )
 def core_eia930__hourly_interchange(
-    raw_eia930__interchange: Path,
+    raw_eia930__interchange: ParquetData,
 ):
     """Produce a normalized table of hourly interchange by balancing authority."""
-    raw_eia930__interchange_df = pd.read_parquet(raw_eia930__interchange)
+    raw_eia930__interchange_df = df_from_parquet(raw_eia930__interchange)
     return raw_eia930__interchange_df.loc[
         :,
         [
