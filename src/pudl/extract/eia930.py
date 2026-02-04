@@ -11,7 +11,6 @@ dump out the concatenated pages to Parquet.
 """
 
 import re
-from pathlib import Path
 
 import duckdb
 from dagster import asset
@@ -20,14 +19,14 @@ import pudl.logging_helpers
 from pudl.extract.extractor import (
     GenericMetadata,
 )
+from pudl.helpers import ParquetData, persist_table_as_parquet
 from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @asset(required_resource_keys={"datastore", "dataset_settings"})
-def raw_eia930__balance(context) -> Path:
+def raw_eia930__balance(context) -> ParquetData:
     """Raw balance page."""
     return extract_page(
         datastore=context.resources.datastore,
@@ -37,7 +36,7 @@ def raw_eia930__balance(context) -> Path:
 
 
 @asset(required_resource_keys={"datastore", "dataset_settings"})
-def raw_eia930__interchange(context) -> Path:
+def raw_eia930__interchange(context) -> ParquetData:
     """Raw interchange page."""
     return extract_page(
         datastore=context.resources.datastore,
@@ -47,7 +46,7 @@ def raw_eia930__interchange(context) -> Path:
 
 
 @asset(required_resource_keys={"datastore", "dataset_settings"})
-def raw_eia930__subregion(context) -> Path:
+def raw_eia930__subregion(context) -> ParquetData:
     """Raw subregion page - only exists after 2018h2."""
     return extract_page(
         datastore=context.resources.datastore,
@@ -64,18 +63,11 @@ def extract_page(
     datastore: Datastore,
     page: str,
     half_years: list[str],
-) -> Path:
+) -> ParquetData:
     """Pull data for a page across many half-years into a Parquet file.
 
     This involves reading each half-year, of course, but also concatenating them
     together and expanding the schema to fit all the columns we see.
-
-    If we were to return the `con.query()` and use an IOManager to manage
-    the Parquet IO, we would have to manage the DuckDB connection lifetime
-    to avoid trying to write out from a closed DuckDB connection. So, we just
-    write out directly in this asset and return a Path that we can pass to
-    ``pd.read_parquet``, ``pl.scan_parquet``, or any other Parquet reading
-    strategy.
 
     Args:
         datastore: the Datastore we use to actually access the raw data.
@@ -83,7 +75,7 @@ def extract_page(
         half_years: the set of half-year segments we're extracting.
 
     Returns:
-        The path to the resulting Parquet file.
+        ParquetData pointing to parquet file with raw table data.
     """
     con = duckdb.connect()
     individual_views = [
@@ -99,10 +91,8 @@ def extract_page(
         f"SELECT * FROM {view_name}"  # noqa: S608 (we trust this view name)
         for view_name in individual_views
     )
-    output_path = PudlPaths().parquet_path(f"raw_eia930__{page}")
     all_partitions = con.query(union_query)
-    all_partitions.to_parquet(str(output_path))
-    return output_path
+    return persist_table_as_parquet(all_partitions, table_name=f"raw_eia930__{page}")
 
 
 def extract_half_year_page(
