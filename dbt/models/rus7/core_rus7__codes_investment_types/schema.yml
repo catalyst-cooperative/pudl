@@ -1,0 +1,8 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__codes_investment_types
+        columns:
+          - name: code
+          - name: description
