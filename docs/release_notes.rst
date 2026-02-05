@@ -16,12 +16,24 @@ RUS 7
 ~~~~~
 
 * Extracted data for ten USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
-* Transformed and published USDA RUS tables. See :issue:`4885` and PR :pr:`4939`.
+* Transformed and published USDA RUS tables. See :issue:`4885`, PR :pr:`4939` and PR
+  :pr:`4971`.
 
 RUS-12
 ~~~~~~
 
 * Extracted data for twelve USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
+* Transformed and published USDA RUS tables. See :issue:`4901`, PR :pr:`4970` and PR
+  :pr:`4979`.
+
+FERC EQR
+~~~~~~~~
+
+* Added the company identifiers (CID) table from EQR. See :issue:`4851` and
+  :pr:`4967`. Also, note that the actual FERC EQR data is available on `PUDL
+  Viewer <https://data.catalyst.coop/search?q=ferceqr>`__ as well as `on S3 for
+  direct download
+  <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#ferc-eqr-experimental>`__
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -35,6 +47,17 @@ Documentation
 
 * Added a data source documentation page for the :doc:`FERC EQR <data_sources/ferceqr>`.
   See :issue:`4852` and PR :pr:`4879`.
+* Added data access instructions for the :doc:`FERC EQR <data_sources/ferceqr>` and
+  created examples specific to our larger (>1GB) and partitioned tables in the
+  :doc:`data_dictionaries/pudl_db`. See issues :issue:`4869,4951` and PR :pr:`4958`.
+  Affected tables include:
+
+    * :ref:`core_epacems__hourly_emissions`
+    * :ref:`core_ferceqr__contracts`
+    * :ref:`core_ferceqr__quarterly_identity`
+    * :ref:`core_ferceqr__quarterly_index_pub`
+    * :ref:`core_ferceqr__transactions`
+    * :ref:`out_vcerare__hourly_available_capacity_factor`
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -72,6 +95,10 @@ Quality of Life Improvements
   package is stored on GCS, as is the case with FERC EQR. See the
   `FERC EQR archive on Zenodo <https://doi.org/10.5281/zenodo.18251901>`__ as an
   example. See PR :pr:`4879`.
+* Added handling to :class:`pudl.transform.classes.StringCategories` so that the
+  ``categories`` key of transform params can be specified as a Path to a YAML file.
+  This will make it possible to include large categorization sets without the params
+  Python files becoming unwieldy. See PR :pr:`4978`.
 
 .. _release-v2026.1.0:
 
@@ -2780,11 +2807,11 @@ worth of work.
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
-* :doc:`data_sources/eia860` for 2004-2008 + 2019, plus eia860m through 2020.
+* :doc:`data_sources/eia860` for 2004-2008 + 2019, plus eia860m through 2020
 * :doc:`data_sources/eia923` for 2001-2008 + 2019
 * :doc:`data_sources/epacems` for 2019-2020
 * :doc:`data_sources/ferc1` for 2019
-* :ref:`US Census Demographic Profile (DP1) <data-censusdp1tract>` for 2010
+* :doc:`data_sources/censusdp1tract` for 2010
 * :doc:`data_sources/ferc714` for 2006-2019 (experimental)
 * :doc:`data_sources/eia861` for 2001-2019 (experimental)
 

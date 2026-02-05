@@ -10,7 +10,6 @@ RESOURCE_METADATA = {
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section I)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
@@ -99,7 +98,6 @@ RESOURCE_METADATA = {
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section H)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
@@ -107,18 +105,16 @@ RESOURCE_METADATA = {
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "debt_description",
-                "debt_balance_end_of_report_year",
-                "debt_interest_billed",
-                "debt_principal_billed",
+                "debt_ending_balance",
+                "debt_interest",
+                "debt_principal",
+                "debt_total",
             ],
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__scd_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
@@ -137,6 +133,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
+                "state",
             ],
             "primary_key": [
                 "report_date",
@@ -155,27 +152,27 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part C RE)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
+                "plant_name_rus",
                 "prime_mover_id",
                 "prime_mover_type",
-                "primary_renewable_fuel_type_id",
+                "primary_renewable_fuel_type_id",  # could maybe get rid of this?
                 "primary_renewable_fuel_type",
                 "renewable_fuel_pct",
-                "capacity_kw",  # TODO: convert to mw
+                "capacity_mw",
                 "net_generation_mwh",
                 "capacity_factor",
                 "employees_num",
-                "total_opex_dollars_per_mwh",
-                "power_cost_dollars_per_mwh",
-                "total_investment_thousand_dollars",  # TODO: convert to dollars
+                "opex_per_mwh",
+                "power_cost_per_mwh",
+                "invested",
                 "ownership_pct",
-                "rus_funding_thousand_dollars",  # TODO: convert to dollars
+                "rus_funding",
                 "comments",
             ],
             "primary_key": [
@@ -189,7 +186,40 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_statement_of_operations": {
+    "core_rus12__yearly_lines_stations_labor_materials_cost": {
+        "description": {
+            "additional_summary_text": (
+                "labor and material cost for lines and stations operated by RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part I - Section C)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "labor_or_material",
+                "operation_or_maintenance",
+                "lines_or_stations",
+                "cost",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "labor_or_material",
+                "operation_or_maintenance",
+                "lines_or_stations",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+}
+
+DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_rus12__yearly_statement_of_operations": {  # Need to decide how to split this up
         "description": {
             "additional_summary_text": (
                 "opex and cost of electric service for RUS borrowers."
@@ -234,7 +264,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_name_rus",
                 "plant_name_rus",
                 "plant_type",
-                "employees_fte_num",
+                "employees_full_time_num",
                 "employees_part_time_num",
                 "operating_plant_payroll",
                 "other_accounts_plant_payroll",
@@ -245,38 +275,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "plant_name_rus",
                 "plant_type",  # this should be the primary key but there are duplicates for borrower_oid IA0084 and plant Walter Scott
-            ],
-        },
-        "sources": ["rus12"],
-        "etl_group": "rus12",
-        "field_namespace": "rus",
-    },
-    "core_rus12__yearly_lines_and_stations_labor_materials": {
-        "description": {
-            "additional_summary_text": (
-                "labor and material cost for lines and stations operated by RUS borrowers."
-            ),
-            "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part I - Section C)",
-            "additional_details_text": "",
-        },
-        "schema": {
-            "fields": [
-                "report_date",
-                "borrower_id_rus",
-                "borrower_name_rus",
-                "employees_num",  # might want to separate this out.
-                "labor_or_material",
-                "operation_or_maintenance",
-                "lines_or_stations",
-                "cost",
-            ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-                "labor_or_material",
-                "operation_or_maintenance",
-                "lines_or_stations",
             ],
         },
         "sources": ["rus12"],

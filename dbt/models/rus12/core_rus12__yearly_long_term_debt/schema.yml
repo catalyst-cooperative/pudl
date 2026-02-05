@@ -10,6 +10,7 @@ sources:
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: debt_description
-          - name: debt_balance_end_of_report_year
-          - name: debt_interest_billed
-          - name: debt_principal_billed
+          - name: debt_ending_balance
+          - name: debt_interest
+          - name: debt_principal
+          - name: debt_total

@@ -1,0 +1,71 @@
+* `Browse and query this table online <https://data.catalyst.coop/search?&q=name:{{ resource.name }}>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/{{ resource.name }}.parquet>`__
+
+
+.. warning::
+
+   This table will likely not fit in your computer's memory.
+   Make sure to filter or aggregate to reduce the amount of data read in.
+   This is easier in ``polars`` and ``duckdb`` than in ``pandas``,
+   so we only provide examples for these.
+
+.. tabs::
+
+   .. tab:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = (
+             # Use scan_parquet (lazy evaluation) to plan the query before execution
+             pl.scan_parquet(
+                 "s3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet",
+                 storage_options={"aws_region": "us-west-2"},
+             )
+             # Select only a subset of columns to reduce network and memory usage
+             .select(
+                 [
+                     "state",
+                     "plant_id_eia",
+                     "plant_id_epa",
+                     "operating_datetime_utc",
+                     "operating_time_hours",
+                     "emissions_unit_id_epa",
+                     "gross_load_mw",
+                     "heat_content_mmbtu",
+                     "co2_mass_tons",
+                 ]
+             )
+             .filter(
+                 # Select data for only a single plant to reduce network and memory usage
+                 (pl.col("plant_id_eia") == 470)
+                 # The row groups in this Parquet file are partitioned by state and year,
+                 # so indicating the state allows the query to skip irrelevant groups.
+                 & (pl.col("state") == "CO")
+             )
+             # Now execute the planned query
+             .collect()
+         )
+
+   .. tab:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT
+             -- Select only a subset of columns to reduce network and memory usage
+             state,
+             plant_id_eia,
+             plant_id_epa,
+             operating_datetime_utc,
+             operating_time_hours,
+             emissions_unit_id_epa,
+             gross_load_mw,
+             heat_content_mmbtu,
+             co2_mass_tons
+         FROM 's3://pudl.catalyst.coop/nightly/{{ resource.name }}.parquet'
+         WHERE
+             -- Select data for only a single plant to reduce network and memory usage
+             plant_id_eia = 470
+             -- The row groups in this Parquet file are partitioned by state and year,
+             -- so indicating the state allows the query to skip irrelevant groups.
+             AND state = 'CO';

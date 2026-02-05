@@ -43,7 +43,9 @@ from pudl.metadata.enums import (
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
     PLANT_PARTS,
+    PRIME_MOVER_TYPES_RUS12,
     RELIABILITY_STANDARDS,
+    RENEWABLE_FUEL_TYPES_RUS12,
     REVENUE_CLASSES_EIA176,
     REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
@@ -1149,10 +1151,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    # "comments": {
-    #     "type": "string",
-    #     "description": "General comments field.",
-    # },
+    "comments": {
+        "type": "string",
+        "description": "General comments field.",
+    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -1164,6 +1166,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "company_name_old": {
         "type": "string",
         "description": "Name of company prior to name change.",
+    },
+    "company_website": {
+        "type": "string",
+        "description": "The website URL of the company, which can provide additional information about the organization.",
     },
     "compliance_year_nox": {
         "type": "integer",
@@ -1318,6 +1324,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Name of river, lake, or water source that provides cooling water"
         ),
         "type": "string",
+    },
+    "cost": {
+        "type": "number",
+        "description": "Cost value.",
+        "unit": "USD",
     },
     "county": {"type": "string", "description": "County name."},
     "county_id_fips": {
@@ -1601,22 +1612,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether limited on-site fuel storage is a factor that limits the generator's ability to switch between oil and natural gas."
         ),
     },
-    "debt_balance_end_of_report_year": {
+    "debt_description": {"type": "string", "description": "The"},
+    "debt_ending_balance": {
         "type": "number",
         "description": (
             "The amount of principal still owned on the debt at the end of the report year."
         ),
         "unit": "USD",
     },
-    "debt_description": {"type": "string", "description": "The"},
-    "debt_interest_billed": {
+    "debt_interest": {
         "type": "number",
         "description": ("The interest expense on the debt for the report year."),
         "unit": "USD",
     },
-    "debt_principal_billed": {
+    "debt_principal": {
         "type": "number",
         "description": ("The principal paid on the debt during the report year."),
+        "unit": "USD",
+    },
+    "debt_total": {
+        "type": "number",
+        "description": ("The total amount of debt."),
         "unit": "USD",
     },
     "depreciation_type": {
@@ -2640,10 +2656,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
     },
-    # "employees_num": {
-    #     "type": "integer",
-    #     "description": "Number of employees.",
-    # },
+    "employees_num": {
+        "type": "integer",
+        "description": "Number of employees.",
+    },
     "end_point": {
         "type": "string",
         "description": "The end point of a transmission line.",
@@ -4217,6 +4233,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
+    "labor_or_material": {
+        "type": "string",
+        "description": (
+            "Indicates whether the cost reported is for labor or material."
+        ),
+        "constraints": {"enum": ["labor", "material"]},
+    },
+    "lines_or_stations": {
+        "type": "string",
+        "description": (
+            "Indicates whether the cost reported pertains to  lines or stations."
+        ),
+        "constraints": {"enum": ["lines", "stations"]},
+    },
     "load_management_annual_actual_peak_reduction_mw": {
         "type": "number",
         "description": (
@@ -5042,6 +5072,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "KV",
     },
+    "operation_or_maintenance": {
+        "type": "string",
+        "description": (
+            "Indicates whether the expenditure is for operation or maintenance."
+        ),
+        "constraints": {"enum": ["operation", "maintenance"]},
+    },
     "operational_status": {
         "type": "string",
         "description": (
@@ -5519,10 +5556,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether a plant part record has a duplicate record with different ownership status."
         ),
     },
-    # "ownership_pct": {
-    #     "type": "number",
-    #     "description": "Percentage of the plant owned by the respondent.",
-    # },
+    "ownership_pct": {
+        "type": "number",
+        "description": "Percentage of the plant owned by the respondent.",
+    },
     "parent_company_central_index_key": {
         "type": "string",
         "description": "Central index key (CIK) of the parent company.",
@@ -5859,6 +5896,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Plant name, chosen arbitrarily from the several possible plant names available in the plant matching process. Included for human readability only."
         ),
     },
+    "plant_name_rus": {
+        "type": "string",
+        "description": "Name of the plant as reported to RUS.",
+    },
     "plant_part": {
         "type": "string",
         "description": "The part of the plant a record corresponds to.",
@@ -5958,11 +5999,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    # "power_cost_dollars_mer_mwh": {
-    #     "type": "number",
-    #     "description": ("The cost of power per mwh."),
-    #     "unit": "USD/MWh",
-    # },
+    "power_cost_per_mwh": {
+        "type": "number",
+        "description": ("The cost of power per mwh."),
+        "unit": "USD/MWh",
+    },
     "power_requirement_mw": {
         "description": (
             "Maximum power requirement for cooling towers at 100 percent load"
@@ -6027,14 +6068,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant"
         ),
     },
-    # "primary_renewable_fuel_type": {
-    #     "type": "string",
-    #     "description": ("Primary renewable fuel type used by the plant."),
-    # },
-    # "primary_renewable_fuel_type_id": {
-    #     "type": "integer",
-    #     "description": ("Unique numeric identifier for each renewable fuel type."),
-    # },
+    "primary_renewable_fuel_type": {
+        "type": "string",
+        "description": ("Primary renewable fuel type used by the plant."),
+        "constraints": {
+            "enum": RENEWABLE_FUEL_TYPES_RUS12,
+        },
+    },
+    "primary_renewable_fuel_type_id": {
+        "type": "integer",
+        "description": ("Unique numeric identifier for each renewable fuel type."),
+        "constraints": {
+            "enum": list(range(1, 16)),
+        },
+    },
     "primary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the longest distance transported.",
@@ -6049,15 +6096,32 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Code for the type of prime mover (e.g. CT, CG) associated with the record_id_eia_plant_gen."
         ),
     },
-    # "prime_mover_id": {
-    #     "type": "integer",
-    #     "description": "Unique numeric identifier for each prime mover type.",
-    # },
-    # "prime_mover_type": {
-    #     "type": "string",
-    #     "description": "Type of prime mover (e.g. Hydro, Internal Combustion).",
-    # },
+    "prime_mover_id": {
+        "type": "integer",
+        "description": "Unique numeric identifier for each prime mover type used by RUS borrowers.",
+    },
+    "prime_mover_type": {
+        "type": "string",
+        "description": "Type of prime mover (e.g. Hydro, Internal Combustion).",
+        "constraints": {
+            "enum": PRIME_MOVER_TYPES_RUS12,
+        },
+    },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
+    "program": {
+        "type": "string",
+        "description": "The specific program or initiative associated with the FERC organization, which can provide context for the company's activities.",
+        "constraints": {
+            "enum": [
+                "FPA (Market Based Rate) Public Utilities",
+                "FPA (Traditional Cost of Service and Market Based Rates) Public Utilities",
+                "ICA Oil Pipelines",
+                "NGA Gas Pipelines",
+                "NGPA 311 and NGA Hinshaw Gas Pipelines",
+                "Power Administrations",
+            ]
+        },
+    },
     "pudl_version": {
         "type": "string",
         "description": "The version of PUDL used to generate this database.",
@@ -6253,10 +6317,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Indicates whether the plant is regulated or non-regulated.",
     },
-    # "renewable_fuel_pct": {
-    #     "type": "number",
-    #     "description": "Percentage of renewable fuel used.",
-    # },
+    "renewable_fuel_pct": {
+        "type": "number",
+        "description": "Percentage of renewable fuel used.",
+    },
     "report_date": {"type": "date", "description": "Date reported."},
     "report_timezone": {
         "type": "string",
@@ -6500,13 +6564,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The ISOs/RTOs, in which the respondent conducts operations.",
         "constraints": {"enum": RTO_CLASSES},
     },
-    # "rus_funding": {
-    #     "type": "number",
-    #     "description": (
-    #         "Amount of funding received from the Rural Utilities Service (RUS)."
-    #     ),
-    #     "unit": "USD",
-    # },
+    "rus_funding": {
+        "type": "number",
+        "description": (
+            "Amount of funding received from the Rural Utilities Service (RUS)."
+        ),
+        "unit": "USD",
+    },
     "saidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number",
         "description": (
@@ -7611,11 +7675,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total annual reported fuel costs for the plant part. Includes costs from all fuels."
         ),
     },
-    # "total_investment": {
-    #     "type": "number",
-    #     "description": ("Total amount of money investmented."),
-    #     "unit": "USD",
-    # },
     "total_mmbtu": {
         "type": "number",
         "description": (
@@ -7634,11 +7693,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total annual heat content of fuel consumed by a plant part record in the plant parts list."
         ),
     },
-    # "total_opex_dollars_per_mwh": {
-    #     "type": "number",
-    #     "description": ("Total operating expenses per mwh generated (USD/MWh)."),
-    #     "unit": "USD/MWh",
-    # },
     "total_settlement": {
         "type": "number",
         "description": (
@@ -9298,6 +9352,81 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "The amount of payroll spent that was funded by other means - not capitalized or expensed.",
     },
+    "customers_num": {"description": "Number of customers.", "type": "number"},
+    "observation_period": {
+        "type": "string",
+        "description": (
+            "The date range that any given record pertains to. Ex: 'december' implies that this record covers the month of "
+            "December only, while 'avg' implies this record pertains to the average of the reporting period."
+        ),
+        "constraints": {
+            "enum": {"avg", "december", "new_in_report_year", "cumulative"}
+        },
+    },
+    "invested": {
+        "type": "number",
+        "description": "The amount of money invested.",
+        "unit": "USD",
+    },
+    "savings_mmbtu": {
+        "type": "number",
+        "description": (
+            "The estimated amount of energy savings from energy efficiency programs. "
+            "Warning: We found values much larger than expected that we have not yet "
+            "cleaned - this is likely a reporting unit error."
+        ),
+        "unit": "MMBtu",
+    },
+    "electric_sales_revenue": {
+        "type": "integer",
+        "description": "Total Revenue Received From Sales of Electric Energy. Total of lines 1c thru 9c on the original form.",
+        "unit": "USD",
+    },
+    "electric_sales_mwh": {
+        "type": "number",
+        "description": "Total MWh Sold to electric sales. Total of lines 1b thru 9b on the original form.",
+        "unit": "MWh",
+    },
+    "transmission_revenue": {
+        "type": "integer",
+        "description": "Transmission revenue.",
+        "unit": "USD",
+    },
+    "other_electric_revenue": {
+        "type": "integer",
+        "description": "Electric revenue other than electric_sales_revenue.",
+        "unit": "USD",
+    },
+    "own_use_mwh": {
+        "type": "number",
+        "description": "The electricity in MWh used for the borrower's own internal use.",
+        "unit": "MWh",
+    },
+    "generated_mwh": {
+        "type": "number",
+        "description": "The total electricity generated.",
+        "unit": "MWh",
+    },
+    "purchases_and_generation_cost": {
+        "type": "integer",
+        "description": "The cost of purchases and generation of electricity.",
+        "unit": "UDS",
+    },
+    "interchange_mwh": {
+        "type": "number",
+        "description": "The net interchange of electricity. The net amount of electricity exchanged in purchases and sales.",
+        "unit": "MWh",
+    },
+    "peak_mw": {
+        "type": "number",
+        "description": "The peak system MWh - the sum of all MW.",
+        "unit": "MW",
+    },
+    "is_peak_coincident": {
+        "type": "integer",
+        "description": "Whether or not the peak_mw is coincident or non-coincident peak.",
+        "unit": "boolean",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -9353,6 +9482,34 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
         },
         "longitude": {
             "description": "Longitude of the place centroid (e.g., county centroid)."
+        },
+    },
+    "rus": {
+        "customer_class": {
+            "description": "High level categorization of customer type.",
+            "constraints": {
+                "enum": {
+                    "commercial_and_industrial_large",
+                    "commercial_and_industrial_small",
+                    "irrigation",
+                    "other_electric",
+                    "public_street_lighting",
+                    "public_other",
+                    "residential_excluding_seasonal",
+                    "residential_seasonal",
+                    "sales_for_resale_other",
+                    "sales_for_resale_rus_borrowers",
+                    "total",
+                    "transmission",
+                },
+            },
+        },
+        # the standard description for this column is much too specific/ has more details which may
+        # or may not be true for RUS.
+        "purchased_mwh": {
+            "type": "number",
+            "description": "The total electricity purchased.",
+            "unit": "MWh",
         },
     },
 }
@@ -10032,6 +10189,12 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
         "opex_rents": {"description": "Rent expenses for the transmission line."},
         "opex_total": {"description": "Overall expenses for the transmission line."},
+    },
+    "core_ferc__entity_companies": {
+        # descriptions from the FERC CID data dictionary
+        "company_name": {
+            "description": "The name of the FERC-reporting organization or company."
+        },
     },
     "out_ferc714__hourly_planning_area_demand": {
         "timezone": {"constraints": {"enum": US_TIMEZONES}},

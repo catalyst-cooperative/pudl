@@ -64,8 +64,7 @@ def core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
     return df
 
 
-# TODO: feed all rus12 tables into this and extract info
-@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__scd_borrowers(raw_rus12__borrowers):
     """Transform the core_rus12__scd_borrowers table."""
     df = rus.early_transform(raw_df=raw_rus12__borrowers)
@@ -76,20 +75,25 @@ def core_rus12__scd_borrowers(raw_rus12__borrowers):
     )
 
 
-@asset  # (io_manager_key="pudl_io_manager") # add this when units can be converted and column names have changed
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
-    """Transform the core_rus12__yearly_renewable_plant table."""
+    """Transform the core_rus12__yearly_renewable_plants table."""
     df = rus.early_transform(raw_df=raw_rus12__renewable_plants)
 
     # Convert date_created to datetime
     df.date_created = pd.to_datetime(df.date_created, format="mixed")
 
     # Convert units
-    # TODO: use Christina's convert_units function once it's merged in for $1000s to $1
-    # TODO: use Christina's convert_units function once it's merged in for kw to mw
-
-    # Transform ideas
-    # - Make primary_renewable_fuel_type look like renewable fuels from other sources.
+    df = rus.convert_units(
+        df,
+        old_unit="kw",
+        new_unit="mw",
+        converter=0.001,
+    )
+    df = rus.convert_units(
+        df, old_unit="thousand_dollars", new_unit=None, converter=1000
+    )
+    # TODO: Make primary_renewable_fuel_type look like renewable fuels from other sources.
 
     return df
 
@@ -101,7 +105,7 @@ def core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt):
     return rus.early_transform(raw_df=raw_rus12__long_term_debt)
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_lines_stations_labor_materials_cost(
     raw_rus12__lines_and_stations_labor_materials,
 ):
