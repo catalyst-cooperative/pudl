@@ -139,7 +139,7 @@ resource "google_cloud_run_v2_service" "pudl_viewer" {
       resources {
         limits = {
           cpu    = "1000m"
-          memory = "768Mi"
+          memory = "1Gi"
         }
         cpu_idle = true
       }
