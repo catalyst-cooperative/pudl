@@ -40,6 +40,18 @@ Expanded Data Coverage
   extract them, even though we don't process the data yet. This added 2 more years to
   the EIA-191 data. See PR :pr:`4879`.
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through December 2025. See :issue:`4983` and
+  :pr:`4993`.
+
+EIA-923
+~~~~~~~
+
+* Updated EIA-923 with monthly data through November 2025. See :issue:`4984` and
+  :pr:`4993`.
+
 Documentation
 ~~~~~~~~~~~~~
 
