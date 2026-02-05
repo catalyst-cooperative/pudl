@@ -279,6 +279,10 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    if [[ $CLEAN_UP_OUTPUTS_SUCCESS != 0 ]]; then
+        notify_slack "failure"
+        exit 1
+    fi
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
     upload_to_dist_path "nightly" | tee -a "$LOGFILE" &&
         upload_to_dist_path "eel-hole" | tee -a "$LOGFILE"
@@ -299,6 +303,10 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    if [[ $CLEAN_UP_OUTPUTS_SUCCESS != 0 ]]; then
+        notify_slack "failure"
+        exit 1
+    fi
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
     upload_to_dist_path "$BUILD_REF" | tee -a "$LOGFILE" &&
         upload_to_dist_path "stable" | tee -a "$LOGFILE"
@@ -319,6 +327,10 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    if [[ $CLEAN_UP_OUTPUTS_SUCCESS != 0 ]]; then
+        notify_slack "failure"
+        exit 1
+    fi
 
     # Disable the test upload to the distribution bucket for now to avoid egress fees
     # and speed up the build. Uncomment if you need to test the distribution upload.
