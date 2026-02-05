@@ -172,7 +172,6 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
     data_cols = ["capacity_kw", "cost", "plant_num", "net_energy_received_mwh"]
 
-    # This list excludes total values and instead includes them in the sources_and_distribution table.
     plant_types = [
         "fossil_steam",
         "hydro",
@@ -180,7 +179,6 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
         "combined_cycle",
         "nuclear",
         "other",
-        "total",
     ]
 
     # Stack by plant type
@@ -238,7 +236,7 @@ def core_rus12__yearly_sources_and_distribution(
     df = df.loc[:, ~plant_type_mask]
 
     # Stack by cost and mwh
-    data_cols = ["cost", "mwh"]
+    data_cols = ["cost", "net_energy_received_mwh"]
     df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
@@ -292,5 +290,6 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
         match_names=["opex_group", "opex_type", "data_cols"],
         unstack_level=["opex_group", "opex_type"],
     )
+    df["is_total"] = df.opex_type.str.startswith("total_")
     # TODO: could remove total columns that aren't used as part of the calculation for others.
     return df

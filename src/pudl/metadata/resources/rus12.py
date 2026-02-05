@@ -235,9 +235,10 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_name_rus",
                 "opex_group",
                 "opex_type",
-                "opex_ytd"  # I think this should be more descriptive
-                "opex_ytd_budget",
                 "opex_report_month",
+                "opex_ytd",
+                "opex_ytd_budget",
+                "is_total",
             ],
             "primary_key": [
                 "report_date",
@@ -354,7 +355,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "capacity_mw",  # still need to update this in the function
                 "plant_num",
                 "cost",
-                "mwh",
+                "net_energy_received_mwh",
             ],
             "primary_key": [
                 "report_date",
