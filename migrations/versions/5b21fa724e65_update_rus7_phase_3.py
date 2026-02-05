@@ -1,7 +1,7 @@
 """update rus7 phase 3
 
 Revision ID: 5b21fa724e65
-Revises: 9c66ca6fcafa
+Revises: 66b851b8fb2c
 Create Date: 2026-02-05 11:03:29.829610
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '5b21fa724e65'
-down_revision = '9c66ca6fcafa'
+down_revision = '66b851b8fb2c'
 branch_labels = None
 depends_on = None
 

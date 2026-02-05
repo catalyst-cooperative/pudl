@@ -57,7 +57,7 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('debt_description', sa.Text(), nullable=True, comment='The'),
+    sa.Column('debt_description', sa.Text(), nullable=True, comment='Description of debt or loan. On the original form, there are nine provided descriptions and a section to add other free-form descriptions.'),
     sa.Column('debt_ending_balance', sa.Float(), nullable=True, comment='The amount of principal still owned on the debt at the end of the report year.'),
     sa.Column('debt_interest', sa.Float(), nullable=True, comment='The interest expense on the debt for the report year.'),
     sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.'),
