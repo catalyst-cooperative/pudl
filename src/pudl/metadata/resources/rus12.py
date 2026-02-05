@@ -233,15 +233,17 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "operations_type"  # enum (list below)
-                "ytd_amount",
-                "ytd_budget",
-                "report_month_amount",
+                "opex_group",
+                "opex_type",
+                "opex_ytd"  # I think this should be more descriptive
+                "opex_ytd_budget",
+                "opex_report_month",
             ],
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "operations_type",
+                "opex_group",
+                "opex_type",
             ],
         },
         "sources": ["rus12"],
@@ -262,10 +264,10 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_name_rus",
                 "plant_name_rus",
                 "plant_type",
-                "employees_fte_num",
+                "employees_full_time_num",
                 "employees_part_time_num",
-                "payroll_operating_plant",  # seems like we might want to put payroll as a suffix here
-                "payroll_other_accounts_plant",  # seems like we might want to put payroll as a suffix here
+                "operating_plant_payroll",
+                "other_accounts_plant_payroll",
                 "total_plant_payroll",  # remove?
             ],
             "primary_key": [
@@ -282,6 +284,10 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_loans": {
         "description": {
             "additional_summary_text": ("loans guaranteed by RUS borrowers."),
+            "additional_primary_key_text": (
+                "This table has no primary key because some borrowers report multiple loan values from "
+                "the same entity in a given year."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section F - Subsection II)",
             "additional_details_text": "",
@@ -295,12 +301,65 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "loan_maturity_date",
                 "loan_original_amount",
                 "loan_balance",
-                "for_rural_development",  # this should maybe be is_for_rural_development
+                "for_rural_development",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_sources_and_distribution": {
+        "description": {
+            "additional_summary_text": (
+                "MWh and cost of energy sources and distribution by RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part C)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "source_of_energy",
+                "cost",
+                "net_energy_received_mwh",
             ],
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "loan_organization",
+                "source_of_energy",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_sources_and_distribution_by_plant_type": {
+        "description": {
+            "additional_summary_text": (
+                "capacity, plant num, MWh, and cost of energy by plant type for RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part C)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "plant_type",
+                "capacity_mw",  # still need to update this in the function
+                "plant_num",
+                "cost",
+                "mwh",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "plant_type",
             ],
         },
         "sources": ["rus12"],
