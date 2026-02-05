@@ -12,4 +12,4 @@ sources:
           - name: included_investments
           - name: excluded_investments
           - name: income_or_loss
-          - name: is_rural_development_investment
+          - name: for_rural_development

@@ -7,9 +7,9 @@ sources:
           - name: report_date
           - name: borrower_id_rus
           - name: borrower_name_rus
-          - name: operations_type
-          - name: operations_item_type
-          - name: amount_report_month
-          - name: amount_ytd
-          - name: amount_ytd_budget
+          - name: opex_type
+          - name: opex_group
+          - name: opex_report_month
+          - name: opex_ytd
+          - name: opex_ytd_budget
           - name: is_total

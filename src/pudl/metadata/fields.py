@@ -9460,7 +9460,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Income or loss from investment.",
     },
-    "is_rural_development_investment": {
+    "for_rural_development": {
         "type": "boolean",
         "description": "Whether or not the investment is Rural Development.",
     },
@@ -9489,7 +9489,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Amount of patronage distributed or received cumulatively. "
-            "Received patronage capital is notreported cumulatively and thus will be null."
+            "Received patronage capital is not reported cumulatively and thus will be null."
         ),
         "unit": "USD",
     },
@@ -9498,7 +9498,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Amount of patronage distributed or received within report year.",
         "unit": "USD",
     },
-    "operations_type": {
+    "opex_type": {
         "type": "string",
         "description": (
             "High level section from the statement of operations table. Most of these "
@@ -9506,14 +9506,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "constraints": {
             "enum": {
-                "electric_service_expense",
+                "cost_of_electric_service",
                 "operating_revenue",
                 "opex",
                 "patronage_and_operating_margins",
             }
         },
     },
-    "operations_item_type": {
+    "opex_group": {
         "type": "string",
         "description": "Type of item from the statement of operations.",
         "constraints": {
@@ -9541,17 +9541,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             }
         },
     },
-    "amount_report_month": {
+    "opex_report_month": {
         "type": "number",
         "description": "Amount of operational expense, cost or income during the report month.",
         "unit": "USD",
     },
-    "amount_ytd": {
+    "opex_ytd": {
         "type": "number",
         "description": "The year-to-date amount of operational expense, cost or income.",
         "unit": "USD",
     },
-    "amount_ytd_budget": {
+    "opex_ytd_budget": {
         "type": "number",
         "description": "The year-to-date budget for amount of operational expense, cost or income.",
         "unit": "USD",

@@ -46,7 +46,7 @@ def upgrade() -> None:
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
     sa.Column('patronage_type', sa.Enum('total_received', 'distributions_special_retirements', 'total_distributions_retirements', 'received_lenders_of_electric_power', 'distributions_general_retirements', 'received_supplier_of_electric_power'), nullable=False, comment='Type of patronage capital distributed or received.'),
     sa.Column('patronage_report_year', sa.Float(), nullable=True, comment='Amount of patronage distributed or received within report year.'),
-    sa.Column('patronage_cumulative', sa.Float(), nullable=True, comment='Amount of patronage distributed or received cumulatively. Received patronage capital is notreported cumulatively and thus will be null.'),
+    sa.Column('patronage_cumulative', sa.Float(), nullable=True, comment='Amount of patronage distributed or received cumulatively. Received patronage capital is not reported cumulatively and thus will be null.'),
     sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
     sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'patronage_type', name=op.f('pk_core_rus7__yearly_patronage_capital'))
     )
@@ -54,13 +54,13 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('operations_type', sa.Enum('operating_revenue', 'electric_service_expense', 'patronage_and_operating_margins', 'opex'), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``statement_item_type`` column.'),
-    sa.Column('operations_item_type', sa.Enum('interest_charged_to_construction', 'customer_service', 'power_production', 'purchased_power', 'other_deductions', 'total', 'operating_revenue', 'tax_other', 'customer_accounts', 'distribution_operation', 'total_minus', 'distribution_maintenance', 'interest_other', 'tax_property', 'transmission', 'interest_long_term_debt', 'regional_market', 'deprecation', 'sales', 'admin'), nullable=False, comment='Type of item from the statement of operations.'),
-    sa.Column('amount_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
-    sa.Column('amount_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
-    sa.Column('amount_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
+    sa.Column('opex_type', sa.Enum('operating_revenue', 'cost_of_electric_service', 'patronage_and_operating_margins', 'opex'), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``statement_item_type`` column.'),
+    sa.Column('opex_group', sa.Enum('interest_charged_to_construction', 'customer_service', 'power_production', 'purchased_power', 'other_deductions', 'total', 'operating_revenue', 'tax_other', 'customer_accounts', 'distribution_operation', 'total_minus', 'distribution_maintenance', 'interest_other', 'tax_property', 'transmission', 'interest_long_term_debt', 'regional_market', 'deprecation', 'sales', 'admin'), nullable=False, comment='Type of item from the statement of operations.'),
+    sa.Column('opex_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
+    sa.Column('opex_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
+    sa.Column('opex_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
     sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'operations_type', 'operations_item_type', name=op.f('pk_core_rus7__yearly_statement_of_operations'))
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'opex_type', 'opex_group', name=op.f('pk_core_rus7__yearly_statement_of_operations'))
     )
     op.create_table('core_rus7__yearly_investments',
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
@@ -71,7 +71,7 @@ def upgrade() -> None:
     sa.Column('included_investments', sa.Float(), nullable=True, comment='Included investment.'),
     sa.Column('excluded_investments', sa.Float(), nullable=True, comment='Excluded investment.'),
     sa.Column('income_or_loss', sa.Float(), nullable=True, comment='Income or loss from investment.'),
-    sa.Column('is_rural_development_investment', sa.Boolean(), nullable=True, comment='Whether or not the investment is Rural Development.'),
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment is Rural Development.'),
     sa.ForeignKeyConstraint(['investment_type_code'], ['core_rus7__codes_investment_types.code'], name=op.f('fk_core_rus7__yearly_investments_investment_type_code_core_rus7__codes_investment_types'))
     )
     # ### end Alembic commands ###

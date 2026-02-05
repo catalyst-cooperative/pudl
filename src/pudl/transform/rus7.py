@@ -240,9 +240,9 @@ def core_rus7__yearly_investments(
     """Transform the investments table."""
     df = rus.early_transform(
         raw_df=raw_rus7__investments,
-        boolean_columns_to_fix=["is_rural_development_investment"],
+        boolean_columns_to_fix=["for_rural_development"],
     )
-    # TODO: encode investment_type_code
+
     # No PK in this table
     return df
 
@@ -262,10 +262,7 @@ def core_rus7__yearly_patronage_capital(
     raw_rus7__patronage_capital: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the patronage capital table."""
-    df = rus.early_transform(
-        raw_df=raw_rus7__patronage_capital,
-        boolean_columns_to_fix=[],
-    )
+    df = rus.early_transform(raw_df=raw_rus7__patronage_capital)
     rus.early_check_pk(df)
 
     def _melt_on_date(df, period):
@@ -296,16 +293,13 @@ def core_rus7__yearly_statement_of_operations(
     raw_rus7__statement_of_operations: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the statement of operations table."""
-    df = rus.early_transform(
-        raw_df=raw_rus7__statement_of_operations,
-        boolean_columns_to_fix=[],
-    )
+    df = rus.early_transform(raw_df=raw_rus7__statement_of_operations)
     rus.early_check_pk(df)
 
     statement_types = [
         "operating_revenue",
         "opex",
-        "electric_service_expense",
+        "cost_of_electric_service",
         "patronage_and_operating_margins",
     ]
     periods = ["ytd", "ytd_budget", "report_month"]
@@ -315,8 +309,8 @@ def core_rus7__yearly_statement_of_operations(
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=periods,
         pattern=pattern,
-        match_names=["operations_type", "operations_item_type", "data_cols"],
-        unstack_level=["operations_type", "operations_item_type"],
-    ).rename(columns={date: f"amount_{date}" for date in periods})
-    df["is_total"] = df.operations_item_type.str.startswith("total_")
+        match_names=["opex_type", "opex_group", "data_cols"],
+        unstack_level=["opex_type", "opex_group"],
+    ).rename(columns={date: f"opex_{date}" for date in periods})
+    df["is_total"] = df.opex_group.str.startswith("total_")
     return df
