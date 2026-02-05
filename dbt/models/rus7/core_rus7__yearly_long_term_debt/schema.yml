@@ -8,7 +8,7 @@ sources:
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: debt_description
-          - name: balance_end_of_report_year
-          - name: loan_interest
-          - name: loan_principal
-          - name: loan_total
+          - name: debt_ending_balance
+          - name: debt_interest
+          - name: debt_principal
+          - name: debt_total

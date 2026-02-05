@@ -9471,22 +9471,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "descriptions and a section to add other free-form descriptions."
         ),
     },
-    "balance_end_of_report_year": {
-        "type": "number",
-        "description": "Loan or debt balance at end of report year.",
-    },
-    "loan_interest": {
-        "type": "number",
-        "description": "Loan or debt interest billed during this report year.",
-    },
-    "loan_principal": {
-        "type": "number",
-        "description": "Loan or debt principal billed during this report year.",
-    },
-    "loan_total": {
-        "type": "number",
-        "description": "Loan or debt total billed during this report year.",
-    },
     "patronage_type": {
         "type": "string",
         "description": ("Type of patronage capital distributed or received."),

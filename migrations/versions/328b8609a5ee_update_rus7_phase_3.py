@@ -1,8 +1,8 @@
 """update rus7 phase 3
 
-Revision ID: 5b21fa724e65
+Revision ID: 328b8609a5ee
 Revises: 66b851b8fb2c
-Create Date: 2026-02-05 11:03:29.829610
+Create Date: 2026-02-05 12:26:57.411523
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5b21fa724e65'
+revision = '328b8609a5ee'
 down_revision = '66b851b8fb2c'
 branch_labels = None
 depends_on = None
@@ -35,16 +35,16 @@ def upgrade() -> None:
     sa.Column('borrower_id_rus', sa.Text(), nullable=True, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
     sa.Column('debt_description', sa.Text(), nullable=True, comment='Description of debt or loan. On the original form, there are nine provided descriptions and a section to add other free-form descriptions.'),
-    sa.Column('balance_end_of_report_year', sa.Float(), nullable=True, comment='Loan or debt balance at end of report year.'),
-    sa.Column('loan_interest', sa.Float(), nullable=True, comment='Loan or debt interest billed during this report year.'),
-    sa.Column('loan_principal', sa.Float(), nullable=True, comment='Loan or debt principal billed during this report year.'),
-    sa.Column('loan_total', sa.Float(), nullable=True, comment='Loan or debt total billed during this report year.')
+    sa.Column('debt_ending_balance', sa.Float(), nullable=True, comment='The amount of principal still owned on the debt at the end of the report year.'),
+    sa.Column('debt_interest', sa.Float(), nullable=True, comment='The interest expense on the debt for the report year.'),
+    sa.Column('debt_principal', sa.Float(), nullable=True, comment='The principal paid on the debt during the report year.'),
+    sa.Column('debt_total', sa.Float(), nullable=True, comment='The total amount of debt.')
     )
     op.create_table('core_rus7__yearly_patronage_capital',
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('patronage_type', sa.Enum('received_supplier_of_electric_power', 'total_distributions_retirements', 'distributions_general_retirements', 'total_received', 'received_lenders_of_electric_power', 'distributions_special_retirements'), nullable=False, comment='Type of patronage capital distributed or received.'),
+    sa.Column('patronage_type', sa.Enum('total_received', 'distributions_special_retirements', 'total_distributions_retirements', 'received_lenders_of_electric_power', 'distributions_general_retirements', 'received_supplier_of_electric_power'), nullable=False, comment='Type of patronage capital distributed or received.'),
     sa.Column('patronage_report_year', sa.Float(), nullable=True, comment='Amount of patronage distributed or received within report year.'),
     sa.Column('patronage_cumulative', sa.Float(), nullable=True, comment='Amount of patronage distributed or received cumulatively. Received patronage capital is notreported cumulatively and thus will be null.'),
     sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
@@ -54,8 +54,8 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('operations_type', sa.Enum('operating_revenue', 'patronage_and_operating_margins', 'electric_service_expense', 'opex'), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``statement_item_type`` column.'),
-    sa.Column('operations_item_type', sa.Enum('deprecation', 'tax_property', 'total_minus', 'other_deductions', 'customer_accounts', 'distribution_maintenance', 'transmission', 'interest_charged_to_construction', 'admin', 'customer_service', 'operating_revenue', 'tax_other', 'power_production', 'sales', 'distribution_operation', 'total', 'purchased_power', 'interest_other', 'interest_long_term_debt', 'regional_market'), nullable=False, comment='Type of item from the statement of operations.'),
+    sa.Column('operations_type', sa.Enum('operating_revenue', 'electric_service_expense', 'patronage_and_operating_margins', 'opex'), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``statement_item_type`` column.'),
+    sa.Column('operations_item_type', sa.Enum('interest_charged_to_construction', 'customer_service', 'power_production', 'purchased_power', 'other_deductions', 'total', 'operating_revenue', 'tax_other', 'customer_accounts', 'distribution_operation', 'total_minus', 'distribution_maintenance', 'interest_other', 'tax_property', 'transmission', 'interest_long_term_debt', 'regional_market', 'deprecation', 'sales', 'admin'), nullable=False, comment='Type of item from the statement of operations.'),
     sa.Column('amount_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
     sa.Column('amount_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
     sa.Column('amount_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
