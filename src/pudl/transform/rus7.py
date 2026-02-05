@@ -296,21 +296,21 @@ def core_rus7__yearly_statement_of_operations(
     df = rus.early_transform(raw_df=raw_rus7__statement_of_operations)
     rus.early_check_pk(df)
 
-    statement_types = [
-        "operating_revenue",
+    statement_groups = [
+        "cost_of_electric_service",
         "opex",
         "cost_of_electric_service",
         "patronage_and_operating_margins",
     ]
     periods = ["ytd", "ytd_budget", "report_month"]
-    pattern = rf"^({'|'.join(statement_types)})_(.+)_({'|'.join(periods)})$"
+    pattern = rf"^({'|'.join(statement_groups)})_(.+)_(opex_{'|'.join(periods)})$"
     df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=periods,
         pattern=pattern,
-        match_names=["opex_type", "opex_group", "data_cols"],
-        unstack_level=["opex_type", "opex_group"],
-    ).rename(columns={date: f"opex_{date}" for date in periods})
+        match_names=["opex_group", "opex_type", "data_cols"],
+        unstack_level=["opex_group", "opex_type"],
+    )
     df["is_total"] = df.opex_group.str.startswith("total_")
     return df

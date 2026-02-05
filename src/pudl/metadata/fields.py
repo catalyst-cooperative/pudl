@@ -9498,7 +9498,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Amount of patronage distributed or received within report year.",
         "unit": "USD",
     },
-    "opex_type": {
+    "opex_group": {
         "type": "string",
         "description": (
             "High level section from the statement of operations table. Most of these "
@@ -9513,7 +9513,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             }
         },
     },
-    "opex_group": {
+    "opex_type": {
         "type": "string",
         "description": "Type of item from the statement of operations.",
         "constraints": {
