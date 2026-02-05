@@ -1,0 +1,15 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_lines_stations_labor_materials_cost
+        data_tests:
+          - expect_columns_not_all_null
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: labor_or_material
+          - name: operation_or_maintenance
+          - name: lines_or_stations
+          - name: cost
