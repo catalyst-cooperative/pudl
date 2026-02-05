@@ -16,8 +16,8 @@ RUS 7
 ~~~~~
 
 * Extracted data for ten USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
-* Transformed and published USDA RUS tables. See :issue:`4885`, PR :pr:`4939` and PR
-  :pr:`4971`.
+* Transformed and published USDA RUS tables. See :issue:`4885`, PR :pr:`4939`, PR
+  :pr:`4971` and PR :pr:`4974`.
 
 RUS-12
 ~~~~~~

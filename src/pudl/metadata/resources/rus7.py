@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from pudl.metadata.codes import CODE_METADATA
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
         "description": {
@@ -278,6 +280,22 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+    "core_rus7__codes_investment_types": {
+        "description": {
+            "additional_summary_text": "investment types.",
+        },
+        "schema": {
+            "fields": ["code", "description"],
+            "primary_key": ["code"],
+            "foreign_key_rules": {"fields": [["investment_type_code"]]},
+        },
+        "encoder": CODE_METADATA["core_rus7__codes_investment_types"],
+        "field_namespace": "rus",
+        "sources": ["rus7"],
+        # I added this as RUS instead of RUS7 so we can compile any RUS code table
+        # in one static_assets function
+        "etl_group": "static_rus",
+    },
     "core_rus7__yearly_long_term_debt": {
         "description": {
             "additional_summary_text": (
@@ -301,8 +319,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "loan_interest",
                 "loan_principal",
                 "loan_total",
-            ],
-            "primary_key": ["report_date", "borrower_id_rus"],
+            ]
         },
         "sources": ["rus7"],
         "etl_group": "rus7",
@@ -343,25 +360,24 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "statement_type",
-                "statement_item_type",
-                "observation_period",
-                "amount",
+                "operations_type",
+                "operations_item_type",
+                "amount_report_month",
+                "amount_ytd",
+                "amount_ytd_budget",
+                "is_total",
             ],
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "statement_item_type",
-                "observation_period",
+                "operations_type",
+                "operations_item_type",
             ],
         },
         "sources": ["rus7"],
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__scd_borrowers": {  # this is kinda a SCD table? with just two things?
         "description": {
             "additional_summary_text": ("active RUS borrowers"),

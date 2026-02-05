@@ -9405,7 +9405,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Amount of patronage distributed or received within report year.",
         "unit": "USD",
     },
-    "statement_type": {
+    "operations_type": {
         "type": "string",
         "description": (
             "High level section from the statement of operations table. Most of these "
@@ -9420,7 +9420,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             }
         },
     },
-    "statement_item_type": {
+    "operations_item_type": {
         "type": "string",
         "description": "Type of item from the statement of operations.",
         "constraints": {
@@ -9447,6 +9447,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "transmission",
             }
         },
+    },
+    "amount_report_month": {
+        "type": "number",
+        "description": "Amount of operational expense, cost or income during the report month.",
+        "unit": "USD",
+    },
+    "amount_ytd": {
+        "type": "number",
+        "description": "The year-to-date amount of operational expense, cost or income.",
+        "unit": "USD",
+    },
+    "amount_ytd_budget": {
+        "type": "number",
+        "description": "The year-to-date budget for amount of operational expense, cost or income.",
+        "unit": "USD",
     },
 }
 """Field attributes by PUDL identifier (`field.name`)."""

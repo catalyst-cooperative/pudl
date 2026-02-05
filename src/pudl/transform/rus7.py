@@ -64,8 +64,7 @@ def core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
     return df
 
 
-# TODO: feed all rus7 tables into this and extract info
-@asset  # TODO: (io_manager_key="pudl_io_manager") once metadata is settled
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__scd_borrowers(raw_rus7__borrowers):
     """Transform the borrowers table."""
     df = rus.early_transform(raw_df=raw_rus7__borrowers)
@@ -234,11 +233,11 @@ def core_rus7__yearly_power_requirements(
     return df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_investments(
     raw_rus7__investments: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the core_rus7__yearly_investments table."""
+    """Transform the investments table."""
     df = rus.early_transform(
         raw_df=raw_rus7__investments,
         boolean_columns_to_fix=["is_rural_development_investment"],
@@ -248,7 +247,7 @@ def core_rus7__yearly_investments(
     return df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_long_term_debt(
     raw_rus7__long_term_debt: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -258,11 +257,11 @@ def core_rus7__yearly_long_term_debt(
     return df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_patronage_capital(
     raw_rus7__patronage_capital: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the core_rus7__yearly_patronage_capital table."""
+    """Transform the patronage capital table."""
     df = rus.early_transform(
         raw_df=raw_rus7__patronage_capital,
         boolean_columns_to_fix=[],
@@ -292,18 +291,17 @@ def core_rus7__yearly_patronage_capital(
     return df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_statement_of_operations(
     raw_rus7__statement_of_operations: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the core_rus7__yearly_statement_of_operations table."""
+    """Transform the statement of operations table."""
     df = rus.early_transform(
         raw_df=raw_rus7__statement_of_operations,
         boolean_columns_to_fix=[],
     )
     rus.early_check_pk(df)
 
-    # Add a suffix at end
     statement_types = [
         "operating_revenue",
         "opex",
@@ -311,22 +309,14 @@ def core_rus7__yearly_statement_of_operations(
         "patronage_and_operating_margins",
     ]
     periods = ["ytd", "ytd_budget", "report_month"]
-    base_pattern = rf"^({'|'.join(statement_types)})_(.+)_({'|'.join(periods)})"
-    df = df.rename(
-        columns={
-            col: f"{col}_amount" for col in df.filter(regex=base_pattern + "$").columns
-        }
-    ).pipe(
-        rus.multi_index_stack,
+    pattern = rf"^({'|'.join(statement_types)})_(.+)_({'|'.join(periods)})$"
+    df = rus.multi_index_stack(
+        df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
-        data_cols=["amount"],
-        pattern=base_pattern + r"_(amount)$",
-        match_names=[
-            "statement_type",
-            "statement_item_type",
-            "observation_period",
-            "expense",
-        ],
-        unstack_level=["statement_type", "statement_item_type", "observation_period"],
-    )
+        data_cols=periods,
+        pattern=pattern,
+        match_names=["operations_type", "operations_item_type", "data_cols"],
+        unstack_level=["operations_type", "operations_item_type"],
+    ).rename(columns={date: f"amount_{date}" for date in periods})
+    df["is_total"] = df.operations_item_type.str.startswith("total_")
     return df
