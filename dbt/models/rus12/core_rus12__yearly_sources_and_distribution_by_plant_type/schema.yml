@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_sources_and_distribution_by_plant_type
+        data_tests:
+          - expect_columns_not_all_null
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: plant_type
+          - name: capacity_mw
+          - name: plant_num
+          - name: cost
+          - name: net_energy_received_mwh

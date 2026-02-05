@@ -216,6 +216,36 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__yearly_sources_and_distribution_by_plant_type": {
+        "description": {
+            "additional_summary_text": (
+                "capacity, plant num, MWh, and cost of energy by plant type for RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part C)",
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "plant_type",
+                "capacity_mw",
+                "plant_num",
+                "cost",
+                "net_energy_received_mwh",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "plant_type",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
 }
 
 DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -331,36 +361,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "source_of_energy",
-            ],
-        },
-        "sources": ["rus12"],
-        "etl_group": "rus12",
-        "field_namespace": "rus",
-    },
-    "core_rus12__yearly_sources_and_distribution_by_plant_type": {
-        "description": {
-            "additional_summary_text": (
-                "capacity, plant num, MWh, and cost of energy by plant type for RUS borrowers."
-            ),
-            "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part C)",
-            "additional_details_text": "",
-        },
-        "schema": {
-            "fields": [
-                "report_date",
-                "borrower_id_rus",
-                "borrower_name_rus",
-                "plant_type",
-                "capacity_mw",  # still need to update this in the function
-                "plant_num",
-                "cost",
-                "net_energy_received_mwh",
-            ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-                "plant_type",
             ],
         },
         "sources": ["rus12"],

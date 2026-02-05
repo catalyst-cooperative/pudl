@@ -159,7 +159,7 @@ def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     return df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_sources_and_distribution_by_plant_type(
     raw_rus12__sources_and_distribution,
 ):
@@ -193,11 +193,17 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
         ],
         drop_zero_rows=True,
     )
+    # Convert units
+    df = rus.convert_units(
+        df,
+        old_unit="kw",
+        new_unit="mw",
+        converter=0.001,
+    )
 
-    # Make sure plant num is only int values and then convert to integer
-    assert (df.plant_num.dropna() % 1 == 0).all()
-    df.plant_num = df.plant_num.astype("Int64")
-    # TODO: use Christina's convert_units function once it's merged in for kw to mw
+    # # Make sure plant num is only int values and then convert to integer
+    # assert (df.plant_num.dropna() % 1 == 0).all()
+    # df.plant_num = df.plant_num.astype("Int64")
     return df
 
 

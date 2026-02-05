@@ -4718,6 +4718,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MWh",
     },
+    "net_energy_received_mwh": {
+        "type": "number",
+        "description": "The net amount of energy received into the system.",
+        "unit": "MWh",
+    },
     "net_generation_adjusted_mwh": {
         "type": "number",
         "description": (
@@ -5899,6 +5904,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_name_rus": {
         "type": "string",
         "description": "Name of the plant as reported to RUS.",
+    },
+    "plant_num": {
+        "type": "integer",
+        "description": "Number of plants.",
     },
     "plant_part": {
         "type": "string",
