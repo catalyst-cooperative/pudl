@@ -3306,6 +3306,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the boiler is capable of re-injecting fly ash."
         ),
     },
+    "for_rural_development": {
+        "type": "boolean",
+        "description": "Whether or not the investment is Rural Development.",
+    },
     "forecast_year": {
         "type": "integer",
         "description": "Four-digit year that applies to a particular forecasted value.",
@@ -4317,6 +4321,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and all participants in new load management programs."
         ),
         "unit": "MW",
+    },
+    "loan_balance": {
+        "type": "number",
+        "description": "The amount of money still owned on a loan at the end of the reporting year.",
+    },
+    "loan_maturity_date": {
+        "type": "date",
+        "description": "The date on which a loan is scheduled to be fully paid.",
+    },
+    "loan_organization": {
+        "type": "string",
+        "description": "The organization from which a loan was received.",
+    },
+    "loan_original_amount": {
+        "type": "number",
+        "description": "The original amount of a loan.",
+        "unit": "USD",
     },
     "longitude": {
         "type": "number",

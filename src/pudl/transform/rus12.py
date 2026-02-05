@@ -134,7 +134,7 @@ def core_rus12__yearly_lines_stations_labor_materials_cost(
     return df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_loans(raw_rus12__loans):
     """Transform the raw_rus12__loans table."""
     df = rus.early_transform(raw_df=raw_rus12__loans)

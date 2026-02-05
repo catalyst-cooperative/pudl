@@ -280,6 +280,32 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__yearly_loans": {
+        "description": {
+            "additional_summary_text": ("loans guaranteed by RUS borrowers."),
+            "additional_primary_key_text": (
+                "This table has no primary key because some borrowers report multiple loan values from "
+                "the same entity in a given year."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section F - Subsection II)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "loan_organization",
+                "loan_maturity_date",
+                "loan_original_amount",
+                "loan_balance",
+                "for_rural_development",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
 }
 
 DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -340,61 +366,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "plant_name_rus",
                 "plant_type",  # this should be the primary key but there are duplicates for borrower_oid IA0084 and plant Walter Scott
-            ],
-        },
-        "sources": ["rus12"],
-        "etl_group": "rus12",
-        "field_namespace": "rus",
-    },
-    "core_rus12__yearly_loans": {
-        "description": {
-            "additional_summary_text": ("loans guaranteed by RUS borrowers."),
-            "additional_primary_key_text": (
-                "This table has no primary key because some borrowers report multiple loan values from "
-                "the same entity in a given year."
-            ),
-            "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part H - Section F - Subsection II)",
-            "additional_details_text": "",
-        },
-        "schema": {
-            "fields": [
-                "report_date",
-                "borrower_id_rus",
-                "borrower_name_rus",
-                "loan_organization",
-                "loan_maturity_date",
-                "loan_original_amount",
-                "loan_balance",
-                "for_rural_development",
-            ],
-        },
-        "sources": ["rus12"],
-        "etl_group": "rus12",
-        "field_namespace": "rus",
-    },
-    "core_rus12__yearly_sources_and_distribution": {
-        "description": {
-            "additional_summary_text": (
-                "MWh and cost of energy sources and distribution by RUS borrowers."
-            ),
-            "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part C)",
-            "additional_details_text": "",
-        },
-        "schema": {
-            "fields": [
-                "report_date",
-                "borrower_id_rus",
-                "borrower_name_rus",
-                "source_of_energy",
-                "cost",
-                "net_energy_received_mwh",
-            ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-                "source_of_energy",
             ],
         },
         "sources": ["rus12"],
