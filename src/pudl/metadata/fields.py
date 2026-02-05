@@ -9537,6 +9537,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "other_capital_credits",
                 "other_capital_credits_ytd",
                 "other_deductions",
+                "operating_revenue",
                 "power_production",
                 "purchased_power",
                 "regional_market",
