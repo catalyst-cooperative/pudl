@@ -204,10 +204,11 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     # # Make sure plant num is only int values and then convert to integer
     # assert (df.plant_num.dropna() % 1 == 0).all()
     # df.plant_num = df.plant_num.astype("Int64")
+    # TODO: add is_total column.
     return df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_sources_and_distribution(
     raw_rus12__sources_and_distribution,
 ):

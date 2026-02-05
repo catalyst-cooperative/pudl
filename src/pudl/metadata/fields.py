@@ -49,6 +49,7 @@ from pudl.metadata.enums import (
     REVENUE_CLASSES_EIA176,
     REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
+    SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
@@ -7054,6 +7055,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Indicates whether the generator is part of a solid fuel gasification system"
         ),
+    },
+    "source_of_energy": {
+        "type": "string",
+        "description": "The source of energy (not plant type).",
+        "constraints": {"enum": SOURCE_OF_ENERGY_RUS12},
     },
     "source_url": {
         "type": "string",

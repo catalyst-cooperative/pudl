@@ -246,6 +246,40 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__yearly_sources_and_distribution": {
+        "description": {
+            "additional_summary_text": (
+                "MWh and cost of energy sources and distribution by RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part C)",
+            "additional_details_text": (
+                "See the ``sources_and_distribution_by_plant_type`` table for "
+                "a breakdown of plant-type-specific cost, capacity, plant_num, "
+                "and net_energy_received values. "
+                "Also note that there are several ``source_of_energy`` values "
+                "that don't have a corresponding cost value."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "source_of_energy",
+                "net_energy_received_mwh",
+                "cost",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "source_of_energy",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
 }
 
 DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
