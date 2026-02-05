@@ -328,6 +328,7 @@ pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update p
 dbt-deps-upgrade = { cmd = "dbt deps --upgrade", cwd = "dbt", description = "Update dbt dependencies" }
 
 [project.scripts]
+auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
 pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
