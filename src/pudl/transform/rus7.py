@@ -299,11 +299,11 @@ def core_rus7__yearly_statement_of_operations(
     statement_groups = [
         "cost_of_electric_service",
         "opex",
-        "cost_of_electric_service",
         "patronage_and_operating_margins",
+        "patronage_capital_or_margins",
     ]
-    periods = ["ytd", "ytd_budget", "report_month"]
-    pattern = rf"^({'|'.join(statement_groups)})_(.+)_(opex_{'|'.join(periods)})$"
+    periods = ["opex_ytd", "opex_ytd_budget", "opex_report_month"]
+    pattern = rf"^({'|'.join(statement_groups)})_(.+)_({'|'.join(periods)})$"
     df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],

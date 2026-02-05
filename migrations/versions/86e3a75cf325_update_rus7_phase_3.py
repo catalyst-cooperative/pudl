@@ -1,8 +1,8 @@
 """update rus7 phase 3
 
-Revision ID: 328b8609a5ee
+Revision ID: 86e3a75cf325
 Revises: 66b851b8fb2c
-Create Date: 2026-02-05 12:26:57.411523
+Create Date: 2026-02-05 17:46:59.853675
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '328b8609a5ee'
+revision = '86e3a75cf325'
 down_revision = '66b851b8fb2c'
 branch_labels = None
 depends_on = None
@@ -54,13 +54,13 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('opex_group', sa.Enum('cost_of_electric_service', 'cost_of_electric_service', 'patronage_and_operating_margins', 'opex'), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``statement_item_type`` column.'),
-    sa.Column('opex_type', sa.Enum('interest_charged_to_construction', 'customer_service', 'power_production', 'purchased_power', 'other_deductions', 'total', 'cost_of_electric_service', 'tax_other', 'customer_accounts', 'distribution_operation', 'total_minus', 'distribution_maintenance', 'interest_other', 'tax_property', 'transmission', 'interest_long_term_debt', 'regional_market', 'deprecation', 'sales', 'admin'), nullable=False, comment='Type of item from the statement of operations.'),
+    sa.Column('opex_group', sa.Enum('cost_of_electric_service', 'patronage_and_operating_margins', 'patronage_capital_or_margins', 'opex'), nullable=False, comment='High level section from the statement of operations table. Most of these types have subcomponents broken out in the ``statement_item_type`` column.'),
+    sa.Column('opex_type', sa.Enum('interest_charged_to_construction', 'transmission', 'total_minus', 'equity_investment_losses', 'extraordinary_items', 'total', 'distribution_maintenance', 'interest_long_term_debt', 'generation_and_transmission_capital', 'tax_other', 'other_capital_credits_ytd', 'admin', 'distribution_operation', 'other_capital_credits', 'customer_service', 'other_deductions', 'customer_accounts', 'interest_other', 'tax_property', 'deprecation', 'power_production', 'construction_funds_allowance', 'cost_of_electric_service', 'sales', 'purchased_power', 'non_operating_margins_other', 'non_operating_margins_interest', 'regional_market'), nullable=False, comment='Type of item from the statement of operations.'),
     sa.Column('opex_report_month', sa.Float(), nullable=True, comment='Amount of operational expense, cost or income during the report month.'),
     sa.Column('opex_ytd', sa.Float(), nullable=True, comment='The year-to-date amount of operational expense, cost or income.'),
     sa.Column('opex_ytd_budget', sa.Float(), nullable=True, comment='The year-to-date budget for amount of operational expense, cost or income.'),
     sa.Column('is_total', sa.Boolean(), nullable=True, comment='Whether or not this record represents a total.'),
-    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'opex_type', 'opex_group', name=op.f('pk_core_rus7__yearly_statement_of_operations'))
+    sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'opex_group', 'opex_type', name=op.f('pk_core_rus7__yearly_statement_of_operations'))
     )
     op.create_table('core_rus7__yearly_investments',
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),

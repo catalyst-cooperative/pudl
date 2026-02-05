@@ -9507,9 +9507,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "enum": {
                 "cost_of_electric_service",
-                "operating_revenue",
                 "opex",
                 "patronage_and_operating_margins",
+                "patronage_capital_or_margins",
             }
         },
     },
@@ -9519,15 +9519,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "enum": {
                 "admin",
+                "construction_funds_allowance",
+                "cost_of_electric_service",
                 "customer_accounts",
                 "customer_service",
                 "deprecation",
                 "distribution_maintenance",
                 "distribution_operation",
+                "equity_investment_losses",
+                "extraordinary_items",
+                "generation_and_transmission_capital",
                 "interest_charged_to_construction",
                 "interest_long_term_debt",
                 "interest_other",
-                "operating_revenue",
+                "non_operating_margins_interest",
+                "non_operating_margins_other",
+                "other_capital_credits",
+                "other_capital_credits_ytd",
                 "other_deductions",
                 "power_production",
                 "purchased_power",
