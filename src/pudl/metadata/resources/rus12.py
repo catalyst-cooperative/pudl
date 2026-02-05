@@ -233,17 +233,17 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "operation_expense_group",
-                "operation_expense_type",
-                "ytd"  # I think this should be more descriptive
-                "ytd_budget",
-                "report_month",
+                "opex_group",
+                "opex_type",
+                "opex_ytd"  # I think this should be more descriptive
+                "opex_ytd_budget",
+                "opex_report_month",
             ],
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "operation_expense_group",
-                "operation_expense_type",
+                "opex_group",
+                "opex_type",
             ],
         },
         "sources": ["rus12"],
@@ -324,7 +324,7 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_name_rus",
                 "source_of_energy",
                 "cost",
-                "mwh",
+                "net_energy_received_mwh",
             ],
             "primary_key": [
                 "report_date",

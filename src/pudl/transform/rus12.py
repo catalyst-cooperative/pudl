@@ -170,7 +170,7 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     core_rus12__yearly_sources_and_distribution.
     """
     df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
-    data_cols = ["capacity_kw", "cost", "plants_num", "net_energy_mwh"]
+    data_cols = ["capacity_kw", "cost", "plant_num", "net_energy_received_mwh"]
 
     # This list excludes total values and instead includes them in the sources_and_distribution table.
     plant_types = [
@@ -180,6 +180,7 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
         "combined_cycle",
         "nuclear",
         "other",
+        "total",
     ]
 
     # Stack by plant type
@@ -196,8 +197,8 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     )
 
     # Make sure plant num is only int values and then convert to integer
-    assert (df.plants_num.dropna() % 1 == 0).all()
-    df.plants_num = df.plants_num.astype("Int64")
+    assert (df.plant_num.dropna() % 1 == 0).all()
+    df.plant_num = df.plant_num.astype("Int64")
     # TODO: use Christina's convert_units function once it's merged in for kw to mw
     return df
 
@@ -263,10 +264,9 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
     df = rus.early_transform(raw_df=raw_rus12__statement_of_operations)
 
     # Setting this assertion before stacking the table to make sure the PK holds
-    assert (
-        df[["borrower_id_rus", "borrower_name_rus", "report_date"]].duplicated().any()
-        is not True
-    ), "Primary key violation found in core_rus12__yearly_statement_of_operations"
+    rus.early_check_pk(
+        df, pk_early=["borrower_id_rus", "borrower_name_rus", "report_date"]
+    )
 
     # There are a bunch of cols ending in per_kwh that seem to have no information in them.
     # Verify this so we feel good dropping them. (They get dropped in multi_index_stack).
@@ -276,25 +276,21 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
     )
 
     # Stack by operating revenue group and expense type
-    data_cols = ["report_month", "ytd", "ytd_budget"]
-    operation_expense_group = {
-        "oprev": "operation_revenue_and_patronage_capital",
-        "opex": "operation_expense",
-        "maintex": "maintenance_expense",
-        "ces": "cost_of_electric_service",
-        "npc": "net_patronage_capital_or_margins",
-    }
+    data_cols = ["opex_report_month", "opex_ytd", "opex_ytd_budget"]
+    opex_group = [
+        "operation_revenue_and_patronage_capital",
+        "operation_expense",
+        "maintenance_expense",
+        "cost_of_electric_service",
+        "net_patronage_capital_or_margins",
+    ]
     df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
-        pattern=rf"^({'|'.join(operation_expense_group.keys())})_(.+)_({'|'.join(data_cols)})$",
-        match_names=["operation_expense_group", "operation_expense", "data_cols"],
-        unstack_level=["operation_expense_group", "operation_expense_type"],
+        pattern=rf"^({'|'.join(opex_group)})_(.+)_({'|'.join(data_cols)})$",
+        match_names=["opex_group", "opex_type", "data_cols"],
+        unstack_level=["opex_group", "opex_type"],
     )
-
-    # Map operation_expense_group codes to full names
-    df.operation_expense_group = df.operation_expense_group.map(operation_expense_group)
-
     # TODO: could remove total columns that aren't used as part of the calculation for others.
     return df
