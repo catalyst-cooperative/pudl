@@ -48,6 +48,12 @@ EPA CEMS
 * Updated EPA CEMS hourly emissions data through December 2025. See :issue:`4986`
   and :pr:`4990`.
 
+EIA 930
+~~~~~~~
+
+* Updated EIA 930 data through December 2025. See :issue:`4985`
+  and :pr:`4995`.
+
 
 Documentation
 ~~~~~~~~~~~~~
@@ -86,6 +92,8 @@ Bug Fixes & Data Cleaning
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Improved memory performance of EIA-930 by translating transforms to use ``duckdb``.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
