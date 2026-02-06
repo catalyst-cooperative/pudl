@@ -83,7 +83,7 @@ datasets:
           2024,
         ]
     eia930:
-      half_years: ["2024half2"]
+      half_years: ["2025half2"]
     eiaaeo:
       years: [2023, 2025]
   epacems:
