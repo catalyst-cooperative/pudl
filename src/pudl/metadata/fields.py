@@ -1612,7 +1612,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether limited on-site fuel storage is a factor that limits the generator's ability to switch between oil and natural gas."
         ),
     },
-    "debt_description": {"type": "string", "description": "The"},
     "debt_ending_balance": {
         "type": "number",
         "description": (
@@ -9360,7 +9359,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "December only, while 'avg' implies this record pertains to the average of the reporting period."
         ),
         "constraints": {
-            "enum": {"avg", "december", "new_in_report_year", "cumulative"}
+            "enum": {
+                "avg",
+                "december",
+                "new_in_report_year",
+                "cumulative",
+                "report_year",
+                "report_month",
+                "ytd",
+                "ytd_budget",
+            }
         },
     },
     "invested": {
@@ -9426,6 +9434,95 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Whether or not the peak_mw is coincident or non-coincident peak.",
         "unit": "boolean",
+    },
+    "investment_description": {
+        "type": "string",
+        "description": "Description of investment. This is a free-form text field and thus contains a wide variety of values.",
+    },
+    "investment_type_code": {
+        "type": "integer",
+        "description": "Investment type code.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_rus7__codes_investment_types"]["df"]["code"]
+            )
+        },
+    },
+    "included_investments": {
+        "type": "number",
+        "description": "Included investment.",
+    },
+    "excluded_investments": {
+        "type": "number",
+        "description": "Excluded investment.",
+    },
+    "income_or_loss": {
+        "type": "number",
+        "description": "Income or loss from investment.",
+    },
+    "for_rural_development": {
+        "type": "boolean",
+        "description": "Whether or not the investment is Rural Development.",
+    },
+    "opex_group": {
+        "type": "string",
+        "description": (
+            "High level section from the statement of operations table. Most of these "
+            "types have subcomponents broken out in the ``opex_type`` column."
+        ),
+    },
+    "opex_type": {
+        "type": "string",
+        "description": "Type of item from the statement of operations.",
+    },
+    "debt_description": {
+        "type": "string",
+        "description": (
+            "Description of debt or loan. On the original form, there are nine provided "
+            "descriptions and a section to add other free-form descriptions."
+        ),
+    },
+    "patronage_type": {
+        "type": "string",
+        "description": ("Type of patronage capital distributed or received."),
+        "constraints": {
+            "enum": {
+                "distributions_general_retirements",
+                "distributions_special_retirements",
+                "received_lenders_of_electric_power",
+                "received_supplier_of_electric_power",
+                "total_distributions_retirements",
+                "total_received",
+            }
+        },
+    },
+    "patronage_cumulative": {
+        "type": "number",
+        "description": (
+            "Amount of patronage distributed or received cumulatively. "
+            "Received patronage capital is not reported cumulatively and thus will be null."
+        ),
+        "unit": "USD",
+    },
+    "patronage_report_year": {
+        "type": "number",
+        "description": "Amount of patronage distributed or received within report year.",
+        "unit": "USD",
+    },
+    "opex_report_month": {
+        "type": "number",
+        "description": "Amount of operational expense, cost or income during the report month.",
+        "unit": "USD",
+    },
+    "opex_ytd": {
+        "type": "number",
+        "description": "The year-to-date amount of operational expense, cost or income.",
+        "unit": "USD",
+    },
+    "opex_ytd_budget": {
+        "type": "number",
+        "description": "The year-to-date budget for amount of operational expense, cost or income.",
+        "unit": "USD",
     },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
@@ -10454,6 +10551,53 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Type of liability being reported to the core_rus7__yearly_balance_sheet_liabilities table."
             ),
             "constraints": {"enum": LIABILITY_TYPES_RUS7},
+        },
+    },
+    "core_rus7__yearly_statement_of_operations": {
+        "opex_group": {
+            "constraints": {
+                "enum": {
+                    "cost_of_electric_service",
+                    "opex",
+                    "patronage_and_operating_margins",
+                    "patronage_capital_or_margins",
+                }
+            }
+        },
+        "opex_type": {
+            "constraints": {
+                "enum": {
+                    "admin",
+                    "construction_funds_allowance",
+                    "cost_of_electric_service",
+                    "customer_accounts",
+                    "customer_service",
+                    "deprecation",
+                    "distribution_maintenance",
+                    "distribution_operation",
+                    "equity_investment_losses",
+                    "extraordinary_items",
+                    "generation_and_transmission_capital",
+                    "interest_charged_to_construction",
+                    "interest_long_term_debt",
+                    "interest_other",
+                    "non_operating_margins_interest",
+                    "non_operating_margins_other",
+                    "other_capital_credits",
+                    "other_capital_credits_ytd",
+                    "other_deductions",
+                    "operating_revenue",
+                    "power_production",
+                    "purchased_power",
+                    "regional_market",
+                    "sales",
+                    "tax_other",
+                    "tax_property",
+                    "total",
+                    "total_minus",
+                    "transmission",
+                }
+            },
         },
     },
     "core_rus12__yearly_balance_sheet_assets": {
