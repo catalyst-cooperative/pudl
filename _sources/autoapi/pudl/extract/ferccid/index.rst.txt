@@ -1,0 +1,29 @@
+pudl.extract.ferccid
+====================
+
+.. py:module:: pudl.extract.ferccid
+
+.. autoapi-nested-parse::
+
+   This module extracts the raw FERC Company Identifier (CID) table.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.ferccid.raw_ferc__entity_companies
+
+
+Module Contents
+---------------
+
+.. py:function:: raw_ferc__entity_companies(context)
+
+   Extract raw FERC CID data from CSV files to one dataframe.
+
+   :returns: An extracted FERC CID dataframe.
+
+

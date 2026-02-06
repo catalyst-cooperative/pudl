@@ -1,0 +1,107 @@
+pudl.extract.eia923
+===================
+
+.. py:module:: pudl.extract.eia923
+
+.. autoapi-nested-parse::
+
+   Retrieves data from EIA Form 923 spreadsheets for analysis.
+
+   This module pulls data from archived copies of EIA's published Excel spreadsheets.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.eia923.logger
+   pudl.extract.eia923.raw_eia923__all_dfs
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.eia923.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.eia923.extract_eia923
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.excel.ExcelExtractor`
+
+
+   Extractor for EIA form 923.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: BLACKLISTED_PAGES
+      :value: ['plant_frame']
+
+
+      List of supported pages that should not be extracted.
+
+
+   .. py:attribute:: cols_added
+      :value: []
+
+
+
+   .. py:method:: process_raw(df, page, **partition)
+
+      Prepare raw table for extraction.
+
+      Check extraction configuration is sensible, drop reserved columns, switch to
+      standardized column names, and perform other broadly-applicable cleanup of
+      data formats, types, and missingness.
+
+
+
+   .. py:method:: process_renamed(df, page, **partition)
+      :staticmethod:
+
+
+      Cleans up unnamed_0 column in stocks page, drops invalid plan_id_eia rows.
+
+
+
+   .. py:method:: process_final_page(df, page)
+
+      Removes reserved columns from the final dataframe.
+
+
+
+   .. py:method:: get_dtypes(page, **partition)
+      :staticmethod:
+
+
+      Returns dtypes for plant id columns and county FIPS column.
+
+
+
+.. py:data:: raw_eia923__all_dfs
+
+.. py:function:: extract_eia923(raw_eia923__all_dfs)
+
+   Extract raw EIA-923 data from excel sheets into dataframes.
+
+

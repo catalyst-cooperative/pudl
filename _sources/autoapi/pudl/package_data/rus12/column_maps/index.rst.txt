@@ -1,0 +1,11 @@
+pudl.package_data.rus12.column_maps
+===================================
+
+.. py:module:: pudl.package_data.rus12.column_maps
+
+.. autoapi-nested-parse::
+
+   Metadata linking semantic meaning of RUS 12 spreadsheet columns across years.
+
+
+

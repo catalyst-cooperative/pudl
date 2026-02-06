@@ -1,0 +1,63 @@
+pudl.transform.rus12
+====================
+
+.. py:module:: pudl.transform.rus12
+
+.. autoapi-nested-parse::
+
+   Transform the RUS12 tables.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.rus12.core_rus12__yearly_meeting_and_board
+   pudl.transform.rus12.core_rus12__yearly_balance_sheet_assets
+   pudl.transform.rus12.core_rus12__yearly_balance_sheet_liabilities
+   pudl.transform.rus12.core_rus12__scd_borrowers
+   pudl.transform.rus12.core_rus12__yearly_renewable_plants
+   pudl.transform.rus12.core_rus12__yearly_long_term_debt
+   pudl.transform.rus12.core_rus12__yearly_lines_stations_labor_materials_cost
+
+
+Module Contents
+---------------
+
+.. py:function:: core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board)
+
+   Transform the core_rus12__yearly_meeting_and_board table.
+
+
+.. py:function:: core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet)
+
+   Transform the core_rus12__yearly_balance_sheet_assets table.
+
+
+.. py:function:: core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet)
+
+   Transform the core_rus12__yearly_balance_sheet_liabilities table.
+
+
+.. py:function:: core_rus12__scd_borrowers(raw_rus12__borrowers)
+
+   Transform the core_rus12__scd_borrowers table.
+
+
+.. py:function:: core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants)
+
+   Transform the core_rus12__yearly_renewable_plants table.
+
+
+.. py:function:: core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt)
+
+   Transform the core_rus12__yearly_long_term_debt table.
+
+
+.. py:function:: core_rus12__yearly_lines_stations_labor_materials_cost(raw_rus12__lines_and_stations_labor_materials)
+
+   Transform the raw_rus12__lines_and_stations_labor_materials table.
+
+

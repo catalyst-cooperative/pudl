@@ -1,0 +1,114 @@
+pudl.transform.eia176
+=====================
+
+.. py:module:: pudl.transform.eia176
+
+.. autoapi-nested-parse::
+
+   Module to perform data cleaning functions on EIA176 data tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.eia176.logger
+   pudl.transform.eia176.DROP_OPERATING_STATES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.eia176._core_eia176__numeric_data
+   pudl.transform.eia176.get_wide_table
+   pudl.transform.eia176.validate_totals
+   pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer
+   pudl.transform.eia176.core_eia176__yearly_gas_disposition
+   pudl.transform.eia176._normalize_operating_states
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: DROP_OPERATING_STATES
+   :value: ('fed. gulf of mexico', 'mexico', 'other')
+
+
+.. py:function:: _core_eia176__numeric_data(raw_eia176__numeric_data: pandas.DataFrame) -> tuple[dagster.Output, dagster.Output]
+
+   Process EIA 176 custom report data into company and aggregate outputs.
+
+   Take raw dataframe produced by querying all forms from the EIA 176 custom report
+   and return two wide tables with primary keys and one column per variable.
+
+   One table with data for each year and company, one with state- and US-level
+   aggregates per year.
+
+
+
+.. py:function:: get_wide_table(long_table: pandas.DataFrame, primary_key: list[str]) -> pandas.DataFrame
+
+   Take a 'long' or entity-attribute-value table and return a wide table with one column per attribute/variable.
+
+
+.. py:function:: validate_totals(_core_eia176__yearly_company_data: pandas.DataFrame, _core_eia176__yearly_aggregate_data: pandas.DataFrame) -> dagster.AssetCheckResult
+
+   Compare reported and calculated totals for different geographical aggregates.
+
+   EIA reports an adjustment company at the area-level, so these values are expected to
+   be identical.  Once we validate this, we can preserve the detailed data and discard
+   the aggregate data to remove duplicate information.
+
+
+.. py:function:: core_eia176__yearly_gas_disposition_by_consumer(_core_eia176__yearly_company_data: pandas.DataFrame, core_pudl__codes_subdivisions: pandas.DataFrame) -> pandas.DataFrame
+
+   Produce annual company-level gas disposition by consumer class (EIA-176).
+
+   Transforms company-level EIA-176 data into a normalized table with one row per
+   ("report_year", "operator_id_eia", "operating_state", "customer_class", "revenue_class")
+   and three value columns: "consumers", "revenue", and "volume_mcf".
+
+   Processing:
+
+   * Select sales and transport metrics for residential, commercial, industrial,
+     electric_power, vehicle_fuel, and other.
+   * Validate that ``sales_volume + transport_volume == total volume`` per customer
+     class.
+   * Normalize ``operating_state`` to two-letter subdivision codes via
+     ``core_pudl__codes_subdivisions``; drop rows with unknown states (these rows must
+     contain zeros across value columns).
+   * Drop rows where all of ``consumers``/``revenue``/``volume_mcf`` are NULL.
+
+   :param _core_eia176__yearly_company_data: Wide company-level EIA-176 data with
+                                             per-metric columns.
+   :param core_pudl__codes_subdivisions: Mapping from ``subdivision_name`` to
+                                         ``subdivision_code`` used to normalize ``operating_state``.
+
+   :raises AssertionError: If component volumes don’t sum to totals, or if rows with
+       unknown ``operating_state`` contain non-zero values.
+
+   .. rubric:: Notes
+
+   - ``volume_mcf`` is thousand cubic feet (MCF).
+   - ``consumers`` is a count; ``revenue`` is nominal USD as reported.
+   - ``customer_class`` and ``revenue_class`` are returned as categoricals.
+
+
+.. py:function:: core_eia176__yearly_gas_disposition(_core_eia176__yearly_company_data: pandas.DataFrame, core_pudl__codes_subdivisions: pandas.DataFrame, raw_eia176__continuation_text_lines: pandas.DataFrame) -> pandas.DataFrame
+
+   Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).
+
+
+.. py:function:: _normalize_operating_states(core_pudl__codes_subdivisions, df)
+
+   Map full state names to their postal abbreviations.
+
+   This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.
+
+

@@ -1,0 +1,20 @@
+pudl.package_data.phmsagas
+==========================
+
+.. py:module:: pudl.package_data.phmsagas
+
+.. autoapi-nested-parse::
+
+   Excel spreadsheet extraction maps for PHMSA gas data.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/package_data/phmsagas/column_maps/index
+
+

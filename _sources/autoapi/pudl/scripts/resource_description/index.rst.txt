@@ -1,0 +1,34 @@
+pudl.scripts.resource_description
+=================================
+
+.. py:module:: pudl.scripts.resource_description
+
+.. autoapi-nested-parse::
+
+   Tiny CLI for showing table descriptions without building the full docs.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.resource_description.main
+
+
+Module Contents
+---------------
+
+.. py:function:: main(name: str)
+
+   Compute and display the description components for a resource.
+
+   These components are used to build the full resource description which goes into the
+   data dictionary, datapackage, and other downstream applications.
+
+   Useful when adding a new table, if you have the top-level structure installed in
+   :mod:`pudl.metadata.resources` but don't yet have public documentation written.
+
+
+
