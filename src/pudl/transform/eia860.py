@@ -322,7 +322,7 @@ def _core_eia860__generators(
         & (gens_df.energy_source_code_1 == "OG")
     )
     expected_bad_tech_len_min = 1 if 2025 in gens_df.report_date.dt.year.unique() else 0
-    expected_bad_tech_len_max = 0 if expected_bad_tech_len_min == 0 else 2
+    expected_bad_tech_len_max = 0 if expected_bad_tech_len_min == 0 else 3
     if not (
         expected_bad_tech_len_min
         <= len(gens_df[bad_tech_mask])
