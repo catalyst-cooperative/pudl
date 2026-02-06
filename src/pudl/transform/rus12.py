@@ -150,12 +150,23 @@ def core_rus12__yearly_loans(raw_rus12__loans):
     return df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     """Transform the raw_rus12__plant_labor table."""
     df = rus.early_transform(raw_df=raw_rus12__plant_labor)
-    df.employees_fte_num = df.employees_fte_num.astype("Int64")
-    df.employees_part_time_num = df.employees_part_time_num.astype("Int64")
+
+    # Test payroll_total column so can remove it in the schema
+    payroll_cols = [
+        "payroll_maintenance",
+        "payroll_operations",
+        "payroll_other_accounts",
+    ]
+    assert df[
+        df[payroll_cols].fillna(0).sum(axis=1) != df["payroll_total"].fillna(0)
+    ].empty, (
+        "payroll_total column does not equal sum of payroll component columns for some rows."
+    )
+
     return df
 
 

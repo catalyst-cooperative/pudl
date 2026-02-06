@@ -1001,3 +1001,10 @@ SOURCE_OF_ENERGY_RUS12: set[str] = [
     "received_into_system_wheeling",
     "energy_furnished_without_charge",
 ]
+PLANT_TYPE_RUS12: set[str] = [
+    "Combined Cycle",
+    "Steam",
+    "Hydro",
+    "Internal Combustion",
+    "Nuclear",
+]

@@ -306,6 +306,44 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__yearly_plant_labor": {
+        "description": {
+            "additional_summary_text": ("plant-based labor report for RUS borrowers."),
+            "additional_primary_key_text": (
+                "The primary key should be report_date, borrower_id_rus, plant_name_rus, "
+                "and plant_type, but this table did not report plant_type before 2009 and "
+                "there are respondents who report multiple rows per plant pre-2009. "
+                "The data cannot be backfilled because there is no way to distinguish between "
+                "duplicate rows pre-2009."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Parts D, E, F, G - Section B)",
+            "additional_details_text": (
+                "There are also some plants (at least one, Walter Scott) that are reported "
+                "by multiple borrowers (IA0084 and IA0083) with the same values. "
+                "Also note the lack of plant_type pre-2009 leading to a lack of "
+                "reliable primary keys."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "plant_name_rus",
+                "plant_type",
+                "employees_full_time_num",
+                "employees_part_time_num",
+                "employee_hours_worked_total",
+                "payroll_maintenance",
+                "payroll_operations",
+                "payroll_other_accounts",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
 }
 
 DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
@@ -335,37 +373,6 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "opex_group",
                 "opex_type",
-            ],
-        },
-        "sources": ["rus12"],
-        "etl_group": "rus12",
-        "field_namespace": "rus",
-    },
-    "core_rus12__yearly_plant_labor": {
-        "description": {
-            "additional_summary_text": ("plant-based labor report for RUS borrowers."),
-            "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Parts D, E, F, G - Section B)",
-            "additional_details_text": "",
-        },
-        "schema": {
-            "fields": [
-                "report_date",
-                "borrower_id_rus",
-                "borrower_name_rus",
-                "plant_name_rus",
-                "plant_type",
-                "employees_full_time_num",
-                "employees_part_time_num",
-                "operating_plant_payroll",
-                "other_accounts_plant_payroll",
-                "total_plant_payroll",  # remove?
-            ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-                "plant_name_rus",
-                "plant_type",  # this should be the primary key but there are duplicates for borrower_oid IA0084 and plant Walter Scott
             ],
         },
         "sources": ["rus12"],

@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_plant_labor
+        data_tests:
+          - expect_columns_not_all_null
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: plant_name_rus
+          - name: plant_type
+          - name: employees_full_time_num
+          - name: employees_part_time_num
+          - name: employee_hours_worked_total
+          - name: payroll_maintenance
+          - name: payroll_operations
+          - name: payroll_other_accounts

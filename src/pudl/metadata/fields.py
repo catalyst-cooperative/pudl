@@ -43,6 +43,7 @@ from pudl.metadata.enums import (
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
     PLANT_PARTS,
+    PLANT_TYPE_RUS12,
     PRIME_MOVER_TYPES_RUS12,
     RELIABILITY_STANDARDS,
     RENEWABLE_FUEL_TYPES_RUS12,
@@ -2660,6 +2661,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "employees_num": {
         "type": "integer",
         "description": "Number of employees.",
+    },
+    "employees_full_time_num": {
+        "type": "integer",
+        "description": "Number of full time employees.",
+    },
+    "employees_part_time_num": {
+        "type": "integer",
+        "description": "Number of part time employees.",
+    },
+    "employee_hours_worked_total": {
+        "type": "number",
+        "description": "Total number of hours worked by employees.",
     },
     "end_point": {
         "type": "string",
@@ -9388,6 +9401,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "The amount of payroll spent that was funded by other means - not capitalized or expensed.",
     },
+    "payroll_maintenance": {
+        "type": "number",
+        "description": "The amount of payroll spent on plant maintenance.",
+        "unit": "USD",
+    },
+    "payroll_operations": {
+        "type": "number",
+        "description": "The amount of payroll spent on plant operations.",
+        "unit": "USD",
+    },
+    "payroll_other_accounts": {
+        "type": "number",
+        "description": "The amount of plant payroll spent on accounts other than maintenance and operations.",
+        "unit": "USD",
+    },
     "customers_num": {"description": "Number of customers.", "type": "number"},
     "observation_period": {
         "type": "string",
@@ -9557,6 +9585,14 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
+    "core_rus12__yearly_plant_labor": {
+        "plant_type": {
+            "type": "string",
+            "constraints": {
+                "enum": PLANT_TYPE_RUS12,
+            },
+        }
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
             "description": "State that the operator is reporting for.",
