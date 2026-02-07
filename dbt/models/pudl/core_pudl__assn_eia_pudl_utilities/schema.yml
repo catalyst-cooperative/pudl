@@ -11,5 +11,12 @@ sources:
                 partition_expr:
         columns:
           - name: utility_id_eia
+            tests:
+              - not_null
+              - one_value_per_key:
+                  arguments:
+                    other_column_name: utility_id_pudl
           - name: utility_name_eia
           - name: utility_id_pudl
+            tests:
+              - not_null
