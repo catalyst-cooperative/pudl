@@ -1663,10 +1663,12 @@ def calc_capacity_factor(
             "report_date": dates,
             "hours": dates.apply(
                 lambda d: (
-                    pd.date_range(d, periods=2, freq=freq)[1]
-                    - pd.date_range(d, periods=2, freq=freq)[0]
+                    (
+                        pd.date_range(d, periods=2, freq=freq)[1]
+                        - pd.date_range(d, periods=2, freq=freq)[0]
+                    )
+                    / pd.Timedelta(hours=1)
                 )
-                / pd.Timedelta(hours=1)
             ),
         }
     )
