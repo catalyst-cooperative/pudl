@@ -808,9 +808,9 @@ class MakePlantParts:
     def _clean_plant_parts(self, plant_parts_eia):
         plant_parts_eia = plant_parts_eia.assign(
             report_year=lambda x: x.report_date.dt.year,
-            plant_id_report_year=lambda x: x.plant_id_pudl.astype(str)
-            + "_"
-            + x.report_year.astype(str),
+            plant_id_report_year=lambda x: (
+                x.plant_id_pudl.astype(str) + "_" + x.report_year.astype(str)
+            ),
         ).pipe(
             pudl.helpers.cleanstrings_snake,
             ["record_id_eia", "appro_record_id_eia"],
@@ -1437,24 +1437,26 @@ def add_record_id(
     ids.remove("plant_id_eia")
     for col in ids:
         part_df = part_df.assign(
-            record_id_eia_temp=lambda x, col=col: x.record_id_eia_temp
-            + "_"
-            + x[col].astype(str)
+            record_id_eia_temp=lambda x, col=col: (
+                x.record_id_eia_temp + "_" + x[col].astype(str)
+            )
         )
     if year:
         part_df = part_df.assign(
-            record_id_eia_temp=lambda x: x.record_id_eia_temp
-            + "_"
-            + x.report_date.dt.year.astype(str)
+            record_id_eia_temp=lambda x: (
+                x.record_id_eia_temp + "_" + x.report_date.dt.year.astype(str)
+            )
         )
     part_df = part_df.assign(
-        record_id_eia_temp=lambda x: x.record_id_eia_temp
-        + "_"
-        + x[plant_part_col]
-        + "_"
-        + x.ownership_record_type.astype(str)
-        + "_"
-        + x.utility_id_eia.astype("Int64").astype(str)
+        record_id_eia_temp=lambda x: (
+            x.record_id_eia_temp
+            + "_"
+            + x[plant_part_col]
+            + "_"
+            + x.ownership_record_type.astype(str)
+            + "_"
+            + x.utility_id_eia.astype("Int64").astype(str)
+        )
     )
     # add operational status only when records are not "operating" (i.e.
     # existing or retiring mid-year see MakeMegaGenTbl.abel_operating_gens()
@@ -1576,9 +1578,9 @@ def plant_parts_eia_distinct(plant_parts_eia: pd.DataFrame) -> pd.DataFrame:
         plant_parts_eia: EIA plant parts table.
     """
     plant_parts_eia = plant_parts_eia.assign(
-        plant_id_report_year_util_id=lambda x: x.plant_id_report_year
-        + "_"
-        + x.utility_id_pudl.astype(str)
+        plant_id_report_year_util_id=lambda x: (
+            x.plant_id_report_year + "_" + x.utility_id_pudl.astype(str)
+        )
     ).astype({"installation_year": "float"})
     distinct_ppe = plant_parts_eia[
         (plant_parts_eia["true_gran"]) & (~plant_parts_eia["ownership_dupe"])

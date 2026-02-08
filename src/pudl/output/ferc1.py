@@ -362,8 +362,9 @@ def out_ferc1__yearly_steam_plants_sched402(
         .assign(
             capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
             opex_fuel_per_mwh=lambda x: x.opex_fuel / x.net_generation_mwh,
-            opex_total_nonfuel=lambda x: x.opex_production_total
-            - x.opex_fuel.fillna(0),
+            opex_total_nonfuel=lambda x: (
+                x.opex_production_total - x.opex_fuel.fillna(0)
+            ),
             opex_nonfuel_per_mwh=lambda x: np.where(
                 x.net_generation_mwh > 0,
                 x.opex_total_nonfuel / x.net_generation_mwh,
@@ -405,7 +406,7 @@ def out_ferc1__yearly_small_plants_sched410(
                 .fillna(0)
                 .sum(axis=1)
             ),
-            opex_total_nonfuel=lambda x: (x.opex_total - x.opex_fuel.fillna(0)),
+            opex_total_nonfuel=lambda x: x.opex_total - x.opex_fuel.fillna(0),
         )
         .pipe(
             pudl.helpers.organize_cols,
@@ -437,7 +438,7 @@ def out_ferc1__yearly_hydroelectric_plants_sched406(
             how="left",
         )
         .assign(
-            capacity_factor=lambda x: (x.net_generation_mwh / (8760 * x.capacity_mw)),
+            capacity_factor=lambda x: x.net_generation_mwh / (8760 * x.capacity_mw),
             opex_total_nonfuel=lambda x: x.opex_total,
         )
         .pipe(
@@ -502,10 +503,12 @@ def out_ferc1__yearly_steam_plants_fuel_sched402(
     """
     fuel_df = (
         core_ferc1__yearly_steam_plants_fuel_sched402.assign(
-            fuel_consumed_mmbtu=lambda x: x["fuel_consumed_units"]
-            * x["fuel_mmbtu_per_unit"],
-            fuel_consumed_total_cost=lambda x: x["fuel_consumed_units"]
-            * x["fuel_cost_per_unit_burned"],
+            fuel_consumed_mmbtu=lambda x: (
+                x["fuel_consumed_units"] * x["fuel_mmbtu_per_unit"]
+            ),
+            fuel_consumed_total_cost=lambda x: (
+                x["fuel_consumed_units"] * x["fuel_cost_per_unit_burned"]
+            ),
         )
         .merge(
             _out_ferc1__yearly_plants_utilities,
@@ -695,9 +698,11 @@ def calc_annual_capital_additions_ferc1(
         report_date=lambda x: pd.to_datetime(x.report_year, format="%Y")
     ).sort_values(idx_steam_no_date + ["report_date"])
     steam_df = steam_df.assign(
-        capex_wo_retirement_total=lambda x: x.capex_equipment.fillna(0)
-        + x.capex_land.fillna(0)
-        + x.capex_structures.fillna(0)
+        capex_wo_retirement_total=lambda x: (
+            x.capex_equipment.fillna(0)
+            + x.capex_land.fillna(0)
+            + x.capex_structures.fillna(0)
+        )
     )
     # we group on everything but the year so the groups are multi-year unique
     # plants the shift happens within these multi-year plant groups
@@ -705,8 +710,9 @@ def calc_annual_capital_additions_ferc1(
         ["capex_wo_retirement_total"]
     ].shift()
     steam_df = steam_df.assign(
-        capex_annual_addition=lambda x: x.capex_wo_retirement_total
-        - x.capex_total_shifted
+        capex_annual_addition=lambda x: (
+            x.capex_wo_retirement_total - x.capex_total_shifted
+        )
     )
 
     addts = pudl.helpers.generate_rolling_avg(
@@ -731,10 +737,12 @@ def calc_annual_capital_additions_ferc1(
         capex_annual_per_mwh=lambda x: x.capex_annual_addition / x.net_generation_mwh,
         capex_annual_per_mw=lambda x: x.capex_annual_addition / x.capacity_mw,
         capex_annual_per_kw=lambda x: x.capex_annual_addition / x.capacity_mw / 1000,
-        capex_annual_per_mwh_rolling=lambda x: x.capex_annual_addition_rolling
-        / x.net_generation_mwh,
-        capex_annual_per_mw_rolling=lambda x: x.capex_annual_addition_rolling
-        / x.capacity_mw,
+        capex_annual_per_mwh_rolling=lambda x: (
+            x.capex_annual_addition_rolling / x.net_generation_mwh
+        ),
+        capex_annual_per_mw_rolling=lambda x: (
+            x.capex_annual_addition_rolling / x.capacity_mw
+        ),
     )
 
     steam_df_w_addts = add_mean_cap_additions(steam_df_w_addts)
@@ -792,8 +800,9 @@ def add_mean_cap_additions(steam_df):
             validate="many_to_one",
         )
         .assign(
-            capex_annual_addition_diff_mean=lambda x: x.capex_annual_addition
-            - x.capex_annual_addition_gen_mean,
+            capex_annual_addition_diff_mean=lambda x: (
+                x.capex_annual_addition - x.capex_annual_addition_gen_mean
+            ),
         )
     )
     return df
@@ -1298,10 +1307,12 @@ class Exploder:
             .rename(columns={col: f"{col}_parent" for col in NodeId._fields})
             .assign(
                 xbrl_factoid=(
-                    lambda x: x.xbrl_factoid_parent
-                    + "_off_by_"
-                    + x.xbrl_factoid_off_by
-                    + "_correction"
+                    lambda x: (
+                        x.xbrl_factoid_parent
+                        + "_off_by_"
+                        + x.xbrl_factoid_off_by
+                        + "_correction"
+                    )
                 ),
                 weight=1,
                 is_total_to_subdimensions_calc=False,
@@ -1647,10 +1658,12 @@ class Exploder:
             .assign(
                 **{
                     "xbrl_factoid": (
-                        lambda x: x.xbrl_factoid
-                        + "_off_by_"
-                        + x.xbrl_factoid_off_by
-                        + "_correction"
+                        lambda x: (
+                            x.xbrl_factoid
+                            + "_off_by_"
+                            + x.xbrl_factoid_off_by
+                            + "_correction"
+                        )
                     ),
                     self.value_col: lambda x: x["diff"],
                     "row_type_xbrl": "correction",

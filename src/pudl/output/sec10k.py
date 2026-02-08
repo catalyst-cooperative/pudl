@@ -212,9 +212,11 @@ def out_sec10k__changelog_company_name(
     assert name_changelog["company_name_old"].isna().sum() < 5
     name_changelog = name_changelog.assign(
         company_name_old=lambda x: x["company_name_old"].fillna(""),
-        company_name_new=lambda x: x.groupby("central_index_key")["company_name_old"]
-        .shift(-1)
-        .fillna(x["company_name"]),
+        company_name_new=lambda x: (
+            x.groupby("central_index_key")["company_name_old"]
+            .shift(-1)
+            .fillna(x["company_name"])
+        ),
     )
     # Drop records where the "name change" is a no-op.
     name_changelog = name_changelog.loc[

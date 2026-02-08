@@ -1187,14 +1187,14 @@ def prep_allocation_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             fuel_consumed_mmbtu_bf_tbl=lambda x: x.fuel_consumed_mmbtu_bf_tbl.fillna(
                 MISSING_SENTINEL
             ),
-            net_generation_mwh_g_tbl_pm_fuel=lambda x: x.net_generation_mwh_g_tbl_pm_fuel.fillna(
-                MISSING_SENTINEL
+            net_generation_mwh_g_tbl_pm_fuel=lambda x: (
+                x.net_generation_mwh_g_tbl_pm_fuel.fillna(MISSING_SENTINEL)
             ),
-            fuel_consumed_mmbtu_bf_tbl_pm_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl_pm_fuel.fillna(
-                MISSING_SENTINEL
+            fuel_consumed_mmbtu_bf_tbl_pm_fuel=lambda x: (
+                x.fuel_consumed_mmbtu_bf_tbl_pm_fuel.fillna(MISSING_SENTINEL)
             ),
-            fuel_consumed_mmbtu_bf_tbl_unit_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl_unit_fuel.fillna(
-                MISSING_SENTINEL
+            fuel_consumed_mmbtu_bf_tbl_unit_fuel=lambda x: (
+                x.fuel_consumed_mmbtu_bf_tbl_unit_fuel.fillna(MISSING_SENTINEL)
             ),
         )
     )
@@ -1262,8 +1262,9 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     # table, we still allocate, because the generation reported in these two
     # tables don't always match perfectly
     all_gen = all_gen.assign(
-        frac_net_gen=lambda x: x.net_generation_mwh_g_tbl
-        / x.net_generation_mwh_g_tbl_pm_fuel,
+        frac_net_gen=lambda x: (
+            x.net_generation_mwh_g_tbl / x.net_generation_mwh_g_tbl_pm_fuel
+        ),
         frac=lambda x: x.frac_net_gen,
     )
     # _ = _test_frac(all_gen)
@@ -1288,14 +1289,17 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         ),
         # for records within these mix groups that do have net gen in the
         # generation table..
-        frac_net_gen=lambda x: x.net_generation_mwh_g_tbl
-        / x.net_generation_mwh_g_tbl_pm_fuel,  # generator based net gen from gen table
+        frac_net_gen=lambda x: (
+            x.net_generation_mwh_g_tbl / x.net_generation_mwh_g_tbl_pm_fuel
+        ),  # generator based net gen from gen table
         frac_gen=lambda x: x.frac_net_gen * x.frac_from_g_tbl,
         # fraction of generation that does not show up in the generation table
         frac_missing_from_g_tbl=lambda x: 1 - x.frac_from_g_tbl,
         capacity_mw_missing_from_g_tbl=lambda x: np.where(x.in_g_tbl, 0, x.capacity_mw),
-        frac_cap=lambda x: x.frac_missing_from_g_tbl
-        * (x.capacity_mw_missing_from_g_tbl / x.capacity_mw_in_g_tbl_group),
+        frac_cap=lambda x: (
+            x.frac_missing_from_g_tbl
+            * (x.capacity_mw_missing_from_g_tbl / x.capacity_mw_in_g_tbl_group)
+        ),
         # the real deal
         # this could also be `x.frac_gen + x.frac_cap` because the frac_gen
         # should be 0 for any generator that does not have net gen in the g_tbl
@@ -1377,8 +1381,9 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
     # table, we still allocate, because the fuel reported in these two
     # tables don't always match perfectly
     all_bf = all_bf.assign(
-        frac_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl
-        / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel,
+        frac_fuel=lambda x: (
+            x.fuel_consumed_mmbtu_bf_tbl / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel
+        ),
         frac=lambda x: x.frac_fuel,
     )
     # _ = _test_frac(all_bf)
@@ -1393,8 +1398,9 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         ),
         # for records within these mix groups that do have fuel consumption in the
         # bf table..
-        frac_fuel=lambda x: x.fuel_consumed_mmbtu_bf_tbl
-        / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel,  # generator based fuel from bf table
+        frac_fuel=lambda x: (
+            x.fuel_consumed_mmbtu_bf_tbl / x.fuel_consumed_mmbtu_bf_tbl_pm_fuel
+        ),  # generator based fuel from bf table
         frac_bf=lambda x: x.frac_fuel * x.frac_from_bf_tbl,
         # fraction of fuel that does not show up in the bf table
         # set minimum fraction to zero so we don't get negative fuel
@@ -1404,8 +1410,10 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
         capacity_mw_missing_from_bf_tbl=lambda x: np.where(
             x.in_bf_tbl, 0, x.capacity_mw
         ),
-        frac_cap=lambda x: x.frac_missing_from_bf_tbl
-        * (x.capacity_mw_missing_from_bf_tbl / x.capacity_mw_fuel_in_bf_tbl_group),
+        frac_cap=lambda x: (
+            x.frac_missing_from_bf_tbl
+            * (x.capacity_mw_missing_from_bf_tbl / x.capacity_mw_fuel_in_bf_tbl_group)
+        ),
         # the real deal
         # this could also be `x.frac_bf + x.frac_cap` because the frac_bf
         # should be 0 for any generator that does not have fuel in the bf_tbl
@@ -1444,8 +1452,9 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
             # we could x.fuel_consumed_mmbtu_bf_tbl.fillna here if we wanted to
             # take the net gen
             fuel_consumed_mmbtu=lambda x: x.fuel_consumed_mmbtu_gf_tbl * x.frac,
-            fuel_consumed_for_electricity_mmbtu=lambda x: x.fuel_consumed_for_electricity_mmbtu_gf_tbl
-            * x.frac,
+            fuel_consumed_for_electricity_mmbtu=lambda x: (
+                x.fuel_consumed_for_electricity_mmbtu_gf_tbl * x.frac
+            ),
         )
         .pipe(apply_pudl_dtypes, group="eia")
         .dropna(how="all")
@@ -1540,9 +1549,9 @@ def distribute_annually_reported_data_to_months_if_annual(
 
         def assign_plant_year(df):
             return df.assign(
-                plant_year=lambda x: x.report_date.dt.year.astype(str)
-                + "_"
-                + x.plant_id_eia.astype(str)
+                plant_year=lambda x: (
+                    x.report_date.dt.year.astype(str) + "_" + x.plant_id_eia.astype(str)
+                )
             )
 
         reporters = df.copy().pipe(assign_plant_year)
@@ -1552,8 +1561,10 @@ def distribute_annually_reported_data_to_months_if_annual(
         ]
         reporters["missing_data"] = (
             reporters.assign(
-                missing_data=lambda x: x[data_column_name].isnull()
-                | np.isclose(reporters[data_column_name], 0)
+                missing_data=lambda x: (
+                    x[data_column_name].isnull()
+                    | np.isclose(reporters[data_column_name], 0)
+                )
             )
             .groupby(key_columns_annual, dropna=False)[["missing_data"]]
             .transform("sum")
@@ -1940,8 +1951,9 @@ def _test_gen_pm_fuel_output(
             on=idx,
             how="outer",
         ).assign(
-            net_generation_mwh_diff=lambda x: x.net_generation_mwh_gf_tbl
-            - x.net_generation_mwh_test
+            net_generation_mwh_diff=lambda x: (
+                x.net_generation_mwh_gf_tbl - x.net_generation_mwh_test
+            )
         )
         return gen_pm_fuel_test
 
@@ -2006,8 +2018,9 @@ def test_gen_fuel_allocation(
         on=IDX_GENS,
         suffixes=("_new", "_og"),
     ).assign(
-        net_generation_new_v_og=lambda x: x.net_generation_mwh_new
-        / x.net_generation_mwh_og
+        net_generation_new_v_og=lambda x: (
+            x.net_generation_mwh_new / x.net_generation_mwh_og
+        )
     )
 
     os_ratios = gens_test[
