@@ -1,0 +1,13 @@
+---
+name: deploy-pudl
+on:
+  workflow_dispatch:
+
+
+jobs:
+  deploy_pudl:
+    name: Deploy PUDL build
+    runs-on: ubuntu-latest
+    steps:
+      - name: stub
+        run: echo 'stub'
