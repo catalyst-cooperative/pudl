@@ -9,6 +9,9 @@ import shutil
 import zipfile
 from pathlib import Path
 
+import gcsfs
+import s3fs
+
 logger = logging.getLogger(__name__)
 
 
@@ -70,3 +73,54 @@ def prepare_outputs_for_distribution(output_dir: Path) -> None:
         logger.info(f"Created parquet archive: {archive_path}")
 
     logger.info("Output preparation complete")
+
+
+def upload_outputs(
+    source_dir: Path,
+    path_suffixes: list[str],
+    staging: bool = False,
+) -> None:
+    """Upload outputs to cloud storage paths.
+
+    Uploads all files from source directory to GCS and S3 using the provided path
+    suffixes. Each suffix is uploaded to both gs://pudl.catalyst.coop/{suffix}/ and
+    s3://pudl.catalyst.coop/{suffix}/. In staging mode, "staging/" prefix is added.
+
+    Args:
+        source_dir: Local directory containing prepared outputs to upload.
+        path_suffixes: Path suffixes to upload to (e.g., ["nightly", "eel-hole"]).
+        staging: If True, prepend "staging/" to all paths for testing.
+    """
+    source_dir = Path(source_dir)
+
+    if not source_dir.exists():
+        raise ValueError(f"Source directory does not exist: {source_dir}")
+
+    # Check if directory has any content to upload
+    if not any(source_dir.iterdir()):
+        raise ValueError(f"Source directory is empty: {source_dir}")
+
+    # Create filesystem instances
+    gcs_fs = gcsfs.GCSFileSystem()
+    s3_fs = s3fs.S3FileSystem()
+
+    # Build base paths
+    gcs_base = "gs://pudl.catalyst.coop"
+    s3_base = "s3://pudl.catalyst.coop"
+
+    if staging:
+        gcs_base = f"{gcs_base}/staging"
+        s3_base = f"{s3_base}/staging"
+
+    # Upload to each path suffix
+    for suffix in path_suffixes:
+        gcs_path = f"{gcs_base}/{suffix}/"
+        s3_path = f"{s3_base}/{suffix}/"
+
+        logger.info(f"Uploading outputs to {gcs_path}")
+        gcs_fs.put(f"{source_dir}/*", gcs_path, recursive=True)
+
+        logger.info(f"Uploading outputs to {s3_path}")
+        s3_fs.put(f"{source_dir}/*", s3_path, recursive=True)
+
+    logger.info(f"Upload complete for {len(path_suffixes)} path(s)")
