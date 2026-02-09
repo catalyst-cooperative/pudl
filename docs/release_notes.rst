@@ -16,8 +16,8 @@ RUS 7
 ~~~~~
 
 * Extracted data for ten USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
-* Transformed and published USDA RUS tables. See :issue:`4885`, PR :pr:`4939` and PR
-  :pr:`4971`.
+* Transformed and published USDA RUS tables. See :issue:`4885`, PR :pr:`4939`, PR
+  :pr:`4971` and PR :pr:`4974`.
 
 RUS-12
 ~~~~~~
@@ -42,6 +42,19 @@ Expanded Data Coverage
   extract them, even though we don't process the data yet. This added 2 more years to
   the EIA-191 data. See PR :pr:`4879`.
 
+EPA CEMS
+~~~~~~~~
+
+* Updated EPA CEMS hourly emissions data through December 2025. See :issue:`4986`
+  and :pr:`4990`.
+
+EIA 930
+~~~~~~~
+
+* Updated EIA 930 data through December 2025. See :issue:`4985`
+  and :pr:`4995`.
+
+
 Documentation
 ~~~~~~~~~~~~~
 
@@ -65,8 +78,22 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* We added an automatic script to help match FERC and EIA utilities with near-identical
+  utility names as part of our ongoing data updates. As a result, we have matched an
+  additional 115 utilities and resolved a small handful of cases where a FERC utility
+  was mapped to more than one PUDL ID. Through this process, we also identified a bug
+  that was resulting in us assigning the least common utility name and prime mover code
+  to records to harvested EIA records when there were inconsistent values reported.
+  Fixing this resulted in overall improved accuracy of the data. 3,650 utilities were
+  reassigned names, resulting in approximately 150 additional matches to SEC 10K
+  filings. 86 generators were reassigned prime mover codes, resulting in re-allocated
+  net generation. See :issue:`1317`, :issue:`4934` and :issue:`4913`, as well as PR
+  :pr:`4975`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Improved memory performance of EIA-930 by translating transforms to use ``duckdb``.
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

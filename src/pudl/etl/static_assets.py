@@ -112,3 +112,18 @@ def static_ferc1_tables():
         Output(output_name=table_name, value=df)
         for table_name, df in static_table_dict.items()
     )
+
+
+@multi_asset(
+    outs={
+        table_name: AssetOut(io_manager_key="pudl_io_manager")
+        for table_name in Package.get_etl_group_tables("static_rus")
+    },
+)
+def static_rus_tables():
+    """Create static RUS tables."""
+    static_tables = _read_static_encoding_tables("static_rus")
+    return (
+        Output(output_name=table_name, value=df)
+        for table_name, df in static_tables.items()
+    )
