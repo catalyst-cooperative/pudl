@@ -98,6 +98,8 @@ Bug Fixes & Data Cleaning
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Improved memory performance of EIA-930 by translating transforms to use ``duckdb``.
+
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
