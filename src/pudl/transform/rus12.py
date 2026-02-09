@@ -269,7 +269,7 @@ def core_rus12__yearly_sources_and_distribution(
     return df
 
 
-@asset  # (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations):
     """Transform the raw_rus12__statement_of_operations table.
 
@@ -292,7 +292,11 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
     )
 
     # Stack by operating revenue group and expense type
-    data_cols = ["opex_report_month", "opex_ytd", "opex_ytd_budget"]
+    data_cols = [
+        "opex_ytd",
+        "opex_ytd_budget",
+        "opex_report_month",
+    ]
     opex_group = [
         "operation_revenue_and_patronage_capital",
         "operation_expense",

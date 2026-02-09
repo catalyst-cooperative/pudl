@@ -1,7 +1,5 @@
 """Table definitions for the RUS12 tables."""
 
-from typing import Any
-
 RESOURCE_METADATA = {
     "core_rus12__yearly_meeting_and_board": {
         "description": {
@@ -344,17 +342,13 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_rus12__yearly_statement_of_operations": {  # Need to decide how to split this up
+    "core_rus12__yearly_statement_of_operations": {
         "description": {
             "additional_summary_text": (
-                "opex and cost of electric service for RUS borrowers."
+                "opex and cost of electric service for RUS borrowers by time period."
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part A - Section A)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
