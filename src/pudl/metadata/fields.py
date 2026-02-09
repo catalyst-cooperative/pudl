@@ -14,6 +14,7 @@ from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
 from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
     ASSET_TYPES_RUS7,
+    ASSET_TYPES_RUS12,
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     CUSTOMER_CLASSES_EIA176,
@@ -36,12 +37,15 @@ from pudl.metadata.enums import (
     LEAK_SOURCE_PHMSAGAS,
     LIABILITY_TYPES_FERC1,
     LIABILITY_TYPES_RUS7,
+    LIABILITY_TYPES_RUS12,
     MAIN_PIPE_SIZES_PHMSAGAS,
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
     PLANT_PARTS,
+    PRIME_MOVER_TYPES_RUS12,
     RELIABILITY_STANDARDS,
+    RENEWABLE_FUEL_TYPES_RUS12,
     REVENUE_CLASSES_EIA176,
     REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
@@ -1147,6 +1151,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "comments": {
+        "type": "string",
+        "description": "General comments field.",
+    },
     "company_name": {
         "type": "string",
         "description": "Name of company submitting SEC 10k filing.",
@@ -1316,6 +1324,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Name of river, lake, or water source that provides cooling water"
         ),
         "type": "string",
+    },
+    "cost": {
+        "type": "number",
+        "description": "Cost value.",
+        "unit": "USD",
     },
     "county": {"type": "string", "description": "County name."},
     "county_id_fips": {
@@ -1598,6 +1611,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Whether limited on-site fuel storage is a factor that limits the generator's ability to switch between oil and natural gas."
         ),
+    },
+    "debt_ending_balance": {
+        "type": "number",
+        "description": (
+            "The amount of principal still owned on the debt at the end of the report year."
+        ),
+        "unit": "USD",
+    },
+    "debt_interest": {
+        "type": "number",
+        "description": ("The interest expense on the debt for the report year."),
+        "unit": "USD",
+    },
+    "debt_principal": {
+        "type": "number",
+        "description": ("The principal paid on the debt during the report year."),
+        "unit": "USD",
+    },
+    "debt_total": {
+        "type": "number",
+        "description": ("The total amount of debt."),
+        "unit": "USD",
     },
     "depreciation_type": {
         "type": "string",
@@ -2619,6 +2654,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "emissions_unit_id_epa": {
         "type": "string",
         "description": "Emissions (smokestack) unit monitored by EPA CEMS.",
+    },
+    "employees_num": {
+        "type": "integer",
+        "description": "Number of employees.",
     },
     "end_point": {
         "type": "string",
@@ -4193,6 +4232,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         # TODO: Is this really boolean? Or do we have non-null strings that mean False?
     },
+    "labor_or_material": {
+        "type": "string",
+        "description": (
+            "Indicates whether the cost reported is for labor or material."
+        ),
+        "constraints": {"enum": ["labor", "material"]},
+    },
+    "lines_or_stations": {
+        "type": "string",
+        "description": (
+            "Indicates whether the cost reported pertains to  lines or stations."
+        ),
+        "constraints": {"enum": ["lines", "stations"]},
+    },
     "load_management_annual_actual_peak_reduction_mw": {
         "type": "number",
         "description": (
@@ -5018,6 +5071,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "KV",
     },
+    "operation_or_maintenance": {
+        "type": "string",
+        "description": (
+            "Indicates whether the expenditure is for operation or maintenance."
+        ),
+        "constraints": {"enum": ["operation", "maintenance"]},
+    },
     "operational_status": {
         "type": "string",
         "description": (
@@ -5495,6 +5555,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether a plant part record has a duplicate record with different ownership status."
         ),
     },
+    "ownership_pct": {
+        "type": "number",
+        "description": "Percentage of the plant owned by the respondent.",
+    },
     "parent_company_central_index_key": {
         "type": "string",
         "description": "Central index key (CIK) of the parent company.",
@@ -5831,6 +5895,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Plant name, chosen arbitrarily from the several possible plant names available in the plant matching process. Included for human readability only."
         ),
     },
+    "plant_name_rus": {
+        "type": "string",
+        "description": "Name of the plant as reported to RUS.",
+    },
     "plant_part": {
         "type": "string",
         "description": "The part of the plant a record corresponds to.",
@@ -5930,6 +5998,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "power_cost_per_mwh": {
+        "type": "number",
+        "description": ("The cost of power per mwh."),
+        "unit": "USD/MWh",
+    },
     "power_requirement_mw": {
         "description": (
             "Maximum power requirement for cooling towers at 100 percent load"
@@ -5994,6 +6067,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "North American Industry Classification System (NAICS) code that best describes the primary purpose of the reporting plant"
         ),
     },
+    "primary_renewable_fuel_type": {
+        "type": "string",
+        "description": ("Primary renewable fuel type used by the plant."),
+        "constraints": {
+            "enum": RENEWABLE_FUEL_TYPES_RUS12,
+        },
+    },
+    "primary_renewable_fuel_type_id": {
+        "type": "integer",
+        "description": ("Unique numeric identifier for each renewable fuel type."),
+        "constraints": {
+            "enum": list(range(1, 16)),
+        },
+    },
     "primary_transportation_mode_code": {
         "type": "string",
         "description": "Transportation mode for the longest distance transported.",
@@ -6007,6 +6094,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Code for the type of prime mover (e.g. CT, CG) associated with the record_id_eia_plant_gen."
         ),
+    },
+    "prime_mover_id": {
+        "type": "integer",
+        "description": "Unique numeric identifier for each prime mover type used by RUS borrowers.",
+    },
+    "prime_mover_type": {
+        "type": "string",
+        "description": "Type of prime mover (e.g. Hydro, Internal Combustion).",
+        "constraints": {
+            "enum": PRIME_MOVER_TYPES_RUS12,
+        },
     },
     "project_num": {"type": "integer", "description": "FERC Licensed Project Number."},
     "program": {
@@ -6217,6 +6315,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "regulatory_status_code": {
         "type": "string",
         "description": "Indicates whether the plant is regulated or non-regulated.",
+    },
+    "renewable_fuel_pct": {
+        "type": "number",
+        "description": "Percentage of renewable fuel used.",
     },
     "report_date": {"type": "date", "description": "Date reported."},
     "report_timezone": {
@@ -6460,6 +6562,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The ISOs/RTOs, in which the respondent conducts operations.",
         "constraints": {"enum": RTO_CLASSES},
+    },
+    "rus_funding": {
+        "type": "number",
+        "description": (
+            "Amount of funding received from the Rural Utilities Service (RUS)."
+        ),
+        "unit": "USD",
     },
     "saidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number",
@@ -9250,11 +9359,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "December only, while 'avg' implies this record pertains to the average of the reporting period."
         ),
         "constraints": {
-            "enum": {"avg", "december", "new_in_report_year", "cumulative"}
+            "enum": {
+                "avg",
+                "december",
+                "new_in_report_year",
+                "cumulative",
+                "report_year",
+                "report_month",
+                "ytd",
+                "ytd_budget",
+            }
         },
     },
     "invested": {
-        "type": "integer",
+        "type": "number",
         "description": "The amount of money invested.",
         "unit": "USD",
     },
@@ -9316,6 +9434,95 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Whether or not the peak_mw is coincident or non-coincident peak.",
         "unit": "boolean",
+    },
+    "investment_description": {
+        "type": "string",
+        "description": "Description of investment. This is a free-form text field and thus contains a wide variety of values.",
+    },
+    "investment_type_code": {
+        "type": "integer",
+        "description": "Investment type code.",
+        "constraints": {
+            "enum": set(
+                CODE_METADATA["core_rus7__codes_investment_types"]["df"]["code"]
+            )
+        },
+    },
+    "included_investments": {
+        "type": "number",
+        "description": "Included investment.",
+    },
+    "excluded_investments": {
+        "type": "number",
+        "description": "Excluded investment.",
+    },
+    "income_or_loss": {
+        "type": "number",
+        "description": "Income or loss from investment.",
+    },
+    "for_rural_development": {
+        "type": "boolean",
+        "description": "Whether or not the investment is Rural Development.",
+    },
+    "opex_group": {
+        "type": "string",
+        "description": (
+            "High level section from the statement of operations table. Most of these "
+            "types have subcomponents broken out in the ``opex_type`` column."
+        ),
+    },
+    "opex_type": {
+        "type": "string",
+        "description": "Type of item from the statement of operations.",
+    },
+    "debt_description": {
+        "type": "string",
+        "description": (
+            "Description of debt or loan. On the original form, there are nine provided "
+            "descriptions and a section to add other free-form descriptions."
+        ),
+    },
+    "patronage_type": {
+        "type": "string",
+        "description": ("Type of patronage capital distributed or received."),
+        "constraints": {
+            "enum": {
+                "distributions_general_retirements",
+                "distributions_special_retirements",
+                "received_lenders_of_electric_power",
+                "received_supplier_of_electric_power",
+                "total_distributions_retirements",
+                "total_received",
+            }
+        },
+    },
+    "patronage_cumulative": {
+        "type": "number",
+        "description": (
+            "Amount of patronage distributed or received cumulatively. "
+            "Received patronage capital is not reported cumulatively and thus will be null."
+        ),
+        "unit": "USD",
+    },
+    "patronage_report_year": {
+        "type": "number",
+        "description": "Amount of patronage distributed or received within report year.",
+        "unit": "USD",
+    },
+    "opex_report_month": {
+        "type": "number",
+        "description": "Amount of operational expense, cost or income during the report month.",
+        "unit": "USD",
+    },
+    "opex_ytd": {
+        "type": "number",
+        "description": "The year-to-date amount of operational expense, cost or income.",
+        "unit": "USD",
+    },
+    "opex_ytd_budget": {
+        "type": "number",
+        "description": "The year-to-date budget for amount of operational expense, cost or income.",
+        "unit": "USD",
     },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
@@ -10344,6 +10551,71 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Type of liability being reported to the core_rus7__yearly_balance_sheet_liabilities table."
             ),
             "constraints": {"enum": LIABILITY_TYPES_RUS7},
+        },
+    },
+    "core_rus7__yearly_statement_of_operations": {
+        "opex_group": {
+            "constraints": {
+                "enum": {
+                    "cost_of_electric_service",
+                    "opex",
+                    "patronage_and_operating_margins",
+                    "patronage_capital_or_margins",
+                }
+            }
+        },
+        "opex_type": {
+            "constraints": {
+                "enum": {
+                    "admin",
+                    "construction_funds_allowance",
+                    "cost_of_electric_service",
+                    "customer_accounts",
+                    "customer_service",
+                    "deprecation",
+                    "distribution_maintenance",
+                    "distribution_operation",
+                    "equity_investment_losses",
+                    "extraordinary_items",
+                    "generation_and_transmission_capital",
+                    "interest_charged_to_construction",
+                    "interest_long_term_debt",
+                    "interest_other",
+                    "non_operating_margins_interest",
+                    "non_operating_margins_other",
+                    "other_capital_credits",
+                    "other_capital_credits_ytd",
+                    "other_deductions",
+                    "operating_revenue",
+                    "power_production",
+                    "purchased_power",
+                    "regional_market",
+                    "sales",
+                    "tax_other",
+                    "tax_property",
+                    "total",
+                    "total_minus",
+                    "transmission",
+                }
+            },
+        },
+    },
+    "core_rus12__yearly_balance_sheet_assets": {
+        "asset_type": {
+            "type": "string",
+            "description": (
+                "Type of asset being reported to the core_rus12__yearly_balance_sheet_assets table."
+            ),
+            "constraints": {"enum": ASSET_TYPES_RUS12},
+        },
+    },
+    "core_rus12__yearly_balance_sheet_liabilities": {
+        "liability_type": {
+            "type": "string",
+            "description": (
+                "Type of liability being reported to the core_rus12__yearly_balance_sheet_liabilities table."
+            ),
+            "constraints": {"enum": LIABILITY_TYPES_RUS12},
         },
     },
 }

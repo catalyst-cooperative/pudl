@@ -92,7 +92,7 @@ datasets:
     # also load the EIA 860 data for that year if possible.
     #
     # We only use q1 for epacems etl_fast even if later quarters are available.
-    year_quarters: ["2023q1"]
+    year_quarters: ["2024q1"]
   phmsagas:
     years: [2024]
   nrelatb:
