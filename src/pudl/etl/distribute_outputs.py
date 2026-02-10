@@ -167,3 +167,115 @@ def update_git_branch(tag: str, branch: str) -> None:
     )
 
     logger.info(f"Git branch {branch} updated successfully")
+
+
+def trigger_zenodo_release(
+    env: str,
+    source_dir: str,
+    ignore_regex: str,
+    publish: bool,
+) -> None:
+    """Trigger Zenodo data release GitHub Actions workflow.
+
+    Dispatches the zenodo-data-release workflow to create or update a Zenodo
+    deposition with PUDL data outputs.
+
+    Args:
+        env: Zenodo environment - "sandbox" or "production".
+        source_dir: Cloud storage path to source data (e.g., "s3://pudl.catalyst.coop/nightly/").
+        ignore_regex: Regex pattern for files to exclude from upload.
+        publish: If True, automatically publish the Zenodo record.
+    """
+    logger.info(f"Triggering Zenodo release: env={env}, publish={publish}")
+
+    if env not in ("sandbox", "production"):
+        raise ValueError(
+            f"Invalid Zenodo environment: {env}. Must be 'sandbox' or 'production'."
+        )
+
+    publish_flag = "publish" if publish else "no-publish"
+
+    subprocess.run(  # noqa: S603
+        [  # noqa: S607
+            "gh",
+            "workflow",
+            "run",
+            "zenodo-data-release.yml",
+            "-f",
+            f"env={env}",
+            "-f",
+            f"source_dir={source_dir}",
+            "-f",
+            f"ignore_regex={ignore_regex}",
+            "-f",
+            f"publish={publish_flag}",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    logger.info("Zenodo release workflow triggered")
+
+
+def update_cloud_run_service(service_name: str) -> None:
+    """Update Cloud Run service to latest image.
+
+    Triggers redeployment of a Cloud Run service to pull and use the latest
+    container image.
+
+    Args:
+        service_name: Name of the Cloud Run service (e.g., "pudl-viewer").
+    """
+    logger.info(f"Updating Cloud Run service: {service_name}")
+
+    subprocess.run(  # noqa: S603
+        [  # noqa: S607
+            "gcloud",
+            "run",
+            "services",
+            "update",
+            service_name,
+            "--image",
+            f"us-east1-docker.pkg.dev/catalyst-cooperative-pudl/{service_name}/{service_name}:latest",
+            "--region",
+            "us-east1",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    logger.info(f"Cloud Run service {service_name} updated")
+
+
+def set_gcs_temporary_hold(gcs_path: str) -> None:
+    """Set temporary hold on GCS objects to prevent deletion.
+
+    Applies a temporary hold to protect versioned release artifacts from
+    accidental deletion or lifecycle policies.
+
+    Args:
+        gcs_path: GCS path to objects (e.g., "gs://pudl.catalyst.coop/v2025.2.3/").
+    """
+    logger.info(f"Setting temporary hold on {gcs_path}")
+
+    # Ensure path ends with / for wildcard matching
+    if not gcs_path.endswith("/"):
+        gcs_path = f"{gcs_path}/"
+
+    subprocess.run(  # noqa: S603
+        [  # noqa: S607
+            "gcloud",
+            "storage",
+            "objects",
+            "update",
+            f"{gcs_path}*",
+            "--temporary-hold",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    logger.info(f"Temporary hold set on {gcs_path}")
