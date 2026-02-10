@@ -25,29 +25,91 @@ triggers, and Cloud Run deployments. This allows safe validation of deployment
 changes before production use.
 """
 
-import logging
 import sys
 from pathlib import Path
 
 import click
-import coloredlogs
 
-from pudl.etl.distribute_outputs import (
+from pudl.etl.deploy_outputs import (
     prepare_outputs_for_distribution,
     set_gcs_temporary_hold,
     trigger_zenodo_release,
-    update_cloud_run_service,
     update_git_branch,
+    update_pudl_viewer,
     upload_outputs,
 )
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
-coloredlogs.install(
-    level=logging.INFO,
-    logger=logger,
-    fmt="%(asctime)s %(levelname)s %(name)s %(message)s",
-)
+
+
+def _deploy_nightly(source_dir: Path, git_tag: str, staging: bool, github_token: str):
+    """Execute nightly deployment workflow.
+
+    Deploys to nightly and eel-hole paths, updates nightly branch, triggers sandbox
+    Zenodo release, and updates Cloud Run service.
+    """
+    logger.info("Executing nightly deployment workflow")
+
+    path_suffixes = ["nightly", "eel-hole"]
+    if staging:
+        path_suffixes = [f"staging/{s}" for s in path_suffixes]
+
+    upload_outputs(
+        source_dir=source_dir,
+        path_suffixes=path_suffixes,
+    )
+
+    update_git_branch(tag=git_tag, branch="nightly", staging=staging)
+    if not staging:
+        trigger_zenodo_release(
+            build_ref=git_tag,
+            env="sandbox",
+            source_dir="s3://pudl.catalyst.coop/nightly/",
+            ignore_regex="",
+            publish=True,
+            token=github_token,
+        )
+
+        update_pudl_viewer()
+    else:
+        logger.info("Skipping Zenodo and Cloud Run operations (staging mode)")
+
+
+def _deploy_stable(source_dir: Path, git_tag: str, staging: bool, github_token: str):
+    """Execute stable deployment workflow.
+
+    Deploys to versioned and stable paths, updates stable branch, sets GCS temporary
+    hold on versioned release, and triggers production Zenodo release (unpublished).
+    """
+    logger.info("Executing stable deployment workflow")
+
+    path_suffixes = [git_tag, "stable"]
+    if staging:
+        path_suffixes = [f"staging/{s}" for s in path_suffixes]
+
+    upload_outputs(
+        source_dir=source_dir,
+        path_suffixes=path_suffixes,
+    )
+
+    update_git_branch(tag=git_tag, branch="stable", staging=staging)
+
+    if not staging:
+        gcs_path = f"gs://pudl.catalyst.coop/{git_tag}/"
+        set_gcs_temporary_hold(gcs_path=gcs_path)
+
+        trigger_zenodo_release(
+            build_ref=git_tag,
+            env="production",
+            source_dir=f"s3://pudl.catalyst.coop/{git_tag}/",
+            ignore_regex=r".*parquet.*",
+            publish=False,
+            token=github_token,
+        )
+
+    else:
+        logger.info("Skipping GCS hold and Zenodo operations (staging mode)")
 
 
 @click.command(
@@ -60,7 +122,7 @@ coloredlogs.install(
 )
 @click.argument(
     "source_path",
-    type=str,
+    type=click.Path(path_type=Path),
 )
 @click.option(
     "--git-tag",
@@ -69,17 +131,26 @@ coloredlogs.install(
     help="Git tag to merge into branch (e.g., nightly-2025-02-05 or v2025.2.3).",
 )
 @click.option(
+    "--github-token",
+    type=str,
+    required=True,
+    help="GitHub token for authentication.",
+)
+@click.option(
     "--staging",
     is_flag=True,
     default=False,
-    help="Upload to staging/ locations for validation. Skips git operations, "
-    "Zenodo triggers, and Cloud Run deployments.",
+    help=(
+        "Upload to staging/ locations for validation. Skips git operations, "
+        "Zenodo triggers, and Cloud Run deployments."
+    ),
     show_default=True,
 )
 def pudl_deploy(
     deploy_type: str,
-    source_path: str,
+    source_path: Path,
     git_tag: str,
+    github_token: str,
     staging: bool,
 ):
     """Deploy PUDL ETL outputs to cloud storage and external services.
@@ -98,73 +169,12 @@ def pudl_deploy(
             f"source_path={source_path}, git_tag={git_tag}, staging={staging}"
         )
 
-        # Convert source_path to Path object for local paths
-        source_dir = Path(source_path)
+        prepare_outputs_for_distribution(source_path)
 
-        # Step 1: Prepare outputs for distribution
-        logger.info("Step 1: Preparing outputs for distribution")
-        prepare_outputs_for_distribution(source_dir)
-
-        # Step 2: Configure paths based on deploy_type
-        logger.info(f"Step 2: Configuring paths for {deploy_type} deployment")
         if deploy_type == "nightly":
-            path_suffixes = ["nightly", "eel-hole"]
-            git_branch = "nightly"
-            zenodo_env = "sandbox"
-            zenodo_source = "s3://pudl.catalyst.coop/nightly/"
-            zenodo_ignore = ""
-            zenodo_publish = True
-            update_cloudrun = True
-        else:  # stable
-            path_suffixes = [git_tag, "stable"]
-            git_branch = "stable"
-            zenodo_env = "production"
-            zenodo_source = f"s3://pudl.catalyst.coop/{git_tag}/"
-            zenodo_ignore = r".*parquet.*"
-            zenodo_publish = False
-            update_cloudrun = False
-
-        # Step 3: Upload outputs to cloud storage
-        logger.info("Step 3: Uploading outputs to cloud storage")
-        upload_outputs(
-            source_dir=source_dir,
-            path_suffixes=path_suffixes,
-            staging=staging,
-        )
-
-        # Step 4: Git operations (skip in staging mode)
-        if not staging:
-            logger.info("Step 4: Updating git branch")
-            update_git_branch(tag=git_tag, branch=git_branch)
+            _deploy_nightly(source_path, git_tag, staging, github_token)
         else:
-            logger.info("Step 4: Skipping git operations (staging mode)")
-
-        # Step 5: Set GCS temporary hold for stable releases (skip in staging mode)
-        if deploy_type == "stable" and not staging:
-            logger.info("Step 5: Setting GCS temporary hold on versioned release")
-            gcs_path = f"gs://pudl.catalyst.coop/{git_tag}/"
-            set_gcs_temporary_hold(gcs_path=gcs_path)
-        else:
-            logger.info("Step 5: Skipping GCS temporary hold (nightly or staging mode)")
-
-        # Step 6: Trigger Zenodo release (skip in staging mode)
-        if not staging:
-            logger.info("Step 6: Triggering Zenodo release")
-            trigger_zenodo_release(
-                env=zenodo_env,
-                source_dir=zenodo_source,
-                ignore_regex=zenodo_ignore,
-                publish=zenodo_publish,
-            )
-        else:
-            logger.info("Step 6: Skipping Zenodo trigger (staging mode)")
-
-        # Step 7: Update Cloud Run service for nightly (skip in staging mode)
-        if update_cloudrun and not staging:
-            logger.info("Step 7: Updating Cloud Run service")
-            update_cloud_run_service(service_name="pudl-viewer")
-        else:
-            logger.info("Step 7: Skipping Cloud Run update (stable or staging mode)")
+            _deploy_stable(source_path, git_tag, staging, github_token)
 
         logger.info("Deployment completed successfully")
 
