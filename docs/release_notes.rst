@@ -60,6 +60,12 @@ EIA-923
 * Updated EIA-923 with monthly data through November 2025. See :issue:`4984` and
   :pr:`4993`.
 
+EIA 930
+~~~~~~~
+
+* Updated EIA 930 data through December 2025. See :issue:`4985`
+  and :pr:`4995`.
+
 EIA 176
 ~~~~~~~
 
