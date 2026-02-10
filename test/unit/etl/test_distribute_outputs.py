@@ -7,6 +7,9 @@ import pytest
 
 from pudl.etl.distribute_outputs import (
     prepare_outputs_for_distribution,
+    set_gcs_temporary_hold,
+    trigger_zenodo_release,
+    update_cloud_run_service,
     update_git_branch,
     upload_outputs,
 )
@@ -163,3 +166,85 @@ def test_update_git_branch():
         assert calls[2][1]["check"] is True
         assert calls[2][1]["capture_output"] is True
         assert calls[2][1]["text"] is True
+
+
+def test_trigger_zenodo_release():
+    """Test Zenodo release workflow trigger."""
+    with patch("pudl.etl.distribute_outputs.subprocess.run") as mock_run:
+        mock_run.return_value = MagicMock(returncode=0)
+
+        trigger_zenodo_release(
+            env="sandbox",
+            source_dir="s3://pudl.catalyst.coop/nightly/",
+            ignore_regex=r"(^.*\.parquet$|^pudl_parquet_datapackage\.json$)",
+            publish=True,
+        )
+
+        # Verify gh workflow dispatch called
+        calls = mock_run.call_args_list
+        assert len(calls) == 1
+        cmd = " ".join(calls[0][0][0])
+        assert "gh workflow run" in cmd
+        assert "zenodo-data-release.yml" in cmd
+        assert "sandbox" in cmd
+        assert "publish" in cmd
+
+
+def test_trigger_zenodo_release_no_publish():
+    """Test Zenodo release with publish=False."""
+    with patch("pudl.etl.distribute_outputs.subprocess.run") as mock_run:
+        mock_run.return_value = MagicMock(returncode=0)
+
+        trigger_zenodo_release(
+            env="production",
+            source_dir="s3://pudl.catalyst.coop/stable/",
+            ignore_regex=r"(^.*\.parquet$)",
+            publish=False,
+        )
+
+        # Verify no-publish flag used
+        cmd = " ".join(mock_run.call_args_list[0][0][0])
+        assert "no-publish" in cmd
+        assert "production" in cmd
+
+
+def test_trigger_zenodo_release_invalid_env():
+    """Test Zenodo release with invalid environment."""
+    with pytest.raises(ValueError, match="Invalid Zenodo environment"):
+        trigger_zenodo_release(
+            env="invalid",
+            source_dir="s3://pudl.catalyst.coop/nightly/",
+            ignore_regex=r".*",
+            publish=True,
+        )
+
+
+def test_update_cloud_run_service():
+    """Test Cloud Run service update."""
+    with patch("pudl.etl.distribute_outputs.subprocess.run") as mock_run:
+        mock_run.return_value = MagicMock(returncode=0)
+
+        update_cloud_run_service("pudl-viewer")
+
+        # Verify gcloud run services update called
+        calls = mock_run.call_args_list
+        assert len(calls) == 1
+        cmd = " ".join(calls[0][0][0])
+        assert "gcloud run services update" in cmd
+        assert "pudl-viewer" in cmd
+
+
+def test_set_gcs_temporary_hold():
+    """Test GCS temporary hold for versioned releases."""
+    with patch("pudl.etl.distribute_outputs.subprocess.run") as mock_run:
+        mock_run.return_value = MagicMock(returncode=0)
+
+        set_gcs_temporary_hold("gs://pudl.catalyst.coop/v2025.2.3/")
+
+        # Verify gcloud storage objects update called
+        calls = mock_run.call_args_list
+        assert len(calls) == 1
+        cmd = " ".join(calls[0][0][0])
+        assert "gcloud storage" in cmd
+        assert "temporary-hold" in cmd
+        assert "v2025.2.3" in cmd
