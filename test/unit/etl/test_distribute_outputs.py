@@ -5,7 +5,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from pudl.etl.distribute_outputs import prepare_outputs_for_distribution, upload_outputs
+from pudl.etl.distribute_outputs import (
+    prepare_outputs_for_distribution,
+    update_git_branch,
+    upload_outputs,
+)
 
 
 def test_prepare_outputs_for_distribution(tmp_path):
@@ -129,3 +133,33 @@ def test_upload_outputs_nonexistent_directory(tmp_path):
 
     with pytest.raises(ValueError, match="Source directory does not exist"):
         upload_outputs(source_dir, ["nightly"], staging=False)
+
+
+def test_update_git_branch():
+    """Test git branch update merges tag and pushes."""
+    with patch("pudl.etl.distribute_outputs.subprocess.run") as mock_run:
+        mock_run.return_value = MagicMock(returncode=0)
+
+        update_git_branch(tag="nightly-2025-02-05", branch="nightly")
+
+        # Verify exactly 3 git commands called
+        calls = mock_run.call_args_list
+        assert len(calls) == 3
+
+        # Verify git checkout command
+        assert calls[0][0][0] == ["git", "checkout", "nightly"]
+        assert calls[0][1]["check"] is True
+        assert calls[0][1]["capture_output"] is True
+        assert calls[0][1]["text"] is True
+
+        # Verify git merge command with --ff-only
+        assert calls[1][0][0] == ["git", "merge", "--ff-only", "nightly-2025-02-05"]
+        assert calls[1][1]["check"] is True
+        assert calls[1][1]["capture_output"] is True
+        assert calls[1][1]["text"] is True
+
+        # Verify git push command
+        assert calls[2][0][0] == ["git", "push", "-u", "origin", "nightly"]
+        assert calls[2][1]["check"] is True
+        assert calls[2][1]["capture_output"] is True
+        assert calls[2][1]["text"] is True
