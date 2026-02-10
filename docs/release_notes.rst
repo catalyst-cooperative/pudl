@@ -54,6 +54,10 @@ EIA 930
 * Updated EIA 930 data through December 2025. See :issue:`4985`
   and :pr:`4995`.
 
+EIA 176
+~~~~~~~
+
+* Updated EIA 176 data through 2024. See :issue:`5000` and :pr:`5005`.
 
 Documentation
 ~~~~~~~~~~~~~
