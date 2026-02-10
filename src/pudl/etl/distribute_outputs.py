@@ -6,6 +6,7 @@ This module handles distribution of completed ETL builds to public cloud storage
 
 import logging
 import shutil
+import subprocess
 import zipfile
 from pathlib import Path
 
@@ -124,3 +125,45 @@ def upload_outputs(
         s3_fs.put(f"{source_dir}/*", s3_path, recursive=True)
 
     logger.info(f"Upload complete for {len(path_suffixes)} path(s)")
+
+
+def update_git_branch(tag: str, branch: str) -> None:
+    """Merge git tag into branch and push to origin.
+
+    Performs fast-forward merge of a tag into a branch and pushes the result.
+    This updates the nightly or stable branch to point to the tagged release.
+
+    Args:
+        tag: Git tag to merge (e.g., "nightly-2025-02-05" or "v2025.2.3").
+        branch: Target branch to update (e.g., "nightly" or "stable").
+
+    Raises:
+        subprocess.CalledProcessError: If git commands fail.
+    """
+    logger.info(f"Updating git branch {branch} to tag {tag}")
+
+    # Checkout target branch
+    subprocess.run(  # noqa: S603
+        ["git", "checkout", branch],  # noqa: S607
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    # Merge tag (fast-forward only)
+    subprocess.run(  # noqa: S603
+        ["git", "merge", "--ff-only", tag],  # noqa: S607
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    # Push to origin
+    subprocess.run(  # noqa: S603
+        ["git", "push", "-u", "origin", branch],  # noqa: S607
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    logger.info(f"Git branch {branch} updated successfully")
