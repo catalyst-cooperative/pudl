@@ -48,6 +48,18 @@ EPA CEMS
 * Updated EPA CEMS hourly emissions data through December 2025. See :issue:`4986`
   and :pr:`4990`.
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through December 2025. See :issue:`4983` and
+  :pr:`4993`.
+
+EIA-923
+~~~~~~~
+
+* Updated EIA-923 with monthly data through November 2025. See :issue:`4984` and
+  :pr:`4993`.
+
 EIA 930
 ~~~~~~~
 
@@ -58,8 +70,12 @@ EIA Bulk Electricity API
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Updated the EIA Bulk Electricity data to include data published up through
-  January 2025. See :issue:`4987` and PR :pr:`5001`.
+  January 2026. See :issue:`4987` and PR :pr:`5001`.
 
+EIA 176
+~~~~~~~
+
+* Updated EIA 176 data through 2024. See :issue:`5000` and :pr:`5005`.
 
 Documentation
 ~~~~~~~~~~~~~

@@ -73,7 +73,7 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "Comma Separated Value (.csv)",
         },
-        "working_partitions": {"years": sorted(set(range(1997, 2024)))},
+        "working_partitions": {"years": sorted(set(range(1997, 2025)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
@@ -207,7 +207,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-11", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-12", freq="M")
             ],
         },
         "keywords": sorted(
