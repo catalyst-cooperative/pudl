@@ -73,7 +73,7 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "Comma Separated Value (.csv)",
         },
-        "working_partitions": {"years": sorted(set(range(1997, 2024)))},
+        "working_partitions": {"years": sorted(set(range(1997, 2025)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
