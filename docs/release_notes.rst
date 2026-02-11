@@ -48,12 +48,28 @@ EPA CEMS
 * Updated EPA CEMS hourly emissions data through December 2025. See :issue:`4986`
   and :pr:`4990`.
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through December 2025. See :issue:`4983` and
+  :pr:`4993`.
+
+EIA-923
+~~~~~~~
+
+* Updated EIA-923 with monthly data through November 2025. See :issue:`4984` and
+  :pr:`4993`.
+
 EIA 930
 ~~~~~~~
 
 * Updated EIA 930 data through December 2025. See :issue:`4985`
   and :pr:`4995`.
 
+EIA 176
+~~~~~~~
+
+* Updated EIA 176 data through 2024. See :issue:`5000` and :pr:`5005`.
 
 Documentation
 ~~~~~~~~~~~~~
