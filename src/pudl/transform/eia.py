@@ -286,7 +286,13 @@ def _last_operating_date(
     logger.info(f"Rescued dates for {col} records: {len(op_df)}")
     logger.info(
         f"Rescued last {col} for the following units ({entity_idx}): "
-        f"{sorted(op_df[entity_idx].apply(lambda row: '_'.join(row.to_numpy().astype(str)), axis=1))}"
+        f"{
+            sorted(
+                op_df[entity_idx].apply(
+                    lambda row: '_'.join(row.to_numpy().astype(str)), axis=1
+                )
+            )
+        }"
     )
     # add the newly cleaned records
     op_clean_df = pd.concat([op_clean_df, op_df])

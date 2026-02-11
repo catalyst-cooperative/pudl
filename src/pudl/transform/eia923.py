@@ -490,13 +490,15 @@ def _coalmine_cleanup(
             # In addition, mine_ids from 2024 are reported as strings and have a leading 0.
             # I checked the same id from other years in the raw data, and the leading 0s
             # only appear in 2024, so this function removes them so the years line up.
-            mine_id_msha=lambda x: x.mine_id_msha.str.replace(
-                "O",
-                "0",
-            )
-            # 2025-10-27: Label a single bad mine ID (15-1953) as 0 as well, to remove it from processing.
-            .mask(lambda m: m == "15-1953", "0")
-            .astype("Int64"),
+            mine_id_msha=lambda x: (
+                x.mine_id_msha.str.replace(
+                    "O",
+                    "0",
+                )
+                # 2025-10-27: Label a single bad mine ID (15-1953) as 0 as well, to remove it from processing.
+                .mask(lambda m: m == "15-1953", "0")
+                .astype("Int64")
+            ),
             # 2025-10-1: there's one mine in 2025 that reports its type as "F", which
             # exists in MSHA's codebook but not in EIA's. "F" doesn't seem to
             # be equivalent to EIA's "P" type, so I'm nulling it for now.
@@ -1234,8 +1236,8 @@ def _core_eia923__fuel_receipts_costs(
         )
         .assign(
             fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu / 100,
-            fuel_group_code=lambda x: (
-                x.fuel_group_code.str.lower().str.replace(" ", "_")
+            fuel_group_code=lambda x: x.fuel_group_code.str.lower().str.replace(
+                " ", "_"
             ),
             contract_expiration_month=lambda x: x.contract_expiration_date.apply(
                 lambda y: y[:-2] if y != "" else y
