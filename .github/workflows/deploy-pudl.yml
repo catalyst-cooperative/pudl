@@ -104,4 +104,4 @@ jobs:
 
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud batch jobs submit deploy-outputs-${{ github.run_id }}-${{ github.run_attempt }} --config batch_job.json
+        run: gcloud batch jobs submit deploy-outputs-${{ github.run_id }}-${{ github.run_attempt }} --config batch_job.json --location us-east1
