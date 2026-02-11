@@ -2,7 +2,7 @@
 name: Integrate New Year of Data
 about: Check-list for integrating a new year of data
 title: ""
-labels: new-data
+labels: data-update
 assignees: ""
 ---
 
