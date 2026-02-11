@@ -26,9 +26,11 @@ changes before production use.
 """
 
 import sys
+import tempfile
 from pathlib import Path
 
 import click
+from gcsfs import GCSFileSystem
 
 from pudl.etl.deploy_outputs import (
     prepare_outputs_for_distribution,
@@ -120,10 +122,7 @@ def _deploy_stable(source_dir: Path, git_tag: str, staging: bool, github_token: 
     "deploy_type",
     type=click.Choice(["nightly", "stable"], case_sensitive=False),
 )
-@click.argument(
-    "source_path",
-    type=click.Path(path_type=Path),
-)
+@click.argument("source_path", type=str)
 @click.option(
     "--git-tag",
     type=str,
@@ -148,7 +147,7 @@ def _deploy_stable(source_dir: Path, git_tag: str, staging: bool, github_token: 
 )
 def pudl_deploy(
     deploy_type: str,
-    source_path: Path,
+    source_path: str,
     git_tag: str,
     github_token: str,
     staging: bool,
@@ -163,18 +162,26 @@ def pudl_deploy(
     5. Trigger Zenodo release (if not staging)
     6. Update Cloud Run service (nightly only, not staging)
     """
+    # TODO 2026-02-11: munge GCS to local - pull out later
+    if source_path.startswith("gs://"):
+        fs = GCSFileSystem()
+        local_copy_path = Path(tempfile.mkdtemp())
+        fs.get(source_path, local_copy_path)
+    else:
+        local_copy_path = Path(source_path)
+
     try:
         logger.info(
             f"Starting deployment: deploy_type={deploy_type}, "
             f"source_path={source_path}, git_tag={git_tag}, staging={staging}"
         )
 
-        prepare_outputs_for_distribution(source_path)
+        prepare_outputs_for_distribution(local_copy_path)
 
         if deploy_type == "nightly":
-            _deploy_nightly(source_path, git_tag, staging, github_token)
+            _deploy_nightly(local_copy_path, git_tag, staging, github_token)
         else:
-            _deploy_stable(source_path, git_tag, staging, github_token)
+            _deploy_stable(local_copy_path, git_tag, staging, github_token)
 
         logger.info("Deployment completed successfully")
 
