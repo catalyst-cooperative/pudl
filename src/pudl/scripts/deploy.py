@@ -128,7 +128,7 @@ def _deploy_stable(source_dir: Path, git_tag: str, staging: bool, github_token: 
     "--git-tag",
     type=str,
     required=True,
-    help="Git tag to merge into branch (e.g., nightly-2025-02-05 or v2025.2.3).",
+    help="Git tag to merge into branch (e.g., nightly-2026-02-09 or v2026.2.9).",
 )
 @click.option(
     "--github-token",
@@ -138,11 +138,11 @@ def _deploy_stable(source_dir: Path, git_tag: str, staging: bool, github_token: 
 )
 @click.option(
     "--staging",
-    is_flag=True,
+    type=bool,
     default=False,
     help=(
-        "Upload to staging/ locations for validation. Skips git operations, "
-        "Zenodo triggers, and Cloud Run deployments."
+        "Upload to staging locations for validation. Skips Zenodo triggers "
+        "and Cloud Run deployments."
     ),
     show_default=True,
 )
