@@ -42,8 +42,10 @@ data, EPA CEMS hourly emissions and EIA-860M. This is also our first release of
 the FERC EQR company identifiers table, and tables from USDA's Rural Utility
 Service (RUS) forms 7 and 12, which collect financial and operational
 information about rural utilities in a manner similar to EIA Form 861 and FERC
-Form 1. Along for the ride are improvements to accuracy, memory performance, and
-Zenodo handling. See below for all the details.
+Form 1. FERC EQR data is now available for download, though in a slightly
+different location due to its scale. Along for the ride are improvements to
+accuracy, memory performance, and Zenodo handling. See below for all the
+details.
 
 New Data
 ^^^^^^^^
