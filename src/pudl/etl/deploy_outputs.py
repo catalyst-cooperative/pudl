@@ -14,6 +14,7 @@ import gcsfs
 import requests
 import s3fs
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -35,9 +36,12 @@ def prepare_outputs_for_distribution(output_dir: Path) -> None:
     """
     output_dir = Path(output_dir)
     logger.info(f"Preparing outputs in {output_dir} for distribution")
+    logger.info(f"Contents: {output_dir.glob('*')}")
 
     # Move files around
     parquet_dir = output_dir / "parquet"
+    parquet_files = parquet_dir.glob("*.parquet")
+    logger.info(f"Found parquets: {parquet_files}")
     for parquet_file in parquet_dir.glob("*.parquet"):
         shutil.move(str(parquet_file), str(output_dir / parquet_file.name))
 
