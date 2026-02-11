@@ -981,7 +981,7 @@ RENEWABLE_FUEL_TYPES_RUS12: set[str] = [
     "Biomass - wood",
     "Methane - waste",
     "Hybrid",
-    "Solar - photvoltaic",
+    "Solar - photovoltaic",
     "Solar - thermal generation",
     "Other",
 ]

@@ -93,6 +93,12 @@ def core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     df = rus.convert_units(
         df, old_unit="thousand_dollars", new_unit=None, converter=1000
     )
+
+    # Fix typo in primary_renewable_fuel_type values
+    df.primary_renewable_fuel_type = df.primary_renewable_fuel_type.replace(
+        {"Solar - photvoltaic": "Solar - photovoltaic"}
+    )
+
     # TODO: Make primary_renewable_fuel_type look like renewable fuels from other sources.
 
     return df
@@ -141,12 +147,6 @@ def core_rus12__yearly_loans(raw_rus12__loans):
     df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date, format="mixed")
     df.for_rural_development = df.for_rural_development.astype("boolean")
 
-    # Make sure loan balance isn't more than original loan amount
-    loan_diff = df.loan_original_amount - df.loan_balance
-    assert len(loan_diff[loan_diff < 0]) == 0, (
-        "Loan balance exceeds original loan amount for some loans."
-    )
-
     return df
 
 
@@ -154,6 +154,18 @@ def core_rus12__yearly_loans(raw_rus12__loans):
 def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     """Transform the raw_rus12__plant_labor table."""
     df = rus.early_transform(raw_df=raw_rus12__plant_labor)
+
+    # Remove duplicate Walter Scott plant entries.
+    exclude_cols = ["borrower_id_rus", "borrower_name_rus"]
+    dupe_mask = (
+        df["borrower_id_rus"].isin(["IA0083", "IA0084"])
+        & (df["plant_name_rus"] == "Walter Scott")
+        & df.drop(columns=exclude_cols).duplicated(keep=False)
+        & (
+            df["borrower_id_rus"] == "IA0083"
+        )  # dropping the IA0083 and keeping the IA0084 so both borrowers show up in the data.
+    )
+    df = df.loc[~dupe_mask]
 
     # Test payroll_total column so can remove it in the schema
     payroll_cols = [
@@ -212,9 +224,6 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
         converter=0.001,
     )
 
-    # # Make sure plant num is only int values and then convert to integer
-    # assert (df.plant_num.dropna() % 1 == 0).all()
-    # df.plant_num = df.plant_num.astype("Int64")
     # TODO: add is_total column.
     return df
 

@@ -50,7 +50,7 @@ from pudl.metadata.enums import (
     REVENUE_CLASSES_EIA176,
     REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
-    # SOURCE_OF_ENERGY_RUS12,
+    SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
@@ -2663,11 +2663,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "employees_full_time_num": {
         "type": "integer",
-        "description": "Number of full time employees.",
+        "description": "Number of employees hired full-time for normal operations of the system.",
     },
     "employees_part_time_num": {
         "type": "integer",
-        "description": "Number of part time employees.",
+        "description": "Number employees regularly employed on a part-time basis. Exclude employees hired for short periods of time to complete special jobs.",
     },
     "employee_hours_worked_total": {
         "type": "number",
@@ -3320,7 +3320,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "for_rural_development": {
         "type": "boolean",
-        "description": "Whether or not the investment is for rural development.",
+        "description": (
+            "Whether or not the investment is for rural development. "
+            "This includes investments in any/all types of projects or "
+            "products that were made to improve the economy and/or quality "
+            "of life in the specified area."
+        ),
     },
     "forecast_year": {
         "type": "integer",
@@ -7092,7 +7097,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "source_of_energy": {
         "type": "string",
         "description": "The source of energy (not plant type).",
-        # "constraints": {"enum": SOURCE_OF_ENERGY_RUS12},
+        "constraints": {"enum": SOURCE_OF_ENERGY_RUS12},
     },
     "source_url": {
         "type": "string",

@@ -1,8 +1,8 @@
-"""add next rus12 tables
+"""Add next four rus12 tables
 
-Revision ID: 122a38524571
+Revision ID: 0c142bdd083d
 Revises: 86e3a75cf325
-Create Date: 2026-02-09 15:59:36.418333
+Create Date: 2026-02-10 18:10:58.410575
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '122a38524571'
+revision = '0c142bdd083d'
 down_revision = '86e3a75cf325'
 branch_labels = None
 depends_on = None
@@ -26,7 +26,7 @@ def upgrade() -> None:
     sa.Column('loan_maturity_date', sa.Date(), nullable=True, comment='The date on which a loan is scheduled to be fully paid.'),
     sa.Column('loan_original_amount', sa.Float(), nullable=True, comment='The original amount of a loan.'),
     sa.Column('loan_balance', sa.Float(), nullable=True, comment='The amount of money still owned on a loan at the end of the reporting year.'),
-    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment is for rural development.')
+    sa.Column('for_rural_development', sa.Boolean(), nullable=True, comment='Whether or not the investment is for rural development. This includes investments in any/all types of projects or products that were made to improve the economy and/or quality of life in the specified area.')
     )
     op.create_table('core_rus12__yearly_plant_labor',
     sa.Column('report_date', sa.Date(), nullable=True, comment='Date reported.'),
@@ -34,8 +34,8 @@ def upgrade() -> None:
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
     sa.Column('plant_name_rus', sa.Text(), nullable=True, comment='Name of the plant as reported to RUS.'),
     sa.Column('plant_type', sa.Enum('Combined Cycle', 'Steam', 'Hydro', 'Internal Combustion', 'Nuclear'), nullable=True, comment='Type of plant.'),
-    sa.Column('employees_full_time_num', sa.Integer(), nullable=True, comment='Number of full time employees.'),
-    sa.Column('employees_part_time_num', sa.Integer(), nullable=True, comment='Number of part time employees.'),
+    sa.Column('employees_full_time_num', sa.Integer(), nullable=True, comment='Number of employees hired full-time for normal operations of the system.'),
+    sa.Column('employees_part_time_num', sa.Integer(), nullable=True, comment='Number employees regularly employed on a part-time basis. Exclude employees hired for short periods of time to complete special jobs.'),
     sa.Column('employee_hours_worked_total', sa.Float(), nullable=True, comment='Total number of hours worked by employees.'),
     sa.Column('payroll_maintenance', sa.Float(), nullable=True, comment='The amount of payroll spent on plant maintenance.'),
     sa.Column('payroll_operations', sa.Float(), nullable=True, comment='The amount of payroll spent on plant operations.'),
@@ -45,7 +45,7 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('source_of_energy', sa.Text(), nullable=False, comment='The source of energy (not plant type).'),
+    sa.Column('source_of_energy', sa.Enum('energy_available_for_sale', 'energy_used_by_borrower', 'purchased_power', 'total_energy_accounted', 'total_energy_losses', 'total_plant', 'total_sales', 'delivered_out_of_system_gross', 'net_interchange', 'received_into_system_gross', 'delivered_out_of_system_wheeling', 'net_energy_wheeled', 'received_into_system_wheeling', 'energy_furnished_without_charge'), nullable=False, comment='The source of energy (not plant type).'),
     sa.Column('net_energy_received_mwh', sa.Float(), nullable=True, comment='The net amount of energy received into the system.'),
     sa.Column('cost', sa.Float(), nullable=True, comment='Cost value.'),
     sa.PrimaryKeyConstraint('report_date', 'borrower_id_rus', 'source_of_energy', name=op.f('pk_core_rus12__yearly_sources_and_distribution'))

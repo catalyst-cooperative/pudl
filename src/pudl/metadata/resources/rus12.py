@@ -317,9 +317,7 @@ RESOURCE_METADATA = {
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Parts D, E, F, G - Section B)",
             "additional_details_text": (
-                "There are also some plants (at least one, Walter Scott) that are reported "
-                "by multiple borrowers (IA0084 and IA0083) with the same values. "
-                "Also note the lack of plant_type pre-2009 leading to a lack of "
+                "Note the lack of plant_type pre-2009 leading to a lack of "
                 "reliable primary keys."
             ),
         },
