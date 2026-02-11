@@ -66,6 +66,12 @@ EIA 930
 * Updated EIA 930 data through December 2025. See :issue:`4985`
   and :pr:`4995`.
 
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data through November 2025.
+  See :issue:`4987` and PR :pr:`5001`.
+
 EIA 176
 ~~~~~~~
 
