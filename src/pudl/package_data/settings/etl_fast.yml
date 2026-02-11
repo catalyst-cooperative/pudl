@@ -40,7 +40,7 @@ datasets:
     years: [2020, 2024]
   eia:
     eia176:
-      years: [2020, 2023]
+      years: [2020, 2024]
     eia191:
       years: [2020, 2025]
     eia757a:

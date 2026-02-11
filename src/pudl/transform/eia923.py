@@ -896,9 +896,9 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
-    bf_df = remove_duplicate_pks_boiler_fuel_eia923(bf_df)
-
     bf_df = PUDL_PACKAGE.encode(bf_df)
+
+    bf_df = remove_duplicate_pks_boiler_fuel_eia923(bf_df)
 
     # Add a simplified PUDL fuel type
     bf_df["fuel_type_code_pudl"] = bf_df.energy_source_code.map(
@@ -941,6 +941,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
         "fuel_mmbtu_per_unit",
         "sulfur_content_pct",
     ]
+
     # make a mask to split bf into records w/ & w/o pk dupes
     pk_dupe_mask = bf.duplicated(pk, keep=False)
 
