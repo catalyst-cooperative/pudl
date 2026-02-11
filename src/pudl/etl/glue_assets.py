@@ -248,8 +248,8 @@ def _core_epa__assn_eia_epacamd_unique(
         .filter(
             lambda x: (
                 x.plant_id_eia.nunique() > 1  # noqa: PD101
-                and x.report_year.nunique() > 1
-            )  # noqa: PD101
+                and x.report_year.nunique() > 1  # noqa: PD101
+            )
         )
     )
     logger.info(f"The following crosswalk matches are duplicated: \n{one_to_many}")
