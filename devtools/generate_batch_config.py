@@ -107,7 +107,7 @@ def generate_batch_config():
         "--disk-gb", default=200, type=int, help="Size of disk in GB to attach to VM"
     )
     parser.add_argument(
-        "--gcs_uri",
+        "--gcs-uri",
         default=None,
         type=str,
         help="GCS input URI to mount at /mnt/disks/gcs.",
