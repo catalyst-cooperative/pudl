@@ -39,7 +39,6 @@ def to_config(
     vcpu: int,
     mem_gb: int,
     disk_gb: int,
-    gcs_path: str | None = None,
 ) -> dict:
     """Munge arguments into a configuration dictionary."""
     complete_env = sorted(_flat(container_env))
@@ -67,10 +66,6 @@ def to_config(
         },
         "maxRunDuration": f"{60 * 60 * 1}s",  # 1 hour
     }
-    if gcs_path:
-        task_spec["volumes"] = [
-            {"gcs": {"remotePath": gcs_path}, "mountPath": "/mnt/disks/gcs"}
-        ]
     config = {
         "taskGroups": [{"taskSpec": task_spec}],
         "allocationPolicy": {
@@ -106,16 +101,8 @@ def generate_batch_config():
     parser.add_argument(
         "--disk-gb", default=200, type=int, help="Size of disk in GB to attach to VM"
     )
-    parser.add_argument(
-        "--gcs-uri",
-        default=None,
-        type=str,
-        help="GCS input URI to mount at /mnt/disks/gcs.",
-    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-
-    gcs_path = args.gcs_uri.removeprefix("gs://")
 
     config = to_config(
         container_image=args.container_image,
@@ -125,7 +112,6 @@ def generate_batch_config():
         vcpu=args.vcpu,
         mem_gb=args.mem_gb,
         disk_gb=args.disk_gb,
-        gcs_path=gcs_path,
     )
 
     logger.info(f"Writing to {args.output}")
