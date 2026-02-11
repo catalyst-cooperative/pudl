@@ -166,7 +166,7 @@ def pudl_deploy(
     if source_path.startswith("gs://"):
         fs = GCSFileSystem()
         local_copy_path = Path(tempfile.mkdtemp())
-        fs.get(source_path, local_copy_path)
+        fs.get(source_path, local_copy_path, recursive=True)
     else:
         local_copy_path = Path(source_path)
 
