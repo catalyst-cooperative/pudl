@@ -1292,11 +1292,9 @@ def _core_eia860__boiler_stack_flue(
     # missrepresent complicated relationships between stacks and flues. Also there's
     # several instances where flue_id_eia is NA (hence the last fillna(x.stack_id_eia))
     bsf_assn = bsf_assn.assign(
-        stack_flue_id_pudl=lambda x: (
-            x.stack_flue_id_eia.fillna(
-                x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
-            ).fillna(x.stack_id_eia)
-        )
+        stack_flue_id_pudl=lambda x: x.stack_flue_id_eia.fillna(
+            x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
+        ).fillna(x.stack_id_eia)
     )
 
     return bsf_assn
