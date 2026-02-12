@@ -4606,9 +4606,39 @@ class TransmissionLinesTableTransformer(Ferc1AbstractTableTransformer):
     table_id: TableIdFerc1 = TableIdFerc1.TRANSMISSION_LINES
     has_unique_record_ids: bool = False
 
+    def split_supporting_structure(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Split supporting_structure_type into structure type and material columns.
+
+        The original column contains values that may specify structure type, material,
+        or both. This method creates two new columns by copying the original values,
+        allowing the standard string normalization and categorization transforms to
+        handle the structured outputs.
+
+        Args:
+            df: DataFrame with supporting_structure_type column.
+
+        Returns:
+            DataFrame with:
+            - supporting_structure_type_original: Original unstructured value
+            - supporting_structure_type: Categorized structure type (NA for ambiguous values)
+            - supporting_structure_material: Categorized material (NA for ambiguous values)
+        """
+        original_col = df["supporting_structure_type"].copy()
+
+        # Preserve original unstructured value for user interpretation
+        df["supporting_structure_type_original"] = original_col.copy()
+
+        # Create material column from original for independent categorization
+        df["supporting_structure_material"] = original_col.copy()
+
+        return df
+
     def transform_main(self: Self, df: pd.DataFrame) -> pd.DataFrame:
-        """Do some string-to-numeric ninja moves."""
+        """Transform transmission lines table, splitting structure type and material."""
         df["num_transmission_circuits"] = pd.to_numeric(df["num_transmission_circuits"])
+        # Split supporting_structure_type before calling super().transform_main()
+        # which will apply categorize_strings to the new columns
+        df = self.split_supporting_structure(df)
         return super().transform_main(df)
 
 
