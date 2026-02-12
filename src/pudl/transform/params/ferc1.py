@@ -4952,7 +4952,7 @@ TRANSFORM_PARAMS = {
             }
         ],
     },
-    "core_ferc1__yearly_identification": {
+    "core_ferc1__yearly_identification_certification": {
         "rename_columns_ferc1": {
             "dbf": {
                 "columns": {
@@ -4960,14 +4960,14 @@ TRANSFORM_PARAMS = {
                     # "filing_name": "filing_name",
                     "cntc_phone": "contact_phone",
                     "respondent_name": "utility_name_ferc1",
-                    "cntc_name": "contact name",
+                    "cntc_name": "contact_name",
                     "chg_dt_prev_name": "prior_utility_name_ferc1",  # or "company_name_old"?
                     "rpt_date": "filing_date",
                     "date_name_changed": "name_change_date",
                     "submission_type": "report_filing_type",
                     "cntc_ttl": "contact_title",
                     "cntc_addr": "contact_address",
-                    "report_prd": "report_period",
+                    "report_prd": "report_prd",
                     "report_year": "report_year",
                     "addr_prncpl_offc": "office_street_address",
                     "attestation_name": "attestation_name",
@@ -4980,7 +4980,6 @@ TRANSFORM_PARAMS = {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     # "filing_name": "filing_name",
-                    "publication_time": "publication_date",
                     "start_date": "start_date",
                     "end_date": "end_date",
                     "telephone_of_contact_person": "contact_phone",

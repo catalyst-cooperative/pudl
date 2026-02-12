@@ -208,8 +208,8 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
     "core_ferc1__yearly_identification_certification": {
         "dbf": "f1_ident_attsttn",
         "xbrl": [
-            "identification_001_duration",
-            "corporate_offocer_certification_001_duration",
+            "identification_001",
+            "corporate_officer_certification_001",
         ],
     },
 }
