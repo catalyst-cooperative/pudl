@@ -289,22 +289,3 @@ macros:
       - name: max_differing_fuel_rate
         type: float
         description: Maximum acceptable fraction of units mapping to multiple fuels. (optional; default 0.01)
-
-  - name: test_expect_col1_greater_or_equal_to_col2
-    description: >
-      Check that values in one column are greater than or equal to values in another column.
-    arguments:
-      - name: col1
-        type: string
-        description: The name of the first column, which should have values greater than or equal to the second column.
-      - name: col2
-        type: string
-        description: The name of the second column, which should have values less than or equal to the first column.
-
-  - name: test_expect_positive_values
-    description: >
-      Check that values in a column are positive.
-    arguments:
-      - name: positive_columns
-        type: list
-        description: A list of the names of columns that should have positive values.

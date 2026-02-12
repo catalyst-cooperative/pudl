@@ -5,10 +5,11 @@ sources:
       - name: core_rus12__yearly_loans
         data_tests:
           - expect_columns_not_all_null
-          - expect_col1_greater_or_equal_to_col2:
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
               arguments:
-                col1: loan_original_amount
-                col2: loan_balance
+                column_A: loan_original_amount
+                column_B: loan_balance
+                or_equal: true
         columns:
           - name: report_date
           - name: borrower_id_rus

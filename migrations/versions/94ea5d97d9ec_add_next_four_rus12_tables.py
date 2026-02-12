@@ -1,8 +1,8 @@
 """Add next four rus12 tables
 
-Revision ID: 0c142bdd083d
+Revision ID: 94ea5d97d9ec
 Revises: 86e3a75cf325
-Create Date: 2026-02-10 18:10:58.410575
+Create Date: 2026-02-11 17:17:08.516686
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0c142bdd083d'
+revision = '94ea5d97d9ec'
 down_revision = '86e3a75cf325'
 branch_labels = None
 depends_on = None
