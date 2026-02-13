@@ -46,8 +46,8 @@ archivers themselves.
 
 **1.2)** Obtain production DOIs from
 `Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__ and then update the
-dictionary of in :mod:`pudl.workspace.datastore` to refer to the new raw input
-archives.
+record in :mod:`pudl.package_data.settings.zenodo_dois.yml` to refer to the new raw
+input archives.
 
 **1.3)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
 to reflect the years, months, or quarters of data that are available for each dataset
