@@ -53,6 +53,7 @@ def multi_index_stack(
     data_cols: list[str],
     match_names: list[str],
     unstack_level: list[str],
+    drop_zero_rows: bool = False,
 ) -> pd.DataFrame:
     """Stack multiple data columns - create categorical columns and data columns.
 
@@ -94,6 +95,8 @@ def multi_index_stack(
         unstack_level: list of match_names to unstack. These are the names of the
             matches that get unstacked - these end up as columns in the resulting
             table. Presumably this will be all of the match_names except 'data_cols'.
+        drop_zero_rows: if True, drop rows where all data_cols are 0. Function
+            already drops rows where data_cols are all NaN.
     """
     df = df.set_index(idx_ish).filter(regex=pattern)
     df.columns = pd.MultiIndex.from_frame(
@@ -103,6 +106,9 @@ def multi_index_stack(
     # remove the remaining multi-index
     df.columns = df.columns.map("".join)
     df = df.dropna(subset=data_cols, how="all")
+    if drop_zero_rows:
+        all_zero_mask = (df.fillna(0)[data_cols] == 0).all(axis=1)
+        df = df[~all_zero_mask]
     return df
 
 

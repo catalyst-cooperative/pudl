@@ -43,12 +43,14 @@ from pudl.metadata.enums import (
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
     PLANT_PARTS,
+    PLANT_TYPE_RUS12,
     PRIME_MOVER_TYPES_RUS12,
     RELIABILITY_STANDARDS,
     RENEWABLE_FUEL_TYPES_RUS12,
     REVENUE_CLASSES_EIA176,
     REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
+    SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
@@ -2659,6 +2661,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Number of employees.",
     },
+    "employees_full_time_num": {
+        "type": "integer",
+        "description": "Number of employees hired full-time for normal operations of the system.",
+    },
+    "employees_part_time_num": {
+        "type": "integer",
+        "description": "Number employees regularly employed on a part-time basis. Exclude employees hired for short periods of time to complete special jobs.",
+    },
+    "employee_hours_worked_total": {
+        "type": "number",
+        "description": "Total number of hours worked by employees.",
+    },
     "end_point": {
         "type": "string",
         "description": "The end point of a transmission line.",
@@ -3302,6 +3316,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": (
             "Indicates whether the boiler is capable of re-injecting fly ash."
+        ),
+    },
+    "for_rural_development": {
+        "type": "boolean",
+        "description": (
+            "Whether or not the investment is for rural development. "
+            "This includes investments in any/all types of projects or "
+            "products that were made to improve the economy and/or quality "
+            "of life in the specified area."
         ),
     },
     "forecast_year": {
@@ -4316,6 +4339,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "loan_balance": {
+        "type": "number",
+        "description": "The amount of money still owned on a loan at the end of the reporting year.",
+    },
+    "loan_maturity_date": {
+        "type": "date",
+        "description": "The date on which a loan is scheduled to be fully paid.",
+    },
+    "loan_organization": {
+        "type": "string",
+        "description": "The organization from which a loan was received.",
+    },
+    "loan_original_amount": {
+        "type": "number",
+        "description": "The original amount of a loan.",
+        "unit": "USD",
+    },
     "longitude": {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
@@ -4715,6 +4755,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Net forecasted electricity demand for the specific period in megawatt-hours (MWh)."
         ),
+        "unit": "MWh",
+    },
+    "net_energy_received_mwh": {
+        "type": "number",
+        "description": "The net amount of energy received into the system.",
         "unit": "MWh",
     },
     "net_generation_adjusted_mwh": {
@@ -5899,6 +5944,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of the plant as reported to RUS.",
     },
+    "plant_num": {
+        "type": "integer",
+        "description": "Number of plants.",
+    },
     "plant_part": {
         "type": "string",
         "description": "The part of the plant a record corresponds to.",
@@ -7044,6 +7093,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Indicates whether the generator is part of a solid fuel gasification system"
         ),
+    },
+    "source_of_energy": {
+        "type": "string",
+        "description": "The source of energy (not plant type).",
+        "constraints": {"enum": SOURCE_OF_ENERGY_RUS12},
     },
     "source_url": {
         "type": "string",
@@ -9351,6 +9405,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "The amount of payroll spent that was funded by other means - not capitalized or expensed.",
     },
+    "payroll_maintenance": {
+        "type": "number",
+        "description": "The amount of payroll spent on plant maintenance.",
+        "unit": "USD",
+    },
+    "payroll_operations": {
+        "type": "number",
+        "description": "The amount of payroll spent on plant operations.",
+        "unit": "USD",
+    },
+    "payroll_other_accounts": {
+        "type": "number",
+        "description": "The amount of plant payroll spent on accounts other than maintenance and operations.",
+        "unit": "USD",
+    },
     "customers_num": {"description": "Number of customers.", "type": "number"},
     "observation_period": {
         "type": "string",
@@ -9459,10 +9528,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "income_or_loss": {
         "type": "number",
         "description": "Income or loss from investment.",
-    },
-    "for_rural_development": {
-        "type": "boolean",
-        "description": "Whether or not the investment is Rural Development.",
     },
     "opex_group": {
         "type": "string",
@@ -9618,6 +9683,14 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
+    "core_rus12__yearly_plant_labor": {
+        "plant_type": {
+            "type": "string",
+            "constraints": {
+                "enum": PLANT_TYPE_RUS12,
+            },
+        }
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
             "description": "State that the operator is reporting for.",

@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_sources_and_distribution
+        data_tests:
+          - expect_columns_not_all_null
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: source_of_energy
+          - name: net_energy_received_mwh
+          - name: cost

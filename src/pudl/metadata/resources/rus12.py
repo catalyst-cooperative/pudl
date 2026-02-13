@@ -1,7 +1,5 @@
 """Table definitions for the RUS12 tables."""
 
-from typing import Any
-
 RESOURCE_METADATA = {
     "core_rus12__yearly_meeting_and_board": {
         "description": {
@@ -216,16 +214,13 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-}
-
-DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
-    "core_rus12__yearly_statement_of_operations": {  # Need to decide how to split this up
+    "core_rus12__yearly_sources_and_distribution_by_plant_type": {
         "description": {
             "additional_summary_text": (
-                "opex and cost of electric service for RUS borrowers."
+                "capacity, plant num, MWh, and cost of energy by plant type for RUS borrowers."
             ),
             "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part A - Section A)",
+            "additional_source_text": "(Part C)",
             "additional_details_text": "",
         },
         "schema": {
@@ -233,46 +228,50 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "operations_type"  # enum (list below)
-                "ytd_amount",
-                "ytd_budget",
-                "report_month_amount",
+                "plant_type",
+                "capacity_mw",
+                "plant_num",
+                "cost",
+                "net_energy_received_mwh",
             ],
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "operations_type",
+                "plant_type",
             ],
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_plant_labor": {
+    "core_rus12__yearly_sources_and_distribution": {
         "description": {
-            "additional_summary_text": ("plant-based labor report for RUS borrowers."),
+            "additional_summary_text": (
+                "MWh and cost of energy sources and distribution by RUS borrowers."
+            ),
             "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Parts D, E, F, G - Section B)",
-            "additional_details_text": "",
+            "additional_source_text": "(Part C)",
+            "additional_details_text": (
+                "See the ``sources_and_distribution_by_plant_type`` table for "
+                "a breakdown of plant-type-specific cost, capacity, plant_num, "
+                "and net_energy_received values. "
+                "Also note that there are several ``source_of_energy`` values "
+                "that don't have a corresponding cost value."
+            ),
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "plant_name_rus",
-                "plant_type",
-                "employees_fte_num",
-                "employees_part_time_num",
-                "payroll_operating_plant",  # seems like we might want to put payroll as a suffix here
-                "payroll_other_accounts_plant",  # seems like we might want to put payroll as a suffix here
-                "total_plant_payroll",  # remove?
+                "source_of_energy",
+                "net_energy_received_mwh",
+                "cost",
             ],
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "plant_name_rus",
-                "plant_type",  # this should be the primary key but there are duplicates for borrower_oid IA0084 and plant Walter Scott
+                "source_of_energy",
             ],
         },
         "sources": ["rus12"],
@@ -282,9 +281,12 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus12__yearly_loans": {
         "description": {
             "additional_summary_text": ("loans guaranteed by RUS borrowers."),
+            "additional_primary_key_text": (
+                "This table has no primary key because some borrowers report multiple loan values from "
+                "the same entity in a given year."
+            ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section F - Subsection II)",
-            "additional_details_text": "",
         },
         "schema": {
             "fields": [
@@ -295,12 +297,78 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "loan_maturity_date",
                 "loan_original_amount",
                 "loan_balance",
-                "for_rural_development",  # this should maybe be is_for_rural_development
+                "for_rural_development",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_plant_labor": {
+        "description": {
+            "additional_summary_text": (
+                "labor and payroll information for plants owned by RUS borrowers."
+            ),
+            "additional_primary_key_text": (
+                "The primary key should be report_date, borrower_id_rus, plant_name_rus, "
+                "and plant_type, but this table did not report plant_type before 2009 and "
+                "there are respondents who report multiple rows per plant pre-2009. "
+                "The data cannot be backfilled because there is no way to distinguish between "
+                "duplicate rows pre-2009."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Parts D, E, F, G - Section B)",
+            "additional_details_text": (
+                "Note the lack of plant_type pre-2009 leading to a lack of "
+                "reliable primary keys.\n\n"
+                "For plant Walter Scott, there were duplicate rows reported by borrowers IA0083 and IA0084. "
+                "We removed the rows from borrower IA0083 to prevent double counting."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "plant_name_rus",
+                "plant_type",
+                "employees_full_time_num",
+                "employees_part_time_num",
+                "employee_hours_worked_total",
+                "payroll_maintenance",
+                "payroll_operations",
+                "payroll_other_accounts",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_statement_of_operations": {
+        "description": {
+            "additional_summary_text": (
+                "opex and cost of electric service for RUS borrowers by time period."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part A - Section A)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "opex_group",
+                "opex_type",
+                "opex_report_month",
+                "opex_ytd",
+                "opex_ytd_budget",
+                "is_total",
             ],
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "loan_organization",
+                "opex_group",
+                "opex_type",
             ],
         },
         "sources": ["rus12"],
@@ -308,47 +376,3 @@ DRAFT_RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "rus",
     },
 }
-
-
-operations_type_enum = [
-    "electric_energy_revenues",
-    "electric_energy_revenues_report_month",
-    "income_from_leased_property",
-    "other_operating_revenue_and_income",
-    "total_operation_revenues_and_patronage_capital",
-    "operating_expense_production_excluding_fuel",
-    "operating_expense_production_fuel",
-    "operating_expense_other_power_supply",
-    "operating_expense_transmission",
-    "operating_expense_rto_iso",
-    "operating_expense_distribution",
-    "operating_expense_customer_accounts",
-    "operating_expense_customer_service_and_information",
-    "operating_expense_sales",
-    "operating_expense_administrative_and_general",
-    "total_operation_expense",
-    "maintenance_expense_production",
-    "maintenance_expense_transmission",
-    "maintenance_expense_rto_iso",
-    "maintenance_expense_distribution",
-    "maintenance_expense_general_plant",
-    "total_maintenance_expense",
-    "depreciation_and_amortization_expense",
-    "taxes",
-    "interest_on_long_term_debt",
-    "interest_charged_to_construction_credit",
-    "other_interest_expense",
-    "asset_retirement_obligations",
-    "other_deductions",
-    "total_cost_of_electric_service",
-    "operating_margins",
-    "interest_income",
-    "allowance_for_funds_used_during_construction",
-    "allowance_for_funds_used_during_construction_report_month",
-    "income_or_loss_from_equity_investments",  # need to fix this in the extraction PR -- was lossfrom
-    "other_non_operating_income",
-    "generation_and_transmission_capital_credits",
-    "generation_and_transmission_capital_credits_",
-    "other_capital_credits_and_patronage_dividends",
-    "extraordinary_items",
-]
