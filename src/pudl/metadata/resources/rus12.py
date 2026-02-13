@@ -306,7 +306,9 @@ RESOURCE_METADATA = {
     },
     "core_rus12__yearly_plant_labor": {
         "description": {
-            "additional_summary_text": ("plant-based labor report for RUS borrowers."),
+            "additional_summary_text": (
+                "labor and payroll information for plants owned by RUS borrowers."
+            ),
             "additional_primary_key_text": (
                 "The primary key should be report_date, borrower_id_rus, plant_name_rus, "
                 "and plant_type, but this table did not report plant_type before 2009 and "
@@ -318,7 +320,9 @@ RESOURCE_METADATA = {
             "additional_source_text": "(Parts D, E, F, G - Section B)",
             "additional_details_text": (
                 "Note the lack of plant_type pre-2009 leading to a lack of "
-                "reliable primary keys."
+                "reliable primary keys.\n\n"
+                "For plant Walter Scott, there were duplicate rows reported by borrowers IA0083 and IA0084. "
+                "We removed the rows from borrower IA0083 to prevent double counting."
             ),
         },
         "schema": {
