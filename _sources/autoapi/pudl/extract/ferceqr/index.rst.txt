@@ -1,0 +1,116 @@
+pudl.extract.ferceqr
+====================
+
+.. py:module:: pudl.extract.ferceqr
+
+.. autoapi-nested-parse::
+
+   Extract FERC EQR data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.ferceqr.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.ferceqr.ExtractSettings
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.ferceqr._get_csv
+   pudl.extract.ferceqr._clean_csv_name
+   pudl.extract.ferceqr._get_table_name
+   pudl.extract.ferceqr._extract_ident
+   pudl.extract.ferceqr._extract_other_table
+   pudl.extract.ferceqr._csvs_to_parquet
+   pudl.extract.ferceqr._save_extract_errors
+   pudl.extract.ferceqr.extract_ferceqr
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: ExtractSettings
+
+   Bases: :py:obj:`dagster.ConfigurableResource`
+
+
+   Dagster resource which defines which EQR data to extract and configuration for raw archive.
+
+
+   .. py:attribute:: ferceqr_archive_uri
+      :type:  str
+      :value: 'gs://archives.catalyst.coop/ferceqr/published'
+
+
+
+   .. py:property:: ferceqr_archive_path
+      :type: upath.UPath
+
+
+      Return UPath pointing to archive base path.
+
+
+.. py:function:: _get_csv(base_path: upath.UPath, year_quarter: str) -> zipfile.ZipFile
+
+   Download CSV to a tempmorary directory to avoid reading into memory.
+
+
+.. py:function:: _clean_csv_name(csv_path: pathlib.Path) -> pathlib.Path
+
+   Standardize zip file names to avoid errors when opening.
+
+
+.. py:function:: _get_table_name(table_type: str, year_quarter: str) -> str
+
+.. py:function:: _extract_ident(ident_csv: str, year_quarter: str, filing_name: str, duckdb_connection: duckdb.DuckDBPyConnection) -> str
+
+   Extract data from ident csv, write to parquet, and return CID from table.
+
+   This table is always extracted first so we can pull the CID from it and include
+   a CID column in all other tables.
+
+
+.. py:function:: _extract_other_table(table_type: str, csv_path: str, year_quarter: str, cid: str, filing_name: str, duckdb_connection: duckdb.DuckDBPyConnection)
+
+   Extract data from a table other than ident and add year_quarter and CID columns.
+
+
+.. py:function:: _csvs_to_parquet(csv_path: pathlib.Path, year_quarter: str, filing_name: str, duckdb_connection: duckdb.DuckDBPyConnection)
+
+   Mirror CSVs in filing to a parquet file.
+
+   Each filing contains a CSV for 4 EQR tables. These will each be extracted
+   to a separate parquet file.
+
+
+.. py:function:: _save_extract_errors(year_quarter: str, duckdb_connection: duckdb.DuckDBPyConnection)
+
+   Create parquet file with metadata on any CSV parsing errors.
+
+
+.. py:function:: extract_ferceqr(context: dagster.AssetExecutionContext, ferceqr_extract_settings: ExtractSettings = ExtractSettings()) -> tuple[pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData, pudl.helpers.ParquetData]
+
+   Extract year quarter from CSVs and load to parquet files.
+
+   This method will loop through the nested EQR archive zipfiles and extract all tables
+   from them, and write to parquet. It opens a duckdb connection at the top level to
+   keep track of extraction errors, so we can write these to the ``raw_ferceqr__extract_errors``
+   table.
+
+

@@ -1,0 +1,94 @@
+pudl.scripts.pudl_null_cols
+===========================
+
+.. py:module:: pudl.scripts.pudl_null_cols
+
+.. autoapi-nested-parse::
+
+   A CLI tool for generating expect_column_not_all_null dbt test conditions.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_null_cols.logger
+   pudl.scripts.pudl_null_cols.ALL_TABLES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_null_cols.max_eia860_year
+   pudl.scripts.pudl_null_cols.date_column_to_year_expr
+   pudl.scripts.pudl_null_cols.get_null_years
+   pudl.scripts.pudl_null_cols.get_available_years
+   pudl.scripts.pudl_null_cols.infer_row_conditions
+   pudl.scripts.pudl_null_cols.compact_row_condition
+   pudl.scripts.pudl_null_cols.main
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: ALL_TABLES
+
+.. py:function:: max_eia860_year() -> int
+
+   Get the maximum year available in the EIA-860 dataset.
+
+
+.. py:function:: date_column_to_year_expr(date_column: str)
+
+   Convert a date column to a year extraction expression.
+
+
+.. py:function:: get_null_years(table_name: str, column: str, date_column: str, max_year: int | None = None) -> list[int]
+
+   Find years where a specific column is entirely null.
+
+
+.. py:function:: get_available_years(table_name: str, date_column: str, max_year: int | None = None) -> list[int]
+
+   Generate a list of all years present in the named table.
+
+
+.. py:function:: infer_row_conditions(table_name: str, date_column: str, max_year: int | None = None) -> dict[str, str]
+
+   Analyze a single table for null columns and generate conditions.
+
+
+.. py:function:: compact_row_condition(null_years: list[int], available_years: list[int], date_column: str) -> str
+
+   Generate a compact SQL condition that excludes entirely null years.
+
+   This function generates conditions that are compatible with the
+   expect_columns_not_all_null test, which automatically excludes recent years when
+   ignore_eia860m_nulls=true. Any column that's entirely null across all available
+   years will result in an error -- such columns need to be debugged, or explicitly
+   excluded from the data test. They may also be a sign that you've run the script
+   against incomplete output (e.g. the Fast ETL, not the Full ETL).
+
+   :param null_years: List of years where the column is entirely null
+   :param available_years: List of all years present in the dataset
+   :param date_column: The date column to use for year extraction.
+
+   :returns: A compact SQL condition string that works with the dbt test's automatic year
+             exclusion
+
+
+.. py:function:: main(table_name: str, ignore_eia860m: bool, date_column: str, max_year: int | None)
+
+   Generate row_conditions for use with the expect_columns_not_all_null dbt test.
+
+   While these row conditions will work out of the box in many cases, they need to be
+   reviewed and potentially adjusted to ensure they are appropriate for the
+   specific table and its data.
+
+
