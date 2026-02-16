@@ -3119,6 +3119,9 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
         pattern = r'(?i)^(' + '|'.join(map(re.escape, to_null)) + r')$'
         df['prior_utility_name_ferc1'] = df['prior_utility_name_ferc1'].replace(pattern, pd.NA, regex=True)
         
+        # Create zip code column(s)
+        # Or use usaddress????
+        df[['zip_code', 'zip_code_ext']] = df['office_street_address'].str.strip().str.extract(r'(\d{5})(-\d{4})?$')
         return df
 
     # Transforms to add
