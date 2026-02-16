@@ -981,7 +981,30 @@ RENEWABLE_FUEL_TYPES_RUS12: set[str] = [
     "Biomass - wood",
     "Methane - waste",
     "Hybrid",
-    "Solar - photvoltaic",
+    "Solar - photovoltaic",
     "Solar - thermal generation",
     "Other",
+]
+PLANT_TYPE_RUS12: set[str] = [
+    "Combined Cycle",
+    "Steam",
+    "Hydro",
+    "Internal Combustion",
+    "Nuclear",
+]
+SOURCE_OF_ENERGY_RUS12: set[str] = [
+    "energy_available_for_sale",
+    "energy_used_by_borrower",
+    "purchased_power",
+    "total_energy_accounted",
+    "total_energy_losses",
+    "total_plant",
+    "total_sales",
+    "delivered_out_of_system_gross",
+    "net_interchange",
+    "received_into_system_gross",
+    "delivered_out_of_system_wheeling",
+    "net_energy_wheeled",
+    "received_into_system_wheeling",
+    "energy_furnished_without_charge",
 ]
