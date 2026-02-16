@@ -5,6 +5,7 @@ sources:
       - name: core_rus12__yearly_plant_labor
         data_tests:
           - expect_columns_not_all_null
+        # TODO: hours vs employees
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -12,8 +13,48 @@ sources:
           - name: plant_name_rus
           - name: plant_type
           - name: employees_full_time_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+              - expect_column_change_within_ratio:
+                  arguments:
+                    group_by: borrower_id_rus
+                    order_by: report_date
+                    max_pct_change: 0.4
+                  config:
+                    warn_if: ">0"
+                    error_if: ">50"
           - name: employees_part_time_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+              - expect_column_change_within_ratio:
+                  arguments:
+                    group_by: borrower_id_rus
+                    order_by: report_date
+                    max_pct_change: 0.5
+                  config:
+                    warn_if: ">0"
+                    error_if: ">50"
           - name: employee_hours_worked_total
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: payroll_maintenance
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: payroll_operations
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: payroll_other_accounts
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
