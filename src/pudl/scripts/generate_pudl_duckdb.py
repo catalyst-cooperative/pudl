@@ -2,6 +2,7 @@
 
 import click
 import duckdb
+from upath import UPath
 
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
@@ -34,7 +35,8 @@ def main():
             )
             for table in NORMAL_TABLES
             for schema, base_path in schema_path_map.items()
-            if PudlPaths().parquet_path(table).exists()
+            # This is mostly for local files since all tables should exist in s3
+            if UPath(f"{base_path}/{table}.parquet", anon=True).exists()
         ]
 
         # Create views to partitioned tables
@@ -47,7 +49,7 @@ def main():
             )
             for table in PARTITIONED_TABLES
             for schema, base_path in schema_path_map.items()
-            if schema != "stable"
+            if schema != "stable" and UPath(f"{base_path}/{table}/", anon=True).exists()
         ]
 
 
