@@ -11,7 +11,9 @@ NORMAL_TABLES = [r.name for r in PUDL_PACKAGE.resources if "ferceqr" not in r.na
 PARTITIONED_TABLES = [r.name for r in PUDL_PACKAGE.resources if "ferceqr" in r.name]
 
 
-@click.command
+@click.command(
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 def main():
     """Create duckdb file."""
     schema_path_map = {
