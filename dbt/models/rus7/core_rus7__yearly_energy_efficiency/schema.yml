@@ -12,5 +12,21 @@ sources:
           - name: customer_class
           - name: observation_period
           - name: customers_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: "observation_period == 'cumulative'"
           - name: invested
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: savings_mmbtu
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">8"
+                  description: "KS0059 has negative values which don't follow from prior years of data." #TODO

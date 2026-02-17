@@ -34,7 +34,7 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">1"
-                  description: "Possible bad value for MS0053 in 2021."
+                  description: "Possible bad value for MS0053 in 2021." #TODO
           - name: payroll_operations
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -42,7 +42,7 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">2"
-                  description: "Possible bad values for MS0053 in 2021."
+                  description: "Possible bad values for MS0053 in 2021." #TODO
           - name: payroll_other_accounts
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -50,4 +50,4 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">10"
-                  description: "Some negative values need further investigation."
+                  description: "Some negative values need further investigation." #TODO

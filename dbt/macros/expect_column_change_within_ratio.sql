@@ -1,14 +1,17 @@
-{% test expect_column_change_within_ratio(model, column_name, group_by, order_by, max_pct_change) %}
+{% test expect_column_change_within_ratio(model, column_name, group_by, order_by, max_pct_change, row_condition=None) %}
 
 {{ config(severity = 'error', warn_if  = '> 0', error_if = '> 0') }}
 
 with ordered as (
 
     select
-        {{ group_by }}         as grp,
-        {{ order_by }}         as ts,
-        {{ column_name }}      as val
+        {{ group_by }}    as grp,
+        {{ order_by }}    as ts,
+        {{ column_name }} as val
     from {{ model }}
+    {% if row_condition is not none %}
+    where {{ row_condition }}
+    {% endif %}
 
 ),
 

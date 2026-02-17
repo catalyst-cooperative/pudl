@@ -9348,7 +9348,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The name of the RUS (Rural Utilities Service) borrower.",
     },
     "last_annual_meeting_date": {
-        "type": "string",
+        "type": "datetime",
         "description": "The date of the last annual meeting.",
     },
     "members_num": {"type": "integer", "description": "The total number of members."},
