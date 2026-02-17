@@ -25,9 +25,11 @@ def __best_snapshot(
     # Ignore errors when dropping the "count" column since empty
     # groupby won't have this column.
     return duped_groups.apply(
-        lambda df: df.assign(count=df.count(axis="columns"))
-        .sort_values(by="count", ascending=True)
-        .tail(1)
+        lambda df: (
+            df.assign(count=df.count(axis="columns"))
+            .sort_values(by="count", ascending=True)
+            .tail(1)
+        )
     ).drop(columns="count", errors="ignore")
 
 

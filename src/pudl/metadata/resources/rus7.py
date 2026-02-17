@@ -349,7 +349,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_statement_of_operations": {
         "description": {
             "additional_summary_text": (
-                "statement of operations broken out by types and a variety of time periods."
+                "opex and cost of electric service for RUS borrowers by time period."
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part A)",

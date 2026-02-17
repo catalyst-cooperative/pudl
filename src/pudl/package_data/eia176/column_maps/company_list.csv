@@ -26,3 +26,4 @@ year_index,operating_state,operator_id_eia,operator_name,operator_status,report_
 2021,report_state,id,company_name,status,last_update
 2022,report_state,id,company_name,status,last_update
 2023,report_state,id,company_name,status,last_update
+2024,report_state,id,company_name,status,last_update

@@ -12,6 +12,44 @@ Enhancements
 New Data
 ^^^^^^^^
 
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+Documentation
+^^^^^^^^^^^^^
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _release-v2026.2.0:
+
+---------------------------------------------------------------------------------------
+v2026.2.0 (2026-02-12)
+---------------------------------------------------------------------------------------
+
+This is a quarterly PUDL data release, and includes quarterly updates to data
+sources that are released continuously, like EIA-930, bulk EIA electricity API
+data, EPA CEMS hourly emissions and EIA-860M. This is also our first release of
+the FERC EQR company identifiers table, and tables from USDA's Rural Utility
+Service (RUS) forms 7 and 12, which collect financial and operational
+information about rural utilities in a manner similar to EIA Form 861 and FERC
+Form 1. FERC EQR data is now available for download, though in a slightly
+different location due to its scale. Along for the ride are improvements to
+accuracy, memory performance, and Zenodo handling. See below for all the
+details.
+
+New Data
+^^^^^^^^
+
 RUS 7
 ~~~~~
 
@@ -48,15 +86,37 @@ EPA CEMS
 * Updated EPA CEMS hourly emissions data through December 2025. See :issue:`4986`
   and :pr:`4990`.
 
-EIA 930
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through December 2025. See :issue:`4983` and
+  :pr:`4993`.
+
+EIA-923
 ~~~~~~~
 
-* Updated EIA 930 data through December 2025. See :issue:`4985`
+* Updated EIA-923 with monthly data through November 2025. See :issue:`4984` and
+  :pr:`4993`.
+
+EIA-930
+~~~~~~~
+
+* Updated EIA-930 data through December 2025. See :issue:`4985`
   and :pr:`4995`.
 
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data through November 2025.
+  See :issue:`4987` and PR :pr:`5001`.
+
+EIA-176
+~~~~~~~
+
+* Updated EIA-176 data through 2024. See :issue:`5000` and :pr:`5005`.
 
 Documentation
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
 
 * Added a data source documentation page for the :doc:`FERC EQR <data_sources/ferceqr>`.
   See :issue:`4852` and PR :pr:`4879`.
@@ -71,9 +131,6 @@ Documentation
     * :ref:`core_ferceqr__quarterly_index_pub`
     * :ref:`core_ferceqr__transactions`
     * :ref:`out_vcerare__hourly_available_capacity_factor`
-
-New Data Tests & Validations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -105,7 +162,7 @@ Quality of Life Improvements
   stand-alone settings file, rather than hard-coding them in the PUDL Datastore module.
   This makes the DOIs more easily accessible for use in other contexts, such as when
   calculating the GitHub Actions cache hash. Also made the GitHub Actions cache more
-  lenient, so that if it msises on an exact cache key, it will just download the most
+  lenient, so that if it misses on an exact cache key, it will just download the most
   recent cache of inputs. This should reduce the amount of data we need to download to
   run the CI on GitHub and speed things up slightly. It also means we can be more
   selective about when the ``zenodo-cache-sync`` workflow is run. Now it is only
@@ -203,7 +260,7 @@ Bug Fixes & Data Cleaning
   :pr:`4810`.
 
 * Corrected incorrect column mappings in :ref:`core_eia861__yearly_reliability` and
-  ``raw_eia861__frame`` that were introduced for 2024 data during the EIA 861 2024
+  ``raw_eia861__frame`` that were introduced for 2024 data during the EIA-861 2024
   data update. See :issue:`4907` and :pr:`4908`.
 
 Performance Improvements
@@ -271,7 +328,7 @@ from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathw
 we continue to bring in more EIA natural gas data.
 
 * Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
-  company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
+  company-wide natural gas disposition data from Part 6B of the EIA-176 survey. See
   :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
 
 Expanded Data Coverage
@@ -313,7 +370,7 @@ Bug Fixes
   (missing files and zero-length files) were only caught through manual inspection of
   draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
 * Remove row with plant ID 68815 and generator ID ``GAPPV`` that was erroneously
-  included in the 2024 from the EIA 860 generators data. See :issue:`4769` and PR
+  included in the 2024 from the EIA-860 generators data. See :issue:`4769` and PR
   :pr:`4824`.
 
 Performance Improvements
@@ -463,7 +520,7 @@ Documentation
 Bug Fixes
 ^^^^^^^^^
 
-* Fixed a bug where the EIA 930 subregion data from 2018-07-01 to 2019-01-01 was
+* Fixed a bug where the EIA-930 subregion data from 2018-07-01 to 2019-01-01 was
   being dropped. See PR :pr:`4731`.
 
 Dev Tooling

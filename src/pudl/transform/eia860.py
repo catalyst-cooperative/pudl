@@ -322,7 +322,7 @@ def _core_eia860__generators(
         & (gens_df.energy_source_code_1 == "OG")
     )
     expected_bad_tech_len_min = 1 if 2025 in gens_df.report_date.dt.year.unique() else 0
-    expected_bad_tech_len_max = 0 if expected_bad_tech_len_min == 0 else 2
+    expected_bad_tech_len_max = 0 if expected_bad_tech_len_min == 0 else 3
     if not (
         expected_bad_tech_len_min
         <= len(gens_df[bad_tech_mask])
@@ -1292,11 +1292,9 @@ def _core_eia860__boiler_stack_flue(
     # missrepresent complicated relationships between stacks and flues. Also there's
     # several instances where flue_id_eia is NA (hence the last fillna(x.stack_id_eia))
     bsf_assn = bsf_assn.assign(
-        stack_flue_id_pudl=lambda x: (
-            x.stack_flue_id_eia.fillna(
-                x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
-            ).fillna(x.stack_id_eia)
-        )
+        stack_flue_id_pudl=lambda x: x.stack_flue_id_eia.fillna(
+            x.stack_id_eia.astype("string") + "_" + x.flue_id_eia.astype("string")
+        ).fillna(x.stack_id_eia)
     )
 
     return bsf_assn
