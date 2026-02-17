@@ -413,6 +413,47 @@ DRAFT_RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__yearly_plant_operations": {
+        "description": {
+            "additional_summary_text": (
+                "plant operational data including fuel consumption and operational hours by unit."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part )",
+            "additional_primary_key_text": (
+                "This table has no primary key because there are a handful of plants that "
+                "have duplicate records. The primary key of this table "
+                "otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`,`is_fully_owned_by_borrower`]."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "plant_name_rus",
+                "unit_id_rus",
+                "plant_type",
+                "capacity_kw",
+                "gross_generation_mwh",
+                "borrower_ownership_pct",
+                "is_fully_owned_by_borrower",
+                "is_partly_owned_by_borrower",  # was not reported till 2009
+                "fuel_consumption_coal_1000_lbs",  # TODO convert these units? or just rename to klbs, ? and kgal
+                "fuel_consumption_gas_1000_cubic_feet",
+                "fuel_consumption_oil_1000_gals",
+                "fuel_consumption_other",
+                "operating_hours_in_service",
+                "operating_hours_on_standby",
+                "operating_hours_out_of_service_scheduled",
+                "operating_hours_out_of_service_unscheduled",
+                "times_started",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
     "core_rus12__yearly_": {
         "description": {
             "additional_summary_text": (""),

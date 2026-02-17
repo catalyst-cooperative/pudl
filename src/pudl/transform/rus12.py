@@ -392,3 +392,47 @@ def core_rus12__yearly_plant_costs(
         }
     )
     return df_all
+
+
+@asset  # TODO: convert to (io_manager_key="pudl_io_manager")
+def core_rus12__yearly_plant_operations(
+    raw_rus12__combined_cycle_plant_operations: pd.DataFrame,
+    raw_rus12__hydroelectric_plant_operations: pd.DataFrame,
+    raw_rus12__internal_combustion_plant_operations: pd.DataFrame,
+    raw_rus12__nuclear_plant_operations: pd.DataFrame,
+    raw_rus12__steam_plant_operations: pd.DataFrame,
+):
+    """Transform the plant operations tables.
+
+    This transform takes all of the plant operations tables, processes
+    them similarly and combines them into one plant table.
+    """
+    plant_operations_tables = {
+        "combined_cycle": raw_rus12__combined_cycle_plant_operations,
+        "hydroelectric": raw_rus12__hydroelectric_plant_operations,
+        "internal_combustion": raw_rus12__internal_combustion_plant_operations,
+        "nuclear": raw_rus12__nuclear_plant_operations,
+        "steam": raw_rus12__steam_plant_operations,
+    }
+
+    df_outs = {}
+    for plant_type, raw_table in plant_operations_tables.items():
+        df = rus.early_transform(
+            raw_df=raw_table,
+            boolean_columns_to_fix=[
+                "is_fully_owned_by_borrower",
+                "is_partly_owned_by_borrower",
+            ],
+        )
+        df["plant_type"] = plant_type
+        df_outs[plant_type] = df
+    df_all = pd.concat(df_outs.values())
+    # TODO: decide what units we really want....
+    # for old_unit in ["1000_lbs", "1000_cubic_feet", "1000_gals"]:
+    #     df_all = rus.convert_units(
+    #         df_all,
+    #         old_unit=old_unit,
+    #         new_unit=old_unit.removeprefix("1000_"),
+    #         converter=1000,
+    #     )
+    return df_all
