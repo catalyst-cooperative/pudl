@@ -324,3 +324,71 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
     df["is_total"] = df.opex_type.str.startswith("total_")
     # TODO: could remove total columns that aren't used as part of the calculation for others.
     return df
+
+
+@asset  # TODO: convert to (io_manager_key="pudl_io_manager")
+def core_rus12__yearly_plant_costs(
+    raw_rus12__combined_cycle_plant_costs: pd.DataFrame,
+    raw_rus12__hydroelectric_plant_costs: pd.DataFrame,
+    raw_rus12__internal_combustion_plant_costs: pd.DataFrame,
+    raw_rus12__nuclear_plant_costs: pd.DataFrame,
+    raw_rus12__steam_plant_costs: pd.DataFrame,
+):
+    """Transform the plant cost tables.
+
+    This transform takes all of the plant production cost tables, processes
+    them similarly and combines them into one plant cost table.
+    """
+    plant_cost_tables = {
+        "combined_cycle": raw_rus12__combined_cycle_plant_costs,
+        "hydroelectric": raw_rus12__hydroelectric_plant_costs,
+        "internal_combustion": raw_rus12__internal_combustion_plant_costs,
+        "nuclear": raw_rus12__nuclear_plant_costs,
+        "steam": raw_rus12__steam_plant_costs,
+    }
+
+    df_outs = {}
+    for plant_type, raw_table in plant_cost_tables.items():
+        df = rus.early_transform(raw_df=raw_table)
+        # there are duplicates for the "Walter Scott" plant
+        if plant_type != "steam":
+            rus.early_check_pk(
+                df, pk_early=["report_date", "borrower_id_rus", "plant_name_rus"]
+            )
+
+        data_cols = ["amount", "per_mmbtu", "dollars_per_mwh"]
+        if plant_type in ["hydroelectric", "nuclear"]:
+            data_cols = ["amount", "dollars_per_mwh"]
+        pattern = rf"^(capex|opex|total)_(.+)_({'|'.join(data_cols)})$"
+        df = rus.multi_index_stack(
+            df,
+            idx_ish=[
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "plant_name_rus",
+            ],
+            data_cols=data_cols,
+            pattern=pattern,
+            match_names=["cost_group", "cost_type", "data_cols"],
+            unstack_level=["cost_group", "cost_type"],
+            assume_no_dropped_cols=True,
+        )
+        df["plant_type"] = plant_type
+        df_outs[plant_type] = df
+    df_all = pd.concat(df_outs.values())
+    # this total flag is a little different than the others. it grabs the high-level
+    # cost group totals and it flags the cost_type's of net and less. Because these
+    # are clearly calculated fields from looking at the form.
+    df["is_total"] = df.cost_type.str.contains("total|net|less") | (
+        df.cost_group == "total"
+    )
+    # TODO: settle on names and do this rename in the column maps
+    df_all = df_all.rename(
+        columns={
+            "amount": "cost",
+            "dollars_per_mwh": "cost_per_mwh",
+            "per_mmbtu": "cost_per_mmbtu",
+        }
+    )
+    return df_all
