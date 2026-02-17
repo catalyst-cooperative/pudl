@@ -29,7 +29,7 @@ def main():
         ]
 
     with duckdb.connect(str(PudlPaths().duckdb_db_path("pudl"))) as conn:
-        # Create views to non-partitioned tables
+        # Create views to non-eqr tables
         [
             conn.sql(
                 f"CREATE OR REPLACE VIEW {schema}.{table} AS "  # noqa: S608
@@ -41,7 +41,8 @@ def main():
             if UPath(f"{base_path}/{table}.parquet", anon=True).exists()
         ]
 
-        # Create views to partitioned tables
+        # Create views to eqr tables. There's only one copy of EQR on s3 so these will
+        # only appear in the nightly and local schemas
         [
             conn.sql(
                 f"CREATE OR REPLACE VIEW {schema}.{table} AS "  # noqa: S608
