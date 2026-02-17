@@ -9500,9 +9500,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MW",
     },
     "is_peak_coincident": {
-        "type": "integer",
+        "type": "boolean",
         "description": "Whether or not the peak_mw is coincident or non-coincident peak.",
-        "unit": "boolean",
     },
     "investment_description": {
         "type": "string",
