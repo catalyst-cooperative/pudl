@@ -1,0 +1,92 @@
+pudl.extract.eia861
+===================
+
+.. py:module:: pudl.extract.eia861
+
+.. autoapi-nested-parse::
+
+   Retrieve data from EIA Form 861 spreadsheets for analysis.
+
+   This modules pulls data from EIA's published Excel spreadsheets.
+
+   This code is for use analyzing EIA Form 861 data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.eia861.logger
+   pudl.extract.eia861.raw_eia861__all_dfs
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.eia861.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.eia861.extract_eia861
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.excel.ExcelExtractor`
+
+
+   Extractor for the excel dataset EIA861.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: cols_added
+      :value: []
+
+
+
+   .. py:method:: process_raw(df, page, **partition)
+
+      Rename columns with location.
+
+
+
+   .. py:method:: process_renamed(df, page, **partition)
+      :staticmethod:
+
+
+      Adds report_year column if missing.
+
+
+
+   .. py:method:: get_dtypes(page, **partition)
+      :staticmethod:
+
+
+      Returns dtypes for plant id columns.
+
+
+
+.. py:data:: raw_eia861__all_dfs
+
+.. py:function:: extract_eia861(raw_eia861__all_dfs)
+
+   Extract raw EIA-861 data from Excel sheets into dataframes.
+
+

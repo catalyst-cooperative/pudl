@@ -1,0 +1,111 @@
+pudl.metadata.fields
+====================
+
+.. py:module:: pudl.metadata.fields
+
+.. autoapi-nested-parse::
+
+   Field metadata.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.fields.FIELD_METADATA
+   pudl.metadata.fields.FIELD_METADATA_BY_GROUP
+   pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.metadata.fields.get_pudl_dtypes
+   pudl.metadata.fields.apply_pudl_dtypes
+   pudl.metadata.fields.apply_pudl_dtypes_polars
+
+
+Module Contents
+---------------
+
+.. py:data:: FIELD_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   Field attributes by PUDL identifier (`field.name`).
+
+.. py:data:: FIELD_METADATA_BY_GROUP
+   :type:  dict[str, dict[str, Any]]
+
+   Field attributes by resource group (`resource.group`) and PUDL identifier.
+
+   If a field exists in more than one data group (e.g. both ``eia`` and ``ferc1``) and has
+   distinct metadata in those groups, this is the place to specify the override. Only those
+   elements which should be overridden need to be specified.
+
+.. py:data:: FIELD_METADATA_BY_RESOURCE
+   :type:  dict[str, dict[str, Any]]
+
+.. py:function:: get_pudl_dtypes(group: str | None = None, field_meta: dict[str, Any] = FIELD_METADATA, field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP, dtype_map: dict[str, Any] = FIELD_DTYPES_PANDAS) -> dict[str, Any]
+
+   Compile a dictionary of field dtypes, applying group overrides.
+
+   :param group: The data group (e.g. ferc1, eia) to use for overriding the default
+                 field types. If None, no overrides are applied and the default types
+                 are used.
+   :param field_meta: Field metadata dictionary which at least describes a "type".
+   :param field_meta_by_group: Field metadata type overrides to apply based on the data
+                               group that the field is part of, if any.
+   :param dtype_map: Mapping from canonical PUDL data types to some other set of data
+                     types. Uses pandas data types by default.
+
+   :returns: A mapping of PUDL field names to their associated data types.
+
+
+.. py:function:: apply_pudl_dtypes(df: pandas.DataFrame | geopandas.GeoDataFrame, group: str | None = None, field_meta: dict[str, Any] = FIELD_METADATA, field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP, strict: bool = False) -> pandas.DataFrame | geopandas.GeoDataFrame
+
+   Apply dtypes to those columns in a dataframe that have PUDL types defined.
+
+   Note that ad-hoc column dtypes can be defined and merged with default PUDL field
+   metadata before it's passed in as ``field_meta`` if you have module specific column
+   types you need to apply alongside the standard PUDL field types.
+
+   :param df: The dataframe to apply types to. Not all columns need to have types
+              defined in the PUDL metadata unless you pass ``strict=True``.
+   :param group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+   :param field_meta: A dictionary of field metadata, where each key is a field name
+                      and the values are dictionaries which must have a "type" element. By
+                      default this is pudl.metadata.fields.FIELD_METADATA.
+   :param field_meta_by_group: A dictionary of field metadata to use as overrides,
+                               based on the value of `group`, if any. By default it uses the overrides
+                               defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+   :param strict: whether or not all columns need a corresponding field.
+
+   :returns: The input dataframe, but with standard PUDL types applied.
+
+
+.. py:function:: apply_pudl_dtypes_polars(lf: polars.LazyFrame, group: str | None = None, field_meta: dict[str, Any] = FIELD_METADATA, field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP, strict: bool = False) -> polars.LazyFrame
+
+   Apply dtypes to those columns in a dataframe that have PUDL types defined.
+
+   Note that ad-hoc column dtypes can be defined and merged with default PUDL field
+   metadata before it's passed in as ``field_meta`` if you have module specific column
+   types you need to apply alongside the standard PUDL field types.
+
+   :param df: The dataframe to apply types to. Not all columns need to have types
+              defined in the PUDL metadata unless you pass ``strict=True``.
+   :param group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+   :param field_meta: A dictionary of field metadata, where each key is a field name
+                      and the values are dictionaries which must have a "type" element. By
+                      default this is pudl.metadata.fields.FIELD_METADATA.
+   :param field_meta_by_group: A dictionary of field metadata to use as overrides,
+                               based on the value of `group`, if any. By default it uses the overrides
+                               defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+   :param strict: whether or not all columns need a corresponding field.
+
+   :returns: The input dataframe, but with standard PUDL types applied.
+
+

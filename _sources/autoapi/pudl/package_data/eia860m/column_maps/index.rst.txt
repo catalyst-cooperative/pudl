@@ -1,0 +1,11 @@
+pudl.package_data.eia860m.column_maps
+=====================================
+
+.. py:module:: pudl.package_data.eia860m.column_maps
+
+.. autoapi-nested-parse::
+
+   Metadata linking semantic meaning of EIA 860M spreadsheet columns across years.
+
+
+

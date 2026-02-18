@@ -1,0 +1,24 @@
+pudl.metadata.resources.rus12
+=============================
+
+.. py:module:: pudl.metadata.resources.rus12
+
+.. autoapi-nested-parse::
+
+   Table definitions for the RUS12 tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.rus12.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+

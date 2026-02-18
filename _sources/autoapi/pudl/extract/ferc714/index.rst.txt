@@ -1,0 +1,81 @@
+pudl.extract.ferc714
+====================
+
+.. py:module:: pudl.extract.ferc714
+
+.. autoapi-nested-parse::
+
+   Routines used for extracting the raw FERC 714 data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.ferc714.logger
+   pudl.extract.ferc714.FERC714_CSV_ENCODING
+   pudl.extract.ferc714.TABLE_NAME_MAP_FERC714
+   pudl.extract.ferc714.raw_ferc714_csv_assets
+   pudl.extract.ferc714.raw_ferc714_xbrl_assets
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.ferc714.raw_ferc714_csv_asset_factory
+   pudl.extract.ferc714.raw_ferc714_xbrl__metadata_json
+   pudl.extract.ferc714.create_raw_ferc714_xbrl_assets
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: FERC714_CSV_ENCODING
+   :type:  collections.OrderedDict[str, dict[str, str]]
+
+   Dictionary mapping PUDL tables to FERC-714 CSV filenames and character encodings.
+
+.. py:data:: TABLE_NAME_MAP_FERC714
+   :type:  collections.OrderedDict[str, dict[str, str]]
+
+   A mapping of PUDL DB table names to their XBRL and CSV source table names.
+
+.. py:function:: raw_ferc714_csv_asset_factory(table_name: str) -> dagster.AssetsDefinition
+
+   Generates an asset for building the raw CSV-based FERC 714 dataframe.
+
+
+.. py:function:: raw_ferc714_xbrl__metadata_json(context) -> dict[str, dict[str, list[dict[str, Any]]]]
+
+   Extract the FERC 714 XBRL Taxonomy metadata we've stored as JSON.
+
+   :returns: A dictionary keyed by PUDL table name, with an instant and a duration entry
+             for each table, corresponding to the metadata for each of the respective instant
+             or duration tables from XBRL if they exist. Table metadata is returned as a list
+             of dictionaries, each of which can be interpreted as a row in a tabular
+             structure, with each row annotating a separate XBRL concept from the FERC 714
+             filings.
+
+
+.. py:function:: create_raw_ferc714_xbrl_assets() -> list[dagster.AssetSpec]
+
+   Create AssetSpecs for raw FERC 714 XBRL tables.
+
+   AssetSpecs allow you to specify and access assets that are generated elsewhere.  In
+   our case, the XBRL database contains the raw FERC 714 assets from 2021 onward. Prior
+   to that, the assets are distributed as CSVs and are extracted with the
+   ``raw_ferc714_csv_asset_factory`` function.
+
+   :returns: A list of FERC 714 AssetSpecs.
+
+
+.. py:data:: raw_ferc714_csv_assets
+
+.. py:data:: raw_ferc714_xbrl_assets
+
