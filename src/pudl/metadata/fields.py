@@ -9672,6 +9672,12 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
             "description": "The total electricity purchased.",
             "unit": "MWh",
         },
+        # RUS has also lent to Micronesia (FM) and the Marshall Islands (MH).
+        "state": {
+            "type": "string",
+            "description": "Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.",
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166.update(["MH", "FM"])},
+        },
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
