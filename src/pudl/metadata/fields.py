@@ -7540,9 +7540,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Company that sold the fuel to the plant or, in the case of Natural Gas, pipeline owner."
         ),
     },
+    "supporting_structure_type_original": {
+        "type": "string",
+        "description": (
+            "Original unstructured value for the supporting structure type from the source data. "
+            "This column preserves the raw value for user interpretation when the categorized "
+            "columns are ambiguous or contain multiple structure types/materials."
+        ),
+    },
     "supporting_structure_type": {
         "type": "string",
-        "description": "Supporting structure of the transmission line.",
+        "description": (
+            "Type of supporting structure for the transmission line. "
+            "Categorized values: pole, h_frame, tower, underground. "
+            "Only filled for unambiguous values; set to NA for multi-category or ambiguous values."
+        ),
+        "constraints": {"enum": ["pole", "h_frame", "tower", "underground"]},
+    },
+    "supporting_structure_material": {
+        "type": "string",
+        "description": (
+            "Material used in the supporting structure for the transmission line. "
+            "Categorized values: steel, wood, concrete."
+        ),
+        "constraints": {"enum": ["steel", "wood", "concrete"]},
     },
     "can_switch_oil_gas": {
         "type": "boolean",
