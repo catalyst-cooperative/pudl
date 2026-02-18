@@ -73,7 +73,7 @@ SOURCES: dict[str, Any] = {
             ),
             "source_format": "Comma Separated Value (.csv)",
         },
-        "working_partitions": {"years": sorted(set(range(1997, 2024)))},
+        "working_partitions": {"years": sorted(set(range(1997, 2025)))},
         "contributors": [CONTRIBUTORS["catalyst-cooperative"]],
         "keywords": sorted(
             set(
@@ -207,7 +207,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2025-11", freq="M")
+                for q in pd.period_range(start="2015-07", end="2025-12", freq="M")
             ],
         },
         "keywords": sorted(
@@ -327,8 +327,8 @@ SOURCES: dict[str, Any] = {
         },
         "working_partitions": {
             "half_years": [
-                f"{year}half{half}" for year in range(2015, 2026) for half in [1, 2]
-            ][1:]  # Begins in H2 of 2015 and currently ends in H2 of 2025
+                f"{year}half{half}" for year in range(2015, 2027) for half in [1, 2]
+            ][1:-1]  # Begins in H2 of 2015 and currently ends in H1 of 2026
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -459,7 +459,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_quarters": [
                 str(q).lower()
-                for q in pd.period_range(start="1995q1", end="2025q3", freq="Q")
+                for q in pd.period_range(start="1995q1", end="2025q4", freq="Q")
             ]
         },
         "contributors": [
@@ -695,7 +695,8 @@ SOURCES: dict[str, Any] = {
             "various required forms. Each regulatory program requires a unique CID number. These "
             "CID numbers show up in various FERC filings, such as Forms 1, 2, 6, 60, 714, and EQR."
         ),
-        "working_partitions": {},
+        # we only want the data table, not the data dictionary table
+        "working_partitions": {"data_set": "data_table"},
         "keywords": sorted(
             set(
                 ["ferc", "cid", "company identifier"]

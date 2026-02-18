@@ -54,7 +54,7 @@ function run_pudl_etl() {
 
 function write_pudl_datapackage() {
     echo "Writing PUDL datapackage."
-    python -c "from pudl.metadata.classes import PUDL_PACKAGE; print(PUDL_PACKAGE.to_frictionless().to_json())" >"$PUDL_OUTPUT/parquet/pudl_parquet_datapackage.json"
+    python -c "from pudl.metadata.classes import PUDL_PACKAGE; print(PUDL_PACKAGE.to_frictionless(exclude_pattern=r'core_ferceqr.*').to_json())" >"$PUDL_OUTPUT/parquet/pudl_parquet_datapackage.json"
     return $?
 }
 
@@ -194,8 +194,6 @@ function clean_up_outputs_for_distribution() {
         # Create a zip file of all the parquet outputs for distribution on Kaggle
         # Don't try to compress the already compressed Parquet files with Zip.
         pushd "$PUDL_OUTPUT/parquet" &&
-        # Don't distribute the raw parquet files
-        rm ./raw_*.parquet &&
         zip -0 "$PUDL_OUTPUT/pudl_parquet.zip" ./*.parquet ./pudl_parquet_datapackage.json &&
         # Move the individual parquet outputs to the output directory for direct access
         mv ./*.parquet "$PUDL_OUTPUT" &&
@@ -281,6 +279,10 @@ if [[ "$BUILD_TYPE" == "nightly" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    if [[ $CLEAN_UP_OUTPUTS_SUCCESS != 0 ]]; then
+        notify_slack "failure"
+        exit 1
+    fi
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
     upload_to_dist_path "nightly" | tee -a "$LOGFILE" &&
         upload_to_dist_path "eel-hole" | tee -a "$LOGFILE"
@@ -301,6 +303,10 @@ elif [[ "$BUILD_TYPE" == "stable" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    if [[ $CLEAN_UP_OUTPUTS_SUCCESS != 0 ]]; then
+        notify_slack "failure"
+        exit 1
+    fi
     # Copy cleaned up outputs to the S3 and GCS distribution buckets
     upload_to_dist_path "$BUILD_REF" | tee -a "$LOGFILE" &&
         upload_to_dist_path "stable" | tee -a "$LOGFILE"
@@ -321,6 +327,10 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
     clean_up_outputs_for_distribution 2>&1 | tee -a "$LOGFILE"
     CLEAN_UP_OUTPUTS_SUCCESS=${PIPESTATUS[0]}
+    if [[ $CLEAN_UP_OUTPUTS_SUCCESS != 0 ]]; then
+        notify_slack "failure"
+        exit 1
+    fi
 
     # Disable the test upload to the distribution bucket for now to avoid egress fees
     # and speed up the build. Uncomment if you need to test the distribution upload.

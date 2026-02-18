@@ -635,7 +635,9 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
     ba_eia861_filled = (
         add_backfilled_ba_code_column(df, by_cols=["balancing_authority_id_eia"])
         .assign(
-            balancing_authority_code_eia=lambda x: x.balancing_authority_code_eia_bfilled
+            balancing_authority_code_eia=lambda x: (
+                x.balancing_authority_code_eia_bfilled
+            )
         )
         .drop(columns="balancing_authority_code_eia_bfilled")
     )
@@ -834,7 +836,7 @@ def _compare_totals(data_cols, idx_cols, class_type, df_name):
         col_df = sum_total_df.loc[sum_total_df[col + "_total"].notnull()]
         if len(col_df) > 0:
             col_df = col_df.assign(
-                compare_totals=lambda x, col=col: (x[col + "_total"] == x[col + "_sum"])
+                compare_totals=lambda x, col=col: x[col + "_total"] == x[col + "_sum"]
             )
             bad_math = (col_df["compare_totals"]).sum() / len(col_df)
             logger.debug(
@@ -867,7 +869,7 @@ def clean_nerc(nerc_df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     # Make nerc values into lists to see how many separate values are stuffed into one row (ex: 'SPP & ERCOT' --> ['SPP', 'ERCOT'])
     nerc_df = nerc_df.assign(
         nerc_region=(
-            lambda x: (x.nerc_region.str.upper().fillna("UNK").str.findall(r"[A-Z]+"))
+            lambda x: x.nerc_region.str.upper().fillna("UNK").str.findall(r"[A-Z]+")
         )
     )
 
@@ -1468,10 +1470,8 @@ def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFram
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Demand Response table.")
     transformed_dr = deduped_dr.assign(
-        customer_incentives_cost=lambda x: (
-            _thousand_to_one(x.customer_incentives_cost)
-        ),
-        other_costs=lambda x: (_thousand_to_one(x.other_costs)),
+        customer_incentives_cost=lambda x: _thousand_to_one(x.customer_incentives_cost),
+        other_costs=lambda x: _thousand_to_one(x.other_costs),
     )
 
     return (
@@ -1733,11 +1733,11 @@ def core_distributed_generation_eia861(
         estimated_or_actual_capacity_data=lambda x: (
             x.estimated_or_actual_capacity_data.map(ESTIMATED_OR_ACTUAL)
         ),
-        estimated_or_actual_fuel_data=lambda x: (
-            x.estimated_or_actual_fuel_data.map(ESTIMATED_OR_ACTUAL)
+        estimated_or_actual_fuel_data=lambda x: x.estimated_or_actual_fuel_data.map(
+            ESTIMATED_OR_ACTUAL
         ),
-        estimated_or_actual_tech_data=lambda x: (
-            x.estimated_or_actual_tech_data.map(ESTIMATED_OR_ACTUAL)
+        estimated_or_actual_tech_data=lambda x: x.estimated_or_actual_tech_data.map(
+            ESTIMATED_OR_ACTUAL
         ),
     )
 
@@ -1780,12 +1780,12 @@ def core_distributed_generation_eia861(
 
     logger.info("Converting pct into MW for distributed generation tech table")
     dg_tech_early = dg_tech_early.assign(
-        combustion_turbine_capacity_mw=lambda x: (
-            _pct_to_mw(x, "combustion_turbine_capacity_pct")
+        combustion_turbine_capacity_mw=lambda x: _pct_to_mw(
+            x, "combustion_turbine_capacity_pct"
         ),
         hydro_capacity_mw=lambda x: _pct_to_mw(x, "hydro_capacity_pct"),
-        internal_combustion_capacity_mw=lambda x: (
-            _pct_to_mw(x, "internal_combustion_capacity_pct")
+        internal_combustion_capacity_mw=lambda x: _pct_to_mw(
+            x, "internal_combustion_capacity_pct"
         ),
         other_capacity_mw=lambda x: _pct_to_mw(x, "other_capacity_pct"),
         steam_capacity_mw=lambda x: _pct_to_mw(x, "steam_capacity_pct"),
@@ -1984,17 +1984,17 @@ def core_eia861__yearly_energy_efficiency(
     logger.info("Transforming the EIA 861 Energy Efficiency table.")
 
     transformed_ee = tidy_ee.assign(
-        customer_incentives_incremental_cost=lambda x: (
-            _thousand_to_one(x.customer_incentives_incremental_cost)
+        customer_incentives_incremental_cost=lambda x: _thousand_to_one(
+            x.customer_incentives_incremental_cost
         ),
-        customer_incentives_incremental_life_cycle_cost=lambda x: (
-            _thousand_to_one(x.customer_incentives_incremental_life_cycle_cost)
+        customer_incentives_incremental_life_cycle_cost=lambda x: _thousand_to_one(
+            x.customer_incentives_incremental_life_cycle_cost
         ),
-        customer_other_costs_incremental_life_cycle_cost=lambda x: (
-            _thousand_to_one(x.customer_other_costs_incremental_life_cycle_cost)
+        customer_other_costs_incremental_life_cycle_cost=lambda x: _thousand_to_one(
+            x.customer_other_costs_incremental_life_cycle_cost
         ),
-        other_costs_incremental_cost=lambda x: (
-            _thousand_to_one(x.other_costs_incremental_cost)
+        other_costs_incremental_cost=lambda x: _thousand_to_one(
+            x.other_costs_incremental_cost
         ),
     ).drop(columns=["website"])
 
@@ -2038,8 +2038,8 @@ def core_eia861__yearly_green_pricing(
     ###########################################################################
     logger.info("Performing value transformations on EIA 861 Green Pricing table.")
     transformed_gp = tidy_gp.assign(
-        green_pricing_revenue=lambda x: (_thousand_to_one(x.green_pricing_revenue)),
-        rec_revenue=lambda x: (_thousand_to_one(x.rec_revenue)),
+        green_pricing_revenue=lambda x: _thousand_to_one(x.green_pricing_revenue),
+        rec_revenue=lambda x: _thousand_to_one(x.rec_revenue),
     )
 
     return _post_process(transformed_gp)
@@ -2334,7 +2334,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
 
     # Transform revenue 1000s into dollars
     transformed_od_rev = tidy_od_rev.assign(
-        revenue=lambda x: (_thousand_to_one(x.revenue))
+        revenue=lambda x: _thousand_to_one(x.revenue)
     )
 
     return (
@@ -2394,11 +2394,11 @@ def core_eia861__yearly_reliability(
 
     transformed_r = (
         tidy_r.assign(
-            outages_recorded_automatically=lambda x: (
-                _make_yn_bool(x.outages_recorded_automatically)
+            outages_recorded_automatically=lambda x: _make_yn_bool(
+                x.outages_recorded_automatically
             ),
-            inactive_accounts_included=lambda x: (
-                _make_yn_bool(x.inactive_accounts_included)
+            inactive_accounts_included=lambda x: _make_yn_bool(
+                x.inactive_accounts_included
             ),
             short_form=lambda x: _make_yn_bool(x.short_form),
         )
@@ -2500,10 +2500,10 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
 
     # Transform NERC region table
     transformed_ud_nerc = tidy_ud_nerc.assign(
-        nerc_region_operation=lambda x: (
-            _make_yn_bool(x.nerc_region_operation.fillna(False))
+        nerc_region_operation=lambda x: _make_yn_bool(
+            x.nerc_region_operation.fillna(False)
         ),
-        nerc_regions_of_operation=lambda x: (x.nerc_regions_of_operation.str.upper()),
+        nerc_regions_of_operation=lambda x: x.nerc_regions_of_operation.str.upper(),
     )
 
     # Only keep true values and drop bool col
@@ -2513,7 +2513,7 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
 
     # Transform RTO table
     transformed_ud_rto = tidy_ud_rto.assign(
-        rto_operation=lambda x: (_make_yn_bool(x.rto_operation.fillna(False))),
+        rto_operation=lambda x: _make_yn_bool(x.rto_operation.fillna(False)),
     )
 
     # Only keep true values and drop bool col

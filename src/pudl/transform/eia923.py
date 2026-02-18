@@ -490,13 +490,15 @@ def _coalmine_cleanup(
             # In addition, mine_ids from 2024 are reported as strings and have a leading 0.
             # I checked the same id from other years in the raw data, and the leading 0s
             # only appear in 2024, so this function removes them so the years line up.
-            mine_id_msha=lambda x: x.mine_id_msha.str.replace(
-                "O",
-                "0",
-            )
-            # 2025-10-27: Label a single bad mine ID (15-1953) as 0 as well, to remove it from processing.
-            .mask(lambda m: m == "15-1953", "0")
-            .astype("Int64"),
+            mine_id_msha=lambda x: (
+                x.mine_id_msha.str.replace(
+                    "O",
+                    "0",
+                )
+                # 2025-10-27: Label a single bad mine ID (15-1953) as 0 as well, to remove it from processing.
+                .mask(lambda m: m == "15-1953", "0")
+                .astype("Int64")
+            ),
             # 2025-10-1: there's one mine in 2025 that reports its type as "F", which
             # exists in MSHA's codebook but not in EIA's. "F" doesn't seem to
             # be equivalent to EIA's "P" type, so I'm nulling it for now.
@@ -896,9 +898,9 @@ def _core_eia923__boiler_fuel(raw_eia923__boiler_fuel: pd.DataFrame) -> pd.DataF
     # Convert Year/Month columns into a single Date column...
     bf_df = pudl.helpers.convert_to_date(bf_df)
 
-    bf_df = remove_duplicate_pks_boiler_fuel_eia923(bf_df)
-
     bf_df = PUDL_PACKAGE.encode(bf_df)
+
+    bf_df = remove_duplicate_pks_boiler_fuel_eia923(bf_df)
 
     # Add a simplified PUDL fuel type
     bf_df["fuel_type_code_pudl"] = bf_df.energy_source_code.map(
@@ -941,6 +943,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
         "fuel_mmbtu_per_unit",
         "sulfur_content_pct",
     ]
+
     # make a mask to split bf into records w/ & w/o pk dupes
     pk_dupe_mask = bf.duplicated(pk, keep=False)
 
@@ -1233,8 +1236,8 @@ def _core_eia923__fuel_receipts_costs(
         )
         .assign(
             fuel_cost_per_mmbtu=lambda x: x.fuel_cost_per_mmbtu / 100,
-            fuel_group_code=lambda x: (
-                x.fuel_group_code.str.lower().str.replace(" ", "_")
+            fuel_group_code=lambda x: x.fuel_group_code.str.lower().str.replace(
+                " ", "_"
             ),
             contract_expiration_month=lambda x: x.contract_expiration_date.apply(
                 lambda y: y[:-2] if y != "" else y

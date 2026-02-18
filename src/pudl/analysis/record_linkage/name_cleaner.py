@@ -29,6 +29,7 @@ CLEANING_RULES_DICT = {
     "replace_underscore_by_space": [" ", r"\s*_\s*"],
     "remove_all_punctuation": [" ", r"([^\w\s])"],
     "remove_punctuation_except_dot": [" ", r"([^\w\s.])"],
+    "replace_dot_with_nothing": ["", r"\."],
     "remove_mentions": [" ", r"@\S+"],
     "remove_hashtags": [" ", r"#\S+"],
     "remove_numbers": [" ", r"\w*\d+\w*"],

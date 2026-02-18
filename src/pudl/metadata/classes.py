@@ -9,6 +9,7 @@ from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
 from hashlib import sha1
 from pathlib import Path
+from re import Pattern
 from typing import Annotated, Any, Literal, Self, TypeVar
 
 import duckdb
@@ -1303,6 +1304,8 @@ class PudlResourceDescriptor(PudlMeta):
     etl_group_id: str = pydantic.Field(alias="etl_group")
     field_namespace_id: str = pydantic.Field(alias="field_namespace")
     create_database_schema: bool = True
+    path: str | None = None
+    extrapaths: list[str] | None = None
 
 
 class Resource(PudlMeta):
@@ -1437,7 +1440,6 @@ class Resource(PudlMeta):
     # Alias required to avoid shadowing Python built-in format()
     format_: String | None = pydantic.Field(alias="format", default=None)
     mediatype: String | None = None
-    path: String | None = None
     dialect: dict[str, str] | None = None
     profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
@@ -1445,6 +1447,8 @@ class Resource(PudlMeta):
     sources: list[DataSource] = []
     keywords: list[String] = []
     encoder: Encoder | None = None
+    path: str = pydantic.Field(default_factory=lambda data: f"{data['name']}.parquet")
+    extrapaths: list[str] | None = None
     field_namespace: (
         Literal[
             "censusdp1tract",
@@ -1452,6 +1456,7 @@ class Resource(PudlMeta):
             "eiaaeo",
             "eiaapi",
             "epacems",
+            "ferc",
             "ferc1",
             "ferc714",
             "ferceqr",
@@ -1479,6 +1484,7 @@ class Resource(PudlMeta):
             "eiaaeo",
             "entity_eia",
             "epacems",
+            "entity_ferc",
             "ferc1",
             "ferc1_disabled",
             "ferc714",
@@ -1498,6 +1504,8 @@ class Resource(PudlMeta):
             "phmsagas",
             "sec10k",
             "rus7",
+            "static_rus",
+            "rus12",
         ]
         | None
     ) = None
@@ -1559,7 +1567,7 @@ class Resource(PudlMeta):
         * ``schema.foreign_keys``: Foreign keys are fetched by resource name.
         * ``description``: Full description text block is rendered from its component parts.
         """
-        obj = descriptor.model_dump(by_alias=True)
+        obj = descriptor.model_dump(by_alias=True, exclude_none=True)
         obj["name"] = resource_id
         schema = obj["schema"]
         # Expand fields
@@ -1679,20 +1687,25 @@ class Resource(PudlMeta):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
-    def to_frictionless(self) -> frictionless.Resource:
+    def to_frictionless(self) -> dict:
         """Convert to a Frictionless Resource."""
         schema = frictionless.Schema(
             fields=[
-                frictionless.Field(name=f.name, description=f.description)
+                frictionless.Field(
+                    name=f.name,
+                    description=f.description,
+                )
                 for f in self.schema.fields
             ],
             primary_key=self.schema.primary_key,
         )
+
         return frictionless.Resource(
             name=self.name,
             description=self.description,
             schema=schema,
-            path=f"{self.name}.parquet",
+            path=self.path,
+            extrapaths=self.extrapaths,
         )
 
     def to_pyarrow(self) -> pa.Schema:
@@ -2348,11 +2361,35 @@ class Package(PudlMeta):
                 )
         return encoded_df
 
-    def to_frictionless(self) -> frictionless.Package:
-        """Convert to a Frictionless Datapackage."""
+    def to_frictionless(
+        self,
+        exclude_pattern: Pattern[str] | None = None,
+        include_pattern: Pattern[str] | None = None,
+    ) -> frictionless.Package:
+        """Convert to a Frictionless Datapackage.
+
+        Allows filtering out specific resources by passing regex patterns to include
+        or exclude resources by name. This is used to generate an independent
+        'datapackage.json' file for ``ferceqr`` assets, which are distributed separately
+        from the rest of PUDL. This method will only look for table names that exactly
+        match the supplied patterns, not substring matches.
+
+        Args:
+            exclude_pattern: Exclude resources whose names exactly match this pattern.
+            include_pattern: Only include resources whose names exactly match this pattern.
+        """
         resources = [r.to_frictionless() for r in self.resources]
-        package = frictionless.Package(name=self.name, resources=resources)
-        return package
+
+        if exclude_pattern is not None:
+            resources = [
+                r for r in resources if re.match(exclude_pattern, r.name) is None
+            ]
+        if include_pattern is not None:
+            resources = [
+                r for r in resources if re.match(include_pattern, r.name) is not None
+            ]
+
+        return frictionless.Package(name=self.name, resources=resources)
 
 
 PUDL_PACKAGE = Package.from_resource_ids()

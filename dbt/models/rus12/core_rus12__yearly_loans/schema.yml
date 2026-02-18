@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_loans
+        data_tests:
+          - expect_columns_not_all_null
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+              arguments:
+                column_A: loan_original_amount
+                column_B: loan_balance
+                or_equal: true
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: loan_organization
+          - name: loan_maturity_date
+          - name: loan_original_amount
+          - name: loan_balance
+          - name: for_rural_development

@@ -32,6 +32,14 @@ class Extractor(CsvExtractor):
             str(self.METADATA._get_partition_selection(partition)), page
         ]
 
+    def process_raw(self, df, page, **partition):
+        """Adds source column and report_year column if missing."""
+        df = super().process_raw(df, page, **partition)
+        if "report_year" not in df.columns:
+            df["report_year"] = int(list(partition.values())[0])
+            self.cols_added.append("report_year")
+        return df
+
     def load_source(self, page: str, **partition: PartitionSelection) -> pd.DataFrame:
         """Produce the dataframe object for the given partition.
 
@@ -87,6 +95,7 @@ raw_rus12_assets = [
         "sources_and_distribution": None,
         "renewable_plants": None,
         "plant_labor": None,
+        "plant_factors_and_maximum_demand": None,
         "loans": None,
         "long_term_debt": None,
         "meeting_and_board": None,
@@ -94,5 +103,19 @@ raw_rus12_assets = [
         "borrowers": None,
         "steam_plant_operations": None,
         "steam_plant_costs": None,
+        "hydroelectric_plant_operations": None,
+        "hydroelectric_plant_cost": None,
+        "combined_cycle_plant_operations": None,
+        "combined_cycle_plant_costs": None,
+        "internal_combustion_plant_operations": None,
+        "internal_combustion_plant_costs": None,
+        "nuclear_plant_operations": None,
+        "nuclear_plant_costs": None,
+        "demand_and_energy_at_delivery_points": None,
+        "demand_and_energy_at_power_sources": None,
+        "investments": None,
+        "loan_guarantees": None,
+        "non_utility_plant": None,
+        "ratio": None,
     }.items()
 ]

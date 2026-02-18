@@ -684,7 +684,7 @@ def validate_and_add_to_training(
 ) -> None:
     """Validate, combine, and add overrides to the training data.
 
-    Validating and combinging the records so you only have to loop through the files
+    Validating and combining the records so you only have to loop through the files
     once. Runs :func:`validate_override_fixes` and :func:`_add_to_training`.
 
     Args:

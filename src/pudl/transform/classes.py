@@ -70,10 +70,12 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from functools import wraps
 from itertools import combinations
+from pathlib import Path
 from typing import Annotated, Any, Protocol, Self
 
 import numpy as np
 import pandas as pd
+import yaml
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -439,7 +441,24 @@ class StringCategories(TransformParams):
     """Mappings to categorize the values in freeform string columns."""
 
     categories: dict[str, set[str]]
-    """Mapping from a categorical string to the set of the values it should replace."""
+    """Mapping from a categorical string to the set of the values it should replace.
+
+    When specifying StringCategories in dictionary format, you may store either
+    a dict or a :class:`pathlib.Path` at this key. If a Path, it must point to a
+    YAML file which encodes the dictionary like so::
+
+        categories: dict[str, set[str]] = {...}
+        with open("categoryfile.yml", "w") as f:
+            yaml.dump(
+                {
+                    cat: sorted(val)
+                    for cat, val in categories.items()
+                },
+                f
+            )
+
+    We recommend putting any YAML files within a dataset directory in ``src/pudl/package_data``.
+    """
 
     na_category: str = "na_category"
     """All strings mapped to this category will be set to NA at the end.
@@ -448,6 +467,16 @@ class StringCategories(TransformParams):
     given the many different values which can be used to represent NA. See
     :func:`categorize_strings` to see how it is used.
     """
+
+    @field_validator("categories", mode="before")
+    @classmethod
+    def maybe_load_categories(cls, v):
+        """If categories was specified as a Path, load it from disk."""
+        if isinstance(v, Path):
+            with v.open() as f:
+                data = yaml.safe_load(f)
+                return {cat: set(values) for cat, values in data.items()}
+        return v
 
     @field_validator("categories")
     @classmethod

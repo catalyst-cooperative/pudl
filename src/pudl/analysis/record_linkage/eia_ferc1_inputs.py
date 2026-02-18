@@ -101,8 +101,8 @@ class InputManager:
                 )
                 .pipe(pudl.helpers.convert_cols_dtypes, "ferc1")
                 .assign(
-                    installation_year=lambda x: (
-                        x.installation_year.astype("float")
+                    installation_year=lambda x: x.installation_year.astype(
+                        "float"
                     ),  # need for comparison vectors
                     plant_id_report_year=lambda x: (
                         x.plant_id_pudl.astype(str) + "_" + x.report_year.astype(str)
@@ -110,7 +110,7 @@ class InputManager:
                     plant_id_report_year_util_id=lambda x: (
                         x.plant_id_report_year + "_" + x.utility_id_pudl.astype(str)
                     ),
-                    fuel_cost_per_mmbtu=lambda x: (x.fuel_cost / x.fuel_mmbtu),
+                    fuel_cost_per_mmbtu=lambda x: x.fuel_cost / x.fuel_mmbtu,
                     unit_heat_rate_mmbtu_per_mwh=lambda x: (
                         x.fuel_mmbtu / x.net_generation_mwh
                     ),

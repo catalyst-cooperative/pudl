@@ -12,29 +12,11 @@ Enhancements
 New Data
 ^^^^^^^^
 
-RUS 7
-~~~~~
-
-* Extracted data for ten USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
-* Transformed and published USDA RUS tables. See :issue:`4885` and PR :pr:`4939`.
-
-RUS-12
-~~~~~~
-
-* Extracted data for twelve USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
-
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-* Updated DOIs for the EIA-191 and EIA-757a (they pertain to natural gas) since we
-  extract them, even though we don't process the data yet. This added 2 more years to
-  the EIA-191 data. See PR :pr:`4879`.
-
 Documentation
-~~~~~~~~~~~~~
-
-* Added a data source documentation page for the :doc:`FERC EQR <data_sources/ferceqr>`.
-  See :issue:`4852` and PR :pr:`4879`.
+^^^^^^^^^^^^^
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -48,6 +30,131 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. _release-v2026.2.0:
+
+---------------------------------------------------------------------------------------
+v2026.2.0 (2026-02-12)
+---------------------------------------------------------------------------------------
+
+This is a quarterly PUDL data release, and includes quarterly updates to data
+sources that are released continuously, like EIA-930, bulk EIA electricity API
+data, EPA CEMS hourly emissions and EIA-860M. This is also our first release of
+the FERC EQR company identifiers table, and tables from USDA's Rural Utility
+Service (RUS) forms 7 and 12, which collect financial and operational
+information about rural utilities in a manner similar to EIA Form 861 and FERC
+Form 1. FERC EQR data is now available for download, though in a slightly
+different location due to its scale. Along for the ride are improvements to
+accuracy, memory performance, and Zenodo handling. See below for all the
+details.
+
+New Data
+^^^^^^^^
+
+RUS 7
+~~~~~
+
+* Extracted data for ten USDA RUS tables. See :issue:`4897` and PR :pr:`4906`.
+* Transformed and published USDA RUS tables. See :issue:`4885`, PR :pr:`4939`, PR
+  :pr:`4971` and PR :pr:`4974`.
+
+RUS-12
+~~~~~~
+
+* Extracted data for twelve USDA RUS tables. See :issue:`4900` and PR :pr:`4916`.
+* Transformed and published USDA RUS tables. See :issue:`4901`, PR :pr:`4970` and PR
+  :pr:`4979`.
+
+FERC EQR
+~~~~~~~~
+
+* Added the company identifiers (CID) table from EQR. See :issue:`4851` and
+  :pr:`4967`. Also, note that the actual FERC EQR data is available on `PUDL
+  Viewer <https://data.catalyst.coop/search?q=ferceqr>`__ as well as `on S3 for
+  direct download
+  <https://catalystcoop-pudl.readthedocs.io/en/nightly/data_access.html#ferc-eqr-experimental>`__
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+* Updated DOIs for the EIA-191 and EIA-757a (they pertain to natural gas) since we
+  extract them, even though we don't process the data yet. This added 2 more years to
+  the EIA-191 data. See PR :pr:`4879`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated EPA CEMS hourly emissions data through December 2025. See :issue:`4986`
+  and :pr:`4990`.
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through December 2025. See :issue:`4983` and
+  :pr:`4993`.
+
+EIA-923
+~~~~~~~
+
+* Updated EIA-923 with monthly data through November 2025. See :issue:`4984` and
+  :pr:`4993`.
+
+EIA-930
+~~~~~~~
+
+* Updated EIA-930 data through December 2025. See :issue:`4985`
+  and :pr:`4995`.
+
+EIA Bulk Electricity API
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the EIA Bulk Electricity data through November 2025.
+  See :issue:`4987` and PR :pr:`5001`.
+
+EIA-176
+~~~~~~~
+
+* Updated EIA-176 data through 2024. See :issue:`5000` and :pr:`5005`.
+
+Documentation
+^^^^^^^^^^^^^
+
+* Added a data source documentation page for the :doc:`FERC EQR <data_sources/ferceqr>`.
+  See :issue:`4852` and PR :pr:`4879`.
+* Added data access instructions for the :doc:`FERC EQR <data_sources/ferceqr>` and
+  created examples specific to our larger (>1GB) and partitioned tables in the
+  :doc:`data_dictionaries/pudl_db`. See issues :issue:`4869,4951` and PR :pr:`4958`.
+  Affected tables include:
+
+    * :ref:`core_epacems__hourly_emissions`
+    * :ref:`core_ferceqr__contracts`
+    * :ref:`core_ferceqr__quarterly_identity`
+    * :ref:`core_ferceqr__quarterly_index_pub`
+    * :ref:`core_ferceqr__transactions`
+    * :ref:`out_vcerare__hourly_available_capacity_factor`
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* We added an automatic script to help match FERC and EIA utilities with near-identical
+  utility names as part of our ongoing data updates. As a result, we have matched an
+  additional 115 utilities and resolved a small handful of cases where a FERC utility
+  was mapped to more than one PUDL ID. Through this process, we also identified a bug
+  that was resulting in us assigning the least common utility name and prime mover code
+  to records to harvested EIA records when there were inconsistent values reported.
+  Fixing this resulted in overall improved accuracy of the data. 3,650 utilities were
+  reassigned names, resulting in approximately 150 additional matches to SEC 10K
+  filings. 86 generators were reassigned prime mover codes, resulting in re-allocated
+  net generation. See :issue:`1317`, :issue:`4934` and :issue:`4913`, as well as PR
+  :pr:`4975`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Improved memory performance of EIA-930 by translating transforms to use ``duckdb``.
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 * Consolidated local and remote Zenodo cache management under a single API that uses the
   high-level abstraction of the :class:`upath.UPath` class. See issue :issue:`4860` and
   PR :pr:`4870`.
@@ -55,7 +162,7 @@ Quality of Life Improvements
   stand-alone settings file, rather than hard-coding them in the PUDL Datastore module.
   This makes the DOIs more easily accessible for use in other contexts, such as when
   calculating the GitHub Actions cache hash. Also made the GitHub Actions cache more
-  lenient, so that if it msises on an exact cache key, it will just download the most
+  lenient, so that if it misses on an exact cache key, it will just download the most
   recent cache of inputs. This should reduce the amount of data we need to download to
   run the CI on GitHub and speed things up slightly. It also means we can be more
   selective about when the ``zenodo-cache-sync`` workflow is run. Now it is only
@@ -72,6 +179,10 @@ Quality of Life Improvements
   package is stored on GCS, as is the case with FERC EQR. See the
   `FERC EQR archive on Zenodo <https://doi.org/10.5281/zenodo.18251901>`__ as an
   example. See PR :pr:`4879`.
+* Added handling to :class:`pudl.transform.classes.StringCategories` so that the
+  ``categories`` key of transform params can be specified as a Path to a YAML file.
+  This will make it possible to include large categorization sets without the params
+  Python files becoming unwieldy. See PR :pr:`4978`.
 
 .. _release-v2026.1.0:
 
@@ -149,7 +260,7 @@ Bug Fixes & Data Cleaning
   :pr:`4810`.
 
 * Corrected incorrect column mappings in :ref:`core_eia861__yearly_reliability` and
-  ``raw_eia861__frame`` that were introduced for 2024 data during the EIA 861 2024
+  ``raw_eia861__frame`` that were introduced for 2024 data during the EIA-861 2024
   data update. See :issue:`4907` and :pr:`4908`.
 
 Performance Improvements
@@ -217,7 +328,7 @@ from the `NSF POSE program <https://new.nsf.gov/funding/opportunities/pose-pathw
 we continue to bring in more EIA natural gas data.
 
 * Added :ref:`core_eia176__yearly_gas_disposition`, which contains cleaned
-  company-wide natural gas disposition data from Part 6B of the EIA 176 survey. See
+  company-wide natural gas disposition data from Part 6B of the EIA-176 survey. See
   :issue:`4708` and :pr:`4765`. Thanks to :user:`MeadBarrel`!
 
 Expanded Data Coverage
@@ -259,7 +370,7 @@ Bug Fixes
   (missing files and zero-length files) were only caught through manual inspection of
   draft data releases. See issue :issue:`4290` and PR :pr:`4778`.
 * Remove row with plant ID 68815 and generator ID ``GAPPV`` that was erroneously
-  included in the 2024 from the EIA 860 generators data. See :issue:`4769` and PR
+  included in the 2024 from the EIA-860 generators data. See :issue:`4769` and PR
   :pr:`4824`.
 
 Performance Improvements
@@ -409,7 +520,7 @@ Documentation
 Bug Fixes
 ^^^^^^^^^
 
-* Fixed a bug where the EIA 930 subregion data from 2018-07-01 to 2019-01-01 was
+* Fixed a bug where the EIA-930 subregion data from 2018-07-01 to 2019-01-01 was
   being dropped. See PR :pr:`4731`.
 
 Dev Tooling
@@ -2780,11 +2891,11 @@ worth of work.
 New Data Coverage
 ^^^^^^^^^^^^^^^^^
 
-* :doc:`data_sources/eia860` for 2004-2008 + 2019, plus eia860m through 2020.
+* :doc:`data_sources/eia860` for 2004-2008 + 2019, plus eia860m through 2020
 * :doc:`data_sources/eia923` for 2001-2008 + 2019
 * :doc:`data_sources/epacems` for 2019-2020
 * :doc:`data_sources/ferc1` for 2019
-* :ref:`US Census Demographic Profile (DP1) <data-censusdp1tract>` for 2010
+* :doc:`data_sources/censusdp1tract` for 2010
 * :doc:`data_sources/ferc714` for 2006-2019 (experimental)
 * :doc:`data_sources/eia861` for 2001-2019 (experimental)
 

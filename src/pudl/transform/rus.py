@@ -53,6 +53,7 @@ def multi_index_stack(
     data_cols: list[str],
     match_names: list[str],
     unstack_level: list[str],
+    drop_zero_rows: bool = False,
 ) -> pd.DataFrame:
     """Stack multiple data columns - create categorical columns and data columns.
 
@@ -94,6 +95,8 @@ def multi_index_stack(
         unstack_level: list of match_names to unstack. These are the names of the
             matches that get unstacked - these end up as columns in the resulting
             table. Presumably this will be all of the match_names except 'data_cols'.
+        drop_zero_rows: if True, drop rows where all data_cols are 0. Function
+            already drops rows where data_cols are all NaN.
     """
     df = df.set_index(idx_ish).filter(regex=pattern)
     df.columns = pd.MultiIndex.from_frame(
@@ -103,4 +106,43 @@ def multi_index_stack(
     # remove the remaining multi-index
     df.columns = df.columns.map("".join)
     df = df.dropna(subset=data_cols, how="all")
+    if drop_zero_rows:
+        all_zero_mask = (df.fillna(0)[data_cols] == 0).all(axis=1)
+        df = df[~all_zero_mask]
+    return df
+
+
+def convert_units(
+    df: pd.DataFrame, old_unit: str, new_unit: str | None, converter: float | int
+) -> pd.DataFrame:
+    """Convert units within a column and rename column with new units.
+
+    This function assumes that the old units are suffixes in the snake-cased column
+    names, separated by an underscore.
+
+    Ex: if you want to convert from kWh's to MWh's the df must have column names like
+    ``electric_sales_kwh`` or ``purchased_kwh``, the old unit would be ``kwh``, the new
+    unit would be ``mwh`` and the converter would be ``0.001``.
+
+    Args:
+        df: data table with units you'd like to convert.
+        old_unit: the unit in the df. This must be the suffix of the column
+            names you'd like to convert.
+        new_unit: the new unit label you want as the new suffix of the resulting
+            dataframe. If you want no new unit added, this value can be None or an
+            empty string ()"").
+        converter: the float or integer you need to multiply the old values by to
+            convert the units.
+    """
+    convert_cols = df.filter(regex=rf"_{old_unit}$").columns
+    df.loc[:, convert_cols] = df.loc[:, convert_cols].astype("float") * converter
+    new_unit_to_add = ""
+    if new_unit:
+        new_unit_to_add = f"_{new_unit}"
+    df = df.rename(
+        columns={
+            col_name: col_name.removesuffix(f"_{old_unit}") + new_unit_to_add
+            for col_name in convert_cols
+        }
+    )
     return df

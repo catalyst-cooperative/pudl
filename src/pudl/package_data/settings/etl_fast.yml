@@ -40,7 +40,7 @@ datasets:
     years: [2020, 2024]
   eia:
     eia176:
-      years: [2020, 2023]
+      years: [2020, 2024]
     eia191:
       years: [2020, 2025]
     eia757a:
@@ -83,7 +83,7 @@ datasets:
           2024,
         ]
     eia930:
-      half_years: ["2024half2"]
+      half_years: ["2025half2"]
     eiaaeo:
       years: [2023, 2025]
   epacems:
@@ -92,7 +92,7 @@ datasets:
     # also load the EIA 860 data for that year if possible.
     #
     # We only use q1 for epacems etl_fast even if later quarters are available.
-    year_quarters: ["2023q1"]
+    year_quarters: ["2024q1"]
   phmsagas:
     years: [2024]
   nrelatb:
