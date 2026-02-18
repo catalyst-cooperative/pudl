@@ -9676,7 +9676,7 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
         "state": {
             "type": "string",
             "description": "Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.",
-            "constraints": {"enum": SUBDIVISION_CODES_ISO3166.update(["MH", "FM"])},
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166 | {"MH", "FM"}},
         },
     },
 }

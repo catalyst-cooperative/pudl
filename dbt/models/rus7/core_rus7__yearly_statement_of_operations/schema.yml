@@ -12,6 +12,11 @@ sources:
           - name: opex_type
           - name: opex_group
           - name: opex_report_month
+          # should not be negative
+          # should be ~1/12 of ytd
           - name: opex_ytd
+          # should not be negative
           - name: opex_ytd_budget
+          # should not be negative
+          # should generally be close to ytd.
           - name: is_total
