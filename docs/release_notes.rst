@@ -125,12 +125,12 @@ Documentation
   :doc:`data_dictionaries/pudl_db`. See issues :issue:`4869,4951` and PR :pr:`4958`.
   Affected tables include:
 
-    * :ref:`core_epacems__hourly_emissions`
-    * :ref:`core_ferceqr__contracts`
-    * :ref:`core_ferceqr__quarterly_identity`
-    * :ref:`core_ferceqr__quarterly_index_pub`
-    * :ref:`core_ferceqr__transactions`
-    * :ref:`out_vcerare__hourly_available_capacity_factor`
+  * :ref:`core_epacems__hourly_emissions`
+  * :ref:`core_ferceqr__contracts`
+  * :ref:`core_ferceqr__quarterly_identity`
+  * :ref:`core_ferceqr__quarterly_index_pub`
+  * :ref:`core_ferceqr__transactions`
+  * :ref:`out_vcerare__hourly_available_capacity_factor`
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
