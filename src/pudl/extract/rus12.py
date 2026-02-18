@@ -104,7 +104,7 @@ raw_rus12_assets = [
         "steam_plant_operations": None,
         "steam_plant_costs": None,
         "hydroelectric_plant_operations": None,
-        "hydroelectric_plant_cost": None,
+        "hydroelectric_plant_costs": None,
         "combined_cycle_plant_operations": None,
         "combined_cycle_plant_costs": None,
         "internal_combustion_plant_operations": None,
