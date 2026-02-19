@@ -1,7 +1,7 @@
 """Transform the RUS12 tables."""
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 
@@ -394,7 +394,50 @@ def core_rus12__yearly_plant_costs(
     return df_all
 
 
-@asset  # TODO: convert to (io_manager_key="pudl_io_manager")
+def _drop_bad_ownership_plant(df):
+    """Drop 1 plant record with unexpected ownership label and duplicate data.
+
+    There is a Wisdom steam plant record that is labeled to be both fully owned by
+    borrower and partly owned for one year. Which is an unexpected combo based on the
+    `_OR_PowerSupply Plant File Documentation.rst` documentation file in the rus12
+    archive. Luckily this plant has exactly the same records as the other Wisdom steam
+    plant that year with more expected ownership labels.
+
+    So we check if the two plant records for that year have the same data, then
+    drop the one badly labeled ownership record.
+    """
+    bad_ownership_label_mask = (
+        ~df.is_fully_owned_by_borrower & ~df.is_partly_owned_by_borrower
+    )
+    assert len(df[bad_ownership_label_mask]) == 1
+
+    wisdom_steam_2019_mask = (
+        (df.plant_name_rus == "Wisdom")
+        & (df.report_date.dt.year == 2019)
+        & (df.plant_type == "steam")
+    )
+
+    idx = [
+        "borrower_id_rus",
+        "borrower_name_rus",
+        "plant_name_rus",
+        "is_fully_owned_by_borrower",
+        "is_partly_owned_by_borrower",
+    ]
+    assert df[
+        wisdom_steam_2019_mask
+        & (~df.duplicated(subset=[col for col in df if col not in idx], keep=False))
+    ].empty
+
+    return df.drop(df[wisdom_steam_2019_mask & bad_ownership_label_mask].index)
+
+
+@multi_asset(
+    outs={
+        "core_rus12__yearly_plant_operations_by_plant": AssetOut(),
+        "core_rus12__yearly_plant_operations_by_borrower": AssetOut(),
+    }  # TODO: add io_manager_key="pudl_io_manager" into AssetOut
+)
 def core_rus12__yearly_plant_operations(
     raw_rus12__combined_cycle_plant_operations: pd.DataFrame,
     raw_rus12__hydroelectric_plant_operations: pd.DataFrame,
@@ -405,7 +448,8 @@ def core_rus12__yearly_plant_operations(
     """Transform the plant operations tables.
 
     This transform takes all of the plant operations tables, processes
-    them similarly and combines them into one plant table.
+    them similarly and combines them into one plant table. Which is then
+    split out into two tables: by borrower and by plant.
     """
     plant_operations_tables = {
         "combined_cycle": raw_rus12__combined_cycle_plant_operations,
@@ -427,12 +471,47 @@ def core_rus12__yearly_plant_operations(
         df["plant_type"] = plant_type
         df_outs[plant_type] = df
     df_all = pd.concat(df_outs.values())
-    # TODO: decide what units we really want....
-    # for old_unit in ["1000_lbs", "1000_cubic_feet", "1000_gals"]:
-    #     df_all = rus.convert_units(
-    #         df_all,
-    #         old_unit=old_unit,
-    #         new_unit=old_unit.removeprefix("1000_"),
-    #         converter=1000,
-    #     )
-    return df_all
+    for old_unit in ["1000_lbs", "1000_cubic_feet", "1000_gals"]:
+        df_all = rus.convert_units(
+            df_all,
+            old_unit=old_unit,
+            new_unit=old_unit.removeprefix("1000_"),
+            converter=1000,
+        )
+
+    df = df.astype(
+        {
+            "is_fully_owned_by_borrower": pd.BooleanDtype(),
+            "is_partly_owned_by_borrower": pd.BooleanDtype(),
+        }
+    ).pipe(_drop_bad_ownership_plant)
+
+    # TODO: decide what to do with the heckin old years... w/o is_partly_owned_by_borrower
+    null_partly_owned_mask = df.report_date.dt.year.isin([2006, 2007, 2008])
+    df_by_borrower = df[
+        ~null_partly_owned_mask
+        & (
+            (df.is_fully_owned_by_borrower & ~df.is_partly_owned_by_borrower)
+            | (~df.is_fully_owned_by_borrower & df.is_partly_owned_by_borrower)
+        )
+    ]
+
+    df_by_plant = df[
+        ~null_partly_owned_mask
+        & (df.is_fully_owned_by_borrower & df.is_partly_owned_by_borrower)
+        | (~df.is_fully_owned_by_borrower & ~df.is_partly_owned_by_borrower)
+    ]
+    # make sure we aren't loosing any records
+    assert len(df) == len(df_by_borrower) + len(df_by_plant) + len(
+        df[null_partly_owned_mask]
+    )
+    return (
+        Output(
+            output_name="core_rus12__yearly_plant_operations_by_borrower",
+            value=df_by_borrower,
+        ),
+        Output(
+            output_name="core_rus12__yearly_plant_operations_by_plant",
+            value=df_by_plant,
+        ),
+    )

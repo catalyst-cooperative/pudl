@@ -439,9 +439,9 @@ DRAFT_RESOURCE_METADATA = {
                 "borrower_ownership_pct",
                 "is_fully_owned_by_borrower",
                 "is_partly_owned_by_borrower",  # was not reported till 2009
-                "fuel_consumption_coal_1000_lbs",  # TODO convert these units? or just rename to klbs, ? and kgal
-                "fuel_consumption_gas_1000_cubic_feet",
-                "fuel_consumption_oil_1000_gals",
+                "fuel_consumption_coal_lbs",
+                "fuel_consumption_gas_cubic_feet",
+                "fuel_consumption_oil_gals",
                 "fuel_consumption_other",
                 "operating_hours_in_service",
                 "operating_hours_on_standby",
