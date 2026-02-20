@@ -5,7 +5,7 @@ sources:
       - name: core_rus12__yearly_statement_of_operations
         data_tests:
           - expect_columns_not_all_null
-          - expect_column_ratio:
+          - expect_columns_ratio:
               arguments:
                 numerator_column: opex_report_month
                 denominator_column: opex_ytd
@@ -14,7 +14,7 @@ sources:
               config:
                 error_if: ">1900" # TODO: About 11% of data violates this - worth testing?
               description: "Monthly spending should roughly equal 1/12 of the YTD budget (5-20% range)."
-          - expect_column_ratio:
+          - expect_columns_ratio:
               arguments:
                 numerator_column: opex_ytd
                 denominator_column: opex_ytd_budget

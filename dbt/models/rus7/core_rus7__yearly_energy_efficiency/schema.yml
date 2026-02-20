@@ -30,3 +30,5 @@ sources:
                   config:
                     error_if: ">8"
                   description: "KS0059 has negative values which don't follow from prior years of data." #TODO
+                  # TODO: Also note that this column likely has unit issues in it. See
+                  # https://github.com/catalyst-cooperative/pudl/issues/4887

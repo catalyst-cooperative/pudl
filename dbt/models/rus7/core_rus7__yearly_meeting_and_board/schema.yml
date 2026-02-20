@@ -11,7 +11,7 @@ sources:
               config:
                 error_if: ">7"
               description: "Some utilities report meetings after the date range of the filing." #TODO
-          - expect_column_sum_not_exceed_threshold:
+          - expect_summed_columns_not_exceed_threshold:
               arguments:
                 column_a: members_present_at_meeting_num
                 column_b: members_voting_by_proxy_or_mail_num

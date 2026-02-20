@@ -5,7 +5,18 @@ sources:
       - name: core_rus12__yearly_plant_labor
         data_tests:
           - expect_columns_not_all_null
-        # TODO: hours vs employees
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "(employees_full_time_num + employees_part_time_num) * 8766 > employee_hours_worked_total"
+              description: "Expect that full time and part time employees aren't reported as working more hours than exist in a year."
+              config:
+                error_if: ">186" # TODO: These rows are obviously garbage, and the majority report 0 employees but hours worked.
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "(employees_full_time_num + employees_part_time_num) * 2080 >= employee_hours_worked_total"
+              description: "Expect that even with overtime, full time and part time employees combined work less than an average of a FTE workload annually."
+              config:
+                error_if: ">515" # TODO: ~25% of the data either sees heavy overtime usage or badly reported employee data.
         columns:
           - name: report_date
           - name: borrower_id_rus

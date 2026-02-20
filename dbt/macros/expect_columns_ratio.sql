@@ -1,6 +1,6 @@
-{% test expect_column_ratio(model, numerator_column, denominator_column, min_ratio=None, max_ratio=None, error_threshold=0) %}
+{% test expect_columns_ratio(model, numerator_column, denominator_column, min_ratio=None, max_ratio=None, error_threshold=0) %}
   {% if min_ratio is none and max_ratio is none %}
-    {{ exceptions.raise_compiler_error("expect_column_ratio: must provide at least one of min_ratio or max_ratio") }}
+    {{ exceptions.raise_compiler_error("expect_columns_ratio: must provide at least one of min_ratio or max_ratio") }}
   {% endif %}
 
   {% set column_list = adapter.get_columns_in_relation(model) | map(attribute="name") | list %}
@@ -11,7 +11,7 @@
       CASE
         WHEN {{ denominator_column }} IS NULL OR {{ denominator_column }} = 0
         THEN NULL
-        ELSE {{ numerator_column }} / NULLIF({{ denominator_column }}, 0)
+        ELSE {{ numerator_column }} / {{ denominator_column }}
       END AS calculated_ratio
     FROM {{ model }}
   ),

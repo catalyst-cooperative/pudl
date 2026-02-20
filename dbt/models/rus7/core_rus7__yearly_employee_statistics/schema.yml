@@ -5,13 +5,13 @@ sources:
       - name: core_rus7__yearly_employee_statistics
         data_tests:
           - expect_columns_not_all_null
-          - expect_column_ratio:
+          - expect_columns_ratio:
               arguments:
                 numerator_column: employees_fte_num
                 denominator_column: employee_hours_worked_regular_time
                 max_ratio: 2080
               description: "Do employee hours worked regular time = employees X 2080 hours (FTE)?"
-          - expect_column_sum_not_exceed_threshold:
+          - expect_summed_columns_not_exceed_threshold:
               arguments:
                 column_a: employee_hours_worked_regular_time
                 column_b: employee_hours_worked_over_time

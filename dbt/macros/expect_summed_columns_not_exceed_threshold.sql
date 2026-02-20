@@ -1,6 +1,6 @@
-{% test expect_column_sum_not_exceed_threshold(model, column_a, column_b, threshold_column, multiplier=1.0, error_threshold=0) %}
+{% test expect_summed_columns_not_exceed_threshold(model, column_a, column_b, threshold_column, multiplier=1.0, error_threshold=0) %}
   {% if threshold_column is none %}
-    {{ exceptions.raise_compiler_error("expect_column_sum_not_exceed_threshold: threshold_column parameter is required") }}
+    {{ exceptions.raise_compiler_error("expect_summed_columns_not_exceed_threshold: threshold_column parameter is required") }}
   {% endif %}
 
   {% set column_list = adapter.get_columns_in_relation(model) | map(attribute="name") | list %}
