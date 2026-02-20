@@ -1,0 +1,316 @@
+bbl:
+  - '"boiler barre'
+  - '"boiler" barr'
+  - '"boiler"barre'
+  - '"gas" barrel'
+  - (4) barrel
+  - (bbl)
+  - (bbl.)
+  - "*barrels"
+  - bar
+  - barels
+  - bariel
+  - barreks
+  - barrel
+  - barrel *(4)
+  - barrell
+  - barrells
+  - barrels
+  - barrels    .
+  - barrels .
+  - barrels 100%
+  - barriel
+  - barrile
+  - barrles
+  - barrrel
+  - barrrels
+  - bb
+  - bb.
+  - bb1
+  - bbf
+  - bbl
+  - bbl .
+  - bbl's
+  - bbl-42 gal
+  - bbl.
+  - bbl.s
+  - "bbl:"
+  - bbld
+  - bbls
+  - bbls.
+  - bbrl
+  - bbsl
+  - berrels
+  - berriel
+  - blb
+  - blb.
+  - bll
+  - bls
+  - boe
+  - boiler barrel
+  - brrels
+  - bsrrels
+  - gas barrel
+  - oil - barrels
+  - oil 42 gal
+  - oil 42 gal ba
+  - oil barrel
+  - oil- barrel
+  - oil- bbl
+  - oil-barrel
+  - oil-barrels
+  - oil-bbl
+  - oil-bbls
+  - oil-bbs
+  - propane-bbl
+btu:
+  - btu
+  - btus
+gal:
+  - gal
+  - gal.
+  - galllons
+  - gallon
+  - gallons
+  - gals
+  - gals.
+grams:
+  - g
+  - gm u
+  - gms uran
+  - gms uranium
+  - gms. of uran
+  - gram
+  - grams
+  - grams (100%)
+  - grams - n/a
+  - grams of
+  - grams of uran
+  - grams of uranium
+  - grams of urm
+  - grams u
+  - grams u-235
+  - grams u235
+  - grams u308
+  - grams v-235
+  - "grams: u-235"
+  - "grams: u235"
+  - grams:u-235
+  - grams:u235
+  - s e uo2 grams
+  - se uo2 grams
+kg:
+  - kg
+  - kg of
+  - kg of uranium
+  - kg u-235
+  - kg uranium
+  - kg uranium 25
+  - kg uranium25
+  - kg-u-235
+  - kg-u235
+  - kgm
+  - kguranium 25
+  - kilg. u-235
+  - kilgr. u-235
+  - kilgrams
+  - kilogr. u-235
+  - kilogr. u235
+  - kilograms
+  - kilograms u-2
+  - kilograms-u23
+  - uranium kg
+kgal:
+  - 1000 gal
+  - 1000 gals
+  - kgal
+  - oil (1000)
+  - oil(1000
+  - oil(1000 gal)
+  - oil(1000)
+  - oil(1000ga)
+klbs:
+  - 1000 / lbs
+  - 1000 lbs
+  - k lbs
+  - k lbs.
+  - klbs
+mcf:
+  - " mcf"
+  - '"gas" mcf'
+  - (mcf)
+  - 1000 c.f
+  - gas - mcf
+  - gas mcf
+  - gas-mcf
+  - kcf
+  - m.cu.ft.
+  - m.cu.ft..
+  - mcf
+  - mcf *(4)
+  - mcf's
+  - mcf.
+  - mcf00
+  - mcfe
+  - mcfs
+  - mcg
+  - mci
+  - mcl
+  - mct
+  - mfc
+  - mlf
+  - mscf
+  - msfs
+mmbbl:
+  - mmbbl
+  - mmbbls
+  - mmboe
+mmbtu:
+  - (mmbtu)
+  - mbtus
+  - mmbtu
+  - mmbtu's
+  - mmbtul
+  - mmbtus
+  - nuclear-mmbt
+  - nuclear-mmbtu
+mwdth:
+  - dth
+  - ermal)
+  - mmwd
+  - mw day
+  - mw day therml
+  - mw day/therml
+  - mw days
+  - mw days (th
+  - mw days thrml
+  - mw days-therm
+  - mw days/therm
+  - mwd
+  - mwd thermal
+  - mwd therman
+  - mwd thrml
+  - mwd/mtu
+  - mwdaysthermal
+  - mwdth
+  - nuclear mwd
+mwhth:
+  - mw hr therm
+  - mwh
+  - mwh term.uts
+  - mwh them
+  - mwh therm
+  - mwh therm.uts
+  - mwh therma
+  - mwh thermal
+  - mwh thermals
+  - mwh therms.
+  - mwh threm
+  - mwhth
+  - nwh therm
+na_category:
+  - ""
+  - (7)
+  - (thermal)
+  - "-"
+  - .
+  - "0"
+  - "10881"
+  - "12559"
+  - "1265"
+  - "1363663"
+  - "1431536"
+  - "1490442"
+  - "1726497"
+  - "181679"
+  - "2261"
+  - "2398"
+  - "248"
+  - "273976"
+  - "3070"
+  - "319"
+  - "3303671"
+  - "344"
+  - "4069628"
+  - "4783"
+  - "4853325"
+  - "509"
+  - 62,679
+  - "708903"
+  - "7171"
+  - "7182175"
+  - "747"
+  - "7800"
+  - "83"
+  - "929"
+  - ">>>>>>>>"
+  - a"
+  - all
+  - alternative-t
+  - are total
+  - barrels/mcf
+  - ccf
+  - composite
+  - creek fuels
+  - decatherms
+  - dekatherm
+  - gas
+  - mbtu/kg
+  - mcf / gallen
+  - mcf/oil (1000
+  - mwh units
+  - n/a
+  - na
+  - na_category
+  - none
+  - nuclear
+  - oil
+  - "oil #2"
+  - "oil #6"
+  - oil-mcf
+  - oil/gas
+  - pr. creek
+  - propane-bar
+  - propane-barre
+  - se uo2
+  - thermal
+  - therms
+  - total
+  - total pr crk
+  - uo2
+  - uramium
+  - uranium
+  - uranium 235
+  - "\u2014"
+ton:
+  - c. t.
+  - c.t.
+  - coal
+  - coal - ton
+  - coal tons
+  - coal tons - 2
+  - coal tons -2
+  - "coal tons -2 "
+  - coal tons 200
+  - coal-ton
+  - coal-tone
+  - coal-tons
+  - col-tons
+  - oil-tons
+  - t
+  - taons
+  - tire-ton
+  - tire-tons
+  - tires-tons
+  - toms
+  - ton
+  - ton coal eqv
+  - ton-2000
+  - toncoaleq
+  - toncoalequiv
+  - tones
+  - tons
+  - tons coal
+  - tons coal eq
+  - toons
+  - tos

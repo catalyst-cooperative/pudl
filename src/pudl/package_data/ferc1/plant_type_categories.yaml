@@ -1,0 +1,519 @@
+combined_cycle:
+  - Combined cycle
+  - cc
+  - cc / gas turb
+  - com cycle gas turb
+  - com. cyc
+  - com. cycle
+  - comb cyc
+  - comb cyc (a) (b)
+  - comb cycle
+  - comb cycle (a,b)
+  - comb cycle gas turb
+  - comb cycle/steam tur
+  - comb. cycle
+  - comb. cycle gas turb
+  - combine cycle
+  - combine cycle oper
+  - combined
+  - combined cycle
+  - combined cycle (a,b)
+  - combined cycle - 40%
+  - combined cycle ctg
+  - combined cycle oper
+  - combined cycle operation
+  - combined cycle opern
+  - "combined cycle plant:"
+  - combined cycle-40%
+  - combined turbine
+  - combined_cycle
+  - combinedcycle
+  - ctg steam gas
+  - ctg/steam -gas
+  - ctg/steam-gas
+  - gas & steam turbine
+  - gas / steam
+  - gas fired cc turbine
+  - gas steam
+  - gas trb & heat rec
+  - gas tur & comb cyc
+  - gas tur & comb cycl
+  - gas turb-combined cy
+  - gas turb. & heat rec
+  - gas turb/comb cycle
+  - gas turb/comb. cyc
+  - gas turb/cumb. cyc
+  - gas turb/cumbus cycl
+  - gas turbine / steam
+  - gas turbine-combine cycle
+  - gas turbine-combined cycle
+  - gas turbine/ steam
+  - gas turbine/steam
+  - gas/steam
+  - gas/steam comb cycle
+  - gas/steam comb. cycl
+  - gasturb/comb cycle
+  - igcc
+  - igcc/gas turbine
+  - ngcc
+  - st/gas turb comb cyc
+  - steam & cc
+  - steam & comb cycle
+  - steam & combined ce
+  - steam & gas turbine
+  - steam (comb. cycle)
+  - steam (comb. cycle)gas turbine/steam
+  - steam and cc
+  - steam cc
+  - steam comb cycle
+  - steam/gas turb.
+  - steam/gas turbine
+combustion_turbine:
+  - "* gas turbine"
+  - "*gas turbine"
+  - "*gas turbine(note 3)"
+  - "*gas turbine(note3)"
+  - add to gas turbine
+  - b-combustion turbine unit
+  - com turbine peaking
+  - comb turb peak units
+  - comb turb peaking
+  - comb turbine peaking
+  - comb. turb-gas oper
+  - comb. turb-gas oper.
+  - comb. turb.
+  - comb. turb. oil oper
+  - comb. turbine (a)
+  - comb. turine
+  - comb.turb-gas oper.
+  - comb.turb.gas/oil op
+  - comb.turb.oil oper
+  - comb.turb.oil oper.
+  - comb.turb.peak.units
+  - combusion turbine
+  - combusition turbine
+  - combustine turbine
+  - combustion and gas
+  - combustion burbine
+  - combustion tubine
+  - combustion turbin
+  - combustion turbine
+  - combustion_turbine
+  - combustionturbine
+  - combution turbin
+  - combution turbine
+  - combutsion turbine
+  - comubstion turbine
+  - conbustion turbine
+  - cumbustion turbine
+  - gas - turbine
+  - gas expander turbine
+  - gas plant
+  - gas trubine
+  - gas turb
+  - gas turb(see notes)
+  - gas turb, diesel
+  - gas turb, int. comb
+  - gas turb, int. comb.
+  - gas turb. (see note
+  - gas turb.(see note5)
+  - gas turb.(see notes)
+  - gas turbin (leasd)
+  - gas turbin (lease
+  - gas turbine
+  - "gas turbine # 1"
+  - "gas turbine #1"
+  - gas turbine (2)
+  - gas turbine (a)
+  - gas turbine (leasd)
+  - gas turbine (lease
+  - gas turbine (lease)
+  - gas turbine (leased
+  - gas turbine (leased)
+  - gas turbine (note 1)
+  - gas turbine (note 3)
+  - gas turbine (note1)
+  - gas turbine (see nos
+  - gas turbine - note 1
+  - gas turbine note 3,6
+  - gas turbine note 4,6
+  - gas turbine peaker
+  - gas turbine peaking
+  - gas turbine peakload
+  - gas turbine plant
+  - gas turbine plants
+  - gas turbine-simple
+  - gas turbine-unit 2
+  - gas turbine/fuel oil
+  - gas turbine/int comb
+  - gas turbine/int. cm
+  - gas turbine/intcomb
+  - "gas turbine:"
+  - gas turbine; retired
+  - gas turbines
+  - "gas turbines:"
+  - gas turbinint comb
+  - gas turbne/int comb
+  - gas-turbine
+  - gasturbine
+  - gt
+  - gtg/gas
+  - i.c.e. /gas turbine
+  - i.c.e./gas tubine
+  - i.c.e./gas turbine
+  - i.c.e/ gas turbine
+  - i.c.e/gas turbine
+  - jet
+  - jet engine
+  - jet powered turbine
+  - jet turbine
+  - resp share gas note3
+  - simple cycle
+  - simple cycle turbine
+fuel_cell:
+  - fuel cell
+  - "fuel cell:"
+  - fuel_cell
+geothermal:
+  - geothermal
+  - steam - geothermal
+  - steam_geothermal
+hydro:
+  - (1) the dixon hydro electric generating facility
+  - (6) excludes portion allocated to other water
+  - (hydroelectric facility)
+  - a - hydro license project no. 2315.
+  - a-hydro license project no. 2315
+  - additional hydro plant
+  - all other hydro misc. plant, resv., etc.
+  - all other hydro miscellaneous plant
+  - all other hydro plant, resv., misc., etc.
+  - conventional hydro
+  - hydraulic
+  - "hydraulic (1):"
+  - hydraulic race (project no. 2424)(note 1)
+  - "hydraulic:"
+  - hydro
+  - hydro -
+  - "hydro : licensed proj. no."
+  - hydro electric
+  - hydro lic project no.
+  - hydro lic. project no.
+  - hydro license
+  - hydro license no.
+  - "hydro plant:"
+  - hydro plants
+  - "hydro plants:"
+  - "hydro plants: licensed proj no."
+  - "hydro plants: licensed proj. no."
+  - hydro-electric
+  - hydro-neal shoals
+  - "hydro:"
+  - "hydro: lic project no."
+  - "hydro: lic. project no."
+  - "hydro: license no."
+  - hydroelectric
+  - "hydroelectric : licensed proj. no."
+  - hydroelectric generating plants
+  - "hydroelectric generating plants :"
+  - "hydroelectric generating plants:"
+  - "hydroelectric: licensed proj. no."
+  - hyrdo
+  - neal shoals-hydro license
+  - other hydro assets (resvr., strm gages, etc.)
+  - other hydro assets (resvr.,strm gages, etc.)
+  - "other hydro costs:"
+  - research and development costs (hydros)
+  - "small hydroelectric generating plants:"
+  - "small hydroelectric plants:"
+  - talcville hydro station(project no. 4402)(note 1
+  - the hydro plant above
+  - unallocated - hydros
+  - unallocated hydros
+internal_combustion:
+  - "*int combustion (1)"
+  - "*int. combustion (1)"
+  - "*internal combust'n"
+  - a-internal combustion unit
+  - auke bay internal combustion
+  - "auke bay internal combustion:"
+  - available for specific diesel unit.
+  - available for specific diesel units.
+  - black start diesel units
+  - "black start diesel units:"
+  - comb. cyc
+  - comb. turbine
+  - combustion
+  - conemaugh - internal combustion
+  - diesal
+  - diesel
+  - diesel engine
+  - diesel generators
+  - diesel plant
+  - diesel plants
+  - "diesel plants:"
+  - diesel turbine
+  - "diesel:"
+  - east hampton diesel
+  - "gold creek internal combustion:"
+  - ic
+  - int combust (note 1)
+  - int combust (note1)
+  - int combust - note 1
+  - int. combust (note1)
+  - int. combust - note1
+  - int. combustine
+  - int. combustion
+  - int. combustion (1)
+  - int.combustine
+  - interal
+  - "interal combustion:"
+  - internal
+  - internal comb
+  - internal comb recip
+  - internal comb.
+  - internal combust.
+  - internal combustion
+  - "internal combustion :"
+  - internal combustion auxiliary
+  - internal combustion peaking units
+  - "internal combustion plants:"
+  - internal combustion reciprocating
+  - internal combustion-diesel
+  - "internal combustion:"
+  - "internal combustion: (emergency standby"
+  - internal conbustion
+  - "internal conbustion:"
+  - internal_combustion
+  - international combustion
+  - internl combustion
+  - lemon creek internal combustion
+  - "lemon creek internal combustion:"
+  - montauk diesel
+  - "other / internal combustion :"
+  - other/internal combustion
+  - reciprocating engine
+  - shawville - internal combustion
+  - steam internal comb
+na_category:
+  - ""
+  - (left blank)
+  - (see note 5)
+  - (see note 7)
+  - --
+  - "0"
+  - "0.0000"
+  - combined heat/power
+  - common
+  - common expenses
+  - conventional
+  - expenses commom to
+  - expenses common to
+  - footnote
+  - fuel facilities
+  - fuel oil
+  - gas
+  - n/a
+  - na
+  - na_category
+  - non-applicable
+  - none
+  - none.
+  - not applicable
+  - not applicable.
+  - not in service
+  - not in service in
+  - oil
+  - other
+  - other generation
+  - other generation plt
+  - package
+  - peach bottom
+  - plant retired- 2013
+  - plants sold in 1999
+  - resp share (note 11)
+  - resp share - note 11
+  - resp share - note 5
+  - resp. share (note 2)
+  - resp. share (note 3)
+  - resp. share (note 4)
+  - resp. share (note 6)
+  - resp. share (note 8)
+  - resp. share (note 9)
+  - resp. share (note11)
+  - resp. share (note2)
+  - resp. share (note4)
+  - resp. share (note6)
+  - resp. share (note8)
+  - resp. share - note 2
+  - resp. share - note 4
+  - resp. share - note 6
+  - resp. share - note 7
+  - resp. share - note 8
+  - resp. share - note 9
+  - resp. share note 11
+  - respondent's share
+  - retired
+  - retired - 2013
+  - retired in 1978
+  - retired in 1981
+  - see pgs 402.1-402.3
+  - see pgs 403.1-403.9
+  - sold april 16, 1999
+  - sold may 07, 1999
+  - storage/pipelines
+  - unit total (note 2)
+  - unit total (note 3)
+  - unit total (note2)
+  - unit total (note3)
+  - waste heat
+  - "\u2014"
+nuclear:
+  - "* nuclear"
+  - "* nuclear (note 2)"
+  - nuclear
+  - nuclear (3)
+  - nuclear (a)(b)(c)
+  - nuclear (b) (c)
+  - nuclear (b)(c)
+  - nuclear (note 2)
+  - nuclear (see note 2)
+  - nuclear (see note 3)
+  - nuclear (see notes)
+  - nuclear - steam
+  - nuclear steam
+  - nuclear turbine
+  - nuclear(see note4)
+  - nuclear(see notes)
+  - nuclear-steam
+  - steam (nuclear)
+  - steam(nuclear)
+photovoltaic:
+  - community solar gardens
+  - "customer hosted solar:"
+  - other production - solar
+  - "photo voltaic generating plants:"
+  - photovoltaic
+  - "proj dvlpmnt div solar photovoltaic project:"
+  - sixth street solar
+  - solar
+  - solar array
+  - solar electric
+  - solar photovoltaic
+  - solar photovoltiac
+  - solar plant
+  - solar plants
+  - "solar plants:"
+  - solar project
+  - "solar:"
+solar_thermal:
+  - solar thermal
+  - solar_thermal
+steam:
+  - (6) milwaukee county is a steam utility plant
+  - (steam)
+  - "*resp. share steam"
+  - 40% share steam
+  - 40% share steamsteam (2)
+  - coal
+  - coal fired steam tur
+  - coal fired steam turbine
+  - coal-fired steam
+  - mpc 50% share steam
+  - mpc 50% shares steam
+  - mpc 50%share steam
+  - mpc40%share steam
+  - mpc50% share steam
+  - oil-fired steam
+  - "other-steam expenses:"
+  - resp share st note 3
+  - resp share st note3
+  - resp share stm note3
+  - resp. share steam
+  - respondent's sh-st
+  - respondent's sh.-st.
+  - steam
+  - steam (1)
+  - steam (1) & (2)
+  - steam (2)
+  - steam (3)
+  - steam (4)
+  - steam (5)
+  - steam (6)
+  - steam (7)
+  - steam (8)
+  - steam (a)
+  - steam (a,b)
+  - steam (incl i.c.)
+  - steam (leased)
+  - steam (note 1)
+  - steam (retired)
+  - steam (see note 1)
+  - steam (see note 1,
+  - steam (see note 3)
+  - steam (see notes)
+  - steam - 100%
+  - steam - 64%
+  - steam - 72%
+  - steam 1
+  - steam 100
+  - steam 4, 5
+  - steam a
+  - steam conventional
+  - steam fossil
+  - steam heating plant
+  - steam plant
+  - steam plants
+  - steam retired 2013
+  - steam turbine
+  - steam units 1 2 3
+  - steam units 1 and 2
+  - steam units 1, 2, 3
+  - steam units 1,2,3
+  - steam units 3 and 4
+  - steam units 4 & 6
+  - steam units 4 5
+  - steam units 4&5
+  - steam units 4&6
+  - steam units 4, 5
+  - steam- 64%
+  - steam- 72%
+  - steam-100%
+  - steam-64%
+  - steam-common production
+  - steam-common production plant
+  - steam-internal comb
+  - steam/fossil
+  - steam/fuel oil
+  - "steam:"
+  - steam;retired - 2013
+  - steams
+  - stean
+  - stream
+  - unit total steam
+  - unit total-steam
+storage:
+  - daily storage
+  - storage
+  - storage (re-reg)
+  - storage - dailey
+  - storage - daily
+  - storage - weekly
+  - storage reservoir
+  - weekly storage
+wind:
+  - (7) montfort wind farm was purchased dec. 2012.
+  - rosiere wind turbines
+  - suisun wind power plant (r)
+  - wind
+  - wind - turbine
+  - wind energy
+  - wind generation
+  - wind turbin
+  - wind turbine
+  - wind turbine plant
+  - wind turbine plants
+  - "wind turbine plants:"
+  - "wind turbine:"
+  - wind turbines
+  - "wind:"

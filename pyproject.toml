@@ -578,4 +578,8 @@ extend-exclude = [
     "devtools/",
     "test/",
     "src/pudl/transform/params/ferc1.py",
+    "src/pudl/package_data/ferc1/fuel_categories.yaml",
+    "src/pudl/package_data/ferc1/construction_type_categories.yaml",
+    "src/pudl/package_data/ferc1/fuel_unit_categories.yaml",
+    "src/pudl/package_data/ferc1/plant_type_categories.yaml",
 ]
