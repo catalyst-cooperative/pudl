@@ -16,4 +16,3 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-          # Should not be negative

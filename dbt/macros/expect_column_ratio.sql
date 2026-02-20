@@ -20,13 +20,18 @@
     SELECT *
     FROM ratio_check
     WHERE calculated_ratio IS NOT NULL
-      {% if min_ratio is not none %}
-        AND calculated_ratio < {{ min_ratio }}
-      {% endif %}
-      {% if max_ratio is not none %}
-        AND calculated_ratio > {{ max_ratio }}
-      {% endif %}
-  ),
+      AND (
+        {% if min_ratio is not none %}
+          calculated_ratio < {{ min_ratio }}
+        {% endif %}
+        {% if min_ratio is not none and max_ratio is not none %}
+          OR
+        {% endif %}
+        {% if max_ratio is not none %}
+          calculated_ratio > {{ max_ratio }}
+        {% endif %}
+      )
+),
 
   failure_summary AS (
     SELECT
