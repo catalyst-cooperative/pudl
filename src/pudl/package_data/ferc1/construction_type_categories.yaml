@@ -1,0 +1,375 @@
+conventional:
+  - (peak load) indoor
+  - "*conventional"
+  - 1 indoor boiler
+  - 2 indoor boiler
+  - 2 indoor boilers
+  - 3 indoor boiler
+  - 3 indoor boilers
+  - c0nventional
+  - cnventional
+  - comb cycle indoor
+  - comb. cycle indooor
+  - comb. cycle indoor
+  - conentional
+  - conv - b
+  - conv-b
+  - conv. underground
+  - conven
+  - conven full boiler
+  - conven. underground
+  - conven./outdoor
+  - convenional
+  - conventaional
+  - convential
+  - conventiional
+  - conventinal
+  - conventioanl
+  - conventioinal
+  - convention
+  - conventional
+  - conventional (a)
+  - conventional - boiler
+  - conventional - boilr
+  - conventional boiler
+  - conventional bulb
+  - conventional steam
+  - conventional, indoor
+  - conventional/boiler
+  - conventional;outdoor
+  - conventional;semi-ou
+  - conventionall
+  - conventionl
+  - conventionl, indoor
+  - conventionl,indoor
+  - conventionsl
+  - conventrional
+  - conventtional
+  - convetional
+  - convntional
+  - convntl steam plants
+  - coventional
+  - full indoor
+  - fully contained
+  - ind enclosures
+  - indoor
+  - indoor automatic
+  - indoor boiler
+  - indoor boiler and st
+  - indoor boiler and steam turbine
+  - indoor const.
+  - indoor construction
+  - sonventional
+na_category:
+  - ""
+  - "---"
+  - "---not applicable---"
+  - --not applicable--
+  - "0"
+  - "0.0000"
+  - "1970"
+  - 1996. plant sold
+  - 2 oil / gas
+  - 2 oil / gas turbines
+  - 2 oil /gas turbines
+  - 2 oil/ 4 gas/oil tur
+  - 2 oil/ gas
+  - 2 oil/gas turbines
+  - 2 on 1 gas turbine
+  - 3 on 1 gas turbine
+  - 4 gas/oil trubines
+  - 5 gas/oil turbines
+  - all nuclear plants
+  - and 2000
+  - auto-operated
+  - automatic oper.
+  - automatic operation
+  - automatic opertion
+  - automatically oper.
+  - automatically operad
+  - automatically operd
+  - block & steel
+  - boiler
+  - circ fluidized bed
+  - circ. fluidized bed
+  - com. turb. installn
+  - comb turb instain
+  - comb. turb. installn
+  - comb. turb. instaln
+  - comb.turb. instaln
+  - combined cycle
+  - combined cycle steam
+  - combustion turbine
+  - cycle
+  - duct burner
+  - during 1994
+  - during 1995
+  - fixed tilt pv
+  - for detailed info
+  - for detailed info.
+  - full order
+  - gas
+  - gas / oil turbines
+  - gas trubine
+  - gas turbine
+  - gas turbine/int comb
+  - gas turbine/int. cm
+  - gas turbine/intcomb
+  - gas turbne/int comb
+  - gas/oil turbines
+  - gasturbine no boiler
+  - head individually
+  - heated individually
+  - ind encloures
+  - internal combustion
+  - jet engine
+  - jet turbine
+  - metal enclosure
+  - mobile
+  - n/a
+  - n/a (ct)
+  - na
+  - na_category
+  - no boiler
+  - non-applicable
+  - none
+  - none.
+  - not appicable
+  - not applicable
+  - not applicable.
+  - nuclear
+  - o
+  - other power gen.
+  - other production
+  - package
+  - pakage
+  - peaking - automatic
+  - peaking-automatic
+  - portable
+  - pre-fab power plant
+  - prefab power plant
+  - prefab. power plant
+  - pressurized water
+  - pump storage
+  - pv tracking
+  - pwr
+  - r of r/storage
+  - reactivated 7/1/96
+  - retired 1/1/95
+  - schedule is n/a
+  - see footnote
+  - see note
+  - see page 402
+  - simple & reciprocat
+  - simple & reciprocating
+  - simple and reciprocat
+  - simple and reciprocating
+  - simple cycle
+  - solar
+  - steam plants
+  - storage/pipelines
+  - subcritical
+  - sucritical
+  - tower - 10 units
+  - tower - 101 unit
+  - tower - 165 units
+  - tower -10 unit
+  - tower -10 unit facy
+  - tower 16
+  - tower 23
+  - tracking pv
+  - underground
+  - wind
+  - wind generator
+  - wind trubine
+  - wind turbine
+  - "\u2014"
+outdoor:
+  - 1 outdoor boiler
+  - 2 outdoor boilers
+  - 2 outoor boilers
+  - 3 outdoor boilers
+  - 4 outdoor boilers
+  - boiler & full outdor
+  - boiler & outdoor ful
+  - boiler outdoor & ful
+  - boiler outdoor &full
+  - boiler outdoor& full
+  - boiler outdoor&full
+  - boiler outdr. & full
+  - boiler outdr.& full
+  - boiler-outdr & full
+  - con. & full outdoor
+  - con.& full outdoor
+  - conv & outdoor boiler
+  - conventional; outdoor
+  - coven./outdoor
+  - f. otdr. & otdr. blr
+  - f.otdr & otdr.blr.
+  - fo
+  - fuel outdoor
+  - ful outdoor
+  - full & outdr boilers
+  - full -outdoor
+  - full oudoors
+  - full outdoor
+  - full outdoor boiler
+  - full outdoors
+  - full outoor
+  - full-outdoor
+  - ob
+  - otdr. blr. & f. otdr
+  - oudoor (auto oper)
+  - outboilers
+  - outdoor
+  - outdoor  boiler&full
+  - outdoor (auto oper)
+  - outdoor (auto oper.)
+  - outdoor (auto. oper)
+  - outdoor (auto.oper)
+  - outdoor - boiler
+  - outdoor automatic
+  - outdoor boiler
+  - outdoor boiler & fue
+  - outdoor boiler & ful
+  - outdoor boiler &fuel
+  - outdoor boiler &full
+  - outdoor boiler& full
+  - outdoor boiler&full
+  - outdoor boilers
+  - outdoor const.
+  - outdoor constructin
+  - outdoor construction
+  - outdoor enclosure
+  - outdoor hrsg
+  - outdoor repower
+  - outdoor steam
+  - outdoor steel encl.
+  - outdoor-boiler
+  - outdoor-steel encl.
+  - outdoor-steel enclos
+  - outdoors
+  - outdore
+  - outodoor (auto oper)
+  - outoor
+  - outside boiler
+  - partial outdoor
+semioutdoor:
+  - 1 conv/ 2odboilers
+  - 1 out boil 2 conv
+  - 1 out boil, 2 conv
+  - 1 out boilr 2 conv
+  - 1 out boilr, 2 conv
+  - 1cnvntnl/2odboilers
+  - 1conv'l/2odboilers
+  - 2 conv /1 odboilers
+  - 2 conv., 1 out. boil
+  - 2cnvntnl1/1odboiler
+  - 2conv'l/10dboiler
+  - 2conv'l/1odboiler
+  - 4 indor/outdr boiler
+  - 4 indr/outdr boiler
+  - 4 indr/outdr boilerr
+  - cnvntl, outdr, boilr
+  - combination
+  - combination (b)
+  - con & ob
+  - con sem outdoor
+  - conv & full outdoor
+  - conv & outdoor boil
+  - conv & outdoor boil.
+  - conv & outdoor boilr
+  - conv & outdr. boilr
+  - conv & semi- outdoor
+  - conv & semi-outdoor
+  - conv - 1 blr semi od
+  - conv - ob
+  - conv -ob
+  - conv full outdoor
+  - conv outdoor boiler
+  - conv semi-outdoor
+  - conv u1/semi-od u2
+  - conv&outdoor boiler
+  - conv(u1)/semiod(u2)
+  - conv- ob
+  - conv-1 blr semi-od
+  - conv-ob
+  - conv-one blr-semi-od
+  - conv-one boiler-outd
+  - conv. & full outdoor
+  - conv. & otdr. blr.
+  - conv. & out. boiler
+  - conv. & outdoor blr
+  - conv. & outdoor blr.
+  - conv. & outdoor boil
+  - conv. & outdr boiler
+  - conv. & outdr. boilr
+  - conv. boiler outdoor
+  - conv. broiler outdor
+  - conv. outdoor boiler
+  - conv. sem. outdoor
+  - conv. semi outdoor
+  - conv. u1/semi-od u2
+  - conv. ui/semi-od u2
+  - conv.& outdoor boil.
+  - conv.-ob
+  - conv.outdoor boiler
+  - conv/outdoor boiler
+  - conven & semi-outdr
+  - conven boiler & full
+  - conven full outdoor
+  - conven full outdr.
+  - conven, full outdoor
+  - conven, full outdr.
+  - conven, outdr boiler
+  - conven,full outdoor
+  - conven,outdoorboiler
+  - conven,outdr boiler
+  - conven,outdr.boiler
+  - conven. blr. & full
+  - conven. full outdoor
+  - conven. semi-outdoor
+  - convent semioutdoor
+  - convent. semi-outdoo
+  - convent. semi-outdr
+  - convention. outdoor
+  - conventional outdoor
+  - conventional outdor
+  - conventional outdr.
+  - conventional/outdoor
+  - convet. semi-outdoor
+  - convnt'l outdr boilr
+  - convntl, outdoor blr
+  - convntl,outdoor blr
+  - convntl. outdoor blr
+  - indoor & outdoof
+  - indoor & outdoor
+  - indoor and outdoor
+  - less than 50% outdoo
+  - less than 50% outdoors
+  - more than 50% outdoo
+  - more than 50% outdoors
+  - more than 50% outdos
+  - outdoor & conv
+  - outdoor & conv.
+  - outdoor & conventil
+  - outdoor & convention
+  - outdoor/conventional
+  - outdr & conventnl
+  - over 50% outdoor
+  - over 50% outdoors
+  - semi - outdoor
+  - semi - outdoors
+  - semi -outdoor
+  - semi outdoor
+  - semi outdoor boiler
+  - semi- outdoor
+  - semi-enclosed
+  - semi-outdoor
+  - semi-outdoor boiler
+  - semioutdoor
+  - u1-conv. / u2-semi
+  - u1-conv./u2-semi -od
+  - u1-conv./u2-semi-od
+  - under 50% outdoor
+  - under 50% outdoors

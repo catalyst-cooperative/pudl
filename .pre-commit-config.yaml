@@ -65,6 +65,10 @@ repos:
             |.*\.bib
             |.*\.csv
             |.*\.html
+            |src/pudl/package_data/ferc1/fuel_categories\.yaml
+            |src/pudl/package_data/ferc1/construction_type_categories\.yaml
+            |src/pudl/package_data/ferc1/fuel_unit_categories\.yaml
+            |src/pudl/package_data/ferc1/plant_type_categories\.yaml
           )$ | migrations/ | devtools/ | test/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
         args: [] # Make this read, not write
 
