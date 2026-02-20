@@ -9348,7 +9348,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The name of the RUS (Rural Utilities Service) borrower.",
     },
     "last_annual_meeting_date": {
-        "type": "string",
+        "type": "datetime",
         "description": "The date of the last annual meeting.",
     },
     "members_num": {"type": "integer", "description": "The total number of members."},
@@ -9500,9 +9500,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "MW",
     },
     "is_peak_coincident": {
-        "type": "integer",
+        "type": "boolean",
         "description": "Whether or not the peak_mw is coincident or non-coincident peak.",
-        "unit": "boolean",
     },
     "investment_description": {
         "type": "string",
@@ -9672,6 +9671,12 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
             "type": "number",
             "description": "The total electricity purchased.",
             "unit": "MWh",
+        },
+        # RUS has also lent to Micronesia (FM) and the Marshall Islands (MH).
+        "state": {
+            "type": "string",
+            "description": "Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.",
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166 | {"MH", "FM"}},
         },
     },
 }

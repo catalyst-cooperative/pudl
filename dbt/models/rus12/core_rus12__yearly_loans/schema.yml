@@ -10,6 +10,10 @@ sources:
                 column_A: loan_original_amount
                 column_B: loan_balance
                 or_equal: true
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+              arguments:
+                column_A: loan_maturity_date
+                column_B: report_date
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -17,5 +21,16 @@ sources:
           - name: loan_organization
           - name: loan_maturity_date
           - name: loan_original_amount
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: loan_balance
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">2"
+                  description: "Two instances of negative loan balance, which could be overpayment. Investigate." #TODO
           - name: for_rural_development

@@ -3,13 +3,84 @@ sources:
   - name: pudl
     tables:
       - name: core_rus7__yearly_employee_statistics
+        data_tests:
+          - expect_columns_not_all_null
+          - expect_columns_ratio:
+              arguments:
+                numerator_column: employees_fte_num
+                denominator_column: employee_hours_worked_regular_time
+                max_ratio: 2080
+              description: "Do employee hours worked regular time = employees X 2080 hours (FTE)?"
+          - expect_summed_columns_not_exceed_threshold:
+              arguments:
+                column_a: employee_hours_worked_regular_time
+                column_b: employee_hours_worked_over_time
+                threshold_column: employees_fte_num
+                multiplier: 8766
+              description: "Do total hours worked exceed employees times hours in a year?"
         columns:
           - name: report_date
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: employees_fte_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+              - expect_column_change_within_ratio:
+                  arguments:
+                    group_by: borrower_id_rus
+                    order_by: report_date
+                    max_pct_change: 0.3
+                  config:
+                    warn_if: ">0"
+                    error_if: ">50"
           - name: employee_hours_worked_regular_time
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+              - expect_column_change_within_ratio:
+                  arguments:
+                    group_by: borrower_id_rus
+                    order_by: report_date
+                    max_pct_change: 0.3
+                  config:
+                    warn_if: ">0"
+                    error_if: ">50"
           - name: employee_hours_worked_over_time
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: payroll_expensed
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+              - expect_column_change_within_ratio:
+                  arguments:
+                    group_by: borrower_id_rus
+                    order_by: report_date
+                    max_pct_change: 0.5
+                  config:
+                    warn_if: ">0"
+                    error_if: ">100"
           - name: payroll_capitalized
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+              - expect_column_change_within_ratio:
+                  arguments:
+                    group_by: borrower_id_rus
+                    order_by: report_date
+                    max_pct_change: 0.5
+                  config:
+                    warn_if: ">0"
+                    error_if: ">300"
           - name: payroll_other
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
