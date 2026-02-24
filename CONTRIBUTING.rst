@@ -108,7 +108,7 @@ Contributor survey
 ------------------
 
 We'd love your feedback on working with PUDL. Please consider taking ~10 minutes
-to fill out our 
-`contributor survey 
+to fill out our
+`contributor survey
 <https://docs.google.com/forms/d/1mBjaqp8-yoFo25blOl9HWMzbK435MDbF_J28t7eiR0g/edit>`__
-so we can improve the process for future contributors! 
+so we can improve the process for future contributors!
