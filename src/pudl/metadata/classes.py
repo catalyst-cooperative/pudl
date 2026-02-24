@@ -18,7 +18,8 @@ import geopandas as gpd
 import jinja2
 import numpy as np
 import pandas as pd
-import pandera.pandas as pr
+import pandera.pandas as pr_pandas
+import pandera.polars as pr_polars
 import polars as pl
 import pyarrow as pa
 import pydantic
@@ -302,21 +303,21 @@ class FieldConstraints(PudlMeta):
                 raise ValueError("must be greater or equal to minimum")
         return value
 
-    def to_pandera_checks(self) -> list[pr.Check]:
+    def to_pandera_checks(self) -> list[pr_polars.Check]:
         """Convert these constraints to pandera Column checks."""
         checks = []
         if self.min_length is not None:
-            checks.append(pr.Check.str_length(min_value=self.min_length))
+            checks.append(pr_polars.Check.str_length(min_value=self.min_length))
         if self.max_length is not None:
-            checks.append(pr.Check.str_length(max_value=self.max_length))
+            checks.append(pr_polars.Check.str_length(max_value=self.max_length))
         if self.minimum is not None:
-            checks.append(pr.Check.ge(self.minimum))
+            checks.append(pr_polars.Check.ge(self.minimum))
         if self.maximum is not None:
-            checks.append(pr.Check.le(self.maximum))
+            checks.append(pr_polars.Check.le(self.maximum))
         if self.pattern is not None:
-            checks.append(pr.Check.str_matches(self.pattern))
+            checks.append(pr_polars.Check.str_matches(self.pattern))
         if self.enum:
-            checks.append(pr.Check.isin(self.enum))
+            checks.append(pr_polars.Check.isin(self.enum))
 
         return checks
 
@@ -761,18 +762,18 @@ class Field(PudlMeta):
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
-    def to_pandera_column(self) -> pr.Column:
+    def to_pandera_column(self) -> pr_polars.Column:
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
         checks = constraints.to_pandera_checks()
         if constraints.enum:
-            column_type = "category"
+            column_type = pl.Enum(constraints.enum)
         elif self.type == "geometry":
-            column_type = gpd.array.GeometryDtype()
+            column_type = "string"
         else:
-            column_type = FIELD_DTYPES_PANDAS[self.type]
+            column_type = FIELD_DTYPES_POLARS[self.type]
 
-        return pr.Column(
+        return pr_polars.Column(
             column_type,
             checks=checks,
             nullable=not constraints.required,
@@ -877,12 +878,12 @@ class Schema(PudlMeta):
                     )
         return self
 
-    def to_pandera(self: Self) -> pr.DataFrameSchema:
+    def to_pandera(self: Self) -> pr_polars.DataFrameSchema:
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
 
-        return pr.DataFrameSchema(
+        return pr_polars.DataFrameSchema(
             {field.name: field.to_pandera_column() for field in self.fields},
             unique=self.primary_key,
         )
@@ -1135,17 +1136,17 @@ class PudlResourceDescriptor(PudlMeta):
     class PudlCodeMetadata(PudlMeta):
         """Describes a bunch of codes."""
 
-        class CodeDataFrame(pr.DataFrameModel):
+        class CodeDataFrame(pr_pandas.DataFrameModel):
             """The DataFrame we use to represent code/label/description associations."""
 
             # TODO (daz) 2024-02-09: each of these | Nones are one-offs. Fix
             # the frickin data instead.
-            code: pr.typing.Series[Any]
-            label: pr.typing.Series[str] | None
-            description: pr.typing.Series[str]
-            operational_status: pr.typing.Series[str] | None
+            code: pr_pandas.typing.Series[Any]
+            label: pr_pandas.typing.Series[str] | None
+            description: pr_pandas.typing.Series[str]
+            operational_status: pr_pandas.typing.Series[str] | None
 
-        df: pr.typing.DataFrame[CodeDataFrame] = pd.DataFrame(
+        df: pr_pandas.typing.DataFrame[CodeDataFrame] = pd.DataFrame(
             {"code": [], "label": [], "description": []}
         )
         code_fixes: dict = {}
@@ -1154,7 +1155,7 @@ class PudlResourceDescriptor(PudlMeta):
 
         @field_serializer("df")
         def serialize_df(
-            self, df: pr.typing.DataFrame[CodeDataFrame], _info
+            self, df: pr_pandas.typing.DataFrame[CodeDataFrame], _info
         ) -> pd.DataFrame:
             """Return DataFrame to avoid warnings from default serializer."""
             return df

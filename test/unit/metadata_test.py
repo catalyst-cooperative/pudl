@@ -3,8 +3,8 @@
 import json
 
 import frictionless
-import pandas as pd
-import pandera.pandas as pr
+import pandera.polars as pr
+import polars as pl
 import pytest
 
 from pudl.metadata import PUDL_PACKAGE
@@ -17,7 +17,7 @@ from pudl.metadata.classes import (
     SnakeCase,
 )
 from pudl.metadata.descriptions import ResourceDescriptionBuilder
-from pudl.metadata.fields import FIELD_METADATA, apply_pudl_dtypes
+from pudl.metadata.fields import FIELD_METADATA
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resource_helpers import merge_descriptions
 from pudl.metadata.resources import RESOURCE_METADATA
@@ -150,14 +150,14 @@ def dummy_pandera_schema(dummy_resource_dict):
 
 
 def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
-    good_dataframe = pd.DataFrame(
+    good_dataframe = pl.DataFrame(
         {
             "plant_id_eia": [12345, 12346],
             "city": ["Bloomington", "Springfield"],
             "capacity_mw": [1.3, 1.0],
         }
-    ).pipe(apply_pudl_dtypes)
-    assert not dummy_pandera_schema.validate(good_dataframe).empty
+    )
+    assert not dummy_pandera_schema.validate(good_dataframe).is_empty()
 
 
 @pytest.mark.parametrize(
@@ -165,29 +165,29 @@ def test_resource_descriptors_can_encode_schemas(dummy_pandera_schema):
     [
         pytest.param(
             "column 'plant_id_eia' not in dataframe",
-            pd.DataFrame([]),
+            pl.DataFrame([]),
             id="empty dataframe",
         ),
         pytest.param(
-            "expected series 'plant_id_eia' to have type Int64",
-            pd.DataFrame(
+            "expected column 'plant_id_eia' to have type Int64, got String",
+            pl.DataFrame(
                 {
                     "plant_id_eia": ["non_number"],
                     "city": ["Bloomington"],
-                    "capacity_mw": [1.3],
+                    "capacity_mw": ["1.3"],
                 }
-            ).astype(str),
+            ),
             id="bad dtype",
         ),
         pytest.param(
             "columns .* not unique",
-            pd.DataFrame(
+            pl.DataFrame(
                 {
                     "plant_id_eia": [12345, 12345],
                     "city": ["Bloomington", "Springfield"],
                     "capacity_mw": [1.3, 1.0],
                 }
-            ).pipe(apply_pudl_dtypes),
+            ),
             id="duplicate PK",
         ),
     ],

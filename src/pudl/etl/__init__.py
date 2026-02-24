@@ -170,22 +170,19 @@ def _get_keys_from_assets(
 _asset_keys = itertools.chain.from_iterable(
     _get_keys_from_assets(asset_def) for asset_def in default_assets
 )
+duckdb_assets = [
+    "core_ferceqr__quarterly_identity",
+    "core_ferceqr__contracts",
+    "core_ferceqr__quarterly_index_pub",
+    "core_ferceqr__transactions",
+]
 default_asset_checks += [
     check
     for check in (
-        asset_check_from_schema(asset_key, PUDL_PACKAGE)
-        for asset_key in _asset_keys
-        if (
-            asset_key.to_user_string()
-            not in [
-                "core_epacems__hourly_emissions",
-                "out_vcerare__hourly_available_capacity_factor",
-                "core_ferceqr__quarterly_identity",
-                "core_ferceqr__contracts",
-                "core_ferceqr__quarterly_index_pub",
-                "core_ferceqr__transactions",
-            ]
+        asset_check_from_schema(
+            asset_key, PUDL_PACKAGE, asset_key.to_user_string() in duckdb_assets
         )
+        for asset_key in _asset_keys
     )
     if check is not None
 ]

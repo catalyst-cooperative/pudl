@@ -10,8 +10,8 @@ For data validation we almost entirely rely on dbt data tests.
 from typing import Any
 
 import geopandas as gpd
-import pandas as pd
-import pandera as pr
+import pandera.polars as pr
+import polars as pl
 from dagster import (
     AssetCheckResult,
     AssetChecksDefinition,
@@ -19,7 +19,9 @@ from dagster import (
     asset_check,
 )
 
+from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import Package, Resource
+from pudl.settings import ferceqr_year_quarters
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
@@ -40,7 +42,10 @@ def _collect_dtype_metadata(asset_value, resource: Resource) -> dict[str, Any]:
     )
     actual_dtypes = {}
     if hasattr(asset_value, "dtypes"):
-        actual_dtypes = {col: str(dtype) for col, dtype in asset_value.dtypes.items()}
+        actual_dtypes = {
+            col: str(dtype)
+            for col, dtype in zip(asset_value.columns, asset_value.dtypes, strict=True)
+        }
 
     # Get expected columns and types
     expected_columns = [field.name for field in resource.schema.fields]
@@ -142,6 +147,7 @@ def _process_schema_errors(schema_errors: pr.errors.SchemaErrors) -> dict[str, A
 def asset_check_from_schema(
     asset_key: AssetKey,
     package: Package,
+    duckdb_asset: bool,
 ) -> AssetChecksDefinition | None:
     """Create a dagster asset check based on the resource schema, if defined."""
     resource_id = asset_key.to_user_string()
@@ -151,9 +157,18 @@ def asset_check_from_schema(
         return None
 
     pandera_schema = resource.schema.to_pandera()
+    asset_type = ParquetData if duckdb_asset else pl.LazyFrame
+    partitions = ferceqr_year_quarters if "ferceqr" in resource_id else None
 
-    @asset_check(asset=asset_key, blocking=True)
-    def pandera_schema_check(asset_value: pd.DataFrame) -> AssetCheckResult:
+    @asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
+    def pandera_schema_check(asset_value: asset_type) -> AssetCheckResult:
+        pl.Config.set_streaming_chunk_size(50_000)
+        if isinstance(asset_value, ParquetData):
+            asset_value = get_parquet_table_polars(
+                table_name=resource_id,
+                partitions=asset_value.partitions,
+            )
+
         # Collect all metadata
         metadata = (
             _collect_asset_metadata(asset_value)
@@ -162,7 +177,9 @@ def asset_check_from_schema(
         )
 
         try:
-            pandera_schema.validate(asset_value, lazy=True)
+            asset_value.pipe(pandera_schema.validate, lazy=True).collect(
+                engine="streaming"
+            )
             return AssetCheckResult(passed=True, metadata=metadata)
 
         except pr.errors.SchemaErrors as schema_errors:
