@@ -34,20 +34,23 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+                  row_condition: "opex_type != 'interest_charged_to_construction_credit'"
                   config:
-                    error_if: ">650" # TODO: ~3.7% of data violates this. Worth checking?
+                    error_if: ">307" # TODO: ~1.8% of data violates this. Worth checking?
           - name: opex_ytd
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+                  row_condition: "opex_type != 'interest_charged_to_construction_credit'"
                   config:
-                    error_if: ">560" # TODO: ~3.2% of data violates this. Worth checking?
+                    error_if: ">135" # TODO: ~0.7% of data violates this. Worth checking?
           - name: opex_ytd_budget
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+                  row_condition: "opex_type != 'interest_charged_to_construction_credit'"
                   config:
-                    error_if: ">320" # TODO: ~1.8% of data violates this. Worth checking?
+                    error_if: ">43" # TODO: ~0.03% of data violates this. Worth checking?
           - name: is_total

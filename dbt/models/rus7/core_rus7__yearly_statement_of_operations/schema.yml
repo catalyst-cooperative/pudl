@@ -30,18 +30,27 @@ sources:
           - name: opex_type
           - name: opex_group
           - name: opex_report_month
-            # data_tests:
-            #   - dbt_expectations.expect_column_min_to_be_between:
-            #       arguments:
-            #         min_value: 0.0 # TODO: This is widely violated. Keep or adjust expectation?
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">6750" # TODO: About 3.4% of the data violates this, even with the broad categorical exclusions below. Investigate or refine further.
+                  row_condition: "opex_type != 'interest_charged_to_construction_credit' and opex_group != 'patronage_capital_or_margins'"
           - name: opex_ytd
-            # data_tests:
-            #   - dbt_expectations.expect_column_min_to_be_between:
-            #       arguments:
-            #         min_value: 0.0 # TODO: This is widely violated. Keep or adjust expectation?
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">1600" # TODO: About 0.8% of the data violates this, even with the broad categorical exclusions below. Investigate or refine further.
+                  row_condition: "opex_type != 'interest_charged_to_construction_credit' and opex_group != 'patronage_capital_or_margins'"
           - name: opex_ytd_budget
-            # data_tests:
-            #     - dbt_expectations.expect_column_min_to_be_between:
-            #         arguments:
-            #           min_value: 0.0 # TODO: This is widely violated. Keep or adjust expectation?
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">810" # TODO: About 0.4% of the data violates this. Investigate or refine further the broad categorical exclusions below.
+                  row_condition: "opex_type != 'interest_charged_to_construction_credit' and opex_group != 'patronage_capital_or_margins'"
           - name: is_total
