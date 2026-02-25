@@ -428,6 +428,8 @@ is for those supplies."""
                     "plants and utilities"
                 ),
                 "usage_warnings": ["harvested"],
+                "table_type_code": "timeseries",
+                "timeseries_resolution_code": "monthly",
             },
         ),
         "schema": {
