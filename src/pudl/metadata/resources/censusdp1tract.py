@@ -202,6 +202,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": {
             "additional_summary_text": "State-level summarized US Census demographic information, along with a geometry describing state boundaries.",
             "additional_details_text": CENSUS_CAVEAT,
+            "usage_warnings": ["discontinued_data"],
         },
         "schema": {
             "fields": [
@@ -228,6 +229,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": {
             "additional_summary_text": "County-level summarized US Census demographic information, along with a geometry describing county boundaries.",
             "additional_details_text": CENSUS_CAVEAT,
+            "usage_warnings": ["discontinued_data"],
         },
         "schema": {
             "fields": [
@@ -254,6 +256,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": {
             "additional_summary_text": "Census tract-level summarized US Census demographic information, along with a geometry describing tract boundaries.",
             "additional_details_text": CENSUS_CAVEAT,
+            "usage_warnings": ["discontinued_data"],
         },
         "schema": {
             "fields": [
