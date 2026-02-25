@@ -3,10 +3,12 @@ sources:
   - name: pudl
     tables:
       - name: core_rus7__yearly_balance_sheet_liabilities
+        data_tests:
+          - expect_columns_not_all_null
         columns:
           - name: report_date
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: liability_type
-          - name: balance
+          - name: ending_balance
           - name: is_total
