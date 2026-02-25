@@ -3,6 +3,8 @@ sources:
   - name: pudl
     tables:
       - name: core_rus7__yearly_power_requirements_electric_customers
+        data_tests:
+          - expect_columns_not_all_null
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -10,3 +12,7 @@ sources:
           - name: customer_class
           - name: observation_period
           - name: customers_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0

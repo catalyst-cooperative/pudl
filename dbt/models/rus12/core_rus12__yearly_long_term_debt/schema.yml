@@ -5,12 +5,46 @@ sources:
       - name: core_rus12__yearly_long_term_debt
         data_tests:
           - expect_columns_not_all_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "debt_interest + debt_principal = debt_total"
+              config:
+                error_if: ">78"
+              description: "Examine ~80 cases where interest + principal != total" #TODO
         columns:
           - name: report_date
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: debt_description
           - name: debt_ending_balance
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">32"
+                  description: "Investigate negative values." #TODO
           - name: debt_interest
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">21"
+                  description: "Investigate negative values." #TODO
           - name: debt_principal
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">5"
+                  description: "Investigate negative values." #TODO
           - name: debt_total
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">21"
+                  description: "Investigate negative values." #TODO

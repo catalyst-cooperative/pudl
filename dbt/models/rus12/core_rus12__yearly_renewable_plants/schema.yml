@@ -5,6 +5,14 @@ sources:
       - name: core_rus12__yearly_renewable_plants
         data_tests:
           - expect_columns_not_all_null
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+              arguments:
+                column_A: invested
+                column_B: rus_funding
+                or_equal: True
+              config:
+                error_if: ">14" # TODO: Investigate these cases, many of them seem to be terminated contracts
+              description: "Expect that RUS will generally not invest more than is invested in a plant."
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -15,13 +23,65 @@ sources:
           - name: primary_renewable_fuel_type_id
           - name: primary_renewable_fuel_type
           - name: renewable_fuel_pct
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+              - dbt_expectations.expect_column_max_to_be_between:
+                  arguments:
+                    max_value: 100.0
           - name: capacity_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: net_generation_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: capacity_factor
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+              - dbt_expectations.expect_column_max_to_be_between:
+                  arguments:
+                    max_value: 100.0
           - name: employees_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: opex_per_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">1"
+                  description: "Expect opex investments per mwh to be negative. Investigate IN0106 in 2021 as the only exception." #TODO
           - name: power_cost_per_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: invested
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: ownership_pct
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+              - dbt_expectations.expect_column_max_to_be_between:
+                  arguments:
+                    max_value: 100.0
           - name: rus_funding
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: comments
