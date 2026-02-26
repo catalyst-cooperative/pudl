@@ -270,7 +270,7 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
         )
 
         # Drop seller_history_name
-        if "seller_history_name" in table_data.columns():
+        if "seller_history_name" in table_data.columns:
             table_data = table_data.select(
                 duckdb.StarExpression(exclude=["seller_history_name"]),
             )
