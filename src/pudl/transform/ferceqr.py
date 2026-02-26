@@ -113,9 +113,9 @@ def core_ferceqr__quarterly_identity(
         conn,
     ):
         table_data = apply_column_transforms(
-            table,
-            ["transactions_reported_to_index_price_publishers"],
-            _yn_to_bool,
+            table_data=table,
+            columns=["transactions_reported_to_index_price_publishers"],
+            transform=_yn_to_bool,
         )
         table_data = rename_duckdb_columns(
             table_data,
@@ -123,10 +123,11 @@ def core_ferceqr__quarterly_identity(
                 "company_identifier": "company_id_ferc",
             },
         )
+        table_data = apply_duckdb_dtypes(table_data, table_name, conn)
 
         return persist_table_as_parquet(
             table_name=table_name,
-            table_data=apply_duckdb_dtypes(table_data, table_name, conn),
+            table_data=table_data,
             partitions={"year_quarter": year_quarter},
         )
 
@@ -144,8 +145,8 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
         raw_ferceqr__transactions, use_all_partitions=True
     ) as (table, conn):
         table_data = apply_column_transforms(
-            table,
-            [
+            table_data=table,
+            columns=[
                 "exchange_brokerage_service",
                 "type_of_rate",
                 "time_zone",
@@ -156,30 +157,28 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
                 "product_name",
                 "rate_units",
             ],
-            _na_to_null,
+            transform=_na_to_null,
         )
         # Normalize categorical string
         table_data = apply_column_transforms(
-            table_data,
-            ["product_name"],
-            lambda _: duckdb.SQLExpression(
+            table_data=table_data,
+            columns=["product_name"],
+            transform=lambda _: duckdb.SQLExpression(
                 "replace(product_name, 'NEGOTIATED RATE TRANSMISSION', 'NEGOTIATED-RATE TRANSMISSION')"
             ),
         )
         table_data = apply_column_transforms(
-            table_data,
-            [
+            table_data=table_data,
+            columns=[
                 "transaction_begin_date",
                 "transaction_end_date",
             ],
-            lambda col: _parse_datetimes(col, "%Y%m%d%H%M"),
+            transform=lambda col: _parse_datetimes(col, "%Y%m%d%H%M"),
         )
         table_data = apply_column_transforms(
-            table_data,
-            [
-                "trade_date",
-            ],
-            lambda col: _parse_datetimes(col, "%Y%m%d"),
+            table_data=table_data,
+            columns=["trade_date"],
+            transform=lambda col: _parse_datetimes(col, "%Y%m%d"),
         )
         table_data = rename_duckdb_columns(
             table_data,
@@ -190,10 +189,11 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
                 "time_zone": "timezone",
             },
         )
+        table_data = apply_duckdb_dtypes(table_data, table_name, conn)
 
         return persist_table_as_parquet(
             table_name=table_name,
-            table_data=apply_duckdb_dtypes(table_data, table_name, conn),
+            table_data=table_data,
             partitions={"year_quarter": year_quarter},
         )
 
@@ -209,8 +209,8 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
         raw_ferceqr__contracts, use_all_partitions=True
     ) as (table, conn):
         table_data = apply_column_transforms(
-            table,
-            [
+            table_data=table,
+            columns=[
                 "class_name",
                 "term_name",
                 "increment_name",
@@ -220,12 +220,12 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
                 "units",
                 "rate_units",
             ],
-            _na_to_null,
+            transform=_na_to_null,
         )
         table_data = apply_column_transforms(
-            table_data,
-            ["contract_affiliate"],
-            _yn_to_bool,
+            table_data=table_data,
+            columns=["contract_affiliate"],
+            transform=_yn_to_bool,
         )
 
         # Drop seller_history_name
@@ -236,15 +236,15 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
 
         # Normalize categorical string
         table_data = apply_column_transforms(
-            table_data,
-            ["product_name"],
-            lambda _: duckdb.SQLExpression(
+            table_data=table_data,
+            columns=["product_name"],
+            transform=lambda _: duckdb.SQLExpression(
                 "replace(product_name, 'NEGOTIATED RATE TRANSMISSION', 'NEGOTIATED-RATE TRANSMISSION')"
             ),
         )
         table_data = apply_column_transforms(
-            table_data,
-            [
+            table_data=table_data,
+            columns=[
                 "contract_execution_date",
                 "commencement_date_of_contract_term",
                 "contract_termination_date",
@@ -254,15 +254,15 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
                 "units",
                 "rate_units",
             ],
-            lambda col: _parse_datetimes(col, "%Y%m%d"),
+            transform=lambda col: _parse_datetimes(col, "%Y%m%d"),
         )
         table_data = apply_column_transforms(
-            table_data,
-            [
+            table_data=table_data,
+            columns=[
                 "begin_date",
                 "end_date",
             ],
-            lambda col: _parse_datetimes(col, "%Y%m%d%H%M"),
+            transform=lambda col: _parse_datetimes(col, "%Y%m%d%H%M"),
         )
         table_data = rename_duckdb_columns(
             table_data,
@@ -270,10 +270,11 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
                 "company_identifier": "seller_company_id_ferc",
             },
         )
+        table_data = apply_duckdb_dtypes(table_data, table_name, conn)
 
         return persist_table_as_parquet(
             table_name=table_name,
-            table_data=apply_duckdb_dtypes(table_data, table_name, conn),
+            table_data=table_data,
             partitions={"year_quarter": year_quarter},
         )
 
@@ -289,9 +290,11 @@ def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetDa
         raw_ferceqr__index_pub, use_all_partitions=True
     ) as (table, conn):
         table_data = apply_column_transforms(
-            table,
-            ["Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported"],
-            _na_to_null,
+            table_data=table,
+            columns=[
+                "Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported"
+            ],
+            transform=_na_to_null,
         )
         table_data = rename_duckdb_columns(
             table_data,
@@ -302,8 +305,9 @@ def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetDa
                 "Transactions_Reported": "transactions_reported",
             },
         )
+        table_data = apply_duckdb_dtypes(table_data, table_name, conn)
         return persist_table_as_parquet(
             table_name=table_name,
-            table_data=apply_duckdb_dtypes(table_data, table_name, conn),
+            table_data=table_data,
             partitions={"year_quarter": year_quarter},
         )
