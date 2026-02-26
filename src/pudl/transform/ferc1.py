@@ -27,7 +27,11 @@ from pydantic import BaseModel, Field, field_validator
 
 import pudl
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-from pudl.helpers import assert_cols_areclose, convert_cols_dtypes, standardize_phone_column
+from pudl.helpers import (
+    assert_cols_areclose,
+    convert_cols_dtypes,
+    standardize_phone_column,
+)
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
@@ -3077,9 +3081,10 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
 
     def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
         """Look up the pre-renaming source table primary key columns.
-        
+
         The identification table does not have spplmnt_num or row_number,
-        which are part of the DBF primary key for every other DBF table."""
+        which are part of the DBF primary key for every other DBF table.
+        """
         if source_ferc1 == SourceFerc1.DBF:
             pk_cols = [
                 "report_year",
@@ -3104,24 +3109,48 @@ class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer)
 
     def transform_main(self, df):
         """Standard transform_main plus.... ???!?!."""
-        df = super().transform_main(df).pipe(standardize_phone_column(columns = ['contact_phone']))
-        
-        title_cols = ['contact name', 'contact_title', 'attestation_name', 'attestation_title']
+        df = (
+            super()
+            .transform_main(df)
+            .pipe(standardize_phone_column(columns=["contact_phone"]))
+        )
+
+        title_cols = [
+            "contact name",
+            "contact_title",
+            "attestation_name",
+            "attestation_title",
+        ]
         for col in title_cols:
             df[col] = df[col].str.title()
 
-        date_cols = ['attestation_date', 'filing_date', 'name_change_date']
+        date_cols = ["attestation_date", "filing_date", "name_change_date"]
         for col in date_cols:
-            df[col] = pd.to_datetime(df[col], errors = 'coerce')
-        
-        to_null = ['', 'not applicable', 'na', 'n/a', 'none', 'no change', 'x', 'xxx', 'z', 'zzz']
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+
+        to_null = [
+            "",
+            "not applicable",
+            "na",
+            "n/a",
+            "none",
+            "no change",
+            "x",
+            "xxx",
+            "z",
+            "zzz",
+        ]
         # Build a single regex pattern that is case insensitive
-        pattern = r'(?i)^(' + '|'.join(map(re.escape, to_null)) + r')$'
-        df['prior_utility_name_ferc1'] = df['prior_utility_name_ferc1'].replace(pattern, pd.NA, regex=True)
-        
+        pattern = r"(?i)^(" + "|".join(map(re.escape, to_null)) + r")$"
+        df["prior_utility_name_ferc1"] = df["prior_utility_name_ferc1"].replace(
+            pattern, pd.NA, regex=True
+        )
+
         # Create zip code column(s)
         # Or use usaddress????
-        df[['zip_code', 'zip_code_ext']] = df['office_street_address'].str.strip().str.extract(r'(\d{5})(-\d{4})?$')
+        df[["zip_code", "zip_code_ext"]] = (
+            df["office_street_address"].str.strip().str.extract(r"(\d{5})(-\d{4})?$")
+        )
         return df
 
     # Transforms to add
@@ -6239,7 +6268,7 @@ def ferc1_transform_asset_factory(
 
     table_id = TableIdFerc1(table_name)
 
-    @asset(name=table_name, ins=ins) #io_manager_key=io_manager_key)
+    @asset(name=table_name, ins=ins)  # io_manager_key=io_manager_key)
     def ferc1_transform_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Transform a FERC Form 1 table.
 
