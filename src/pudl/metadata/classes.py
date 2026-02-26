@@ -303,21 +303,22 @@ class FieldConstraints(PudlMeta):
                 raise ValueError("must be greater or equal to minimum")
         return value
 
-    def to_pandera_checks(self) -> list[pr_polars.Check]:
+    def to_pandera_checks(self, use_pandas_backend: bool) -> list[pr_polars.Check]:
         """Convert these constraints to pandera Column checks."""
         checks = []
+        pandera_module = pr_pandas if use_pandas_backend else pr_polars
         if self.min_length is not None:
-            checks.append(pr_polars.Check.str_length(min_value=self.min_length))
+            checks.append(pandera_module.Check.str_length(min_value=self.min_length))
         if self.max_length is not None:
-            checks.append(pr_polars.Check.str_length(max_value=self.max_length))
+            checks.append(pandera_module.Check.str_length(max_value=self.max_length))
         if self.minimum is not None:
-            checks.append(pr_polars.Check.ge(self.minimum))
+            checks.append(pandera_module.Check.ge(self.minimum))
         if self.maximum is not None:
-            checks.append(pr_polars.Check.le(self.maximum))
+            checks.append(pandera_module.Check.le(self.maximum))
         if self.pattern is not None:
-            checks.append(pr_polars.Check.str_matches(self.pattern))
+            checks.append(pandera_module.Check.str_matches(self.pattern))
         if self.enum:
-            checks.append(pr_polars.Check.isin(self.enum))
+            checks.append(pandera_module.Check.isin(self.enum))
 
         return checks
 
@@ -762,18 +763,25 @@ class Field(PudlMeta):
         """Recode the Field if it has an associated encoder."""
         return self.encoder.encode(col, dtype=dtype) if self.encoder else col
 
-    def to_pandera_column(self) -> pr_polars.Column:
+    def to_pandera_column(self, use_pandas_backend: bool) -> pr_polars.Column:
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
-        checks = constraints.to_pandera_checks()
+        checks = constraints.to_pandera_checks(use_pandas_backend)
         if constraints.enum:
-            column_type = pl.Enum(constraints.enum)
+            column_type = (
+                "category" if use_pandas_backend else pl.Enum(constraints.enum)
+            )
         elif self.type == "geometry":
-            column_type = "string"
+            column_type = gpd.array.GeometryDtype()
         else:
-            column_type = FIELD_DTYPES_POLARS[self.type]
+            column_type = (
+                FIELD_DTYPES_PANDAS[self.type]
+                if use_pandas_backend
+                else FIELD_DTYPES_POLARS[self.type]
+            )
 
-        return pr_polars.Column(
+        pandera_module = pr_pandas if use_pandas_backend else pr_polars
+        return pandera_module.Column(
             column_type,
             checks=checks,
             nullable=not constraints.required,
@@ -882,9 +890,14 @@ class Schema(PudlMeta):
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
+        use_pandas_backend = any(field.type == "geometry" for field in self.fields)
+        pandera_module = pr_pandas if use_pandas_backend else pr_polars
 
-        return pr_polars.DataFrameSchema(
-            {field.name: field.to_pandera_column() for field in self.fields},
+        return pandera_module.DataFrameSchema(
+            {
+                field.name: field.to_pandera_column(use_pandas_backend)
+                for field in self.fields
+            },
             unique=self.primary_key,
         )
 

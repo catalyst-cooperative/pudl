@@ -18,6 +18,7 @@ from dagster import (
     AssetKey,
     asset_check,
 )
+from pandera.errors import SchemaErrors
 
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import Package, Resource
@@ -51,9 +52,13 @@ def _collect_dtype_metadata(asset_value, resource: Resource) -> dict[str, Any]:
     expected_columns = [field.name for field in resource.schema.fields]
     pandera_dtypes = {}
 
+    use_pandas_backend = not isinstance(asset_value, pl.LazyFrame)
+
     for field in resource.schema.fields:
         try:
-            pandera_dtypes[field.name] = str(field.to_pandera_column().dtype)
+            pandera_dtypes[field.name] = str(
+                field.to_pandera_column(use_pandas_backend).dtype
+            )
         except Exception as e:
             pandera_dtypes[field.name] = f"Error: {str(e)}"
 
@@ -117,7 +122,7 @@ def _collect_geometry_metadata(asset_value) -> dict[str, Any]:
     return metadata
 
 
-def _process_schema_errors(schema_errors: pr.errors.SchemaErrors) -> dict[str, Any]:
+def _process_schema_errors(schema_errors: SchemaErrors) -> dict[str, Any]:
     """Process Pandera schema errors into structured metadata."""
     detailed_errors = []
 
@@ -157,12 +162,16 @@ def asset_check_from_schema(
         return None
 
     pandera_schema = resource.schema.to_pandera()
-    asset_type = ParquetData if duckdb_asset else pl.LazyFrame
     partitions = ferceqr_year_quarters if "ferceqr" in resource_id else None
+    if duckdb_asset:
+        asset_type = ParquetData
+    elif isinstance(pandera_schema, pr.DataFrameSchema):
+        asset_type = pl.LazyFrame
+    else:
+        asset_type = gpd.GeoDataFrame
 
     @asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
     def pandera_schema_check(asset_value: asset_type) -> AssetCheckResult:
-        pl.Config.set_streaming_chunk_size(50_000)
         if isinstance(asset_value, ParquetData):
             asset_value = get_parquet_table_polars(
                 table_name=resource_id,
@@ -177,12 +186,15 @@ def asset_check_from_schema(
         )
 
         try:
-            asset_value.pipe(pandera_schema.validate, lazy=True).collect(
-                engine="streaming"
-            )
+            if isinstance(asset_value, pl.LazyFrame):
+                asset_value.pipe(pandera_schema.validate, lazy=True).collect(
+                    engine="streaming"
+                )
+            else:
+                pandera_schema.validate(asset_value, lazy=True)
             return AssetCheckResult(passed=True, metadata=metadata)
 
-        except pr.errors.SchemaErrors as schema_errors:
+        except SchemaErrors as schema_errors:
             metadata.update(_process_schema_errors(schema_errors))
             return AssetCheckResult(passed=False, metadata=metadata)
 
