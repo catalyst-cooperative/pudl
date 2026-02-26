@@ -11,4 +11,18 @@ sources:
           - name: borrower_name_rus
           - name: source_of_energy
           - name: net_energy_received_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: "source_of_energy != 'net_interchange'"
+                  config:
+                    error_if: ">22" #TODO: Likely bad use of negative values for total energy losses mostly explains this
           - name: cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: "net_energy_received_mwh >= 0"
+                  config:
+                    error_if: ">8" #TODO: Almost entirely explained by CO0047 and NC0067
