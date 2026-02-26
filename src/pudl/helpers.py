@@ -2472,3 +2472,42 @@ def duckdb_extract_zipped_csv(
 
         for page in pages:
             yield page, conn.read_csv(str(tmp_dir / zip_path / page))
+
+
+def parse_address(addr):
+    """TODO: CLEAN THIS UP!"""
+    try:
+        if pd.isna(addr):
+            return addr
+        tagged, addr_type = usaddress.tag(addr)
+        parsed = defaultdict(str)
+        for key, val in tagged.items():
+            parsed[key] = val.strip(", ")
+
+        # Concatenate street parts into one column
+        street_parts = [
+            parsed.get("AddressNumber", ""),
+            parsed.get("StreetNamePreDirectional", ""),
+            parsed.get("StreetName", ""),
+            parsed.get("StreetNamePostType", ""),
+            parsed.get("OccupancyType", "")
+            + " "
+            + parsed.get("OccupancyIdentifier", "")
+            if parsed.get("OccupancyType")
+            else "",
+        ]
+        street_address = " ".join([p for p in street_parts if p])
+
+        return pd.Series(
+            {
+                "street_address": street_address,
+                "city": parsed["PlaceName"],
+                "state": parsed["StateName"],
+                "zip_code": parsed["ZipCode"],
+            }
+        )
+    except Exception:
+        print(addr)
+        return pd.Series(
+            {"street_address": addr, "city": "", "state": "", "zip_code": ""}
+        )

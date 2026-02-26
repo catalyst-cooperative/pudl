@@ -27,7 +27,11 @@ from pydantic import BaseModel, Field, field_validator
 
 import pudl
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
-from pudl.helpers import assert_cols_areclose, convert_cols_dtypes
+from pudl.helpers import (
+    assert_cols_areclose,
+    convert_cols_dtypes,
+    standardize_phone_column,
+)
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
@@ -158,6 +162,7 @@ class TableIdFerc1(enum.Enum):
     OTHER_REGULATORY_LIABILITIES = (
         "core_ferc1__yearly_other_regulatory_liabilities_sched278"
     )
+    IDENTIFICATION_CERTIFICATION = "core_ferc1__yearly_identification_certification"
 
 
 ################################################################################
@@ -3068,6 +3073,111 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
                 table_name=self.table_id.value,
                 params=params,
             )
+        return df
+
+
+class IdentificationCertificationTableTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for the :ref:`core_ferc1__yearly_identification_certification` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.IDENTIFICATION_CERTIFICATION
+
+    def source_table_primary_key(self, source_ferc1: SourceFerc1) -> list[str]:
+        """Look up the pre-renaming source table primary key columns.
+
+        The identification table does not have spplmnt_num or row_number,
+        which are part of the DBF primary key for every other DBF table.
+        """
+        if source_ferc1 == SourceFerc1.DBF:
+            pk_cols = [
+                "report_year",
+                "report_prd",
+                "respondent_id",
+                "submission_type",
+            ]
+        else:
+            assert source_ferc1 == SourceFerc1.XBRL  # nosec: B101
+            cols = self.params.rename_columns_ferc1.xbrl.columns
+            pk_cols = ["report_year", "entity_id"]
+            # Sort to avoid dependence on the ordering of rename_columns.
+            # Doing the sorting here because we have a particular ordering
+            # hard coded for the DBF primary keys.
+            pk_cols += sorted(col for col in cols if col.endswith("_axis"))
+        return pk_cols
+
+    @cache_df(key="dbf")
+    def drop_unused_original_columns_dbf(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Remove residual DBF specific column."""
+        return df
+
+    def transform_main(self, df):
+        """Standard transform_main plus.... ???!?!."""
+        df = (
+            super()
+            .transform_main(df)
+            .pipe(standardize_phone_column(columns=["contact_phone"]))
+        )
+
+        title_cols = [
+            "contact name",
+            "contact_title",
+            "attestation_name",
+            "attestation_title",
+        ]
+        for col in title_cols:
+            df[col] = df[col].str.title()
+
+        date_cols = ["attestation_date", "filing_date", "name_change_date"]
+        for col in date_cols:
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+
+        to_null = [
+            "",
+            "not applicable",
+            "na",
+            "n/a",
+            "none",
+            "no change",
+            "x",
+            "xxx",
+            "z",
+            "zzz",
+        ]
+        # Build a single regex pattern that is case insensitive
+        pattern = r"(?i)^(" + "|".join(map(re.escape, to_null)) + r")$"
+        df["prior_utility_name_ferc1"] = df["prior_utility_name_ferc1"].replace(
+            pattern, pd.NA, regex=True
+        )
+
+        # Create zip code column(s)
+        # Or use usaddress????
+        df[["zip_code", "zip_code_ext"]] = (
+            df["office_street_address"].str.strip().str.extract(r"(\d{5})(-\d{4})?$")
+        )
+        return df
+
+    # Transforms to add
+    # prior_utility_name_ferc1 --> convert None/na etc. to N/A
+    # office_street_address --> clean
+    # contact name/attestation name/attestation title/contact title --> title case
+    # phone number --> use phone cleaning method
+    # report_filing_type --> enum
+    # is migrated_data --> bool
+
+    @cache_df(key="end")
+    def transform_end(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Standardized final cleanup after the transformations are done.
+
+        Checks calculations. Enforces dataframe schema. Checks for empty dataframes and
+        null columns.
+        """
+        # df = self.reconcile_table_calculations(df).pipe(self.enforce_schema)
+        # if df.empty:
+        #     raise ValueError(f"{self.table_id.value}: Final dataframe is empty!!!")
+        # for col in df:
+        #     if df[col].isna().all():
+        #         raise ValueError(
+        #             f"{self.table_id.value}: Column {col} is entirely NULL!"
+        #         )
         return df
 
 
@@ -6114,6 +6224,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_cash_flows_sched120": CashFlowsTableTransformer,
     "core_ferc1__yearly_sales_by_rate_schedules_sched304": SalesByRateSchedulesTableTransformer,
     "core_ferc1__yearly_other_regulatory_liabilities_sched278": OtherRegulatoryLiabilitiesTableTransformer,
+    "core_ferc1__yearly_identification_certification": IdentificationCertificationTableTransformer,
 }
 
 
@@ -6159,7 +6270,7 @@ def ferc1_transform_asset_factory(
 
     table_id = TableIdFerc1(table_name)
 
-    @asset(name=table_name, ins=ins, io_manager_key=io_manager_key)
+    @asset(name=table_name, ins=ins)  # io_manager_key=io_manager_key)
     def ferc1_transform_asset(**kwargs: dict[str, pd.DataFrame]) -> pd.DataFrame:
         """Transform a FERC Form 1 table.
 
