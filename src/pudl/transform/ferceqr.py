@@ -1,6 +1,7 @@
 """Transform FERC EQR data."""
 
 from collections.abc import Callable
+from functools import reduce
 
 import dagster as dg
 import duckdb
@@ -99,6 +100,25 @@ def _parse_datetimes(col_name: str, fmt: str) -> duckdb.Expression:
     return duckdb.SQLExpression(f"TRY_STRPTIME({col_name}, '{fmt}')")
 
 
+def _replace_strings(
+    col_name: str, replace_mapping: dict[str, str]
+) -> duckdb.Expression:
+    """Return a duckdb expression to replace a substrings in a column with specified values."""
+    # Handle list of values to replace
+    to_replace, value = replace_mapping.popitem()
+    base = f"replace({col_name}, '{to_replace}', '{value}')"
+
+    return duckdb.SQLExpression(
+        reduce(
+            lambda statement, mapping: (
+                f"replace({statement}, '{mapping[0]}', '{mapping[1]}')"
+            ),
+            replace_mapping.items(),
+            base,
+        )
+    )
+
+
 @dg.asset(partitions_def=ferceqr_year_quarters)
 def core_ferceqr__quarterly_identity(
     context: dg.AssetExecutionContext, raw_ferceqr__ident: ParquetData
@@ -163,8 +183,8 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
         table_data = apply_column_transforms(
             table_data=table_data,
             columns=["product_name"],
-            transform=lambda _: duckdb.SQLExpression(
-                "replace(product_name, 'NEGOTIATED RATE TRANSMISSION', 'NEGOTIATED-RATE TRANSMISSION')"
+            transform=lambda col: _replace_strings(
+                col, {"NEGOTIATED RATE TRANSMISSION": "NEGOTIATED-RATE TRANSMISSION"}
             ),
         )
         table_data = apply_column_transforms(
@@ -179,6 +199,27 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
             table_data=table_data,
             columns=["trade_date"],
             transform=lambda col: _parse_datetimes(col, "%Y%m%d"),
+        )
+        table_data = apply_column_transforms(
+            table_data=table_data,
+            columns=["time_zone"],
+            transform=lambda col: _replace_strings(
+                col,
+                {
+                    "CDT": "CD",
+                    "CST": "CS",
+                    "CPT": "CP",
+                    "EDT": "ED",
+                    "EPT": "EP",
+                    "EST": "ES",
+                    "MDT": "MD",
+                    "MPT": "MP",
+                    "MST": "MS",
+                    "PDT": "PD",
+                    "PPT": "PP",
+                    "PST": "PS",
+                },
+            ),
         )
         table_data = rename_duckdb_columns(
             table_data,
