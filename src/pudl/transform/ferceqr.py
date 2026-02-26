@@ -31,12 +31,13 @@ def apply_duckdb_dtypes(
     """
     dtypes = Resource.from_id(table_name).to_duckdb_dtypes(conn)
 
-    # Cast columns and implicitly drop any columns not defined in the schema
+    # Cast columns
     return table_data.select(
+        duckdb.StarExpression(exclude=dtypes.keys()),
         *[
             duckdb.ColumnExpression(col).cast(dtype).alias(col)
             for col, dtype in dtypes.items()
-        ]
+        ],
     )
 
 
@@ -226,6 +227,13 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
             ["contract_affiliate"],
             _yn_to_bool,
         )
+
+        # Drop seller_history_name
+        if "seller_history_name" in table_data.columns():
+            table_data = table_data.select(
+                duckdb.StarExpression(exclude=["seller_history_name"]),
+            )
+
         # Normalize categorical string
         table_data = apply_column_transforms(
             table_data,
