@@ -10569,7 +10569,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "AS",
                     "CD",
                     "CP",
-                    "CPD",
                     "CS",
                     "ED",
                     "EP",
