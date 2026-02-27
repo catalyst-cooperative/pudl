@@ -314,3 +314,28 @@ def core_rus7__yearly_statement_of_operations(
     )
     df["is_total"] = df.opex_group.str.startswith("total_")
     return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_rus7__yearly_long_term_leases(
+    raw_rus7__long_term_leases: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the long term leases table."""
+    df = rus.early_transform(raw_df=raw_rus7__long_term_leases)
+
+    # Spot fix negative rental value that should be positive based on the same property_type
+    # reported in other years to the same borrower.
+    mask = (
+        (df.borrower_id_rus == "LA0015")
+        & (df.report_date == "2013-12-01")
+        & (df.property_type == "Tower Right-Of-Way")
+    )
+    assert len(df[mask]) == 1, (
+        "Expected exactly one record to be affected by this spot fix."
+    )
+    df.loc[mask, "rental_cost_ytd"] = abs(df.loc[mask, "rental_cost_ytd"])
+
+    # TO-DO: there are some sus rows where rental cost is 0 or all categories are NA.
+    # We could remove these?
+
+    return df

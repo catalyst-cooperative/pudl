@@ -345,8 +345,10 @@ def core_rus12__yearly_investments(
             == "Temporary Investments - Cooperative Finance Corp"
         )
     )
-    assert len(df.loc[mask]) == 1
+    assert len(df.loc[mask]) == 1, (
+        "Expected exactly one record to be affected by this spot fix."
+    )
     df.loc[mask, "investment_type_code"] = 1
 
-    # No PK in this table
+    # TO-DO: clean up property_type field
     return df

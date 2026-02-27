@@ -324,6 +324,29 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+    "core_rus7__yearly_long_term_leases": {
+        "description": {
+            "additional_summary_text": ("long term leases by property type."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part L)",
+            "additional_primary_key_text": (
+                "Borrowers may receive multiple leases ``lending agencies`` in a given year."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "lending_organization",
+                "property_type",
+                "rental_cost_ytd",
+            ]
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
     "core_rus7__yearly_patronage_capital": {
         "description": {
             "additional_summary_text": ("patronage capital distributed and received."),

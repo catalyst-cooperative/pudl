@@ -4214,6 +4214,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The cause of the leaks.",
         "constraints": {"enum": LEAK_SOURCE_PHMSAGAS},
     },
+    "lending_organization": {
+        "type": "string",
+        "description": "The organization that provided a lease.",
+    },
     "levelized_cost_of_energy_per_mwh": {
         "type": "number",
         "description": (
@@ -6170,6 +6174,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             ]
         },
     },
+    "property_type": {
+        "type": "string",
+        "description": "The type of property leased.",
+    },
     "pudl_version": {
         "type": "string",
         "description": "The version of PUDL used to generate this database.",
@@ -6330,6 +6338,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "country",
             ],
         },
+    },
+    "rental_cost_ytd": {
+        "type": "number",
+        "description": "Year-to-date rental cost for leased property.",
     },
     "has_regulatory_limits": {
         "type": "boolean",
