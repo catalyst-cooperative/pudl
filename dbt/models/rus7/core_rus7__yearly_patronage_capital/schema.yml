@@ -3,11 +3,32 @@ sources:
   - name: pudl
     tables:
       - name: core_rus7__yearly_patronage_capital
+        data_tests:
+          - expect_columns_not_all_null
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+              arguments:
+                column_A: patronage_cumulative
+                column_B: patronage_report_year
+                or_equal: True
+              config:
+                error_if: ">14"
+              description: "Some 0 cumulative values and a handful of other values causing failure. Investigate." # TODO
         columns:
           - name: report_date
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: patronage_type
           - name: patronage_report_year
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">2"
+                  description: "FL0026 and OH0071 each report one negative value. Investigate." #TODO
           - name: patronage_cumulative
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: is_total

@@ -36,7 +36,7 @@ def core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
         id_vars=idx_ish,
         value_vars=value_vars,
         var_name="asset_type",
-        value_name="balance",
+        value_name="ending_balance",
     )
     df.asset_type = df.asset_type.str.removesuffix("_assets")
     # POST-MELT
@@ -56,7 +56,7 @@ def core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
         id_vars=idx_ish,
         value_vars=value_vars,
         var_name="liability_type",
-        value_name="balance",
+        value_name="ending_balance",
     )
     df.liability_type = df.liability_type.str.removesuffix("_liabilities")
     # POST-MELT

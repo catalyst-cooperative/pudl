@@ -3,6 +3,26 @@ sources:
   - name: pudl
     tables:
       - name: core_rus12__yearly_statement_of_operations
+        data_tests:
+          - expect_columns_not_all_null
+          - expect_columns_ratio:
+              arguments:
+                numerator_column: opex_report_month
+                denominator_column: opex_ytd
+                min_ratio: .05
+                max_ratio: .2
+              config:
+                error_if: ">1900" # TODO: About 11% of data violates this - worth testing?
+              description: "Monthly spending should roughly equal 1/12 of the YTD budget (5-20% range)."
+          - expect_columns_ratio:
+              arguments:
+                numerator_column: opex_ytd
+                denominator_column: opex_ytd_budget
+                min_ratio: .75
+                max_ratio: 1.25
+              config:
+                error_if: ">2050" # TODO: About 12% of data violates this - worth testing?
+              description: "Budgeted spending and YTD spending should be roughly equivalent."
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -10,6 +30,27 @@ sources:
           - name: opex_type
           - name: opex_group
           - name: opex_report_month
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: "opex_type != 'interest_charged_to_construction_credit'"
+                  config:
+                    error_if: ">307" # TODO: ~1.8% of data violates this. Worth checking?
           - name: opex_ytd
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: "opex_type != 'interest_charged_to_construction_credit'"
+                  config:
+                    error_if: ">135" # TODO: ~0.7% of data violates this. Worth checking?
           - name: opex_ytd_budget
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: "opex_type != 'interest_charged_to_construction_credit'"
+                  config:
+                    error_if: ">43" # TODO: ~0.03% of data violates this. Worth checking?
           - name: is_total

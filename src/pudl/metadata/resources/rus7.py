@@ -51,7 +51,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "asset_type",
-                "balance",
+                "ending_balance",
                 "is_total",
             ],
             "primary_key": [
@@ -78,7 +78,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "liability_type",
-                "balance",
+                "ending_balance",
                 "is_total",
             ],
             "primary_key": [

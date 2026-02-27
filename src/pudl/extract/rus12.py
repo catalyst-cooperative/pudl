@@ -71,51 +71,52 @@ class Extractor(CsvExtractor):
 raw_rus12__all_dfs = raw_df_factory(Extractor, name="rus12")
 
 
-def raw_rus12_asset_factory(in_page: str, out_page: str | None = None):
+def raw_rus12_asset_factory(table_name: str):
     """Create raw RUS 12 asset for a specific page."""
-    out_page = in_page if out_page is None else out_page
 
-    @asset(name=f"raw_rus12__{out_page}")
+    @asset(name=f"raw_rus12__{table_name}")
     def _raw_rus12__page(raw_rus12__all_dfs: dict[str, pd.DataFrame]):
-        """Extract raw RUS 12 data from CSV sheets into dataframes.
+        """Extract raw RUS Form 12 data from CSV sheets into dataframes.
 
         Returns:
-            An extracted RUS 12 dataframe.
+            An extracted RUS Form 12 dataframe.
         """
-        return raw_rus12__all_dfs[in_page]
+        return raw_rus12__all_dfs[table_name]
 
     return _raw_rus12__page
 
 
 raw_rus12_assets = [
-    raw_rus12_asset_factory(in_page=in_page, out_page=out_page)
-    for in_page, out_page in {
-        "statement_of_operations": None,
-        "balance_sheet": None,
-        "sources_and_distribution": None,
-        "renewable_plants": None,
-        "plant_labor": None,
-        "plant_factors_and_maximum_demand": None,
-        "loans": None,
-        "long_term_debt": None,
-        "meeting_and_board": None,
-        "lines_and_stations_labor_materials": None,
-        "borrowers": None,
-        "steam_plant_operations": None,
-        "steam_plant_costs": None,
-        "hydroelectric_plant_operations": None,
-        "hydroelectric_plant_costs": None,
-        "combined_cycle_plant_operations": None,
-        "combined_cycle_plant_costs": None,
-        "internal_combustion_plant_operations": None,
-        "internal_combustion_plant_costs": None,
-        "nuclear_plant_operations": None,
-        "nuclear_plant_costs": None,
-        "demand_and_energy_at_delivery_points": None,
-        "demand_and_energy_at_power_sources": None,
-        "investments": None,
-        "loan_guarantees": None,
-        "non_utility_plant": None,
-        "ratio": None,
-    }.items()
+    raw_rus12_asset_factory(table_name=table_name)
+    for table_name in [
+        "statement_of_operations",
+        "balance_sheet",
+        "sources_and_distribution",
+        "renewable_plants",
+        "plant_labor",
+        "plant_factors_and_maximum_demand",
+        "loans",
+        "long_term_debt",
+        "meeting_and_board",
+        "lines_and_stations_labor_materials",
+        "borrowers",
+        "steam_plant_operations",
+        "steam_plant_costs",
+        "hydroelectric_plant_operations",
+        "hydroelectric_plant_costs",
+        "combined_cycle_plant_operations",
+        "combined_cycle_plant_costs",
+        "internal_combustion_plant_operations",
+        "internal_combustion_plant_costs",
+        "nuclear_plant_operations",
+        "nuclear_plant_costs",
+        "demand_and_energy_at_delivery_points",
+        "demand_and_energy_at_power_sources",
+        "investments",
+        "loan_guarantees",
+        "non_utility_plant",
+        "ratio",
+        "utility_plant",
+        "utility_plant_accumulated_depreciation",
+    ]
 ]

@@ -153,6 +153,7 @@ html_theme_options = {
         "color-announcement-background": "yellow",
         "color-announcement-text": "red",
     },
+    "announcement": '<b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b>',
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -191,6 +192,8 @@ INCLUDED_SOURCES = [
     "epacems",
     "epacamd_eia",
     "phmsagas",
+    "rus12",
+    "rus7",
     "sec10k",
     "gridpathratoolkit",
     "nrelatb",

@@ -3,6 +3,8 @@ sources:
   - name: pudl
     tables:
       - name: core_rus7__codes_investment_types
+        data_tests:
+          - expect_columns_not_all_null
         columns:
           - name: code
           - name: description

@@ -5,15 +5,46 @@ sources:
       - name: core_rus7__yearly_meeting_and_board
         data_tests:
           - expect_columns_not_all_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "date_trunc('month', report_date) >= date_trunc('month', last_annual_meeting_date)"
+              config:
+                error_if: ">7"
+              description: "Some utilities report meetings after the date range of the filing." #TODO
+          - expect_summed_columns_not_exceed_threshold:
+              arguments:
+                column_a: members_present_at_meeting_num
+                column_b: members_voting_by_proxy_or_mail_num
+                threshold_column: members_num
+                multiplier: 1
+              config:
+                error_if: ">2"
+              description: "MO0066 reports two bad values for 2020 and 2021." #TODO
         columns:
           - name: report_date
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: last_annual_meeting_date
           - name: members_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: members_present_at_meeting_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: was_quorum_present
           - name: members_voting_by_proxy_or_mail_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: board_members_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: fees_and_expenses_for_board_members
           - name: does_manager_have_written_contract
