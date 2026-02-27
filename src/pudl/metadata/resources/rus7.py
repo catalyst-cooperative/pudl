@@ -259,8 +259,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "categories reported on this Part correspond to Balance Sheet items in Part C."
             ),
             "additional_primary_key_text": (
-                "This table has no native primary key. It is a list of all investments or loan "
-                "in each year and borrowers can have multiple records with the same ``investment_description``."
+                "This is a list of all investments or loans in each year and borrowers can have "
+                "multiple records with the same ``investment_description``."
             ),
         },
         "schema": {
