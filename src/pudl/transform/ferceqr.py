@@ -1,7 +1,6 @@
 """Transform FERC EQR data."""
 
 from collections.abc import Callable
-from functools import reduce
 
 import dagster as dg
 import duckdb
@@ -104,19 +103,11 @@ def _replace_strings(
     col_name: str, replace_mapping: dict[str, str]
 ) -> duckdb.Expression:
     """Return a duckdb expression to replace a substrings in a column with specified values."""
-    # Handle list of values to replace
-    to_replace, value = replace_mapping.popitem()
-    base = f"replace({col_name}, '{to_replace}', '{value}')"
-
-    return duckdb.SQLExpression(
-        reduce(
-            lambda statement, mapping: (
-                f"replace({statement}, '{mapping[0]}', '{mapping[1]}')"
-            ),
-            replace_mapping.items(),
-            base,
-        )
+    when_clauses = " ".join(
+        f"WHEN {col_name} = '{to_replace}' THEN '{value}'"
+        for to_replace, value in replace_mapping.items()
     )
+    return duckdb.SQLExpression(f"CASE {when_clauses} ELSE {col_name} END")
 
 
 @dg.asset(partitions_def=ferceqr_year_quarters)
