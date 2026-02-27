@@ -377,6 +377,26 @@ RESOURCE_METADATA = {
     },
 }
 
+PLANT_OPERATIONS_DETAIL = (
+    "The data in this table comes from five different portions of RUS 12 "
+    "corresponding to different plant types (steam, hydroelectric, "
+    "combined_cycle, internal_combustion and nuclear). The original form "
+    "combines plant operations data for each plant type with records corresponding "
+    "to the portion of plants that borrowers own as well as the whole plant. "
+    "Records that are wholly owned by one borrower show up in both "
+    ":ref:`core_rus12__yearly_plant_operations_by_borrower` and "
+    ":ref:`core_rus12__yearly_plant_operations_by_plant`.\n\n"
+    "There are two boolean columns used to delineate which records are associated "
+    "with the borrowers' share vs the whole plant - which is documented in "
+    "``_OR_PowerSupply Plant File Documentation.rtf`` in the newer years in the "
+    "RUS 12 archive. One of these two fields - ``is_partly_owned_by_borrower`` - "
+    "was not reported before 2009. For the pre-2009 years, we assume that all records "
+    "that report TRUE for is_full_ownership_portion should end up in the by-plant table "
+    "while all records should end up in the by-borrower portion of the table."
+    "Like the post-2009 records, this involves records from the original tables ending "
+    "up in both of these PUDL tables."
+)
+
 DRAFT_RESOURCE_METADATA = {
     "core_rus12__yearly_plant_costs": {
         "description": {
@@ -413,17 +433,76 @@ DRAFT_RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_plant_operations": {
+    "core_rus12__yearly_plant_operations_by_borrower": {
         "description": {
             "additional_summary_text": (
-                "plant operational data including fuel consumption and operational hours by unit."
+                "borrower portion of plant operational data including fuel consumption and operational hours."
             ),
             "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part )",
+            "additional_source_text": "(Part D, E, F & G - Section A)",
             "additional_primary_key_text": (
                 "This table has no primary key because there are a handful of plants that "
                 "have duplicate records. The primary key of this table "
-                "otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`,`is_fully_owned_by_borrower`]."
+                "otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`, `is_full_ownership_portion`, `is_partly_owned_by_borrower`]."
+            ),
+            "additional_details_text": PLANT_OPERATIONS_DETAIL,
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "plant_name_rus",
+                "unit_id_rus",
+                "plant_type",
+                "capacity_kw",
+                "gross_generation_mwh",
+                "borrower_ownership_pct",
+                "is_full_ownership_portion",
+                "is_partly_owned_by_borrower",  # was not reported till 2009
+                "fuel_consumption_coal_lbs",
+                "fuel_consumption_gas_cubic_feet",
+                "fuel_consumption_oil_gals",
+                "fuel_consumption_other",
+                "operating_hours_in_service",
+                "operating_hours_on_standby",
+                "operating_hours_out_of_service_scheduled",
+                "operating_hours_out_of_service_unscheduled",
+                "times_started",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_plant_operations_by_plant": {
+        "description": {
+            "additional_summary_text": (
+                "whole plant operational data including fuel consumption and operational hours."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part D, E, F (CC), F (IC) & G - Section A)",
+            "additional_primary_key_text": (
+                "This table has no primary key because there are a handful of plants that "
+                "have duplicate records. The primary key of this table "
+                "otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`, `is_full_ownership_portion`, `is_partly_owned_by_borrower`]."
+            ),
+            "additional_details_text": (
+                f"{PLANT_OPERATIONS_DETAIL}.\n\nRUS instructions copied verbatim below include "
+                "information about how to link records from this table with records from "
+                ":ref:`core_rus12__yearly_plant_labor` and forthcoming "
+                "``core_rus12__yearly_plant_factors_and_maximum_demand``. From RUS documentation:"
+                "\n\n"
+                "This data is for the total plant and does not contain any data for the "
+                "Borrower’s Share; this data can be  matched up with the data in the "
+                "following two files (where “YYYY” is the data year) that contain data for "
+                "Sections B and C for all plants; however you should use caution when using "
+                "total plant data since there are cases where more than one Borrower shares "
+                "units at the same plant which means that you will be getting duplicate plant "
+                "total records (and there is no guarantee that the total plant records entered "
+                "by two borrowers for the same plant will be identical):\n\n"
+                "OpRpt_PS_YYYY__US_dg_B_OpRpt_PSOperatingReportPlantLabor.csv\n"
+                "OpRpt_PS_YYYY__US_dg_C_OpRpt_PSOperatingReportPlantFactorsAndMaxDemand.csv"
             ),
         },
         "schema": {
@@ -437,7 +516,6 @@ DRAFT_RESOURCE_METADATA = {
                 "capacity_kw",
                 "gross_generation_mwh",
                 "borrower_ownership_pct",
-                "is_fully_owned_by_borrower",
                 "is_partly_owned_by_borrower",  # was not reported till 2009
                 "fuel_consumption_coal_lbs",
                 "fuel_consumption_gas_cubic_feet",
