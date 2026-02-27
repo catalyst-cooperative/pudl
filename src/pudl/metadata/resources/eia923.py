@@ -222,6 +222,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": merge_descriptions(
             TABLE_DESCRIPTIONS["core_eia923__monthly_boiler_fuel"],
             {
+                "table_type_code": "timeseries",
+                "timeseries_resolution_code": "monthly",
                 "additional_details_text": inherits_harvested_values_details(
                     "plants and utilities"
                 ),
@@ -574,6 +576,8 @@ is for those supplies."""
         "description": merge_descriptions(
             TABLE_DESCRIPTIONS["core_eia923__monthly_generation"],
             {
+                "table_type_code": "timeseries",
+                "timeseries_resolution_code": "monthly",
                 "additional_details_text": inherits_harvested_values_details(
                     "plants and utilities"
                 ),
@@ -694,6 +698,8 @@ is for those supplies."""
         "description": merge_descriptions(
             TABLE_DESCRIPTIONS["generation_fuel_combined_eia923"],
             {
+                "table_type_code": "timeseries",
+                "timeseries_resolution_code": "monthly",
                 "additional_details_text": inherits_harvested_values_details(
                     "plants and utilities"
                 ),
