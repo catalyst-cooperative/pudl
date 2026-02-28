@@ -191,14 +191,19 @@ CENSUS_DP1_DEMOGRAPHIC_COLUMNS = [
     "dp0230002",
 ]
 
+CENSUS_CAVEAT = (
+    "Based on the 2010 Census. Used "
+    "as a convenient source of geospatial information within PUDL, but should "
+    "not be treated as authoritative."
+)
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "out_censusdp1tract__states": {
-        "description": (
-            "State-level summarized US Census demographic information, along with "
-            "a geometry describing state boundaries. Based on the 2010 Census. Used "
-            "as a convenient source of geospatial information within PUDL, but should "
-            "not be treated as authoritative."
-        ),
+        "description": {
+            "additional_summary_text": "State-level summarized US Census demographic information, along with a geometry describing state boundaries.",
+            "additional_details_text": CENSUS_CAVEAT,
+            "usage_warnings": ["discontinued_data"],
+        },
         "schema": {
             "fields": [
                 "state_id_fips",
@@ -221,12 +226,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "create_database_schema": False,
     },
     "out_censusdp1tract__counties": {
-        "description": (
-            "County-level summarized US Census demographic information, along with "
-            "a geometry describing county boundaries. Based on the 2010 Census. Used "
-            "as a convenient source of geospatial information within PUDL, but should "
-            "not be treated as authoritative."
-        ),
+        "description": {
+            "additional_summary_text": "County-level summarized US Census demographic information, along with a geometry describing county boundaries.",
+            "additional_details_text": CENSUS_CAVEAT,
+            "usage_warnings": ["discontinued_data"],
+        },
         "schema": {
             "fields": [
                 "county_id_fips",
@@ -249,12 +253,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "create_database_schema": False,
     },
     "out_censusdp1tract__tracts": {
-        "description": (
-            "Census tract-level summarized US Census demographic information, along "
-            "with a geometry describing tract boundaries. Based on the 2010 Census. "
-            "Used as a convenient source of geospatial information within PUDL, but "
-            "should not be treated as authoritative."
-        ),
+        "description": {
+            "additional_summary_text": "Census tract-level summarized US Census demographic information, along with a geometry describing tract boundaries.",
+            "additional_details_text": CENSUS_CAVEAT,
+            "usage_warnings": ["discontinued_data"],
+        },
         "schema": {
             "fields": [
                 "tract_id_fips",
