@@ -1,0 +1,55 @@
+{% extends "data_source_parent.rst.jinja" %}
+{% block database_text %}
+{% endblock %}
+
+{% block background %}
+The United States Department of Agriculture (USDA) Rural Utilities Service (RUS)
+`Form 7 <https://www.rd.usda.gov/resources/forms/rus-forms>`__, now known as
+the **Financial and Operating Report - Distribution**, collects detailed annual financial
+and operational data about rural electric distribution utilities. The form was created to
+provide financial oversight to loan officers lending money to rural cooperatives. RUS
+does not publish the responses to these forms it collects - this data was obtained by
+submitting annual FOIA requests. The resulting data provides financial and operational
+insight into utilities that are otherwise excluded from the FERC Form 1 filings due to
+their limited service territory, lack of wholesale power sales subject to federal
+jurisdiction, and classification as non-public utilities.
+
+{% endblock %}
+
+{% block download_docs %}
+{% for filename in download_paths -%}
+* :download:`{{ filename.stem.replace("_", " ").title() }} ({{ filename.suffix.replace('.', '').upper() }}) <{{ filename }}>`
+{% endfor %}
+{% endblock %}
+
+{% block availability_title %}
+What data is available through PUDL?
+------------------------------------
+{% endblock %}
+{% block availability %}
+We've integrated all RUS 12 tables with the exception of six totals tables
+containing aggregated versions of values present in other tables.
+
+{% endblock %}
+
+{% block respondents_title %}
+Who is required to fill out the form?
+-------------------------------------
+{% endblock %}
+{% block respondents %}
+RUS-7 is completed by rural electric distribution utilities that receive loans or financial support
+from the USDA Rural Utilities Service (RUS) program.
+{% endblock %}
+
+{% block original_data_title %}
+What does the original data look like?
+--------------------------------------
+{% endblock %}
+{% block original_data %}
+The raw data are accessed via FOIA request and are formatted as a collection of
+annualized CSVs. Each file in the collection corresponds to a different part of
+the original form.
+{% endblock %}
+
+{% block notable_irregularities %}
+{% endblock %}
