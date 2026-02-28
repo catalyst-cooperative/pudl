@@ -2,11 +2,120 @@
 name: deploy-pudl
 on:
   workflow_dispatch:
+    # inputs: deploy target (nightly/stable), staging or not, GCS build location (bucket is mounted to batch job with gcsfuse)
+    inputs:
+      deploy_target:
+        description: "Deploy target (nightly/stable)"
+        required: true
+        type: choice
+        options:
+          - nightly
+          - stable
+      git_tag:
+        description: "Git tag to merge into nightly/stable branch and trigger Zenodo workflow for"
+        required: true
+        type: string
+      docker_tag:
+        description: "Dockerhub tag name"
+        type: string
+      gcs_build_location:
+        description: "GCS build path within bucket - 'builds.catalyst.coop/xxxx', no trailing slash"
+        required: true
+        type: string
+      staging:
+        description: "Deploy to staging environment?"
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   deploy_pudl:
-    name: Deploy PUDL build
+    permissions:
+      contents: write
+      id-token: write
+    name: Deploy PUDL build from GCS bucket
     runs-on: ubuntu-latest
     steps:
-      - name: stub
-        run: echo 'stub'
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Docker Metadata
+        id: docker_metadata
+        if: ${{ inputs.docker_tag == '' }}
+        uses: docker/metadata-action@v5
+        with:
+          images: catalystcoop/pudl-etl
+          flavor: |
+            latest=auto
+          tags: |
+            type=raw,value=${{ github.ref_name }}
+            type=ref,event=tag
+
+      - name: Set up Docker Buildx
+        if: ${{ inputs.docker_tag == '' }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        if: ${{ inputs.docker_tag == '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image and push to Docker Hub
+        id: docker_build
+        if: ${{ inputs.docker_tag == '' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: ${{ steps.docker_metadata.outputs.tags }}
+          labels: ${{ steps.docker_metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Determine container image to use
+        id: container-image
+        run: |
+          if [ -n "${{ inputs.docker_tag }}" ]; then
+            echo "image=docker.io/catalystcoop/pudl-etl:${{ inputs.docker_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "image=docker.io/catalystcoop/pudl-etl@${{ steps.docker_build.outputs.digest }}" >> $GITHUB_OUTPUT
+          fi
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "deploy-pudl-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Make GCP Batch config file
+        run: |-
+          ./devtools/generate_batch_config.py \
+            --container-image "${{ steps.container-image.outputs.image }}" \
+            --container-command "pixi" \
+            --container-arg="run" \
+            --container-arg="pudl_deploy" \
+            --container-arg="${{ inputs.deploy_target }}" \
+            --container-arg="gs://${{ inputs.gcs_build_location }}/*" \
+            --container-arg="--git-tag" \
+            --container-arg="${{ inputs.git_tag }}" \
+            --container-arg="--github-token" \
+            --container-arg=${{ secrets.PUDL_BOT_PAT }} \
+            --container-arg="--staging" \
+            --container-arg="${{ inputs.staging }}" \
+            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            --mem-gb=16 \
+            --disk-gb=100 \
+            --output batch_job.json
+
+      - name: Kick off batch job
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: gcloud batch jobs submit deploy-outputs-${{ github.run_id }}-${{ github.run_attempt }} --config batch_job.json --location us-east1
