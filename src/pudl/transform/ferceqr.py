@@ -1,4 +1,26 @@
-"""Transform FERC EQR data."""
+"""Transform FERC Electric Quarterly Report (EQR) data.
+
+This module implements the transformation stage of the PUDL pipeline for FERC EQR data.
+Raw EQR data is ingested as quarterly-partitioned Apache Parquet files and transformed
+into clean, typed core tables that are written back out as Parquet.
+
+The module is structured in two layers:
+
+Reusable DuckDB transformation helpers operate on :class:`duckdb.DuckDBPyRelation`
+objects and are composed together inside each Dagster asset definition.
+
+Private expression factory functions that accept a column name (and optional parameters)
+and return a :class:`duckdb.Expression` suitable for use inside
+:func:`apply_column_transforms`.
+
+Dagster assets apply these helpers to produce four core FERC EQR tables, each of which
+is partitioned by ``year_quarter``:
+
+- :ref:`core_ferceqr__quarterly_identity`
+- :ref:`core_ferceqr__transactions`
+- :ref:`core_ferceqr__contracts`
+- :ref:`core_ferceqr__quarterly_index_pub`
+"""
 
 from collections.abc import Callable
 
@@ -22,12 +44,16 @@ def apply_duckdb_dtypes(
     table_name: str,
     conn: duckdb.DuckDBPyConnection,
 ):
-    """Cast columns to dtype as defined in schema.
+    """Cast each column to the dtype declared in the PUDL metadata schema for the table.
+
+    Column types are looked up from the :class:`pudl.metadata.classes.Resource` for
+    ``table_name``. Any custom enum types required by the schema are created in ``conn``
+    before the cast is applied.
 
     Args:
-        table_data: Duckdb table to transform.
-        table_name: Name of table.
-        conn: Connection to duckdb database, which is required to create custom enum types.
+        table_data: DuckDB relation whose columns will be cast.
+        table_name: PUDL table name used to look up the schema from the metadata.
+        conn: DuckDB connection used to register custom enum types as needed.
     """
     dtypes = Resource.from_id(table_name).to_duckdb_dtypes(conn)
 
@@ -44,11 +70,11 @@ def apply_duckdb_dtypes(
 def rename_duckdb_columns(
     table_data: duckdb.DuckDBPyRelation, mapping: dict[str, str]
 ) -> duckdb.DuckDBPyRelation:
-    """Rename columns of a duckdb table relation and return.
+    """Rename one or more columns in a DuckDB relation, passing all others through unchanged.
 
     Args:
-        table_data: Duckdb table to transform.
-        mapping: Maps column names to new names
+        table_data: DuckDB relation containing the columns to rename.
+        mapping: Maps existing column names to their new names.
     """
     return table_data.select(
         duckdb.StarExpression(exclude=mapping.keys()),
@@ -64,13 +90,17 @@ def apply_column_transforms(
     columns: list[str],
     transform: Callable[[str], duckdb.Expression],
 ) -> duckdb.DuckDBPyRelation:
-    """Apply a single transformation to a set of columns in a duckdb table.
+    """Apply a DuckDB expression factory to a set of columns, replacing each in place.
+
+    The ``transform`` callable is invoked once per column name and must return a
+    :class:`duckdb.Expression` whose result will be aliased back to the original column
+    name. All columns not listed in *columns* are passed through unchanged.
 
     Args:
-        table_data: Duckdb table to transform.
-        columns: List of columns to apply transform to.
-        transform: Callable which expects a column name and returns an Expression
-            defining the transform.
+        table_data: DuckDB relation containing the columns to transform.
+        columns: Names of the columns to which ``transform`` will be applied.
+        transform: Callable that accepts a column name and returns a DuckDB Expression
+            defining the transformation for that column.
     """
     return table_data.select(
         duckdb.StarExpression(exclude=columns),
@@ -78,7 +108,12 @@ def apply_column_transforms(
     )
 
 
-def _yn_to_bool(col: str):
+def _yn_to_bool(col: str) -> duckdb.Expression:
+    """Return a DuckDB expression that converts ``'Y'``/``'N'`` strings to booleans.
+
+    The comparison is case-insensitive. Any value other than ``'Y'`` or ``'N'`` is
+    mapped to ``NULL``.
+    """
     return duckdb.SQLExpression(f"""
 CASE
     WHEN UPPER({col}) = 'Y' THEN TRUE
@@ -88,21 +123,39 @@ END""")
 
 
 def _na_to_null(col_name: str) -> duckdb.Expression:
-    """Convert string NA values to NULL."""
+    """Return a DuckDB expression that converts ``'N/A'`` or ``'NA'`` strings to NULL.
+
+    The comparison is case-insensitive. All other values are uppercased and returned
+    unchanged.
+    """
     return duckdb.SQLExpression(
         f"CASE WHEN UPPER({col_name}) IN ('N/A', 'NA') THEN NULL ELSE UPPER({col_name}) END"
     )
 
 
 def _parse_datetimes(col_name: str, fmt: str) -> duckdb.Expression:
-    """Return a duckdb expression to parse datetimes from strings."""
+    """Return a DuckDB expression that parses a datetime string column using ``fmt``.
+
+    Uses DuckDB's ``TRY_STRPTIME``, so values that cannot be parsed return ``NULL``
+    rather than raising an error.
+    """
     return duckdb.SQLExpression(f"TRY_STRPTIME({col_name}, '{fmt}')")
 
 
-def _replace_strings(
+def _recode_categoricals(
     col_name: str, replace_mapping: dict[str, str]
 ) -> duckdb.Expression:
-    """Return a duckdb expression to replace a substrings in a column with specified values."""
+    """Return a DuckDB expression that replaces exact categorical values in a column.
+
+    Generates a ``CASE WHEN`` expression with one equality branch per entry in
+    ``replace_mapping``. Keys not in the mapping are passed through unchanged via the
+    ``ELSE`` clause.
+
+    Args:
+        col_name: Name of the DuckDB column whose values will be recoded.
+        replace_mapping: Maps each observed bad value (key) to its correct
+            canonical replacement (value).
+    """
     when_clauses = " ".join(
         f"WHEN {col_name} = '{to_replace}' THEN '{value}'"
         for to_replace, value in replace_mapping.items()
@@ -114,7 +167,7 @@ def _replace_strings(
 def core_ferceqr__quarterly_identity(
     context: dg.AssetExecutionContext, raw_ferceqr__ident: ParquetData
 ):
-    """Apply data types to EQR ident table."""
+    """Transform the raw FERC EQR filer identity table."""
     year_quarter = context.partition_key
     logger.info(f"Transforming ferceqr identity table for {year_quarter}")
     table_name = "core_ferceqr__quarterly_identity"
@@ -147,7 +200,7 @@ def core_ferceqr__quarterly_identity(
     partitions_def=ferceqr_year_quarters,
 )
 def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
-    """Perform basic transforms on transactions table table."""
+    """Transform the raw FERC EQR electricity transactions table."""
     year_quarter = context.partition_key
     logger.info(f"Transforming ferceqr transactions table for {year_quarter}")
     table_name = "core_ferceqr__transactions"
@@ -174,7 +227,7 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
         table_data = apply_column_transforms(
             table_data=table_data,
             columns=["product_name"],
-            transform=lambda col: _replace_strings(
+            transform=lambda col: _recode_categoricals(
                 col, {"NEGOTIATED RATE TRANSMISSION": "NEGOTIATED-RATE TRANSMISSION"}
             ),
         )
@@ -194,7 +247,7 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
         table_data = apply_column_transforms(
             table_data=table_data,
             columns=["time_zone"],
-            transform=lambda col: _replace_strings(
+            transform=lambda col: _recode_categoricals(
                 col,
                 {
                     "CDT": "CD",
@@ -232,7 +285,7 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
 
 @dg.asset(partitions_def=ferceqr_year_quarters)
 def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
-    """Perform basic transforms on contracts table table."""
+    """Transform the raw FERC EQR electricity contracts table."""
     year_quarter = context.partition_key
     logger.info(f"Transforming ferceqr contracts table for {year_quarter}")
     table_name = "core_ferceqr__contracts"
@@ -313,7 +366,7 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
 
 @dg.asset(partitions_def=ferceqr_year_quarters)
 def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetData):
-    """Perform basic transforms on indexPub table table."""
+    """Transform the raw FERC EQR index price publisher table."""
     year_quarter = context.partition_key
     logger.info(f"Transforming ferceqr indexPub table for {year_quarter}")
     table_name = "core_ferceqr__quarterly_index_pub"
