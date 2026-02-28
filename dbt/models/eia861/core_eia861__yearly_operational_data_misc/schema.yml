@@ -4,7 +4,11 @@ sources:
     tables:
       - name: core_eia861__yearly_operational_data_misc
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              arguments:
+                row_conditions:
+                  consumed_by_facility_mwh: EXTRACT(year FROM report_date) <= 2003
+                  short_form: EXTRACT(year FROM report_date) = 2019
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia861__yearly_operational_data_misc

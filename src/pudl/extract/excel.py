@@ -8,6 +8,7 @@ import pandas as pd
 
 import pudl
 from pudl.extract.extractor import GenericExtractor, GenericMetadata, PartitionSelection
+from pudl.workspace.datastore import Datastore
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -126,11 +127,11 @@ class ExcelExtractor(GenericExtractor):
 
     METADATA: ExcelMetadata = None
 
-    def __init__(self, ds):
+    def __init__(self, ds: Datastore):
         """Create new extractor object and load metadata.
 
         Args:
-            ds (datastore.Datastore): An initialized datastore, or subclass
+            ds: An initialized PUDL datastore, or subclass thereof.
         """
         super().__init__(ds)
         self._metadata = self.METADATA
