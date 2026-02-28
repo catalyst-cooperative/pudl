@@ -638,12 +638,22 @@ class Field(PudlMeta):
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    def to_duckdb_dtype(self) -> duckdb.sqltypes.DuckDBPyType:
+    def to_duckdb_dtype(
+        self, conn: duckdb.DuckDBPyConnection
+    ) -> duckdb.sqltypes.DuckDBPyType:
         """Return duckdb data type."""
+        if self.constraints.enum:
+            quoted_enum = [f"'{val}'" for val in self.constraints.enum]
+            conn.execute(
+                f"CREATE TYPE {self.name}_type as ENUM ({','.join(quoted_enum)})"
+            )
+            return conn.dtype(f"{self.name}_type")
         return FIELD_DTYPES_DUCKDB[self.type]
 
     def to_polars_dtype(self) -> pl.DataType:
         """Return polars data type."""
+        if self.constraints.enum:
+            return pl.Enum(self.constraints.enum)
         return FIELD_DTYPES_POLARS[self.type]
 
     def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
@@ -1716,9 +1726,11 @@ class Resource(PudlMeta):
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
 
-    def to_duckdb_dtypes(self) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
+    def to_duckdb_dtypes(
+        self, conn: duckdb.DuckDBPyConnection
+    ) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
         """Return Polars data type of each field by field name."""
-        return {f.name: f.to_duckdb_dtype() for f in self.schema.fields}
+        return {f.name: f.to_duckdb_dtype(conn) for f in self.schema.fields}
 
     def to_polars_dtypes(self) -> dict[str, pl.DataType]:
         """Return Polars data type of each field by field name."""
