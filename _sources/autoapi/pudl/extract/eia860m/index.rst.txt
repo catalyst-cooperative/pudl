@@ -1,0 +1,108 @@
+pudl.extract.eia860m
+====================
+
+.. py:module:: pudl.extract.eia860m
+
+.. autoapi-nested-parse::
+
+   Retrieve data from EIA Form 860M spreadsheets for analysis.
+
+   This modules pulls data from EIA's published Excel spreadsheets.
+
+   This code is for use analyzing EIA Form 860M data. EIA 860M is only used in
+   conjunction with EIA 860. This module both extracts EIA 860M and appends
+   the extracted EIA 860M dataframes to the extracted EIA 860 dataframes. Example
+   setup with pre-generated `eia860_raw_dfs` and datastore as `ds`:
+
+   eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
+       Eia860Settings.eia860m_date)
+   eia860_raw_dfs = pudl.extract.eia860m.append_eia860m(
+       eia860_raw_dfs=eia860_raw_dfs, eia860m_raw_dfs=eia860m_raw_dfs)
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.eia860m.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.eia860m.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.eia860m.append_eia860m
+   pudl.extract.eia860m.raw_eia860m__all_dfs
+   pudl.extract.eia860m.extract_eia860m
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.excel.ExcelExtractor`
+
+
+   Extractor for the excel dataset EIA860M.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: cols_added
+      :value: []
+
+
+
+   .. py:method:: process_raw(df, page, **partition)
+
+      Adds source column and report_year column if missing.
+
+
+
+   .. py:method:: get_dtypes(page, **partition)
+      :staticmethod:
+
+
+      Returns dtypes for plant id columns.
+
+
+
+.. py:function:: append_eia860m(eia860_raw_dfs: dict[str, pandas.DataFrame], eia860m_raw_dfs: dict[str, pandas.DataFrame]) -> dict[str, pandas.DataFrame]
+
+   Append EIA 860M to EIA860 data.
+
+   :param eia860_raw_dfs: EIA 860 raw tables. Result of
+                          :meth:`pudl.extract.eia860.Extractor.extract`
+   :param eia860m_raw_dfs: EIA 860M raw tables. Result of :meth:`Extractor.extract`
+
+   :returns: Augmented version of eia860_raw_dfs. Each raw page stored in eia860m_raw_dfs
+             appended to its eia860_raw_dfs counterpart.
+
+
+.. py:function:: raw_eia860m__all_dfs(context)
+
+   Extract raw EIA 860M data from excel sheets into dict of dataframes.
+
+
+.. py:function:: extract_eia860m(raw_eia860m__all_dfs: dict[str, pandas.DataFrame])
+
+   Extract raw EIA data from excel sheets into dataframes.
+
+

@@ -1,0 +1,145 @@
+===========================================================================================
+USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.rd.usda.gov/resources/forms/rus-forms
+   * - Source Description
+     - The United States Department of Agriculture (USDA) Financial and Operating Report for Electric Power Supply (formerly known as Form 12) is an annual report submitted by rural electric utilities that receive funding from the USDA Rural Utilities Service (RUS) for power supply (generation). This data was obtained through multiple Freedom of Information Access (FOIA) requests.
+   * - Respondents
+     - Rural electric utilities borrowing from USDA RUS.
+   * - Source Format
+     - Comma Separated Value (.csv)
+   * - Download Size
+     - 13 MB
+   * - Temporal Coverage
+     - 2006-2021
+   * - PUDL Code
+     - ``rus12``
+   * - Unprocessed Source Data Archive
+     - `10.5281/zenodo.18315222 <https://doi.org/10.5281/zenodo.18315222>`__
+   * - Issues
+     - `Open USDA RUS Form 12 -- Financial and Operating Report: Electric Power Supply issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Arus12>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_rus12__scd_borrowers`
+     - https://data.catalyst.coop/search?q=name:core_rus12__scd_borrowers
+   
+   * - :ref:`core_rus12__yearly_balance_sheet_assets`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_balance_sheet_assets
+   
+   * - :ref:`core_rus12__yearly_balance_sheet_liabilities`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_balance_sheet_liabilities
+   
+   * - :ref:`core_rus12__yearly_lines_stations_labor_materials_cost`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_lines_stations_labor_materials_cost
+   
+   * - :ref:`core_rus12__yearly_loans`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_loans
+   
+   * - :ref:`core_rus12__yearly_long_term_debt`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_long_term_debt
+   
+   * - :ref:`core_rus12__yearly_meeting_and_board`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_meeting_and_board
+   
+   * - :ref:`core_rus12__yearly_plant_labor`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_plant_labor
+   
+   * - :ref:`core_rus12__yearly_renewable_plants`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_renewable_plants
+   
+   * - :ref:`core_rus12__yearly_sources_and_distribution`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_sources_and_distribution
+   
+   * - :ref:`core_rus12__yearly_sources_and_distribution_by_plant_type`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_sources_and_distribution_by_plant_type
+   
+   * - :ref:`core_rus12__yearly_statement_of_operations`
+     - https://data.catalyst.coop/search?q=name:core_rus12__yearly_statement_of_operations
+   
+
+
+Background
+^^^^^^^^^^
+
+The United States Department of Agriculture (USDA) Rural Utilities Service (RUS)
+`Form 12 <https://www.rd.usda.gov/resources/forms/rus-forms>`__, now known as
+the **Financial and Operating Report - Power Supply**, collects detailed annual financial
+and operational data about rural electric distribution utilities. The form was created to
+provide financial oversight to loan officers lending money to rural cooperatives. RUS
+does not publish the responses to these forms it collects - this data was obtained by
+submitting annual FOIA requests. The resulting data provides financial and operational
+insight into utilities that are otherwise excluded from the FERC Form 1 filings due to
+their limited service territory, lack of wholesale power sales subject to federal
+jurisdiction, and classification as non-public utilities.
+
+
+
+
+Download additional documentation
+---------------------------------
+
+
+* :download:`Rus12 Blank 2010 (PDF) <rus12/rus12_blank_2010.pdf>`
+* :download:`Rus12 Blank 2013 (PDF) <rus12/rus12_blank_2013.pdf>`
+* :download:`Uep Bulletin 1717B-3 2006-05-17 (PDF) <rus12/uep_bulletin_1717B-3_2006-05-17.pdf>`
+
+
+
+
+What data is available through PUDL?
+------------------------------------
+
+
+We've integrated all RUS 12 tables with the exception of eight totals
+tables containing aggregated versions of values present in other tables.
+
+
+
+
+Who is required to fill out the form?
+-------------------------------------
+
+
+RUS-12 is completed by rural electric cooperatives that generate or purchase power for
+distribution and receive loans or financial support from the USDA Rural Utilities
+Service (RUS) program.
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+The raw data are accessed via FOIA request and are formatted as a collection of
+annualized CSVs. Each file in the collection corresponds to a different part of
+the original form.
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.rus12` created for each table's
+respective transform function.

@@ -1,0 +1,81 @@
+pudl.extract.xbrl
+=================
+
+.. py:module:: pudl.extract.xbrl
+
+.. autoapi-nested-parse::
+
+   Generic extractor for all FERC XBRL data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.xbrl.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.xbrl.FercXbrlDatastore
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.xbrl.xbrl2sqlite_op_factory
+   pudl.extract.xbrl.convert_form
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: FercXbrlDatastore(datastore: pudl.workspace.datastore.Datastore)
+
+   Simple datastore wrapper for accessing ferc1 xbrl resources.
+
+
+   .. py:attribute:: datastore
+
+
+   .. py:method:: get_taxonomy(form: pudl.settings.XbrlFormNumber) -> tuple[io.BytesIO, str]
+
+      Returns the path to the taxonomy entry point within the an archive.
+
+
+
+   .. py:method:: get_filings(year: int, form: pudl.settings.XbrlFormNumber) -> io.BytesIO
+
+      Return the corresponding archive full of XBRL filings.
+
+
+
+.. py:function:: xbrl2sqlite_op_factory(form: pudl.settings.XbrlFormNumber) -> collections.abc.Callable
+
+   Generates xbrl2sqlite op for a given FERC form.
+
+
+.. py:function:: convert_form(form_settings: pudl.settings.FercGenericXbrlToSqliteSettings, form: pudl.settings.XbrlFormNumber, datastore: FercXbrlDatastore, output_path: pathlib.Path, sqlite_path: pathlib.Path, duckdb_path: pathlib.Path, batch_size: int | None = None, workers: int | None = None) -> None
+
+   Clone a single FERC XBRL form to SQLite.
+
+   :param form_settings: Validated settings for converting the desired XBRL form to SQLite.
+   :param form: FERC form number.
+   :param datastore: Instance of a FERC XBRL datastore for retrieving data.
+   :param output_path: PUDL output directory
+   :param sql_path: path to the SQLite DB we'd like to write to.
+   :param batch_size: Number of XBRL filings to process in a single CPU process.
+   :param workers: Number of CPU processes to create for processing XBRL filings.
+
+   :returns: None
+
+

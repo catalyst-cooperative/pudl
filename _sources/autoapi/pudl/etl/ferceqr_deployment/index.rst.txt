@@ -1,0 +1,108 @@
+pudl.etl.ferceqr_deployment
+===========================
+
+.. py:module:: pudl.etl.ferceqr_deployment
+
+.. autoapi-nested-parse::
+
+   Define tooling for monitoring the ferceqr_etl job during batch builds.
+
+   In this module we define a Dagster Sensor that will monitor the status of
+   a ``ferceqr`` backfill. This sensor will only run if the environment variable
+   ``FERCEQR_BUILD`` is set, which should only be the case when executing a job
+   through our google batch build infrastructure. In this context, the sensor
+   will get executed every 60 seconds to see if the backfill has completed.
+   Once it determines that the backfill is complete, it will publish the results
+   if the build was successful and send a notification via slack. Finally, it will
+   create a specific file in the ``PUDL_OUTPUT`` directory indicating the status
+   of the build, and triggering shutdown of the batch job.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.etl.ferceqr_deployment.logger
+   pudl.etl.ferceqr_deployment.ferceqr_sensor_status
+   pudl.etl.ferceqr_deployment.FERCEQR_TRANSFORM_ASSETS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.etl.ferceqr_deployment._notify_slack_deployments_channel
+   pudl.etl.ferceqr_deployment._get_etl_status_csv_path
+   pudl.etl.ferceqr_deployment._get_logfile_pointer
+   pudl.etl.ferceqr_deployment._write_status_file
+   pudl.etl.ferceqr_deployment.deployment_status_asset
+   pudl.etl.ferceqr_deployment.deploy_ferceqr
+   pudl.etl.ferceqr_deployment.handle_ferceqr_deployment_failure
+   pudl.etl.ferceqr_deployment.ferceqr_sensor
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: ferceqr_sensor_status
+
+.. py:data:: FERCEQR_TRANSFORM_ASSETS
+   :value: ['core_ferceqr__contracts', 'core_ferceqr__transactions', 'core_ferceqr__quarterly_identity',...
+
+
+.. py:function:: _notify_slack_deployments_channel(message: str, attached_file_path: str | None = None)
+
+   Send string message to PUDL deployments channel.
+
+
+.. py:function:: _get_etl_status_csv_path() -> pathlib.Path
+
+.. py:function:: _get_logfile_pointer() -> str
+
+   Return pointer to logs to send in slack message.
+
+
+.. py:function:: _write_status_file(status: Literal['SUCCESS', 'FAILURE'])
+
+   Notify build script that job is complete by creating a status file.
+
+
+.. py:function:: deployment_status_asset(handler: collections.abc.Callable) -> dagster.AssetsDefinition
+
+   Create a wrapper for deployment handler assets.
+
+   This is useful to gracefully handle errors if the deployment status assets fail
+   for any reason. When these assets fail, sometimes the logs don't show up in the
+   batch job appropriately, and the status file never gets created, so the job keeps
+   running until it eventually times out.
+
+
+.. py:function:: deploy_ferceqr()
+
+   Publish EQR outputs to cloud storage.
+
+
+.. py:function:: handle_ferceqr_deployment_failure()
+
+   Send notification if EQR deployment failed.
+
+
+.. py:function:: ferceqr_sensor(context: dagster.RunStatusSensorContext)
+
+   Check if the EQR backfill is complete and handle appropriately.
+
+   This sensor is configured to run every 60 seconds when the EQR deployment job is
+   running (it won't run at all in local development). Once it detects that the job
+   has completed, it will return a ``RunRequest`` object requesting dagster to execute
+   an asset to handle either a successful or failed run. We need to set ``run_key``
+   in the ``RunRequest`` because dagster will only execute one run per key, so if
+   the sensor executes while one of handler assets is still in progress, dagster will
+   not try to execute the handler asset again. We can also make ``run_key`` a static
+   key, because our batch jobs have no memory of previous executions.
+
+

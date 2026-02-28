@@ -1,0 +1,830 @@
+pudl.scripts.zenodo_data_release
+================================
+
+.. py:module:: pudl.scripts.zenodo_data_release
+
+.. autoapi-nested-parse::
+
+   Upload a prepared PUDL data release directory to Zenodo.
+
+   The PUDL data release process produces a directory of artifacts (zipped Parquet files,
+   SQLite databases, JSON metadata, logs, etc.) that are uploaded to CERN's Zenodo data
+   repository for long-term archival access. Each new versioned release of PUDL is
+   associated with the same original PUDL concept DOI.
+
+   This module provides a CLI that handles the process of uploading a new PUDL data release
+   to Zenodo, given a prepared directory of artifacts typically produced by the PUDL builds.
+
+   It uses state objects to ensure that Zenodo API calls happen in a valid order. The files
+   to upload are read using ``fsspec`` and remote files are staged locally one at a time
+   so uploads can be retried, but without using excessive local disk space.
+
+   Retries are implemented for all upload requests to recover from transient network issues
+   and Zenodo server flakiness. Zero-byte uploads are prevented.
+
+   NOTE: PUDL nightly build outputs are NOT suitable for producing a Zenodo data release
+   unless the Parquet outputs are filtered out with an appropriate ignore_regex. Double
+   check what files should actually be distributed before running the script.
+
+   Run ``zenodo_data_release --help`` for CLI usage instructions.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.zenodo_data_release.SANDBOX
+   pudl.scripts.zenodo_data_release.PRODUCTION
+   pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES
+   pudl.scripts.zenodo_data_release.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.scripts.zenodo_data_release._LegacyLinks
+   pudl.scripts.zenodo_data_release._LegacyMetadata
+   pudl.scripts.zenodo_data_release._LegacyDeposition
+   pudl.scripts.zenodo_data_release._NewFile
+   pudl.scripts.zenodo_data_release._NewRecord
+   pudl.scripts.zenodo_data_release.ZenodoClient
+   pudl.scripts.zenodo_data_release.State
+   pudl.scripts.zenodo_data_release.InitialDataset
+   pudl.scripts.zenodo_data_release.EmptyDraft
+   pudl.scripts.zenodo_data_release.ContentComplete
+   pudl.scripts.zenodo_data_release.CompleteDraft
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.zenodo_data_release.pudl_zenodo_data_release
+
+
+Module Contents
+---------------
+
+.. py:data:: SANDBOX
+   :value: 'sandbox'
+
+
+.. py:data:: PRODUCTION
+   :value: 'production'
+
+
+.. py:data:: RETRYABLE_STATUS_CODES
+
+.. py:data:: logger
+
+.. py:class:: _LegacyLinks(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   !!! abstract "Usage Documentation"
+       [Models](../concepts/models.md)
+
+   A base class for creating Pydantic models.
+
+   .. attribute:: __class_vars__
+
+      The names of the class variables defined on the model.
+
+   .. attribute:: __private_attributes__
+
+      Metadata about the private attributes of the model.
+
+   .. attribute:: __signature__
+
+      The synthesized `__init__` [`Signature`][inspect.Signature] of the model.
+
+   .. attribute:: __pydantic_complete__
+
+      Whether model building is completed, or if there are still undefined fields.
+
+   .. attribute:: __pydantic_core_schema__
+
+      The core schema of the model.
+
+   .. attribute:: __pydantic_custom_init__
+
+      Whether the model has a custom `__init__` function.
+
+   .. attribute:: __pydantic_decorators__
+
+      Metadata containing the decorators defined on the model.
+      This replaces `Model.__validators__` and `Model.__root_validators__` from Pydantic V1.
+
+   .. attribute:: __pydantic_generic_metadata__
+
+      Metadata for generic models; contains data used for a similar purpose to
+      __args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.
+
+   .. attribute:: __pydantic_parent_namespace__
+
+      Parent namespace of the model, used for automatic rebuilding of models.
+
+   .. attribute:: __pydantic_post_init__
+
+      The name of the post-init method for the model, if defined.
+
+   .. attribute:: __pydantic_root_model__
+
+      Whether the model is a [`RootModel`][pydantic.root_model.RootModel].
+
+   .. attribute:: __pydantic_serializer__
+
+      The `pydantic-core` `SchemaSerializer` used to dump instances of the model.
+
+   .. attribute:: __pydantic_validator__
+
+      The `pydantic-core` `SchemaValidator` used to validate instances of the model.
+
+   .. attribute:: __pydantic_fields__
+
+      A dictionary of field names and their corresponding [`FieldInfo`][pydantic.fields.FieldInfo] objects.
+
+   .. attribute:: __pydantic_computed_fields__
+
+      A dictionary of computed field names and their corresponding [`ComputedFieldInfo`][pydantic.fields.ComputedFieldInfo] objects.
+
+   .. attribute:: __pydantic_extra__
+
+      A dictionary containing extra values, if [`extra`][pydantic.config.ConfigDict.extra]
+      is set to `'allow'`.
+
+   .. attribute:: __pydantic_fields_set__
+
+      The names of fields explicitly set during instantiation.
+
+   .. attribute:: __pydantic_private__
+
+      Values of private attributes set on the model instance.
+
+
+   .. py:attribute:: html
+      :type:  pydantic.AnyHttpUrl
+
+
+   .. py:attribute:: bucket
+      :type:  pydantic.AnyHttpUrl
+
+
+.. py:class:: _LegacyMetadata(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   !!! abstract "Usage Documentation"
+       [Models](../concepts/models.md)
+
+   A base class for creating Pydantic models.
+
+   .. attribute:: __class_vars__
+
+      The names of the class variables defined on the model.
+
+   .. attribute:: __private_attributes__
+
+      Metadata about the private attributes of the model.
+
+   .. attribute:: __signature__
+
+      The synthesized `__init__` [`Signature`][inspect.Signature] of the model.
+
+   .. attribute:: __pydantic_complete__
+
+      Whether model building is completed, or if there are still undefined fields.
+
+   .. attribute:: __pydantic_core_schema__
+
+      The core schema of the model.
+
+   .. attribute:: __pydantic_custom_init__
+
+      Whether the model has a custom `__init__` function.
+
+   .. attribute:: __pydantic_decorators__
+
+      Metadata containing the decorators defined on the model.
+      This replaces `Model.__validators__` and `Model.__root_validators__` from Pydantic V1.
+
+   .. attribute:: __pydantic_generic_metadata__
+
+      Metadata for generic models; contains data used for a similar purpose to
+      __args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.
+
+   .. attribute:: __pydantic_parent_namespace__
+
+      Parent namespace of the model, used for automatic rebuilding of models.
+
+   .. attribute:: __pydantic_post_init__
+
+      The name of the post-init method for the model, if defined.
+
+   .. attribute:: __pydantic_root_model__
+
+      Whether the model is a [`RootModel`][pydantic.root_model.RootModel].
+
+   .. attribute:: __pydantic_serializer__
+
+      The `pydantic-core` `SchemaSerializer` used to dump instances of the model.
+
+   .. attribute:: __pydantic_validator__
+
+      The `pydantic-core` `SchemaValidator` used to validate instances of the model.
+
+   .. attribute:: __pydantic_fields__
+
+      A dictionary of field names and their corresponding [`FieldInfo`][pydantic.fields.FieldInfo] objects.
+
+   .. attribute:: __pydantic_computed_fields__
+
+      A dictionary of computed field names and their corresponding [`ComputedFieldInfo`][pydantic.fields.ComputedFieldInfo] objects.
+
+   .. attribute:: __pydantic_extra__
+
+      A dictionary containing extra values, if [`extra`][pydantic.config.ConfigDict.extra]
+      is set to `'allow'`.
+
+   .. attribute:: __pydantic_fields_set__
+
+      The names of fields explicitly set during instantiation.
+
+   .. attribute:: __pydantic_private__
+
+      Values of private attributes set on the model instance.
+
+
+   .. py:attribute:: upload_type
+      :type:  str
+      :value: 'dataset'
+
+
+
+   .. py:attribute:: title
+      :type:  str
+
+
+   .. py:attribute:: access_right
+      :type:  str
+
+
+   .. py:attribute:: creators
+      :type:  list[dict]
+
+
+   .. py:attribute:: license
+      :type:  str
+      :value: 'cc-by-4.0'
+
+
+
+   .. py:attribute:: publication_date
+      :type:  str
+      :value: ''
+
+
+
+   .. py:attribute:: description
+      :type:  str
+      :value: ''
+
+
+
+.. py:class:: _LegacyDeposition(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   !!! abstract "Usage Documentation"
+       [Models](../concepts/models.md)
+
+   A base class for creating Pydantic models.
+
+   .. attribute:: __class_vars__
+
+      The names of the class variables defined on the model.
+
+   .. attribute:: __private_attributes__
+
+      Metadata about the private attributes of the model.
+
+   .. attribute:: __signature__
+
+      The synthesized `__init__` [`Signature`][inspect.Signature] of the model.
+
+   .. attribute:: __pydantic_complete__
+
+      Whether model building is completed, or if there are still undefined fields.
+
+   .. attribute:: __pydantic_core_schema__
+
+      The core schema of the model.
+
+   .. attribute:: __pydantic_custom_init__
+
+      Whether the model has a custom `__init__` function.
+
+   .. attribute:: __pydantic_decorators__
+
+      Metadata containing the decorators defined on the model.
+      This replaces `Model.__validators__` and `Model.__root_validators__` from Pydantic V1.
+
+   .. attribute:: __pydantic_generic_metadata__
+
+      Metadata for generic models; contains data used for a similar purpose to
+      __args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.
+
+   .. attribute:: __pydantic_parent_namespace__
+
+      Parent namespace of the model, used for automatic rebuilding of models.
+
+   .. attribute:: __pydantic_post_init__
+
+      The name of the post-init method for the model, if defined.
+
+   .. attribute:: __pydantic_root_model__
+
+      Whether the model is a [`RootModel`][pydantic.root_model.RootModel].
+
+   .. attribute:: __pydantic_serializer__
+
+      The `pydantic-core` `SchemaSerializer` used to dump instances of the model.
+
+   .. attribute:: __pydantic_validator__
+
+      The `pydantic-core` `SchemaValidator` used to validate instances of the model.
+
+   .. attribute:: __pydantic_fields__
+
+      A dictionary of field names and their corresponding [`FieldInfo`][pydantic.fields.FieldInfo] objects.
+
+   .. attribute:: __pydantic_computed_fields__
+
+      A dictionary of computed field names and their corresponding [`ComputedFieldInfo`][pydantic.fields.ComputedFieldInfo] objects.
+
+   .. attribute:: __pydantic_extra__
+
+      A dictionary containing extra values, if [`extra`][pydantic.config.ConfigDict.extra]
+      is set to `'allow'`.
+
+   .. attribute:: __pydantic_fields_set__
+
+      The names of fields explicitly set during instantiation.
+
+   .. attribute:: __pydantic_private__
+
+      Values of private attributes set on the model instance.
+
+
+   .. py:attribute:: id_
+      :type:  int
+      :value: None
+
+
+
+   .. py:attribute:: conceptrecid
+      :type:  int
+
+
+   .. py:attribute:: links
+      :type:  _LegacyLinks
+
+
+   .. py:attribute:: metadata
+      :type:  _LegacyMetadata
+
+
+.. py:class:: _NewFile(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   !!! abstract "Usage Documentation"
+       [Models](../concepts/models.md)
+
+   A base class for creating Pydantic models.
+
+   .. attribute:: __class_vars__
+
+      The names of the class variables defined on the model.
+
+   .. attribute:: __private_attributes__
+
+      Metadata about the private attributes of the model.
+
+   .. attribute:: __signature__
+
+      The synthesized `__init__` [`Signature`][inspect.Signature] of the model.
+
+   .. attribute:: __pydantic_complete__
+
+      Whether model building is completed, or if there are still undefined fields.
+
+   .. attribute:: __pydantic_core_schema__
+
+      The core schema of the model.
+
+   .. attribute:: __pydantic_custom_init__
+
+      Whether the model has a custom `__init__` function.
+
+   .. attribute:: __pydantic_decorators__
+
+      Metadata containing the decorators defined on the model.
+      This replaces `Model.__validators__` and `Model.__root_validators__` from Pydantic V1.
+
+   .. attribute:: __pydantic_generic_metadata__
+
+      Metadata for generic models; contains data used for a similar purpose to
+      __args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.
+
+   .. attribute:: __pydantic_parent_namespace__
+
+      Parent namespace of the model, used for automatic rebuilding of models.
+
+   .. attribute:: __pydantic_post_init__
+
+      The name of the post-init method for the model, if defined.
+
+   .. attribute:: __pydantic_root_model__
+
+      Whether the model is a [`RootModel`][pydantic.root_model.RootModel].
+
+   .. attribute:: __pydantic_serializer__
+
+      The `pydantic-core` `SchemaSerializer` used to dump instances of the model.
+
+   .. attribute:: __pydantic_validator__
+
+      The `pydantic-core` `SchemaValidator` used to validate instances of the model.
+
+   .. attribute:: __pydantic_fields__
+
+      A dictionary of field names and their corresponding [`FieldInfo`][pydantic.fields.FieldInfo] objects.
+
+   .. attribute:: __pydantic_computed_fields__
+
+      A dictionary of computed field names and their corresponding [`ComputedFieldInfo`][pydantic.fields.ComputedFieldInfo] objects.
+
+   .. attribute:: __pydantic_extra__
+
+      A dictionary containing extra values, if [`extra`][pydantic.config.ConfigDict.extra]
+      is set to `'allow'`.
+
+   .. attribute:: __pydantic_fields_set__
+
+      The names of fields explicitly set during instantiation.
+
+   .. attribute:: __pydantic_private__
+
+      Values of private attributes set on the model instance.
+
+
+   .. py:attribute:: id_
+      :type:  str
+      :value: None
+
+
+
+.. py:class:: _NewRecord(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   !!! abstract "Usage Documentation"
+       [Models](../concepts/models.md)
+
+   A base class for creating Pydantic models.
+
+   .. attribute:: __class_vars__
+
+      The names of the class variables defined on the model.
+
+   .. attribute:: __private_attributes__
+
+      Metadata about the private attributes of the model.
+
+   .. attribute:: __signature__
+
+      The synthesized `__init__` [`Signature`][inspect.Signature] of the model.
+
+   .. attribute:: __pydantic_complete__
+
+      Whether model building is completed, or if there are still undefined fields.
+
+   .. attribute:: __pydantic_core_schema__
+
+      The core schema of the model.
+
+   .. attribute:: __pydantic_custom_init__
+
+      Whether the model has a custom `__init__` function.
+
+   .. attribute:: __pydantic_decorators__
+
+      Metadata containing the decorators defined on the model.
+      This replaces `Model.__validators__` and `Model.__root_validators__` from Pydantic V1.
+
+   .. attribute:: __pydantic_generic_metadata__
+
+      Metadata for generic models; contains data used for a similar purpose to
+      __args__, __origin__, __parameters__ in typing-module generics. May eventually be replaced by these.
+
+   .. attribute:: __pydantic_parent_namespace__
+
+      Parent namespace of the model, used for automatic rebuilding of models.
+
+   .. attribute:: __pydantic_post_init__
+
+      The name of the post-init method for the model, if defined.
+
+   .. attribute:: __pydantic_root_model__
+
+      Whether the model is a [`RootModel`][pydantic.root_model.RootModel].
+
+   .. attribute:: __pydantic_serializer__
+
+      The `pydantic-core` `SchemaSerializer` used to dump instances of the model.
+
+   .. attribute:: __pydantic_validator__
+
+      The `pydantic-core` `SchemaValidator` used to validate instances of the model.
+
+   .. attribute:: __pydantic_fields__
+
+      A dictionary of field names and their corresponding [`FieldInfo`][pydantic.fields.FieldInfo] objects.
+
+   .. attribute:: __pydantic_computed_fields__
+
+      A dictionary of computed field names and their corresponding [`ComputedFieldInfo`][pydantic.fields.ComputedFieldInfo] objects.
+
+   .. attribute:: __pydantic_extra__
+
+      A dictionary containing extra values, if [`extra`][pydantic.config.ConfigDict.extra]
+      is set to `'allow'`.
+
+   .. attribute:: __pydantic_fields_set__
+
+      The names of fields explicitly set during instantiation.
+
+   .. attribute:: __pydantic_private__
+
+      Values of private attributes set on the model instance.
+
+
+   .. py:attribute:: id_
+      :type:  int
+      :value: None
+
+
+
+   .. py:attribute:: files
+      :type:  list[_NewFile]
+
+
+.. py:class:: ZenodoClient(env: str)
+
+   Thin wrapper over Zenodo REST API.
+
+   Mostly legacy calls (https://developers.zenodo.org/) (archive:
+   https://web.archive.org/web/20231212025359/https://developers.zenodo.org/)
+   but due to inconsistent behavior of legacy API on sandbox environment, we
+   need some of the unreleased new API endpoints too:
+   https://inveniordm.docs.cern.ch/reference/rest_api_drafts_records/
+
+
+   .. py:attribute:: auth_headers
+
+
+   .. py:method:: retry_request(*, method, url, max_tries: int = 6, request_timeout: float | None = None, data_factory: collections.abc.Callable[[], IO[bytes]] | None = None, **kwargs) -> requests.Response
+
+      Retry calls to ``requests.request`` with exponential backoff.
+
+      :param method: HTTP method to use for the request (e.g. ``GET``).
+      :param url: Fully-qualified URL to which the request is sent.
+      :param max_tries: Maximum number of attempts before surfacing an error.
+      :param request_timeout: Optional per-request timeout in seconds. When ``None`` the
+                              timeout grows exponentially (``2**attempt``).
+      :param data_factory: Optional callable that yields a fresh binary stream for each
+                           attempt. Useful for uploads that require reopening a file-like object.
+      :param \*\*kwargs: Additional keyword arguments passed through directly to
+                         ``requests.request``.
+
+      :returns: The ``requests.Response`` produced by the successful attempt.
+
+      :raises requests.RequestException: If all attempts fail with a requests error.
+      :raises OSError: If reading from disk fails when preparing a payload.
+      :raises RuntimeError: If no response object is produced (should be rare).
+
+
+
+   .. py:method:: get_deposition(deposition_id: int) -> _LegacyDeposition
+
+      LEGACY API: Get JSON describing a deposition.
+
+      Depositions can be published *or* unpublished.
+
+
+
+   .. py:method:: get_record(record_id: int) -> _NewRecord
+
+      NEW API: Get JSON describing a record.
+
+      All records are published records.
+
+
+
+   .. py:method:: new_record_version(record_id: int) -> _NewRecord
+
+      NEW API: get or create the draft associated with a record ID.
+
+      Finds the latest record in the concept that record_id points to, and
+      makes a new version unless one exists already.
+
+
+
+   .. py:method:: update_deposition_metadata(deposition_id: int, metadata: _LegacyMetadata) -> _LegacyDeposition
+
+      LEGACY API: Update deposition metadata.
+
+      Replaces the existing metadata completely - so make sure to pass in complete
+      metadata. You cannot update metadata fields one at a time.
+
+
+
+   .. py:method:: delete_deposition_file(deposition_id: int, file_id) -> requests.Response
+
+      LEGACY API: Delete file from deposition.
+
+      Note: file_id is not always the file name.
+
+
+
+   .. py:method:: create_bucket_file(bucket_url: pydantic.AnyHttpUrl, file_path: pathlib.Path, max_tries: int = 6) -> requests.Response
+
+      LEGACY API: Upload a file to a deposition's file bucket.
+
+      We prefer this API this over the /deposit/depositions/{id}/files endpoint
+      because it allows for files >100MB.
+
+      :param bucket_url: Upload destination returned by Zenodo for the draft.
+      :param file_path: Local path to the artifact being uploaded.
+      :param max_tries: Maximum number of upload attempts before failing.
+
+      :returns: The ``requests.Response`` from the successful upload attempt.
+
+      :raises ValueError: If ``file_path`` is empty.
+      :raises requests.RequestException: If all upload attempts fail.
+
+
+
+   .. py:method:: publish_deposition(deposition_id: int) -> _LegacyDeposition
+
+      LEGACY API: publish deposition.
+
+
+
+.. py:class:: State
+
+   Parent class for dataset states.
+
+   Provides an abstraction layer that hides Zenodo's data model from the caller.
+
+   Subclasses + their limited method definitions provide a way to avoid calling the
+   operations in the wrong order.
+
+
+   .. py:attribute:: record_id
+      :type:  int
+
+
+   .. py:attribute:: zenodo_client
+      :type:  ZenodoClient
+
+
+.. py:class:: InitialDataset
+
+   Bases: :py:obj:`State`
+
+
+   Represent initial dataset state.
+
+   At this point, we don't know if there is an existing draft or not - the only thing
+   we can do is try to get a fresh draft.
+
+
+   .. py:method:: get_empty_draft() -> EmptyDraft
+
+      Get an empty draft for this dataset.
+
+      Use new API to get any draft, then use legacy API to delete any files
+      in the draft.
+
+
+
+.. py:class:: EmptyDraft
+
+   Bases: :py:obj:`State`
+
+
+   We can only sync the directory once we've gotten an empty draft.
+
+
+   .. py:method:: _sync_local_path(openable_file: fsspec.core.OpenFile, staging_dir: pathlib.Path) -> pathlib.Path
+      :staticmethod:
+
+
+      Ensure the given ``fsspec`` file exists on the local filesystem.
+
+      When ``openable_file`` already resides on the local filesystem we avoid
+      copying and return its existing path. Remote files are downloaded into
+      ``staging_dir`` (a shared temporary directory) so the rest of the upload
+      pipeline can treat every artifact as a simple ``Path`` without caring
+      where it came from.
+
+      :param openable_file: ``fsspec`` handle pointing to the source artifact.
+      :param staging_dir: Directory used to cache remote files locally.
+
+      :returns: A ``Path`` pointing to a readable local copy of ``openable_file``.
+
+
+
+   .. py:method:: sync_directory(source_dir: str, ignore: tuple[str]) -> ContentComplete
+
+      Upload every file in ``source_dir`` to the draft bucket.
+
+      The method enumerates files (not subdirectories) via ``fsspec`` so the source
+      can live on local disk, GCS, S3, etc. Remote objects are first staged into a
+      temporary directory to ensure uploads always come from local ``Path`` objects
+      that can be rewound for retries. Regex patterns provided via ``ignore`` are
+      applied to the full path of each candidate file, allowing us to drop logs,
+      intermediate data, or other nightlies-only artifacts before hitting Zenodo.
+
+      :param source_dir: Directory (local or remote) whose contents will be sent to
+                         Zenodo.
+      :param ignore: Tuple of regex patterns; any path matching one is skipped.
+
+      :returns: A ``ContentComplete`` state ready for metadata updates.
+
+
+
+.. py:class:: ContentComplete
+
+   Bases: :py:obj:`State`
+
+
+   Now that we've uploaded all the data, we need to update metadata.
+
+
+   .. py:method:: update_metadata()
+
+      Copy over old metadata and update publication date.
+
+      We need to make sure there is complete metadata, including a publication date.
+
+      To do this, we:
+
+      1. use the *legacy* API to get the concept record ID associated with the draft
+      2. use the *new* API to get the latest record associated with the concept
+      3. use the *legacy* API to get the metadata from the latest record
+      4. use the *legacy* API to update the draft's metadata
+
+      Since we are using the legacy API to publish, we need the legacy
+      metadata format. But the legacy concept DOI -> published record mapping
+      is broken, so we have to take a detour through the new API.
+
+
+
+.. py:class:: CompleteDraft
+
+   Bases: :py:obj:`State`
+
+
+   Now that we've uploaded all the data, we can publish.
+
+
+   .. py:method:: publish() -> None
+
+      Publish the draft.
+
+
+
+   .. py:method:: get_html_url()
+
+      A URL for viewing this draft.
+
+
+
+.. py:function:: pudl_zenodo_data_release(env: str, source_dir: str, publish: bool, ignore: tuple[str])
+
+   Publish a new PUDL data release to Zenodo.
+
+

@@ -1,0 +1,1379 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    <link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
+        <link rel="prefetch" href="../../../_static/catalyst_logo-200x200.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>pudl.etl.glue_assets - PUDL 2026.2.1.dev10 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=b1990d62" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">PUDL 2026.2.1.dev10 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../_static/catalyst_logo-200x200.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">PUDL 2026.2.1.dev10 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">About PUDL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data_access.html">Data Access</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../data_sources/index.html">Data Sources</a><input aria-label="Toggle navigation of Data Sources" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../data_dictionaries/index.html">Data Dictionaries</a><input aria-label="Toggle navigation of Data Dictionaries" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../methodology/index.html">Methodology</a><input aria-label="Toggle navigation of Methodology" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../dev/index.html">Development</a><input aria-label="Toggle navigation of Development" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/pudl/index.html">pudl</a><input aria-label="Toggle navigation of pudl" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/_version/index.html">pudl._version</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/analysis/index.html">pudl.analysis</a><input aria-label="Toggle navigation of pudl.analysis" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><input aria-label="Toggle navigation of pudl.analysis.ml_tools" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><input aria-label="Toggle navigation of pudl.analysis.record_linkage" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/convert/index.html">pudl.convert</a><input aria-label="Toggle navigation of pudl.convert" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/etl/index.html">pudl.etl</a><input aria-label="Toggle navigation of pudl.etl" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/extract/index.html">pudl.extract</a><input aria-label="Toggle navigation of pudl.extract" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><input aria-label="Toggle navigation of pudl.ferc_to_sqlite" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/glue/index.html">pudl.glue</a><input aria-label="Toggle navigation of pudl.glue" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/metadata/index.html">pudl.metadata</a><input aria-label="Toggle navigation of pudl.metadata" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/index.html">pudl.metadata.resources</a><input aria-label="Toggle navigation of pudl.metadata.resources" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/output/index.html">pudl.output</a><input aria-label="Toggle navigation of pudl.output" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/output/sql/index.html">pudl.output.sql</a><input aria-label="Toggle navigation of pudl.output.sql" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/index.html">pudl.package_data</a><input aria-label="Toggle navigation of pudl.package_data" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/censuspep/index.html">pudl.package_data.censuspep</a><input aria-label="Toggle navigation of pudl.package_data.censuspep" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia176/index.html">pudl.package_data.eia176</a><input aria-label="Toggle navigation of pudl.package_data.eia176" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia191/index.html">pudl.package_data.eia191</a><input aria-label="Toggle navigation of pudl.package_data.eia191" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia757a/index.html">pudl.package_data.eia757a</a><input aria-label="Toggle navigation of pudl.package_data.eia757a" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860/index.html">pudl.package_data.eia860</a><input aria-label="Toggle navigation of pudl.package_data.eia860" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860m/index.html">pudl.package_data.eia860m</a><input aria-label="Toggle navigation of pudl.package_data.eia860m" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia861/index.html">pudl.package_data.eia861</a><input aria-label="Toggle navigation of pudl.package_data.eia861" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia923/index.html">pudl.package_data.eia923</a><input aria-label="Toggle navigation of pudl.package_data.eia923" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia930/index.html">pudl.package_data.eia930</a><input aria-label="Toggle navigation of pudl.package_data.eia930" class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/ferc1/index.html">pudl.package_data.ferc1</a><input aria-label="Toggle navigation of pudl.package_data.ferc1" class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><input aria-label="Toggle navigation of pudl.package_data.phmsagas" class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/rus12/index.html">pudl.package_data.rus12</a><input aria-label="Toggle navigation of pudl.package_data.rus12" class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/test/index.html">pudl.package_data.test</a><input aria-label="Toggle navigation of pudl.package_data.test" class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/resources/index.html">pudl.resources</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/scripts/index.html">pudl.scripts</a><input aria-label="Toggle navigation of pudl.scripts" class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/settings/index.html">pudl.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/transform/index.html">pudl.transform</a><input aria-label="Toggle navigation of pudl.transform" class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/transform/params/index.html">pudl.transform.params</a><input aria-label="Toggle navigation of pudl.transform.params" class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/validate/index.html">pudl.validate</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/workspace/index.html">pudl.workspace</a><input aria-label="Toggle navigation of pudl.workspace" class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for pudl.etl.glue_assets</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;FERC and EIA and EPA CAMD glue assets.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetOut</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">multi_asset</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSource</span><span class="p">,</span> <span class="n">Package</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># TODO (bendnorman): Currently loading all glue tables. Could potentially allow users</span>
+<span class="c1"># to load subsets of the glue tables, see: https://docs.dagster.io/concepts/assets/multi-assets#subsetting-multi-assets</span>
+<span class="c1"># Could split out different types of glue tables into different assets. For example the cross walk table could be a separate asset</span>
+<span class="c1"># that way dagster doesn&#39;t think all glue tables depend on core_eia__entity_generators, core_eia__entity_boilers.</span>
+
+
+<span class="nd">@multi_asset</span><span class="p">(</span>
+    <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
+        <span class="n">table_name</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">Package</span><span class="o">.</span><span class="n">get_etl_group_tables</span><span class="p">(</span><span class="s2">&quot;glue&quot;</span><span class="p">)</span>
+        <span class="c1">#  do not load core_epa__assn_eia_epacamd glue assets bc they are stand-alone assets below.</span>
+        <span class="k">if</span> <span class="s2">&quot;core_epa__assn_eia_epacamd&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table_name</span>
+    <span class="p">},</span>
+    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset_settings&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="create_glue_tables">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.create_glue_tables">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_glue_tables</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract, transform and load CSVs for the FERC-EIA Glue tables.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        context: dagster keyword that provides access to resources and config.</span>
+<span class="sd">        core_eia__entity_generators: Static generator attributes compiled from across the EIA-860 and EIA-923 data.</span>
+<span class="sd">        core_eia__entity_boilers: core_eia__entity_boilers.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary of DataFrames whose keys are the names of the corresponding</span>
+<span class="sd">        database table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO 2024-09-23: double check if these settings are actually</span>
+    <span class="c1"># doing anything for the FERC-EIA glue... doesn&#39;t look like it.</span>
+    <span class="n">dataset_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span>
+    <span class="c1"># grab the glue tables for ferc1 &amp; eia</span>
+    <span class="n">glue_dfs</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">glue</span><span class="o">.</span><span class="n">ferc1_eia</span><span class="o">.</span><span class="n">glue</span><span class="p">(</span>
+        <span class="n">ferc1</span><span class="o">=</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">glue</span><span class="o">.</span><span class="n">ferc1</span><span class="p">,</span>
+        <span class="n">eia</span><span class="o">=</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">glue</span><span class="o">.</span><span class="n">eia</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># these 714 glue tables are so easy to build, it doesn&#39;t seem worth it</span>
+    <span class="c1"># to not build/load them if we are not etl-ing 714</span>
+    <span class="n">glue_dfs</span> <span class="o">=</span> <span class="n">glue_dfs</span> <span class="o">|</span> <span class="n">pudl</span><span class="o">.</span><span class="n">glue</span><span class="o">.</span><span class="n">ferc714</span><span class="o">.</span><span class="n">glue</span><span class="p">()</span>
+
+    <span class="c1"># Ensure they are sorted so they match up with the asset outs</span>
+    <span class="n">glue_dfs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">glue_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">Output</span><span class="p">(</span><span class="n">output_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">df</span><span class="p">)</span> <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">glue_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1">#####################</span>
+<span class="c1"># EPA - EIA Crosswalk</span>
+<span class="c1">#####################</span>
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">})</span>
+<div class="viewcode-block" id="raw_pudl__assn_eia_epacamd">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.raw_pudl__assn_eia_epacamd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">raw_pudl__assn_eia_epacamd</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the EPACAMD-EIA Crosswalk from the Datastore.&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extracting the EPACAMD-EIA crosswalk from Zenodo&quot;</span><span class="p">)</span>
+
+    <span class="n">csv_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">2018</span><span class="p">:</span> <span class="s2">&quot;camd-eia-crosswalk-master/epa_eia_crosswalk.csv&quot;</span><span class="p">}</span> <span class="o">|</span> <span class="p">{</span>
+        <span class="n">year</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;camd-eia-crosswalk-latest-</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">/epa_eia_crosswalk.csv&quot;</span>
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;epacamd_eia&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">year</span> <span class="o">!=</span> <span class="mi">2018</span>
+    <span class="p">}</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span>
+    <span class="n">year_matches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">csv_path</span> <span class="ow">in</span> <span class="n">csv_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">with</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span><span class="s2">&quot;epacamd_eia&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">year</span>
+            <span class="n">year_matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">year_matches</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">},</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_epa__assn_eia_epacamd">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.core_epa__assn_eia_epacamd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_epa__assn_eia_epacamd</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">,</span>
+    <span class="n">raw_pudl__assn_eia_epacamd</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia__entity_generators</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia__entity_boilers</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean up the EPACAMD-EIA Crosswalk file.</span>
+
+<span class="sd">    In its raw form, the crosswalk contains many fields. The transform process removes</span>
+<span class="sd">    descriptive fields like state, location, facility name, capacity, operating status,</span>
+<span class="sd">    and fuel type that can be found by linking this dataset to others already in the</span>
+<span class="sd">    database. We&#39;re primarily concerned with linking ids in this table, not including</span>
+<span class="sd">    any other plant information.</span>
+
+<span class="sd">    The raw file contains several fields with the prefix ``MOD``. These fields are used</span>
+<span class="sd">    to create a single ID for matches with different spelling. For example,</span>
+<span class="sd">    ``EIA_PLANT_ID`` (``plant_id_eia`` in PUDL) has the generator ID ``CTG5`` in EPA and</span>
+<span class="sd">    ``GT5`` in EIA. The ``MOD`` columns for both of these generators</span>
+<span class="sd">    (``MOD_CAMD_GENERATOR_ID``, ``MOD_EIA_GENERATOR_ID_GEN``) converts that value to 5.</span>
+<span class="sd">    The ``MATCH_TYPE_GEN``, ``MATCH_TYPE_BOILER``, and ``PLANT_ID_CHANGE_FLAG`` fields</span>
+<span class="sd">    indicate whether these ``MOD`` fields contain new information. Because we&#39;re not</span>
+<span class="sd">    concerned with creating a new, modified ID field for either EPA or EIA data, we</span>
+<span class="sd">    don&#39;t need these ``MOD`` or ``MATCH_TYPE`` columns in our final output. We just care</span>
+<span class="sd">    which EPA value maps to which EIA value.</span>
+
+<span class="sd">    In terms of cleaning, we implement the standard column name changes: lower-case, no</span>
+<span class="sd">    special characters, and underscores instead of spaces. We also rename some of the</span>
+<span class="sd">    columns for clarity and to match how they appear in the tables you will merge with.</span>
+<span class="sd">    Besides standardizing datatypes (again for merge compatibility) the only meaningful</span>
+<span class="sd">    data alteration we employ here is removing leading zeros from numeric strings on</span>
+<span class="sd">    the ``generator_id`` and ``emissions_unit_id_epa`` fields. This is because the same</span>
+<span class="sd">    function is used to clean those same fields in all the other tables in which they</span>
+<span class="sd">    appear. In order to merge properly, we need to clean the values in the crosswalk the</span>
+<span class="sd">    same way. Lastly, we drop all rows without ``EIA_PLANT_ID`` (``plant_id_eia``)</span>
+<span class="sd">    values because that means that they are unmatched and do not provide any useful</span>
+<span class="sd">    information to users.</span>
+
+<span class="sd">    It&#39;s important to note that the crosswalk is kept intact (and not separated into</span>
+<span class="sd">    smaller reference tables) because the relationship between the ids is not 1:1. For</span>
+<span class="sd">    example, you can&#39;t isolate the plant_id fields, drop duplicates, and call it a day.</span>
+<span class="sd">    The plant discrepancies depend on which generator ids it&#39;s referring to. This goes</span>
+<span class="sd">    for all fields. Be careful, and do some due diligence before eliminating columns.</span>
+
+<span class="sd">    We talk more about the complexities regarding EPA &quot;units&quot; in our :doc:`Data Source</span>
+<span class="sd">    documentation page for EPACEMS &lt;/data_sources/epacems&gt;`.</span>
+
+<span class="sd">    In it&#39;s original format, the crosswalk is a static file - however, we manually</span>
+<span class="sd">    run the crosswalk code for each year of EIA data, adding the report_date field</span>
+<span class="sd">    to the crosswalk. The plant_id_eia and generator_id fields are foreign keys from an</span>
+<span class="sd">    annualized table. If the fast ETL is run (on one year of data) the test will break</span>
+<span class="sd">    because the crosswalk tables with ``plant_id_eia`` and ``generator_id`` contain</span>
+<span class="sd">    values from various years. To keep the crosswalk in alignment with the available eia</span>
+<span class="sd">    data, we&#39;ll restrict it based on the generator entity table which has</span>
+<span class="sd">    ``plant_id_eia`` and ``generator_id`` so long as it&#39;s not using the full suite of</span>
+<span class="sd">    available years. If it is, we don&#39;t want to restrict the crosswalk so we can get</span>
+<span class="sd">    warnings and errors from any foreign key discrepancies. This isn&#39;t an ideal</span>
+<span class="sd">    solution, but it works for now.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        context: dagster keyword that provides access to resources and config. For this</span>
+<span class="sd">            asset, this determines whether the years from the Eia860Settings object</span>
+<span class="sd">            match the EIA860 working partitions. This indicates whether or not to</span>
+<span class="sd">            restrict the crosswalk data so the tests don&#39;t fail on foreign key</span>
+<span class="sd">            restraints.</span>
+<span class="sd">        raw_pudl__assn_eia_epacamd: The result of running this module&#39;s extract() function.</span>
+<span class="sd">        core_eia__entity_generators: The core_eia__entity_generator table.</span>
+<span class="sd">        core_eia__entity_boilers: The core_eia__entity_boilerstable.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary containing the cleaned EPACAMD-EIA crosswalk DataFrame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Transforming the EPACAMD-EIA crosswalk&quot;</span><span class="p">)</span>
+
+    <span class="n">column_rename</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;camd_plant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;camd_unit_id&quot;</span><span class="p">:</span> <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;camd_generator_id&quot;</span><span class="p">:</span> <span class="s2">&quot;generator_id_epa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eia_plant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eia_boiler_id&quot;</span><span class="p">:</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>  <span class="c1"># Eventually change to boiler_id_eia</span>
+        <span class="s2">&quot;eia_generator_id&quot;</span><span class="p">:</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>  <span class="c1"># Eventually change to generator_id_eia</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Basic column rename, selection, and dtype alignment.</span>
+    <span class="n">crosswalk_clean</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">raw_pudl__assn_eia_epacamd</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">simplify_columns</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_rename</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">column_rename</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">remove_leading_zeros_from_numeric_strings</span><span class="p">,</span>
+            <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">remove_leading_zeros_from_numeric_strings</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;boiler_id&quot;</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">remove_leading_zeros_from_numeric_strings</span><span class="p">,</span>
+            <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">correct_epa_eia_plant_id_mapping</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">dataset_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span>
+    <span class="n">processing_all_eia_years</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia860</span><span class="o">.</span><span class="n">years</span>
+        <span class="o">==</span> <span class="n">dataset_settings</span><span class="o">.</span><span class="n">eia</span><span class="o">.</span><span class="n">eia860</span><span class="o">.</span><span class="n">data_source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># Restrict crosswalk for tests if running fast etl</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">processing_all_eia_years</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Selected subset of available EIA years--restricting EPACAMD-EIA Crosswalk </span><span class="se">\</span>
+<span class="s2">            to chosen subset of EIA years&quot;</span>
+        <span class="p">)</span>
+        <span class="n">crosswalk_clean</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">crosswalk_clean</span><span class="p">,</span>
+            <span class="n">core_eia__entity_generators</span><span class="p">[[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">]],</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">crosswalk_clean</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">crosswalk_clean</span><span class="p">,</span>
+            <span class="n">core_eia__entity_boilers</span><span class="p">[[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">]],</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="c1"># TODO: Add manual crosswalk cleanup from @grgmiller</span>
+    <span class="k">return</span> <span class="n">crosswalk_clean</span></div>
+
+
+
+<span class="nd">@asset</span>
+<div class="viewcode-block" id="_core_epa__assn_eia_epacamd_unique">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets._core_epa__assn_eia_epacamd_unique">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_epa__assn_eia_epacamd_unique</span><span class="p">(</span>
+    <span class="n">core_epa__assn_eia_epacamd</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Intermediate asset that contains all unique core_epa__assn_eia_epacamd matches.</span>
+
+<span class="sd">    The core_epa__assn_eia_epacamd asset contains crosswalk matches from 2018 through</span>
+<span class="sd">    the latest full year of EIA 860 data. This means there are many duplicate matches</span>
+<span class="sd">    found from both years. Several downstream assets expect these matches to be unique,</span>
+<span class="sd">    so this asset will drop duplicates to serve as the input to those downstream assets.</span>
+<span class="sd">    This asset, however, will not itself be written to the PUDL DB. This asset will also</span>
+<span class="sd">    address conflicting matches by taking the match from the most recent year.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        core_epa__assn_eia_epacamd: Cleaned crosswalk with duplicate matches.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Cleaned crosswalk with duplicates removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Drop fully duplicated matches</span>
+    <span class="n">core_epa__assn_eia_epacamd</span> <span class="o">=</span> <span class="n">core_epa__assn_eia_epacamd</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+        <span class="n">subset</span><span class="o">=</span><span class="n">core_epa__assn_eia_epacamd</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">([</span><span class="s2">&quot;report_year&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Find mismatches where there are different plant_id_eia values between years for</span>
+    <span class="c1"># the same plant_id_epa and emissions_unit_id_epa value. Keep the value from</span>
+    <span class="c1"># the most recent year.</span>
+    <span class="n">one_to_many</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">core_epa__assn_eia_epacamd</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;report_year&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span> <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">plant_id_eia</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span>  <span class="c1"># noqa: PD101</span>
+                <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span>  <span class="c1"># noqa: PD101</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The following crosswalk matches are duplicated: </span><span class="se">\n</span><span class="si">{</span><span class="n">one_to_many</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="ow">not</span> <span class="n">one_to_many</span><span class="o">.</span><span class="n">empty</span>
+    <span class="p">):</span>  <span class="c1"># When running the fast ETL, there are no rows of data here.</span>
+        <span class="c1"># Assert some expectations about the duplicated matches</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">one_to_many</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">one_to_many</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows found with changes in matches over time.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">one_to_many</span><span class="o">.</span><span class="n">plant_id_eia</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="o">==</span> <span class="mi">63628</span>
+        <span class="c1"># Check there are only two years of data, so we can drop one below</span>
+        <span class="k">assert</span> <span class="n">one_to_many</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="o">==</span> <span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">2019</span><span class="p">)</span>
+
+    <span class="c1"># For this one plant, we drop the first year of data and keep 2019 records.</span>
+    <span class="k">return</span> <span class="n">core_epa__assn_eia_epacamd</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">one_to_many</span><span class="p">[</span><span class="n">one_to_many</span><span class="o">.</span><span class="n">report_year</span> <span class="o">==</span> <span class="mi">2018</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;report_year&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="correct_epa_eia_plant_id_mapping">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.correct_epa_eia_plant_id_mapping">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">correct_epa_eia_plant_id_mapping</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manually correct one plant ID.</span>
+
+<span class="sd">    The EPA&#39;s power sector data crosswalk incorrectly maps plant_id_epa 55248 to</span>
+<span class="sd">    plant_id_eia 55248, when it should be mapped to id 2847.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">55248</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2847</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="c1">##############################</span>
+<span class="c1"># Add EPACAMD-EIA Sub-Plant ID</span>
+<span class="c1">##############################</span>
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_epa__assn_eia_epacamd_subplant_ids">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.core_epa__assn_eia_epacamd_subplant_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_epa__assn_eia_epacamd_subplant_ids</span><span class="p">(</span>
+    <span class="n">_core_epa__assn_eia_epacamd_unique</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia860__scd_generators</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_core_epacems__emissions_unit_ids</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia860__assn_boiler_generator</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Groups units and generators into unique subplant groups.</span>
+
+<span class="sd">    This takes :func:`_core_epa__assn_eia_epacamd_unique` as an input so this asset</span>
+<span class="sd">    doesn&#39;t have to deal with duplicate matches that may be present in the</span>
+<span class="sd">    :func:`core_epa__assn_eia_epacamd` asset due to its use of multiple years of raw</span>
+<span class="sd">    crosswalk outputs.</span>
+
+<span class="sd">    This function consists of three primary parts:</span>
+
+<span class="sd">    #.  Augment the EPA CAMD:EIA crosswalk with all IDs from EIA and EPA CAMD. Fill in</span>
+<span class="sd">        key IDs when possible. Because the published crosswalk was only meant to map</span>
+<span class="sd">        CAMD units to EIA generators, it is missing a large number of subplant_ids for</span>
+<span class="sd">        generators that do not report to CEMS. Before applying this function to the</span>
+<span class="sd">        subplant crosswalk, the crosswalk must be completed with all generators by outer</span>
+<span class="sd">        merging in the complete list of generators from EIA-860. This dataframe also</span>
+<span class="sd">        contains the complete list of ``unit_id_pudl`` mappings that will be necessary.</span>
+<span class="sd">    #.  :func:`make_subplant_ids`: Use graph analysis to identify distinct groupings of</span>
+<span class="sd">        EPA units and EIA generators based on 1:1, 1:m, m:1, or m:m relationships.</span>
+<span class="sd">    #.  :func:`update_subplant_ids`: Augment the ``subplant_id`` with the</span>
+<span class="sd">        ``unit_id_pudl`` and ``generator_id``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        table of cems_ids and with subplant_id added</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Ensure ALL relevant IDs are present. Basically just merge in all the IDs</span>
+    <span class="c1"># Later note: As of April 2023, there is an experimental augmentation of the</span>
+    <span class="c1"># unit_id_pudl living in pudl.output.eia860.assign_unit_ids. It is currently non-</span>
+    <span class="c1"># functioning (#2535) but when it is, ensure that it gets plugged into the dag</span>
+    <span class="c1"># BEFORE this step so the subplant IDs can benefit from the more fleshed out units</span>
+    <span class="n">epacamd_eia_complete</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">augment_crosswalk_with_generators_eia860</span><span class="p">(</span>
+            <span class="n">_core_epa__assn_eia_epacamd_unique</span><span class="p">,</span> <span class="n">core_eia860__scd_generators</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">augment_crosswalk_with_epacamd_ids</span><span class="p">,</span> <span class="n">_core_epacems__emissions_unit_ids</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">augment_crosswalk_with_bga_eia860</span><span class="p">,</span> <span class="n">core_eia860__assn_boiler_generator</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># use graph analysis to identify subplants</span>
+    <span class="n">subplant_ids</span> <span class="o">=</span> <span class="n">make_subplant_ids</span><span class="p">(</span><span class="n">epacamd_eia_complete</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="s2">&quot;glue&quot;</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;After making the networkx generateds subplant_ids, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subplant_ids</span><span class="o">.</span><span class="n">subplant_id</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">subplant_ids</span><span class="p">)</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> of&quot;</span>
+        <span class="s2">&quot; records have a subplant_id.&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># update the subplant ids for each plant</span>
+    <span class="n">subplant_ids_updated</span> <span class="o">=</span> <span class="n">subplant_ids</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">],</span> <span class="n">group_keys</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">update_subplant_ids</span><span class="p">)</span>
+    <span class="c1"># log differences between updated ids</span>
+    <span class="n">subplant_id_diff</span> <span class="o">=</span> <span class="n">subplant_ids_updated</span><span class="p">[</span>
+        <span class="n">subplant_ids_updated</span><span class="o">.</span><span class="n">subplant_id</span> <span class="o">!=</span> <span class="n">subplant_ids_updated</span><span class="o">.</span><span class="n">subplant_id_updated</span>
+    <span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Edited subplant_ids after update_subplant_ids: &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">subplant_id_diff</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">subplant_ids_updated</span><span class="p">)</span><span class="si">:</span><span class="s2">.1</span><span class="si">}</span><span class="s2">%&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># overwrite the subplant ids and apply manual update</span>
+    <span class="n">subplant_ids_updated</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">subplant_ids_updated</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">subplant_id</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">subplant_id_updated</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">manually_update_subplant_id</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># check for duplicates in sudo-PKs. These are not the actual PKs because there are</span>
+    <span class="c1"># some nulls in generator_id, so this won&#39;t be checked during the db construction</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">epacamd_eia_dupe_mask</span> <span class="o">:=</span> <span class="n">subplant_ids_updated</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;subplant_id&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;Duplicates found in sudo primary keys of EPA CAMD/EIA subplant ID table &quot;</span>
+            <span class="s2">&quot;when none are expected. Duplicates found: </span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subplant_ids_updated</span><span class="p">[</span><span class="n">epacamd_eia_dupe_mask</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">subplant_ids_updated</span></div>
+
+
+
+<div class="viewcode-block" id="augment_crosswalk_with_generators_eia860">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.augment_crosswalk_with_generators_eia860">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">augment_crosswalk_with_generators_eia860</span><span class="p">(</span>
+    <span class="n">crosswalk_clean</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">core_eia860__scd_generators</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge any plants that are missing from the EPA crosswalk but appear in EIA-860.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        crosswalk_clean: transformed EPA CEMS-EIA crosswalk.</span>
+<span class="sd">        core_eia860__scd_generators: EIA860 generators table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">crosswalk_clean</span> <span class="o">=</span> <span class="n">crosswalk_clean</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">core_eia860__scd_generators</span><span class="p">[[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(),</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">crosswalk_clean</span><span class="p">[</span><span class="s2">&quot;plant_id_epa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">crosswalk_clean</span><span class="p">[</span><span class="s2">&quot;plant_id_epa&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+        <span class="n">crosswalk_clean</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">crosswalk_clean</span></div>
+
+
+
+<div class="viewcode-block" id="augment_crosswalk_with_epacamd_ids">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.augment_crosswalk_with_epacamd_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">augment_crosswalk_with_epacamd_ids</span><span class="p">(</span>
+    <span class="n">crosswalk_clean</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">_core_epacems__emissions_unit_ids</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge all EPA CAMD IDs into the crosswalk.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">crosswalk_clean</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">emissions_unit_id_epa</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">emissions_unit_id_epa</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">generator_id</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">_core_epacems__emissions_unit_ids</span><span class="p">[</span>
+            <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">]</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(),</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">],</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:m&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="augment_crosswalk_with_bga_eia860">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.augment_crosswalk_with_bga_eia860">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">augment_crosswalk_with_bga_eia860</span><span class="p">(</span>
+    <span class="n">crosswalk_clean</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">core_eia860__assn_boiler_generator</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge all EIA Unit IDs into the crosswalk.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">crosswalk_clean</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">core_eia860__assn_boiler_generator</span><span class="p">[</span>
+            <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">]</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(),</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1">######################</span>
+<span class="c1"># Nexworkx subplant_id</span>
+<span class="c1">######################</span>
+
+
+<div class="viewcode-block" id="_prep_for_networkx">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets._prep_for_networkx">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prep_for_networkx</span><span class="p">(</span><span class="n">crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make surrogate keys for combustors and generators.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        crosswalk: The :ref:`core_epa__assn_eia_epacamd` crosswalk</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A copy of :ref:`core_epa__assn_eia_epacamd` crosswalk with new surrogate ID</span>
+<span class="sd">        columns `combustor_id` and `generator_id`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prepped</span> <span class="o">=</span> <span class="n">crosswalk</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># networkx can&#39;t handle composite keys, so make surrogates</span>
+    <span class="n">prepped</span><span class="p">[</span><span class="s2">&quot;combustor_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prepped</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
+    <span class="c1"># node IDs can&#39;t overlap so add (max + 1)</span>
+    <span class="n">prepped</span><span class="p">[</span><span class="s2">&quot;generator_id_unique&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">prepped</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">prepped</span><span class="p">[</span><span class="s2">&quot;combustor_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="o">+</span> <span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">prepped</span></div>
+
+
+
+<div class="viewcode-block" id="_subplant_ids_from_prepped_crosswalk">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets._subplant_ids_from_prepped_crosswalk">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_subplant_ids_from_prepped_crosswalk</span><span class="p">(</span><span class="n">prepped</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use networkx graph analysis to create subplant IDs from crosswalk edge list.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        prepped: ``core_epa__assn_eia_epacamd`` crosswalk passed through</span>
+<span class="sd">            :func:`_prep_for_networkx`</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A copy of ``core_epa__assn_eia_epacamd`` crosswalk plus new column</span>
+<span class="sd">        ``global_subplant_id``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">from_pandas_edgelist</span><span class="p">(</span>
+        <span class="n">prepped</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;combustor_id&quot;</span><span class="p">,</span>
+        <span class="n">target</span><span class="o">=</span><span class="s2">&quot;generator_id_unique&quot;</span><span class="p">,</span>
+        <span class="n">edge_attr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_set</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">graph</span><span class="p">)):</span>
+        <span class="n">subgraph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">node_set</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">nx</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">bipartite</span><span class="o">.</span><span class="n">is_bipartite</span><span class="p">(</span><span class="n">subgraph</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;non-bipartite: i=</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">, node_set=</span><span class="si">{</span><span class="n">node_set</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">set_edge_attributes</span><span class="p">(</span><span class="n">subgraph</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;global_subplant_id&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nx</span><span class="o">.</span><span class="n">to_pandas_edgelist</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_convert_global_id_to_composite_id">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets._convert_global_id_to_composite_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_global_id_to_composite_id</span><span class="p">(</span>
+    <span class="n">crosswalk_with_ids</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert global_subplant_id to a composite key (plant_id_eia, subplant_id).</span>
+
+<span class="sd">    The composite key will be much more stable (though not fully stable!) in time.</span>
+<span class="sd">    The global ID changes if ANY unit or generator changes, whereas the</span>
+<span class="sd">    compound key only changes if units/generators change within that specific plant.</span>
+
+<span class="sd">    A global ID could also tempt users into using it as a crutch, even though it isn&#39;t</span>
+<span class="sd">    stable. A compound key should discourage that behavior.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        crosswalk_with_ids: crosswalk with ``global_subplant_id``, as from</span>
+<span class="sd">            :func:`_subplant_ids_from_prepped_crosswalk`</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if crosswalk_with_ids has a MultiIndex</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A copy of crosswalk_with_ids with an added column: ``subplant_id``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Input crosswalk must have single level index. Given levels: </span><span class="si">{</span><span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">reindexed</span> <span class="o">=</span> <span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>  <span class="c1"># copy</span>
+    <span class="n">idx_name</span> <span class="o">=</span> <span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">if</span> <span class="n">idx_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Indices with no name (None) are set to a pandas default name (&#39;index&#39;), which</span>
+        <span class="c1"># could (though probably won&#39;t) change.</span>
+        <span class="n">idx_col</span> <span class="o">=</span> <span class="n">reindexed</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">crosswalk_with_ids</span><span class="o">.</span><span class="n">columns</span><span class="p">)[</span>
+            <span class="mi">0</span>
+        <span class="p">]</span>  <span class="c1"># get index name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">idx_col</span> <span class="o">=</span> <span class="n">idx_name</span>
+
+    <span class="n">composite_key</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">=</span> <span class="n">reindexed</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;global_subplant_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Recombine. Could use index join but I chose to reindex, sort and assign.</span>
+    <span class="c1"># Errors like mismatched length will raise exceptions, which is good.</span>
+
+    <span class="c1"># drop the outer group, leave the reindexed row index</span>
+    <span class="n">composite_key</span> <span class="o">=</span> <span class="n">composite_key</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">composite_key</span> <span class="o">=</span> <span class="n">composite_key</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>  <span class="c1"># put back in same order as reindexed</span>
+    <span class="n">reindexed</span><span class="p">[</span><span class="s2">&quot;subplant_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">composite_key</span>
+    <span class="c1"># restore original index</span>
+    <span class="n">reindexed</span> <span class="o">=</span> <span class="n">reindexed</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_col</span><span class="p">)</span>  <span class="c1"># restore values</span>
+    <span class="n">reindexed</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">reindexed</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">idx_name</span><span class="p">)</span>  <span class="c1"># restore original name</span>
+    <span class="k">return</span> <span class="n">reindexed</span></div>
+
+
+
+<div class="viewcode-block" id="make_subplant_ids">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.make_subplant_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_subplant_ids</span><span class="p">(</span><span class="n">crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Identify sub-plants in the EPA/EIA crosswalk graph.</span>
+
+<span class="sd">    In graph analysis terminology, the crosswalk is a list of edges between nodes</span>
+<span class="sd">    (combustors and generators) in a bipartite graph. The networkx python package</span>
+<span class="sd">    provides functions to analyze this edge list and extract disjoint subgraphs (groups</span>
+<span class="sd">    of combustors and generators that are connected to each other).  These are the</span>
+<span class="sd">    distinct power plants. To avoid a name collision with plant_id, we term these</span>
+<span class="sd">    collections &#39;subplants&#39;, and identify them with a subplant_id that is unique within</span>
+<span class="sd">    each plant_id. Subplants are thus identified with the composite key (plant_id,</span>
+<span class="sd">    subplant_id).</span>
+
+<span class="sd">    Through this analysis, we found that 56% of plant_ids contain multiple distinct</span>
+<span class="sd">    subplants, and 11% contain subplants with different technology types, such as a gas</span>
+<span class="sd">    boiler and gas turbine (not in a combined cycle).</span>
+
+<span class="sd">    Any row filtering should be done before this step if desired.</span>
+
+<span class="sd">    Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` rather</span>
+<span class="sd">    than ``plant_id_epa`` because the former is more granular and integrated into CEMS</span>
+<span class="sd">    during the transform process.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        crosswalk: The core_epa__assn_eia_epacamd crosswalk</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An edge list connecting EPA units to EIA generators, with connected pieces</span>
+<span class="sd">        issued a subplant_id</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="n">_prep_for_networkx</span><span class="p">(</span><span class="n">crosswalk</span><span class="p">)</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="n">_subplant_ids_from_prepped_crosswalk</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="n">_convert_global_id_to_composite_id</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">edge_list</span></div>
+
+
+
+<span class="c1">#############################</span>
+<span class="c1"># Augmentation of subplant_id</span>
+<span class="c1">#############################</span>
+
+
+<div class="viewcode-block" id="update_subplant_ids">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.update_subplant_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_subplant_ids</span><span class="p">(</span><span class="n">subplant_crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure a complete and accurate subplant_id mapping for all generators.</span>
+
+<span class="sd">    This function is meant to be applied using a ``.groupby(&quot;plant_id_eia&quot;).apply()``</span>
+<span class="sd">    function. This function will only properly work when applied to a single</span>
+<span class="sd">    ``plant_id_eia`` at a time.</span>
+
+<span class="sd">    High-level overview of method:</span>
+<span class="sd">    ==============================</span>
+
+<span class="sd">    #.  Use the ``subplant_id`` derived from :func:`make_subplant_ids` if available. In</span>
+<span class="sd">        the case where a ``unit_id_pudl`` groups several subplants, we overwrite these</span>
+<span class="sd">        multiple existing subplant_id with a single ``subplant_id``.</span>
+<span class="sd">    #.  All of the new unique ids are renumbered in consecutive ascending order</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subplant_crosswalk: a dataframe containing the output of</span>
+<span class="sd">            :func:`make_subplant_ids`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Step 1: Create corrected versions of subplant_id and unit_id_pudl</span>
+    <span class="c1"># if multiple unit_id_pudl are connected by a single subplant_id,</span>
+    <span class="c1"># unit_id_pudl_connected groups these unit_id_pudl together</span>
+    <span class="n">subplant_crosswalk</span> <span class="o">=</span> <span class="n">connect_ids</span><span class="p">(</span>
+        <span class="n">subplant_crosswalk</span><span class="p">,</span> <span class="n">id_to_update</span><span class="o">=</span><span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span> <span class="n">connecting_id</span><span class="o">=</span><span class="s2">&quot;subplant_id&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># if multiple subplant_id are connected by a single unit_id_pudl, group these</span>
+    <span class="c1"># subplant_id together</span>
+    <span class="n">subplant_crosswalk</span> <span class="o">=</span> <span class="n">connect_ids</span><span class="p">(</span>
+        <span class="n">subplant_crosswalk</span><span class="p">,</span> <span class="n">id_to_update</span><span class="o">=</span><span class="s2">&quot;subplant_id&quot;</span><span class="p">,</span> <span class="n">connecting_id</span><span class="o">=</span><span class="s2">&quot;unit_id_pudl&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Step 2: Update the subplant ID based on these now known unit/subplant overlaps</span>
+    <span class="n">subplant_crosswalk</span> <span class="o">=</span> <span class="n">subplant_crosswalk</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">unit_id_pudl_filled</span><span class="o">=</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">unit_id_pudl_connected</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">subplant_id_connected</span>
+                <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">],</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">unit_id_pudl_connected</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">),</span>
+        <span class="c1"># create a new unique subplant_id based on the connected subplant ids and the</span>
+        <span class="c1"># filled unit_id</span>
+        <span class="n">subplant_id_updated</span><span class="o">=</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;subplant_id_connected&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl_filled&quot;</span><span class="p">],</span>
+                <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">subplant_crosswalk</span></div>
+
+
+
+<div class="viewcode-block" id="connect_ids">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.connect_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">connect_ids</span><span class="p">(</span>
+    <span class="n">subplant_crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">id_to_update</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">connecting_id</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Corrects an id value if it is connected by an id value in another column.</span>
+
+<span class="sd">    If multiple ``subplant_id`` are connected by a single ``unit_id_pudl``, this groups</span>
+<span class="sd">    these ``subplant_id`` together. If multiple ``unit_id_pudl`` are connected by a</span>
+<span class="sd">    single ``subplant_id``, this groups these ``unit_id_pudl`` together.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subplant_crosswalk: dataframe containing columns of id_to_update</span>
+<span class="sd">            andconnecting_id</span>
+<span class="sd">        id_to_update: List of ID columns</span>
+<span class="sd">        connecting_id: ID column</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get a table with all unique subplant to unit pairs</span>
+    <span class="n">subplant_unit_pairs</span> <span class="o">=</span> <span class="n">subplant_crosswalk</span><span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;subplant_id&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+
+    <span class="c1"># identify if any non-NA id_to_update are duplicated, indicated that it is</span>
+    <span class="c1"># associated with multiple connecting_id</span>
+    <span class="n">duplicates</span> <span class="o">=</span> <span class="n">subplant_unit_pairs</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">subplant_unit_pairs</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">id_to_update</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">subplant_unit_pairs</span><span class="p">[</span><span class="n">id_to_update</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">())</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># if there are any duplicate units, indicating an incorrect id_to_update, fix the</span>
+    <span class="c1"># id_to_update</span>
+    <span class="n">subplant_crosswalk</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">connecting_id</span><span class="si">}</span><span class="s2">_connected&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subplant_crosswalk</span><span class="p">[</span><span class="n">connecting_id</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">duplicates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># find the lowest number subplant id associated with each duplicated unit_id_pudl</span>
+        <span class="n">duplicates</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">connecting_id</span><span class="si">}</span><span class="s2">_to_replace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">duplicates</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="n">id_to_update</span><span class="p">])[</span><span class="n">connecting_id</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># merge this replacement subplant_id into the dataframe and use it to update the</span>
+        <span class="c1"># existing subplant id</span>
+        <span class="n">subplant_crosswalk</span> <span class="o">=</span> <span class="n">subplant_crosswalk</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">duplicates</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="n">id_to_update</span><span class="p">,</span> <span class="n">connecting_id</span><span class="p">],</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">subplant_crosswalk</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">connecting_id</span><span class="si">}</span><span class="s2">_connected&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">subplant_crosswalk</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">connecting_id</span><span class="si">}</span><span class="s2">_to_replace&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">subplant_crosswalk</span></div>
+
+
+
+<div class="viewcode-block" id="manually_update_subplant_id">
+<a class="viewcode-back" href="../../../autoapi/pudl/etl/glue_assets/index.html#pudl.etl.glue_assets.manually_update_subplant_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">manually_update_subplant_id</span><span class="p">(</span><span class="n">subplant_crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manually update the subplant_id for ``plant_id_eia`` 1391.</span>
+
+<span class="sd">    This function lumps all records within ``plant_id_eia`` 1391 into the same</span>
+<span class="sd">    ``subplant_id`` group. See `comment &lt;https://github.com/singularity-energy/open-grid-emissions/pull/142#issuecomment-1186579260&gt;_`</span>
+<span class="sd">    for explanation of why.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># set all generators in plant 1391 to the same subplant</span>
+    <span class="n">subplant_crosswalk</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">subplant_crosswalk</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1391</span><span class="p">,</span> <span class="s2">&quot;subplant_id&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">subplant_crosswalk</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, Catalyst Cooperative, CC-BY-4.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=11fc87b4"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

@@ -1,0 +1,107 @@
+pudl.scripts.auto_match_utilities
+=================================
+
+.. py:module:: pudl.scripts.auto_match_utilities
+
+.. autoapi-nested-parse::
+
+   A CLI tool for matching FERC and EIA utilities.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.auto_match_utilities.logger
+   pudl.scripts.auto_match_utilities.UTILITY_NAME_CLEANER
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.auto_match_utilities.clean_utility_name
+   pudl.scripts.auto_match_utilities.match_utility_names
+   pudl.scripts.auto_match_utilities.get_existing_glue_df
+   pudl.scripts.auto_match_utilities.get_false_matches
+   pudl.scripts.auto_match_utilities.drop_records_with_matches
+   pudl.scripts.auto_match_utilities.add_new_matches_to_dataframe
+   pudl.scripts.auto_match_utilities.write_updated_matches
+   pudl.scripts.auto_match_utilities.main
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: UTILITY_NAME_CLEANER
+
+.. py:function:: clean_utility_name(col)
+
+   Apply standard cleaning steps to the utility name column.
+
+
+.. py:function:: match_utility_names(eia_df: pandas.DataFrame, ferc_df: pandas.DataFrame, false_matches: pandas.DataFrame)
+
+   Match FERC and EIA utilities based on their utility names.
+
+   We note how many of these records are already matched to one another, and
+   ignore these matches.
+
+   We also ignore matches contained in
+   src/pudl/package_data/glue/utility_id_pudl_false_matches.csv. These are matches that
+   we have hand-labelled as incorrect.
+
+
+.. py:function:: get_existing_glue_df()
+
+   Read in the existing handmade glue spreadsheet.
+
+
+.. py:function:: get_false_matches()
+
+   Read in the existing handmade false matches spreadsheet.
+
+
+.. py:function:: drop_records_with_matches(entity: Literal['ferc1', 'eia'], matches_new: pandas.DataFrame, existing_glue_df: pandas.DataFrame, matches_existing: pandas.DataFrame, unmatched_existing: pandas.DataFrame)
+
+   Drop records in the original dataframe where matches have been found.
+
+   This takes the original existing_glue_df dataframe, and drops records which were
+   previously unmatched and have been matched using the automated matching method.
+   We do this in preparation for adding the new matches to the spreadsheet.
+
+
+.. py:function:: add_new_matches_to_dataframe(matches_new: pandas.DataFrame, existing_glue_df: pandas.DataFrame)
+
+   Add new matches to existing hand-mapped dataframe.
+
+   We add new matches and assign them new PUDL utility IDs, following one of the
+   following scenarios:
+   1) If the PUDL utility ID already exists in another match, we keep that utility ID
+   to avoid splitting up existing sets of matches.
+   2) If the PUDL utility ID doesn't show up anywhere else (i.e., this record was
+   previously unmatched to any other utility), we create a new auto-incremented PUDL ID.
+   3) If the PUDL utility ID was previously matched to both another EIA and another
+   FERC utility, this poses a challenge that needs to be resolved by hand and we raise
+   a ValueError.
+
+   Once all PUDL utility IDs are assigned, we flag all records where multiple FERC and
+   multiple EIA utilities are matched together. These are uncommon cases and benefit
+   from manual review to ensure that no unexpected connections have been created.
+
+
+.. py:function:: write_updated_matches(test_run: bool, dataframe: pandas.DataFrame)
+
+   Write the updated matching spreadsheet to disk.
+
+
+.. py:function:: main(test_run: bool)
+
+   Match EIA and FERC utilities based on utility name alone.
+
+

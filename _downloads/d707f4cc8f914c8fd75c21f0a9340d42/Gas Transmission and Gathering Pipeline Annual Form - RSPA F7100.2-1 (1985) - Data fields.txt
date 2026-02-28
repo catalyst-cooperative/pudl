@@ -1,0 +1,182 @@
+Natural Gas Transmission Annuals data file fields
+
+*************************************************************************************
+The following table describes the fields in the accompanying TXT file.  The table shows the
+field name used by OPS, the data type, the maximum size of the field and a description of
+the field's meaning.  The word "Part" at a description's beginning indicates the part of the
+transmission annual report Form RSPA F 7100.2-1 (11-85) that the field represents.
+*************************************************************************************
+
+FIELD NAME	TYPE 		SIZE 	DESCRIPTION
+RPTID		Integer    	  8	Dot assigned ID number
+YR        	Integer    	  4	Year the report was received by OPS.
+NAME      	TEXT      	 50	Part A-1. - Name of operator or Company submitting report.
+OPID      	Integer    	  5	Part A-4. - DOT assigned number for the operator.
+OSTREET	TEXT		 40	Part A-2. - Street address of reporting company.
+OCITY		TEXT		 25	Part A-2. - City of reporting company.
+OCOUNTY	TEXT		 25	Part A-2. - County of reporting company.
+OSTATE	TEXT		  2	Part A-2. - State of reporting company.
+OZIP		TEXT		  5	Part A-2. - Zip code of reporting company.
+HSTREET    	TEXT     	 40	Part A-5. - Headquarter's street address if different.
+HCITY     	TEXT      	 25	Part A-5. - City where headquarters is located.
+HCOUNTY    	TEXT      	 25	Part A-5. - County where headquarters is located.
+HSTATE     	TEXT      	  2	Part A-5. - State where headquarters is located.
+HZIP      	TEXT      	  5	Part A-5. - Zip code of headquarters.
+STOP      	TEXT      	 40	Part A-3. - State(s) in which system operates.
+
+*************************************************************************************
+The following fields are the miles of transmission ONSHORE lines in the system at end of
+year, by material.
+*************************************************************************************
+
+T1M1_1     	Integer    	  6	Part B-1. - Onshore Steel Cathodically Protected Bare
+T1M1_2     	Integer    	  6	Part B-1. - Onshore Steel Cathodically Protected Coated
+T1M1_3     	Integer    	  6	Part B-1. - Onshore Steel Unprotected Bare
+T1M1_4     	Integer    	  6	Part B-1. - Onshore Steel Unprotected Coated
+T1M1_5     	Integer    	  6	Part B-1. - Onshore Cast Iron/ Wrought Iron Pipe Unprotected
+T1M1_6     	Integer    	  6	Part B-1. - Onshore Plastic Pipe
+T1M1_7     	Integer    	  6	Part B-1. - Onshore Other
+T1M1T     	Integer	          7	System totals Transmission Onshore, by material.
+
+*************************************************************************************
+The following fields are the miles of transmission OFFSHORE lines in the system at end of
+year, by material.
+*************************************************************************************
+
+T1M2_1     	Integer    	  6	Part B-1. - Offshore Steel Cathodically Protected Bare
+T1M2_2     	Integer    	  6	Part B-1. - Offshore Steel Cathodically Protected Coated
+T1M2_3     	Integer    	  6	Part B-1. - Offshore Steel Unprotected Bare
+T1M2_4     	Integer    	  6	Part B-1. - Offshore Steel Unprotected Coated
+T1M2_5     	Integer    	  6	Part B-1. - Offshore Cast Iron/ Wrought Iron Pipe Unprotected
+T1M2_6     	Integer    	  6	Part B-1. - Offshore Plastic Pipe
+T1M2_7     	Integer    	  6	Part B-1. - Offshore Other
+T1M2T     	Integer	          7	System totals Transmission Offshore, by material.
+
+*************************************************************************************
+The following fields are the miles of gathering ONSHORE lines in the system at end of
+year, by material.
+*************************************************************************************
+
+G1M1_1     	Integer    	  6	Part B-1. - Onshore Steel Cathodically Protected Bare
+G1M1_2     	Integer    	  6	Part B-1. - Onshore Steel Cathodically Protected Coated
+G1M1_3     	Integer    	  6	Part B-1. - Onshore Steel Unprotected Bare
+G1M1_4     	Integer    	  6	Part B-1. - Onshore Steel Unprotected Coated
+G1M1_5     	Integer    	  6	Part B-1. - Onshore Cast Iron/ Wrought Iron Pipe Unprotected
+G1M1_6     	Integer    	  6	Part B-1. - Onshore Plastic Pipe
+G1M1_7     	Integer    	  6	Part B-1. - Onshore Other
+G1M1T     	Integer	  7	System totals gathering Onshore, by material.
+
+*************************************************************************************
+The following fields are the miles of gathering OFFSHORE lines in the system at end of
+year, by material.
+*************************************************************************************
+
+G1M2_1     	Integer    	  6	Part B-1. - Offshore Steel Cathodically Protected Bare
+G1M2_2     	Integer    	  6	Part B-1. - Offshore Steel Cathodically Protected Coated
+G1M2_3     	Integer    	  6	Part B-1. - Offshore Steel Unprotected Bare
+G1M2_4     	Integer    	  6	Part B-1. - Offshore Steel Unprotected Coated
+G1M2_5     	Integer    	  6	Part B-1. - Offshore Cast Iron/ Wrought Iron Pipe Unprotected
+G1M2_6     	Integer    	  6	Part B-1. - Offshore Plastic Pipe
+G1M2_7     	Integer    	  6	Part B-1. - Offshore Other
+G1M2T     	Integer	  7	System totals gathering Offshore, by material.
+
+*************************************************************************************
+The following fields are the miles of transmission ONSHORE lines in the system at end of
+year, by diameter.
+*************************************************************************************
+
+T2M1_1     	Integer    	  6	Part B-1. - Onshore Unknown
+T2M1_2     	Integer    	  6	Part B-1. - Onshore 4" or Less
+T2M1_3     	Integer    	  6	Part B-1. - Onshore Over 4" through 10"
+T2M1_4     	Integer    	  6	Part B-1. - Onshore Over 10" through 20"
+T2M1_5     	Integer    	  6	Part B-1. - Onshore Over 20" through 28"
+T2M1_6     	Integer    	  6	Part B-1. - Onshore over 28"
+T2M1T     	Integer	  7	System totals Transmission Onshore, by diameter.
+
+*************************************************************************************
+The following fields are the miles of transmission OFFSHORE lines in the system at end of
+year, by diameter.
+*************************************************************************************
+
+T2M2_1     	Integer    	  6	Part B-1. - Offshore Unknown
+T2M2_2     	Integer    	  6	Part B-1. - Offshore 4" or Less
+T2M2_3     	Integer    	  6	Part B-1. - Offshore Over 4" through 10"
+T2M2_4     	Integer    	  6	Part B-1. - Offshore Over 10" through 20"
+T2M2_5     	Integer    	  6	Part B-1. - Offshore Over 20" through 28"
+T2M2_6     	Integer    	  6	Part B-1. - Offshore over 28"
+T2M2T     	Integer	  7	System totals Transmission Onshore, by diameter.
+
+*************************************************************************************
+The following fields are the miles of gathering ONSHORE lines in the system at end of
+year, by diameter.
+*************************************************************************************
+
+G2M1_1     	Integer    	  6	Part B-1. - Onshore Unknown
+G2M1_2     	Integer    	  6	Part B-1. - Onshore 4" or Less
+G2M1_3     	Integer    	  6	Part B-1. - Onshore Over 4" through 10"
+G2M1_4     	Integer    	  6	Part B-1. - Onshore Over 10" through 20"
+G2M1_5     	Integer    	  6	Part B-1. - Onshore Over 20" through 28"
+G2M1_6     	Integer    	  6	Part B-1. - Onshore over 28"
+G2M1T     	Integer	  7	System totals gathering Onshore, by diameter.
+
+*************************************************************************************
+The following fields are the miles of gathering OFFSHORE lines in the system at end of
+year, by diameter.
+*************************************************************************************
+
+G2M2_1     	Integer    	  6	Part B-1. - Offshore Unknown
+G2M2_2     	Integer    	  6	Part B-1. - Offshore 4" or Less
+G2M2_3     	Integer    	  6	Part B-1. - Offshore Over 4" through 10"
+G2M2_4     	Integer    	  6	Part B-1. - Offshore Over 10" through 20"
+G2M2_5     	Integer    	  6	Part B-1. - Offshore Over 20" through 28"
+G2M2_6     	Integer    	  6	Part B-1. - Offshore over 28"
+G2M2T     	Integer	  7	System totals gathering Onshore, by diameter.
+
+*************************************************************************************
+The following fields are the totals for all pipe in the system at end of year, by diameter.
+*************************************************************************************
+
+STOT_1     	Integer    	  6	Part B-1. - Onshore Unknown
+STOT_2     	Integer    	  6	Part B-1. - Onshore 4" or Less
+STOT_3     	Integer    	  6	Part B-1. - Onshore Over 4" through 10"
+STOT_4     	Integer    	  6	Part B-1. - Onshore Over 10" through 20"
+STOT_5     	Integer    	  6	Part B-1. - Onshore Over 20" through 28"
+STOT_6     	Integer    	  6	Part B-1. - Onshore over 28"
+TOTT     	Integer	  7	System totals Transmission Onshore, by diameter.
+
+*************************************************************************************
+The following fields are the data for leaks.
+*************************************************************************************
+
+CTC1		INT		  5	Part C. - Transmission Onshore Corrosion.
+CTC2		INT		  5	Part C. - Transmission Offshore Corrosion.
+CGC1		INT		  5	Part C. - Gathering Onshore Corrosion.
+CGC2		INT		  5	Part C. - Gathering Offshore Corrosion.
+CTOF1		INT		  5	Part C. - Transmission Onshore Outside Forces.
+CTOF2		INT		  5	Part C. - Transmission Offshore Outside  Forces.
+CGOF1		INT		  5	Part C. - Gathering Onshore Outside Forces.
+CGOF2		INT		  5	Part C. - Gathering Offshore Outside Forces.
+CTCD1		INT		  5	Part C. - Transmission Onshore Construction / Material Defects.
+CTCD2		INT		  5	Part C. - Transmission Offshore Construction / Material Defects.
+CGCD1		INT		  5	Part C. - Gathering Onshore Construction / Material Defects.
+CGCD2		INT		  5	Part C. - Gathering Offshore Construction / Material Defects.
+CTO1		INT		  5	Part C. - Transmission Onshore Other.
+CTO2		INT		  5	Part C. - Transmission Offshore Other.
+CGO1		INT		  5	Part C. - Gathering Onshore Other.
+CGO2		INT		  5	Part C. - Gathering Offshore Other.
+KNLKT		INT		  5	Part E-1. - Known transmission leaks scheduled for repair.
+KNLKG		INT		  5	Part E-2. - Known gathering leaks scheduled for repair.
+DTON		INT		  5	Part D-1. - Transmission leaks on Federal land or Outer
+					Continental shelf, onshore.
+DTOFF		INT		  5	Part D-1. - Transmission leaks on Federal land or Outer
+					Continental shelf, offshore.
+DTOUT		INT		  5	Part D-1. - Transmission leaks on Outer Continental shelf
+DGON		INT		  5	Part D-2. - Gathering leaks on Federal land or Outer
+					Continental shelf, onshore.
+DGOFF		INT		  5	Part D-2. - Gathering leaks on Federal land or Outer
+					Continental shelf, offshore.
+DGOUT		INT		  5	Part D-2. - Gathering leaks on Outer Continental shelf
+PNAME		TEXT	         60	Part F. Preparer's name
+PHONE		TEXT		 10	Part F. Preparer's phone
+DOE		DATE		 	Date record was entered into the database. (YYYYMMDD)
+DOC		DATE		 	Date record was changed in the database. (YYYYMMDD)

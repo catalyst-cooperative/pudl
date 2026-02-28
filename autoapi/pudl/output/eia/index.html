@@ -1,0 +1,1174 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    <link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html"><link rel="next" title="pudl.output.eia860" href="../eia860/index.html"><link rel="prev" title="pudl.output.censusdp1tract" href="../censusdp1tract/index.html">
+        <link rel="prefetch" href="../../../../_static/catalyst_logo-200x200.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>pudl.output.eia - PUDL 2026.2.1.dev10 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=b1990d62" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../index.html"><div class="brand">PUDL 2026.2.1.dev10 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../../_static/catalyst_logo-200x200.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">PUDL 2026.2.1.dev10 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">About PUDL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data_access.html">Data Access</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../data_sources/index.html">Data Sources</a><input aria-label="Toggle navigation of Data Sources" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../data_dictionaries/index.html">Data Dictionaries</a><input aria-label="Toggle navigation of Data Dictionaries" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../methodology/index.html">Methodology</a><input aria-label="Toggle navigation of Methodology" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../dev/index.html">Development</a><input aria-label="Toggle navigation of Development" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LICENSE.html">Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../../index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../../index.html">pudl</a><input aria-label="Toggle navigation of pudl" checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_version/index.html">pudl._version</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../analysis/index.html">pudl.analysis</a><input aria-label="Toggle navigation of pudl.analysis" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><input aria-label="Toggle navigation of pudl.analysis.ml_tools" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><input aria-label="Toggle navigation of pudl.analysis.record_linkage" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../convert/index.html">pudl.convert</a><input aria-label="Toggle navigation of pudl.convert" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../etl/index.html">pudl.etl</a><input aria-label="Toggle navigation of pudl.etl" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../extract/index.html">pudl.extract</a><input aria-label="Toggle navigation of pudl.extract" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><input aria-label="Toggle navigation of pudl.ferc_to_sqlite" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../glue/index.html">pudl.glue</a><input aria-label="Toggle navigation of pudl.glue" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../metadata/index.html">pudl.metadata</a><input aria-label="Toggle navigation of pudl.metadata" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../metadata/resources/index.html">pudl.metadata.resources</a><input aria-label="Toggle navigation of pudl.metadata.resources" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html">pudl.output</a><input aria-label="Toggle navigation of pudl.output" checked="" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l4 current current-page"><a class="current reference internal" href="#">pudl.output.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../sql/index.html">pudl.output.sql</a><input aria-label="Toggle navigation of pudl.output.sql" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/index.html">pudl.package_data</a><input aria-label="Toggle navigation of pudl.package_data" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/censuspep/index.html">pudl.package_data.censuspep</a><input aria-label="Toggle navigation of pudl.package_data.censuspep" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia176/index.html">pudl.package_data.eia176</a><input aria-label="Toggle navigation of pudl.package_data.eia176" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia191/index.html">pudl.package_data.eia191</a><input aria-label="Toggle navigation of pudl.package_data.eia191" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia757a/index.html">pudl.package_data.eia757a</a><input aria-label="Toggle navigation of pudl.package_data.eia757a" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia860/index.html">pudl.package_data.eia860</a><input aria-label="Toggle navigation of pudl.package_data.eia860" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia860m/index.html">pudl.package_data.eia860m</a><input aria-label="Toggle navigation of pudl.package_data.eia860m" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia861/index.html">pudl.package_data.eia861</a><input aria-label="Toggle navigation of pudl.package_data.eia861" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia923/index.html">pudl.package_data.eia923</a><input aria-label="Toggle navigation of pudl.package_data.eia923" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia930/index.html">pudl.package_data.eia930</a><input aria-label="Toggle navigation of pudl.package_data.eia930" class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/ferc1/index.html">pudl.package_data.ferc1</a><input aria-label="Toggle navigation of pudl.package_data.ferc1" class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><input aria-label="Toggle navigation of pudl.package_data.phmsagas" class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/rus12/index.html">pudl.package_data.rus12</a><input aria-label="Toggle navigation of pudl.package_data.rus12" class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/test/index.html">pudl.package_data.test</a><input aria-label="Toggle navigation of pudl.package_data.test" class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../resources/index.html">pudl.resources</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../scripts/index.html">pudl.scripts</a><input aria-label="Toggle navigation of pudl.scripts" class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../settings/index.html">pudl.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../transform/index.html">pudl.transform</a><input aria-label="Toggle navigation of pudl.transform" class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../transform/params/index.html">pudl.transform.params</a><input aria-label="Toggle navigation of pudl.transform.params" class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../validate/index.html">pudl.validate</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../workspace/index.html">pudl.workspace</a><input aria-label="Toggle navigation of pudl.workspace" class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../../../_sources/autoapi/pudl/output/eia/index.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-pudl.output.eia">
+<span id="pudl-output-eia"></span><h1>pudl.output.eia<a class="headerlink" href="#module-pudl.output.eia" title="Link to this heading">¶</a></h1>
+<p>A collection of denormalized EIA assets.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.logger" title="pudl.output.eia.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_utilities" title="pudl.output.eia.out_eia__yearly_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_utilities</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Pull all fields from the EIA Utilities table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_plants" title="pudl.output.eia.out_eia__yearly_plants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_plants</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Pull all fields from the EIA Plants tables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia._out_eia__yearly_generators" title="pudl.output.eia._out_eia__yearly_generators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_eia__yearly_generators</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Pull all fields from the EIA Utilities table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_boilers" title="pudl.output.eia.out_eia__yearly_boilers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_eia__yearly_boilers</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Pull all fields reported in the EIA boilers tables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia._out_eia__plants_utilities" title="pudl.output.eia._out_eia__plants_utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_eia__plants_utilities</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Create a dataframe of plant and utility IDs and names from EIA 860.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.add_consistent_ba_code_column" title="pudl.output.eia.add_consistent_ba_code_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_consistent_ba_code_column</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Make a column containing each plant's most consistently reported BA code.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.fill_in_missing_ba_codes" title="pudl.output.eia.fill_in_missing_ba_codes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_in_missing_ba_codes</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Fill in missing <code class="docutils literal notranslate"><span class="pre">balancing_authority_code_eia</span></code> values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.fill_generator_technology_description" title="pudl.output.eia.fill_generator_technology_description"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_generator_technology_description</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Fill in missing <code class="docutils literal notranslate"><span class="pre">technology_description</span></code> based by unique mapping &amp; backfilling.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.assign_unit_ids" title="pudl.output.eia.assign_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Group generators into operational units using various heuristics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.fill_unit_ids" title="pudl.output.eia.fill_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Back and forward fill Unit IDs for each plant / gen combination.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.max_unit_id_by_plant" title="pudl.output.eia.max_unit_id_by_plant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max_unit_id_by_plant</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Identify the largest unit ID associated with each plant so we don't overlap.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia._append_masked_units" title="pudl.output.eia._append_masked_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_append_masked_units</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Replace rows with new PUDL Unit IDs in the original dataframe.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.assign_single_gen_unit_ids" title="pudl.output.eia.assign_single_gen_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_single_gen_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Assign a unique PUDL Unit ID to each generator of a given prime mover type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.eia.assign_cc_unit_ids" title="pudl.output.eia.assign_cc_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_cc_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Assign PUDL Unit IDs for combined cycle generation units.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.eia.assign_prime_fuel_unit_ids" title="pudl.output.eia.assign_prime_fuel_unit_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_prime_fuel_unit_ids</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Assign a PUDL Unit ID to all generators with a given prime mover and fuel.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.output.eia.logger">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.logger" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.out_eia__yearly_utilities">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">out_eia__yearly_utilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_eia__entity_utilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia860__scd_utilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_pudl__assn_eia_pudl_utilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#out_eia__yearly_utilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.out_eia__yearly_utilities" title="Link to this definition">¶</a></dt>
+<dd><p>Pull all fields from the EIA Utilities table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>core_eia__entity_utilities</strong> – EIA utility entity table.</p></li>
+<li><p><strong>core_eia860__scd_utilities</strong> – EIA 860 annual utility table.</p></li>
+<li><p><strong>core_pudl__assn_eia_pudl_utilities</strong> – Associations between EIA utilities and pudl utility IDs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing utility attributes from EIA Forms 860 and 923.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.out_eia__yearly_plants">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">out_eia__yearly_plants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_eia__entity_plants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia860__scd_plants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_pudl__assn_eia_pudl_plants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_pudl__assn_eia_pudl_utilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#out_eia__yearly_plants"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.out_eia__yearly_plants" title="Link to this definition">¶</a></dt>
+<dd><p>Pull all fields from the EIA Plants tables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>core_eia__entity_plants</strong> – EIA plant entity table.</p></li>
+<li><p><strong>core_eia860__scd_plants</strong> – EIA 860 annual plant attribute table.</p></li>
+<li><p><strong>core_pudl__assn_eia_pudl_plants</strong> – Associations between EIA plants and pudl utility IDs.</p></li>
+<li><p><strong>core_pudl__assn_eia_pudl_utilities</strong> – EIA utility ID table.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing plant attributes from EIA Forms 860 and 923</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia._out_eia__yearly_generators">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">_out_eia__yearly_generators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia860__scd_generators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia__entity_generators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia__entity_plants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_out_eia__plants_utilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia860__assn_boiler_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#_out_eia__yearly_generators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia._out_eia__yearly_generators" title="Link to this definition">¶</a></dt>
+<dd><p>Pull all fields from the EIA Utilities table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> – A Dagster context object.</p></li>
+<li><p><strong>core_eia860__scd_generators</strong> – EIA 860 annual generator table.</p></li>
+<li><p><strong>core_eia__entity_generators</strong> – EIA generators entity table.</p></li>
+<li><p><strong>core_eia__entity_plants</strong> – EIA plant entity table.</p></li>
+<li><p><strong>_out_eia__plants_utilities</strong> – Denormalized plant_utility EIA ID table.</p></li>
+<li><p><strong>core_eia860__assn_boiler_generator</strong> – Associations between EIA boiler and generator IDs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing all the fields of the EIA 860 Utilities table.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.out_eia__yearly_boilers">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">out_eia__yearly_boilers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_eia860__scd_boilers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia__entity_boilers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia__entity_plants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_out_eia__plants_utilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia860__assn_boiler_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#out_eia__yearly_boilers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.out_eia__yearly_boilers" title="Link to this definition">¶</a></dt>
+<dd><p>Pull all fields reported in the EIA boilers tables.</p>
+<p>Merge in other useful fields including the latitude &amp; longitude of the
+plant that the boilers are part of, canonical plant &amp; operator names and
+the PUDL IDs of the plant and operator, for merging with other PUDL data
+sources.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>core_eia860__scd_boilers</strong> – EIA 860 annual boiler table.</p></li>
+<li><p><strong>core_eia__entity_boilers</strong> – EIA boiler entity table.</p></li>
+<li><p><strong>core_eia__entity_plants</strong> – EIA plant entity table.</p></li>
+<li><p><strong>_out_eia__plants_utilities</strong> – Denormalized plant_utility EIA ID table.</p></li>
+<li><p><strong>core_eia860__assn_boiler_generator</strong> – Associations between EIA boiler and generator IDs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing boiler attributes from EIA 860.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia._out_eia__plants_utilities">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">_out_eia__plants_utilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_eia__yearly_plants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_eia__yearly_utilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#_out_eia__plants_utilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia._out_eia__plants_utilities" title="Link to this definition">¶</a></dt>
+<dd><p>Create a dataframe of plant and utility IDs and names from EIA 860.</p>
+<p>Returns a pandas dataframe with the following columns:
+- report_date (in which data was reported)
+- plant_name_eia (from EIA entity)
+- plant_id_eia (from EIA entity)
+- plant_id_pudl
+- utility_id_eia (from EIA860)
+- utility_name_eia (from EIA860)
+- utility_id_pudl</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>out_eia__yearly_plants</strong> – Denormalized EIA plants table.</p></li>
+<li><p><strong>out_eia__yearly_utilities</strong> – Denormalized EIA utilities table.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing plant and utility IDs and names from EIA 860.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.add_consistent_ba_code_column">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">add_consistent_ba_code_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#add_consistent_ba_code_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.add_consistent_ba_code_column" title="Link to this definition">¶</a></dt>
+<dd><p>Make a column containing each plant’s most consistently reported BA code.</p>
+<p>Employ the harvesting function <code class="xref py py-func docutils literal notranslate"><span class="pre">occurrence_consistency()</span></code> which determines how
+consistent the values in a table are across all records within each plant. This
+function grabs only the values determined to be at least 70% consistent and merges
+them onto the plants table as a new column:
+<code class="docutils literal notranslate"><span class="pre">balancing_authority_code_eia_consistent</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.fill_in_missing_ba_codes">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">fill_in_missing_ba_codes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#fill_in_missing_ba_codes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.fill_in_missing_ba_codes" title="Link to this definition">¶</a></dt>
+<dd><p>Fill in missing <code class="docutils literal notranslate"><span class="pre">balancing_authority_code_eia</span></code> values.</p>
+<p>Balancing authority codes did not begin being reported until 2013. This function
+fills in the old years with BA codes using two main methods:</p>
+<ul class="simple">
+<li><p>Backfilling with the oldest reported BA code for each plant.</p></li>
+<li><p>Backfilling with the most frequently reported BA code for each plant.</p></li>
+</ul>
+<p>We add a column to represent each of these two methodologies via
+<code class="xref py py-func docutils literal notranslate"><span class="pre">add_backfilled_ba_code_column()</span></code> and <a class="reference internal" href="#pudl.output.eia.add_consistent_ba_code_column" title="pudl.output.eia.add_consistent_ba_code_column"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_consistent_ba_code_column()</span></code></a>.</p>
+<p>We know that the BA codes do change over time and are incorrectly reported at times.
+This means we can’t simply <code class="xref py py-meth docutils literal notranslate"><span class="pre">pd.fillna()</span></code> using either the oldest or most
+consistently reported values. This function employs several filling methods based
+on our investigation of the data:</p>
+<ul class="simple">
+<li><p>if the oldest code and the most consistent code are the same, use the
+consistent value (either would work!)</p></li>
+<li><p>use the oldest code for plants that have <code class="docutils literal notranslate"><span class="pre">SWPP</span></code> (<code class="docutils literal notranslate"><span class="pre">Southwest</span> <span class="pre">Power</span> <span class="pre">Pool</span></code>)
+as their most consistent BA code because we know <code class="docutils literal notranslate"><span class="pre">SWPP</span></code> has acquired many
+smaller balancing authorities in recent years.</p></li>
+<li><p>use the oldest code for plants that have <code class="docutils literal notranslate"><span class="pre">NWMT</span></code> (<code class="docutils literal notranslate"><span class="pre">NorthWestern</span> <span class="pre">Energy</span></code>)
+as  their most consistent BA code and <code class="docutils literal notranslate"><span class="pre">WAUE</span></code>
+(<code class="docutils literal notranslate"><span class="pre">Western</span> <span class="pre">Area</span> <span class="pre">Power</span> <span class="pre">Administration</span></code>) as their oldest BA code.</p></li>
+<li><p>use the oldest code for plants that have more than one year of older BA codes,
+using the assumption that more than one year of consistent old BA codes is not a
+reporting error.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>plants</strong> – table of annual plant attributes, including
+<code class="docutils literal notranslate"><span class="pre">balancing_authority_code_eia</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.fill_generator_technology_description">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">fill_generator_technology_description</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gens_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#fill_generator_technology_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.fill_generator_technology_description" title="Link to this definition">¶</a></dt>
+<dd><p>Fill in missing <code class="docutils literal notranslate"><span class="pre">technology_description</span></code> based by unique mapping &amp; backfilling.</p>
+<p>Prior to 2014, the EIA 860 did not report <code class="docutils literal notranslate"><span class="pre">technology_description</span></code>.</p>
+<p>This function fills in missing values are then filled in using the consistent,
+unique mappings that are observed between <code class="docutils literal notranslate"><span class="pre">energy_source_code_1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">prime_mover_code</span></code> and <code class="docutils literal notranslate"><span class="pre">technology_type</span></code> across all years and generators.</p>
+<p>Then function backfills those early years within groups defined by <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code>,
+<code class="docutils literal notranslate"><span class="pre">generator_id</span></code>, <code class="docutils literal notranslate"><span class="pre">energy_source_code_1</span></code> and <code class="docutils literal notranslate"><span class="pre">prime_mover_code</span></code>.</p>
+<p>As a result, more than 95% of all generator records end up having a
+<code class="docutils literal notranslate"><span class="pre">technology_description</span></code> associated with them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gens_df</strong> – A core_eia860__scd_generators dataframe containing at least the columns
+<code class="docutils literal notranslate"><span class="pre">report_date</span></code>, <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code>, <code class="docutils literal notranslate"><span class="pre">generator_id</span></code>,
+<code class="docutils literal notranslate"><span class="pre">energy_source_code_1</span></code>, and <code class="docutils literal notranslate"><span class="pre">technology_description</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A copy of the input dataframe, with <code class="docutils literal notranslate"><span class="pre">technology_description</span></code> filled in.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.assign_unit_ids">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">assign_unit_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gens_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#assign_unit_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.assign_unit_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Group generators into operational units using various heuristics.</p>
+<p>Splits a few columns off from the big generator dataframe and uses several
+heuristic functions to fill in missing unit_id_pudl values beyond those that
+are generated in the boiler generator association process. Then merges the
+new unit ID values back in to the generators dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gens_df</strong> – An EIA generator table. Must contain at least the columns:
+<code class="docutils literal notranslate"><span class="pre">report_date</span></code>, <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code>, <code class="docutils literal notranslate"><span class="pre">generator_id</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code>,
+<code class="docutils literal notranslate"><span class="pre">bga_source</span></code>, <code class="docutils literal notranslate"><span class="pre">fuel_type_code_pudl</span></code>, <code class="docutils literal notranslate"><span class="pre">prime_mover_code</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returned dataframe should only vary from the input in that some NA values in the
+<code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> and <code class="docutils literal notranslate"><span class="pre">bga_source</span></code> columns have been filled in with real
+values.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the input dataframe is missing required columns.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If any generator is associated with more than one unit_id_pudl.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.14)"><strong>AssertionError</strong></a> – If row or column indices are changed.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.14)"><strong>AssertionError</strong></a> – If pre-existing unit_id_pudl or bga_source values are altered.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.14)"><strong>AssertionError</strong></a> – If contents of any other columns are altered at all.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.fill_unit_ids">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">fill_unit_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gens_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#fill_unit_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.fill_unit_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Back and forward fill Unit IDs for each plant / gen combination.</p>
+<p>This routine assumes that the mapping of generators to units is constant
+over time, and extends those mappings into years where no boilers have
+been reported – since in the BGA we can only connect generators to each
+other if they are both connected to a boiler.</p>
+<p>Prior to 2014, combined cycle units didn’t report any “boilers” but in
+latter years, they have been given “boilers” that correspond to their
+generators, so that all of their fuel consumption is recorded alongside
+that of other types of generators.</p>
+<p>The bga_source field is set to “bfill_units” for those that were backfilled,
+and “ffill_units” for those that were forward filled.</p>
+<p>Note: We could back/forward fill the boiler IDs prior to the BGA process and
+we ought to get consistent units across all the years that are the same as
+what we fill in here. We could also back/forward fill boiler IDs and Unit
+IDs after the fact, and we <em>should</em> get the same result. this will address
+many currently “boilerless” CCNG units that use generator ID as boiler ID in
+the latter years. We could try and apply this more generally, but in cases
+of generator IDs that haven’t been used as boiler IDs, it would break the
+foreign key relationship with the boiler table, unless we added them there
+too, which seems like too much deep muddling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gens_df</strong> – An core_eia860__scd_generators dataframe, which must
+contain columns: report_date, plant_id_eia, generator_id,
+unit_id_pudl, bga_source.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame with the same columns as the input dataframe, but
+having some NA values filled in for both the unit_id_pudl and bga_source
+columns.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.max_unit_id_by_plant">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">max_unit_id_by_plant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gens_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#max_unit_id_by_plant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.max_unit_id_by_plant" title="Link to this definition">¶</a></dt>
+<dd><p>Identify the largest unit ID associated with each plant so we don’t overlap.</p>
+<p>The PUDL Unit IDs are sequentially assigned integers. To assign a new ID, we
+need to know the largest existing Unit ID within a plant. This function
+calculates that largest existing ID, or uses zero, if no Unit IDs are set
+within the plant.</p>
+<p>Note that this calculation depends on having all of the pre-existing
+generators and units still available in the dataframe!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gens_df</strong> – A core_eia860__scd_generators dataframe containing at
+least the columns plant_id_eia and unit_id_pudl.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>plant_id_eia and max_unit_id_pudl
+in which each row should be unique.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A DataFrame having two columns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia._append_masked_units">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">_append_masked_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gens_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">numpy.ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">on</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#_append_masked_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia._append_masked_units" title="Link to this definition">¶</a></dt>
+<dd><p>Replace rows with new PUDL Unit IDs in the original dataframe.</p>
+<p>Merges the newly assigned Unit IDs found in <code class="docutils literal notranslate"><span class="pre">unit_ids</span></code> into the
+<code class="docutils literal notranslate"><span class="pre">gens_df</span></code> dataframe, but only for those rows which are selected by the
+boolean <code class="docutils literal notranslate"><span class="pre">row_mask</span></code>. Merges using the column or columns specified by
+<code class="docutils literal notranslate"><span class="pre">on</span></code>. This operation should only result in changes to the values of
+<code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> and <code class="docutils literal notranslate"><span class="pre">bga_source</span></code> in the output dataframe. All of
+<code class="docutils literal notranslate"><span class="pre">gens_df</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_ids</span></code> and <code class="docutils literal notranslate"><span class="pre">row_mask</span></code> must be similarly indexed for
+this to work.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gens_df</strong> – a gens_eia860 based dataframe.</p></li>
+<li><p><strong>row_mask</strong> (<em>boolean mask</em>) – A boolean array indicating which records
+in <code class="docutils literal notranslate"><span class="pre">gens_df</span></code> should be replaced using values from <code class="docutils literal notranslate"><span class="pre">unit_ids</span></code>.</p></li>
+<li><p><strong>unit_ids</strong> – A dataframe containing newly assigned
+<code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> values to be integrated into <code class="docutils literal notranslate"><span class="pre">gens_df</span></code>.</p></li>
+<li><p><strong>on</strong> – Column or list of columns to merge on.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame with unit IDs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.assign_single_gen_unit_ids">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">assign_single_gen_unit_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gens_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prime_mover_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel_type_code_pudl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'single'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#assign_single_gen_unit_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.assign_single_gen_unit_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Assign a unique PUDL Unit ID to each generator of a given prime mover type.</p>
+<p>Calculate the maximum pre-existing PUDL Unit ID within each plant, and
+assign each as of yet unidentified distinct generator within each plant
+with an incrementing integer unit_id_pudl, beginning with 1 + the previous
+maximum unit_id_pudl found in that plant. Mark that generator with a label
+in the bga_source column consisting of label_prefix + the prime mover code.</p>
+<p>If fuel_type_code_pudl is not None, then only assign new Unit IDs to those
+generators having the specified fuel type code, and use that fuel type code
+as the label prefix, e.g. “coal_st” for a coal-fired steam turbine.</p>
+<p>Only generators having NA unit_id_pudl will be assigned a new ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gens_df</strong> – A collection of EIA generator records.
+Must include the <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code>, <code class="docutils literal notranslate"><span class="pre">generator_id</span></code> and
+<code class="docutils literal notranslate"><span class="pre">prime_mover_code</span></code> and <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> columns.</p></li>
+<li><p><strong>prime_mover_codes</strong> – List of prime mover codes for which we are
+attempting to assign simple Unit IDs.</p></li>
+<li><p><strong>fuel_type_code_pudl</strong> – If not None, then limit the records
+assigned a unit_id to those that have the specified
+fuel_type_code_pudl (e.g. “coal”, “gas”, “oil”, “nuclear”)</p></li>
+<li><p><strong>label_prefix</strong> – String to use in labeling records as to how their
+unit_id_pudl was set. Will be concatenated with the prime mover
+code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new dataframe with the same rows and columns as
+were passed in, but with the unit_id_pudl and bga_source columns updated
+to reflect the newly assigned Unit IDs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.assign_cc_unit_ids">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">assign_cc_unit_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gens_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#assign_cc_unit_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.assign_cc_unit_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Assign PUDL Unit IDs for combined cycle generation units.</p>
+<p>This applies only to combined cycle units reported as a combination of CT
+and CA prime movers. All CT and CA generators within a plant that do not
+already have a unit_id_pudl assigned will be given the same unit ID. The
+<code class="docutils literal notranslate"><span class="pre">bga_source</span></code> column is set to one of several flags indicating what type
+of arrangement was found:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">orphan_ct</span></code> (zero CA gens, 1+ CT gens)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">orphan_ca</span></code> (zero CT gens, 1+ CA gens)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">one_ct_one_ca_inferred</span></code> (1 CT, 1 CA)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">one_ct_many_ca_inferred</span></code> (1 CT, 1+ CA)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">many_ct_one_ca_inferred</span></code> (1+ CT, 1 CA)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">many_ct_many_ca_inferred</span></code> (1+ CT, 1+ CA)</p></li>
+</ul>
+<p>Orphaned generators are still assigned a <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> so that they can
+potentially be associated with other generators in the same unit across
+years. It’s likely that these orphans are a result of mislabeled or missing
+generators. Note that as generators are added or removed over time, the
+flags associated with each generator may change, even though it remains
+part of the same inferred unit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dataframe with assigned PUDL unit IDs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.eia.assign_prime_fuel_unit_ids">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.eia.</span></span><span class="sig-name descname"><span class="pre">assign_prime_fuel_unit_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gens_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prime_mover_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel_type_code_pudl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/eia.html#assign_prime_fuel_unit_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.eia.assign_prime_fuel_unit_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Assign a PUDL Unit ID to all generators with a given prime mover and fuel.</p>
+<p>Within each plant, assign a Unit ID to all generators that don’t have one,
+and that share the same <cite>fuel_type_code_pudl</cite> and <cite>prime_mover_code</cite>. This
+is especially useful for differentiating between different types of steam
+turbine generators, as there are so many different kinds of steam turbines,
+and the only characteristic we have to differentiate between them in this
+context is the fuel they consume. E.g. nuclear, geothermal, solar thermal,
+natural gas, diesel, and coal can all run steam turbines, but it doesn’t
+make sense to lump those turbines together into a single unit just because
+they are located at the same plant.</p>
+<p>This routine only assigns a PUDL Unit ID to generators that have a
+consistently reported value of <cite>fuel_type_code_pudl</cite> across all of the years
+of data in <cite>gens_df</cite>. This consistency is important because otherwise the
+prime-fuel based unit assignment could put the same generator into different
+units in different years, which is currently not compatible with our concept
+of “units.”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gens_df</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><em>pandas.DataFrame</em></a>) – A collection of EIA generator records.
+Must include the <code class="docutils literal notranslate"><span class="pre">plant_id_eia</span></code>, <code class="docutils literal notranslate"><span class="pre">generator_id</span></code> and
+<code class="docutils literal notranslate"><span class="pre">prime_mover_code</span></code> and <code class="docutils literal notranslate"><span class="pre">unit_id_pudl</span></code> columns.</p></li>
+<li><p><strong>prime_mover_code</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – List of prime mover codes for which we are
+attempting to assign simple Unit IDs.</p></li>
+<li><p><strong>fuel_type_code_pudl</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – If not None, then limit the records
+assigned a unit_id to those that have the specified
+fuel_type_code_pudl (e.g. “coal”, “gas”, “oil”, “nuclear”)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame where generators without a unit ID are assigned one based on
+<cite>fuel_type_code_pudl</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../eia860/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">pudl.output.eia860</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../censusdp1tract/index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">pudl.output.censusdp1tract</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, Catalyst Cooperative, CC-BY-4.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">pudl.output.eia</a><ul>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#pudl.output.eia.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_utilities"><code class="docutils literal notranslate"><span class="pre">out_eia__yearly_utilities()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_plants"><code class="docutils literal notranslate"><span class="pre">out_eia__yearly_plants()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia._out_eia__yearly_generators"><code class="docutils literal notranslate"><span class="pre">_out_eia__yearly_generators()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.out_eia__yearly_boilers"><code class="docutils literal notranslate"><span class="pre">out_eia__yearly_boilers()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia._out_eia__plants_utilities"><code class="docutils literal notranslate"><span class="pre">_out_eia__plants_utilities()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.add_consistent_ba_code_column"><code class="docutils literal notranslate"><span class="pre">add_consistent_ba_code_column()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.fill_in_missing_ba_codes"><code class="docutils literal notranslate"><span class="pre">fill_in_missing_ba_codes()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.fill_generator_technology_description"><code class="docutils literal notranslate"><span class="pre">fill_generator_technology_description()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.assign_unit_ids"><code class="docutils literal notranslate"><span class="pre">assign_unit_ids()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.fill_unit_ids"><code class="docutils literal notranslate"><span class="pre">fill_unit_ids()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.max_unit_id_by_plant"><code class="docutils literal notranslate"><span class="pre">max_unit_id_by_plant()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia._append_masked_units"><code class="docutils literal notranslate"><span class="pre">_append_masked_units()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.assign_single_gen_unit_ids"><code class="docutils literal notranslate"><span class="pre">assign_single_gen_unit_ids()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.assign_cc_unit_ids"><code class="docutils literal notranslate"><span class="pre">assign_cc_unit_ids()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.output.eia.assign_prime_fuel_unit_ids"><code class="docutils literal notranslate"><span class="pre">assign_prime_fuel_unit_ids()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../../_static/documentation_options.js?v=11fc87b4"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

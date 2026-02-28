@@ -1,0 +1,60 @@
+pudl.extract.nrelatb
+====================
+
+.. py:module:: pudl.extract.nrelatb
+
+.. autoapi-nested-parse::
+
+   Routines used for extracting the raw NREL ATB data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.nrelatb.raw_nrelatb__all_dfs
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.nrelatb.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.nrelatb.raw_nrelatb__data
+
+
+Module Contents
+---------------
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.parquet.ParquetExtractor`
+
+
+   Extractor for NREL ATB.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+.. py:data:: raw_nrelatb__all_dfs
+
+.. py:function:: raw_nrelatb__data(raw_nrelatb__all_dfs)
+
+   Extract raw NREL ATB data from annual parquet files to one dataframe.
+
+   :returns: An extracted NREL ATB dataframe.
+
+

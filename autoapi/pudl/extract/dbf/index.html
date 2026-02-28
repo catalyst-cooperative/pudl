@@ -1,0 +1,1366 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    <link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html"><link rel="next" title="pudl.extract.eia176" href="../eia176/index.html"><link rel="prev" title="pudl.extract.csv" href="../csv/index.html">
+        <link rel="prefetch" href="../../../../_static/catalyst_logo-200x200.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>pudl.extract.dbf - PUDL 2026.2.1.dev10 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=b1990d62" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../index.html"><div class="brand">PUDL 2026.2.1.dev10 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../../_static/catalyst_logo-200x200.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">PUDL 2026.2.1.dev10 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">About PUDL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data_access.html">Data Access</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../data_sources/index.html">Data Sources</a><input aria-label="Toggle navigation of Data Sources" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../data_dictionaries/index.html">Data Dictionaries</a><input aria-label="Toggle navigation of Data Dictionaries" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../methodology/index.html">Methodology</a><input aria-label="Toggle navigation of Methodology" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../dev/index.html">Development</a><input aria-label="Toggle navigation of Development" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LICENSE.html">Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../../index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../../index.html">pudl</a><input aria-label="Toggle navigation of pudl" checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_version/index.html">pudl._version</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../analysis/index.html">pudl.analysis</a><input aria-label="Toggle navigation of pudl.analysis" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><input aria-label="Toggle navigation of pudl.analysis.ml_tools" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><input aria-label="Toggle navigation of pudl.analysis.record_linkage" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../convert/index.html">pudl.convert</a><input aria-label="Toggle navigation of pudl.convert" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../etl/index.html">pudl.etl</a><input aria-label="Toggle navigation of pudl.etl" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current has-children"><a class="reference internal" href="../index.html">pudl.extract</a><input aria-label="Toggle navigation of pudl.extract" checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l4 current current-page"><a class="current reference internal" href="#">pudl.extract.dbf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><input aria-label="Toggle navigation of pudl.ferc_to_sqlite" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../glue/index.html">pudl.glue</a><input aria-label="Toggle navigation of pudl.glue" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../metadata/index.html">pudl.metadata</a><input aria-label="Toggle navigation of pudl.metadata" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../metadata/resources/index.html">pudl.metadata.resources</a><input aria-label="Toggle navigation of pudl.metadata.resources" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../output/index.html">pudl.output</a><input aria-label="Toggle navigation of pudl.output" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../output/sql/index.html">pudl.output.sql</a><input aria-label="Toggle navigation of pudl.output.sql" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../package_data/index.html">pudl.package_data</a><input aria-label="Toggle navigation of pudl.package_data" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/censuspep/index.html">pudl.package_data.censuspep</a><input aria-label="Toggle navigation of pudl.package_data.censuspep" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia176/index.html">pudl.package_data.eia176</a><input aria-label="Toggle navigation of pudl.package_data.eia176" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia191/index.html">pudl.package_data.eia191</a><input aria-label="Toggle navigation of pudl.package_data.eia191" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia757a/index.html">pudl.package_data.eia757a</a><input aria-label="Toggle navigation of pudl.package_data.eia757a" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia860/index.html">pudl.package_data.eia860</a><input aria-label="Toggle navigation of pudl.package_data.eia860" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia860m/index.html">pudl.package_data.eia860m</a><input aria-label="Toggle navigation of pudl.package_data.eia860m" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia861/index.html">pudl.package_data.eia861</a><input aria-label="Toggle navigation of pudl.package_data.eia861" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia923/index.html">pudl.package_data.eia923</a><input aria-label="Toggle navigation of pudl.package_data.eia923" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/eia930/index.html">pudl.package_data.eia930</a><input aria-label="Toggle navigation of pudl.package_data.eia930" class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/ferc1/index.html">pudl.package_data.ferc1</a><input aria-label="Toggle navigation of pudl.package_data.ferc1" class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><input aria-label="Toggle navigation of pudl.package_data.phmsagas" class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/rus12/index.html">pudl.package_data.rus12</a><input aria-label="Toggle navigation of pudl.package_data.rus12" class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../package_data/test/index.html">pudl.package_data.test</a><input aria-label="Toggle navigation of pudl.package_data.test" class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../resources/index.html">pudl.resources</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../scripts/index.html">pudl.scripts</a><input aria-label="Toggle navigation of pudl.scripts" class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../settings/index.html">pudl.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../transform/index.html">pudl.transform</a><input aria-label="Toggle navigation of pudl.transform" class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../transform/params/index.html">pudl.transform.params</a><input aria-label="Toggle navigation of pudl.transform.params" class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../validate/index.html">pudl.validate</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../workspace/index.html">pudl.workspace</a><input aria-label="Toggle navigation of pudl.workspace" class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../../../_sources/autoapi/pudl/extract/dbf/index.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-pudl.extract.dbf">
+<span id="pudl-extract-dbf"></span><h1>pudl.extract.dbf<a class="headerlink" href="#module-pudl.extract.dbf" title="Link to this heading">¶</a></h1>
+<p>Generalized DBF extractor for FERC data.</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.logger" title="pudl.extract.dbf.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.DBF_TYPES" title="pudl.extract.dbf.DBF_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DBF_TYPES</span></code></a></p></td>
+<td><p>A mapping of DBF field types to SQLAlchemy Column types.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.DbcFileMissingError" title="pudl.extract.dbf.DbcFileMissingError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DbcFileMissingError</span></code></a></p></td>
+<td><p>This is raised when the DBC index file is missing.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema" title="pudl.extract.dbf.DbfTableSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DbfTableSchema</span></code></a></p></td>
+<td><p>Simple data-wrapper for the fox-pro table schema.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive" title="pudl.extract.dbf.FercDbfArchive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercDbfArchive</span></code></a></p></td>
+<td><p>Represents API for accessing files within a single DBF archive.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.AbstractFercDbfReader" title="pudl.extract.dbf.AbstractFercDbfReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractFercDbfReader</span></code></a></p></td>
+<td><p>This is the interface definition for dealing with fox-pro datastores.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.FercFieldParser" title="pudl.extract.dbf.FercFieldParser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercFieldParser</span></code></a></p></td>
+<td><p>A custom DBF parser to deal with bad FERC data types.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame" title="pudl.extract.dbf.PartitionedDataFrame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PartitionedDataFrame</span></code></a></p></td>
+<td><p>This class bundles <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> with partition information.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader" title="pudl.extract.dbf.FercDbfReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercDbfReader</span></code></a></p></td>
+<td><p>Wrapper to provide standardized access to FERC DBF databases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor" title="pudl.extract.dbf.FercDbfExtractor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FercDbfExtractor</span></code></a></p></td>
+<td><p>Generalized class for loading data from foxpro databases into SQLAlchemy.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.extract.dbf.add_key_constraints" title="pudl.extract.dbf.add_key_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_key_constraints</span></code></a>(→ sqlalchemy.MetaData)</p></td>
+<td><p>Adds primary and foreign key to tables present in meta.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.extract.dbf.deduplicate_by_year" title="pudl.extract.dbf.deduplicate_by_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deduplicate_by_year</span></code></a>(→ pandas.DataFrame | None)</p></td>
+<td><p>Deduplicate records by year, keeping the most recent version of each record.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.extract.dbf.logger">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.logger" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbcFileMissingError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">DbcFileMissingError</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbcFileMissingError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbcFileMissingError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>This is raised when the DBC index file is missing.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">DbfTableSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema" title="Link to this definition">¶</a></dt>
+<dd><p>Simple data-wrapper for the fox-pro table schema.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema._columns">
+<span class="sig-name descname"><span class="pre">_columns</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema._columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema._columns" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema._column_types">
+<span class="sig-name descname"><span class="pre">_column_types</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema._column_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema._column_types" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema._short_name_map">
+<span class="sig-name descname"><span class="pre">_short_name_map</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema._short_name_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema._short_name_map" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema.add_column">
+<span class="sig-name descname"><span class="pre">add_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v2.1)"><span class="pre">sqlalchemy.types.TypeEngine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema.add_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema.add_column" title="Link to this definition">¶</a></dt>
+<dd><p>Adds a new column to this table schema.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema.get_columns">
+<span class="sig-name descname"><span class="pre">get_columns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.14)"><span class="pre">collections.abc.Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v2.1)"><span class="pre">sqlalchemy.types.TypeEngine</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema.get_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema.get_columns" title="Link to this definition">¶</a></dt>
+<dd><p>Iterates over the (column_name, column_type) pairs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema.get_column_names">
+<span class="sig-name descname"><span class="pre">get_column_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema.get_column_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema.get_column_names" title="Link to this definition">¶</a></dt>
+<dd><p>Returns set of long column names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema.get_column_rename_map">
+<span class="sig-name descname"><span class="pre">get_column_rename_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema.get_column_rename_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema.get_column_rename_map" title="Link to this definition">¶</a></dt>
+<dd><p>Returns dictionary that maps from short to long column names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DbfTableSchema.create_sa_table">
+<span class="sig-name descname"><span class="pre">create_sa_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sa_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlalchemy.Table</span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DbfTableSchema.create_sa_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DbfTableSchema.create_sa_table" title="Link to this definition">¶</a></dt>
+<dd><p>Creates SQLAlchemy table described by this instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sa_meta</strong> – new table will be written to this MetaData object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">FercDbfArchive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zipfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FercDbfArchive.__init__.zipfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbc_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_file_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dbfread.FieldParser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive" title="Link to this definition">¶</a></dt>
+<dd><p>Represents API for accessing files within a single DBF archive.</p>
+<p>Typically, archive contains data for a single year and single FERC form dataset
+(e.g. FERC Form 1 or FERC Form 2).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.zipfile">
+<span class="sig-name descname"><span class="pre">zipfile</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.zipfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.zipfile" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.partition">
+<span class="sig-name descname"><span class="pre">partition</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.partition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.partition" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.root_path">
+<span class="sig-name descname"><span class="pre">root_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.root_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.root_path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.dbc_path">
+<span class="sig-name descname"><span class="pre">dbc_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.dbc_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.dbc_path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive._table_file_map">
+<span class="sig-name descname"><span class="pre">_table_file_map</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive._table_file_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive._table_file_map" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.field_parser">
+<span class="sig-name descname"><span class="pre">field_parser</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.field_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.field_parser" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive._table_schemas">
+<span class="sig-name descname"><span class="pre">_table_schemas</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive._table_schemas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive._table_schemas" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.get_file">
+<span class="sig-name descname"><span class="pre">get_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">IO</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.get_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.get_file" title="Link to this definition">¶</a></dt>
+<dd><p>Opens the file within this archive.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.get_db_schema">
+<span class="sig-name descname"><span class="pre">get_db_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.get_db_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.get_db_schema" title="Link to this definition">¶</a></dt>
+<dd><p>Returns dict with table names as keys, and list of column names as values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.get_table_dbf">
+<span class="sig-name descname"><span class="pre">get_table_dbf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dbfread.DBF</span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.get_table_dbf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.get_table_dbf" title="Link to this definition">¶</a></dt>
+<dd><p>Opens the DBF for a given table.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.get_table_schema">
+<span class="sig-name descname"><span class="pre">get_table_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema" title="pudl.extract.dbf.DbfTableSchema"><span class="pre">DbfTableSchema</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.get_table_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.get_table_schema" title="Link to this definition">¶</a></dt>
+<dd><p>Returns TableSchema for a given table and a given year.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfArchive.load_table">
+<span class="sig-name descname"><span class="pre">load_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfArchive.load_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfArchive.load_table" title="Link to this definition">¶</a></dt>
+<dd><p>Returns dataframe that holds data for a table contained within this archive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table_name</strong> – name of the table.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.extract.dbf.AbstractFercDbfReader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">AbstractFercDbfReader</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#AbstractFercDbfReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.AbstractFercDbfReader" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>This is the interface definition for dealing with fox-pro datastores.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.AbstractFercDbfReader.get_dataset">
+<span class="sig-name descname"><span class="pre">get_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#AbstractFercDbfReader.get_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.AbstractFercDbfReader.get_dataset" title="Link to this definition">¶</a></dt>
+<dd><p>Returns name of the dataset that this datastore provides access to.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.AbstractFercDbfReader.get_table_names">
+<span class="sig-name descname"><span class="pre">get_table_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#AbstractFercDbfReader.get_table_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.AbstractFercDbfReader.get_table_names" title="Link to this definition">¶</a></dt>
+<dd><p>Returns list of all available table names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.AbstractFercDbfReader.get_archive">
+<span class="sig-name descname"><span class="pre">get_archive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive" title="pudl.extract.dbf.FercDbfArchive"><span class="pre">FercDbfArchive</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#AbstractFercDbfReader.get_archive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.AbstractFercDbfReader.get_archive" title="Link to this definition">¶</a></dt>
+<dd><p>Returns single archive matching specific filters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.AbstractFercDbfReader.get_table_schema">
+<span class="sig-name descname"><span class="pre">get_table_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema" title="pudl.extract.dbf.DbfTableSchema"><span class="pre">DbfTableSchema</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#AbstractFercDbfReader.get_table_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.AbstractFercDbfReader.get_table_schema" title="Link to this definition">¶</a></dt>
+<dd><p>Returns schema for a given table and a given year.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.AbstractFercDbfReader.load_table_dfs">
+<span class="sig-name descname"><span class="pre">load_table_dfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">partitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#AbstractFercDbfReader.load_table_dfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.AbstractFercDbfReader.load_table_dfs" title="Link to this definition">¶</a></dt>
+<dd><p>Returns dataframe that contains data for a given table across given years.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercFieldParser">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">FercFieldParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memofile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercFieldParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercFieldParser" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">dbfread.FieldParser</span></code></p>
+<p>A custom DBF parser to deal with bad FERC data types.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercFieldParser.parseN">
+<span class="sig-name descname"><span class="pre">parseN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercFieldParser.parseN"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercFieldParser.parseN" title="Link to this definition">¶</a></dt>
+<dd><p>Augments the Numeric DBF parser to account for bad FERC data.</p>
+<p>There are a small number of bad entries in the backlog of FERC Form 1
+data. They take the form of leading/trailing zeroes or null characters
+in supposedly numeric fields, and occasionally a naked ‘.’</p>
+<p>Accordingly, this custom parser strips leading and trailing zeros and
+null characters, and replaces a bare ‘.’ character with zero, allowing
+all these fields to be cast to numeric values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> – The DBF field being parsed.</p></li>
+<li><p><strong>data</strong> – Binary data (bytes) read from the DBF file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.extract.dbf.DBF_TYPES">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">DBF_TYPES</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#DBF_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.DBF_TYPES" title="Link to this definition">¶</a></dt>
+<dd><p>A mapping of DBF field types to SQLAlchemy Column types.</p>
+<p>This dictionary maps the strings which are used to denote field types in the DBF objects
+to the corresponding generic SQLAlchemy Column types: These definitions come from a
+combination of the dbfread example program dbf2sqlite and this DBF file format
+documentation page:
+<a class="reference external" href="http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm">http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm</a>
+: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as ‘XXX’
+which should result in an error if encountered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.extract.dbf.PartitionedDataFrame">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">PartitionedDataFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#PartitionedDataFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.PartitionedDataFrame" title="Link to this definition">¶</a></dt>
+<dd><p>This class bundles <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> with partition information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.PartitionedDataFrame.df">
+<span class="sig-name descname"><span class="pre">df</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#PartitionedDataFrame.df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.PartitionedDataFrame.df" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.PartitionedDataFrame.partition">
+<span class="sig-name descname"><span class="pre">partition</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#PartitionedDataFrame.partition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.PartitionedDataFrame.partition" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">FercDbfReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">pudl.workspace.datastore.Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dbfread.FieldParser</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">FercFieldParser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader" title="Link to this definition">¶</a></dt>
+<dd><p>Wrapper to provide standardized access to FERC DBF databases.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader._cache">
+<span class="sig-name descname"><span class="pre">_cache</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader._cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader._cache" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader.datastore">
+<span class="sig-name descname"><span class="pre">datastore</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader.datastore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader.datastore" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader.dataset">
+<span class="sig-name descname"><span class="pre">dataset</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader.dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader.dataset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader.field_parser">
+<span class="sig-name descname"><span class="pre">field_parser</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader.field_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader.field_parser" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader._dbc_path">
+<span class="sig-name descname"><span class="pre">_dbc_path</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader._dbc_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader._dbc_path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader._table_file_map">
+<span class="sig-name descname"><span class="pre">_table_file_map</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader._table_file_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader._table_file_map" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader.get_dataset">
+<span class="sig-name descname"><span class="pre">get_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader.get_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader.get_dataset" title="Link to this definition">¶</a></dt>
+<dd><p>Return the name of the dataset this datastore works with.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader._open_csv_resource">
+<span class="sig-name descname"><span class="pre">_open_csv_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/csv.html#csv.DictReader" title="(in Python v3.14)"><span class="pre">csv.DictReader</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader._open_csv_resource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader._open_csv_resource" title="Link to this definition">¶</a></dt>
+<dd><p>Open the given resource file as <a class="reference external" href="https://docs.python.org/3/library/csv.html#csv.DictReader" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">csv.DictReader</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader.get_archive">
+<span class="sig-name descname"><span class="pre">get_archive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filters</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive" title="pudl.extract.dbf.FercDbfArchive"><span class="pre">FercDbfArchive</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader.get_archive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader.get_archive" title="Link to this definition">¶</a></dt>
+<dd><p>Returns single dbf archive matching given filters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader.get_table_names">
+<span class="sig-name descname"><span class="pre">get_table_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader.get_table_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader.get_table_names" title="Link to this definition">¶</a></dt>
+<dd><p>Returns list of tables that this datastore provides access to.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader._normalize">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader._normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader._normalize" title="Link to this definition">¶</a></dt>
+<dd><p>Casts partition values to lowercase strings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader.valid_partition_filter">
+<span class="sig-name descname"><span class="pre">valid_partition_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader.valid_partition_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader.valid_partition_filter" title="Link to this definition">¶</a></dt>
+<dd><p>Returns True if a given filter fl is considered to be valid.</p>
+<p>This can be used to eliminate partitions that are not suitable for processing,
+e.g. for early years of FERC Form 2, databases marked with part=1 or part=2 are
+not suitable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfReader.load_table_dfs">
+<span class="sig-name descname"><span class="pre">load_table_dfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">partitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame" title="pudl.extract.dbf.PartitionedDataFrame"><span class="pre">PartitionedDataFrame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfReader.load_table_dfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfReader.load_table_dfs" title="Link to this definition">¶</a></dt>
+<dd><p>Returns all data for a given table.</p>
+<p>Merges data for a given table across all partitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> – name of the table to load.</p></li>
+<li><p><strong>partitions</strong> – list of partition filters to use</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">FercDbfExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">pudl.workspace.datastore.Datastore</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.FercToSqliteSettings" title="pudl.settings.FercToSqliteSettings"><span class="pre">pudl.settings.FercToSqliteSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor" title="Link to this definition">¶</a></dt>
+<dd><p>Generalized class for loading data from foxpro databases into SQLAlchemy.</p>
+<p>When subclassing from this generic extractor, one should implement dataset specific
+logic in the following manner:</p>
+<p>1. set DATABASE_NAME class attribute. This controls what filename is used for the output
+sqlite database.
+2. Implement get_dbf_reader() method to return the right kind of dataset specific
+AbstractDbfReader instance.</p>
+<p>Dataset specific logic and transformations can be injected by overriding:</p>
+<p>1. finalize_schema() in order to modify sqlite schema. This is called just before
+the schema is written into the sqlite database. This is good place for adding
+primary and/or foreign key constraints to tables.
+2. aggregate_table_frames() is responsible for concatenating individual data frames
+(one par input partition) into single one. This is where deduplication can take place.
+3. transform_table(table_name, df) will be invoked after dataframe is loaded from
+the foxpro database and before it’s written to sqlite. This is good place for
+table-specific preprocessing and/or cleanup.
+4. postprocess() is called after data is written to sqlite. This can be used for
+database level final cleanup and transformations (e.g. injecting missing
+respondent_ids).</p>
+<p>The extraction logic is invoked by calling execute() method of this class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.DATABASE_NAME">
+<span class="sig-name descname"><span class="pre">DATABASE_NAME</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.DATABASE_NAME"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.DATABASE_NAME" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.DATASET">
+<span class="sig-name descname"><span class="pre">DATASET</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.DATASET"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.DATASET" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.settings">
+<span class="sig-name descname"><span class="pre">settings</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../../settings/index.html#pudl.settings.GenericDatasetSettings" title="pudl.settings.GenericDatasetSettings"><span class="pre">pudl.settings.GenericDatasetSettings</span></a></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.settings" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.output_path">
+<span class="sig-name descname"><span class="pre">output_path</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.output_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.output_path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.datastore">
+<span class="sig-name descname"><span class="pre">datastore</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.datastore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.datastore" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.dbf_reader">
+<span class="sig-name descname"><span class="pre">dbf_reader</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.dbf_reader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.dbf_reader" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.sqlite_engine">
+<span class="sig-name descname"><span class="pre">sqlite_engine</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.sqlite_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.sqlite_engine" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.sqlite_meta">
+<span class="sig-name descname"><span class="pre">sqlite_meta</span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.sqlite_meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.sqlite_meta" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.get_settings">
+<span class="sig-name descname"><span class="pre">get_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../settings/index.html#pudl.settings.FercToSqliteSettings" title="pudl.settings.FercToSqliteSettings"><span class="pre">pudl.settings.FercToSqliteSettings</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../settings/index.html#pudl.settings.GenericDatasetSettings" title="pudl.settings.GenericDatasetSettings"><span class="pre">pudl.settings.GenericDatasetSettings</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.get_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.get_settings" title="Link to this definition">¶</a></dt>
+<dd><p>Returns dataset relevant settings from the global_settings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.get_dbf_reader">
+<span class="sig-name descname"><span class="pre">get_dbf_reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datastore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../workspace/datastore/index.html#pudl.workspace.datastore.Datastore" title="pudl.workspace.datastore.Datastore"><span class="pre">pudl.workspace.datastore.Datastore</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.extract.dbf.AbstractFercDbfReader" title="pudl.extract.dbf.AbstractFercDbfReader"><span class="pre">AbstractFercDbfReader</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.get_dbf_reader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.get_dbf_reader" title="Link to this definition">¶</a></dt>
+<dd><p>Returns appropriate instance of AbstractFercDbfReader to access the data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.get_db_path">
+<span class="sig-name descname"><span class="pre">get_db_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.get_db_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.get_db_path" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the connection string for the sqlite database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.get_dagster_op">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_dagster_op</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">collections.abc.Callable</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.get_dagster_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.get_dagster_op" title="Link to this definition">¶</a></dt>
+<dd><p>Returns dagstger op that runs this extractor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.execute" title="Link to this definition">¶</a></dt>
+<dd><p>Runs the extraction of the data from dbf to sqlite.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.delete_schema">
+<span class="sig-name descname"><span class="pre">delete_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.delete_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.delete_schema" title="Link to this definition">¶</a></dt>
+<dd><p>Drops all tables from the existing sqlite database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.create_sqlite_tables">
+<span class="sig-name descname"><span class="pre">create_sqlite_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.create_sqlite_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.create_sqlite_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Creates database schema based on the input tables.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.transform_table">
+<span class="sig-name descname"><span class="pre">transform_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.transform_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.transform_table" title="Link to this definition">¶</a></dt>
+<dd><p>Transforms the content of a single table.</p>
+<p>This method can be used to modify contents of the dataframe after it has
+been loaded from fox pro database and before it’s written to sqlite database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_name</strong> – name of the table that the dataframe is associated with</p></li>
+<li><p><strong>in_df</strong> – dataframe that holds all records.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.is_valid_partition">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_valid_partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.is_valid_partition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.is_valid_partition" title="Link to this definition">¶</a></dt>
+<dd><p>Returns True if the partition filter should be considered for processing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.aggregate_table_frames">
+<span class="sig-name descname"><span class="pre">aggregate_table_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame" title="pudl.extract.dbf.PartitionedDataFrame"><span class="pre">PartitionedDataFrame</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.aggregate_table_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.aggregate_table_frames" title="Link to this definition">¶</a></dt>
+<dd><p>Function to aggregate partitioned data frames into a single one.</p>
+<p>By default, this simply concatenates the frames, but custom dataset specific
+behaviors can be implemented.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.load_table_data">
+<span class="sig-name descname"><span class="pre">load_table_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.load_table_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.load_table_data" title="Link to this definition">¶</a></dt>
+<dd><p>Loads all tables from fox pro database and writes them to sqlite.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.finalize_schema">
+<span class="sig-name descname"><span class="pre">finalize_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlalchemy.MetaData</span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.finalize_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.finalize_schema" title="Link to this definition">¶</a></dt>
+<dd><p>This method is called just before the schema is written to sqlite.</p>
+<p>You can use this method to apply dataset specific alterations to the schema,
+such as adding primary and foreign key constraints.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.extract.dbf.FercDbfExtractor.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#FercDbfExtractor.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.FercDbfExtractor.postprocess" title="Link to this definition">¶</a></dt>
+<dd><p>This method is called after all the data is loaded into sqlite.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.extract.dbf.add_key_constraints">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">add_key_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.MetaData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlalchemy.MetaData</span></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#add_key_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.add_key_constraints" title="Link to this definition">¶</a></dt>
+<dd><p>Adds primary and foreign key to tables present in meta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>meta</strong> – constraints will be applied to this metadata instance</p></li>
+<li><p><strong>pk_table</strong> – name of the table that contains primary-key</p></li>
+<li><p><strong>column</strong> – foreign key column name. Tables that contain this column will
+have foreign-key constraint added.</p></li>
+<li><p><strong>pk_column</strong> – (optional) if specified, this is the primary key column name in
+the table. If not specified, it is assumed that this is the same as pk_column.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.extract.dbf.deduplicate_by_year">
+<span class="sig-prename descclassname"><span class="pre">pudl.extract.dbf.</span></span><span class="sig-name descname"><span class="pre">deduplicate_by_year</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame" title="pudl.extract.dbf.PartitionedDataFrame"><span class="pre">PartitionedDataFrame</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.1)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/extract/dbf.html#deduplicate_by_year"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.extract.dbf.deduplicate_by_year" title="Link to this definition">¶</a></dt>
+<dd><p>Deduplicate records by year, keeping the most recent version of each record.</p>
+<p>It will use pk_column as the primary key column. report_yr column is expected to
+either be present, or it will be derived from partition[“year”].</p>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../eia176/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">pudl.extract.eia176</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../csv/index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">pudl.extract.csv</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, Catalyst Cooperative, CC-BY-4.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">pudl.extract.dbf</a><ul>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+<li><a class="reference internal" href="#exceptions">Exceptions</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#pudl.extract.dbf.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbcFileMissingError"><code class="docutils literal notranslate"><span class="pre">DbcFileMissingError</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema</span></code></a><ul>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema.name"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema.name</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema._columns"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema._columns</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema._column_types"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema._column_types</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema._short_name_map"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema._short_name_map</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema.add_column"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema.add_column()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema.get_columns"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema.get_columns()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema.get_column_names"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema.get_column_names()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema.get_column_rename_map"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema.get_column_rename_map()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DbfTableSchema.create_sa_table"><code class="docutils literal notranslate"><span class="pre">DbfTableSchema.create_sa_table()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive</span></code></a><ul>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.zipfile"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.zipfile</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.partition"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.partition</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.root_path"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.root_path</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.dbc_path"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.dbc_path</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive._table_file_map"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive._table_file_map</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.field_parser"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.field_parser</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive._table_schemas"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive._table_schemas</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.get_file"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.get_file()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.get_db_schema"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.get_db_schema()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.get_table_dbf"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.get_table_dbf()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.get_table_schema"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.get_table_schema()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfArchive.load_table"><code class="docutils literal notranslate"><span class="pre">FercDbfArchive.load_table()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pudl.extract.dbf.AbstractFercDbfReader"><code class="docutils literal notranslate"><span class="pre">AbstractFercDbfReader</span></code></a><ul>
+<li><a class="reference internal" href="#pudl.extract.dbf.AbstractFercDbfReader.get_dataset"><code class="docutils literal notranslate"><span class="pre">AbstractFercDbfReader.get_dataset()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.AbstractFercDbfReader.get_table_names"><code class="docutils literal notranslate"><span class="pre">AbstractFercDbfReader.get_table_names()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.AbstractFercDbfReader.get_archive"><code class="docutils literal notranslate"><span class="pre">AbstractFercDbfReader.get_archive()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.AbstractFercDbfReader.get_table_schema"><code class="docutils literal notranslate"><span class="pre">AbstractFercDbfReader.get_table_schema()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.AbstractFercDbfReader.load_table_dfs"><code class="docutils literal notranslate"><span class="pre">AbstractFercDbfReader.load_table_dfs()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercFieldParser"><code class="docutils literal notranslate"><span class="pre">FercFieldParser</span></code></a><ul>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercFieldParser.parseN"><code class="docutils literal notranslate"><span class="pre">FercFieldParser.parseN()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pudl.extract.dbf.DBF_TYPES"><code class="docutils literal notranslate"><span class="pre">DBF_TYPES</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame"><code class="docutils literal notranslate"><span class="pre">PartitionedDataFrame</span></code></a><ul>
+<li><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame.df"><code class="docutils literal notranslate"><span class="pre">PartitionedDataFrame.df</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.PartitionedDataFrame.partition"><code class="docutils literal notranslate"><span class="pre">PartitionedDataFrame.partition</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader"><code class="docutils literal notranslate"><span class="pre">FercDbfReader</span></code></a><ul>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader._cache"><code class="docutils literal notranslate"><span class="pre">FercDbfReader._cache</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader.datastore"><code class="docutils literal notranslate"><span class="pre">FercDbfReader.datastore</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader.dataset"><code class="docutils literal notranslate"><span class="pre">FercDbfReader.dataset</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader.field_parser"><code class="docutils literal notranslate"><span class="pre">FercDbfReader.field_parser</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader._dbc_path"><code class="docutils literal notranslate"><span class="pre">FercDbfReader._dbc_path</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader._table_file_map"><code class="docutils literal notranslate"><span class="pre">FercDbfReader._table_file_map</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader.get_dataset"><code class="docutils literal notranslate"><span class="pre">FercDbfReader.get_dataset()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader._open_csv_resource"><code class="docutils literal notranslate"><span class="pre">FercDbfReader._open_csv_resource()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader.get_archive"><code class="docutils literal notranslate"><span class="pre">FercDbfReader.get_archive()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader.get_table_names"><code class="docutils literal notranslate"><span class="pre">FercDbfReader.get_table_names()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader._normalize"><code class="docutils literal notranslate"><span class="pre">FercDbfReader._normalize()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader.valid_partition_filter"><code class="docutils literal notranslate"><span class="pre">FercDbfReader.valid_partition_filter()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfReader.load_table_dfs"><code class="docutils literal notranslate"><span class="pre">FercDbfReader.load_table_dfs()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor</span></code></a><ul>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.DATABASE_NAME"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.DATABASE_NAME</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.DATASET"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.DATASET</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.settings"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.settings</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.output_path"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.output_path</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.datastore"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.datastore</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.dbf_reader"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.dbf_reader</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.sqlite_engine"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.sqlite_engine</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.sqlite_meta"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.sqlite_meta</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.get_settings"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.get_settings()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.get_dbf_reader"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.get_dbf_reader()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.get_db_path"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.get_db_path()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.get_dagster_op"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.get_dagster_op()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.execute"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.execute()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.delete_schema"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.delete_schema()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.create_sqlite_tables"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.create_sqlite_tables()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.transform_table"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.transform_table()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.is_valid_partition"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.is_valid_partition()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.aggregate_table_frames"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.aggregate_table_frames()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.load_table_data"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.load_table_data()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.finalize_schema"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.finalize_schema()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.FercDbfExtractor.postprocess"><code class="docutils literal notranslate"><span class="pre">FercDbfExtractor.postprocess()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pudl.extract.dbf.add_key_constraints"><code class="docutils literal notranslate"><span class="pre">add_key_constraints()</span></code></a></li>
+<li><a class="reference internal" href="#pudl.extract.dbf.deduplicate_by_year"><code class="docutils literal notranslate"><span class="pre">deduplicate_by_year()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../../_static/documentation_options.js?v=11fc87b4"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

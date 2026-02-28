@@ -1,0 +1,441 @@
+pudl.scripts.dbt_helper
+=======================
+
+.. py:module:: pudl.scripts.dbt_helper
+
+.. autoapi-nested-parse::
+
+   A basic CLI to autogenerate dbt data test configurations.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.dbt_helper.logger
+   pudl.scripts.dbt_helper.ALL_TABLES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.scripts.dbt_helper.DbtColumn
+   pudl.scripts.dbt_helper.DbtTable
+   pudl.scripts.dbt_helper.DbtSource
+   pudl.scripts.dbt_helper.DbtSchema
+   pudl.scripts.dbt_helper.UpdateResult
+   pudl.scripts.dbt_helper.TableUpdateArgs
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.dbt_helper._prettier_yaml_dumps
+   pudl.scripts.dbt_helper.schema_has_removals_or_modifications
+   pudl.scripts.dbt_helper._log_schema_diff
+   pudl.scripts.dbt_helper._schema_diff_summary
+   pudl.scripts.dbt_helper.get_data_source
+   pudl.scripts.dbt_helper._get_local_table_path
+   pudl.scripts.dbt_helper._get_model_path
+   pudl.scripts.dbt_helper._get_row_count_csv_path
+   pudl.scripts.dbt_helper._get_existing_row_counts
+   pudl.scripts.dbt_helper._calculate_row_counts
+   pudl.scripts.dbt_helper._combine_row_counts
+   pudl.scripts.dbt_helper._write_row_counts
+   pudl.scripts.dbt_helper.update_row_counts
+   pudl.scripts.dbt_helper.update_table_schema
+   pudl.scripts.dbt_helper._log_update_result
+   pudl.scripts.dbt_helper._extract_row_count_partitions
+   pudl.scripts.dbt_helper.update_tables
+   pudl.scripts.dbt_helper.validate
+   pudl.scripts.dbt_helper.dbt_helper
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: ALL_TABLES
+
+.. py:function:: _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str
+
+   Dump YAML to string that Prettier likes.
+
+
+.. py:class:: DbtColumn(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Define yaml structure of a dbt column.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: description
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: data_tests
+      :type:  list | None
+      :value: None
+
+
+
+   .. py:attribute:: meta
+      :type:  dict | None
+      :value: None
+
+
+
+   .. py:attribute:: tags
+      :type:  list[str] | None
+      :value: None
+
+
+
+   .. py:method:: add_column_tests(column_tests: list) -> DbtColumn
+
+      Add data tests to columns in dbt config.
+
+
+
+.. py:class:: DbtTable(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Define yaml structure of a dbt table.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: description
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: data_tests
+      :type:  list | None
+      :value: None
+
+
+
+   .. py:attribute:: columns
+      :type:  list[DbtColumn]
+
+
+   .. py:attribute:: meta
+      :type:  dict | None
+      :value: None
+
+
+
+   .. py:attribute:: tags
+      :type:  list[str] | None
+      :value: None
+
+
+
+   .. py:attribute:: config
+      :type:  dict | None
+      :value: None
+
+
+
+   .. py:method:: add_source_tests(source_tests: list) -> DbtTable
+
+      Add data tests to source in dbt config.
+
+
+
+   .. py:method:: add_column_tests(column_tests: dict[str, list]) -> DbtTable
+
+      Add data tests to columns in dbt config.
+
+
+
+   .. py:method:: from_table_name(table_name: str) -> DbtTable
+      :classmethod:
+
+
+      Construct configuration defining table from PUDL metadata.
+
+
+
+.. py:class:: DbtSource(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Define basic dbt yml structure to add a pudl table as a dbt source.
+
+
+   .. py:attribute:: name
+      :type:  str
+      :value: 'pudl'
+
+
+
+   .. py:attribute:: tables
+      :type:  list[DbtTable]
+
+
+   .. py:attribute:: description
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:attribute:: meta
+      :type:  dict | None
+      :value: None
+
+
+
+   .. py:method:: add_source_tests(source_tests: list) -> DbtSource
+
+      Add data tests to source in dbt config.
+
+
+
+   .. py:method:: add_column_tests(column_tests: dict[str, list]) -> DbtSource
+
+      Add data tests to columns in dbt config.
+
+
+
+.. py:class:: DbtSchema(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Define basic structure of a dbt models yaml file.
+
+
+   .. py:attribute:: version
+      :type:  int
+      :value: 2
+
+
+
+   .. py:attribute:: sources
+      :type:  list[DbtSource]
+
+
+   .. py:attribute:: models
+      :type:  list[DbtTable] | None
+      :value: None
+
+
+
+   .. py:method:: add_source_tests(source_tests: list, model_name: str | None = None) -> DbtSchema
+
+      Add data tests to source in dbt config.
+
+
+
+   .. py:method:: add_column_tests(column_tests: dict[str, list], model_name: str | None = None) -> DbtSchema
+
+      Add data tests to columns in dbt config.
+
+
+
+   .. py:method:: from_table_name(table_name: str) -> DbtSchema
+      :classmethod:
+
+
+      Construct configuration defining table from PUDL metadata.
+
+
+
+   .. py:method:: from_yaml(schema_path: pathlib.Path) -> DbtSchema
+      :classmethod:
+
+
+      Load a DbtSchema object from a YAML file.
+
+
+
+   .. py:method:: to_yaml(schema_path: pathlib.Path)
+
+      Write DbtSchema object to YAML file.
+
+
+
+   .. py:method:: merge_metadata_from(old_schema: DbtSchema) -> DbtSchema
+
+      Merge metadata from an old schema into this one, preferring new values where present.
+
+
+
+.. py:function:: schema_has_removals_or_modifications(old_schema: dict, new_schema: dict) -> bool
+
+   Check if schema changes include removals or modifications.
+
+   Ignores:
+   * Column removals with no metadata (only {"name"} or empty dict)
+   * Column renames (values_changed on ['name'])
+
+
+.. py:function:: _log_schema_diff(old_schema: DbtSchema, new_schema: DbtSchema)
+
+   Print colored summary of schema changes.
+
+
+.. py:function:: _schema_diff_summary(old_schema: DbtSchema, new_schema: DbtSchema)
+
+   Return a summary of schema changes based on YAML output.
+
+
+.. py:function:: get_data_source(table_name: str) -> str
+
+   Return the data source element of the table's name.
+
+
+.. py:class:: UpdateResult
+
+   Bases: :py:obj:`tuple`
+
+
+   .. py:attribute:: success
+
+
+   .. py:attribute:: message
+
+
+.. py:function:: _get_local_table_path(table_name)
+
+.. py:function:: _get_model_path(table_name: str, data_source: str) -> pathlib.Path
+
+.. py:function:: _get_row_count_csv_path() -> pathlib.Path
+
+.. py:function:: _get_existing_row_counts() -> pandas.DataFrame
+
+.. py:function:: _calculate_row_counts(table_name: str, partition_expr: str | None = None) -> pandas.DataFrame
+
+.. py:function:: _combine_row_counts(existing: pandas.DataFrame, new: pandas.DataFrame) -> pandas.DataFrame
+
+.. py:function:: _write_row_counts(row_counts: pandas.DataFrame)
+
+.. py:function:: update_row_counts(table_name: str, data_source: str, clobber: bool = False) -> UpdateResult
+
+   Generate updated row counts per partition and write to csv file within dbt project.
+
+
+.. py:function:: update_table_schema(table_name: str, data_source: str, clobber: bool = False) -> UpdateResult
+
+   Generate and write out a schema.yaml file defining a new or updated table.
+
+
+.. py:function:: _log_update_result(result: UpdateResult)
+
+.. py:function:: _extract_row_count_partitions(table: DbtTable) -> list[str | None]
+
+   Extract partition columns from check_row_counts_per_partition tests in a DbtTable.
+
+
+.. py:class:: TableUpdateArgs
+
+   Define a single class to collect the args for all table update commands.
+
+
+   .. py:attribute:: tables
+      :type:  list[str]
+
+
+   .. py:attribute:: schema
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: row_counts
+      :type:  bool
+      :value: False
+
+
+
+   .. py:attribute:: clobber
+      :type:  bool
+      :value: False
+
+
+
+.. py:function:: update_tables(tables: list[str], clobber: bool, schema: bool, row_counts: bool)
+
+   Add or update dbt schema configs and row count expectations for PUDL tables.
+
+   The ``tables`` argument can be a single table name, a list of table names, or
+   'all'. If 'all' the script will update configurations for for all PUDL tables.
+
+   If ``--clobber`` is set, existing configurations for tables will be overwritten.
+   if this does not result in deletions.
+
+
+.. py:function:: validate(select: str | None = None, asset_select: str | None = None, exclude: str | None = None, dry_run: bool = False) -> None
+
+   Validate a selection of dbt nodes.
+
+   Wraps the ``dbt build`` command line so we can annotate the result with the
+   actual data that was returned from the test query.
+
+   Understands how to translate Dagster asset selection syntax into dbt node
+   selections via the --asset-select flag.
+
+   Default behavior if you do not pass `--asset-select` or `--select` is to
+   validate everything.
+
+   Usage examples:
+
+   Run all the checks for one asset:
+
+       $ dbt_helper validate --asset-select "key:out_eia__yearly_generators"
+
+   Run the checks for one specific dbt node:
+
+       $ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"
+
+   Run checks for an asset and all its upstream dependencies:
+
+       $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators"
+
+   Exclude the row count tests:
+
+       $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"
+
+
+
+
+
+.. py:function:: dbt_helper()
+
+   Script for auto-generating dbt configuration and migrating existing tests.
+
+   This CLI currently provides the following sub-commands:
+
+   update-tables: which can update or create a dbt table (model) schema.yml file under
+   the ``dbt/models`` repo. These configuration files tell dbt about the structure of
+   the table and what data tests are specified for it. The script can also generate or
+   update the expected row counts for existing tables, assuming they have been
+   materialized to parquet files and are sitting in your $PUDL_OUTPUT directory.
+
+   validate: run validation tests for a selection of dbt nodes.
+
+   Run ``dbt_helper {command} --help`` for detailed usage on each command.
+
+

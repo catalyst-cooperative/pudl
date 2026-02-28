@@ -1,0 +1,990 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report" href="ferc714.html"><link rel="prev" title="EPA Hourly Continuous Emission Monitoring System (CEMS)" href="epacems.html">
+        <link rel="prefetch" href="../_static/catalyst_logo-200x200.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>FERC Form 1 – Annual Report of Major Electric Utilities - PUDL 2026.2.1.dev10 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=b1990d62" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">PUDL 2026.2.1.dev10 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/catalyst_logo-200x200.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">PUDL 2026.2.1.dev10 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">About PUDL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_access.html">Data Access</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Data Sources</a><input aria-label="Toggle navigation of Data Sources" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../data_dictionaries/index.html">Data Dictionaries</a><input aria-label="Toggle navigation of Data Dictionaries" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../methodology/index.html">Methodology</a><input aria-label="Toggle navigation of Methodology" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../dev/index.html">Development</a><input aria-label="Toggle navigation of Development" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/pudl/index.html">pudl</a><input aria-label="Toggle navigation of pudl" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/_version/index.html">pudl._version</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/index.html">pudl.analysis</a><input aria-label="Toggle navigation of pudl.analysis" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><input aria-label="Toggle navigation of pudl.analysis.ml_tools" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><input aria-label="Toggle navigation of pudl.analysis.record_linkage" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/convert/index.html">pudl.convert</a><input aria-label="Toggle navigation of pudl.convert" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/etl/index.html">pudl.etl</a><input aria-label="Toggle navigation of pudl.etl" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/extract/index.html">pudl.extract</a><input aria-label="Toggle navigation of pudl.extract" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><input aria-label="Toggle navigation of pudl.ferc_to_sqlite" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/glue/index.html">pudl.glue</a><input aria-label="Toggle navigation of pudl.glue" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/metadata/index.html">pudl.metadata</a><input aria-label="Toggle navigation of pudl.metadata" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/metadata/resources/index.html">pudl.metadata.resources</a><input aria-label="Toggle navigation of pudl.metadata.resources" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/output/index.html">pudl.output</a><input aria-label="Toggle navigation of pudl.output" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/output/sql/index.html">pudl.output.sql</a><input aria-label="Toggle navigation of pudl.output.sql" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/index.html">pudl.package_data</a><input aria-label="Toggle navigation of pudl.package_data" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/censuspep/index.html">pudl.package_data.censuspep</a><input aria-label="Toggle navigation of pudl.package_data.censuspep" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia176/index.html">pudl.package_data.eia176</a><input aria-label="Toggle navigation of pudl.package_data.eia176" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia191/index.html">pudl.package_data.eia191</a><input aria-label="Toggle navigation of pudl.package_data.eia191" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia757a/index.html">pudl.package_data.eia757a</a><input aria-label="Toggle navigation of pudl.package_data.eia757a" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia860/index.html">pudl.package_data.eia860</a><input aria-label="Toggle navigation of pudl.package_data.eia860" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia860m/index.html">pudl.package_data.eia860m</a><input aria-label="Toggle navigation of pudl.package_data.eia860m" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia861/index.html">pudl.package_data.eia861</a><input aria-label="Toggle navigation of pudl.package_data.eia861" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia923/index.html">pudl.package_data.eia923</a><input aria-label="Toggle navigation of pudl.package_data.eia923" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/eia930/index.html">pudl.package_data.eia930</a><input aria-label="Toggle navigation of pudl.package_data.eia930" class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/ferc1/index.html">pudl.package_data.ferc1</a><input aria-label="Toggle navigation of pudl.package_data.ferc1" class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><input aria-label="Toggle navigation of pudl.package_data.phmsagas" class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/rus12/index.html">pudl.package_data.rus12</a><input aria-label="Toggle navigation of pudl.package_data.rus12" class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/package_data/test/index.html">pudl.package_data.test</a><input aria-label="Toggle navigation of pudl.package_data.test" class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/resources/index.html">pudl.resources</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/scripts/index.html">pudl.scripts</a><input aria-label="Toggle navigation of pudl.scripts" class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/settings/index.html">pudl.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/transform/index.html">pudl.transform</a><input aria-label="Toggle navigation of pudl.transform" class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../autoapi/pudl/transform/params/index.html">pudl.transform.params</a><input aria-label="Toggle navigation of pudl.transform.params" class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../autoapi/pudl/transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/validate/index.html">pudl.validate</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../autoapi/pudl/workspace/index.html">pudl.workspace</a><input aria-label="Toggle navigation of pudl.workspace" class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../autoapi/pudl/workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/data_sources/ferc1.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="ferc-form-1-annual-report-of-major-electric-utilities">
+<h1>FERC Form 1 – Annual Report of Major Electric Utilities<a class="headerlink" href="#ferc-form-1-annual-report-of-major-electric-utilities" title="Link to this heading">¶</a></h1>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><th class="stub"><p>Source URL</p></th>
+<td><p><a class="reference external" href="https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual">https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-1-electric-utility-annual</a></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Source Description</p></th>
+<td><p>The Federal Energy Regulatory Commission (FERC) Form 1 is a comprehensive financial and operating report submitted annually for electric rate regulation, market oversight analysis, and financial audits by Major electric utilities, licensees and others.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Respondents</p></th>
+<td><p>Major electric utilities and licenses.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Records Liberated</p></th>
+<td><p>~13.2 million (116 raw tables), ~4.7 million (23 clean tables)</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Source Format</p></th>
+<td><p>XBRL (.XBRL) and Visual FoxPro Database (.DBC/.DBF)</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Download Size</p></th>
+<td><p>2051 MB</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Temporal Coverage</p></th>
+<td><p>1994-2024</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>PUDL Code</p></th>
+<td><p><code class="docutils literal notranslate"><span class="pre">ferc1</span></code></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Unprocessed Source Data Archive</p></th>
+<td><p><a class="reference external" href="https://doi.org/10.5281/zenodo.4127043">10.5281/zenodo.4127043</a></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>Issues</p></th>
+<td><p><a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aopen+label%3Aferc1">Open FERC Form 1 – Annual Report of Major Electric Utilities issues</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="pudl-database-tables">
+<h2>PUDL Database Tables<a class="headerlink" href="#pudl-database-tables" title="Link to this heading">¶</a></h2>
+<p>We’ve segmented the processed data into the following normalized data tables.
+Clicking on the links will show you a description of the table as well as
+the names and descriptions of each of its fields.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Data Dictionary</p></th>
+<th class="head"><p>Browse Online</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-balance-sheet-assets-sched110"><span class="std std-ref">core_ferc1__yearly_balance_sheet_assets_sched110</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_balance_sheet_assets_sched110">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_balance_sheet_assets_sched110</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-balance-sheet-liabilities-sched110"><span class="std std-ref">core_ferc1__yearly_balance_sheet_liabilities_sched110</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_balance_sheet_liabilities_sched110">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_balance_sheet_liabilities_sched110</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-cash-flows-sched120"><span class="std std-ref">core_ferc1__yearly_cash_flows_sched120</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_cash_flows_sched120">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_cash_flows_sched120</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-depreciation-by-function-sched219"><span class="std std-ref">core_ferc1__yearly_depreciation_by_function_sched219</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_by_function_sched219">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_by_function_sched219</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-depreciation-changes-sched219"><span class="std std-ref">core_ferc1__yearly_depreciation_changes_sched219</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_changes_sched219">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_changes_sched219</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-depreciation-summary-sched336"><span class="std std-ref">core_ferc1__yearly_depreciation_summary_sched336</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_summary_sched336">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_depreciation_summary_sched336</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-energy-dispositions-sched401"><span class="std std-ref">core_ferc1__yearly_energy_dispositions_sched401</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_energy_dispositions_sched401">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_energy_dispositions_sched401</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-energy-sources-sched401"><span class="std std-ref">core_ferc1__yearly_energy_sources_sched401</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_energy_sources_sched401">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_energy_sources_sched401</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-hydroelectric-plants-sched406"><span class="std std-ref">core_ferc1__yearly_hydroelectric_plants_sched406</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_hydroelectric_plants_sched406">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_hydroelectric_plants_sched406</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-income-statements-sched114"><span class="std std-ref">core_ferc1__yearly_income_statements_sched114</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_income_statements_sched114">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_income_statements_sched114</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-operating-expenses-sched320"><span class="std std-ref">core_ferc1__yearly_operating_expenses_sched320</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_operating_expenses_sched320">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_operating_expenses_sched320</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-operating-revenues-sched300"><span class="std std-ref">core_ferc1__yearly_operating_revenues_sched300</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_operating_revenues_sched300">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_operating_revenues_sched300</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-other-regulatory-liabilities-sched278"><span class="std std-ref">core_ferc1__yearly_other_regulatory_liabilities_sched278</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_other_regulatory_liabilities_sched278">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_other_regulatory_liabilities_sched278</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-plant-in-service-sched204"><span class="std std-ref">core_ferc1__yearly_plant_in_service_sched204</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_plant_in_service_sched204">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_plant_in_service_sched204</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-pumped-storage-plants-sched408"><span class="std std-ref">core_ferc1__yearly_pumped_storage_plants_sched408</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_pumped_storage_plants_sched408">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_pumped_storage_plants_sched408</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-purchased-power-and-exchanges-sched326"><span class="std std-ref">core_ferc1__yearly_purchased_power_and_exchanges_sched326</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_purchased_power_and_exchanges_sched326">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_purchased_power_and_exchanges_sched326</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-retained-earnings-sched118"><span class="std std-ref">core_ferc1__yearly_retained_earnings_sched118</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_retained_earnings_sched118">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_retained_earnings_sched118</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-sales-by-rate-schedules-sched304"><span class="std std-ref">core_ferc1__yearly_sales_by_rate_schedules_sched304</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_sales_by_rate_schedules_sched304">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_sales_by_rate_schedules_sched304</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-small-plants-sched410"><span class="std std-ref">core_ferc1__yearly_small_plants_sched410</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_small_plants_sched410">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_small_plants_sched410</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-steam-plants-fuel-sched402"><span class="std std-ref">core_ferc1__yearly_steam_plants_fuel_sched402</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_steam_plants_fuel_sched402">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_steam_plants_fuel_sched402</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-steam-plants-sched402"><span class="std std-ref">core_ferc1__yearly_steam_plants_sched402</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_steam_plants_sched402">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_steam_plants_sched402</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-transmission-lines-sched422"><span class="std std-ref">core_ferc1__yearly_transmission_lines_sched422</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_transmission_lines_sched422">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_transmission_lines_sched422</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-ferc1-yearly-utility-plant-summary-sched200"><span class="std std-ref">core_ferc1__yearly_utility_plant_summary_sched200</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_ferc1__yearly_utility_plant_summary_sched200">https://data.catalyst.coop/search?q=name:core_ferc1__yearly_utility_plant_summary_sched200</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>We’ve also created the following tables mapping manually assigned PUDL IDs to FERC
+respondent IDs, enabling a connection between the FERC and EIA data sets.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Data Dictionary</p></th>
+<th class="head"><p>Browse Online</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-pudl-assn-ferc1-dbf-pudl-utilities"><span class="std std-ref">core_pudl__assn_ferc1_dbf_pudl_utilities</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_dbf_pudl_utilities">https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_dbf_pudl_utilities</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-pudl-assn-ferc1-pudl-plants"><span class="std std-ref">core_pudl__assn_ferc1_pudl_plants</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_pudl_plants">https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_pudl_plants</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-pudl-assn-ferc1-pudl-utilities"><span class="std std-ref">core_pudl__assn_ferc1_pudl_utilities</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_pudl_utilities">https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_pudl_utilities</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../data_dictionaries/pudl_db.html#core-pudl-assn-ferc1-xbrl-pudl-utilities"><span class="std std-ref">core_pudl__assn_ferc1_xbrl_pudl_utilities</span></a></p></td>
+<td><p><a class="reference external" href="https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_xbrl_pudl_utilities">https://data.catalyst.coop/search?q=name:core_pudl__assn_ferc1_xbrl_pudl_utilities</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">¶</a></h2>
+<p>The FERC Form 1, otherwise known as the <strong>Electric Utility Annual Report</strong>, contains
+financial and operating data for major utilities and licensees. Much of it is not
+publicly available anywhere else.</p>
+<section id="download-additional-documentation">
+<h3>Download additional documentation<a class="headerlink" href="#download-additional-documentation" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference download internal" download="" href="../_downloads/d7290d42f21382a9bbb9d341ab6348ad/ferc1_blank_2005-03-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Blank</span> <span class="pre">2005-03-31</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/59ab45207576606fa64e9dff1d42b97c/ferc1_blank_2007-06-30.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Blank</span> <span class="pre">2007-06-30</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/666cdcb68255f9bdcf7e32783184b9ca/ferc1_blank_2008-07-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Blank</span> <span class="pre">2008-07-31</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/4b1a60c04ace749f2d769289d0dfc98d/ferc1_blank_2011-12-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Blank</span> <span class="pre">2011-12-31</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/52b9ede253a4ff7c792ec19fe0d169af/ferc1_blank_2014-12-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Blank</span> <span class="pre">2014-12-31</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/2e222a563a331a1a90f42c9d2eb49d46/ferc1_blank_2016-11-30.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Blank</span> <span class="pre">2016-11-30</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/fd9ba713087c5c0be586ac51ba237731/ferc1_blank_2019-12-31.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Blank</span> <span class="pre">2019-12-31</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/6a316a949a522f595e7575b6fd7034b8/ferc1_blank_2022-11-30.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Blank</span> <span class="pre">2022-11-30</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/85f442fbf290270270ad3dd4a42b2a1f/ferc1_blank_2025-07-31.html"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Blank</span> <span class="pre">2025-07-31</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/c119e7680944a8c2cf3bb251d4162912/ferc1_db_diagram_2015.pdf"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1</span> <span class="pre">Db</span> <span class="pre">Diagram</span> <span class="pre">2015</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/ab6519d78b244d9379f482d64011f347/ferc1a_blank_2025-07-31.html"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1A</span> <span class="pre">Blank</span> <span class="pre">2025-07-31</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/1c778b24ecf2dfdf859dbc3b81e42f69/ferc1f_blank_2025-07-31.html"><code class="xref download docutils literal notranslate"><span class="pre">Ferc1F</span> <span class="pre">Blank</span> <span class="pre">2025-07-31</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/5fe9aad5d45a9f43e5b7a65cf0ad5e97/ferc3q_electric_2025-07-31.html"><code class="xref download docutils literal notranslate"><span class="pre">Ferc3Q</span> <span class="pre">Electric</span> <span class="pre">2025-07-31</span></code></a></p></li>
+<li><p><a class="reference download internal" download="" href="../_downloads/ef645131fd15f0efceff23fca3adcdfd/ferc3q_gas_2025-07-31.html"><code class="xref download docutils literal notranslate"><span class="pre">Ferc3Q</span> <span class="pre">Gas</span> <span class="pre">2025-07-31</span></code></a></p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="data-available-through-pudl">
+<h3>Data available through PUDL<a class="headerlink" href="#data-available-through-pudl" title="Link to this heading">¶</a></h3>
+<p>PUDL integrates data from all years in which digital filings are available, spanning
+both the DBF (1994-2020) and XBRL (2021-present) reporting eras. There are more than
+100 tables in the raw databases, and PUDL has so far only integrated a subset of them
+(see list above). The integrated tables mostly pertain to plant-level operations,
+utility assets &amp; liabilities, and utility income &amp; expenses. Integrated tables combine
+data from the old DBF and new XBRL reporting formats into a single coherent structure
+covering all years from 1994 to the present.</p>
+</section>
+<section id="who-submits-this-data">
+<h3>Who submits this data?<a class="headerlink" href="#who-submits-this-data" title="Link to this heading">¶</a></h3>
+<p>As outlined in the Commission’s Uniform System of Accounts Prescribed for Public
+Utilities and Licensees Subject To the Provisions of The Federal Power Act
+(<a class="reference external" href="https://www.ecfr.gov/current/title-18/chapter-I/subchapter-C/part-101">18 C.F.R. Part 101</a>),
+to qualify as a respondent, entities must exceed at least one of the
+following criteria for three consecutive years prior to reporting:</p>
+<ul class="simple">
+<li><p>1 million MWh of total sales</p></li>
+<li><p>100MWh of annual sales for resale</p></li>
+<li><p>500MWh of annual power exchanges delivered</p></li>
+<li><p>500MWh of annual wheeling for others (deliveries plus losses)</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Publicly owned utilities and member-owned electric cooperatives are not required
+to file the FERC Form 1. However, many of them do file the analogous USDA Rural
+Utilities Service (RUS) Forms 7 and 12.</p>
+</div>
+<p>Annual responses are due in April of the following year, with new XBRL filings added to
+FERC’s RSS feed on a rolling basis. Revisions and late filings typically continue to
+trickle in for months after the filing deadline.</p>
+</section>
+<section id="what-does-the-original-data-look-like">
+<h3>What does the original data look like?<a class="headerlink" href="#what-does-the-original-data-look-like" title="Link to this heading">¶</a></h3>
+<section id="general-comments">
+<h4>General Comments<a class="headerlink" href="#general-comments" title="Link to this heading">¶</a></h4>
+<p>The FERC 1 database is poorly normalized and the data itself does not appear to be
+subject to much quality control. For this reason, we strongly encourage the use of
+the processed FERC data in the PUDL database when it is available.</p>
+<p>To identify the source data for each record, many of the FERC Form 1 tables in PUDL
+contain a <code class="docutils literal notranslate"><span class="pre">record_id</span></code> field that indicates what table and record originates from (in
+either the XBRL or DBF-derived SQLite databases). The <code class="docutils literal notranslate"><span class="pre">record_id</span></code> is not in general a
+unique identifier within a given PUDL database table, because in many cases the original
+data has been reshaped and normalized such that several records in the PUDL database can
+be traced back to a single record in the original data.</p>
+</section>
+<section id="dbf-reporting-era-1994-2020">
+<h4>DBF Reporting Era (1994-2020)<a class="headerlink" href="#dbf-reporting-era-1994-2020" title="Link to this heading">¶</a></h4>
+<p>The data is published as a collection of Visual FoxPro databases: one per year
+beginning in 1994. The databases all share a very similar structure and contain a total
+of 116 data tables and ~8GB of raw data (though 90% of that data is in 3 tables
+containing binary data). The <a class="reference external" href="https://en.wikipedia.org/wiki/Visual_FoxPro">final release of Visual FoxPro was v9.0 in 2007</a>. Its <a class="reference external" href="https://www.foxpro.co.uk/foxpro-end-of-life-and-you/">extended support period ended
+in 2015</a>. The bridge
+application which allowed this database to be used in Microsoft Access has been
+discontinued. FERC’s use of this database format created a significant barrier to
+data access.</p>
+<p>The DBF files are no longer being updated by FERC. When revisions to older filings are
+submitted, they appear in the raw XBRL data, but those revisions are not currently being
+integrated into the PUDL outputs. The DBF files covering 1994-2020 reporting are
+archived on Zenodo under
+<a class="reference external" href="https://doi.org/10.5281/zenodo.4127043">concept DOI 10.5281/zenodo.4127043</a></p>
+</section>
+<section id="xbrl-reporting-era-2021-present">
+<h4>XBRL Reporting Era (2021-present)<a class="headerlink" href="#xbrl-reporting-era-2021-present" title="Link to this heading">¶</a></h4>
+<p>New XBRL filings are published on a rolling basis to an RSS feed as they are received
+by FERC. We periodically capture a snapshot of all available filings from that feed
+and archive it on Zenodo under
+<a class="reference external" href="https://doi.org/10.5281/zenodo.4127043">concept DOI 10.5281/zenodo.4127043</a>
+alongside the old DBF database files.</p>
+<p>The structure of the XBRL filings is defined by an XBRL taxonomy. The taxonomies
+defining the structure of all the FERC XBRL filings can be
+<a class="reference external" href="https://xbrlview.ferc.gov/yeti/resources/yeti-gwt/Yeti.jsp#tax~(id~8*v~142)!net~(a~143*l~35)!lang~(code~en)!rg~(rg~4*p~1)">browsed on the FERC website</a>. Like the old DBF data base schemas,
+the XBRL taxonomies are updated annually, but typically change very slowly. We archive
+the taxonomies alongside the filing data and use them to define the structure of the
+database of raw filings that we build out of the XBRL.</p>
+</section>
+</section>
+</section>
+<section id="notable-irregularities">
+<h2>Notable Irregularities<a class="headerlink" href="#notable-irregularities" title="Link to this heading">¶</a></h2>
+<p>We occasionally see revisions to older filings from the DBF reporting era appear in the
+XBRL data. Ideally these revised data would supersede the older data from the DBF files.
+We have not yet dedicated resources to implementing this refinement since it’s a
+significant amount of work, and there are very few of these filings.</p>
+<p>The FERC Form 1 DBF databases are not particularly relational. The only foreign key
+relationships that exist map <code class="docutils literal notranslate"><span class="pre">respondent_id</span></code> fields in the individual data tables back
+to <code class="docutils literal notranslate"><span class="pre">f1_respondent_id</span></code>. In theory, most of the data tables use <code class="docutils literal notranslate"><span class="pre">report_year</span></code>,
+<code class="docutils literal notranslate"><span class="pre">respondent_id</span></code>, <code class="docutils literal notranslate"><span class="pre">row_number</span></code>, <code class="docutils literal notranslate"><span class="pre">spplmnt_num</span></code> and <code class="docutils literal notranslate"><span class="pre">report_prd</span></code> as a composite
+primary key.</p>
+<p>In practice, there are several thousand records (out of ~12 million), including some
+in almost every table, that violate the uniqueness constraint on those primary keys.
+Since there aren’t many meaningful foreign key relationships anyway, rather than
+dropping the records with non-unique natural composite keys, we chose to preserve all
+of the records and use surrogate auto-incrementing primary keys in the cloned SQLite
+database.</p>
+<p>Lots of the data included in the FERC tables is unstructured and difficult to parse.
+None of the tables have record identification and they sometimes contain multiple rows
+pertaining to the same plant or portion of a plant. For example, a utility might report
+values for individual plants as well as the sum total, rendering any aggregations
+performed on the column inaccurate. Sometimes there are values reported for the total
+rows and not the individual plants making them difficult to simply remove. Moreover,
+these duplicate rows are incredibly difficult to identify.</p>
+<p>To improve the usability of this data we have done a lot of work to link FERC plants
+and utilities to their EIA counterparts, and to associate related FERC plant records
+across different reporting years.</p>
+<ul class="simple">
+<li><p>We have manually compiled a mapping between the FERC utility IDs for the DBF and XBRL
+reporting eras.</p></li>
+<li><p>We have manually compiled a mapping between those unified FERC utilities and the
+corresponding EIA utilities.</p></li>
+<li><p>We have compiled a manual mapping between the FERC plant names and corresponding EIA
+plant IDs.</p></li>
+<li><p>We have created a programmatic, probabilistic linkage between sub-plant parts
+reporting in FERC Form 1 and the associated generators, prime movers, ownership, or
+other slices of EIA plants.</p></li>
+<li><p>We have created a programmatic, probabilistic linkage between related FERC plant
+records, since FERC does not use plant IDs.</p></li>
+</ul>
+<p>We have only integrated a small subset of the available Form 1 tables. If there’s data
+you need from Form 1 in bulk, you can <a class="reference external" href="https://catalyst.coop/hire-catalyst/">hire us</a>
+to liberate it, or we’re happy to accept open source contributions. Some tables only
+require a couple of hours of work, while others can be quite involved.</p>
+</section>
+<section id="pudl-data-transformations">
+<h2>PUDL Data Transformations<a class="headerlink" href="#pudl-data-transformations" title="Link to this heading">¶</a></h2>
+<p>To see the transformations applied to the data in each table, you can read the
+docstrings for <a class="reference internal" href="../autoapi/pudl/transform/ferc1/index.html#module-pudl.transform.ferc1" title="pudl.transform.ferc1"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.transform.ferc1</span></code></a> created for each table’s
+respective transform function.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="ferc714.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="epacems.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">EPA Hourly Continuous Emission Monitoring System (CEMS)</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, Catalyst Cooperative, CC-BY-4.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">FERC Form 1 – Annual Report of Major Electric Utilities</a><ul>
+<li><a class="reference internal" href="#pudl-database-tables">PUDL Database Tables</a></li>
+<li><a class="reference internal" href="#background">Background</a><ul>
+<li><a class="reference internal" href="#download-additional-documentation">Download additional documentation</a></li>
+<li><a class="reference internal" href="#data-available-through-pudl">Data available through PUDL</a></li>
+<li><a class="reference internal" href="#who-submits-this-data">Who submits this data?</a></li>
+<li><a class="reference internal" href="#what-does-the-original-data-look-like">What does the original data look like?</a><ul>
+<li><a class="reference internal" href="#general-comments">General Comments</a></li>
+<li><a class="reference internal" href="#dbf-reporting-era-1994-2020">DBF Reporting Era (1994-2020)</a></li>
+<li><a class="reference internal" href="#xbrl-reporting-era-2021-present">XBRL Reporting Era (2021-present)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#notable-irregularities">Notable Irregularities</a></li>
+<li><a class="reference internal" href="#pudl-data-transformations">PUDL Data Transformations</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=11fc87b4"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

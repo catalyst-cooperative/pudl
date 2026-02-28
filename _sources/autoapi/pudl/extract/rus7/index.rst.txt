@@ -1,0 +1,91 @@
+pudl.extract.rus7
+=================
+
+.. py:module:: pudl.extract.rus7
+
+.. autoapi-nested-parse::
+
+   Extract USDA RUS Form 7 data from CSVs.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.rus7.raw_rus7__all_dfs
+   pudl.extract.rus7.raw_rus7_assets
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.rus7.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.rus7.raw_rus7_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.csv.CsvExtractor`
+
+
+   Extractor for USDA RUS Form 7.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: READ_CSV_KWARGS
+
+      Keyword arguments that are passed to :meth:`pandas.read_csv`.
+
+      These allow customization of the CSV parsing process. For example, you can specify
+      the column delimiter, data types, date parsing, etc. This can greatly reduce peak
+      memory usage and speed up the extraction process. Unfortunately you must refer to
+      the column headers using their original names as they appear in the CSV.
+
+      TODO[zaneselvans] 2024-04-19: it would be useful to be able to specify different CSV
+      reading options for different pages within the same dataset. At the moment the same
+      arguments will be applied to all pages. This still allows some flexibility because
+      some :meth:`pandas.read_csv` arguments like ``dtype`` don't raise errors if the
+      columns they apply to aren't present.
+
+
+   .. py:method:: source_filename(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> str
+
+      Get the file name for the right page and part.
+
+      In this instance we are using the same methodology from the excel metadata extractor.
+
+
+
+   .. py:method:: process_raw(df, page, **partition)
+
+      Adds source column and report_year column if missing.
+
+
+
+.. py:data:: raw_rus7__all_dfs
+
+.. py:function:: raw_rus7_asset_factory(table_name: str)
+
+   Create raw RUS Form 7 asset for a specific page.
+
+
+.. py:data:: raw_rus7_assets
+

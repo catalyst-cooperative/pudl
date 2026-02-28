@@ -1,0 +1,102 @@
+pudl.extract.phmsagas
+=====================
+
+.. py:module:: pudl.extract.phmsagas
+
+.. autoapi-nested-parse::
+
+   Retrieves data from PHMSA natural gas spreadsheets for analysis.
+
+   This modules pulls data from PHMSA's published Excel spreadsheets.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.phmsagas.logger
+   pudl.extract.phmsagas.raw_phmsagas__all_dfs
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.phmsagas.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.phmsagas.extract_phmsagas
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.excel.ExcelExtractor`
+
+
+   Extractor for the excel dataset PHMSA.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: cols_added
+      :value: []
+
+
+
+   .. py:method:: load_source(page: str, **partition) -> pandas.DataFrame
+
+      Run same load_source and then replace all periods w/ n's.
+
+      There are a ton of identical column names in the raw dataset for 1984.
+      Typically these get processed in load_source via pd.read_excel which adds
+      a period and then an auto-incremented number as a suffix. Then this
+      data gets run through :func:`pudl.helpers.simplify_columns` which converts
+      all non-alphanumeric (aka periods) into spaces and then condenses any multiple
+      spaces into one space. This would all be fine and good except for the fact that
+      there are 22 column names that are identical expect for trailing spaces in the
+      raw source. These trailing spaces effectively get removed in
+      :func:`pudl.helpers.simplify_columns` and then we have duplicate column names.
+      This method runs the parent adds _n#'s to these trailing space column names.
+
+
+
+   .. py:method:: process_renamed(newdata: pandas.DataFrame, page: str, **partition)
+
+      Drop columns that get mapped to other assets and columns with unstructured data.
+
+      Old-ish years (1990-2009) of PHMSA data have one Excel tab in the raw data, while
+      newer data has multiple tabs. To extract data into tables that follow the newer
+      data format without duplicating the older data, we need to split older pages into
+      multiple tables by column. To prevent each table from containing all columns from
+      these older years, filter by the list of columns specified for the page, with a
+      warning.
+
+      The oldest years (before 1990) contain multiple years in one tab. The records
+      contain a report_year column but some of them are reported at a two digit year
+      (ex: 87 for 1987). We convert these into four digit years.
+
+
+
+.. py:data:: raw_phmsagas__all_dfs
+
+.. py:function:: extract_phmsagas(raw_phmsagas__all_dfs)
+
+   Extract raw PHMSA gas data from excel sheets into dataframes.
+
+

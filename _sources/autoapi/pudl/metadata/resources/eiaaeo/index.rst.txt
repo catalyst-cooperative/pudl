@@ -1,0 +1,32 @@
+pudl.metadata.resources.eiaaeo
+==============================
+
+.. py:module:: pudl.metadata.resources.eiaaeo
+
+.. autoapi-nested-parse::
+
+   Table definitions for EIA AEO resources.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.eiaaeo._STAGING_RESOURCE_METADATA
+   pudl.metadata.resources.eiaaeo._STAGING_FIELD_METADATA
+   pudl.metadata.resources.eiaaeo.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: _STAGING_RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+.. py:data:: _STAGING_FIELD_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+.. py:data:: RESOURCE_METADATA
+

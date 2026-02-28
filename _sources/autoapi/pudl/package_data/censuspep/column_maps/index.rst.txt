@@ -1,0 +1,11 @@
+pudl.package_data.censuspep.column_maps
+=======================================
+
+.. py:module:: pudl.package_data.censuspep.column_maps
+
+.. autoapi-nested-parse::
+
+   Metadata linking semantic meaning of Census PEP FIPS codes spreadsheet columns across years.
+
+
+

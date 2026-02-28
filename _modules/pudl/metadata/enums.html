@@ -1,0 +1,1778 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    <link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
+        <link rel="prefetch" href="../../../_static/catalyst_logo-200x200.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>pudl.metadata.enums - PUDL 2026.2.1.dev10 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=b1990d62" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">PUDL 2026.2.1.dev10 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../_static/catalyst_logo-200x200.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">PUDL 2026.2.1.dev10 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">About PUDL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data_access.html">Data Access</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../data_sources/index.html">Data Sources</a><input aria-label="Toggle navigation of Data Sources" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../data_dictionaries/index.html">Data Dictionaries</a><input aria-label="Toggle navigation of Data Dictionaries" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../methodology/index.html">Methodology</a><input aria-label="Toggle navigation of Methodology" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../dev/index.html">Development</a><input aria-label="Toggle navigation of Development" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/pudl/index.html">pudl</a><input aria-label="Toggle navigation of pudl" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/_version/index.html">pudl._version</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/analysis/index.html">pudl.analysis</a><input aria-label="Toggle navigation of pudl.analysis" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><input aria-label="Toggle navigation of pudl.analysis.ml_tools" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><input aria-label="Toggle navigation of pudl.analysis.record_linkage" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/convert/index.html">pudl.convert</a><input aria-label="Toggle navigation of pudl.convert" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/etl/index.html">pudl.etl</a><input aria-label="Toggle navigation of pudl.etl" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/extract/index.html">pudl.extract</a><input aria-label="Toggle navigation of pudl.extract" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><input aria-label="Toggle navigation of pudl.ferc_to_sqlite" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/glue/index.html">pudl.glue</a><input aria-label="Toggle navigation of pudl.glue" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/metadata/index.html">pudl.metadata</a><input aria-label="Toggle navigation of pudl.metadata" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/index.html">pudl.metadata.resources</a><input aria-label="Toggle navigation of pudl.metadata.resources" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/output/index.html">pudl.output</a><input aria-label="Toggle navigation of pudl.output" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/output/sql/index.html">pudl.output.sql</a><input aria-label="Toggle navigation of pudl.output.sql" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/index.html">pudl.package_data</a><input aria-label="Toggle navigation of pudl.package_data" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/censuspep/index.html">pudl.package_data.censuspep</a><input aria-label="Toggle navigation of pudl.package_data.censuspep" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia176/index.html">pudl.package_data.eia176</a><input aria-label="Toggle navigation of pudl.package_data.eia176" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia191/index.html">pudl.package_data.eia191</a><input aria-label="Toggle navigation of pudl.package_data.eia191" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia757a/index.html">pudl.package_data.eia757a</a><input aria-label="Toggle navigation of pudl.package_data.eia757a" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860/index.html">pudl.package_data.eia860</a><input aria-label="Toggle navigation of pudl.package_data.eia860" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860m/index.html">pudl.package_data.eia860m</a><input aria-label="Toggle navigation of pudl.package_data.eia860m" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia861/index.html">pudl.package_data.eia861</a><input aria-label="Toggle navigation of pudl.package_data.eia861" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia923/index.html">pudl.package_data.eia923</a><input aria-label="Toggle navigation of pudl.package_data.eia923" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia930/index.html">pudl.package_data.eia930</a><input aria-label="Toggle navigation of pudl.package_data.eia930" class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/ferc1/index.html">pudl.package_data.ferc1</a><input aria-label="Toggle navigation of pudl.package_data.ferc1" class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><input aria-label="Toggle navigation of pudl.package_data.phmsagas" class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/rus12/index.html">pudl.package_data.rus12</a><input aria-label="Toggle navigation of pudl.package_data.rus12" class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/test/index.html">pudl.package_data.test</a><input aria-label="Toggle navigation of pudl.package_data.test" class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/resources/index.html">pudl.resources</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/scripts/index.html">pudl.scripts</a><input aria-label="Toggle navigation of pudl.scripts" class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/settings/index.html">pudl.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/transform/index.html">pudl.transform</a><input aria-label="Toggle navigation of pudl.transform" class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/transform/params/index.html">pudl.transform.params</a><input aria-label="Toggle navigation of pudl.transform.params" class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/validate/index.html">pudl.validate</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/workspace/index.html">pudl.workspace</a><input aria-label="Toggle navigation of pudl.workspace" class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for pudl.metadata.enums</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Enumerations of valid field values.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dfs</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMPUTATION_REASON_CODES</span><span class="p">,</span> <span class="n">POLITICAL_SUBDIVISIONS</span>
+
+<div class="viewcode-block" id="IMPUTATION_CODES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.IMPUTATION_CODES">[docs]</a>
+<span class="n">IMPUTATION_CODES</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">IMPUTATION_REASON_CODES</span><span class="o">.</span><span class="n">code</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="COUNTRY_CODES_ISO3166">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.COUNTRY_CODES_ISO3166">[docs]</a>
+<span class="n">COUNTRY_CODES_ISO3166</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">country_code</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SUBDIVISION_CODES_ISO3166">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.SUBDIVISION_CODES_ISO3166">[docs]</a>
+<span class="n">SUBDIVISION_CODES_ISO3166</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">subdivision_code</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EPACEMS_STATES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.EPACEMS_STATES">[docs]</a>
+<span class="n">EPACEMS_STATES</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+    <span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">is_epacems_state</span><span class="p">,</span> <span class="s2">&quot;subdivision_code&quot;</span>
+    <span class="p">]</span>
+<span class="p">)</span></div>
+
+<div class="viewcode-block" id="DIVISION_CODES_US_CENSUS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.DIVISION_CODES_US_CENSUS">[docs]</a>
+<span class="n">DIVISION_CODES_US_CENSUS</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+    <span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">division_code_us_census</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="APPROXIMATE_TIMEZONES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.APPROXIMATE_TIMEZONES">[docs]</a>
+<span class="n">APPROXIMATE_TIMEZONES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">x</span><span class="o">.</span><span class="n">subdivision_code</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">timezone_approx</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Mapping of political subdivision code to the most common timezone in that area.</span>
+
+<span class="sd">This is imperfect for states that have split timezones. See:</span>
+<span class="sd">https://en.wikipedia.org/wiki/List_of_time_offsets_by_U.S._state_and_territory</span>
+
+<span class="sd">For states that are split, we chose the timezone with a larger population. List of</span>
+<span class="sd">timezones in pytz.common_timezones Canada:</span>
+<span class="sd">https://en.wikipedia.org/wiki/Time_in_Canada#IANA_time_zone_database</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NERC_REGIONS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.NERC_REGIONS">[docs]</a>
+<span class="n">NERC_REGIONS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;BASN&quot;</span><span class="p">,</span>  <span class="c1"># ASSESSMENT AREA Basin (WECC)</span>
+    <span class="s2">&quot;CALN&quot;</span><span class="p">,</span>  <span class="c1"># ASSESSMENT AREA California (WECC)</span>
+    <span class="s2">&quot;CALS&quot;</span><span class="p">,</span>  <span class="c1"># ASSESSMENT AREA California (WECC)</span>
+    <span class="s2">&quot;DSW&quot;</span><span class="p">,</span>  <span class="c1"># ASSESSMENT AREA Desert Southwest (WECC)</span>
+    <span class="s2">&quot;ASCC&quot;</span><span class="p">,</span>  <span class="c1"># Alaska</span>
+    <span class="s2">&quot;ISONE&quot;</span><span class="p">,</span>  <span class="c1"># ISO New England (NPCC)</span>
+    <span class="s2">&quot;ERCOT&quot;</span><span class="p">,</span>  <span class="c1"># lumped under TRE in 2017 Form instructions</span>
+    <span class="s2">&quot;NORW&quot;</span><span class="p">,</span>  <span class="c1"># ASSESSMENT AREA Northwest (WECC)</span>
+    <span class="s2">&quot;NYISO&quot;</span><span class="p">,</span>  <span class="c1"># ISO (NPCC)</span>
+    <span class="s2">&quot;PJM&quot;</span><span class="p">,</span>  <span class="c1"># RTO</span>
+    <span class="s2">&quot;ROCK&quot;</span><span class="p">,</span>  <span class="c1"># ASSESSMENT AREA Rockies (WECC)</span>
+    <span class="s2">&quot;ECAR&quot;</span><span class="p">,</span>  <span class="c1"># OLD RE Now part of RFC and SERC</span>
+    <span class="s2">&quot;FRCC&quot;</span><span class="p">,</span>  <span class="c1"># included in 2017 Form instructions, recently joined with SERC</span>
+    <span class="s2">&quot;HICC&quot;</span><span class="p">,</span>  <span class="c1"># Hawaii</span>
+    <span class="s2">&quot;MAAC&quot;</span><span class="p">,</span>  <span class="c1"># OLD RE Now part of RFC</span>
+    <span class="s2">&quot;MAIN&quot;</span><span class="p">,</span>  <span class="c1"># OLD RE Now part of SERC, RFC, MRO</span>
+    <span class="s2">&quot;MAPP&quot;</span><span class="p">,</span>  <span class="c1"># OLD/NEW RE Became part of MRO, resurfaced in 2010</span>
+    <span class="s2">&quot;MRO&quot;</span><span class="p">,</span>  <span class="c1"># RE included in 2017 Form instructions</span>
+    <span class="s2">&quot;NPCC&quot;</span><span class="p">,</span>  <span class="c1"># RE included in 2017 Form instructions</span>
+    <span class="s2">&quot;RFC&quot;</span><span class="p">,</span>  <span class="c1"># RE included in 2017 Form instructions</span>
+    <span class="s2">&quot;SERC&quot;</span><span class="p">,</span>  <span class="c1"># RE included in 2017 Form instructions</span>
+    <span class="s2">&quot;SPP&quot;</span><span class="p">,</span>  <span class="c1"># RE included in 2017 Form instructions</span>
+    <span class="s2">&quot;TRE&quot;</span><span class="p">,</span>  <span class="c1"># RE included in 2017 Form instructions (included ERCOT)</span>
+    <span class="s2">&quot;WECC&quot;</span><span class="p">,</span>  <span class="c1"># RE included in 2017 Form instructions</span>
+    <span class="s2">&quot;WSCC&quot;</span><span class="p">,</span>  <span class="c1"># OLD RE pre-2002 version of WECC</span>
+    <span class="s2">&quot;MISO&quot;</span><span class="p">,</span>  <span class="c1"># ISO unclear whether technically a regional entity, but lots of entries</span>
+    <span class="s2">&quot;ECAR_MAAC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MAPP_WECC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RFC_SERC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SPP_WECC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MRO_WECC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ERCOT_SPP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SPP_TRE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ERCOT_TRE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MISO_TRE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FRCC_SERC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VI&quot;</span><span class="p">,</span>  <span class="c1"># Virgin Islands</span>
+    <span class="s2">&quot;GU&quot;</span><span class="p">,</span>  <span class="c1"># Guam</span>
+    <span class="s2">&quot;PR&quot;</span><span class="p">,</span>  <span class="c1"># Puerto Rico</span>
+    <span class="s2">&quot;AS&quot;</span><span class="p">,</span>  <span class="c1"># American Samoa</span>
+    <span class="s2">&quot;UNK&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;North American Reliability Corporation (NERC) regions.</span>
+
+<span class="sd">See https://www.eia.gov/electricity/data/eia411/#tabs_NERC-3.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="US_TIMEZONES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.US_TIMEZONES">[docs]</a>
+<span class="n">US_TIMEZONES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;America/Anchorage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;America/Chicago&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;America/Denver&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;America/Los_Angeles&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;America/New_York&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;America/Phoenix&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Pacific/Honolulu&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="GENERATION_ENERGY_SOURCES_EIA930">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930">[docs]</a>
+<span class="n">GENERATION_ENERGY_SOURCES_EIA930</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydro&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;oil&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;solar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;wind&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;battery_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;geothermal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydro_excluding_pumped_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_energy_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pumped_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;solar_w_integrated_battery_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;solar_wo_integrated_battery_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unknown_energy_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;wind_w_integrated_battery_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;wind_wo_integrated_battery_storage&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Energy sources used to categorize generation in the EIA 930 data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ELECTRICITY_MARKET_MODULE_REGIONS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS">[docs]</a>
+<span class="n">ELECTRICITY_MARKET_MODULE_REGIONS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;florida_reliability_coordinating_council&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;midcontinent_central&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;midcontinent_east&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;midcontinent_south&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;midcontinent_west&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;northeast_power_coordinating_council_new_england&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;northeast_power_coordinating_council_new_york_city_and_long_island&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;northeast_power_coordinating_council_upstate_new_york&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pjm_commonwealth_edison&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pjm_dominion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pjm_east&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pjm_west&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;serc_reliability_corporation_central&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;serc_reliability_corporation_east&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;serc_reliability_corporation_southeastern&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;southwest_power_pool_central&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;southwest_power_pool_north&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;southwest_power_pool_south&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;texas_reliability_entity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;united_states&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;western_electricity_coordinating_council_basin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;western_electricity_coordinating_council_california_north&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;western_electricity_coordinating_council_california_south&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;western_electricity_coordinating_council_northwest_power_pool_area&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;western_electricity_coordinating_council_rockies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;western_electricity_coordinating_council_southwest&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Regions that the EIA uses in their Electricity Market Module analysis.</span>
+
+<span class="sd">According to EIA:</span>
+
+<span class="sd">The Electricity Market Module (EMM) in the National Energy Modeling System</span>
+<span class="sd">(NEMS) is made up of four primary submodules: electricity load and demand,</span>
+<span class="sd">electricity capacity planning, electricity fuel dispatching, and electricity</span>
+<span class="sd">finance and pricing, as well as the ReStore submodule which interfaces with</span>
+<span class="sd">both the renewable and electricity modules The EMM also includes nonutility</span>
+<span class="sd">capacity and generation as well as electricity transmission and trade.</span>
+
+<span class="sd">We use 25 electricity supply regions to represent U.S. power markets. The</span>
+<span class="sd">regions follow North American Electric Reliability Corporation (NERC)</span>
+<span class="sd">assessment region boundaries and independent system operator (ISO) and regional</span>
+<span class="sd">transmission organization (RTO) region boundaries (as of early 2019).</span>
+<span class="sd">Subregions are based on regional pricing zones.</span>
+
+<span class="sd">https://www.eia.gov/outlooks/aeo/assumptions/pdf/EMM_Assumptions.pdf</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="CUSTOMER_CLASSES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.CUSTOMER_CLASSES">[docs]</a>
+<span class="n">CUSTOMER_CLASSES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;commercial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;industrial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;direct_connection&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;residential&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transportation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;commercial_other&quot;</span><span class="p">,</span>  <span class="c1"># commercial *OR* other - used in EIA AEO only.</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CUSTOMER_CLASSES_EIA176">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.CUSTOMER_CLASSES_EIA176">[docs]</a>
+<span class="n">CUSTOMER_CLASSES_EIA176</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;commercial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_power&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;industrial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;residential&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vehicle_fuel&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TECH_CLASSES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.TECH_CLASSES">[docs]</a>
+<span class="n">TECH_CLASSES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;backup&quot;</span><span class="p">,</span>  <span class="c1"># WHERE Is this used? because removed from DG table b/c not a real component</span>
+    <span class="s2">&quot;chp_cogen&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;combustion_turbine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fuel_cell&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydro&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;internal_combustion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pv&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;steam&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;storage_pv&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;storage_nonpv&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;all_storage&quot;</span><span class="p">,</span>  <span class="c1"># need &#39;all&#39; as prefix so as not to confuse with other storage category</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;virtual_pv&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;virtual_pv_under_1mw&quot;</span><span class="p">,</span>  <span class="c1"># Broken out in EIA 861 in 2023</span>
+    <span class="s2">&quot;virtual_pv_over_1mw&quot;</span><span class="p">,</span>  <span class="c1"># Broken out in EIA 861 in 2023</span>
+    <span class="s2">&quot;wind&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="REVENUE_CLASSES_EIA861">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.REVENUE_CLASSES_EIA861">[docs]</a>
+<span class="n">REVENUE_CLASSES_EIA861</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;credits_or_adjustments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;delivery_customers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retail_sales&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sales_for_resale&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unbundled&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="REVENUE_CLASSES_EIA176">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.REVENUE_CLASSES_EIA176">[docs]</a>
+<span class="n">REVENUE_CLASSES_EIA176</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;sales&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transport&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RELIABILITY_STANDARDS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.RELIABILITY_STANDARDS">[docs]</a>
+<span class="n">RELIABILITY_STANDARDS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ieee_standard&quot;</span><span class="p">,</span> <span class="s2">&quot;other_standard&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="FUEL_CLASSES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.FUEL_CLASSES">[docs]</a>
+<span class="n">FUEL_CLASSES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;oil&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;renewable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;wind&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;wood&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RTO_CLASSES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.RTO_CLASSES">[docs]</a>
+<span class="n">RTO_CLASSES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;caiso&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ercot&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;isone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miso&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nyiso&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pjm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;spp&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="EPACEMS_MEASUREMENT_CODES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES">[docs]</a>
+<span class="n">EPACEMS_MEASUREMENT_CODES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Calculated&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LME&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Measured&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Measured and Substitute&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Other&quot;</span><span class="p">,</span>  <span class="c1"># ¿Should be replaced with NA?</span>
+    <span class="s2">&quot;Substitute&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Undetermined&quot;</span><span class="p">,</span>  <span class="c1"># Should be replaced with NA</span>
+    <span class="s2">&quot;Unknown Code&quot;</span><span class="p">,</span>  <span class="c1"># Should be replaced with NA</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Valid emissions measurement codes for the EPA CEMS hourly data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TECH_DESCRIPTIONS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.TECH_DESCRIPTIONS">[docs]</a>
+<span class="n">TECH_DESCRIPTIONS</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Conventional Hydroelectric&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Conventional Steam Coal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Natural Gas Steam Turbine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Natural Gas Fired Combustion Turbine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Natural Gas Internal Combustion Engine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nuclear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Natural Gas Fired Combined Cycle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Petroleum Liquids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hydroelectric Pumped Storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Solar Photovoltaic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Batteries&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Geothermal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Municipal Solid Waste&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Wood/Wood Waste Biomass&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Onshore Wind Turbine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Coal Integrated Gasification Combined Cycle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Other Gases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Landfill Gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;All Other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Other Waste Biomass&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Petroleum Coke&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Solar Thermal without Energy Storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Solar Thermal with Energy Storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Other Natural Gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Flywheels&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Offshore Wind Turbine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Natural Gas with Compressed Air Storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hydrokinetic&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Valid technology descriptions from the EIA plant parts list.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PLANT_PARTS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.PLANT_PARTS">[docs]</a>
+<span class="n">PLANT_PARTS</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_unit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_prime_mover&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_technology&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_prime_fuel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_ferc_acct&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_operating_year&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_gen&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_match_ferc1&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;The plant parts in the EIA plant parts list.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TECH_DESCRIPTIONS_NRELATB">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB">[docs]</a>
+<span class="n">TECH_DESCRIPTIONS_NRELATB</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;AEO&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Biopower&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CSP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Coal_FE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Coal_Retrofits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CommPV&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Commercial Battery Storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DistributedWind&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Geothermal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hydropower&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LandbasedWind&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NaturalGas_FE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NaturalGas_Retrofits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nuclear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OffShoreWind&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Pumped Storage Hydropower&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ResPV&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Residential Battery Storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Utility-Scale Battery Storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Utility-Scale PV-Plus-Battery&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UtilityPV&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;NREL ATB technology descriptions.&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="TECH_DESCRIPTIONS_EIAAEO">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO">[docs]</a>
+<span class="n">TECH_DESCRIPTIONS_EIAAEO</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;combined_cycle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;combustion_turbine_diesel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;distributed_generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;diurnal_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fossil_steam&quot;</span><span class="p">,</span>  <span class="c1"># Added in 2025</span>
+    <span class="s2">&quot;fuel_cells&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydrogen&quot;</span><span class="p">,</span>  <span class="c1"># Added in 2025</span>
+    <span class="s2">&quot;hydrogen_turbine&quot;</span><span class="p">,</span>  <span class="c1"># Added in 2025</span>
+    <span class="s2">&quot;natural_gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;oil_and_natural_gas_steam&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;petroleum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pumped_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pumped_storage_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;renewable_sources&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Types of generation technology reported in EIA AEO.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FUEL_TYPES_EIAAEO">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.FUEL_TYPES_EIAAEO">[docs]</a>
+<span class="n">FUEL_TYPES_EIAAEO</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;distillate_fuel_oil&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;residual_fuel_oil&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;petroleum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;natural_gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_gaseous_fuels&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;renewable_sources&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Type of fuel used for generation reported in EIA AEO.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MODEL_CASES_EIAAEO">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.MODEL_CASES_EIAAEO">[docs]</a>
+<span class="n">MODEL_CASES_EIAAEO</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;aeo2022&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;aeo2023&quot;</span><span class="p">,</span>  <span class="c1"># Added in 2025</span>
+    <span class="s2">&quot;alternative_electricity&quot;</span><span class="p">,</span>  <span class="c1"># Added in 2025</span>
+    <span class="s2">&quot;alternative_transportation&quot;</span><span class="p">,</span>  <span class="c1"># Added in 2025</span>
+    <span class="s2">&quot;fast_builds_plus_high_lng_price&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;high_economic_growth&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;high_lng_price&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;high_macro_and_high_zero_carbon_technology_cost&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;high_macro_and_low_zero_carbon_technology_cost&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;high_oil_and_gas_supply&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;high_oil_price&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;high_uptake_of_inflation_reduction_act&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;high_zero_carbon_technology_cost&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;low_economic_growth&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;low_lng_price&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;low_macro_and_high_zero_carbon_technology_cost&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;low_macro_and_low_zero_carbon_technology_cost&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;low_oil_and_gas_supply&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;low_oil_price&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;low_uptake_of_inflation_reduction_act&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;low_zero_carbon_technology_cost&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;no_inflation_reduction_act&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reference&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Modeling cases for EIA AEO 2023.</span>
+
+<span class="sd">See https://www.eia.gov/outlooks/archive/aeo23/assumptions/case_descriptions.php .</span>
+
+<span class="sd">EIA&#39;s browser (https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023) and</span>
+<span class="sd">data API also include the AEO2022 Reference case, which is not listed on the case</span>
+<span class="sd">descriptions page.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ENERGY_USE_TYPES_EIAAEO">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO">[docs]</a>
+<span class="n">ENERGY_USE_TYPES_EIAAEO</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;biofuels_heat_and_coproducts&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;byproduct_hydrogen&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coal_subtotal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coal_to_liquids_heat_and_power&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;delivered_energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;distillate_fuel_oil&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e85&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electricity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electricity_imports&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electricity_related_losses&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ev_charging_commercial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ev_charging_residential&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydrocarbon_gas_liquids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydrogen&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydrogen_related_losses&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;jet_fuel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;kerosene&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lease_and_plant_fuel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;liquefaction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;liquid_fuels_subtotal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;liquefied_petroleum_gases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;metallurgical_coal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;motor_gasoline&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;natural_gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;natural_gas_subtotal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;natural_gas_to_liquids_heat_and_power&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_coal_coke_imports&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;non_biogenic_municipal_waste&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_industrial_coal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_petroleum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_coal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;passenger_rail&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;petrochemical_feedstocks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pipeline_fuel_natural_gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pipeline_natural_gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;propane&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purchased_electricity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;renewable_energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;residual_fuel_oil&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;steam_coal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_energy&quot;</span><span class="p">,</span>  <span class="c1"># this could be the same as total?</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Energy use types from Table 2 of EIA AEO 2023-2025.</span>
+
+<span class="sd">These are from the series titles, not the display titles in the EIA&#39;s data browser tool,</span>
+<span class="sd">which may show different text.&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="ENERGY_SOURCE_TYPES_FERC1">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1">[docs]</a>
+<span class="n">ENERGY_SOURCE_TYPES_FERC1</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;steam_generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_energy_generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sources_of_energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydro_conventional_generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;megawatt_hours_purchased&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_received_through_power_exchanges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_delivered_through_power_exchanges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_energy_through_power_exchanges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_power_wheeling_energy_received&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;electric_power_wheeling_energy_delivered&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_transmission_energy_for_others_electric_power_wheeling&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_energy_generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hydro_pumped_storage_generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pumping_energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;transmission_losses_by_others_electric_power_wheeling&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;megawatt_hours_purchased_for_energy_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;megawatt_hours_purchased_other_than_storage&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Energy source types for FERC Form 1 data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ENERGY_DISPOSITION_TYPES_FERC1">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1">[docs]</a>
+<span class="n">ENERGY_DISPOSITION_TYPES_FERC1</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;megawatt_hours_sold_non_requirements_sales&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;disposition_of_energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;megawatt_hours_sold_sales_to_ultimate_consumers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;megawatt_hours_sold_requirements_sales&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;non_charged_energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;internal_use_energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_losses&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_stored&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Energy disposition types for FERC Form 1 data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UTILITY_PLANT_ASSET_TYPES_FERC1">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1">[docs]</a>
+<span class="n">UTILITY_PLANT_ASSET_TYPES_FERC1</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;abandonment_of_leases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_amortization_and_depletion_of_plant_utility_reported&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_and_depletion_of_producing_natural_gas_land_and_land_rights_utility_plant_in_service&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_and_depletion_utility_plant_leased_to_others&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_other_utility_plant_utility_plant_in_service&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_plant_acquisition_adjustment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_underground_storage_land_and_land_rights_utility_plant_in_service&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_utility_plant_held_for_future_use&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;construction_work_in_progress&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_amortization_and_depletion_utility_plant_in_service&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_amortization_and_depletion_utility_plant_leased_to_others&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_and_amortization_utility_plant_held_for_future_use&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_utility_plant_held_for_future_use&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_utility_plant_in_service&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_utility_plant_leased_to_others&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_acquisition_adjustment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_and_construction_work_in_progress&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_held_for_future_use&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_in_service_classified&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_in_service_classified_and_property_under_capital_leases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_in_service_classified_and_unclassified&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_in_service_completed_construction_not_classified&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_in_service_experimental_plant_unclassified&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_in_service_plant_purchased_or_sold&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_in_service_property_under_capital_leases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_leased_to_others&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_net&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Utility plant asset types for FERC Form 1 data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LIABILITY_TYPES_FERC1">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.LIABILITY_TYPES_FERC1">[docs]</a>
+<span class="n">LIABILITY_TYPES_FERC1</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;accounts_payable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accounts_payable_to_associated_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_accelerated_amortization_property&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_other_property&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_investment_tax_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_miscellaneous_operating_provisions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_other_comprehensive_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_injuries_and_damages&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_pensions_and_benefits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_property_insurance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_rate_refunds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;advances_from_associated_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;asset_retirement_obligations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_expense&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capital_stock_subscribed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;common_stock_issued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;current_and_accrued_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;customer_advances_for_construction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;customer_deposits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;deferred_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;deferred_gains_from_disposition_of_utility_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;derivative_instrument_liabilities_hedges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;derivatives_instrument_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;discount_on_capital_stock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dividends_declared&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;installments_received_on_capital_stock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;interest_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;less_long_term_portion_of_derivative_instrument_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;less_long_term_portion_of_derivative_instrument_liabilities_hedges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;liabilities_and_other_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_portion_of_derivative_instrument_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_portion_of_derivative_instrument_liabilities_hedges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;matured_interest&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;matured_long_term_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_current_and_accrued_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;noncorporate_proprietorship&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_payable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_payable_to_associated_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;obligations_under_capital_lease_noncurrent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;obligations_under_capital_leases_current&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_deferred_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_long_term_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_noncurrent_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_paid_in_capital&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;preferred_stock_issued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;premium_on_capital_stock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;proprietary_capital&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reacquired_bonds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reacquired_capital_stock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retained_earnings&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stock_liability_for_conversion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tax_collections_payable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;taxes_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unamortized_discount_on_long_term_debt_debit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unamortized_gain_on_reacquired_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unamortized_premium_on_long_term_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unappropriated_undistributed_subsidiary_earnings&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Liability types for FERC Form 1 data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ASSET_TYPES_FERC1">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.ASSET_TYPES_FERC1">[docs]</a>
+<span class="n">ASSET_TYPES_FERC1</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;accounts_receivable_from_associated_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accrued_utility_revenues&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_amortization_of_nuclear_fuel_assemblies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_depreciation_and_amortization_of_nonutility_property&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_provision_for_uncollectible_accounts_credit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;advances_for_gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowance_inventory_and_withheld&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_fund_federal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cash&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cash_and_working_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;clearing_accounts&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;current_and_accrued_assets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;customer_accounts_receivable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;deferred_debits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;deferred_losses_from_disposition_of_utility_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_fund&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;derivative_instrument_assets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;derivative_instrument_assets_hedges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;derivative_instrument_assets_hedges_long_term&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;derivative_instrument_assets_long_term&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extraordinary_property_losses&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fuel_stock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fuel_stock_expenses_undistributed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gas_stored_current&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gas_stored_underground_noncurrent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;interest_and_dividends_receivable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investment_in_associated_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investment_in_subsidiary_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;less_derivative_instrument_assets_hedges_long_term&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;less_derivative_instrument_assets_long_term&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;less_noncurrent_portion_of_allowances&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;liquefied_natural_gas_stored_and_held_for_processing&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;merchandise&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_current_and_accrued_assets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_deferred_debits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;noncurrent_portion_of_allowances&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nonutility_property&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_receivable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_receivable_from_associated_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_fuel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_fuel_assemblies_in_reactor_major_only&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_fuel_in_process_of_refinement_conversion_enrichment_and_fabrication&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_fuel_materials_and_assemblies_stock_account_major_only&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_fuel_net&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_fuel_under_capital_leases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nuclear_materials_held_for_sale&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_accounts_receivable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_electric_plant_adjustments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_investments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_materials_and_supplies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_preliminary_survey_and_investigation_charges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_property_and_investments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_regulatory_assets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_special_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_materials_and_operating_supplies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;preliminary_natural_gas_and_other_survey_and_investigation_charges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;preliminary_natural_gas_survey_and_investigation_charges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;preliminary_survey_and_investigation_charges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;prepayments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rents_receivable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;research_development_and_demonstration_expenditures&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;residuals&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sinking_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;special_deposits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;special_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;special_funds_all&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;spent_nuclear_fuel_major_only&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stores_expense_undistributed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;temporary_cash_investments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;temporary_facilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unamortized_debt_expense&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unamortized_loss_on_reacquired_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unrecovered_plant_and_regulatory_study_costs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unrecovered_purchased_gas_costs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_and_nuclear_fuel_net&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_plant_net&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;working_funds&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Asset types for FERC Form 1 data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="INCOME_TYPES_FERC1">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.INCOME_TYPES_FERC1">[docs]</a>
+<span class="n">INCOME_TYPES_FERC1</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;accretion_expense&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowance_for_borrowed_funds_used_during_construction_credit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;allowance_for_other_funds_used_during_construction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_and_depletion_of_utility_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_conversion_expenses&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_debt_discount_and_expense&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_electric_plant_acquisition_adjustments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_gain_on_reacquired_debt_credit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_loss_on_reacquired_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_premium_on_debt_credit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;amortization_of_property_losses_unrecovered_plant_and_regulatory_study_costs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;costs_and_expenses_of_merchandising_jobbing_and_contract_work&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_expense&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_expense_for_asset_retirement_costs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;donations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;equity_in_earnings_of_subsidiary_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expenditures_for_certain_civic_political_and_related_activities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expenses_of_nonutility_operations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extraordinary_deductions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extraordinary_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extraordinary_items_after_taxes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gain_on_disposition_of_property&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gains_from_disposition_of_allowances&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gains_from_disposition_of_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;income_before_extraordinary_items&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;income_taxes_extraordinary_items&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;income_taxes_federal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;income_taxes_operating_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;income_taxes_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;income_taxes_utility_operating_income_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;interest_and_dividend_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;interest_on_debt_to_associated_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;interest_on_long_term_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investment_tax_credit_adjustments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investment_tax_credit_adjustments_nonutility_operations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investment_tax_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;life_insurance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;loss_on_disposition_of_property&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;losses_from_disposition_of_allowances&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;losses_from_disposition_of_service_company_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;maintenance_expense&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_amortization&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_deductions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;miscellaneous_nonoperating_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_extraordinary_items&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_income_loss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_interest_charges&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_other_income_and_deductions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_utility_operating_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nonoperating_rental_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operating_revenues&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operation_expense&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_deductions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_income_deductions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_interest_expense&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;penalties&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;provision_for_deferred_income_taxes_credit_operating_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;provision_for_deferred_income_taxes_credit_other_income_and_deductions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;provision_for_deferred_income_taxes_other_income_and_deductions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;provisions_for_deferred_income_taxes_utility_operating_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regulatory_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regulatory_debits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;revenues_from_merchandising_jobbing_and_contract_work&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;revenues_from_nonutility_operations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;taxes_on_other_income_and_deductions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;taxes_other_than_income_taxes_other_income_and_deductions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;taxes_other_than_income_taxes_utility_operating_income&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_operating_expenses&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Income types for FERC Form 1 data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FUNCTIONAL_STATUS_CODES_CENSUS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS">[docs]</a>
+<span class="n">FUNCTIONAL_STATUS_CODES_CENSUS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;C&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;E&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;F&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;I&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;L&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;M&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;S&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Functional status codes for Census geographic entities.</span>
+
+<span class="sd">https://www.census.gov/library/reference/code-lists/functional-status-codes.html</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="MATERIAL_TYPES_PHMSAGAS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS">[docs]</a>
+<span class="n">MATERIAL_TYPES_PHMSAGAS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;unprotected_steel_bare&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unprotected_steel_coated&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cathodically_protected_steel_bare&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cathodically_protected_steel_coated&quot;</span><span class="p">,</span>
+    <span class="c1"># we have to put steel below *steel* bc the pattern will grab the</span>
+    <span class="c1"># bare one first from the longer options if its listed first</span>
+    <span class="s2">&quot;steel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pvc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pe&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;abs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_plastic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plastic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cast_or_wrought_iron&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;wrought_iron&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ductile_iron&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;copper&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_alt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_material&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reconditioned_cast_iron&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cast_iron&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;all_materials&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MAIN_PIPE_SIZES_PHMSAGAS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS">[docs]</a>
+<span class="n">MAIN_PIPE_SIZES_PHMSAGAS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;0.5_in_or_less&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;0.5_to_1_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1_in_or_less&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1_to_2_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;2_in_or_less&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;2_to_4_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;4_to_6_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;4_to_8_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;8_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;8_to_12_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;10_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;12_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;over_12_in&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="LEAK_SOURCE_PHMSAGAS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS">[docs]</a>
+<span class="n">LEAK_SOURCE_PHMSAGAS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;construction_defect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;corrosion_failure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;equipment_failure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;excavation_damage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;incorrect_operation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;material_defect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;natural_force_damage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_outside_force&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;outside_force&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pipe_weld_joint_failure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;third_party&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="DAMAGE_TYPES_PHMSAGAS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.DAMAGE_TYPES_PHMSAGAS">[docs]</a>
+<span class="n">DAMAGE_TYPES_PHMSAGAS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;notification&quot;</span><span class="p">,</span> <span class="s2">&quot;locating&quot;</span><span class="p">,</span> <span class="s2">&quot;excavation&quot;</span><span class="p">,</span> <span class="s2">&quot;other&quot;</span><span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DAMAGE_SUB_TYPES_PHMSAGAS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS">[docs]</a>
+<span class="n">DAMAGE_SUB_TYPES_PHMSAGAS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;deteriorated_facility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dug_after_expiry&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;failed_clearance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;failed_to_protect_facilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;improper_backfilling&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inaccurate_mark_abandoned_facility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inaccurate_mark_incorrect_records&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inaccurate_mark_locator_error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inaccurate_mark_tracer_wire&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;incorrect_information&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;issues_total&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;marks_faded&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;no_one_call_made&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not_marked_abandoned_facility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not_marked_incomplete_marks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not_marked_incorrect_records&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not_marked_locator_error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not_marked_no_response&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not_marked_tracer_wire&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not_marked_unlocatable_facility&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;one_call_center_error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_issues&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;outside_ticket_area&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;previous_damage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;prior_to_test_hole_verification&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;prior_to_valid_start_time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;root_cause_not_listed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="INSTALL_DECADE_PATTERN_PHMSAGAS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.INSTALL_DECADE_PATTERN_PHMSAGAS">[docs]</a>
+<span class="n">INSTALL_DECADE_PATTERN_PHMSAGAS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d</span><span class="si">{4}</span><span class="s2">s|unknown_decade|pre_1940|total_decades)&quot;</span></div>
+
+
+<div class="viewcode-block" id="ASSET_TYPES_RUS7">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.ASSET_TYPES_RUS7">[docs]</a>
+<span class="n">ASSET_TYPES_RUS7</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;utility_plant_in_service&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;construction_work_in_progress&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_utility_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_utility_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_and_amortization&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;non_utility_property&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_subsidiary_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_associated_orgs_patronage_capital&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_associated_orgs_other_general_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_associated_orgs_other_non_general_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_economic_development&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;special_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_other_property_and_investments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cash_general_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cash_construction_funds_trustee&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;special_deposits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_temporary&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_receivable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accounts_receivable_sales_of_energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accounts_receivable_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;renewable_energy_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;materials_and_supplies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;prepayments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_current_and_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_current_and_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regulatory&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_deferred_debits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="LIABILITY_TYPES_RUS7">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.LIABILITY_TYPES_RUS7">[docs]</a>
+<span class="n">LIABILITY_TYPES_RUS7</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;memberships&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;patronage_capital&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operating_margins_prior_years&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operating_margins_current_year&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;non_operating_margins&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_margins_and_equities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_margins_and_equities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_rus&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_ffb_rus_guaranteed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_other_rus_guaranteed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_rus_economic_development&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;payments_unapplied&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_long_term_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;noncurrent_obligations_under_capital_leases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;noncurrent_obligations_asset_retirement&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_noncurrent_obligations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_payable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accounts_payable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;consumer_deposits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;current_maturities_long_term_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;economic_development&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;current_maturities_capital_leases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_current_and_accrued_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_current_and_accrued_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regulatory&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_deferred_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_liabilities_and_other_credits&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ASSET_TYPES_RUS12">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.ASSET_TYPES_RUS12">[docs]</a>
+<span class="n">ASSET_TYPES_RUS12</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;utility_plant_in_service&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;construction_work_in_progress&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_utility_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depreciation_and_amortization&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_utility_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;non_utility_property_asset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_subsidiary_companies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_associated_orgs_patronage_capital&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_associated_orgs_other_general_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_associated_orgs_other_non_general_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_economic_development&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;special_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_other_property_and_investments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cash_general_funds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cash_construction_funds_trustee&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;special_deposits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;investments_temporary&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_receivable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accounts_receivable_sales_of_energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accounts_receivable_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fuel_stock&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;renewable_energy_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;materials_and_supplies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;prepayments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_current_and_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_current_and_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;unamortized_debt_discount_property_losses&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;regulatory&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_deferred_debits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_debits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="LIABILITY_TYPES_RUS12">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.LIABILITY_TYPES_RUS12">[docs]</a>
+<span class="n">LIABILITY_TYPES_RUS12</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;memberships&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;assigned_and_assignable_patronage_capital&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retired_this_year_patronage_capital&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;retired_prior_years_patronage_capital&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;patronage_capital&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operating_margins_prior_years&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operating_margins_current_year&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;non_operating_margins&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_margins_and_equities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_margins_and_equities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_rus&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;payments_unapplied&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_rus_economic_development&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_ffb_rus_guaranteed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_other_rus_guaranteed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;long_term_debt_other&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_long_term_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;noncurrent_obligations_under_capital_leases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_operating_provisions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_other_noncurrent_liabilities&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;notes_payable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accounts_payable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;current_maturities_long_term_debt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rural_development&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;current_maturities_capital_leases&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;taxes_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;interest_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;other_current_and_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_current_and_accrued&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;deferred_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;accumulated_deferred_income_taxes_credits&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_liabilities_and_other_credits&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="PRIME_MOVER_TYPES_RUS12">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12">[docs]</a>
+<span class="n">PRIME_MOVER_TYPES_RUS12</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Hydro&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Internal Combustion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Large Wind&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Steam&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Photovoltaic&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="RENEWABLE_FUEL_TYPES_RUS12">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12">[docs]</a>
+<span class="n">RENEWABLE_FUEL_TYPES_RUS12</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Hydro&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Methane - landfill gas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Wind&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Biomass - wood&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Methane - waste&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hybrid&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Solar - photovoltaic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Solar - thermal generation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Other&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="PLANT_TYPE_RUS12">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.PLANT_TYPE_RUS12">[docs]</a>
+<span class="n">PLANT_TYPE_RUS12</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Combined Cycle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Steam&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hydro&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Internal Combustion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Nuclear&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<div class="viewcode-block" id="SOURCE_OF_ENERGY_RUS12">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12">[docs]</a>
+<span class="n">SOURCE_OF_ENERGY_RUS12</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;energy_available_for_sale&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_used_by_borrower&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;purchased_power&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_energy_accounted&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_energy_losses&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_plant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total_sales&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;delivered_out_of_system_gross&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_interchange&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;received_into_system_gross&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;delivered_out_of_system_wheeling&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_energy_wheeled&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;received_into_system_wheeling&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_furnished_without_charge&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, Catalyst Cooperative, CC-BY-4.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=11fc87b4"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

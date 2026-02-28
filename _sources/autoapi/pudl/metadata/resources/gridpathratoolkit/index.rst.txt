@@ -1,0 +1,25 @@
+pudl.metadata.resources.gridpathratoolkit
+=========================================
+
+.. py:module:: pudl.metadata.resources.gridpathratoolkit
+
+.. autoapi-nested-parse::
+
+   Table definitions for data coming from the GridPath Resource Adequacy Toolkit.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.gridpathratoolkit.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

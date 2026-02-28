@@ -1,0 +1,11 @@
+pudl.package_data.settings
+==========================
+
+.. py:module:: pudl.package_data.settings
+
+.. autoapi-nested-parse::
+
+   Importable (dummy) package to enable distribution of PUDL metadata structures.
+
+
+

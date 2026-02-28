@@ -1,0 +1,310 @@
+pudl.transform.nrelatb
+======================
+
+.. py:module:: pudl.transform.nrelatb
+
+.. autoapi-nested-parse::
+
+   Transform NREL ATB data into well normalized, cleaned tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.nrelatb.logger
+   pudl.transform.nrelatb.IDX_ALL
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.transform.nrelatb.TableNormalizer
+   pudl.transform.nrelatb.Normalizer
+   pudl.transform.nrelatb.TableUnstacker
+   pudl.transform.nrelatb.Unstacker
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.nrelatb.transform_normalize
+   pudl.transform.nrelatb.transform_unstack
+   pudl.transform.nrelatb._core_nrelatb__transform_start
+   pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases
+   pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases_by_scenario
+   pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail
+   pudl.transform.nrelatb.broadcast_asterisk_cost_recovery_period_years
+   pudl.transform.nrelatb._broadcast_core_metric_parameters
+   pudl.transform.nrelatb.core_nrelatb__yearly_projected_cost_performance
+   pudl.transform.nrelatb._core_nrelatb__yearly_units
+   pudl.transform.nrelatb.core_nrelatb__yearly_technology_status
+   pudl.transform.nrelatb.null_cols_cost_performance
+   pudl.transform.nrelatb.check_technology_specific_parameters
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: IDX_ALL
+   :value: ['report_year', 'model_case_nrelatb', 'model_tax_credit_case_nrelatb', 'projection_year',...
+
+
+   Expected primary key columns for the raw nrelatb data.
+
+   The normalized core tables we are trying to build will have primary keys which
+
+   are a subset of these columns.
+
+.. py:class:: TableNormalizer(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Info needed to convert a selection of the raw NREL table into a normalized table.
+
+
+   .. py:attribute:: idx
+      :type:  list[str]
+
+      Primary key columns of normalized subset table.
+
+
+   .. py:attribute:: columns
+      :type:  list[str]
+
+      Columns reported in raw NREL table that are unique to the :attr:`idx`.
+
+
+.. py:function:: transform_normalize(nrelatb: pandas.DataFrame, normalizer: TableNormalizer)
+
+   Normalize a subset of the NREL ATB data into a small table.
+
+   Given a :class:`TableNormalizer` with a set of primary keys (``idx``) and a
+   list of columns (``columns``), build a table with just those primary key and
+   data columns from the larger ATB semi-processed table (output of
+   :func:`_core_nrelatb__transform_start`). Ensure that the output table is
+   unique based on the primary keys.
+
+
+.. py:class:: Normalizer(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Class that defines how to normalize all of the NREL tables that get the :func:`transform_normalize` treatment.
+
+   There are several columns in the raw ATB data that are not a part of the primary keys
+   for the tables that get the :func:`transform_unstack` treatment. This class helps us
+   build these smaller tables which have a smaller subset of primary key columns.
+
+
+   .. py:attribute:: units
+      :type:  TableNormalizer
+
+
+   .. py:attribute:: technology_status
+      :type:  TableNormalizer
+
+
+.. py:class:: TableUnstacker(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Info needed to unstack a portion of the NREL ATB table.
+
+   This class defines a portion of the raw ATB table to get the :func:`transform_unstack`
+   treatment. The set of tables which get this treatment are defined in :class:`Unstacker`.
+
+
+   .. py:attribute:: idx
+      :type:  list[str]
+
+
+   .. py:attribute:: core_metric_parameters
+      :type:  list[str]
+
+      Values from the ``core_metric_parameter`` column to be included in this unstack.
+
+
+   .. py:method:: idx_are_same_or_subset_of_idx_all(idx: list[str])
+      :classmethod:
+
+
+      Are the :attr:`idx` columns either the same as or a subset of :attr:`IDX_ALL`?
+
+
+
+   .. py:property:: idx_unstacked
+      :type: list[str]
+
+
+      Primary key columns after the table is unstacked.
+
+      All of the columns in :attr:`idx` except core_metric_parameter.
+
+
+.. py:function:: transform_unstack(nrelatb: pandas.DataFrame, table_unstacker: TableUnstacker) -> pandas.DataFrame
+
+   Generic unstacking function to convert ATB data from a skinny to wider format.
+
+   This function applies :func:`pandas.unstack` to a subset of values
+   for ``core_metric_parameter`` (via :attr:`TableUnstacker.core_metric_parameters`)
+   with different primary keys (via :attr:`TableUnstacker.idx`). If the set of given
+   ``core_metric_parameters`` result in non-unique values for the primary keys,
+   :func:`pandas.unstack` will raise an error.
+
+
+
+.. py:class:: Unstacker(/, **data: Any)
+
+   Bases: :py:obj:`pydantic.BaseModel`
+
+
+   Class that defines how to unstack the raw ATB table into all of the tidy core tables.
+
+   The ATB data is reported in a very skinny format that enables the raw data to have the
+   same schema over time. The ``core_metric_parameter`` column contains a string which
+   indicates what type of data is being reported in the ``value`` column.
+
+   We want the strings in ``core_metric_parameter`` to end up as column names in the
+   tables, so that each column represents a unique type of data. In the end, there will
+   be one column containing values from the ``value`` column for each unique
+   ``core_metric_parameter``. A quirk with ATB is that different ``core_metric_parameter``
+   have different set of primary keys. Subsets of the ``core_metric_parameter`` have
+   unique values across the data given specific primary keys.
+
+   The convention for ATB data is to use an asterisk in the key columns as a wildcard.
+   Generally when an asterisk is in one the ``IDX_ALL`` columns, the corresponding
+   ``core_metric_parameter`` should be associated with a table without that column
+   as one of its ``idx`` - thus in effect dropping these asterisks from the data.
+   Once these tables are in their core tidy format, they can be merged back together
+   using the primary keys.
+
+   This class defines all of the tables in the ATB data that get the
+   :func:`transform_unstack` treatment.
+
+
+   .. py:attribute:: rate_table
+      :type:  TableUnstacker
+
+
+   .. py:attribute:: scenario_table
+      :type:  TableUnstacker
+
+
+   .. py:attribute:: tech_detail_table
+      :type:  TableUnstacker
+
+
+   .. py:property:: core_metric_parameters_all
+      :type: list[str]
+
+
+      Compilation of all of the parameter values from each of the tables.
+
+      Also check if there are no duplicate core_metric_parameters. We expect all of the parameters
+      across the :class:`TableUnstacker` to be unique.
+
+
+.. py:function:: _core_nrelatb__transform_start(raw_nrelatb__data)
+
+   Transform raw NREL ATB data into semi-clean but still very skinny table.
+
+
+.. py:function:: core_nrelatb__yearly_projected_financial_cases(_core_nrelatb__transform_start) -> pandas.DataFrame
+
+   Transform the data defining the assumptions for the ATB financial cases.
+
+   Right now, this just unstacks the table.
+
+
+.. py:function:: core_nrelatb__yearly_projected_financial_cases_by_scenario(_core_nrelatb__transform_start) -> pandas.DataFrame
+
+   Transform the data defining the assumptions for the ATB financial cases which vary by scenario.
+
+   Right now, this unstacks the table and applies :func:`broadcast_fixed_charge_rate_across_tech_detail`.
+
+
+.. py:function:: broadcast_fixed_charge_rate_across_tech_detail(nrelatb_unstacked: pandas.DataFrame, idx_broadcast: list[str]) -> pandas.DataFrame
+
+   For older years, broadcast the ``fixed_charge_rate`` parameter across the technical detail columns.
+
+   We want the table schema to be consistent for all years of ATB data. Mostly the parameters
+   have the same primary keys across all of the years. But the ``fixed_charge_rate`` parameter is the
+   only exception. For the older years (pre-2023), the FCR parameter is not variable
+   based on tech detail so we are going to broadcast the pre-2023 ``fixed_charge_rate`` values across the
+   tech details that exist in the data.
+
+
+.. py:function:: broadcast_asterisk_cost_recovery_period_years(nrelatb_unstacked, unstack_scenario: TableUnstacker)
+
+   Broadcast the asterisk (wildcard) ``cost_recovery_period_years``.
+
+   Most of the records in this unstacked table have values in the
+   ``cost_recovery_period_years`` column, but before broadcasting, about 15% of the
+   table has an ``*`` in this column. This is a part of the tables primary key and
+   because we know ``*`` in a primary key effectively means wildcard, we want to
+   broadcast the records with an asterisk across the rest of the data. Unfortunately,
+   there are still ~5% of records w/ ``*`` that don't have associated records in the
+   rest of the data (the are left_only records in :func:`_broadcast_core_metric_parameters`)
+   so they end up with nulls in the ``cost_recovery_period_years`` column.
+
+   Probably we could treat ``cost_recovery_period_years`` as a categorical column and/or
+   figure out ways to fill in these nulls with the right set of merge keys.
+
+
+
+.. py:function:: _broadcast_core_metric_parameters(nrelatb_unstacked: pandas.DataFrame, mask_broadcast: pandas.Series, core_metric_parameters: list[str], idx_broadcast: list[str]) -> pandas.DataFrame
+
+   Broadcast a section of a table and fillna with the broadcasted values.
+
+   :param nrelatb_unstacked: the unstacked ATB table which has values to broadcast.
+   :param mask_broadcast: a series with the same index as nrelatb_unstacked and boolean
+                          values where the True's are the records that you want to broadcast.
+   :param core_metric_parameters: the list of core_metric_parameter columns in
+                                  nrelatb_unstacked which you want to extract values from the broadcasted
+                                  records.
+   :param idx_broadcast: the columns to merge ``on``.
+
+
+.. py:function:: core_nrelatb__yearly_projected_cost_performance(_core_nrelatb__transform_start) -> pandas.DataFrame
+
+   Transform the yearly NREL ATB cost and performance projections.
+
+   Right now, this just unstacks the table.
+
+
+.. py:function:: _core_nrelatb__yearly_units(_core_nrelatb__transform_start: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform a table of units by ``core_metric_parameter``.
+
+   This asset is created mostly to ensure that the input units do not
+   vary within one ``core_metric_parameter``. If they do vary, we will
+   need to standardize the units of that parameter.
+
+
+.. py:function:: core_nrelatb__yearly_technology_status(_core_nrelatb__transform_start: pandas.DataFrame) -> pandas.DataFrame
+
+   Transform a small table of statuses of different technology types.
+
+
+.. py:function:: null_cols_cost_performance(df)
+
+   Check for the prevalence of nulls in the core_nrelatb__yearly_projected_cost_performance.
+
+
+.. py:function:: check_technology_specific_parameters(df)
+
+   Some parameters in the cost performance table only pertain to some technologies.
+
+

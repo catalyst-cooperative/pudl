@@ -1,0 +1,1369 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    <link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
+        <link rel="prefetch" href="../../../_static/catalyst_logo-200x200.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>pudl.output.ferc714 - PUDL 2026.2.1.dev10 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=b1990d62" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">PUDL 2026.2.1.dev10 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../_static/catalyst_logo-200x200.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">PUDL 2026.2.1.dev10 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">About PUDL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data_access.html">Data Access</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../data_sources/index.html">Data Sources</a><input aria-label="Toggle navigation of Data Sources" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_sources/future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../data_dictionaries/index.html">Data Dictionaries</a><input aria-label="Toggle navigation of Data Dictionaries" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../methodology/index.html">Methodology</a><input aria-label="Toggle navigation of Methodology" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../dev/index.html">Development</a><input aria-label="Toggle navigation of Development" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../LICENSE.html">Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/pudl/index.html">pudl</a><input aria-label="Toggle navigation of pudl" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/_version/index.html">pudl._version</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/analysis/index.html">pudl.analysis</a><input aria-label="Toggle navigation of pudl.analysis" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><input aria-label="Toggle navigation of pudl.analysis.ml_tools" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><input aria-label="Toggle navigation of pudl.analysis.record_linkage" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/convert/index.html">pudl.convert</a><input aria-label="Toggle navigation of pudl.convert" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/etl/index.html">pudl.etl</a><input aria-label="Toggle navigation of pudl.etl" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/extract/index.html">pudl.extract</a><input aria-label="Toggle navigation of pudl.extract" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><input aria-label="Toggle navigation of pudl.ferc_to_sqlite" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/glue/index.html">pudl.glue</a><input aria-label="Toggle navigation of pudl.glue" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/metadata/index.html">pudl.metadata</a><input aria-label="Toggle navigation of pudl.metadata" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/index.html">pudl.metadata.resources</a><input aria-label="Toggle navigation of pudl.metadata.resources" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/output/index.html">pudl.output</a><input aria-label="Toggle navigation of pudl.output" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/output/sql/index.html">pudl.output.sql</a><input aria-label="Toggle navigation of pudl.output.sql" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/index.html">pudl.package_data</a><input aria-label="Toggle navigation of pudl.package_data" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/censuspep/index.html">pudl.package_data.censuspep</a><input aria-label="Toggle navigation of pudl.package_data.censuspep" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia176/index.html">pudl.package_data.eia176</a><input aria-label="Toggle navigation of pudl.package_data.eia176" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia191/index.html">pudl.package_data.eia191</a><input aria-label="Toggle navigation of pudl.package_data.eia191" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia757a/index.html">pudl.package_data.eia757a</a><input aria-label="Toggle navigation of pudl.package_data.eia757a" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860/index.html">pudl.package_data.eia860</a><input aria-label="Toggle navigation of pudl.package_data.eia860" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860m/index.html">pudl.package_data.eia860m</a><input aria-label="Toggle navigation of pudl.package_data.eia860m" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia861/index.html">pudl.package_data.eia861</a><input aria-label="Toggle navigation of pudl.package_data.eia861" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia923/index.html">pudl.package_data.eia923</a><input aria-label="Toggle navigation of pudl.package_data.eia923" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia930/index.html">pudl.package_data.eia930</a><input aria-label="Toggle navigation of pudl.package_data.eia930" class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/ferc1/index.html">pudl.package_data.ferc1</a><input aria-label="Toggle navigation of pudl.package_data.ferc1" class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><input aria-label="Toggle navigation of pudl.package_data.phmsagas" class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/rus12/index.html">pudl.package_data.rus12</a><input aria-label="Toggle navigation of pudl.package_data.rus12" class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/package_data/test/index.html">pudl.package_data.test</a><input aria-label="Toggle navigation of pudl.package_data.test" class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/resources/index.html">pudl.resources</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/scripts/index.html">pudl.scripts</a><input aria-label="Toggle navigation of pudl.scripts" class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/settings/index.html">pudl.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/transform/index.html">pudl.transform</a><input aria-label="Toggle navigation of pudl.transform" class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../autoapi/pudl/transform/params/index.html">pudl.transform.params</a><input aria-label="Toggle navigation of pudl.transform.params" class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../autoapi/pudl/transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/pudl/validate/index.html">pudl.validate</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../autoapi/pudl/workspace/index.html">pudl.workspace</a><input aria-label="Toggle navigation of pudl.workspace" class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../autoapi/pudl/workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for pudl.output.ferc714</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Functions &amp; classes for compiling derived aspects of the FERC Form 714 data.</span>
+
+<span class="sd">For a narrative overview of the timeseries imputation process, see the documentation</span>
+<span class="sd">at :doc:`/methodology/timeseries_imputation`</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">asset</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.service_territory</span><span class="w"> </span><span class="kn">import</span> <span class="n">utility_ids_all_eia</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.timeseries_cleaning</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ImputeTimeseriesSettings</span><span class="p">,</span>
+    <span class="n">impute_timeseries_asset_factory</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ASSOCIATIONS">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.ASSOCIATIONS">[docs]</a>
+<span class="n">ASSOCIATIONS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># MISO: Midwest Indep System Operator</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">56669</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2009</span><span class="p">,</span> <span class="mi">2010</span><span class="p">]},</span>
+    <span class="c1"># SWPP: Southwest Power Pool</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2009</span><span class="p">],</span> <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NE&quot;</span><span class="p">]},</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2010</span><span class="p">,</span> <span class="mi">2013</span><span class="p">]},</span>
+    <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2013</span><span class="p">]},</span>
+    <span class="c1"># (no code): Entergy</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">12506</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2012</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">2013</span><span class="p">]},</span>
+    <span class="c1"># (no code): American Electric Power Co Inc</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">829</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2008</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2009</span><span class="p">,</span> <span class="mi">2013</span><span class="p">]},</span>
+    <span class="c1"># PJM: PJM Interconnection LLC</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">14725</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2010</span><span class="p">]},</span>
+    <span class="c1"># BANC: Balancing Authority of Northern California</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">16534</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">2012</span><span class="p">]},</span>
+    <span class="c1"># SPS: Southwestern Public Service</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">17718</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2010</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2009</span><span class="p">]},</span>
+    <span class="c1"># Nevada Power Company</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2009</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2008</span><span class="p">]},</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">2019</span><span class="p">]},</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Adjustments to balancing authority-utility associations from EIA 861.</span>
+
+<span class="sd">The changes are applied locally to EIA 861 tables.</span>
+
+<span class="sd">* `id` (int): EIA balancing authority identifier (`balancing_authority_id_eia`).</span>
+<span class="sd">* `from` (int): Reference year, to use as a template for target years.</span>
+<span class="sd">* `to` (List[int]): Target years, in the closed interval format [minimum, maximum].</span>
+<span class="sd">  Rows in `core_eia861__yearly_balancing_authority` are added (if missing) for every target year</span>
+<span class="sd">  with the attributes from the reference year.</span>
+<span class="sd">  Rows in `core_eia861__assn_balancing_authority` are added (or replaced, if existing)</span>
+<span class="sd">  for every target year with the utility associations from the reference year.</span>
+<span class="sd">  Rows in `core_eia861__yearly_service_territory` are added (if missing) for every target year</span>
+<span class="sd">  with the nearest year&#39;s associated utilities&#39; counties.</span>
+<span class="sd">* `exclude` (Optional[List[str]]): Utilities to exclude, by state (two-letter code).</span>
+<span class="sd">  Rows are excluded from `core_eia861__assn_balancing_authority` with target year and state.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UTILITIES">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.UTILITIES">[docs]</a>
+<span class="n">UTILITIES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># (no code): Pacific Gas &amp; Electric Co</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">14328</span><span class="p">,</span> <span class="s2">&quot;reassign&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="c1"># (no code): San Diego Gas &amp; Electric Co</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">16609</span><span class="p">,</span> <span class="s2">&quot;reassign&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="c1"># (no code): Dayton Power &amp; Light Co</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4922</span><span class="p">,</span> <span class="s2">&quot;reassign&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="c1"># (no code): Consumers Energy Company</span>
+    <span class="c1"># NOTE: 2003-2006 parent to 40211, which is never child to parent BA (12427),</span>
+    <span class="c1"># (and 40211 never reports in core_eia861__yearly_service_territory) so don&#39;t reassign.</span>
+    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4254</span><span class="p">},</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Balancing authorities to treat as utilities in associations from EIA 861.</span>
+
+<span class="sd">The changes are applied locally to EIA 861 tables.</span>
+
+<span class="sd">* `id` (int): EIA balancing authority (BA) identifier (`balancing_authority_id_eia`).</span>
+<span class="sd">  Rows for `id` are removed from `core_eia861__yearly_balancing_authority`.</span>
+<span class="sd">* `reassign` (Optional[bool]): Whether to reassign utilities to parent BAs.</span>
+<span class="sd">  Rows for `id` as BA in `core_eia861__assn_balancing_authority` are removed.</span>
+<span class="sd">  Utilities assigned to `id` for a given year are reassigned</span>
+<span class="sd">  to the BAs for which `id` is an associated utility.</span>
+<span class="sd">* `replace` (Optional[bool]): Whether to remove rows where `id` is a utility in</span>
+<span class="sd">  `core_eia861__assn_balancing_authority`. Applies only if `reassign=True`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Helper functions</span>
+<span class="c1">################################################################################</span>
+
+
+<div class="viewcode-block" id="categorize_eia_code">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.categorize_eia_code">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">categorize_eia_code</span><span class="p">(</span>
+    <span class="n">eia_codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">ba_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">util_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Categorize FERC 714 ``eia_codes`` as either balancing authority or utility IDs.</span>
+
+<span class="sd">    Most FERC 714 respondent IDs are associated with an ``eia_code`` which refers to</span>
+<span class="sd">    either a ``balancing_authority_id_eia`` or a ``utility_id_eia`` but no indication</span>
+<span class="sd">    as to which type of ID each one is. This is further complicated by the fact</span>
+<span class="sd">    that EIA uses the same numerical ID to refer to the same entity in most but not all</span>
+<span class="sd">    cases, when that entity acts as both a utility and as a balancing authority.</span>
+
+<span class="sd">    This function associates a ``respondent_type`` of ``utility``,</span>
+<span class="sd">    ``balancing_authority`` or ``pandas.NA`` with each input ``eia_code`` using the</span>
+<span class="sd">    following rules:</span>
+
+<span class="sd">    * If a ``eia_code`` appears only in ``util_ids`` the ``respondent_type`` will be</span>
+<span class="sd">      ``utility``.</span>
+<span class="sd">    * If ``eia_code`` appears only in ``ba_ids`` the ``respondent_type`` will be</span>
+<span class="sd">      assigned ``balancing_authority``.</span>
+<span class="sd">    * If ``eia_code`` appears in neither set of IDs, ``respondent_type`` will be</span>
+<span class="sd">      assigned ``pandas.NA``.</span>
+<span class="sd">    * If ``eia_code`` appears in both sets of IDs, then whichever ``respondent_type``</span>
+<span class="sd">      has been selected with the ``priority`` flag will be assigned.</span>
+
+<span class="sd">    Note that the vast majority of ``balancing_authority_id_eia`` values also show up</span>
+<span class="sd">    as ``utility_id_eia`` values, but only a small subset of the ``utility_id_eia``</span>
+<span class="sd">    values are associated with balancing authorities. If you use</span>
+<span class="sd">    ``priority=&quot;utility&quot;`` you should probably also be specifically compiling the list</span>
+<span class="sd">    of Utility IDs because you know they should take precedence. If you use utility</span>
+<span class="sd">    priority with all utility IDs</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        eia_codes: A collection of IDs which may be either</span>
+<span class="sd">            associated with EIA balancing authorities or utilities, to be categorized.</span>
+<span class="sd">        ba_ids_eia: A collection of IDs which should be</span>
+<span class="sd">            interpreted as belonging to EIA Balancing Authorities.</span>
+<span class="sd">        util_ids_eia: A collection of IDs which should be</span>
+<span class="sd">            interpreted as belonging to EIA Utilities.</span>
+<span class="sd">        priority: Which respondent_type to give priority to if the eia_code shows</span>
+<span class="sd">            up in both util_ids_eia and ba_ids_eia. Must be one of &quot;utility&quot; or</span>
+<span class="sd">            &quot;balancing_authority&quot;. The default is &quot;balancing_authority&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A DataFrame containing 2 columns: ``eia_code`` and ``respondent_type``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">priority</span> <span class="o">==</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">:</span>
+        <span class="n">primary</span> <span class="o">=</span> <span class="s2">&quot;balancing_authority&quot;</span>
+        <span class="n">secondary</span> <span class="o">=</span> <span class="s2">&quot;utility&quot;</span>
+    <span class="k">elif</span> <span class="n">priority</span> <span class="o">==</span> <span class="s2">&quot;utility&quot;</span><span class="p">:</span>
+        <span class="n">primary</span> <span class="o">=</span> <span class="s2">&quot;utility&quot;</span>
+        <span class="n">secondary</span> <span class="o">=</span> <span class="s2">&quot;balancing_authority&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid respondent type </span><span class="si">{</span><span class="n">priority</span><span class="si">}</span><span class="s2"> chosen as priority.&quot;</span>
+            <span class="s2">&quot;Must be either &#39;utility&#39; or &#39;balancing_authority&#39;.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">eia_codes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">eia_codes</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;eia_code&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="n">ba_ids</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">ba_ids</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">util_ids</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">util_ids</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">eia_codes</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">ba_ids</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;eia_code&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">util_ids</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;eia_code&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">primary</span><span class="si">}</span><span class="s2">_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="s2">&quot;respondent_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">primary</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">secondary</span><span class="si">}</span><span class="s2">_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">primary</span><span class="si">}</span><span class="s2">_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()),</span>
+        <span class="s2">&quot;respondent_type&quot;</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">secondary</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;respondent_type&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">()})</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;eia_code&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_type&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="c1">#################################################################################</span>
+<span class="c1"># Functions to compute analysis assets.</span>
+<span class="c1">################################################################################</span>
+
+
+<div class="viewcode-block" id="filled_core_eia861__yearly_balancing_authority">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filled_core_eia861__yearly_balancing_authority</span><span class="p">(</span>
+    <span class="n">core_eia861__yearly_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Modified core_eia861__yearly_balancing_authority table.</span>
+
+<span class="sd">    This function adds rows for each balancing authority-year pair missing from the</span>
+<span class="sd">    cleaned core_eia861__yearly_balancing_authority table, using a dictionary of manual fixes. It</span>
+<span class="sd">    uses the reference year as a template. The function also removes balancing</span>
+<span class="sd">    authorities that are manually categorized as utilities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">core_eia861__yearly_balancing_authority</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">]</span>
+    <span class="n">dfi</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="c1"># Prepare reference rows</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">ASSOCIATIONS</span><span class="p">]</span>
+    <span class="n">refs</span> <span class="o">=</span> <span class="n">dfi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">keys</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">)</span>
+    <span class="c1"># Build table of new rows</span>
+    <span class="c1"># Insert row for each target balancing authority-year pair</span>
+    <span class="c1"># missing from the original table, using the reference year as a template.</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ref</span><span class="p">,</span> <span class="n">fix</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">refs</span><span class="p">,</span> <span class="n">ASSOCIATIONS</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dfi</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="o">**</span><span class="n">ref</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]})</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">df</span><span class="p">,</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># Remove balancing authorities treated as utilities</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">util</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">util</span> <span class="ow">in</span> <span class="n">UTILITIES</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">],</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="filled_core_eia861__assn_balancing_authority">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filled_core_eia861__assn_balancing_authority</span><span class="p">(</span>
+    <span class="n">core_eia861__assn_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Modified core_eia861__assn_balancing_authority table.</span>
+
+<span class="sd">    This function adds rows for each balancing authority-year pair missing from the</span>
+<span class="sd">    cleaned core_eia861__assn_balancing_authority table, using a dictionary of manual fixes.</span>
+<span class="sd">    It uses the reference year as a template. The function also reassigns balancing</span>
+<span class="sd">    authorities that are manually categorized as utilities to their parent balancing</span>
+<span class="sd">    authorities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">core_eia861__assn_balancing_authority</span>
+    <span class="c1"># Prepare reference rows</span>
+    <span class="n">refs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">ASSOCIATIONS</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;exclude&quot;</span> <span class="ow">in</span> <span class="n">fix</span><span class="p">:</span>
+            <span class="c1"># Exclude utilities by state</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">ref</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;exclude&quot;</span><span class="p">])</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">refs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+    <span class="c1"># Build a table of new rows</span>
+    <span class="c1"># Insert (or overwrite) rows for each target balancing authority-year pair,</span>
+    <span class="c1"># using the reference year as a template.</span>
+    <span class="n">replaced</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ref</span><span class="p">,</span> <span class="n">fix</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">refs</span><span class="p">,</span> <span class="n">ASSOCIATIONS</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_date</span><span class="o">=</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">replaced</span> <span class="o">|=</span> <span class="n">mask</span>
+    <span class="c1"># Append to original table with matching rows removed</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">replaced</span><span class="p">],</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">tables</span><span class="p">),</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)])</span>
+    <span class="c1"># Remove balancing authorities treated as utilities</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">util</span> <span class="ow">in</span> <span class="n">UTILITIES</span><span class="p">:</span>
+        <span class="n">is_parent</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">util</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        <span class="n">mask</span> <span class="o">|=</span> <span class="n">is_parent</span>
+        <span class="c1"># Associated utilities are reassigned to parent balancing authorities</span>
+        <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reassign&quot;</span><span class="p">):</span>
+            <span class="c1"># Ignore when entity is child to itself</span>
+            <span class="n">is_child</span> <span class="o">=</span> <span class="o">~</span><span class="n">is_parent</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">util</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="c1"># Build table associating parents to children of entity</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">is_child</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">is_parent</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">util</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])],</span>
+                    <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">],</span>
+                    <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                        <span class="s2">&quot;utility_id_eia_x&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;state_x&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;balancing_authority_id_eia_y&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;balancing_authority_id_eia_x&quot;</span><span class="p">:</span> <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;utility_id_eia_y&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;state_y&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;replace&quot;</span><span class="p">):</span>
+                <span class="n">mask</span> <span class="o">|=</span> <span class="n">is_child</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]]</span> <span class="o">+</span> <span class="n">tables</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="filled_service_territory_eia861">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_service_territory_eia861">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filled_service_territory_eia861</span><span class="p">(</span>
+    <span class="n">core_eia861__assn_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Modified core_eia861__yearly_service_territory table.</span>
+
+<span class="sd">    This function adds rows for each balancing authority-year pair missing from the</span>
+<span class="sd">    cleaned core_eia861__yearly_service_territory table, using a dictionary of manual fixes. It also</span>
+<span class="sd">    drops utility-state combinations which are missing counties across all years of</span>
+<span class="sd">    data, fills records missing counties with the nearest year of county data for the</span>
+<span class="sd">    same utility and state.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">]</span>
+    <span class="c1"># Select relevant balancing authority-utility associations</span>
+    <span class="n">assn</span> <span class="o">=</span> <span class="n">filled_core_eia861__assn_balancing_authority</span><span class="p">(</span>
+        <span class="n">core_eia861__assn_balancing_authority</span>
+    <span class="p">)</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">assn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">ASSOCIATIONS</span><span class="p">:</span>
+        <span class="n">years</span> <span class="o">=</span> <span class="p">[</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">years</span><span class="p">]</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">assn</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">assn</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span>
+        <span class="n">selected</span> <span class="o">|=</span> <span class="n">mask</span>
+    <span class="c1"># Reformat as unique utility-state-year</span>
+    <span class="n">assn</span> <span class="o">=</span> <span class="n">assn</span><span class="p">[</span><span class="n">selected</span><span class="p">][</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="c1"># Select relevant service territories</span>
+    <span class="n">mdf</span> <span class="o">=</span> <span class="n">assn</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="c1"># Drop utility-state with no counties for all years</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">mdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">])[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">]</span>
+    <span class="n">mdf</span> <span class="o">=</span> <span class="n">mdf</span><span class="p">[</span><span class="n">grouped</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+    <span class="c1"># Fill missing utility-state-year with nearest year with counties</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">mdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">]</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="n">mdf</span><span class="p">[</span><span class="n">grouped</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">)</span>
+    <span class="n">has_county</span> <span class="o">=</span> <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
+            <span class="o">&amp;</span> <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">])</span>
+            <span class="o">&amp;</span> <span class="n">has_county</span>
+        <span class="p">)</span>
+        <span class="n">years</span> <span class="o">=</span> <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="c1"># Match to nearest year</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">years</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()</span>
+        <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">years</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mdf</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_date</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">]</span> <span class="o">+</span> <span class="n">tables</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_settings&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="_out_ferc714__annualized_respondents">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714._out_ferc714__annualized_respondents">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_out_ferc714__annualized_respondents</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">,</span>
+    <span class="n">core_ferc714__respondent_id</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Broadcast respondent data across all years with reported demand.</span>
+
+<span class="sd">    The FERC 714 Respondent IDs and names are reported in their own table, without any</span>
+<span class="sd">    reference to individual years, but much of the information we are associating with</span>
+<span class="sd">    them varies annually. This method creates an annualized version of the respondent</span>
+<span class="sd">    table, with each respondent having an entry corresponding to every year for which</span>
+<span class="sd">    FERC 714 has been processed. This means that many of the respondents will end up</span>
+<span class="sd">    having entries for years in which they reported no demand, and that&#39;s fine.</span>
+<span class="sd">    They can be filtered later.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;report_date&quot;</span> <span class="ow">in</span> <span class="n">core_ferc714__respondent_id</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;report_date already present, can&#39;t be added again!&quot;</span><span class="p">)</span>
+
+    <span class="n">ferc714_settings</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">ferc714</span>
+    <span class="n">report_dates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;report_date&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">ferc714_settings</span><span class="o">.</span><span class="n">years</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y&quot;</span><span class="p">)}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">core_ferc714__respondent_id</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">report_dates</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;cross&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">,</span>
+            <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Which type of entity should take priority in the categorization of &quot;</span>
+                <span class="s2">&quot;FERC 714 respondents. Must be either ``utility`` or &quot;</span>
+                <span class="s2">&quot;``balancing_authority.`` The default is ``balancing_authority``.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="_out_ferc714__categorized_respondents">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714._out_ferc714__categorized_respondents">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_out_ferc714__categorized_respondents</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">,</span>
+    <span class="n">core_ferc714__respondent_id</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_eia__yearly_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__yearly_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_out_ferc714__annualized_respondents</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annualized respondents with ``respondent_type`` assigned if possible.</span>
+
+<span class="sd">    Categorize each respondent as either a ``utility`` or a ``balancing_authority``</span>
+<span class="sd">    using the parameters stored in the instance of the class. While categorization</span>
+<span class="sd">    can also be done without annualizing, this function annualizes as well, since we</span>
+<span class="sd">    are adding the ``respondent_type`` in order to be able to compile service</span>
+<span class="sd">    territories for the respondent, which vary annually.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">priority</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;priority&quot;</span><span class="p">]</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Categorizing EIA codes associated with FERC-714 Respondents.&quot;</span><span class="p">)</span>
+
+    <span class="n">bal_auth</span> <span class="o">=</span> <span class="n">filled_core_eia861__yearly_balancing_authority</span><span class="p">(</span>
+        <span class="n">core_eia861__yearly_balancing_authority</span>
+    <span class="p">)</span>
+    <span class="n">utilids_all_eia</span> <span class="o">=</span> <span class="n">utility_ids_all_eia</span><span class="p">(</span>
+        <span class="n">out_eia__yearly_utilities</span><span class="p">,</span> <span class="n">core_eia861__yearly_service_territory</span>
+    <span class="p">)</span>
+
+    <span class="n">categorized</span> <span class="o">=</span> <span class="n">categorize_eia_code</span><span class="p">(</span>
+        <span class="n">core_ferc714__respondent_id</span><span class="o">.</span><span class="n">eia_code</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+        <span class="n">ba_ids</span><span class="o">=</span><span class="n">bal_auth</span><span class="o">.</span><span class="n">balancing_authority_id_eia</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+        <span class="n">util_ids</span><span class="o">=</span><span class="n">utilids_all_eia</span><span class="o">.</span><span class="n">utility_id_eia</span><span class="p">,</span>
+        <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Merging categorized EIA codes with annualized FERC-714 Respondent data.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">categorized</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">categorized</span><span class="p">,</span> <span class="n">_out_ferc714__annualized_respondents</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;right&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># Names, ids, and codes for BAs identified as FERC 714 respondents</span>
+    <span class="c1"># NOTE: this is not *strictly* correct, because the EIA BAs are not</span>
+    <span class="c1"># eternal and unchanging.  There&#39;s at least one case in which the BA</span>
+    <span class="c1"># associated with a given ID had a code and name change between years</span>
+    <span class="c1"># after it changed hands. However, not merging on report_date in</span>
+    <span class="c1"># addition to the balancing_authority_id_eia / eia_code fields ensures</span>
+    <span class="c1"># that all years are populated for all BAs, which keeps them analogous</span>
+    <span class="c1"># to the Utilities in structure. Sooo.... it&#39;s fine for now.</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Selecting FERC-714 Balancing Authority respondents.&quot;</span><span class="p">)</span>
+    <span class="n">ba_respondents</span> <span class="o">=</span> <span class="n">categorized</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;respondent_type==&#39;balancing_authority&#39;&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Merging FERC-714 Balancing Authority respondents with BA id/code/name &quot;</span>
+        <span class="s2">&quot;information from EIA-861.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ba_respondents</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">ba_respondents</span><span class="p">,</span>
+        <span class="n">bal_auth</span><span class="p">[</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;eia_code&quot;</span><span class="p">,</span>
+        <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Selecting names and IDs for FERC-714 Utility respondents.&quot;</span><span class="p">)</span>
+    <span class="n">util_respondents</span> <span class="o">=</span> <span class="n">categorized</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;respondent_type==&#39;utility&#39;&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Merging FERC-714 Utility respondents with service territory.&quot;</span><span class="p">)</span>
+    <span class="n">util_respondents</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">util_respondents</span><span class="p">,</span>
+        <span class="n">utilids_all_eia</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;eia_code&quot;</span><span class="p">,</span>
+        <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Concatenating categorized FERC-714 respondents:&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ba_respondents</span><span class="p">)</span><span class="si">}</span><span class="s2"> BA records, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">util_respondents</span><span class="p">)</span><span class="si">}</span><span class="s2"> utility records, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">categorized</span><span class="o">.</span><span class="n">respondent_type</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="si">}</span><span class="s2"> uncategorized records.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">categorized</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">ba_respondents</span><span class="p">,</span>
+            <span class="n">util_respondents</span><span class="p">,</span>
+            <span class="c1"># Uncategorized respondents w/ no respondent_type:</span>
+            <span class="n">categorized</span><span class="p">[</span><span class="n">categorized</span><span class="o">.</span><span class="n">respondent_type</span><span class="o">.</span><span class="n">isnull</span><span class="p">()],</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">categorized</span> <span class="o">=</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">categorized</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">categorized</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;limit_by_state&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Whether to limit respondent service territories to the states where &quot;</span>
+                <span class="s2">&quot;they have documented activity in the EIA 861. Currently this is only &quot;</span>
+                <span class="s2">&quot;implemented for Balancing Authorities.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="out_ferc714__respondents_with_fips">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.out_ferc714__respondents_with_fips">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_ferc714__respondents_with_fips</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">,</span>
+    <span class="n">_out_ferc714__categorized_respondents</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__assn_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_eia861__assn_utility</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annual respondents with the county FIPS IDs for their service territories.</span>
+
+<span class="sd">    Given the ``respondent_type`` associated with each respondent (either ``utility`` or</span>
+<span class="sd">    ``balancing_authority``) compile a list of counties that are part of their service</span>
+<span class="sd">    territory on an annual basis, and merge those into the annualized respondent table.</span>
+<span class="sd">    This results in a very long dataframe, since there are thousands of counties and</span>
+<span class="sd">    many of them are served by more than one entity.</span>
+
+<span class="sd">    Currently respondents categorized as ``utility`` will include any county that</span>
+<span class="sd">    appears in the ``core_eia861__yearly_service_territory`` table in association with</span>
+<span class="sd">    that utility ID in each year, while for ``balancing_authority`` respondents, some</span>
+<span class="sd">    counties can be excluded based on state (if ``limit_by_state==True``).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">assn</span> <span class="o">=</span> <span class="n">filled_core_eia861__assn_balancing_authority</span><span class="p">(</span>
+        <span class="n">core_eia861__assn_balancing_authority</span>
+    <span class="p">)</span>
+    <span class="n">st_eia861</span> <span class="o">=</span> <span class="n">filled_service_territory_eia861</span><span class="p">(</span>
+        <span class="n">core_eia861__assn_balancing_authority</span><span class="p">,</span> <span class="n">core_eia861__yearly_service_territory</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Generate the BA:FIPS relation:</span>
+    <span class="n">ba_counties</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">_out_ferc714__categorized_respondents</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="s2">&quot;respondent_type==&#39;balancing_authority&#39;&quot;</span>
+        <span class="p">),</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">service_territory</span><span class="o">.</span><span class="n">get_territory_fips</span><span class="p">(</span>
+            <span class="n">ids</span><span class="o">=</span><span class="n">_out_ferc714__categorized_respondents</span><span class="o">.</span><span class="n">balancing_authority_id_eia</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+            <span class="n">assn</span><span class="o">=</span><span class="n">assn</span><span class="p">,</span>
+            <span class="n">assn_col</span><span class="o">=</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
+            <span class="n">core_eia861__yearly_service_territory</span><span class="o">=</span><span class="n">st_eia861</span><span class="p">,</span>
+            <span class="n">limit_by_state</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;limit_by_state&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Generate the Util:FIPS relation:</span>
+    <span class="n">util_counties</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">_out_ferc714__categorized_respondents</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;respondent_type==&#39;utility&#39;&quot;</span><span class="p">),</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">service_territory</span><span class="o">.</span><span class="n">get_territory_fips</span><span class="p">(</span>
+            <span class="n">ids</span><span class="o">=</span><span class="n">_out_ferc714__categorized_respondents</span><span class="o">.</span><span class="n">utility_id_eia</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+            <span class="n">assn</span><span class="o">=</span><span class="n">core_eia861__assn_utility</span><span class="p">,</span>
+            <span class="n">assn_col</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+            <span class="n">core_eia861__yearly_service_territory</span><span class="o">=</span><span class="n">st_eia861</span><span class="p">,</span>
+            <span class="n">limit_by_state</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;limit_by_state&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Concatenating georeferenced FERC-714 respondents:&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ba_counties</span><span class="p">)</span><span class="si">}</span><span class="s2"> BA records, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">util_counties</span><span class="p">)</span><span class="si">}</span><span class="s2"> utility records, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">_out_ferc714__categorized_respondents</span><span class="o">.</span><span class="n">respondent_type</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="si">}</span><span class="s2"> uncategorized records.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">fipsified</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">ba_counties</span><span class="p">,</span>
+            <span class="n">util_counties</span><span class="p">,</span>
+            <span class="n">_out_ferc714__categorized_respondents</span><span class="p">[</span>
+                <span class="n">_out_ferc714__categorized_respondents</span><span class="o">.</span><span class="n">respondent_type</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+            <span class="p">],</span>
+        <span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fipsified</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="_out_ferc714__georeferenced_counties">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714._out_ferc714__georeferenced_counties">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_out_ferc714__georeferenced_counties</span><span class="p">(</span>
+    <span class="n">out_ferc714__respondents_with_fips</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_censusdp1tract__counties</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annual respondents with all associated county-level geometries.</span>
+
+<span class="sd">    Given the county FIPS codes associated with each respondent in each year, pull in</span>
+<span class="sd">    associated geometries from the US Census DP1 dataset, so we can do spatial analyses.</span>
+<span class="sd">    This keeps each county record independent -- so there will be many records for each</span>
+<span class="sd">    respondent in each year. This is fast, and still good for mapping, and retains all</span>
+<span class="sd">    of the FIPS IDs so you can also still do ID based analyses.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">counties_gdf</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">service_territory</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
+        <span class="n">out_ferc714__respondents_with_fips</span><span class="p">,</span>
+        <span class="n">census_gdf</span><span class="o">=</span><span class="n">out_censusdp1tract__counties</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">counties_gdf</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;geoparquet_io_manager&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="out_ferc714__georeferenced_respondents">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.out_ferc714__georeferenced_respondents">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_ferc714__georeferenced_respondents</span><span class="p">(</span>
+    <span class="n">out_ferc714__respondents_with_fips</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_ferc714__summarized_demand</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_censusdp1tract__counties</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Annual respondents with a single all-encompassing geometry for each year.</span>
+
+<span class="sd">    Given the county FIPS codes associated with each responent in each year, compile a</span>
+<span class="sd">    geometry for the respondent&#39;s entire service territory annually. This results in</span>
+<span class="sd">    just a single record per respondent per year, but is computationally expensive and</span>
+<span class="sd">    you lose the information about what all counties are associated with the respondent</span>
+<span class="sd">    in that year. But it&#39;s useful for merging in other annual data like total demand, so</span>
+<span class="sd">    you can see which respondent-years have both reported demand and decent geometries,</span>
+<span class="sd">    calculate their areas to see if something changed from year to year, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">respondents_gdf</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">service_territory</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
+            <span class="n">out_ferc714__respondents_with_fips</span><span class="p">,</span>
+            <span class="n">census_gdf</span><span class="o">=</span><span class="n">out_censusdp1tract__counties</span><span class="p">,</span>
+            <span class="n">dissolve</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">dissolve_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">out_ferc714__summarized_demand</span><span class="p">[</span>
+                <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_annual_mwh&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">respondents_gdf</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
+    <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="out_ferc714__summarized_demand">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.out_ferc714__summarized_demand">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">out_ferc714__summarized_demand</span><span class="p">(</span>
+    <span class="n">_out_ferc714__annualized_respondents</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_ferc714__hourly_planning_area_demand</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_out_ferc714__categorized_respondents</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_out_ferc714__georeferenced_counties</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile annualized, categorized respondents and summarize values.</span>
+
+<span class="sd">    Calculated summary values include:</span>
+<span class="sd">    * Total reported electricity demand per respondent (``demand_annual_mwh``)</span>
+<span class="sd">    * Reported per-capita electrcity demand (``demand_annual_per_capita_mwh``)</span>
+<span class="sd">    * Population density (``population_density_km2``)</span>
+<span class="sd">    * Demand density (``demand_density_mwh_km2``)</span>
+
+<span class="sd">    These metrics are helpful identifying suspicious changes in the compiled annual</span>
+<span class="sd">    geometries for the planning areas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">demand_annual</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">_out_ferc714__annualized_respondents</span><span class="p">,</span>
+            <span class="n">out_ferc714__hourly_planning_area_demand</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_imputed_pudl_mwh&quot;</span><span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span>
+            <span class="p">[</span><span class="s2">&quot;demand_imputed_pudl_mwh&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;demand_imputed_pudl_mwh&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_annual_mwh&quot;</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">_out_ferc714__georeferenced_counties</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)[[</span><span class="s2">&quot;population&quot;</span><span class="p">,</span> <span class="s2">&quot;area_km2&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">population_density_km2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">population</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">area_km2</span><span class="p">,</span>
+            <span class="n">demand_annual_per_capita_mwh</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">demand_annual_mwh</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">population</span><span class="p">,</span>
+            <span class="n">demand_density_mwh_km2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">demand_annual_mwh</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">area_km2</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># Merge respondent categorizations into the annual demand</span>
+    <span class="n">demand_summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">demand_annual</span><span class="p">,</span> <span class="n">_out_ferc714__categorized_respondents</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">demand_summary</span></div>
+
+
+
+<div class="viewcode-block" id="imputed_hourly_planning_area_demand_assets">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.imputed_hourly_planning_area_demand_assets">[docs]</a>
+<span class="n">imputed_hourly_planning_area_demand_assets</span> <span class="o">=</span> <span class="n">impute_timeseries_asset_factory</span><span class="p">(</span>
+    <span class="n">input_asset_name</span><span class="o">=</span><span class="s2">&quot;core_ferc714__hourly_planning_area_demand&quot;</span><span class="p">,</span>
+    <span class="n">output_asset_name</span><span class="o">=</span><span class="s2">&quot;out_ferc714__hourly_planning_area_demand&quot;</span><span class="p">,</span>
+    <span class="n">years_from_context</span><span class="o">=</span><span class="k">lambda</span> <span class="n">context</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">dataset_settings</span><span class="o">.</span><span class="n">ferc714</span><span class="o">.</span><span class="n">years</span><span class="p">,</span>
+    <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;demand_mwh&quot;</span><span class="p">,</span>
+    <span class="n">imputed_value_col</span><span class="o">=</span><span class="s2">&quot;demand_imputed_pudl_mwh&quot;</span><span class="p">,</span>
+    <span class="n">id_col</span><span class="o">=</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span>
+    <span class="n">settings</span><span class="o">=</span><span class="n">ImputeTimeseriesSettings</span><span class="p">(</span><span class="n">min_data_fraction</span><span class="o">=</span><span class="mf">0.7</span><span class="p">),</span>
+<span class="p">)</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, Catalyst Cooperative, CC-BY-4.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=11fc87b4"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

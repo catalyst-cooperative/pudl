@@ -1,0 +1,102 @@
+pudl.metadata.resource_helpers
+==============================
+
+.. py:module:: pudl.metadata.resource_helpers
+
+.. autoapi-nested-parse::
+
+   Functions for resource metadata.
+
+   These live in pudl.metadata and not in pudl.metadata.resources because we have
+   machinery that iterates over the contents of pudl.metadata.resources and needs
+   each module there to actually store resource metadata.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resource_helpers.HARVESTING_DETAIL_TEXT
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.metadata.resource_helpers.canonical_harvested_details
+   pudl.metadata.resource_helpers.inherits_harvested_values_details
+   pudl.metadata.resource_helpers.merge_descriptions
+
+
+Module Contents
+---------------
+
+.. py:data:: HARVESTING_DETAIL_TEXT
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """EIA reports many attributes in many different tables across
+      EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
+      collects all instances of these values and and chooses a canonical value. By default,
+      PUDL chooses the most consistently reported value of a given attribute as long as it
+      is at least 70% of the given instances reported. If an attribute was reported
+      inconsistently across the original EIA tables, then it will show up as a
+      null value."""
+
+   .. raw:: html
+
+      </details>
+
+
+
+.. py:function:: canonical_harvested_details(entities: str, is_static: bool) -> str
+
+   Generate additional details text for one of the eight core harvested tables.
+
+   We have one core harvested table for each combination of (plants, utilities,
+   boilers, generators) X (static cols, annual cols):
+
+     * ``core_eia__entity_{plants|utilities|boilers|generators}`` - static cols
+     * ``core_eia860__scd_{plants|utilities|boilers|generators}`` - annual cols
+
+   This text helps users cross reference where the canonical values for each
+   type of entity come from, and why they may differ from a value they find in a
+   raw source.
+
+   :param entities: string containing the plural of an entity type; e.g., "plants"
+   :param is_static: True if the table this text is destined for contains the static cols
+                     for the entity, False otherwise. Static cols are stored in tables with a name
+                     like "core_eia__entity_X", and annual cols are stored in tables with a name
+                     like "core_eia860__scd_X".
+
+
+.. py:function:: inherits_harvested_values_details(entities: str) -> str
+
+   Generate additional details text for a table which inherits harvested values from one of the eight core harvested tables.
+
+   A table inherits harvested values from one of the eight core harvested tables
+   if it is downstream of one or more tables ``core_eia__entity_{plants|utilities|boilers|generators}``
+   or ``core_eia860__scd_{plants|utilities|boilers|generators}`` and includes one or
+   more columns from the static or annual column lists in :data:`pudl.metadata.resources.ENTITIES`.
+
+   We have chosen to only add this warning to tables that inherit 3 or more columns from harvested
+   tables.
+
+   :param entities: a prose string listing which harvested entities contributed
+                    columns to this table; e.g., "generators and plants" for a table with
+                    ``core_eia860__scd_generators`` and ``core_eia860__scd_plants`` upstream.
+
+
+.. py:function:: merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]
+
+   Merge two description dictionaries.
+
+

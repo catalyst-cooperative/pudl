@@ -1,0 +1,27 @@
+pudl.metadata.sources
+=====================
+
+.. py:module:: pudl.metadata.sources
+
+.. autoapi-nested-parse::
+
+   Metadata and operational constants.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.sources.SOURCES
+
+
+Module Contents
+---------------
+
+.. py:data:: SOURCES
+   :type:  dict[str, Any]
+
+   Data source attributes by PUDL identifier.
+

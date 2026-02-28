@@ -1,0 +1,123 @@
+pudl.output.eia923
+==================
+
+.. py:module:: pudl.output.eia923
+
+.. autoapi-nested-parse::
+
+   Denormalized, aggregated, and filled versions of the basic EIA-923 tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.output.eia923.logger
+   pudl.output.eia923.FIRST_COLS
+   pudl.output.eia923.generation_fuel_agg_eia923_assets
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.output.eia923.denorm_by_plant
+   pudl.output.eia923.denorm_by_gen
+   pudl.output.eia923.denorm_by_boil
+   pudl.output.eia923._fill_fuel_costs_by_state
+   pudl.output.eia923.drop_ytd_for_annual_tables
+   pudl.output.eia923.out_eia923__generation
+   pudl.output.eia923.out_eia923__generation_fuel_combined
+   pudl.output.eia923.out_eia923__boiler_fuel
+   pudl.output.eia923.out_eia923__fuel_receipts_costs
+   pudl.output.eia923.time_aggregated_eia923_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:data:: FIRST_COLS
+   :value: ['report_date', 'plant_id_eia', 'plant_id_pudl', 'plant_name_eia', 'utility_id_eia',...
+
+
+.. py:function:: denorm_by_plant(df: pandas.DataFrame, pu: pandas.DataFrame, first_cols: list[str] | None = None) -> pandas.DataFrame
+
+   Denormalize a table that is reported on a per-plant basis.
+
+
+.. py:function:: denorm_by_gen(df: pandas.DataFrame, pu: pandas.DataFrame, bga: pandas.DataFrame, first_cols: list[str] | None = None) -> pandas.DataFrame
+
+   Denormalize a table that is reported on a per-generator basis.
+
+
+.. py:function:: denorm_by_boil(df: pandas.DataFrame, pu: pandas.DataFrame, bga: pandas.DataFrame, first_cols: list[str] | None = None) -> pandas.DataFrame
+
+   Denormalize a table that is reported on a per-boiler basis.
+
+
+.. py:function:: _fill_fuel_costs_by_state(frc_df: pandas.DataFrame, fuel_costs: pandas.DataFrame) -> pandas.DataFrame
+
+   Fill in missing fuel costs with state-level averages.
+
+
+.. py:function:: drop_ytd_for_annual_tables(df: pandas.DataFrame, freq: str) -> pandas.DataFrame
+
+   Drop records in annual tables where data_maturity is incremental_ytd.
+
+   This avoids accidental aggregation errors due to sub-annually reported data.
+
+   :param df: A pd.DataFrame that contains a data_maturity column and for
+              which you want to drop values where data_maturity = incremental_ytd.
+   :param freq: either MS or YS to indicate the level of aggretation for a specific table.
+
+   :returns:
+
+             The same input pd.DataFrames but without any rows where
+                 data_maturity = incremental_ytd.
+   :rtype: pd.DataFrame
+
+
+.. py:function:: out_eia923__generation(core_eia923__monthly_generation: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame, core_eia860__assn_boiler_generator: pandas.DataFrame) -> pandas.DataFrame
+
+   Denormalize the :ref:`core_eia923__monthly_generation` table.
+
+
+.. py:function:: out_eia923__generation_fuel_combined(core_eia923__monthly_generation_fuel: pandas.DataFrame, core_eia923__monthly_generation_fuel_nuclear: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Denormalize the `generation_fuel_combined_eia923` table.
+
+   This asset first combines the :ref:`core_eia923__monthly_generation_fuel` and
+   :ref:`core_eia923__monthly_generation_fuel_nuclear` into a single table with a
+   uniform primary key (consolidating multiple nuclear unit IDs into a single plant
+   record) and then denormalizes it by merging in some addition plant and utility level
+   columns.
+
+   This table contains the records at their originally reported temporal resolution,
+   so it's outside of :func:`time_aggregated_eia923_asset_factory`.
+
+
+.. py:function:: out_eia923__boiler_fuel(core_eia923__monthly_boiler_fuel: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame, core_eia860__assn_boiler_generator: pandas.DataFrame) -> pandas.DataFrame
+
+   Denormalize the :ref:`core_eia923__monthly_boiler_fuel` table.
+
+   The total heat content is also calculated as it's useful in its own right and
+   required later to calculate average heat content per unit of fuel.
+
+
+.. py:function:: out_eia923__fuel_receipts_costs(context, core_eia923__monthly_fuel_receipts_costs: pandas.DataFrame, core_eia923__entity_coalmine: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame, _out_eia__monthly_state_fuel_prices: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame) -> pandas.DataFrame
+
+   Denormalize the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
+
+
+.. py:function:: time_aggregated_eia923_asset_factory(freq: Literal['YS', 'MS'], io_manager_key: str | None = None) -> list[dagster.AssetsDefinition]
+
+   Build EIA-923 asset definitions, aggregated by year or month.
+
+
+.. py:data:: generation_fuel_agg_eia923_assets
+

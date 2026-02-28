@@ -1,0 +1,11 @@
+pudl.package_data.eia923.column_maps
+====================================
+
+.. py:module:: pudl.package_data.eia923.column_maps
+
+.. autoapi-nested-parse::
+
+   Metadata linking semantic meaning of EIA 923 spreadsheet columns across years.
+
+
+

@@ -1,0 +1,388 @@
+pudl.output.eia
+===============
+
+.. py:module:: pudl.output.eia
+
+.. autoapi-nested-parse::
+
+   A collection of denormalized EIA assets.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.output.eia.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.output.eia.out_eia__yearly_utilities
+   pudl.output.eia.out_eia__yearly_plants
+   pudl.output.eia._out_eia__yearly_generators
+   pudl.output.eia.out_eia__yearly_boilers
+   pudl.output.eia._out_eia__plants_utilities
+   pudl.output.eia.add_consistent_ba_code_column
+   pudl.output.eia.fill_in_missing_ba_codes
+   pudl.output.eia.fill_generator_technology_description
+   pudl.output.eia.assign_unit_ids
+   pudl.output.eia.fill_unit_ids
+   pudl.output.eia.max_unit_id_by_plant
+   pudl.output.eia._append_masked_units
+   pudl.output.eia.assign_single_gen_unit_ids
+   pudl.output.eia.assign_cc_unit_ids
+   pudl.output.eia.assign_prime_fuel_unit_ids
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: out_eia__yearly_utilities(core_eia__entity_utilities: pandas.DataFrame, core_eia860__scd_utilities: pandas.DataFrame, core_pudl__assn_eia_pudl_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Pull all fields from the EIA Utilities table.
+
+   :param core_eia__entity_utilities: EIA utility entity table.
+   :param core_eia860__scd_utilities: EIA 860 annual utility table.
+   :param core_pudl__assn_eia_pudl_utilities: Associations between EIA utilities and pudl utility IDs.
+
+   :returns: A DataFrame containing utility attributes from EIA Forms 860 and 923.
+
+
+.. py:function:: out_eia__yearly_plants(core_eia__entity_plants: pandas.DataFrame, core_eia860__scd_plants: pandas.DataFrame, core_pudl__assn_eia_pudl_plants: pandas.DataFrame, core_pudl__assn_eia_pudl_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Pull all fields from the EIA Plants tables.
+
+   :param core_eia__entity_plants: EIA plant entity table.
+   :param core_eia860__scd_plants: EIA 860 annual plant attribute table.
+   :param core_pudl__assn_eia_pudl_plants: Associations between EIA plants and pudl utility IDs.
+   :param core_pudl__assn_eia_pudl_utilities: EIA utility ID table.
+
+   :returns: A DataFrame containing plant attributes from EIA Forms 860 and 923
+
+
+.. py:function:: _out_eia__yearly_generators(context, core_eia860__scd_generators: pandas.DataFrame, core_eia__entity_generators: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame, core_eia860__assn_boiler_generator: pandas.DataFrame) -> pandas.DataFrame
+
+   Pull all fields from the EIA Utilities table.
+
+   :param context: A Dagster context object.
+   :param core_eia860__scd_generators: EIA 860 annual generator table.
+   :param core_eia__entity_generators: EIA generators entity table.
+   :param core_eia__entity_plants: EIA plant entity table.
+   :param _out_eia__plants_utilities: Denormalized plant_utility EIA ID table.
+   :param core_eia860__assn_boiler_generator: Associations between EIA boiler and generator IDs.
+
+   :returns: A DataFrame containing all the fields of the EIA 860 Utilities table.
+
+
+.. py:function:: out_eia__yearly_boilers(core_eia860__scd_boilers: pandas.DataFrame, core_eia__entity_boilers: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame, _out_eia__plants_utilities: pandas.DataFrame, core_eia860__assn_boiler_generator: pandas.DataFrame) -> pandas.DataFrame
+
+   Pull all fields reported in the EIA boilers tables.
+
+   Merge in other useful fields including the latitude & longitude of the
+   plant that the boilers are part of, canonical plant & operator names and
+   the PUDL IDs of the plant and operator, for merging with other PUDL data
+   sources.
+
+   :param core_eia860__scd_boilers: EIA 860 annual boiler table.
+   :param core_eia__entity_boilers: EIA boiler entity table.
+   :param core_eia__entity_plants: EIA plant entity table.
+   :param _out_eia__plants_utilities: Denormalized plant_utility EIA ID table.
+   :param core_eia860__assn_boiler_generator: Associations between EIA boiler and generator IDs.
+
+   :returns: A DataFrame containing boiler attributes from EIA 860.
+
+
+.. py:function:: _out_eia__plants_utilities(out_eia__yearly_plants: pandas.DataFrame, out_eia__yearly_utilities: pandas.DataFrame) -> pandas.DataFrame
+
+   Create a dataframe of plant and utility IDs and names from EIA 860.
+
+   Returns a pandas dataframe with the following columns:
+   - report_date (in which data was reported)
+   - plant_name_eia (from EIA entity)
+   - plant_id_eia (from EIA entity)
+   - plant_id_pudl
+   - utility_id_eia (from EIA860)
+   - utility_name_eia (from EIA860)
+   - utility_id_pudl
+
+   :param out_eia__yearly_plants: Denormalized EIA plants table.
+   :param out_eia__yearly_utilities: Denormalized EIA utilities table.
+
+   :returns: A DataFrame containing plant and utility IDs and names from EIA 860.
+
+
+.. py:function:: add_consistent_ba_code_column(plants: pandas.DataFrame) -> pandas.DataFrame
+
+   Make a column containing each plant's most consistently reported BA code.
+
+   Employ the harvesting function :func:`occurrence_consistency` which determines how
+   consistent the values in a table are across all records within each plant. This
+   function grabs only the values determined to be at least 70% consistent and merges
+   them onto the plants table as a new column:
+   ``balancing_authority_code_eia_consistent``
+
+
+.. py:function:: fill_in_missing_ba_codes(plants: pandas.DataFrame) -> pandas.DataFrame
+
+   Fill in missing ``balancing_authority_code_eia`` values.
+
+   Balancing authority codes did not begin being reported until 2013. This function
+   fills in the old years with BA codes using two main methods:
+
+   * Backfilling with the oldest reported BA code for each plant.
+   * Backfilling with the most frequently reported BA code for each plant.
+
+   We add a column to represent each of these two methodologies via
+   :func:`add_backfilled_ba_code_column` and :func:`add_consistent_ba_code_column`.
+
+   We know that the BA codes do change over time and are incorrectly reported at times.
+   This means we can't simply :meth:`pd.fillna` using either the oldest or most
+   consistently reported values. This function employs several filling methods based
+   on our investigation of the data:
+
+   * if the oldest code and the most consistent code are the same, use the
+     consistent value (either would work!)
+   * use the oldest code for plants that have ``SWPP`` (``Southwest Power Pool``)
+     as their most consistent BA code because we know ``SWPP`` has acquired many
+     smaller balancing authorities in recent years.
+   * use the oldest code for plants that have ``NWMT`` (``NorthWestern Energy``)
+     as  their most consistent BA code and ``WAUE``
+     (``Western Area Power Administration``) as their oldest BA code.
+   * use the oldest code for plants that have more than one year of older BA codes,
+     using the assumption that more than one year of consistent old BA codes is not a
+     reporting error.
+
+   :param plants: table of annual plant attributes, including
+                  ``balancing_authority_code_eia``
+
+
+.. py:function:: fill_generator_technology_description(gens_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Fill in missing ``technology_description`` based by unique mapping & backfilling.
+
+   Prior to 2014, the EIA 860 did not report ``technology_description``.
+
+   This function fills in missing values are then filled in using the consistent,
+   unique mappings that are observed between ``energy_source_code_1``,
+   ``prime_mover_code`` and ``technology_type`` across all years and generators.
+
+   Then function backfills those early years within groups defined by ``plant_id_eia``,
+   ``generator_id``, ``energy_source_code_1`` and ``prime_mover_code``.
+
+   As a result, more than 95% of all generator records end up having a
+   ``technology_description`` associated with them.
+
+   :param gens_df: A core_eia860__scd_generators dataframe containing at least the columns
+                   ``report_date``, ``plant_id_eia``, ``generator_id``,
+                   ``energy_source_code_1``, and ``technology_description``.
+
+   :returns: A copy of the input dataframe, with ``technology_description`` filled in.
+
+
+.. py:function:: assign_unit_ids(gens_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Group generators into operational units using various heuristics.
+
+   Splits a few columns off from the big generator dataframe and uses several
+   heuristic functions to fill in missing unit_id_pudl values beyond those that
+   are generated in the boiler generator association process. Then merges the
+   new unit ID values back in to the generators dataframe.
+
+   :param gens_df: An EIA generator table. Must contain at least the columns:
+                   ``report_date``, ``plant_id_eia``, ``generator_id``, ``unit_id_pudl``,
+                   ``bga_source``, ``fuel_type_code_pudl``, ``prime_mover_code``.
+
+   :returns: Returned dataframe should only vary from the input in that some NA values in the
+             ``unit_id_pudl`` and ``bga_source`` columns have been filled in with real
+             values.
+
+   :raises ValueError: If the input dataframe is missing required columns.
+   :raises ValueError: If any generator is associated with more than one unit_id_pudl.
+   :raises AssertionError: If row or column indices are changed.
+   :raises AssertionError: If pre-existing unit_id_pudl or bga_source values are altered.
+   :raises AssertionError: If contents of any other columns are altered at all.
+
+
+.. py:function:: fill_unit_ids(gens_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Back and forward fill Unit IDs for each plant / gen combination.
+
+   This routine assumes that the mapping of generators to units is constant
+   over time, and extends those mappings into years where no boilers have
+   been reported -- since in the BGA we can only connect generators to each
+   other if they are both connected to a boiler.
+
+   Prior to 2014, combined cycle units didn't report any "boilers" but in
+   latter years, they have been given "boilers" that correspond to their
+   generators, so that all of their fuel consumption is recorded alongside
+   that of other types of generators.
+
+   The bga_source field is set to "bfill_units" for those that were backfilled,
+   and "ffill_units" for those that were forward filled.
+
+   Note: We could back/forward fill the boiler IDs prior to the BGA process and
+   we ought to get consistent units across all the years that are the same as
+   what we fill in here. We could also back/forward fill boiler IDs and Unit
+   IDs after the fact, and we *should* get the same result. this will address
+   many currently "boilerless" CCNG units that use generator ID as boiler ID in
+   the latter years. We could try and apply this more generally, but in cases
+   of generator IDs that haven't been used as boiler IDs, it would break the
+   foreign key relationship with the boiler table, unless we added them there
+   too, which seems like too much deep muddling.
+
+   :param gens_df: An core_eia860__scd_generators dataframe, which must
+                   contain columns: report_date, plant_id_eia, generator_id,
+                   unit_id_pudl, bga_source.
+
+   :returns: A DataFrame with the same columns as the input dataframe, but
+             having some NA values filled in for both the unit_id_pudl and bga_source
+             columns.
+
+
+.. py:function:: max_unit_id_by_plant(gens_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Identify the largest unit ID associated with each plant so we don't overlap.
+
+   The PUDL Unit IDs are sequentially assigned integers. To assign a new ID, we
+   need to know the largest existing Unit ID within a plant. This function
+   calculates that largest existing ID, or uses zero, if no Unit IDs are set
+   within the plant.
+
+   Note that this calculation depends on having all of the pre-existing
+   generators and units still available in the dataframe!
+
+   :param gens_df: A core_eia860__scd_generators dataframe containing at
+                   least the columns plant_id_eia and unit_id_pudl.
+
+   :returns: plant_id_eia and max_unit_id_pudl
+             in which each row should be unique.
+   :rtype: A DataFrame having two columns
+
+
+.. py:function:: _append_masked_units(gens_df: pandas.DataFrame, row_mask: numpy.ndarray, unit_ids: pandas.DataFrame, on: str | list[str]) -> pandas.DataFrame
+
+   Replace rows with new PUDL Unit IDs in the original dataframe.
+
+   Merges the newly assigned Unit IDs found in ``unit_ids`` into the
+   ``gens_df`` dataframe, but only for those rows which are selected by the
+   boolean ``row_mask``. Merges using the column or columns specified by
+   ``on``. This operation should only result in changes to the values of
+   ``unit_id_pudl`` and ``bga_source`` in the output dataframe. All of
+   ``gens_df``, ``unit_ids`` and ``row_mask`` must be similarly indexed for
+   this to work.
+
+   :param gens_df: a gens_eia860 based dataframe.
+   :param row_mask: A boolean array indicating which records
+                    in ``gens_df`` should be replaced using values from ``unit_ids``.
+   :type row_mask: boolean mask
+   :param unit_ids: A dataframe containing newly assigned
+                    ``unit_id_pudl`` values to be integrated into ``gens_df``.
+   :param on: Column or list of columns to merge on.
+
+   :returns: A DataFrame with unit IDs.
+
+
+.. py:function:: assign_single_gen_unit_ids(gens_df: pandas.DataFrame, prime_mover_codes: list[str], fuel_type_code_pudl: str = None, label_prefix: str = 'single') -> pandas.DataFrame
+
+   Assign a unique PUDL Unit ID to each generator of a given prime mover type.
+
+   Calculate the maximum pre-existing PUDL Unit ID within each plant, and
+   assign each as of yet unidentified distinct generator within each plant
+   with an incrementing integer unit_id_pudl, beginning with 1 + the previous
+   maximum unit_id_pudl found in that plant. Mark that generator with a label
+   in the bga_source column consisting of label_prefix + the prime mover code.
+
+   If fuel_type_code_pudl is not None, then only assign new Unit IDs to those
+   generators having the specified fuel type code, and use that fuel type code
+   as the label prefix, e.g. "coal_st" for a coal-fired steam turbine.
+
+   Only generators having NA unit_id_pudl will be assigned a new ID.
+
+   :param gens_df: A collection of EIA generator records.
+                   Must include the ``plant_id_eia``, ``generator_id`` and
+                   ``prime_mover_code`` and ``unit_id_pudl`` columns.
+   :param prime_mover_codes: List of prime mover codes for which we are
+                             attempting to assign simple Unit IDs.
+   :param fuel_type_code_pudl: If not None, then limit the records
+                               assigned a unit_id to those that have the specified
+                               fuel_type_code_pudl (e.g. "coal", "gas", "oil", "nuclear")
+   :param label_prefix: String to use in labeling records as to how their
+                        unit_id_pudl was set. Will be concatenated with the prime mover
+                        code.
+
+   :returns: A new dataframe with the same rows and columns as
+             were passed in, but with the unit_id_pudl and bga_source columns updated
+             to reflect the newly assigned Unit IDs.
+
+
+.. py:function:: assign_cc_unit_ids(gens_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Assign PUDL Unit IDs for combined cycle generation units.
+
+   This applies only to combined cycle units reported as a combination of CT
+   and CA prime movers. All CT and CA generators within a plant that do not
+   already have a unit_id_pudl assigned will be given the same unit ID. The
+   ``bga_source`` column is set to one of several flags indicating what type
+   of arrangement was found:
+
+   * ``orphan_ct`` (zero CA gens, 1+ CT gens)
+   * ``orphan_ca`` (zero CT gens, 1+ CA gens)
+   * ``one_ct_one_ca_inferred`` (1 CT, 1 CA)
+   * ``one_ct_many_ca_inferred`` (1 CT, 1+ CA)
+   * ``many_ct_one_ca_inferred`` (1+ CT, 1 CA)
+   * ``many_ct_many_ca_inferred`` (1+ CT, 1+ CA)
+
+   Orphaned generators are still assigned a ``unit_id_pudl`` so that they can
+   potentially be associated with other generators in the same unit across
+   years. It's likely that these orphans are a result of mislabeled or missing
+   generators. Note that as generators are added or removed over time, the
+   flags associated with each generator may change, even though it remains
+   part of the same inferred unit.
+
+   :returns: A dataframe with assigned PUDL unit IDs.
+
+
+.. py:function:: assign_prime_fuel_unit_ids(gens_df: pandas.DataFrame, prime_mover_code: str, fuel_type_code_pudl: str) -> pandas.DataFrame
+
+   Assign a PUDL Unit ID to all generators with a given prime mover and fuel.
+
+   Within each plant, assign a Unit ID to all generators that don't have one,
+   and that share the same `fuel_type_code_pudl` and `prime_mover_code`. This
+   is especially useful for differentiating between different types of steam
+   turbine generators, as there are so many different kinds of steam turbines,
+   and the only characteristic we have to differentiate between them in this
+   context is the fuel they consume. E.g. nuclear, geothermal, solar thermal,
+   natural gas, diesel, and coal can all run steam turbines, but it doesn't
+   make sense to lump those turbines together into a single unit just because
+   they are located at the same plant.
+
+   This routine only assigns a PUDL Unit ID to generators that have a
+   consistently reported value of `fuel_type_code_pudl` across all of the years
+   of data in `gens_df`. This consistency is important because otherwise the
+   prime-fuel based unit assignment could put the same generator into different
+   units in different years, which is currently not compatible with our concept
+   of "units."
+
+   :param gens_df: A collection of EIA generator records.
+                   Must include the ``plant_id_eia``, ``generator_id`` and
+                   ``prime_mover_code`` and ``unit_id_pudl`` columns.
+   :type gens_df: pandas.DataFrame
+   :param prime_mover_code: List of prime mover codes for which we are
+                            attempting to assign simple Unit IDs.
+   :type prime_mover_code: str
+   :param fuel_type_code_pudl: If not None, then limit the records
+                               assigned a unit_id to those that have the specified
+                               fuel_type_code_pudl (e.g. "coal", "gas", "oil", "nuclear")
+   :type fuel_type_code_pudl: str
+
+   :returns: A DataFrame where generators without a unit ID are assigned one based on
+             `fuel_type_code_pudl`.
+
+

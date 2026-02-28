@@ -1,0 +1,109 @@
+pudl.extract.rus12
+==================
+
+.. py:module:: pudl.extract.rus12
+
+.. autoapi-nested-parse::
+
+   Extract USDA RUS Form 12 data from CSVs.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.rus12.raw_rus12__all_dfs
+   pudl.extract.rus12.raw_rus12_assets
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.rus12.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.rus12.raw_rus12_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.csv.CsvExtractor`
+
+
+   Extractor for USDA RUS Form 12.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: READ_CSV_KWARGS
+
+      Keyword arguments that are passed to :meth:`pandas.read_csv`.
+
+      These allow customization of the CSV parsing process. For example, you can specify
+      the column delimiter, data types, date parsing, etc. This can greatly reduce peak
+      memory usage and speed up the extraction process. Unfortunately you must refer to
+      the column headers using their original names as they appear in the CSV.
+
+      TODO[zaneselvans] 2024-04-19: it would be useful to be able to specify different CSV
+      reading options for different pages within the same dataset. At the moment the same
+      arguments will be applied to all pages. This still allows some flexibility because
+      some :meth:`pandas.read_csv` arguments like ``dtype`` don't raise errors if the
+      columns they apply to aren't present.
+
+
+   .. py:method:: source_filename(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> str
+
+      Get the file name for the right page and part.
+
+      In this instance we are using the same methodology from the excel metadata extractor.
+
+
+
+   .. py:method:: process_raw(df, page, **partition)
+
+      Adds source column and report_year column if missing.
+
+
+
+   .. py:method:: load_source(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> pandas.DataFrame
+
+      Produce the dataframe object for the given partition.
+
+      In this instance we need to specify both year and geography to get the right zipfile.
+      In 2010 there is a zipfile at the federal and state level, but for now we only want
+      to use the federal-level data.
+
+      :param page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                   "data"
+      :param partition: partition to load. Examples:
+                        {'year': 2009}
+                        {'year_month': '2020-08'}
+
+      :returns: pd.DataFrame instance containing CSV data
+
+
+
+.. py:data:: raw_rus12__all_dfs
+
+.. py:function:: raw_rus12_asset_factory(table_name: str)
+
+   Create raw RUS 12 asset for a specific page.
+
+
+.. py:data:: raw_rus12_assets
+

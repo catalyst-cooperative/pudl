@@ -1,0 +1,227 @@
+pudl.transform.eiaaeo
+=====================
+
+.. py:module:: pudl.transform.eiaaeo
+
+.. autoapi-nested-parse::
+
+   Transform raw AEO tables into normalized assets.
+
+   Raw AEO tables often contain many different types of data which are split out
+   along different dimensions. For example, one table may contain generation
+   split out by fuel type as well as prices split out by service category.
+
+   As a result, we need to split these large tables into smaller tables that have
+   more uniform data, which we do by filtering the large table to its relevant
+   subsets, and then transforming some human-readable string fields into useful
+   metadata fields.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.eiaaeo.BASE_AEO_CATEGORIES
+   pudl.transform.eiaaeo.check_specs
+   pudl.transform.eiaaeo._checks
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.transform.eiaaeo.AeoCheckSpec
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.eiaaeo.__sanitize_string
+   pudl.transform.eiaaeo.get_series_info
+   pudl.transform.eiaaeo.get_category_info
+   pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio
+   pudl.transform.eiaaeo.series_sum_ratio
+   pudl.transform.eiaaeo.filter_enrich_sanitize
+   pudl.transform.eiaaeo._collect_totals
+   pudl.transform.eiaaeo.unstack
+   pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology
+   pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_electric_sales
+   pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type
+   pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_energy_use_by_sector_and_type
+   pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type
+   pudl.transform.eiaaeo.make_check
+
+
+Module Contents
+---------------
+
+.. py:function:: __sanitize_string(series: pandas.Series) -> pandas.Series
+
+.. py:function:: get_series_info(series_name: pandas.Series) -> pandas.DataFrame
+
+   Break human-readable series name into machine-readable fields.
+
+   The series name contains several comma-separated fields: the variable,
+   the region, the case, and the report year.
+
+   The variable then contains its own colon-separated fields: a general topic,
+   a less general subtopic, and specific variable name. It may also contain a
+   fourth field for a specific dimension such as fuel type.
+
+
+.. py:function:: get_category_info(category_name: pandas.Series) -> pandas.Series
+
+   Break human-readable category name into machine-readable fields.
+
+   Fortunately the only field we're pulling out of the category so far is the
+   region, which is the last of two comma-separated fields.
+
+
+.. py:function:: subtotals_match_reported_totals_ratio(df: pandas.DataFrame, pk: list[str], fact_columns: list[str], dimension_column: str) -> float
+
+   When subtotals and totals are reported in the same column, check their sums.
+
+   Group by some key, then check that within each group the non-``"total"``
+   values sum up to the corresponding ``"total"`` value.
+
+   Checks the list of fact columns to in aggregate, but if you want to check
+   that *each* column sums up correctly, individually, you can call this
+   function once per column.
+
+   TODO 2024-05-06: it may make sense to pass the threshold into this
+   function, which would clean up the call sites.
+
+   :param df: the dataframe to investigate
+   :param pk: the key to group facts by
+   :param fact_columns: the columns containing facts you'd like to sum
+   :param dimension_column: the column which tells you if a fact is a sub-total
+                            or a total.
+
+   :returns: The ratio of reported totals that are np.isclose() to the sum of their
+             component parts.
+
+
+.. py:function:: series_sum_ratio(summands: pandas.DataFrame, total: pandas.Series) -> float
+
+   Find how well multiple columns sum to another column.
+
+   :param summands: the columns that should sum to total
+   :param total: the target total column
+
+   :returns: the ratio of values in ``total`` that are np.isclose() to the sum of
+             ``summands``.
+
+
+.. py:function:: filter_enrich_sanitize(raw_df: pandas.DataFrame, relevant_series_names: tuple[str]) -> pandas.DataFrame
+
+   Basic cleaning steps common to all AEO tables.
+
+   1. Filter the AEO rows based on the series name
+   2. Break the series name and category names into useful fields
+   3. Sanitize strings & turn data values into a numeric field
+   4. Make some defensive checks about data from multiple sources that
+      *should* agree.
+
+
+.. py:function:: _collect_totals(df: pandas.DataFrame, total_colname='dimension') -> pandas.DataFrame
+
+   Various columns have different names for their "total" fact.
+
+   This combines them into one "total" dimension.
+
+
+.. py:function:: unstack(df: pandas.DataFrame, eventual_pk: list[str])
+
+   Unstack the values by the various variable names provided.
+
+
+.. py:function:: core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(raw_eiaaeo__electric_power_projections_regional)
+
+   Projected net summer generation capacity and additions/retirements.
+
+
+.. py:function:: core_eiaaeo__yearly_projected_electric_sales(raw_eiaaeo__electric_power_projections_regional)
+
+   Projected electricity sales by customer class.
+
+
+.. py:function:: core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(raw_eiaaeo__electric_power_projections_regional)
+
+   Projected generation capacity + gross generation in end-use sectors.
+
+   This includes data that's reported by fuel type and ignores data that's
+   only reported at the system-wide level, such as total generation, sales to
+   grid, and generation for own use. Those three facts are reported in
+   core_eiaaeo__yearly_projected_generation_in_end_use_sectors instead.
+
+
+.. py:function:: core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(raw_eiaaeo__energy_consumption_by_sector_and_source)
+
+   Projected energy use for commercial, electric power, industrial, residential, and transportation sectors.
+
+   The "Energy Use" series in Table 2 which track figures by sector do not always
+   define each type of usage the same way across sectors. There is detailed
+   information about what is included or excluded in each usage type for each sector
+   in the footnotes of the EIA's online AEO data browser:
+
+     https://www.eia.gov/outlooks/aeo/data/browser/#/?id=2-AEO2023
+
+   The data browser also gives some visibility into the tricky system of subtotals
+   within the Energy Use series. To identify and map subtotal usage types, look for
+   the following features in the data browser display: subtotal series are displayed
+   indented, and include all lines above them which are one level out, up to the
+   next indented line. Delivered Energy and Total are special cases which include
+   those plus all subtotals above. In this way, "Delivered Energy" includes
+   purchased electricity, renewable energy, and an array of fuels based on sector,
+   and explicitly excludes electricity-related losses.
+
+   AEO Energy Use figures are variously referred to as delivered energy, energy
+   consumption, energy use, and energy demand, depending on which usage types are
+   being discussed, and which org and which document is describing them. In PUDL we
+   say energy use or energy consumption.
+
+
+.. py:function:: core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(raw_eiaaeo__electric_power_projections_regional)
+
+   Projected fuel cost for the electric power sector.
+
+   Includes 2022 US dollars per million BTU and nominal US dollars per million
+   BTU.
+
+   In future report years, the base year for the real cost will change, so we
+   store that base year as well.
+
+
+.. py:class:: AeoCheckSpec
+
+   Define some simple checks that can run on any AEO asset.
+
+
+   .. py:attribute:: name
+      :type:  str
+
+
+   .. py:attribute:: asset
+      :type:  str
+
+
+   .. py:attribute:: category_counts
+      :type:  dict[str, int]
+
+
+.. py:data:: BASE_AEO_CATEGORIES
+
+.. py:data:: check_specs
+
+.. py:function:: make_check(spec: AeoCheckSpec) -> dagster.AssetChecksDefinition
+
+   Turn the AeoCheckSpec into an actual Dagster asset check.
+
+
+.. py:data:: _checks
+

@@ -1,0 +1,61 @@
+pudl.extract.ferc6
+==================
+
+.. py:module:: pudl.extract.ferc6
+
+.. autoapi-nested-parse::
+
+   Extract FERC Form 6 data from DBF archives.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.ferc6.Ferc6DbfExtractor
+
+
+Module Contents
+---------------
+
+.. py:class:: Ferc6DbfExtractor(datastore: pudl.workspace.datastore.Datastore, settings: pudl.settings.FercToSqliteSettings, output_path: pathlib.Path)
+
+   Bases: :py:obj:`pudl.extract.dbf.FercDbfExtractor`
+
+
+   Extracts FERC Form 6 data from the legacy DBF archives.
+
+
+   .. py:attribute:: DATASET
+      :value: 'ferc6'
+
+
+
+   .. py:attribute:: DATABASE_NAME
+      :value: 'ferc6_dbf.sqlite'
+
+
+
+   .. py:method:: get_settings(global_settings: pudl.settings.FercToSqliteSettings) -> pudl.settings.GenericDatasetSettings
+
+      Returns settings for FERC Form 6 DBF dataset.
+
+
+
+   .. py:method:: finalize_schema(meta: sqlalchemy.MetaData) -> sqlalchemy.MetaData
+
+      Add primary and foreign keys for respondent_id.
+
+
+
+   .. py:method:: aggregate_table_frames(table_name: str, dfs: list[pudl.extract.dbf.PartitionedDataFrame]) -> pandas.DataFrame | None
+
+      Runs the deduplication on f6_s0_respondent_id table.
+
+      Other tables are aggregated as usual, meaning that the partial frames are simply
+      concatenated.
+
+
+

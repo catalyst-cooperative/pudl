@@ -1,0 +1,1449 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    <link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html">
+        <link rel="prefetch" href="../../../../_static/catalyst_logo-200x200.png" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>pudl.analysis.record_linkage.eia_ferc1_record_linkage - PUDL 2026.2.1.dev10 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=b1990d62" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-announcement-background: yellow;
+  --color-announcement-text: red;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../index.html"><div class="brand">PUDL 2026.2.1.dev10 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../../../_static/catalyst_logo-200x200.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">PUDL 2026.2.1.dev10 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">About PUDL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data_access.html">Data Access</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://data.catalyst.coop">PUDL Data Viewer</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../data_sources/index.html">Data Sources</a><input aria-label="Toggle navigation of Data Sources" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/censusdp1tract.html">Census DP1 – Profile of General Demographic Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/censuspep.html">Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eiaapi.html">EIA Bulk API Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia176.html">EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia860.html">EIA Form 860 – Annual Electric Generator Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia861.html">EIA Form 861 – Annual Electric Power Industry Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia923.html">EIA Form 923 – Power Plant Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eia930.html">EIA Form 930 – Hourly and Daily Balancing Authority Operations Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/eiaaeo.html">EIA Annual Energy Outlook (AEO)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/epacamd_eia.html">EPA CAMD to EIA Power Sector Data Crosswalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/epacems.html">EPA Hourly Continuous Emission Monitoring System (CEMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/ferc1.html">FERC Form 1 – Annual Report of Major Electric Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/ferc714.html">FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/ferceqr.html">FERC Form 920 – Electric Quarterly Report (EQR)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/gridpathratoolkit.html">GridPath Resource Adequacy Toolkit Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/nrelatb.html">NREL Annual Technology Baseline (ATB) for Electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/phmsagas.html">Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/rus12.html">USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/rus7.html">USDA RUS Form 7 – Financial and Operating Report: Electric Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/sec10k.html">U.S. Securities and Exchange Commission (SEC) Form 10-K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/vcerare.html">Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/other_data.html">Other Data in PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_sources/future_data.html">High Priority Target Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../data_dictionaries/index.html">Data Dictionaries</a><input aria-label="Toggle navigation of Data Dictionaries" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/pudl_db.html">PUDL Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/ferc1_db.html">Raw FERC Form 1 Data Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/codes_and_labels.html">PUDL Code Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../data_dictionaries/usage_warnings.html">PUDL Usage Warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../methodology/index.html">Methodology</a><input aria-label="Toggle navigation of Methodology" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../methodology/timeseries_imputation.html">Timeseries Imputation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../methodology/sec10k_modeling.html">SEC 10-K Ownership Data Extraction Modeling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../dev/index.html">Development</a><input aria-label="Toggle navigation of Development" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/dev_setup.html">Development Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/run_the_etl.html">Running the ETL Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/dev_dagster.html">Developing with Dagster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/project_management.html">Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/testing.html">Testing PUDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_validation_quickstart.html">Data validation quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_validation_reference.html">Data validation reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/metadata.html">Metadata editing guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/build_docs.html">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/datastore.html">Working with the Datastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/clone_ferc1.html">Converting raw FERC data to SQLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/existing_data_updates.html">Existing Data Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/run_a_release.html">Run a Versioned Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/infrastructure_as_code.html">Infrastructure as Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/managing_external_contributions.html">Managing External Contributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LICENSE.html">Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../code_of_conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Release Notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../autoapi/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../autoapi/pudl/index.html">pudl</a><input aria-label="Toggle navigation of pudl" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../autoapi/pudl/__main__/index.html">pudl.__main__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../autoapi/pudl/_version/index.html">pudl._version</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/analysis/index.html">pudl.analysis</a><input aria-label="Toggle navigation of pudl.analysis" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html">pudl.analysis.allocate_gen_fuel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/analysis/fuel_by_plant/index.html">pudl.analysis.fuel_by_plant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/analysis/mcoe/index.html">pudl.analysis.mcoe</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/analysis/ml_tools/index.html">pudl.analysis.ml_tools</a><input aria-label="Toggle navigation of pudl.analysis.ml_tools" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html">pudl.analysis.ml_tools.experiment_tracking</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/ml_tools/models/index.html">pudl.analysis.ml_tools.models</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/analysis/plant_parts_eia/index.html">pudl.analysis.plant_parts_eia</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/analysis/record_linkage/index.html">pudl.analysis.record_linkage</a><input aria-label="Toggle navigation of pudl.analysis.record_linkage" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html">pudl.analysis.record_linkage.classify_plants_ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html">pudl.analysis.record_linkage.eia_ferc1_inputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html">pudl.analysis.record_linkage.eia_ferc1_model_config</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html">pudl.analysis.record_linkage.eia_ferc1_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html">pudl.analysis.record_linkage.eia_ferc1_train</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html">pudl.analysis.record_linkage.embed_dataframe</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html">pudl.analysis.record_linkage.link_cross_year</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/analysis/record_linkage/name_cleaner/index.html">pudl.analysis.record_linkage.name_cleaner</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/analysis/service_territory/index.html">pudl.analysis.service_territory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/analysis/spatial/index.html">pudl.analysis.spatial</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/analysis/state_demand/index.html">pudl.analysis.state_demand</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/analysis/timeseries_cleaning/index.html">pudl.analysis.timeseries_cleaning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/analysis/timeseries_evaluation/index.html">pudl.analysis.timeseries_evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/convert/index.html">pudl.convert</a><input aria-label="Toggle navigation of pudl.convert" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/convert/censusdp1tract_to_sqlite/index.html">pudl.convert.censusdp1tract_to_sqlite</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/convert/metadata_to_rst/index.html">pudl.convert.metadata_to_rst</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../autoapi/pudl/dbt_wrapper/index.html">pudl.dbt_wrapper</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/etl/index.html">pudl.etl</a><input aria-label="Toggle navigation of pudl.etl" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/etl/asset_checks/index.html">pudl.etl.asset_checks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/etl/check_foreign_keys/index.html">pudl.etl.check_foreign_keys</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/etl/cli/index.html">pudl.etl.cli</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/etl/eia_bulk_elec_assets/index.html">pudl.etl.eia_bulk_elec_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/etl/ferceqr_deployment/index.html">pudl.etl.ferceqr_deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/etl/glue_assets/index.html">pudl.etl.glue_assets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/etl/static_assets/index.html">pudl.etl.static_assets</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/extract/index.html">pudl.extract</a><input aria-label="Toggle navigation of pudl.extract" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/censuspep/index.html">pudl.extract.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/csv/index.html">pudl.extract.csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/dbf/index.html">pudl.extract.dbf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eia176/index.html">pudl.extract.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eia191/index.html">pudl.extract.eia191</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eia757a/index.html">pudl.extract.eia757a</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eia860/index.html">pudl.extract.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eia860m/index.html">pudl.extract.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eia861/index.html">pudl.extract.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eia923/index.html">pudl.extract.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eia930/index.html">pudl.extract.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/excel/index.html">pudl.extract.excel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/extractor/index.html">pudl.extract.extractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/ferc/index.html">pudl.extract.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/ferc1/index.html">pudl.extract.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/ferc2/index.html">pudl.extract.ferc2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/ferc6/index.html">pudl.extract.ferc6</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/ferc60/index.html">pudl.extract.ferc60</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/ferc714/index.html">pudl.extract.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/ferccid/index.html">pudl.extract.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/ferceqr/index.html">pudl.extract.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/gridpathratoolkit/index.html">pudl.extract.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/nrelatb/index.html">pudl.extract.nrelatb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/parquet/index.html">pudl.extract.parquet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/phmsagas/index.html">pudl.extract.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/rus12/index.html">pudl.extract.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/rus7/index.html">pudl.extract.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/sec10k/index.html">pudl.extract.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/vcerare/index.html">pudl.extract.vcerare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/extract/xbrl/index.html">pudl.extract.xbrl</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/ferc_to_sqlite/index.html">pudl.ferc_to_sqlite</a><input aria-label="Toggle navigation of pudl.ferc_to_sqlite" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/ferc_to_sqlite/cli/index.html">pudl.ferc_to_sqlite.cli</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/glue/index.html">pudl.glue</a><input aria-label="Toggle navigation of pudl.glue" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/glue/ferc1_eia/index.html">pudl.glue.ferc1_eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/glue/ferc714/index.html">pudl.glue.ferc714</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../autoapi/pudl/helpers/index.html">pudl.helpers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../autoapi/pudl/io_managers/index.html">pudl.io_managers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../autoapi/pudl/logging_helpers/index.html">pudl.logging_helpers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/metadata/index.html">pudl.metadata</a><input aria-label="Toggle navigation of pudl.metadata" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/classes/index.html">pudl.metadata.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/codes/index.html">pudl.metadata.codes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/constants/index.html">pudl.metadata.constants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/descriptions/index.html">pudl.metadata.descriptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/enums/index.html">pudl.metadata.enums</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/fields/index.html">pudl.metadata.fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/helpers/index.html">pudl.metadata.helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/labels/index.html">pudl.metadata.labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resource_helpers/index.html">pudl.metadata.resource_helpers</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/index.html">pudl.metadata.resources</a><input aria-label="Toggle navigation of pudl.metadata.resources" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html">pudl.metadata.resources.allocate_gen_fuel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/censusdp1tract/index.html">pudl.metadata.resources.censusdp1tract</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/eia/index.html">pudl.metadata.resources.eia</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/eia176/index.html">pudl.metadata.resources.eia176</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/eia860/index.html">pudl.metadata.resources.eia860</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/eia860m/index.html">pudl.metadata.resources.eia860m</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/eia861/index.html">pudl.metadata.resources.eia861</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/eia923/index.html">pudl.metadata.resources.eia923</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/eia930/index.html">pudl.metadata.resources.eia930</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/eiaaeo/index.html">pudl.metadata.resources.eiaaeo</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/eiaapi/index.html">pudl.metadata.resources.eiaapi</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/epacems/index.html">pudl.metadata.resources.epacems</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/ferc1/index.html">pudl.metadata.resources.ferc1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html">pudl.metadata.resources.ferc1_eia_record_linkage</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/ferc714/index.html">pudl.metadata.resources.ferc714</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/ferccid/index.html">pudl.metadata.resources.ferccid</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/ferceqr/index.html">pudl.metadata.resources.ferceqr</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/glue/index.html">pudl.metadata.resources.glue</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/gridpathratoolkit/index.html">pudl.metadata.resources.gridpathratoolkit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/nrelatb/index.html">pudl.metadata.resources.nrelatb</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/phmsagas/index.html">pudl.metadata.resources.phmsagas</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/pudl/index.html">pudl.metadata.resources.pudl</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/rus12/index.html">pudl.metadata.resources.rus12</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/rus7/index.html">pudl.metadata.resources.rus7</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/sec10k/index.html">pudl.metadata.resources.sec10k</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/metadata/resources/vcerare/index.html">pudl.metadata.resources.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/metadata/warnings/index.html">pudl.metadata.warnings</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/output/index.html">pudl.output</a><input aria-label="Toggle navigation of pudl.output" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/output/censusdp1tract/index.html">pudl.output.censusdp1tract</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/output/eia/index.html">pudl.output.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/output/eia860/index.html">pudl.output.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/output/eia923/index.html">pudl.output.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/output/eia930/index.html">pudl.output.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/output/eiaapi/index.html">pudl.output.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/output/ferc1/index.html">pudl.output.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/output/ferc714/index.html">pudl.output.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/output/sec10k/index.html">pudl.output.sec10k</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/output/sql/index.html">pudl.output.sql</a><input aria-label="Toggle navigation of pudl.output.sql" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/output/sql/helpers/index.html">pudl.output.sql.helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/index.html">pudl.package_data</a><input aria-label="Toggle navigation of pudl.package_data" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/censuspep/index.html">pudl.package_data.censuspep</a><input aria-label="Toggle navigation of pudl.package_data.censuspep" class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/censuspep/column_maps/index.html">pudl.package_data.censuspep.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia176/index.html">pudl.package_data.eia176</a><input aria-label="Toggle navigation of pudl.package_data.eia176" class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia176/column_maps/index.html">pudl.package_data.eia176.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia191/index.html">pudl.package_data.eia191</a><input aria-label="Toggle navigation of pudl.package_data.eia191" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia191/column_maps/index.html">pudl.package_data.eia191.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia757a/index.html">pudl.package_data.eia757a</a><input aria-label="Toggle navigation of pudl.package_data.eia757a" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia757a/column_maps/index.html">pudl.package_data.eia757a.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia860/index.html">pudl.package_data.eia860</a><input aria-label="Toggle navigation of pudl.package_data.eia860" class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia860/column_maps/index.html">pudl.package_data.eia860.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia860m/index.html">pudl.package_data.eia860m</a><input aria-label="Toggle navigation of pudl.package_data.eia860m" class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia860m/column_maps/index.html">pudl.package_data.eia860m.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia861/index.html">pudl.package_data.eia861</a><input aria-label="Toggle navigation of pudl.package_data.eia861" class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia861/column_maps/index.html">pudl.package_data.eia861.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia923/index.html">pudl.package_data.eia923</a><input aria-label="Toggle navigation of pudl.package_data.eia923" class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia923/column_maps/index.html">pudl.package_data.eia923.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia930/index.html">pudl.package_data.eia930</a><input aria-label="Toggle navigation of pudl.package_data.eia930" class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/eia930/column_maps/index.html">pudl.package_data.eia930.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/package_data/epacems/index.html">pudl.package_data.epacems</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/ferc1/index.html">pudl.package_data.ferc1</a><input aria-label="Toggle navigation of pudl.package_data.ferc1" class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/ferc1/row_maps/index.html">pudl.package_data.ferc1.row_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/package_data/glue/index.html">pudl.package_data.glue</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/phmsagas/index.html">pudl.package_data.phmsagas</a><input aria-label="Toggle navigation of pudl.package_data.phmsagas" class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/phmsagas/column_maps/index.html">pudl.package_data.phmsagas.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/rus12/index.html">pudl.package_data.rus12</a><input aria-label="Toggle navigation of pudl.package_data.rus12" class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" role="switch" type="checkbox"/><label for="toctree-checkbox-31"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/rus12/column_maps/index.html">pudl.package_data.rus12.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/package_data/rus7/index.html">pudl.package_data.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/package_data/settings/index.html">pudl.package_data.settings</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/package_data/test/index.html">pudl.package_data.test</a><input aria-label="Toggle navigation of pudl.package_data.test" class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/package_data/test/column_maps/index.html">pudl.package_data.test.column_maps</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/package_data/vcerare/index.html">pudl.package_data.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../autoapi/pudl/resources/index.html">pudl.resources</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/scripts/index.html">pudl.scripts</a><input aria-label="Toggle navigation of pudl.scripts" class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../autoapi/pudl/settings/index.html">pudl.settings</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/transform/index.html">pudl.transform</a><input aria-label="Toggle navigation of pudl.transform" class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" role="switch" type="checkbox"/><label for="toctree-checkbox-34"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/censuspep/index.html">pudl.transform.censuspep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/classes/index.html">pudl.transform.classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/eia/index.html">pudl.transform.eia</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/eia176/index.html">pudl.transform.eia176</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/eia860/index.html">pudl.transform.eia860</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/eia860m/index.html">pudl.transform.eia860m</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/eia861/index.html">pudl.transform.eia861</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/eia923/index.html">pudl.transform.eia923</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/eia930/index.html">pudl.transform.eia930</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/eiaaeo/index.html">pudl.transform.eiaaeo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/eiaapi/index.html">pudl.transform.eiaapi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/epacems/index.html">pudl.transform.epacems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/ferc/index.html">pudl.transform.ferc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/ferc1/index.html">pudl.transform.ferc1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/ferc714/index.html">pudl.transform.ferc714</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/ferccid/index.html">pudl.transform.ferccid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/ferceqr/index.html">pudl.transform.ferceqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/gridpathratoolkit/index.html">pudl.transform.gridpathratoolkit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/nrelatb/index.html">pudl.transform.nrelatb</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../autoapi/pudl/transform/params/index.html">pudl.transform.params</a><input aria-label="Toggle navigation of pudl.transform.params" class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" role="switch" type="checkbox"/><label for="toctree-checkbox-35"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../autoapi/pudl/transform/params/ferc1/index.html">pudl.transform.params.ferc1</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/phmsagas/index.html">pudl.transform.phmsagas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/rus/index.html">pudl.transform.rus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/rus12/index.html">pudl.transform.rus12</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/rus7/index.html">pudl.transform.rus7</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/sec10k/index.html">pudl.transform.sec10k</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/transform/vcerare/index.html">pudl.transform.vcerare</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../autoapi/pudl/validate/index.html">pudl.validate</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../autoapi/pudl/workspace/index.html">pudl.workspace</a><input aria-label="Toggle navigation of pudl.workspace" class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" role="switch" type="checkbox"/><label for="toctree-checkbox-36"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/workspace/datastore/index.html">pudl.workspace.datastore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/workspace/resource_cache/index.html">pudl.workspace.resource_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../autoapi/pudl/workspace/setup/index.html">pudl.workspace.setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bibliography.html">Bibliography</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for pudl.analysis.record_linkage.eia_ferc1_record_linkage</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Connect FERC1 plant tables to EIA&#39;s plant-parts with record linkage.</span>
+
+<span class="sd">FERC plant records are reported very non-uniformly. In the same table there are records</span>
+<span class="sd">that are reported as whole plants, individual generators, and collections of prime</span>
+<span class="sd">movers. This means portions of EIA plants that correspond to a plant record in FERC</span>
+<span class="sd">Form 1 are heterogeneous, which complicates using the two data sets together.</span>
+
+<span class="sd">The EIA plant data is much cleaner and more uniformly structured. The are generators</span>
+<span class="sd">with ids and plants with ids reported in *separate* tables. Several generator IDs are</span>
+<span class="sd">typically grouped under a single plant ID. In :mod:`pudl.analysis.plant_parts_eia`,</span>
+<span class="sd">we create a large number of synthetic aggregated records representing many possible</span>
+<span class="sd">slices of a power plant which could in theory be what is actually reported in the FERC</span>
+<span class="sd">Form 1.</span>
+
+<span class="sd">In this module we infer which of the many ``plant_parts_eia`` records is most likely to</span>
+<span class="sd">correspond to an actually reported FERC Form 1 plant record. This is done with</span>
+<span class="sd">``splink``, a Python package that implements Fellegi-Sunter&#39;s model of record linkage.</span>
+
+<span class="sd">We train the parameters of the ``splink`` model using manually labeled training data</span>
+<span class="sd">that links together several thousand EIA and FERC plant records. This trained model is</span>
+<span class="sd">used to predict matches on the full dataset (see :func:`get_model_predictions`) using a</span>
+<span class="sd">threshold match probability to predict if records are a match or not.</span>
+
+<span class="sd">The model can return multiple EIA match options for each FERC1 record, so we rank the</span>
+<span class="sd">matches and choose the one with the highest score. Any matches identified by the model</span>
+<span class="sd">which are in conflict with our training data are overwritten with the manually</span>
+<span class="sd">assigned associations (see :func:`override_bad_predictions`). The final match results</span>
+<span class="sd">are the connections we keep as the matches between FERC1 plant records and EIA</span>
+<span class="sd">plant-parts.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">jellyfish</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Out</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">op</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">splink</span><span class="w"> </span><span class="kn">import</span> <span class="n">DuckDBAPI</span><span class="p">,</span> <span class="n">Linker</span><span class="p">,</span> <span class="n">SettingsCreator</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.ml_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">experiment_tracking</span><span class="p">,</span> <span class="n">models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.record_linkage</span><span class="w"> </span><span class="kn">import</span> <span class="n">embed_dataframe</span><span class="p">,</span> <span class="n">name_cleaner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.record_linkage.eia_ferc1_inputs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">InputManager</span><span class="p">,</span>
+    <span class="n">restrict_train_connections_on_date_range</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.record_linkage.eia_ferc1_model_config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BLOCKING_RULES</span><span class="p">,</span>
+    <span class="n">COMPARISONS</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSource</span><span class="p">,</span> <span class="n">Resource</span>
+
+<div class="viewcode-block" id="logger">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger">[docs]</a>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MATCHING_COLS">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS">[docs]</a>
+<span class="n">MATCHING_COLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;plant_name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;installation_year&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;construction_year&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="c1"># retain these columns either for blocking or validation</span>
+<span class="c1"># not going to match with these</span>
+<div class="viewcode-block" id="ID_COL">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ID_COL">[docs]</a>
+<span class="n">ID_COL</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;record_id&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="EXTRA_COLS">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.EXTRA_COLS">[docs]</a>
+<span class="n">EXTRA_COLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plant_name_mphone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;utility_name_mphone&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="plant_name_cleaner">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.plant_name_cleaner">[docs]</a>
+<span class="n">plant_name_cleaner</span> <span class="o">=</span> <span class="n">name_cleaner</span><span class="o">.</span><span class="n">CompanyNameCleaner</span><span class="p">(</span>
+    <span class="n">cleaning_rules_list</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;remove_word_the_from_the_end&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;remove_word_the_from_the_beginning&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;replace_ampersand_by_AND&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;replace_hyphen_by_space&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;replace_underscore_by_space&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;remove_all_punctuation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;remove_numbers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;remove_math_symbols&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;add_space_before_opening_parentheses&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;add_space_after_closing_parentheses&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;remove_parentheses&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;remove_brackets&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;remove_curly_brackets&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;enforce_single_space_between_words&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="col_cleaner">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.col_cleaner">[docs]</a>
+<span class="n">col_cleaner</span> <span class="o">=</span> <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">dataframe_cleaner_factory</span><span class="p">(</span>
+    <span class="s2">&quot;col_cleaner&quot;</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;plant_name&quot;</span><span class="p">:</span> <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">ColumnVectorizer</span><span class="p">(</span>
+            <span class="n">transform_steps</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">NameCleaner</span><span class="p">(</span>
+                    <span class="n">company_cleaner</span><span class="o">=</span><span class="n">plant_name_cleaner</span><span class="p">,</span> <span class="n">return_as_dframe</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_name&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;utility_name&quot;</span><span class="p">:</span> <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">ColumnVectorizer</span><span class="p">(</span>
+            <span class="n">transform_steps</span><span class="o">=</span><span class="p">[</span><span class="n">embed_dataframe</span><span class="o">.</span><span class="n">NameCleaner</span><span class="p">(</span><span class="n">return_as_dframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_name&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">:</span> <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">ColumnVectorizer</span><span class="p">(</span>
+            <span class="n">transform_steps</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">FuelTypeFiller</span><span class="p">(</span>
+                    <span class="n">fuel_type_col</span><span class="o">=</span><span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
+                    <span class="n">name_col</span><span class="o">=</span><span class="s2">&quot;plant_name&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">:</span> <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">ColumnVectorizer</span><span class="p">(</span>
+            <span class="n">transform_steps</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">ColumnCleaner</span><span class="p">(</span><span class="n">cleaning_function</span><span class="o">=</span><span class="s2">&quot;zero_to_null&quot;</span><span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;capacity_mw&quot;</span><span class="p">:</span> <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">ColumnVectorizer</span><span class="p">(</span>
+            <span class="n">transform_steps</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">embed_dataframe</span><span class="o">.</span><span class="n">ColumnCleaner</span><span class="p">(</span><span class="n">cleaning_function</span><span class="o">=</span><span class="s2">&quot;zero_to_null&quot;</span><span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;capacity_mw&quot;</span><span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">)</span></div>
+
+
+
+<span class="nd">@op</span>
+<div class="viewcode-block" id="get_compiled_input_manager">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_compiled_input_manager">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_compiled_input_manager</span><span class="p">(</span><span class="n">plants_all_ferc1</span><span class="p">,</span> <span class="n">fbp_ferc1</span><span class="p">,</span> <span class="n">plant_parts_eia</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get :class:`InputManager` object with compiled inputs for model.&quot;&quot;&quot;</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">InputManager</span><span class="p">(</span><span class="n">plants_all_ferc1</span><span class="p">,</span> <span class="n">fbp_ferc1</span><span class="p">,</span> <span class="n">plant_parts_eia</span><span class="p">)</span>
+    <span class="c1"># compile/cache inputs upfront. Hopefully we can catch any errors in inputs early.</span>
+    <span class="n">inputs</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">inputs</span></div>
+
+
+
+<span class="nd">@op</span><span class="p">(</span><span class="n">out</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;eia_df&quot;</span><span class="p">:</span> <span class="n">Out</span><span class="p">(),</span> <span class="s2">&quot;ferc_df&quot;</span><span class="p">:</span> <span class="n">Out</span><span class="p">()})</span>
+<div class="viewcode-block" id="get_input_dfs">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_input_dfs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_input_dfs</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get EIA and FERC inputs for the model.&quot;&quot;&quot;</span>
+    <span class="n">eia_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">inputs</span><span class="o">.</span><span class="n">get_plant_parts_eia_true</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;record_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ferc_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">inputs</span><span class="o">.</span><span class="n">get_plants_ferc1</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">eia_df</span><span class="p">,</span> <span class="n">ferc_df</span></div>
+
+
+
+<span class="nd">@op</span>
+<div class="viewcode-block" id="prepare_for_matching">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.prepare_for_matching">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">prepare_for_matching</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">transformed_df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare the input dataframes for matching with splink.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_metaphone</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col_name</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">jellyfish</span><span class="o">.</span><span class="n">metaphone</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col_name</span><span class="p">])</span>
+
+    <span class="c1"># replace old cols with transformed cols</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">transformed_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">orig_col_name</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">orig_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">transformed_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;installation_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;installation_year&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;construction_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;construction_year&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;plant_name_mphone&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_get_metaphone</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;plant_name&quot;</span><span class="p">,))</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;utility_name_mphone&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_get_metaphone</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;utility_name&quot;</span><span class="p">,))</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">ID_COL</span> <span class="o">+</span> <span class="n">MATCHING_COLS</span> <span class="o">+</span> <span class="n">EXTRA_COLS</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">cols</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@op</span>
+<div class="viewcode-block" id="get_training_data_df">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_training_data_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_training_data_df</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the manually created training data.&quot;&quot;&quot;</span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get_train_df</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_eia&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_l&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_r&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">train_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;source_dataset_r&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ferc_df&quot;</span>
+    <span class="n">train_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;source_dataset_l&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;eia_df&quot;</span>
+    <span class="n">train_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;clerical_match_score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">1</span>  <span class="c1"># this column shows that all these labels are positive labels</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">train_df</span></div>
+
+
+
+<span class="nd">@op</span>
+<div class="viewcode-block" id="get_model_predictions">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_model_predictions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_model_predictions</span><span class="p">(</span><span class="n">eia_df</span><span class="p">,</span> <span class="n">ferc_df</span><span class="p">,</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">experiment_tracker</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Train splink model and output predicted matches.&quot;&quot;&quot;</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">SettingsCreator</span><span class="p">(</span>
+        <span class="n">link_type</span><span class="o">=</span><span class="s2">&quot;link_only&quot;</span><span class="p">,</span>
+        <span class="n">unique_id_column_name</span><span class="o">=</span><span class="s2">&quot;record_id&quot;</span><span class="p">,</span>
+        <span class="n">additional_columns_to_retain</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">],</span>
+        <span class="n">comparisons</span><span class="o">=</span><span class="n">COMPARISONS</span><span class="p">,</span>
+        <span class="n">blocking_rules_to_generate_predictions</span><span class="o">=</span><span class="n">BLOCKING_RULES</span><span class="p">,</span>
+        <span class="n">retain_matching_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">retain_intermediate_calculation_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">probability_two_random_records_match</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">eia_df</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">linker</span> <span class="o">=</span> <span class="n">Linker</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">eia_df</span><span class="p">,</span> <span class="n">ferc_df</span><span class="p">],</span>
+        <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span>
+        <span class="n">input_table_aliases</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;eia_df&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc_df&quot;</span><span class="p">],</span>
+        <span class="n">db_api</span><span class="o">=</span><span class="n">DuckDBAPI</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="n">linker</span><span class="o">.</span><span class="n">table_management</span><span class="o">.</span><span class="n">register_table</span><span class="p">(</span><span class="n">train_df</span><span class="p">,</span> <span class="s2">&quot;training_labels&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">linker</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">estimate_u_using_random_sampling</span><span class="p">(</span><span class="n">max_pairs</span><span class="o">=</span><span class="mf">1e7</span><span class="p">)</span>
+    <span class="n">linker</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">estimate_m_from_pairwise_labels</span><span class="p">(</span><span class="s2">&quot;training_labels&quot;</span><span class="p">)</span>
+    <span class="n">threshold_prob</span> <span class="o">=</span> <span class="mf">0.9</span>
+    <span class="n">experiment_tracker</span><span class="o">.</span><span class="n">execute_logging</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">log_params</span><span class="p">({</span><span class="s2">&quot;threshold match probability&quot;</span><span class="p">:</span> <span class="n">threshold_prob</span><span class="p">})</span>
+    <span class="p">)</span>
+    <span class="n">preds_df</span> <span class="o">=</span> <span class="n">linker</span><span class="o">.</span><span class="n">inference</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">threshold_match_probability</span><span class="o">=</span><span class="n">threshold_prob</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">preds_df</span><span class="o">.</span><span class="n">as_pandas_dataframe</span><span class="p">()</span></div>
+
+
+
+<span class="nd">@op</span><span class="p">()</span>
+<div class="viewcode-block" id="get_best_matches">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_best_matches">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_best_matches</span><span class="p">(</span>
+    <span class="n">preds_df</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="p">,</span>
+    <span class="n">experiment_tracker</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTracker</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the best EIA match for each FERC record and log performance metrics.&quot;&quot;&quot;</span>
+    <span class="n">preds_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">preds_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;record_id_l&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_r&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;match_probability&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">preds_df</span> <span class="o">=</span> <span class="n">preds_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get_train_df</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">true_pos</span> <span class="o">=</span> <span class="n">get_true_pos</span><span class="p">(</span><span class="n">preds_df</span><span class="p">,</span> <span class="n">train_df</span><span class="p">)</span>
+    <span class="n">false_pos</span> <span class="o">=</span> <span class="n">get_false_pos</span><span class="p">(</span><span class="n">preds_df</span><span class="p">,</span> <span class="n">train_df</span><span class="p">)</span>
+    <span class="n">false_neg</span> <span class="o">=</span> <span class="n">get_false_neg</span><span class="p">(</span><span class="n">preds_df</span><span class="p">,</span> <span class="n">train_df</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Metrics before overrides:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;   True positives:  </span><span class="si">{</span><span class="n">true_pos</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;   False positives: </span><span class="si">{</span><span class="n">false_pos</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;   False negatives: </span><span class="si">{</span><span class="n">false_neg</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;   Precision:       </span><span class="si">{</span><span class="n">true_pos</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">true_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">false_pos</span><span class="p">)</span><span class="si">:</span><span class="s2">.03</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;   Recall:          </span><span class="si">{</span><span class="n">true_pos</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">true_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">false_neg</span><span class="p">)</span><span class="si">:</span><span class="s2">.03</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;   Accuracy:        </span><span class="si">{</span><span class="n">true_pos</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span><span class="si">:</span><span class="s2">.03</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Precision = of the training data FERC records that the model predicted a match for, this percentage was correct.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;A measure of accuracy when the model makes a prediction.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Recall = of all of the training data FERC records, the model predicted a match for this percentage.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;A measure of the coverage of FERC records in the predictions.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Accuracy = what percentage of the training data did the model correctly predict.</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;A measure of overall correctness.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">experiment_tracker</span><span class="o">.</span><span class="n">execute_logging</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">true_pos</span> <span class="o">/</span> <span class="p">(</span><span class="n">true_pos</span> <span class="o">+</span> <span class="n">false_pos</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">true_pos</span> <span class="o">/</span> <span class="p">(</span><span class="n">true_pos</span> <span class="o">+</span> <span class="n">false_neg</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">true_pos</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_df</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">preds_df</span></div>
+
+
+
+<span class="nd">@op</span><span class="p">(</span>
+    <span class="n">out</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;out_pudl__yearly_assn_eia_ferc1_plant_parts&quot;</span><span class="p">:</span> <span class="n">Out</span><span class="p">(</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span>
+        <span class="p">)</span>
+    <span class="p">},</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+<div class="viewcode-block" id="get_full_records_with_overrides">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_full_records_with_overrides">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_full_records_with_overrides</span><span class="p">(</span><span class="n">best_match_df</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">experiment_tracker</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Join full dataframe onto matches to make usable and get stats.</span>
+
+<span class="sd">    Override the predictions dataframe with the training data, so that all</span>
+<span class="sd">    known bad predictions are corrected. Then join the EIA and FERC data on</span>
+<span class="sd">    so that the matches are usable. Drop model parameter and match probability</span>
+<span class="sd">    columns generated by splink. Log the coverage of the matches on the</span>
+<span class="sd">    FERC input data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">best_match_df</span> <span class="o">=</span> <span class="n">override_bad_predictions</span><span class="p">(</span><span class="n">best_match_df</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get_train_df</span><span class="p">())</span>
+    <span class="n">connected_df</span> <span class="o">=</span> <span class="n">prettyify_best_matches</span><span class="p">(</span>
+        <span class="n">matches_best</span><span class="o">=</span><span class="n">best_match_df</span><span class="p">,</span>
+        <span class="n">plant_parts_eia_true</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">get_plant_parts_eia_true</span><span class="p">(),</span>
+        <span class="n">plants_ferc1</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">get_plants_ferc1</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="n">_log_match_coverage</span><span class="p">(</span><span class="n">connected_df</span><span class="p">,</span> <span class="n">experiment_tracker</span><span class="o">=</span><span class="n">experiment_tracker</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">match_set</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;overrides&quot;</span><span class="p">]:</span>
+        <span class="n">check_match_consistency</span><span class="p">(</span>
+            <span class="n">connected_df</span><span class="p">,</span>
+            <span class="n">inputs</span><span class="o">.</span><span class="n">get_train_df</span><span class="p">(),</span>
+            <span class="n">match_set</span><span class="o">=</span><span class="n">match_set</span><span class="p">,</span>
+            <span class="n">experiment_tracker</span><span class="o">=</span><span class="n">experiment_tracker</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">connected_df</span> <span class="o">=</span> <span class="n">add_null_overrides</span><span class="p">(</span>
+        <span class="n">connected_df</span>
+    <span class="p">)</span>  <span class="c1"># Override specified values with NA record_id_eia</span>
+    <span class="k">return</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span>
+        <span class="s2">&quot;out_pudl__yearly_assn_eia_ferc1_plant_parts&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">enforce_schema</span><span class="p">(</span><span class="n">connected_df</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@models</span><span class="o">.</span><span class="n">pudl_model</span><span class="p">(</span>
+    <span class="s2">&quot;out_pudl__yearly_assn_eia_ferc1_plant_parts&quot;</span><span class="p">,</span>
+    <span class="n">config_from_yaml</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@graph</span>
+<div class="viewcode-block" id="ferc_to_eia">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ferc_to_eia</span><span class="p">(</span>
+    <span class="n">experiment_tracker</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTracker</span><span class="p">,</span>
+    <span class="n">out_ferc1__yearly_all_plants</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_ferc1__yearly_steam_plants_fuel_by_plant_sched402</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">out_eia__yearly_plant_parts</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Using splink model the connection between FERC1 plants and EIA plant-parts.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        out_ferc1__yearly_all_plants: Table of all of the FERC1-reporting plants.</span>
+<span class="sd">        out_ferc1__yearly_steam_plants_fuel_by_plant_sched402: Table of the fuel</span>
+<span class="sd">            reported aggregated to the FERC1 plant-level.</span>
+<span class="sd">        out_eia__yearly_plant_parts: The EIA plant parts list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">get_compiled_input_manager</span><span class="p">(</span>
+        <span class="n">out_ferc1__yearly_all_plants</span><span class="p">,</span>
+        <span class="n">out_ferc1__yearly_steam_plants_fuel_by_plant_sched402</span><span class="p">,</span>
+        <span class="n">out_eia__yearly_plant_parts</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">eia_df</span><span class="p">,</span> <span class="n">ferc_df</span> <span class="o">=</span> <span class="n">get_input_dfs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">get_training_data_df</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="c1"># apply cleaning transformations to some columns</span>
+    <span class="n">transformed_eia_df</span> <span class="o">=</span> <span class="n">col_cleaner</span><span class="p">(</span><span class="n">eia_df</span><span class="p">,</span> <span class="n">experiment_tracker</span><span class="p">)</span>
+    <span class="n">transformed_ferc_df</span> <span class="o">=</span> <span class="n">col_cleaner</span><span class="p">(</span><span class="n">ferc_df</span><span class="p">,</span> <span class="n">experiment_tracker</span><span class="p">)</span>
+    <span class="c1"># prepare for matching with splink</span>
+    <span class="n">ferc_df</span> <span class="o">=</span> <span class="n">prepare_for_matching</span><span class="p">(</span><span class="n">ferc_df</span><span class="p">,</span> <span class="n">transformed_ferc_df</span><span class="p">)</span>
+    <span class="n">eia_df</span> <span class="o">=</span> <span class="n">prepare_for_matching</span><span class="p">(</span><span class="n">eia_df</span><span class="p">,</span> <span class="n">transformed_eia_df</span><span class="p">)</span>
+    <span class="c1"># train model and predict matches</span>
+    <span class="n">preds_df</span> <span class="o">=</span> <span class="n">get_model_predictions</span><span class="p">(</span>
+        <span class="n">eia_df</span><span class="o">=</span><span class="n">eia_df</span><span class="p">,</span>
+        <span class="n">ferc_df</span><span class="o">=</span><span class="n">ferc_df</span><span class="p">,</span>
+        <span class="n">train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span>
+        <span class="n">experiment_tracker</span><span class="o">=</span><span class="n">experiment_tracker</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">best_match_df</span> <span class="o">=</span> <span class="n">get_best_matches</span><span class="p">(</span>
+        <span class="n">preds_df</span><span class="o">=</span><span class="n">preds_df</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+        <span class="n">experiment_tracker</span><span class="o">=</span><span class="n">experiment_tracker</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ferc1_eia_connected_df</span> <span class="o">=</span> <span class="n">get_full_records_with_overrides</span><span class="p">(</span>
+        <span class="n">best_match_df</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">,</span>
+        <span class="n">experiment_tracker</span><span class="o">=</span><span class="n">experiment_tracker</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ferc1_eia_connected_df</span></div>
+
+
+
+<span class="c1"># the correct EIA record is predicted for a FERC record</span>
+<div class="viewcode-block" id="get_true_pos">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_true_pos">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_true_pos</span><span class="p">(</span><span class="n">pred_df</span><span class="p">,</span> <span class="n">train_df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the number of correctly predicted matches.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">train_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">pred_df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_eia&quot;</span><span class="p">],</span> <span class="n">indicator</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">_merge</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()[</span><span class="s2">&quot;both&quot;</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># an incorrect EIA record is predicted for a FERC record</span>
+<div class="viewcode-block" id="get_false_pos">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_false_pos">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_false_pos</span><span class="p">(</span><span class="n">pred_df</span><span class="p">,</span> <span class="n">train_df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the number of incorrectly predicted matches.&quot;&quot;&quot;</span>
+    <span class="n">shared_preds</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">pred_df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;_true&quot;</span><span class="p">,</span> <span class="s2">&quot;_pred&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span>
+        <span class="n">shared_preds</span><span class="p">[</span><span class="n">shared_preds</span><span class="o">.</span><span class="n">record_id_eia_true</span> <span class="o">!=</span> <span class="n">shared_preds</span><span class="o">.</span><span class="n">record_id_eia_pred</span><span class="p">]</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># FERC record is in training data but no prediction made</span>
+<div class="viewcode-block" id="get_false_neg">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_false_neg">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_false_neg</span><span class="p">(</span><span class="n">pred_df</span><span class="p">,</span> <span class="n">train_df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the number of matches from the training data where no prediction is made.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">train_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">pred_df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">],</span> <span class="n">indicator</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">_merge</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()[</span><span class="s2">&quot;left_only&quot;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="prettyify_best_matches">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.prettyify_best_matches">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">prettyify_best_matches</span><span class="p">(</span>
+    <span class="n">matches_best</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">plant_parts_eia_true</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">plants_ferc1</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make the EIA-FERC best matches usable.</span>
+
+<span class="sd">    Use the ID columns from the best matches to merge together both EIA plant-parts data</span>
+<span class="sd">    and FERC plant data. This removes the comparison vectors (the floats between 0 and 1</span>
+<span class="sd">    that compare the two columns from each dataset).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">connects_ferc1_eia</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="c1"># first merge in the EIA plant-parts</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">matches_best</span><span class="p">[[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;match_type&quot;</span><span class="p">]],</span>
+            <span class="n">plant_parts_eia_true</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">],</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>  <span class="c1"># multiple FERC records can have the same EIA match</span>
+        <span class="p">)</span>
+        <span class="c1"># then merge in the FERC data we want the backbone of this table to be</span>
+        <span class="c1"># the plant records so we have all possible FERC plant records, even</span>
+        <span class="c1"># the unmapped ones</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">plants_ferc1</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">],</span>
+            <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;_ferc1&quot;</span><span class="p">),</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">,</span>
+            <span class="n">indicator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># now we have some important cols that have dataset suffixes that we want to condense</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fill_eia_w_ferc1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ferc1&quot;</span><span class="p">])</span>
+
+    <span class="n">condense_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">]</span>
+    <span class="n">connects_ferc1_eia</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">fill_eia_w_ferc1</span><span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">condense_cols</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">col</span> <span class="o">+</span> <span class="n">dataset</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">condense_cols</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;_ferc1&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">report_date</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">report_year</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">no_ferc</span> <span class="o">=</span> <span class="n">connects_ferc1_eia</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">_merge</span> <span class="o">==</span> <span class="s2">&quot;left_only&quot;</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">record_id_eia</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
+        <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;_hydro_&quot;</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;_gnrt_plant_&quot;</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="p">]</span>
+    <span class="n">connects_ferc1_eia</span> <span class="o">=</span> <span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;_merge&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_ferc</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Help. </span><span class="se">\n</span><span class="s2">I&#39;m trapped in this computer and I can&#39;t get out.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;.... jk there shouldn&#39;t be any matches between FERC and EIA</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;that have EIA matches but aren&#39;t in the FERC plant table, but we</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">no_ferc</span><span class="p">)</span><span class="si">}</span><span class="s2">. Check the training data and &quot;</span>
+            <span class="s2">&quot;prettyify_best_matches()&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">no_ferc</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;grrrr there are some FERC-EIA matches that aren&#39;t in the steam </span><span class="se">\</span>
+<span class="s2">            table but this is because they are linked to retired EIA generators.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">connects_ferc1_eia</span></div>
+
+
+
+<div class="viewcode-block" id="check_match_consistency">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.check_match_consistency">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_match_consistency</span><span class="p">(</span>
+    <span class="n">connects_ferc1_eia</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">train_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">experiment_tracker</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTracker</span><span class="p">,</span>
+    <span class="n">match_set</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;overrides&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check how consistent FERC-EIA matches are with FERC-FERC matches.</span>
+
+<span class="sd">    We have two record linkage processes: one that links FERC plant records across time,</span>
+<span class="sd">    and another that links FERC plant records to EIA plant-parts. This function checks</span>
+<span class="sd">    that the two processes are as consistent with each other as we expect.  Here</span>
+<span class="sd">    &quot;consistent&quot; means that each FERC plant ID is associated with a single EIA plant</span>
+<span class="sd">    parts ID across time. The reverse is not necessarily required -- a single EIA plant</span>
+<span class="sd">    part ID may be associated with various FERC plant IDs across time.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        connects_ferc1_eia: Matches of FERC1 to EIA.</span>
+<span class="sd">        train_df: training data.</span>
+<span class="sd">        match_set: either ``all`` - to check all of the matches - or ``overrides`` - to</span>
+<span class="sd">            check just the overrides. Default is ``all``. The overrides are less</span>
+<span class="sd">            consistent than all of the data, so this argument changes the consistency</span>
+<span class="sd">            threshold for this check.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># these are the default</span>
+    <span class="n">expected_consistency</span> <span class="o">=</span> <span class="mf">0.73</span>
+    <span class="n">expected_uniform_capacity_consistency</span> <span class="o">=</span> <span class="mf">0.85</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">record_id_eia</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">match_set</span> <span class="o">==</span> <span class="s2">&quot;overrides&quot;</span><span class="p">:</span>
+        <span class="n">expected_consistency</span> <span class="o">=</span> <span class="mf">0.39</span>
+        <span class="n">expected_uniform_capacity_consistency</span> <span class="o">=</span> <span class="mf">0.75</span>
+        <span class="n">train_ferc1</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">over_f1</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">train_ferc1</span><span class="p">[</span><span class="n">train_ferc1</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;_steam_&quot;</span><span class="p">)]</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">index</span>
+        <span class="p">)</span>
+        <span class="n">over_ferc1_ids</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">over_f1</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">plant_id_ferc1</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">&amp;</span> <span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">plant_id_ferc1</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">over_ferc1_ids</span><span class="p">)</span>
+
+    <span class="n">count</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">connects_ferc1_eia</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;plant_id_ferc1&quot;</span><span class="p">])[[</span><span class="s2">&quot;plant_part_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;capacity_mw_ferc1&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">actual_consistency</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">[</span><span class="n">count</span><span class="o">.</span><span class="n">plant_part_id_eia</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Matches with consistency across years of </span><span class="si">{</span><span class="n">match_set</span><span class="si">}</span><span class="s2"> matches is &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">actual_consistency</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">actual_consistency</span> <span class="o">&lt;</span> <span class="n">expected_consistency</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">match_set</span><span class="si">}</span><span class="s2"> matches </span><span class="si">{</span><span class="n">actual_consistency</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> is less than the expected &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;value of </span><span class="si">{</span><span class="n">expected_consistency</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">actual_uniform_capacity_consistency</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+        <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">[(</span><span class="n">count</span><span class="o">.</span><span class="n">plant_part_id_eia</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">count</span><span class="o">.</span><span class="n">capacity_mw_ferc1</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)])</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Matches with a uniform FERC 1 capacity have an inter-year consistency between &quot;</span>
+        <span class="s2">&quot;plant_id_ferc1 and plant_part_id_eia of &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">actual_uniform_capacity_consistency</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">match_set</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+        <span class="n">experiment_tracker</span><span class="o">.</span><span class="n">execute_logging</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;plant_id_ferc1 consistency across matches&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span>
+                        <span class="n">actual_consistency</span><span class="p">,</span> <span class="mi">2</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;uniform capacity plant_id_ferc1 and plant_part_id_eia consistency&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span>
+                        <span class="n">actual_uniform_capacity_consistency</span><span class="p">,</span> <span class="mi">2</span>
+                    <span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">actual_uniform_capacity_consistency</span> <span class="o">&lt;</span> <span class="n">expected_uniform_capacity_consistency</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Inter-year consistency between plant_id_ferc1 and plant_part_id_eia of &quot;</span>
+            <span class="s2">&quot;matches with uniform FERC 1 capacity &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">actual_uniform_capacity_consistency</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2"> is less than the expected &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;value of </span><span class="si">{</span><span class="n">expected_uniform_capacity_consistency</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">count</span></div>
+
+
+
+<div class="viewcode-block" id="override_bad_predictions">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.override_bad_predictions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">override_bad_predictions</span><span class="p">(</span>
+    <span class="n">match_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">train_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Override incorrect predictions with the correct match from training data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        match_df: A dataframe of the best matches with only one match for each</span>
+<span class="sd">            FERC1 record.</span>
+<span class="sd">        train_df: A dataframe of the training data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">override_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">match_df</span><span class="p">,</span>
+        <span class="n">train_df</span><span class="p">[[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">]],</span>
+        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+        <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;_pred&quot;</span><span class="p">,</span> <span class="s2">&quot;_train&quot;</span><span class="p">),</span>
+        <span class="n">indicator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># construct new record_id_eia column with incorrect preds overwritten</span>
+    <span class="n">override_df</span><span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">override_df</span><span class="p">[</span><span class="s2">&quot;_merge&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;left_only&quot;</span><span class="p">,</span>
+        <span class="n">override_df</span><span class="p">[</span><span class="s2">&quot;record_id_eia_pred&quot;</span><span class="p">],</span>
+        <span class="n">override_df</span><span class="p">[</span><span class="s2">&quot;record_id_eia_train&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="c1"># create a the column match_type which indicates whether the match is good</span>
+    <span class="c1"># based on the training data</span>
+    <span class="n">override_rows</span> <span class="o">=</span> <span class="p">(</span><span class="n">override_df</span><span class="o">.</span><span class="n">_merge</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="n">override_df</span><span class="o">.</span><span class="n">record_id_eia_train</span> <span class="o">!=</span> <span class="n">override_df</span><span class="o">.</span><span class="n">record_id_eia_pred</span>
+    <span class="p">)</span>
+    <span class="n">correct_rows</span> <span class="o">=</span> <span class="p">(</span><span class="n">override_df</span><span class="o">.</span><span class="n">_merge</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="n">override_df</span><span class="o">.</span><span class="n">record_id_eia_train</span> <span class="o">==</span> <span class="n">override_df</span><span class="o">.</span><span class="n">record_id_eia_pred</span>
+    <span class="p">)</span>
+    <span class="n">incorrect_rows</span> <span class="o">=</span> <span class="n">override_df</span><span class="o">.</span><span class="n">_merge</span> <span class="o">==</span> <span class="s2">&quot;right_only&quot;</span>
+
+    <span class="n">override_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;match_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;prediction; not in training data&quot;</span>
+    <span class="n">override_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">override_rows</span><span class="p">,</span> <span class="s2">&quot;match_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;incorrect prediction; overwritten&quot;</span>
+    <span class="n">override_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">correct_rows</span><span class="p">,</span> <span class="s2">&quot;match_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;correct match&quot;</span>
+    <span class="n">override_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">incorrect_rows</span><span class="p">,</span> <span class="s2">&quot;match_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;incorrect prediction; no predicted match&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># print out stats</span>
+    <span class="n">percent_correct</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">override_df</span><span class="p">[</span><span class="n">override_df</span><span class="o">.</span><span class="n">match_type</span> <span class="o">==</span> <span class="s2">&quot;correct match&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+        <span class="n">train_df</span>
+    <span class="p">)</span>
+    <span class="n">percent_overwritten</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+        <span class="n">override_df</span><span class="p">[</span><span class="n">override_df</span><span class="o">.</span><span class="n">match_type</span> <span class="o">==</span> <span class="s2">&quot;incorrect prediction; overridden&quot;</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Matches stats:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Percent of training data matches correctly predicted: </span><span class="si">{</span><span class="n">percent_correct</span><span class="si">:</span><span class="s2">.02</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Percent of training data overwritten in matches: </span><span class="si">{</span><span class="n">percent_overwritten</span><span class="si">:</span><span class="s2">.02</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">override_df</span> <span class="o">=</span> <span class="n">override_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;_merge&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_eia_train&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_eia_pred&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">override_df</span></div>
+
+
+
+<div class="viewcode-block" id="_log_match_coverage">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage._log_match_coverage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_match_coverage</span><span class="p">(</span>
+    <span class="n">connects_ferc1_eia</span><span class="p">,</span>
+    <span class="n">experiment_tracker</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTracker</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">eia_years</span> <span class="o">=</span> <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;eia860&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span>
+    <span class="c1"># get the matches from just the EIA working years</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">connects_ferc1_eia</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">eia_years</span><span class="p">))</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">record_id_eia</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
+    <span class="p">]</span>
+    <span class="c1"># get all records from just the EIA working years</span>
+    <span class="n">possible_records</span> <span class="o">=</span> <span class="n">connects_ferc1_eia</span><span class="p">[</span>
+        <span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">eia_years</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">fuel_type_coverage</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="n">matches</span><span class="o">.</span><span class="n">energy_source_code_1</span><span class="o">.</span><span class="n">notnull</span><span class="p">()])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+        <span class="n">matches</span>
+    <span class="p">)</span>
+    <span class="n">tech_type_coverage</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="n">matches</span><span class="o">.</span><span class="n">technology_description</span><span class="o">.</span><span class="n">notnull</span><span class="p">()])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+        <span class="n">matches</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_subtable</span><span class="p">(</span><span class="n">table_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">possible_records</span><span class="p">[</span>
+            <span class="n">possible_records</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_match_pct</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_capacity_coverage</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span><span class="o">.</span><span class="n">capacity_mw_ferc1</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">capacity_mw_ferc1</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="n">steam_cov</span> <span class="o">=</span> <span class="n">_get_match_pct</span><span class="p">(</span><span class="n">_get_subtable</span><span class="p">(</span><span class="s2">&quot;steam&quot;</span><span class="p">))</span>
+    <span class="n">steam_cap_cov</span> <span class="o">=</span> <span class="n">_get_capacity_coverage</span><span class="p">(</span><span class="n">_get_subtable</span><span class="p">(</span><span class="s2">&quot;steam&quot;</span><span class="p">))</span>
+    <span class="n">small_gen_cov</span> <span class="o">=</span> <span class="n">_get_match_pct</span><span class="p">(</span><span class="n">_get_subtable</span><span class="p">(</span><span class="s2">&quot;gnrt_plant&quot;</span><span class="p">))</span>
+    <span class="n">hydro_cov</span> <span class="o">=</span> <span class="n">_get_match_pct</span><span class="p">(</span><span class="n">_get_subtable</span><span class="p">(</span><span class="s2">&quot;hydro&quot;</span><span class="p">))</span>
+    <span class="n">pumped_storage_cov</span> <span class="o">=</span> <span class="n">_get_match_pct</span><span class="p">(</span><span class="n">_get_subtable</span><span class="p">(</span><span class="s2">&quot;pumped&quot;</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Coverage for matches during EIA working years:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;    Fuel type: </span><span class="si">{</span><span class="n">fuel_type_coverage</span><span class="si">:</span><span class="s2">.01%</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;    Tech type: </span><span class="si">{</span><span class="n">tech_type_coverage</span><span class="si">:</span><span class="s2">.01%</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Coverage for all steam table records during EIA working years:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;    EIA matches: </span><span class="si">{</span><span class="n">steam_cov</span><span class="si">:</span><span class="s2">.01%</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Coverage for steam table capacity during EIA working years:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;    EIA matches: </span><span class="si">{</span><span class="n">steam_cap_cov</span><span class="si">:</span><span class="s2">.01%</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Coverage for all small gen table records during EIA working years:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;    EIA matches: </span><span class="si">{</span><span class="n">small_gen_cov</span><span class="si">:</span><span class="s2">.01%</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Coverage for all hydro table records during EIA working years:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;    EIA matches: </span><span class="si">{</span><span class="n">hydro_cov</span><span class="si">:</span><span class="s2">.01%</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Coverage for all pumped storage table records during EIA working years:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;    EIA matches: </span><span class="si">{</span><span class="n">pumped_storage_cov</span><span class="si">:</span><span class="s2">.01%</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">experiment_tracker</span><span class="o">.</span><span class="n">execute_logging</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;steam table coverage&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">steam_cov</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">&quot;steam table capacity coverage&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">steam_cap_cov</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">&quot;small gen table coverage&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">small_gen_cov</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">&quot;hydro table coverage&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">hydro_cov</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                <span class="s2">&quot;pumped storage table coverage&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">pumped_storage_cov</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_null_overrides">
+<a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.add_null_overrides">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_null_overrides</span><span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Override known null matches with pd.NA.</span>
+
+<span class="sd">    There is no way to indicate in the training data that certain FERC records have no</span>
+<span class="sd">    proper EIA match. That is to say--you can&#39;t specify a blank match or tell the AI</span>
+<span class="sd">    not to match a given record. Because we&#39;ve gone through by hand and know for a fact</span>
+<span class="sd">    that some FERC records have no EIA match (even when you aggregate generators), we</span>
+<span class="sd">    have to add in these null matches after the fact.</span>
+
+<span class="sd">    This function reads in a list of record_id_ferc1 values that are known to have no</span>
+<span class="sd">    corresponding EIA record match and makes sure they are mapped as NA in the final</span>
+<span class="sd">    record linkage output. It also updates the match_type field to indicate that this</span>
+<span class="sd">    value has been overridden.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Overriding specified record_id_ferc1 values with NA record_id_eia&quot;</span><span class="p">)</span>
+    <span class="c1"># Get record_id_ferc1 values that should be overridden to have no EIA match</span>
+    <span class="n">null_overrides</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.glue&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;eia_ferc1_null.csv&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">restrict_train_connections_on_date_range</span><span class="p">,</span>
+        <span class="n">id_col</span><span class="o">=</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span>
+            <span class="n">connects_ferc1_eia</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">record_id_eia</span><span class="o">.</span><span class="n">isnull</span><span class="p">())]</span><span class="o">.</span><span class="n">report_date</span>
+        <span class="p">),</span>
+        <span class="n">end_date</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span>
+            <span class="n">connects_ferc1_eia</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">record_id_eia</span><span class="o">.</span><span class="n">isnull</span><span class="p">())]</span><span class="o">.</span><span class="n">report_date</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="c1"># Make sure there is content!</span>
+    <span class="k">if</span> <span class="n">null_overrides</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No null overrides found. Consider checking for file at </span><span class="si">{</span><span class="n">null_overrides</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">null_overrides</span><span class="p">)</span><span class="si">}</span><span class="s2"> null overrides&quot;</span><span class="p">)</span>
+    <span class="c1"># List of EIA columns to null. Ideally would like to get this from elsewhere, but</span>
+    <span class="c1"># compiling this here for now...</span>
+    <span class="n">eia_cols_to_null</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;out_eia__yearly_plant_parts&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_field_names</span><span class="p">()</span>
+    <span class="c1"># Make all EIA values NA for record_id_ferc1 values in the Null overrides list and</span>
+    <span class="c1"># make the match_type column say &quot;overridden&quot;</span>
+    <span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">connects_ferc1_eia</span><span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">null_overrides</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="p">),</span>
+        <span class="n">eia_cols_to_null</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">connects_ferc1_eia</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">connects_ferc1_eia</span><span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">null_overrides</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="p">),</span>
+        <span class="s2">&quot;match_type&quot;</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;overridden&quot;</span>
+    <span class="k">return</span> <span class="n">connects_ferc1_eia</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2016-2026, Catalyst Cooperative, CC-BY-4.0
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../../_static/documentation_options.js?v=11fc87b4"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

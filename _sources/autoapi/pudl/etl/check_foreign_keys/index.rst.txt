@@ -1,0 +1,148 @@
+pudl.etl.check_foreign_keys
+===========================
+
+.. py:module:: pudl.etl.check_foreign_keys
+
+.. autoapi-nested-parse::
+
+   Check that foreign key constraints in the PUDL database are respected.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.etl.check_foreign_keys.logger
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   pudl.etl.check_foreign_keys.ForeignKeyError
+   pudl.etl.check_foreign_keys.ForeignKeyErrors
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.etl.check_foreign_keys.pudl_check_fks
+   pudl.etl.check_foreign_keys._get_fk_list
+   pudl.etl.check_foreign_keys.check_foreign_keys
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: pudl_check_fks(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path)
+
+   Check that foreign key constraints in the PUDL database are respected.
+
+   Dagster manages the dependencies between various assets in our ETL pipeline,
+   attempting to materialize tables only after their upstream dependencies have been
+   satisfied. However, this order is non deterministic because they are executed in
+   parallel, and doesn't necessarily correspond to the foreign-key constraints within
+   the database, so durint the ETL we disable foreign key constraints within
+   ``pudl.sqlite``.
+
+   However, we still expect foreign key constraints to be satisfied once all of the
+   tables have been loaded, so we check that they are valid after the ETL has
+   completed. This script runs the same check.
+
+
+.. py:exception:: ForeignKeyError(child_table: str, parent_table: str, foreign_key: str, rowids: list[int])
+
+   Bases: :py:obj:`sqlalchemy.exc.SQLAlchemyError`
+
+
+   Raised when data in a database violates a foreign key constraint.
+
+
+   .. py:attribute:: child_table
+
+
+   .. py:attribute:: parent_table
+
+
+   .. py:attribute:: foreign_key
+
+
+   .. py:attribute:: rowids
+
+
+   .. py:method:: __str__()
+
+      Create string representation of ForeignKeyError object.
+
+
+
+   .. py:method:: __eq__(other)
+
+      Compare a ForeignKeyError with another object.
+
+
+
+.. py:exception:: ForeignKeyErrors(fk_errors: list[ForeignKeyError])
+
+   Bases: :py:obj:`sqlalchemy.exc.SQLAlchemyError`
+
+
+   Raised when data in a database violate multiple foreign key constraints.
+
+
+   .. py:attribute:: fk_errors
+
+
+   .. py:method:: __str__()
+
+      Create string representation of ForeignKeyErrors object.
+
+
+
+   .. py:method:: __iter__()
+
+      Iterate over the fk errors.
+
+
+
+   .. py:method:: __getitem__(idx)
+
+      Index the fk errors.
+
+
+
+.. py:function:: _get_fk_list(engine: sqlalchemy.Engine, table: str) -> pandas.DataFrame
+
+   Retrieve a dataframe of foreign keys for a table.
+
+   Description from the SQLite Docs: 'This pragma returns one row for each foreign
+   key constraint created by a REFERENCES clause in the CREATE TABLE statement of
+   table "table-name".'
+
+   The PRAGMA returns one row for each field in a foreign key constraint. This
+   method collapses foreign keys with multiple fields into one record for
+   readability.
+
+
+.. py:function:: check_foreign_keys(engine: sqlalchemy.Engine)
+
+   Check foreign key relationships in the database.
+
+   The order assets are loaded into the database will not satisfy foreign key
+   constraints so we can't enable foreign key constraints. However, we can
+   check for foreign key failures once all of the data has been loaded into
+   the database using the `foreign_key_check` and `foreign_key_list` PRAGMAs.
+
+   You can learn more about the PRAGMAs in the `SQLite docs
+   <https://www.sqlite.org/pragma.html#pragma_foreign_key_check>`__.
+
+   :raises ForeignKeyErrors: if data in the database violate foreign key constraints.
+
+

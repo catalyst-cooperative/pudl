@@ -1,0 +1,98 @@
+pudl.extract.eia860
+===================
+
+.. py:module:: pudl.extract.eia860
+
+.. autoapi-nested-parse::
+
+   Retrieve data from EIA Form 860 spreadsheets for analysis.
+
+   This modules pulls data from EIA's published Excel spreadsheets.
+
+   This code is for use analyzing EIA Form 860 data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.eia860.logger
+   pudl.extract.eia860.raw_table_names
+   pudl.extract.eia860.raw_eia860__all_dfs
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.eia860.Extractor
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.extract.eia860.extract_eia860
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: Extractor(*args, **kwargs)
+
+   Bases: :py:obj:`pudl.extract.excel.ExcelExtractor`
+
+
+   Extractor for the excel dataset EIA860.
+
+
+   .. py:attribute:: METADATA
+
+      Instance of metadata object to use with this extractor.
+
+
+   .. py:attribute:: cols_added
+      :value: []
+
+
+
+   .. py:method:: process_raw(df, page, **partition)
+
+      Apply necessary pre-processing to the dataframe.
+
+      * Rename columns based on our compiled spreadsheet metadata
+      * Add report_year if it is missing
+      * Add a flag indicating if record came from EIA 860, or EIA 860M
+      * Fix any generator_id values with leading zeroes.
+
+
+
+   .. py:method:: get_dtypes(page, **partition)
+      :staticmethod:
+
+
+      Returns dtypes for plant id columns.
+
+
+
+.. py:data:: raw_table_names
+   :value: ('raw_eia860__boiler_cooling', 'raw_eia860__boiler_generator_assn', 'raw_eia860__boiler_info',...
+
+
+.. py:data:: raw_eia860__all_dfs
+
+.. py:function:: extract_eia860(context, raw_eia860__all_dfs)
+
+   Extract raw EIA data from excel sheets into dataframes.
+
+   :param context: dagster keyword that provides access to resources and config.
+
+   :returns: A tuple of extracted EIA dataframes.
+
+

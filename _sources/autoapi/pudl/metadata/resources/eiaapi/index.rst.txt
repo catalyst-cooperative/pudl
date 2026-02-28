@@ -1,0 +1,25 @@
+pudl.metadata.resources.eiaapi
+==============================
+
+.. py:module:: pudl.metadata.resources.eiaapi
+
+.. autoapi-nested-parse::
+
+   Tables definitions for data from the EIA bulk electricity aggregates.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.eiaapi.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

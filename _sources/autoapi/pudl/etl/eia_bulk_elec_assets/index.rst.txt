@@ -1,0 +1,40 @@
+pudl.etl.eia_bulk_elec_assets
+=============================
+
+.. py:module:: pudl.etl.eia_bulk_elec_assets
+
+.. autoapi-nested-parse::
+
+   EIA Bulk Electricity Aggregate assets.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.etl.eia_bulk_elec_assets.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.etl.eia_bulk_elec_assets.core_eia__yearly_fuel_receipts_costs_aggs
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: core_eia__yearly_fuel_receipts_costs_aggs(context)
+
+   Extract and transform EIA bulk electricity aggregates.
+
+   :returns: A dictionary of DataFrames whose keys are the names of the corresponding
+             database table.
+
+

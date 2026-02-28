@@ -1,0 +1,40 @@
+pudl.scripts.generate_pudl_duckdb
+=================================
+
+.. py:module:: pudl.scripts.generate_pudl_duckdb
+
+.. autoapi-nested-parse::
+
+   Basic script to generate a duckdb file with views to local/nightly parquet files.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.generate_pudl_duckdb.NORMAL_TABLES
+   pudl.scripts.generate_pudl_duckdb.PARTITIONED_TABLES
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.generate_pudl_duckdb.main
+
+
+Module Contents
+---------------
+
+.. py:data:: NORMAL_TABLES
+
+.. py:data:: PARTITIONED_TABLES
+
+.. py:function:: main()
+
+   Create duckdb file.
+
+

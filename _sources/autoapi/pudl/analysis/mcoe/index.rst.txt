@@ -1,0 +1,232 @@
+pudl.analysis.mcoe
+==================
+
+.. py:module:: pudl.analysis.mcoe
+
+.. autoapi-nested-parse::
+
+   A module with functions to aid generating MCOE.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.analysis.mcoe.DEFAULT_GENS_COLS
+   pudl.analysis.mcoe.mcoe_assets
+   pudl.analysis.mcoe.mcoe_asset_check_specs
+   pudl.analysis.mcoe.mcoe_asset_checks
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.analysis.mcoe.McoeCheckSpec
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.analysis.mcoe.mcoe_asset_factory
+   pudl.analysis.mcoe.mcoe_asset_check_factory
+   pudl.analysis.mcoe.heat_rate_by_unit
+   pudl.analysis.mcoe.heat_rate_by_gen
+   pudl.analysis.mcoe.fuel_cost
+   pudl.analysis.mcoe.capacity_factor
+   pudl.analysis.mcoe.mcoe
+   pudl.analysis.mcoe.mcoe_generators
+
+
+Module Contents
+---------------
+
+.. py:data:: DEFAULT_GENS_COLS
+   :value: ['plant_id_eia', 'generator_id', 'report_date', 'unit_id_pudl', 'plant_id_pudl',...
+
+
+   default list of columns from the EIA 860 generators table that will be included
+   in the MCOE table. These default columns are necessary for the creation of the EIA plant
+   parts table.
+
+   The ID and name columns are all that's needed to create a bare-bones MCOE table.
+
+   The remaining columns are used during the creation of the plant parts list as different
+   attributes to aggregate the plant parts by or are attributes necessary for inclusion in
+   the final table.
+
+   :type: List
+
+.. py:function:: mcoe_asset_factory(freq: Literal['YS', 'MS']) -> list[dagster.AssetsDefinition]
+
+   Build MCOE related assets at yearly and monthly frequencies.
+
+
+.. py:data:: mcoe_assets
+
+.. py:class:: McoeCheckSpec
+
+   A dataclass to hold the specification for a MCOE check.
+
+
+   .. py:attribute:: asset
+      :type:  str
+
+
+   .. py:attribute:: max_null_fraction
+      :type:  float
+      :value: 0.8
+
+
+
+   .. py:attribute:: blocking
+      :type:  bool
+      :value: True
+
+
+
+.. py:data:: mcoe_asset_check_specs
+
+.. py:function:: mcoe_asset_check_factory(spec: McoeCheckSpec) -> dagster.AssetChecksDefinition
+
+   Turn a MCOE check spec into an AssetChecksDefinition.
+
+
+.. py:data:: mcoe_asset_checks
+
+.. py:function:: heat_rate_by_unit(gen_fuel_by_energy_source: pandas.DataFrame, bga: pandas.DataFrame)
+
+   Calculate heat rates (mmBTU/MWh) within separable generation units.
+
+   Assumes a "good" Boiler Generator Association (bga) i.e. one that only
+   contains boilers and generators which have been completely associated at
+   some point in the past.
+
+
+   The BGA dataframe needs to have the following columns:
+
+   - report_date (annual)
+   - plant_id_eia
+   - unit_id_pudl
+   - generator_id
+
+   The unit_id is associated with generation records based on report_date,
+   plant_id_eia, and generator_id. The unit_id is merged onto the net generation
+   and fuel consumption allocations at the generator energy source level. Then,
+   net generation and fuel consumption are summed per unit per time period,
+   allowing the calculation of a per unit heat rate. That per unit heat rate is
+   returned in a dataframe containing:
+
+   - report_date
+   - plant_id_eia
+   - unit_id_pudl
+   - net_generation_mwh
+   - fuel_consumed_for_electricity_mmbtu
+   - unit_heat_rate_mmbtu_per_mwh
+
+
+.. py:function:: heat_rate_by_gen(bga: pandas.DataFrame, hr_by_unit: pandas.DataFrame, gens: pandas.DataFrame) -> pandas.DataFrame
+
+   Convert per-unit heat rate to by-generator, adding fuel type & count.
+
+   Heat rates really only make sense at the unit level, since input fuel and
+   output electricity are comingled at the unit level, but it is useful in
+   many contexts to have that per-unit heat rate associated with each of the
+   underlying generators, as much more information is available about the
+   generators.
+
+   To combine the (potentially) more granular temporal information from the
+   per-unit heat rates with annual generator level attributes, we have to do
+   a many-to-many merge.
+
+   :returns: DataFrame with columns report_date, plant_id_eia, unit_id_pudl, generator_id,
+             unit_heat_rate_mmbtu_per_mwh, fuel_type_code_pudl, fuel_type_count,
+             prime_mover_code.  The output will have a time frequency corresponding to that
+             of the input data.
+
+
+.. py:function:: fuel_cost(hr_by_gen: pandas.DataFrame, gens: pandas.DataFrame, frc: pandas.DataFrame) -> pandas.DataFrame
+
+   Calculate fuel costs per MWh on a per generator basis for MCOE.
+
+   Fuel costs are reported on a per-plant basis, but we want to estimate them at the
+   generator level. This is complicated by the fact that some plants have several
+   different types of generators, using different fuels. We have fuel costs broken out
+   by type of fuel (coal, oil, gas), and we know which generators use which fuel based
+   on their energy_source_code and reported prime_mover. Coal plants use a little bit
+   of natural gas or diesel to get started, but based on our analysis of the "pure"
+   coal plants, this amounts to only a fraction of a percent of their overall fuel
+   consumption on a heat content basis, so we're ignoring it for now.
+
+   For plants whose generators all rely on the same fuel source, we simply attribute
+   the fuel costs proportional to the fuel heat content consumption associated with
+   each generator.
+
+   For plants with more than one type of generator energy source, we need to split out
+   the fuel costs according to fuel type -- so the gas fuel costs are associated with
+   generators that have energy_source_code gas, and the coal fuel costs are associated
+   with the generators that have energy_source_code coal.
+
+
+.. py:function:: capacity_factor(gens: pandas.DataFrame, gen: pandas.DataFrame, freq: Literal['YS', 'MS'], min_cap_fact: float | None = None, max_cap_fact: float | None = None) -> pandas.DataFrame
+
+   Calculate the capacity factor for each generator.
+
+   Capacity Factor is calculated by using the net generation from eia923 and the
+   nameplate capacity from eia860. The net gen and capacity are pulled into one
+   dataframe and then run through :func:`pudl.helpers.calc_capacity_factor`.
+
+
+.. py:function:: mcoe(fuel_cost: pandas.DataFrame, capacity_factor: pandas.DataFrame, min_heat_rate: float = 5.5, min_fuel_cost_per_mwh: float = 0.0, min_cap_fact: float = 0.0, max_cap_fact: float = 1.5) -> pandas.DataFrame
+
+   Compile marginal cost of electricity (MCOE) at the generator level.
+
+   Use data from EIA 923, EIA 860, and (someday) FERC Form 1 to estimate
+   the MCOE of individual generating units.
+
+   :param min_heat_rate: lowest plausible heat rate, in mmBTU/MWh. Any
+                         MCOE records with lower heat rates are presumed to be invalid, and
+                         are discarded before returning.
+   :param min_fuel_cost_per_mwh: minimum fuel cost on a per MWh basis that
+                                 is required for a generator record to be considered valid. For some
+                                 reason there are now a large number of $0 fuel cost records, which
+                                 previously would have been NaN.
+   :param min_cap_fact: minimum & maximum generator capacity
+                        factor. Generator records with a lower capacity factor will be
+                        filtered out before returning. This allows the user to exclude
+                        generators that aren't being used enough to have valid.
+   :param max_cap_fact: minimum & maximum generator capacity
+                        factor. Generator records with a lower capacity factor will be
+                        filtered out before returning. This allows the user to exclude
+                        generators that aren't being used enough to have valid.
+
+   :returns: A dataframe organized by date and generator, with lots of juicy information
+             about the generators -- including fuel cost on a per MWh and MMBTU basis, heat
+             rates, and net generation.
+
+
+.. py:function:: mcoe_generators(mcoe: pandas.DataFrame, gens: pandas.DataFrame, freq: Literal['YS', 'MS'], all_gens: bool = True, timeseries_fillin: bool = False) -> pandas.DataFrame
+
+   Merge generator attributes onto the marginal cost of electricity table.
+
+   Merge generator attributes onto the MCOE table and optionally
+   fill in the timeseries for each generator.
+
+   :param mcoe: The MCOE dataframe outputted from the `mcoe` analysis function.
+   :param gens: The denormalized dataframe of all EIA generators.
+   :param all_gens: if True, include attributes of all generators in the
+                    :ref:`core_eia860__scd_generators` table, rather than just the generators
+                    which have records in the derived MCOE values. True by default.
+   :param timeseries_fillin: if True, fill in the full timeseries for each generator in
+                             the output dataframe. The data in the timeseries will be filled
+                             with the data from the next previous chronological record.
+
+   :returns: An MCOE dataframe organized by date and generator, with additionally generator
+             attributes merged on and optionally a filled in timeseries for each generator.
+
+

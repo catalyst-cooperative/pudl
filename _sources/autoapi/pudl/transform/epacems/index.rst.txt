@@ -1,0 +1,134 @@
+pudl.transform.epacems
+======================
+
+.. py:module:: pudl.transform.epacems
+
+.. autoapi-nested-parse::
+
+   Module to perform data cleaning functions on EPA CEMS data tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.epacems.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.epacems.harmonize_eia_epa_orispl
+   pudl.transform.epacems.convert_to_utc
+   pudl.transform.epacems._load_plant_utc_offset
+   pudl.transform.epacems._validate_crosswalk_uniqueness
+   pudl.transform.epacems.transform_epacems
+   pudl.transform.epacems._partitioned_path
+   pudl.transform.epacems.core_epacems__hourly_emissions
+   pudl.transform.epacems._core_epacems__emissions_unit_ids
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: harmonize_eia_epa_orispl(lf: polars.LazyFrame, crosswalk_lf: polars.LazyFrame) -> polars.LazyFrame
+
+   Harmonize the ORISPL code to match the EIA data.
+
+   The EIA plant IDs and CEMS ORISPL codes almost match, but not quite. EPA has
+   compiled a crosswalk that maps one set of IDs to the other. The crosswalk is
+   integrated into the PUDL db.
+
+   This function merges the crosswalk with the cems data thus adding the official
+   plant_id_eia column to CEMS. In cases where there is no plant_id_eia value for a
+   given plant_id_epa (i.e., this plant isn't in the crosswalk yet), we use
+   fillna() to add the plant_id_epa value to the plant_id_eia column. Because the
+   plant_id_epa is almost always correct this is reasonable.
+
+   EIA IDs are more correct so use the crosswalk to fix any erronious EPA IDs and get
+   rid of that column to avoid confusion.
+
+   https://github.com/USEPA/camd-eia-crosswalk
+
+   Note that this transformation needs to be run *before* convert_to_utc, because
+   convert_to_utc uses the plant ID to look up timezones.
+
+   :param lf: A CEMS hourly LazyFrame for one year-month-state.
+   :param crosswalk_lf: The core_epa__assn_eia_epacamd table as a Polars LazyFrame.
+
+   :returns: The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
+
+
+.. py:function:: convert_to_utc(lf: polars.LazyFrame, plant_utc_offset: polars.LazyFrame) -> polars.LazyFrame
+
+   Convert CEMS datetime data to UTC timezones.
+
+   Transformations include:
+
+   * Account for timezone differences with offset from UTC.
+
+   :param lf: CEMS hourly data for one year-state as a Polars LazyFrame.
+   :param plant_utc_offset: Associated plant UTC offsets as a Polars LazyFrame.
+
+   :returns: The same data, with an op_datetime_utc column added and the op_date and op_hour
+             columns removed.
+
+
+.. py:function:: _load_plant_utc_offset(core_eia__entity_plants: polars.DataFrame) -> polars.DataFrame
+
+   Load the UTC offset for each EIA plant.
+
+   CEMS times don't change for DST, so we get the UTC offset by using the
+   offset for the plants' timezones in January.
+
+   :param core_eia__entity_plants: EIA plants DataFrame.
+
+   :returns: Polars DataFrame of applicable timezones taken from the core_eia__entity_plants
+             table.
+
+
+.. py:function:: _validate_crosswalk_uniqueness(crosswalk_df: polars.DataFrame) -> None
+
+   Validate that crosswalk has unique plant_id_eia values per EPA plant/unit.
+
+   This validation is done separately to avoid materializing the LazyFrame during
+   transformation.
+
+   :param crosswalk_df: A polars DataFrame of the core_epa__assn_eia_epacamd table.
+
+   :raises AssertionError: If crosswalk has multiple plant_id_eia values for a single EPA
+   :raises identifier.:
+
+
+.. py:function:: transform_epacems(raw_lf: polars.LazyFrame, core_epa__assn_eia_epacamd: polars.DataFrame, plant_utc_offset: polars.DataFrame) -> polars.LazyFrame
+
+   Transform EPA CEMS hourly data and ready it for export to Parquet.
+
+   :param raw_lf: LazyFrame pointing to raw EPA CEMS data.
+   :param core_epa__assn_eia_epacamd: EPA-EIA crosswalk DataFrame.
+   :param core_eia__entity_plants: EIA plants DataFrame.
+
+   :returns: A single year_quarter of EPA CEMS data
+
+
+.. py:function:: _partitioned_path() -> pathlib.Path
+
+.. py:function:: core_epacems__hourly_emissions(context, _core_epa__assn_eia_epacamd_unique: pandas.DataFrame, core_eia__entity_plants: pandas.DataFrame) -> polars.LazyFrame
+
+   Extract EPA CEMS data by quarter and write to partitioned Parquet files.
+
+
+.. py:function:: _core_epacems__emissions_unit_ids(core_epacems__hourly_emissions: polars.LazyFrame) -> pandas.DataFrame
+
+   Make unique annual plant_id_eia and emissions_unit_id_epa.
+
+   :returns: "plant_id_eia", "year" and "emissions_unit_id_epa"
+   :rtype: dataframe with unique set of
+
+
