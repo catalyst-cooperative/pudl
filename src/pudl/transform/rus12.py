@@ -324,3 +324,31 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
     df["is_total"] = df.opex_type.str.startswith("total_")
     # TODO: could remove total columns that aren't used as part of the calculation for others.
     return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_rus12__yearly_investments(
+    raw_rus12__investments: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the investments table."""
+    df = rus.early_transform(
+        raw_df=raw_rus12__investments,
+        boolean_columns_to_fix=["for_rural_development"],
+    )
+    # Spot fix bad investment type code values that is 0 and should be 1.
+    # 0 is not a valid code and the same description was later listed as 1.
+    mask = (
+        (df.borrower_id_rus == "KY0059")
+        & (df.report_date == "2006-12-01")
+        & (
+            df.investment_description
+            == "Temporary Investments - Cooperative Finance Corp"
+        )
+    )
+    assert len(df.loc[mask]) == 1, (
+        "Expected exactly one record to be affected by this spot fix."
+    )
+    df.loc[mask, "investment_type_code"] = 1
+
+    # TO-DO: clean up property_type field
+    return df

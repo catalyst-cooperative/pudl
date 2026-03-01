@@ -1,0 +1,18 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_long_term_leases
+        data_tests:
+          - expect_columns_not_all_null
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: lending_organization
+          - name: property_type
+          - name: rental_cost_ytd
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
