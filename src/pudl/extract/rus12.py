@@ -103,7 +103,7 @@ raw_rus12_assets = [
         "steam_plant_operations",
         "steam_plant_costs",
         "hydroelectric_plant_operations",
-        "hydroelectric_plant_cost",
+        "hydroelectric_plant_costs",
         "combined_cycle_plant_operations",
         "combined_cycle_plant_costs",
         "internal_combustion_plant_operations",
