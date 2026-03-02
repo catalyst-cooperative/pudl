@@ -153,6 +153,7 @@ def asset_check_from_schema(
     asset_key: AssetKey,
     package: Package,
     duckdb_asset: bool,
+    high_memory_asset: bool,
 ) -> AssetChecksDefinition | None:
     """Create a dagster asset check based on the resource schema, if defined.
 
@@ -198,9 +199,10 @@ def asset_check_from_schema(
 
         try:
             if isinstance(asset_value, pl.LazyFrame):
-                asset_value.pipe(pandera_schema.validate, lazy=True).collect(
-                    engine="streaming"
-                )
+                validated_schema = asset_value.pipe(pandera_schema.validate, lazy=True)
+                # Only validate data contents if asset is not marked as high memory
+                if not high_memory_asset:
+                    validated_schema.collect(engine="streaming")
             else:
                 pandera_schema.validate(asset_value, lazy=True)
             return AssetCheckResult(passed=True, metadata=metadata)

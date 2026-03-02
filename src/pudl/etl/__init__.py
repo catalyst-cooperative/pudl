@@ -160,10 +160,14 @@ def _get_keys_from_assets(
     AssetSpecs always only have one key, and don't have ``asset.keys``. So we
     look for ``asset.key`` and wrap it in a list.
     """
+    if hasattr(asset_def, "node_def"):
+        is_high_memory = asset_def.node_def.tags.get("memory-use") == "high"
+    else:
+        is_high_memory = False
     if isinstance(asset_def, dg.AssetsDefinition):
-        return list(asset_def.keys)
+        return [(key, is_high_memory) for key in asset_def.keys]
     if isinstance(asset_def, dg.AssetSpec):
-        return [asset_def.key]
+        return [(asset_def.key, is_high_memory)]
     return []
 
 
@@ -180,9 +184,12 @@ default_asset_checks += [
     check
     for check in (
         asset_check_from_schema(
-            asset_key, PUDL_PACKAGE, asset_key.to_user_string() in duckdb_assets
+            asset_key,
+            PUDL_PACKAGE,
+            duckdb_asset=asset_key.to_user_string() in duckdb_assets,
+            high_memory_asset=is_high_memory,
         )
-        for asset_key in _asset_keys
+        for asset_key, is_high_memory in _asset_keys
     )
     if check is not None
 ]
