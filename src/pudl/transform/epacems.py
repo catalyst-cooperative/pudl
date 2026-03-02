@@ -215,6 +215,13 @@ def transform_epacems(
             # transform steam_load_1000_lbs to lbs
             steam_load_lbs=(pl.col("steam_load_1000_lbs") * 1000),
         )
+        .with_columns(
+            nox_mass_measurement_code=(
+                pl.when(pl.col("nox_mass_measurement_code") == "Not Applicable")
+                .then(None)
+                .otherwise(pl.col("nox_mass_measurement_code"))
+            )
+        )
         .drop("steam_load_1000_lbs")  # drop original
         .pipe(apply_pudl_dtypes_polars, group="epacems")
     )
