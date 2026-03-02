@@ -27,9 +27,16 @@ from pudl.settings import ferceqr_year_quarters
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
     """Collect basic metadata about the asset."""
+    if isinstance(asset_value, pl.LazyFrame):
+        shape = (
+            asset_value.select(pl.len()).collect(engine="streaming").item(),
+            asset_value.collect_schema().len(),
+        )
+    else:
+        shape = asset_value.shape
     return {
         "asset_type": str(type(asset_value)),
-        "asset_shape": list(getattr(asset_value, "shape", "No shape attribute")),
+        "asset_shape": list(shape),
     }
 
 
@@ -37,22 +44,22 @@ def _collect_dtype_metadata(asset_value, resource: Resource) -> dict[str, Any]:
     """Collect comprehensive column and data type information for comparison."""
     metadata = {}
 
-    # Get actual columns and types
-    actual_columns = (
-        list(asset_value.columns) if hasattr(asset_value, "columns") else []
-    )
+    # Get columns and dtypes from asset
     actual_dtypes = {}
-    if hasattr(asset_value, "dtypes"):
+    if use_pandas_backend := not isinstance(asset_value, pl.LazyFrame):
+        actual_columns = list(asset_value.columns)
+        actual_dtypes = {col: str(dtype) for col, dtype in asset_value.dtypes.items()}
+    else:
+        schema = asset_value.collect_schema()
+        actual_columns = schema.names()
         actual_dtypes = {
             col: str(dtype)
-            for col, dtype in zip(asset_value.columns, asset_value.dtypes, strict=True)
+            for col, dtype in zip(actual_columns, schema.dtypes(), strict=True)
         }
 
     # Get expected columns and types
     expected_columns = [field.name for field in resource.schema.fields]
     pandera_dtypes = {}
-
-    use_pandas_backend = not isinstance(asset_value, pl.LazyFrame)
 
     for field in resource.schema.fields:
         try:
