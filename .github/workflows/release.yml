@@ -25,7 +25,7 @@ jobs:
       - name: Build conda package with pixi
         run: pixi build --output-dir dist
       - name: Upload conda package artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pudl-conda-package
           path: dist/*.conda
