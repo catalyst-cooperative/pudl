@@ -3,7 +3,7 @@
 from copy import deepcopy
 from typing import Any
 
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
 from pytz import all_timezones

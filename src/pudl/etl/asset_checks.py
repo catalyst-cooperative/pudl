@@ -9,7 +9,7 @@ For data validation we almost entirely rely on dbt data tests.
 
 from typing import Any
 
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import pandera.polars as pr
 import polars as pl
 from dagster import (

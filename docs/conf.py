@@ -192,6 +192,8 @@ INCLUDED_SOURCES = [
     "epacems",
     "epacamd_eia",
     "phmsagas",
+    "rus12",
+    "rus7",
     "sec10k",
     "gridpathratoolkit",
     "nrelatb",

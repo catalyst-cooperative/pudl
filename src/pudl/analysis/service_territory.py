@@ -13,7 +13,7 @@ from collections.abc import Iterable
 from typing import Literal
 
 import click
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 from dagster import AssetsDefinition, Field, asset
 from matplotlib import pyplot as plt
