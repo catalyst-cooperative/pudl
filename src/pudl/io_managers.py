@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from sqlite3 import sqlite_version
 
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
 import pyarrow as pa
