@@ -154,7 +154,18 @@ def asset_check_from_schema(
     package: Package,
     duckdb_asset: bool,
 ) -> AssetChecksDefinition | None:
-    """Create a dagster asset check based on the resource schema, if defined."""
+    """Create a dagster asset check based on the resource schema, if defined.
+
+    The vast majority of assets will be loaded as Polars LazyFrames directly using
+    the ``PudlParquetIOManager`` and validated with Pandera's Polars backend, but
+    there are two exceptions to this. The first exception are assets which contain
+    a geometry data type. These assets will all be loaded as geopandas GeoDataFrames
+    and use Pandera's Pandas backend as Polars does not support geometry data types.
+    The second exception are assets produced entirely using DuckDB. These assets
+    return ``ParquetData`` objects, which are handled by the default io-manager. In
+    this case, the resulting parquet file(s) will be scanned with Polars to produce
+    a LazyFrame, then handled exactly the same as a typical asset.
+    """
     resource_id = asset_key.to_user_string()
     try:
         resource = package.get_resource(resource_id)
