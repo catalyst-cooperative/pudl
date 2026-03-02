@@ -4,6 +4,7 @@ import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
+from pudl.helpers import cleanstrings_snake
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -154,6 +155,7 @@ def core_rus12__yearly_loans(raw_rus12__loans):
 def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     """Transform the raw_rus12__plant_labor table."""
     df = rus.early_transform(raw_df=raw_rus12__plant_labor)
+    df = cleanstrings_snake(df, ["plant_type"])
 
     # Remove duplicate Walter Scott plant entries.
     exclude_cols = ["borrower_id_rus", "borrower_name_rus"]
@@ -196,7 +198,7 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     data_cols = ["capacity_kw", "cost", "plant_num", "net_energy_received_mwh"]
 
     plant_types = [
-        "fossil_steam",
+        "steam",
         "hydro",
         "internal_combustion",
         "combined_cycle",
@@ -252,7 +254,7 @@ def core_rus12__yearly_sources_and_distribution(
     df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
     # Remove plant type columns handled in sources_and_distribution_by_plant_type function
     plant_types = [
-        "fossil_steam",
+        "steam",
         "hydro",
         "internal_combustion",
         "combined_cycle",
@@ -326,7 +328,7 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
     return df
 
 
-@asset  # TODO: convert to (io_manager_key="pudl_io_manager")
+@asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_plant_costs(
     raw_rus12__combined_cycle_plant_costs: pd.DataFrame,
     raw_rus12__hydroelectric_plant_costs: pd.DataFrame,
@@ -341,7 +343,7 @@ def core_rus12__yearly_plant_costs(
     """
     plant_cost_tables = {
         "combined_cycle": raw_rus12__combined_cycle_plant_costs,
-        "hydroelectric": raw_rus12__hydroelectric_plant_costs,
+        "hydro": raw_rus12__hydroelectric_plant_costs,
         "internal_combustion": raw_rus12__internal_combustion_plant_costs,
         "nuclear": raw_rus12__nuclear_plant_costs,
         "steam": raw_rus12__steam_plant_costs,
@@ -357,7 +359,7 @@ def core_rus12__yearly_plant_costs(
             )
 
         data_cols = ["amount", "per_mmbtu", "dollars_per_mwh"]
-        if plant_type in ["hydroelectric", "nuclear"]:
+        if plant_type in ["hydro", "nuclear"]:
             data_cols = ["amount", "dollars_per_mwh"]
         pattern = rf"^(capex|opex|total)_(.+)_({'|'.join(data_cols)})$"
         df = rus.multi_index_stack(
@@ -434,9 +436,13 @@ def _drop_bad_ownership_plant(df):
 
 @multi_asset(
     outs={
-        "core_rus12__yearly_plant_operations_by_plant": AssetOut(),
-        "core_rus12__yearly_plant_operations_by_borrower": AssetOut(),
-    }  # TODO: add io_manager_key="pudl_io_manager" into AssetOut
+        "core_rus12__yearly_plant_operations_by_plant": AssetOut(
+            io_manager_key="pudl_io_manager"
+        ),
+        "core_rus12__yearly_plant_operations_by_borrower": AssetOut(
+            io_manager_key="pudl_io_manager"
+        ),
+    }
 )
 def core_rus12__yearly_plant_operations(
     raw_rus12__combined_cycle_plant_operations: pd.DataFrame,
@@ -455,7 +461,7 @@ def core_rus12__yearly_plant_operations(
     """
     plant_operations_tables = {
         "combined_cycle": raw_rus12__combined_cycle_plant_operations,
-        "hydroelectric": raw_rus12__hydroelectric_plant_operations,
+        "hydro": raw_rus12__hydroelectric_plant_operations,
         "internal_combustion": raw_rus12__internal_combustion_plant_operations,
         "nuclear": raw_rus12__nuclear_plant_operations,
         "steam": raw_rus12__steam_plant_operations,
@@ -473,7 +479,7 @@ def core_rus12__yearly_plant_operations(
         df_plant_type["plant_type"] = plant_type
         df_outs[plant_type] = df_plant_type
     df = pd.concat(df_outs.values())
-    for old_unit in ["1000_lbs", "1000_cubic_feet", "1000_gals"]:
+    for old_unit in ["1000_lbs", "1000_cubic_feet", "1000_gallons"]:
         df = rus.convert_units(
             df,
             old_unit=old_unit,

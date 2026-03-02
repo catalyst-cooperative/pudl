@@ -42,6 +42,7 @@ from pudl.metadata.enums import (
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
+    PLANT_COST_TYPES_RUS12,
     PLANT_PARTS,
     PLANT_TYPE_RUS12,
     PRIME_MOVER_TYPES_RUS12,
@@ -9588,6 +9589,102 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The year-to-date budget for amount of operational expense, cost or income.",
         "unit": "USD",
     },
+    "unit_id_rus": {
+        "type": "string",
+        "description": "RUS-assigned unit identification code.",
+    },
+    "cost_group": {
+        "type": "string",
+        "description": "High-level category of cost type.",
+        "constraints": {"enum": {"capex", "opex", "total"}},
+    },
+    "cost_type": {
+        "type": "string",
+        "description": "Detailed category of cost type.",
+        "constraints": {"enum": PLANT_COST_TYPES_RUS12},
+    },
+    "cost_per_mwh": {
+        "type": "number",
+        "description": "Cost per MWh",
+        "unit": "USD_per_MWh",
+    },
+    "cost_per_mmbtu": {
+        "type": "number",
+        "description": "Cost per MMBtu",
+        "unit": "USD_per_MMBTU",
+    },
+    "is_full_ownership_portion": {
+        "type": "boolean",
+        "description": (
+            "Whether or not the plant record represents the full plant - regardless of "
+            "whether its fully owned by the borrower."
+        ),
+    },
+    "is_partly_owned_by_borrower": {
+        "type": "boolean",
+        "description": (
+            "Whether or not the plant record is partially owned by the borrower. "
+            "This column was not reported before 2009."
+        ),
+    },
+    "fuel_consumption_coal_lbs": {
+        "type": "number",
+        "description": (
+            "Pounds of coal consumed for fuel."
+            "This field is only reported for plant_type steam."
+        ),
+        "unit": "lbs",
+    },
+    "fuel_consumption_gas_cubic_feet": {
+        "type": "number",
+        "description": (
+            "Cubic feet of natural gas consumed for fuel."
+            "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
+        ),
+        "unit": "cf",
+    },
+    "fuel_consumption_oil_gallons": {
+        "type": "number",
+        "description": (
+            "Gallons of oil consumed for fuel."
+            "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
+        ),
+        "unit": "gal",
+    },
+    "fuel_consumption_other": {
+        "type": "number",
+        "description": (
+            "Other fuel consumed. Neither units nor type of fuel are documented."
+            "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
+        ),
+    },
+    "operating_hours_in_service": {
+        "type": "number",
+        "description": "Number of operating hours in service.",
+        "unit": "hours",
+    },
+    "operating_hours_on_standby": {
+        "type": "number",
+        "description": "Number of operating hours on standby.",
+        "unit": "hours",
+    },
+    "operating_hours_out_of_service_scheduled": {
+        "type": "number",
+        "description": "Number of operating hours out of service which were scheduled.",
+        "unit": "hours",
+    },
+    "operating_hours_out_of_service_unscheduled": {
+        "type": "number",
+        "description": "Number of operating hours out of service which were unscheduled.",
+        "unit": "hours",
+    },
+    "times_started": {
+        "type": "number",
+        "description": (
+            "Number of times the plant was started. "
+            "This field is only reported for plant_type's steam and nuclear."
+        ),
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -9678,6 +9775,10 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
             "description": "Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.",
             "constraints": {"enum": SUBDIVISION_CODES_ISO3166 | {"MH", "FM"}},
         },
+        "plant_type": {
+            "type": "string",
+            "constraints": {"enum": PLANT_TYPE_RUS12},
+        },
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
@@ -9688,14 +9789,6 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
-    "core_rus12__yearly_plant_labor": {
-        "plant_type": {
-            "type": "string",
-            "constraints": {
-                "enum": PLANT_TYPE_RUS12,
-            },
-        }
-    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
             "description": "State that the operator is reporting for.",

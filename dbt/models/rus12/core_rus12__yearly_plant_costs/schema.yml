@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_plant_costs
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: plant_name_rus
+          - name: plant_type
+          - name: cost_group
+          - name: cost_type
+          - name: cost
+          - name: cost_per_mwh
+          - name: cost_per_mmbtu

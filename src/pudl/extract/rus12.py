@@ -67,6 +67,11 @@ class Extractor(CsvExtractor):
 
         return df
 
+    @staticmethod
+    def get_dtypes(page, **partition):
+        """Returns dtypes for unit id columns."""
+        return {"UnitNumber": pd.StringDtype()}
+
 
 raw_rus12__all_dfs = raw_df_factory(Extractor, name="rus12")
 
