@@ -5,7 +5,7 @@ from collections.abc import Callable
 
 import duckdb
 import geoarrow.pyarrow as ga
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
 import pyarrow as pa
