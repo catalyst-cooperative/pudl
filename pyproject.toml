@@ -277,6 +277,7 @@ bash -c 'shopt -s nullglob; rm -rf \
     docs/data_sources/gridpathratoolkit*.rst \
     docs/data_sources/nrelatb*.rst \
     docs/data_sources/phmsagas*.rst \
+    docs/data_sources/rus*.rst \
     docs/data_sources/sec10k*.rst \
     docs/data_sources/vcerare*.rst'
 """, description = "Remove all generated documentation files" }
