@@ -20,6 +20,8 @@ Documentation
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Modified schema checks so they can be applied to the largest tables, which have
+  typically been excluded from these checks. See :issue:`5022`
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
