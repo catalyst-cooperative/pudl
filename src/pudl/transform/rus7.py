@@ -344,26 +344,47 @@ def core_rus7__yearly_long_term_leases(
 @asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_loans(
     raw_rus7__loan_guarantees: pd.DataFrame,
+    raw_rus7__distribution_loans: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the raw_rus7__loans and raw_rus7__loan_guarantees tables."""
-    df = rus.early_transform(
+    df_loans = rus.early_transform(
+        raw_df=raw_rus7__distribution_loans,
+        boolean_columns_to_fix=["is_for_rural_development"],
+        string_cols_to_simplify=["lending_organization"],
+    ).assign(is_loan_guarantee=False)
+    df_loan_guarantees = rus.early_transform(
         raw_df=raw_rus7__loan_guarantees,
         boolean_columns_to_fix=["is_for_rural_development"],
         string_cols_to_simplify=["lending_organization"],
     ).assign(is_loan_guarantee=True)
-    # Spot fix bad year for NC0050 loan from kenansville fire dept
+    # Combine raw tables
+    df = pd.concat([df_loans, df_loan_guarantees])
+    # Spot fix bad year in loan guarantees table for NC0050 loan from kenansville fire dept
     # Was reported as 6202 and should be 2028 based on the same loan from
     # prior years.
-    mask = (
+    mask1 = (
         (df.borrower_id_rus == "NC0050")
         & (df.lending_organization.str.contains("kenansville"))
         & (df.report_date.dt.year == 2020)
     )
-    assert len(df[mask]) == 1, (
+    assert len(df[mask1]) == 1, (
         "Expected exactly one record to be affected by this spot fix."
     )
-    df.loc[mask, "loan_maturity_date"] = "1/19/2028 12:00:00 AM"
-
+    df.loc[mask1, "loan_maturity_date"] = "1/19/2028 12:00:00 AM"
+    # Spot fix bad year in loan table for ND0051 loan from erc - paulson, david
+    # Was reported as 2/8/2820 12:00:00 AM but because it was reported in 2006
+    # there is no prior year to compare it to and there are no other matching loans
+    # in future years because it was paid. Just NA for now.
+    mask2 = (
+        (df.borrower_id_rus == "ND0051")
+        & (df.lending_organization.str.contains("erc - paulson, david"))
+        & (df.report_date.dt.year == 2006)
+        & (df.loan_original_amount == 5000)
+    )
+    assert len(df[mask2]) == 1, (
+        "Expected exactly one record to be affected by this spot fix."
+    )
+    df.loc[mask2, "loan_maturity_date"] = pd.NaT
     # Convert all loan_maturity_dates to datetime
     df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date)
 

@@ -436,9 +436,15 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "loan balances, maturity dates, and lending organizations."
             ),
             "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part Q - Section II)",
+            "additional_source_text": "(Part Q - Sections II & IV)",
             "additional_primary_key_text": (
                 "Borrowers may receive multiple loans from ``lending_organizations`` in a given year."
+            ),
+            "additional_details_text": (
+                "In 2006, the loan maturity date for borrower ND0051's loan from ERC - Paulson, David "
+                "was reported as 2/8/2820. There is no clear way to determine the correct maturity date "
+                "given that 2006 is the first year of data we have and the same loan does not appear in "
+                "future years. For this reason we've nulled the date."
             ),
         },
         "schema": {
