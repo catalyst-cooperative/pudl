@@ -280,24 +280,25 @@ RESOURCE_METADATA = {
     },
     "core_rus12__yearly_loans": {
         "description": {
-            "additional_summary_text": ("loans guaranteed by RUS borrowers."),
+            "additional_summary_text": ("loan balances and maturity dates."),
             "additional_primary_key_text": (
                 "This table has no primary key because some borrowers report multiple loan values from "
                 "the same entity in a given year."
             ),
             "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part H - Section F - Subsection II)",
+            "additional_source_text": "(Part H - Section F - Subsection IV)",
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "loan_organization",
+                "lending_organization",
                 "loan_maturity_date",
                 "loan_original_amount",
                 "loan_balance",
                 "for_rural_development",
+                "is_loan_guarantee",
             ],
         },
         "sources": ["rus12"],

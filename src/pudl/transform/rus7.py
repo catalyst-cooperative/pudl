@@ -342,15 +342,15 @@ def core_rus7__yearly_long_term_leases(
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_rus7__yearly_loan_guarantees(
+def core_rus7__yearly_loans(
     raw_rus7__loan_guarantees: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the long term loan guarantees table."""
+    """Transform the raw_rus7__loans and raw_rus7__loan_guarantees tables."""
     df = rus.early_transform(
         raw_df=raw_rus7__loan_guarantees,
         boolean_columns_to_fix=["is_for_rural_development"],
         string_cols_to_simplify=["lending_organization"],
-    )
+    ).assign(is_loan_guarantee=True)
     # Spot fix bad year for NC0050 loan from kenansville fire dept
     # Was reported as 6202 and should be 2028 based on the same loan from
     # prior years.

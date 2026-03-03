@@ -4187,6 +4187,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand."
         ),
     },
+    "is_loan_guarantee": {
+        "type": "boolean",
+        "description": (
+            "Indicates whether a loan is from a private lender and the funding will be "
+            "provided by the federal government if the borrower defaults."
+        ),
+    },
     "iso_rto_code": {
         "type": "string",
         "description": (
@@ -4350,10 +4357,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "loan_maturity_date": {
         "type": "date",
         "description": "The date on which a loan is scheduled to be fully paid.",
-    },
-    "loan_organization": {
-        "type": "string",
-        "description": "The organization from which a loan was received.",
     },
     "loan_original_amount": {
         "type": "number",

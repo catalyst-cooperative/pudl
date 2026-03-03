@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: core_rus7__yearly_loan_guarantees
+      - name: core_rus7__yearly_loans
         data_tests:
           - expect_columns_not_all_null
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
@@ -18,7 +18,6 @@ sources:
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: report_date
-          - name: for_rural_development
           - name: lending_organization
           - name: loan_balance
             data_tests:
@@ -33,3 +32,5 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+          - name: for_rural_development
+          - name: is_loan_guarantee

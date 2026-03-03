@@ -430,7 +430,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-    "core_rus7__yearly_loan_guarantees": {
+    "core_rus7__yearly_loans": {
         "description": {
             "additional_summary_text": (
                 "loan balances, maturity dates, and lending organizations."
@@ -446,11 +446,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "for_rural_development",
                 "lending_organization",
                 "loan_balance",
                 "loan_maturity_date",
                 "loan_original_amount",
+                "for_rural_development",
+                "is_loan_guarantee",
             ],
         },
         "sources": ["rus7"],

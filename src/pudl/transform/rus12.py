@@ -141,12 +141,21 @@ def core_rus12__yearly_lines_stations_labor_materials_cost(
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_loans(raw_rus12__loans):
-    """Transform the raw_rus12__loans table."""
-    df = rus.early_transform(raw_df=raw_rus12__loans)
+def core_rus12__yearly_loans(raw_rus12__loans, raw_rus12__loan_guarantees):
+    """Transform the raw_rus12__loans and raw_rus12__loan_guarantees tables."""
+    df_loans = rus.early_transform(
+        raw_df=raw_rus12__loans,
+        boolean_columns_to_fix=["for_rural_development"],
+        string_cols_to_simplify=["lending_organization"],
+    ).assign(is_loan_guarantee=False)
+    df_loan_guarantees = rus.early_transform(
+        raw_df=raw_rus12__loan_guarantees,
+        boolean_columns_to_fix=["for_rural_development"],
+        string_cols_to_simplify=["lending_organization"],
+    ).assign(is_loan_guarantee=True)
+    df = pd.concat([df_loans, df_loan_guarantees], ignore_index=True)
+    # Convert all loan_maturity_dates to datetime
     df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date, format="mixed")
-    df.for_rural_development = df.for_rural_development.astype("boolean")
-
     return df
 
 
