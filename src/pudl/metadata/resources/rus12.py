@@ -286,7 +286,7 @@ RESOURCE_METADATA = {
                 "the same entity in a given year."
             ),
             "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part H - Section F - Subsection IV)",
+            "additional_source_text": "(Part H - Section F - Subsections II & IV)",
         },
         "schema": {
             "fields": [
@@ -405,6 +405,30 @@ RESOURCE_METADATA = {
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_encumbrance_ratio": {
+        "description": {
+            "additional_summary_text": (
+                "ratio of investments and loan guarantees to total utility plant assets."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section F - Subsection III)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "encumbrance_ratio",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
         "field_namespace": "rus",
     },
 }
