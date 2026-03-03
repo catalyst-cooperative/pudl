@@ -3321,7 +3321,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "for_rural_development": {
         "type": "boolean",
         "description": (
-            "Whether or not the investment is for rural development. "
+            "Whether or not the investment or loan is for rural development. "
             "This includes investments in any/all types of projects or "
             "products that were made to improve the economy and/or quality "
             "of life in the specified area."
@@ -4216,7 +4216,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "lending_organization": {
         "type": "string",
-        "description": "The organization that provided a lease.",
+        "description": "The organization that provided a lease or loan.",
     },
     "levelized_cost_of_energy_per_mwh": {
         "type": "number",

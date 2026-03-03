@@ -26,7 +26,9 @@ def early_check_pk(
     return
 
 
-def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataFrame:
+def early_transform(
+    raw_df: pd.DataFrame, boolean_columns_to_fix=[], string_cols_to_simplify=[]
+) -> pd.DataFrame:
     """Standard transforms for raw RUS data."""
     df = (
         helpers.standardize_na_values(raw_df)
@@ -36,7 +38,7 @@ def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataF
             helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
         )
-        .pipe(helpers.simplify_strings, ["borrower_name_rus"])
+        .pipe(helpers.simplify_strings, ["borrower_name_rus"] + string_cols_to_simplify)
         .assign(
             borrower_name_rus=lambda x: x.borrower_name_rus.str.replace(
                 ",", ""

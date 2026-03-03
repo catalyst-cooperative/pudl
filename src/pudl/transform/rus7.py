@@ -339,3 +339,34 @@ def core_rus7__yearly_long_term_leases(
     # We could remove these?
 
     return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_rus7__yearly_loan_guarantees(
+    raw_rus7__loan_guarantees: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the long term loan guarantees table."""
+    df = rus.early_transform(
+        raw_df=raw_rus7__loan_guarantees,
+        boolean_columns_to_fix=["is_for_rural_development"],
+        string_cols_to_simplify=["lending_organization"],
+    )
+    # Spot fix bad year for NC0050 loan from kenansville fire dept
+    # Was reported as 6202 and should be 2028 based on the same loan from
+    # prior years.
+    mask = (
+        (df.borrower_id_rus == "NC0050")
+        & (df.lending_organization.str.contains("kenansville"))
+        & (df.report_date.dt.year == 2020)
+    )
+    assert len(df[mask]) == 1, (
+        "Expected exactly one record to be affected by this spot fix."
+    )
+    df.loc[mask, "loan_maturity_date"] = "1/19/2028 12:00:00 AM"
+
+    # Convert all loan_maturity_dates to datetime
+    df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date)
+
+    # TO-DO: could standardize lending_organization names
+    # TO-DO: there are some validation cases where loan balance exceeds the original amount.
+    return df

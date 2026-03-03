@@ -330,7 +330,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part L)",
             "additional_primary_key_text": (
-                "Borrowers may receive multiple leases ``lending agencies`` in a given year."
+                "Borrowers may receive multiple leases from ``lending_organizations`` in a given year."
             ),
         },
         "schema": {
@@ -425,6 +425,33 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
             ],
             # TODO: we could check to see if we could add a FK relationship here
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_loan_guarantees": {
+        "description": {
+            "additional_summary_text": (
+                "loan balances, maturity dates, and lending organizations."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part Q - Section II)",
+            "additional_primary_key_text": (
+                "Borrowers may receive multiple loans from ``lending_organizations`` in a given year."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "for_rural_development",
+                "lending_organization",
+                "loan_balance",
+                "loan_maturity_date",
+                "loan_original_amount",
+            ],
         },
         "sources": ["rus7"],
         "etl_group": "rus7",

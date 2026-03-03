@@ -1,0 +1,35 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_loan_guarantees
+        data_tests:
+          - expect_columns_not_all_null
+          - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
+              arguments:
+                column_A: loan_original_amount
+                column_B: loan_balance
+                or_equal: True
+              config:
+                error_if: ">22" # TODO: Investigate 22 cases where loan balance exceeds original amount.
+              description: "The original amount of the loan guarantee should be greater than or equal to the current balance of the loan."
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: report_date
+          - name: for_rural_development
+          - name: lending_organization
+          - name: loan_balance
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">2" # TODO: Investigate 2 negative loan balance values
+          - name: loan_maturity_date
+          - name: loan_original_amount
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
