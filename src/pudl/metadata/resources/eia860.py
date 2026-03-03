@@ -397,6 +397,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "out_eia923__boiler_fuel",
                     "out_eia923__monthly_boiler_fuel",
                     "out_eia923__monthly_fuel_receipts_costs",
+                    "core_eia923__fuel_receipts_costs",
+                    "out_eia923__fuel_receipts_costs",
                     "out_eia923__generation",
                     "out_eia923__monthly_generation",
                     "out_eia923__generation_fuel_combined",
