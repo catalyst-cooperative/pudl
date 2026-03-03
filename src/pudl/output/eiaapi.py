@@ -15,7 +15,7 @@ def _out_eia__monthly_state_fuel_prices(
     """Get state-level average fuel costs from EIA's bulk electricity data.
 
     This data is used to fill in missing fuel prices in the
-    :ref:`core_eia923__monthly_fuel_receipts_costs` table. It was created as a drop-in replacement
+    :ref:`core_eia923__fuel_receipts_costs` table. It was created as a drop-in replacement
     for data we were previously obtaining from EIA's unreliable API.
     """
     aggregates = core_eia__yearly_fuel_receipts_costs_aggs.loc[

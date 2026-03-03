@@ -58,8 +58,8 @@ associations between individual boilers and generators are incomplete and can be
 complex."""
         ),
     },
-    "core_eia923__monthly_fuel_receipts_costs": {
-        "additional_summary_text": "fuel deliveries to power plants.",
+    "core_eia923__fuel_receipts_costs": {
+        "additional_summary_text": "Individual fuel deliveries to power plants, organized by fuel type and supplier.",
         "additional_source_text": "(Schedule 2 - Part A)",
         "usage_warnings": [
             "month_as_date",
@@ -88,6 +88,30 @@ Northeastern US reports essentially no fine-grained data about its natural gas p
 
 Additional data which we haven't yet integrated is available in a similar format from
 2002-2008 via the EIA-423, and going back as far as 1972 from the FERC-423."""
+        ),
+    },
+    "out_eia923__aggregated_fuel_receipts_costs": {
+        "additional_summary_text": "fuel deliveries to power plants aggregated by plant, fuel type, and time period.",
+        "additional_source_text": "(Schedule 2 - Part A)",
+        "usage_warnings": [
+            "month_as_date",
+            "estimated_values",
+            "redacted_values",
+            {
+                "type": "custom",
+                "description": "Time of fuel deliveries is not necessarily connected with time of fuel consumption.",
+            },
+        ],
+        "additional_details_text": (
+            """This table is an aggregation of the more detailed data in the
+            :ref:`core_eia923__fuel_receipts_costs` table. It provides a tidy timeseries
+            of deliveries by fuel type for each plant. However, not all values in the
+            original table can be aggregated meaningfully, so this table contains only a
+            subset of the source table columns -- primarily numerical values and a
+            handful of categorical variables, plus additional attributes that are
+            constant within each plant-fuel-time period grouping and associated with the
+            plant or utility. When aggregating numerical values any sum that contains an
+            NA value is treated as NA."""
         ),
     },
     "core_eia923__monthly_generation": {
@@ -390,8 +414,8 @@ is for those supplies."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
-    "core_eia923__monthly_fuel_receipts_costs": {
-        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+    "core_eia923__fuel_receipts_costs": {
+        "description": TABLE_DESCRIPTIONS["core_eia923__fuel_receipts_costs"],
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -424,14 +448,12 @@ is for those supplies."""
     },
     "out_eia923__fuel_receipts_costs": {
         "description": merge_descriptions(
-            TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+            TABLE_DESCRIPTIONS["core_eia923__fuel_receipts_costs"],
             {
                 "additional_details_text": inherits_harvested_values_details(
                     "plants and utilities"
                 ),
-                "usage_warnings": ["harvested"],
-                "table_type_code": "timeseries",
-                "timeseries_resolution_code": "monthly",
+                "usage_warnings": ["harvested", "estimated_values"],
             },
         ),
         "schema": {
@@ -480,7 +502,7 @@ is for those supplies."""
     },
     "out_eia923__yearly_fuel_receipts_costs": {
         "description": merge_descriptions(
-            TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+            TABLE_DESCRIPTIONS["out_eia923__aggregated_fuel_receipts_costs"],
             {
                 "additional_details_text": inherits_harvested_values_details(
                     "plants and utilities"
@@ -512,6 +534,11 @@ is for those supplies."""
                 "chlorine_content_ppm",
                 "data_maturity",
             ],
+            "primary_key": [
+                "plant_id_eia",
+                "fuel_type_code_pudl",
+                "report_date",
+            ],
         },
         "field_namespace": "eia",
         "sources": ["eia923"],
@@ -519,7 +546,7 @@ is for those supplies."""
     },
     "out_eia923__monthly_fuel_receipts_costs": {
         "description": merge_descriptions(
-            TABLE_DESCRIPTIONS["core_eia923__monthly_fuel_receipts_costs"],
+            TABLE_DESCRIPTIONS["out_eia923__aggregated_fuel_receipts_costs"],
             {
                 "additional_details_text": inherits_harvested_values_details(
                     "plants and utilities"
@@ -550,6 +577,11 @@ is for those supplies."""
                 "moisture_content_pct",
                 "chlorine_content_ppm",
                 "data_maturity",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "fuel_type_code_pudl",
+                "report_date",
             ],
         },
         "field_namespace": "eia",
