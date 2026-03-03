@@ -391,3 +391,13 @@ def core_rus7__yearly_loans(
     # TO-DO: could standardize lending_organization names
     # TO-DO: there are some validation cases where loan balance exceeds the original amount.
     return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_rus7__yearly_encumbrance_ratio(
+    raw_rus7__ratio: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the raw_rus7__ratio table."""
+    df = rus.early_transform(raw_df=raw_rus7__ratio)
+    df["encumbrance_ratio"] = df["encumbrance_ratio"].round(2)
+    return df

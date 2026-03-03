@@ -2673,6 +2673,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of hours worked by employees.",
     },
+    "encumbrance_ratio": {
+        "type": "number",
+        "description": (
+            "The ratio of investments and loan guarantees to total utility plant assets."
+            "Higher numbers indicate more risk with utility financial activity heavily "
+            "reliant on external financing. Lower numbers indicate more conservative "
+            "behavior and less exposure to risk."
+        ),
+    },
     "end_point": {
         "type": "string",
         "description": "The end point of a transmission line.",
