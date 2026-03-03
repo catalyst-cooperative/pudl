@@ -14,7 +14,7 @@ from typing import Annotated, Any, Literal, Self, TypeVar
 
 import duckdb
 import frictionless
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import jinja2
 import numpy as np
 import pandas as pd
@@ -652,8 +652,6 @@ class Field(PudlMeta):
 
     def to_polars_dtype(self) -> pl.DataType:
         """Return polars data type."""
-        if self.constraints.enum:
-            return pl.Enum(self.constraints.enum)
         return FIELD_DTYPES_POLARS[self.type]
 
     def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:

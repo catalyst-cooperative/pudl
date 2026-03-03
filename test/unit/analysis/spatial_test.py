@@ -3,7 +3,7 @@
 import logging
 import re
 
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import pytest

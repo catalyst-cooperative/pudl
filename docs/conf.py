@@ -176,6 +176,8 @@ def data_dictionary_metadata_to_rst(app):
     package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
 
 
+# When adding a new data source add it here and ALSO in pyproject.toml in the
+# docs-clean pixi task so generated files are removed.
 INCLUDED_SOURCES = [
     "censusdp1tract",
     "censuspep",

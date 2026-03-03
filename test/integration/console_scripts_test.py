@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import pytest
 import sqlalchemy as sa
 
