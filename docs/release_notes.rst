@@ -9,6 +9,13 @@ v2026.XX.X (2026-XX-XX)
 Enhancements
 ^^^^^^^^^^^^
 
+* Renamed ``core_eia923__monthly_fuel_receipts_costs`` to
+  :ref:`core_eia923__fuel_receipts_costs` as it is not aggregated monthly and
+  does not belong with our other timeseries tables. Updated table description
+  details for this and related tables to explain why receipts are not aggregated
+  in this table, and how aggregation in the associated monthly and yearly tables
+  affects the columns available and missingness handling. See :pr:`5029`.
+
 New Data
 ^^^^^^^^
 
@@ -17,6 +24,9 @@ Expanded Data Coverage
 
 Documentation
 ^^^^^^^^^^^^^
+
+* Fixed remaining tables with malformed summaries so they render starting with a
+  complete sentence. Added checks to prevent future regressions. See :pr:`5029`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
