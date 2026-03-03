@@ -242,10 +242,13 @@ EPACEMS_MEASUREMENT_CODES: list[str] = [
     "LME",
     "Measured",
     "Measured and Substitute",
-    "Other",  # ¿Should be replaced with NA?
+    # Probably "other" methods that comply with Appendix G of Part 75 of 40 CFR
+    # Part 75, but not explicitly listed in the regulation.
+    "Other",
     "Substitute",
-    "Undetermined",  # Should be replaced with NA
-    "Unknown Code",  # Should be replaced with NA
+    # "Undetermined",  # Replaced with NULL
+    # "Unknown Code",  # Replaced with NULL
+    # "Not Applicable",  # Replaced with NULL
 ]
 """Valid emissions measurement codes for the EPA CEMS hourly data."""
 

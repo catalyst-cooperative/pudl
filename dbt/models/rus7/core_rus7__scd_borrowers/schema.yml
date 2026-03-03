@@ -3,6 +3,8 @@ sources:
   - name: pudl
     tables:
       - name: core_rus7__scd_borrowers
+        data_tests:
+          - expect_columns_not_all_null
         columns:
           - name: report_date
           - name: borrower_id_rus

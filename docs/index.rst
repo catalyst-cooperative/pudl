@@ -35,6 +35,8 @@ pages for each source:
 * :doc:`data_sources/gridpathratoolkit`
 * :doc:`data_sources/nrelatb`
 * :doc:`data_sources/phmsagas`
+* :doc:`data_sources/rus12`
+* :doc:`data_sources/rus7`
 * :doc:`data_sources/sec10k`
 * :doc:`data_sources/vcerare`
 

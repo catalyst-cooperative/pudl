@@ -1,4 +1,28 @@
-"""Transform FERC EQR data."""
+"""Transform FERC Electric Quarterly Report (EQR) data.
+
+This module implements the transformation stage of the PUDL pipeline for FERC EQR data.
+Raw EQR data is ingested as quarterly-partitioned Apache Parquet files and transformed
+into clean, typed core tables that are written back out as Parquet.
+
+The module is structured in two layers:
+
+Reusable DuckDB transformation helpers operate on :class:`duckdb.DuckDBPyRelation`
+objects and are composed together inside each Dagster asset definition.
+
+Private expression factory functions that accept a column name (and optional parameters)
+and return a :class:`duckdb.Expression` suitable for use inside
+:func:`apply_column_transforms`.
+
+Dagster assets apply these helpers to produce four core FERC EQR tables, each of which
+is partitioned by ``year_quarter``:
+
+- :ref:`core_ferceqr__quarterly_identity`
+- :ref:`core_ferceqr__transactions`
+- :ref:`core_ferceqr__contracts`
+- :ref:`core_ferceqr__quarterly_index_pub`
+"""
+
+from collections.abc import Callable
 
 import dagster as dg
 import duckdb
@@ -15,42 +39,81 @@ from pudl.settings import ferceqr_year_quarters
 logger = get_logger(__name__)
 
 
-def transform_eqr_table(
-    table_name: str,
+def apply_duckdb_dtypes(
     table_data: duckdb.DuckDBPyRelation,
-    year_quarter: str,
-    col_expressions: dict[str, duckdb.Expression],
-) -> ParquetData:
-    """Generate a SQL query to transform an EQR table, then write outputs to parquet.
+    table_name: str,
+    conn: duckdb.DuckDBPyConnection,
+):
+    """Cast each column to the dtype declared in the PUDL metadata schema for the table.
 
-    EQR transforms are implemented using the duckdb expression api, which allows us
-    to dynamically build SQL statements to operate on each column. By collecting all
-    of these expressions into a single select statement, we create a query that will
-    transform data from raw parquet files.
+    Column types are looked up from the :class:`pudl.metadata.classes.Resource` for
+    ``table_name``. Any custom enum types required by the schema are created in ``conn``
+    before the cast is applied.
 
     Args:
-        table_name: Name of table, which should have corresponding table level metadata.
-        col_expressions: Map column names to pre-generated expressions. Each of these
-            expressions will have a ``cast`` added on to it to apply correct dtypes.
+        table_data: DuckDB relation whose columns will be cast.
+        table_name: PUDL table name used to look up the schema from the metadata.
+        conn: DuckDB connection used to register custom enum types as needed.
     """
-    dtypes = Resource.from_id(table_name).to_duckdb_dtypes()
+    dtypes = Resource.from_id(table_name).to_duckdb_dtypes(conn)
 
-    # Verify that all expected columns are included and that there are no extra columns
-    assert set(dtypes.keys()) == set(col_expressions.keys())
-
-    return persist_table_as_parquet(
-        table_data=table_data.select(
-            *[
-                expression.cast(dtypes[col]).alias(col)
-                for col, expression in col_expressions.items()
-            ],
-        ),
-        table_name=table_name,
-        partitions={"year_quarter": year_quarter},
+    # Cast columns
+    return table_data.select(
+        duckdb.StarExpression(exclude=dtypes.keys()),
+        *[
+            duckdb.ColumnExpression(col).cast(dtype).alias(col)
+            for col, dtype in dtypes.items()
+        ],
     )
 
 
-def _yn_to_bool(col: str):
+def rename_duckdb_columns(
+    table_data: duckdb.DuckDBPyRelation, mapping: dict[str, str]
+) -> duckdb.DuckDBPyRelation:
+    """Rename one or more columns in a DuckDB relation, passing all others through unchanged.
+
+    Args:
+        table_data: DuckDB relation containing the columns to rename.
+        mapping: Maps existing column names to their new names.
+    """
+    return table_data.select(
+        duckdb.StarExpression(exclude=mapping.keys()),
+        *[
+            duckdb.ColumnExpression(name).alias(new_name)
+            for name, new_name in mapping.items()
+        ],
+    )
+
+
+def apply_column_transforms(
+    table_data: duckdb.DuckDBPyRelation,
+    columns: list[str],
+    transform: Callable[[str], duckdb.Expression],
+) -> duckdb.DuckDBPyRelation:
+    """Apply a DuckDB expression factory to a set of columns, replacing each in place.
+
+    The ``transform`` callable is invoked once per column name and must return a
+    :class:`duckdb.Expression` whose result will be aliased back to the original column
+    name. All columns not listed in *columns* are passed through unchanged.
+
+    Args:
+        table_data: DuckDB relation containing the columns to transform.
+        columns: Names of the columns to which ``transform`` will be applied.
+        transform: Callable that accepts a column name and returns a DuckDB Expression
+            defining the transformation for that column.
+    """
+    return table_data.select(
+        duckdb.StarExpression(exclude=columns),
+        *[transform(col).alias(col) for col in columns],
+    )
+
+
+def _yn_to_bool(col: str) -> duckdb.Expression:
+    """Return a DuckDB expression that converts ``'Y'``/``'N'`` strings to booleans.
+
+    The comparison is case-insensitive. Any value other than ``'Y'`` or ``'N'`` is
+    mapped to ``NULL``.
+    """
     return duckdb.SQLExpression(f"""
 CASE
     WHEN UPPER({col}) = 'Y' THEN TRUE
@@ -60,46 +123,76 @@ END""")
 
 
 def _na_to_null(col_name: str) -> duckdb.Expression:
-    """Convert string NA values to NULL."""
+    """Return a DuckDB expression that converts ``'N/A'`` or ``'NA'`` strings to NULL.
+
+    The comparison is case-insensitive. All other values are uppercased and returned
+    unchanged.
+    """
     return duckdb.SQLExpression(
         f"CASE WHEN UPPER({col_name}) IN ('N/A', 'NA') THEN NULL ELSE UPPER({col_name}) END"
     )
+
+
+def _parse_datetimes(col_name: str, fmt: str) -> duckdb.Expression:
+    """Return a DuckDB expression that parses a datetime string column using ``fmt``.
+
+    Uses DuckDB's ``TRY_STRPTIME``, so values that cannot be parsed return ``NULL``
+    rather than raising an error.
+    """
+    return duckdb.SQLExpression(f"TRY_STRPTIME({col_name}, '{fmt}')")
+
+
+def _recode_categoricals(
+    col_name: str, replace_mapping: dict[str, str]
+) -> duckdb.Expression:
+    """Return a DuckDB expression that replaces exact categorical values in a column.
+
+    Generates a ``CASE WHEN`` expression with one equality branch per entry in
+    ``replace_mapping``. Keys not in the mapping are passed through unchanged via the
+    ``ELSE`` clause.
+
+    Args:
+        col_name: Name of the DuckDB column whose values will be recoded.
+        replace_mapping: Maps each observed bad value (key) to its correct
+            canonical replacement (value).
+    """
+    when_clauses = " ".join(
+        f"WHEN {col_name} = '{to_replace}' THEN '{value}'"
+        for to_replace, value in replace_mapping.items()
+    )
+    return duckdb.SQLExpression(f"CASE {when_clauses} ELSE {col_name} END")
 
 
 @dg.asset(partitions_def=ferceqr_year_quarters)
 def core_ferceqr__quarterly_identity(
     context: dg.AssetExecutionContext, raw_ferceqr__ident: ParquetData
 ):
-    """Apply data types to EQR ident table."""
+    """Transform the raw FERC EQR filer identity table."""
     year_quarter = context.partition_key
     logger.info(f"Transforming ferceqr identity table for {year_quarter}")
+    table_name = "core_ferceqr__quarterly_identity"
 
     with duckdb_relation_from_parquet(raw_ferceqr__ident, use_all_partitions=True) as (
         table,
-        _,
+        conn,
     ):
-        return transform_eqr_table(
-            table_name="core_ferceqr__quarterly_identity",
+        table_data = apply_column_transforms(
             table_data=table,
-            year_quarter=year_quarter,
-            col_expressions={
-                "year_quarter": duckdb.ColumnExpression("year_quarter"),
-                "company_id_ferc": duckdb.ColumnExpression("company_identifier"),
-                "filer_unique_id": duckdb.ColumnExpression("filer_unique_id"),
-                "company_name": duckdb.ColumnExpression("company_name"),
-                "contact_name": duckdb.ColumnExpression("contact_name"),
-                "contact_title": duckdb.ColumnExpression("contact_title"),
-                "contact_address": duckdb.ColumnExpression("contact_address"),
-                "contact_city": duckdb.ColumnExpression("contact_city"),
-                "contact_state": duckdb.ColumnExpression("contact_state"),
-                "contact_zip": duckdb.ColumnExpression("contact_zip"),
-                "contact_country_name": duckdb.ColumnExpression("contact_country_name"),
-                "contact_phone": duckdb.ColumnExpression("contact_phone"),
-                "contact_email": duckdb.ColumnExpression("contact_email"),
-                "transactions_reported_to_index_price_publishers": _yn_to_bool(
-                    "transactions_reported_to_index_price_publishers"
-                ),
+            columns=["transactions_reported_to_index_price_publishers"],
+            transform=_yn_to_bool,
+        )
+        table_data = rename_duckdb_columns(
+            table_data,
+            {
+                "company_identifier": "company_id_ferc",
             },
+        )
+        table_data = apply_duckdb_dtypes(table_data, table_name, conn)
+
+        return persist_table_as_parquet(
+            table_name=table_name,
+            table_data=table_data,
+            partitions={"year_quarter": year_quarter},
         )
 
 
@@ -107,177 +200,199 @@ def core_ferceqr__quarterly_identity(
     partitions_def=ferceqr_year_quarters,
 )
 def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
-    """Perform basic transforms on transactions table table."""
+    """Transform the raw FERC EQR electricity transactions table."""
     year_quarter = context.partition_key
     logger.info(f"Transforming ferceqr transactions table for {year_quarter}")
+    table_name = "core_ferceqr__transactions"
 
     with duckdb_relation_from_parquet(
         raw_ferceqr__transactions, use_all_partitions=True
-    ) as (table, _):
-        return transform_eqr_table(
-            table_name="core_ferceqr__transactions",
+    ) as (table, conn):
+        table_data = apply_column_transforms(
             table_data=table,
-            year_quarter=year_quarter,
-            col_expressions={
-                "year_quarter": duckdb.ColumnExpression("year_quarter"),
-                "seller_company_id_ferc": duckdb.ColumnExpression("company_identifier"),
-                "transaction_unique_id": duckdb.ColumnExpression(
-                    "transaction_unique_id"
-                ),
-                "seller_company_name": duckdb.ColumnExpression("seller_company_name"),
-                "customer_company_name": duckdb.ColumnExpression(
-                    "customer_company_name"
-                ),
-                "ferc_tariff_reference": duckdb.ColumnExpression(
-                    "ferc_tariff_reference"
-                ),
-                "contract_service_agreement_id": duckdb.ColumnExpression(
-                    "contract_service_agreement"
-                ),
-                "seller_transaction_id": duckdb.ColumnExpression(
-                    "transaction_unique_identifier"
-                ),
-                "transaction_begin_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(transaction_begin_date, '%Y%m%d%H%M')"
-                ),
-                "transaction_end_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(transaction_end_date, '%Y%m%d%H%M')"
-                ),
-                "trade_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(trade_date, '%Y%m%d')"
-                ),
-                "exchange_brokerage_service": _na_to_null("exchange_brokerage_service"),
-                "type_of_rate": _na_to_null("type_of_rate"),
-                "timezone": _na_to_null("time_zone"),
-                "class_name": _na_to_null("class_name"),
-                "term_name": _na_to_null("term_name"),
-                "increment_name": _na_to_null("increment_name"),
-                "increment_peaking_name": _na_to_null("increment_peaking_name"),
-                "product_name": _na_to_null("product_name"),
-                "rate_units": _na_to_null("rate_units"),
-                "point_of_delivery_balancing_authority": duckdb.ColumnExpression(
-                    "point_of_delivery_balancing_authority"
-                ),
-                "point_of_delivery_specific_location": duckdb.ColumnExpression(
-                    "point_of_delivery_specific_location"
-                ),
-                "transaction_quantity": duckdb.ColumnExpression("transaction_quantity"),
-                "price": duckdb.ColumnExpression("price"),
-                "standardized_quantity": duckdb.ColumnExpression(
-                    "standardized_quantity"
-                ),
-                "standardized_price": duckdb.ColumnExpression("standardized_price"),
-                "total_transmission_charge": duckdb.ColumnExpression(
-                    "total_transmission_charge"
-                ),
-                "total_transaction_charge": duckdb.ColumnExpression(
-                    "total_transaction_charge"
-                ),
+            columns=[
+                "exchange_brokerage_service",
+                "type_of_rate",
+                "time_zone",
+                "class_name",
+                "term_name",
+                "increment_name",
+                "increment_peaking_name",
+                "product_name",
+                "rate_units",
+            ],
+            transform=_na_to_null,
+        )
+        # Normalize categorical string
+        table_data = apply_column_transforms(
+            table_data=table_data,
+            columns=["product_name"],
+            transform=lambda col: _recode_categoricals(
+                col, {"NEGOTIATED RATE TRANSMISSION": "NEGOTIATED-RATE TRANSMISSION"}
+            ),
+        )
+        table_data = apply_column_transforms(
+            table_data=table_data,
+            columns=[
+                "transaction_begin_date",
+                "transaction_end_date",
+            ],
+            transform=lambda col: _parse_datetimes(col, "%Y%m%d%H%M"),
+        )
+        table_data = apply_column_transforms(
+            table_data=table_data,
+            columns=["trade_date"],
+            transform=lambda col: _parse_datetimes(col, "%Y%m%d"),
+        )
+        table_data = apply_column_transforms(
+            table_data=table_data,
+            columns=["time_zone"],
+            transform=lambda col: _recode_categoricals(
+                col,
+                {
+                    "CDT": "CD",
+                    "CST": "CS",
+                    "CPT": "CP",
+                    "EDT": "ED",
+                    "EPT": "EP",
+                    "EST": "ES",
+                    "MDT": "MD",
+                    "MPT": "MP",
+                    "MST": "MS",
+                    "PDT": "PD",
+                    "PPT": "PP",
+                    "PST": "PS",
+                },
+            ),
+        )
+        table_data = rename_duckdb_columns(
+            table_data,
+            {
+                "company_identifier": "seller_company_id_ferc",
+                "contract_service_agreement": "contract_service_agreement_id",
+                "transaction_unique_identifier": "seller_transaction_id",
+                "time_zone": "timezone",
             },
+        )
+        table_data = apply_duckdb_dtypes(table_data, table_name, conn)
+
+        return persist_table_as_parquet(
+            table_name=table_name,
+            table_data=table_data,
+            partitions={"year_quarter": year_quarter},
         )
 
 
 @dg.asset(partitions_def=ferceqr_year_quarters)
 def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
-    """Perform basic transforms on contracts table table."""
+    """Transform the raw FERC EQR electricity contracts table."""
     year_quarter = context.partition_key
     logger.info(f"Transforming ferceqr contracts table for {year_quarter}")
+    table_name = "core_ferceqr__contracts"
 
     with duckdb_relation_from_parquet(
         raw_ferceqr__contracts, use_all_partitions=True
-    ) as (table, _):
-        return transform_eqr_table(
-            table_name="core_ferceqr__contracts",
+    ) as (table, conn):
+        table_data = apply_column_transforms(
             table_data=table,
-            year_quarter=year_quarter,
-            col_expressions={
-                "year_quarter": duckdb.ColumnExpression("year_quarter"),
-                "seller_company_id_ferc": duckdb.ColumnExpression("company_identifier"),
-                "contract_unique_id": duckdb.ColumnExpression("contract_unique_id"),
-                "seller_company_name": duckdb.ColumnExpression("seller_company_name"),
-                "customer_company_name": duckdb.ColumnExpression(
-                    "customer_company_name"
-                ),
-                "contract_affiliate": _yn_to_bool("contract_affiliate"),
-                "ferc_tariff_reference": duckdb.ColumnExpression(
-                    "ferc_tariff_reference"
-                ),
-                "contract_service_agreement_id": duckdb.ColumnExpression(
-                    "contract_service_agreement_id"
-                ),
-                "contract_execution_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(contract_execution_date, '%Y%m%d')"
-                ),
-                "commencement_date_of_contract_term": duckdb.SQLExpression(
-                    "TRY_STRPTIME(commencement_date_of_contract_term, '%Y%m%d')"
-                ),
-                "contract_termination_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(contract_termination_date, '%Y%m%d')"
-                ),
-                "actual_termination_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(actual_termination_date, '%Y%m%d')"
-                ),
-                "extension_provision_description": duckdb.ColumnExpression(
-                    "extension_provision_description"
-                ),
-                "class_name": _na_to_null("class_name"),
-                "term_name": _na_to_null("term_name"),
-                "increment_name": _na_to_null("increment_name"),
-                "increment_peaking_name": _na_to_null("increment_peaking_name"),
-                "product_type_name": _na_to_null("product_type_name"),
-                "product_name": _na_to_null("product_name"),
-                "quantity": duckdb.ColumnExpression("quantity"),
-                "units": _na_to_null("units"),
-                "rate": duckdb.ColumnExpression("rate"),
-                "rate_minimum": duckdb.ColumnExpression("rate_minimum"),
-                "rate_maximum": duckdb.ColumnExpression("rate_maximum"),
-                "rate_description": duckdb.ColumnExpression("rate_description"),
-                "rate_units": _na_to_null("rate_units"),
-                "point_of_receipt_balancing_authority": duckdb.ColumnExpression(
-                    "point_of_receipt_balancing_authority"
-                ),
-                "point_of_receipt_specific_location": duckdb.ColumnExpression(
-                    "point_of_receipt_specific_location"
-                ),
-                "point_of_delivery_balancing_authority": duckdb.ColumnExpression(
-                    "point_of_delivery_balancing_authority"
-                ),
-                "point_of_delivery_specific_location": duckdb.ColumnExpression(
-                    "point_of_delivery_specific_location"
-                ),
-                "begin_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(begin_date, '%Y%m%d%H%M')"
-                ),
-                "end_date": duckdb.SQLExpression(
-                    "TRY_STRPTIME(end_date, '%Y%m%d%H%M')"
-                ),
+            columns=[
+                "class_name",
+                "term_name",
+                "increment_name",
+                "increment_peaking_name",
+                "product_type_name",
+                "product_name",
+                "units",
+                "rate_units",
+            ],
+            transform=_na_to_null,
+        )
+        table_data = apply_column_transforms(
+            table_data=table_data,
+            columns=["contract_affiliate"],
+            transform=_yn_to_bool,
+        )
+
+        # Drop seller_history_name
+        if "seller_history_name" in table_data.columns:
+            table_data = table_data.select(
+                duckdb.StarExpression(exclude=["seller_history_name"]),
+            )
+
+        # Normalize categorical string
+        table_data = apply_column_transforms(
+            table_data=table_data,
+            columns=["product_name"],
+            transform=lambda _: duckdb.SQLExpression(
+                "replace(product_name, 'NEGOTIATED RATE TRANSMISSION', 'NEGOTIATED-RATE TRANSMISSION')"
+            ),
+        )
+        table_data = apply_column_transforms(
+            table_data=table_data,
+            columns=[
+                "contract_execution_date",
+                "commencement_date_of_contract_term",
+                "contract_termination_date",
+                "actual_termination_date",
+                "product_type_name",
+                "product_name",
+                "units",
+                "rate_units",
+            ],
+            transform=lambda col: _parse_datetimes(col, "%Y%m%d"),
+        )
+        table_data = apply_column_transforms(
+            table_data=table_data,
+            columns=[
+                "begin_date",
+                "end_date",
+            ],
+            transform=lambda col: _parse_datetimes(col, "%Y%m%d%H%M"),
+        )
+        table_data = rename_duckdb_columns(
+            table_data,
+            {
+                "company_identifier": "seller_company_id_ferc",
             },
+        )
+        table_data = apply_duckdb_dtypes(table_data, table_name, conn)
+
+        return persist_table_as_parquet(
+            table_name=table_name,
+            table_data=table_data,
+            partitions={"year_quarter": year_quarter},
         )
 
 
 @dg.asset(partitions_def=ferceqr_year_quarters)
 def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetData):
-    """Perform basic transforms on indexPub table table."""
+    """Transform the raw FERC EQR index price publisher table."""
     year_quarter = context.partition_key
     logger.info(f"Transforming ferceqr indexPub table for {year_quarter}")
+    table_name = "core_ferceqr__quarterly_index_pub"
 
     with duckdb_relation_from_parquet(
         raw_ferceqr__index_pub, use_all_partitions=True
-    ) as (table, _):
-        return transform_eqr_table(
-            table_name="core_ferceqr__quarterly_index_pub",
+    ) as (table, conn):
+        table_data = apply_column_transforms(
             table_data=table,
-            year_quarter=year_quarter,
-            col_expressions={
-                "year_quarter": duckdb.ColumnExpression("year_quarter"),
-                "company_id_ferc": duckdb.ColumnExpression("company_identifier"),
-                "filer_unique_id": duckdb.ColumnExpression("filer_unique_id"),
-                "seller_company_name": duckdb.ColumnExpression("Seller_Company_Name"),
-                "index_price_publisher_name": _na_to_null(
-                    "Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported"
-                ),
-                "transactions_reported": duckdb.ColumnExpression(
-                    "Transactions_Reported"
-                ),
+            columns=[
+                "Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported"
+            ],
+            transform=_na_to_null,
+        )
+        table_data = rename_duckdb_columns(
+            table_data,
+            mapping={
+                "company_identifier": "company_id_ferc",
+                "Seller_Company_Name": "seller_company_name",
+                "Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported": "index_price_publisher_name",
+                "Transactions_Reported": "transactions_reported",
             },
+        )
+        table_data = apply_duckdb_dtypes(table_data, table_name, conn)
+        return persist_table_as_parquet(
+            table_name=table_name,
+            table_data=table_data,
+            partitions={"year_quarter": year_quarter},
         )

@@ -125,12 +125,12 @@ Documentation
   :doc:`data_dictionaries/pudl_db`. See issues :issue:`4869,4951` and PR :pr:`4958`.
   Affected tables include:
 
-    * :ref:`core_epacems__hourly_emissions`
-    * :ref:`core_ferceqr__contracts`
-    * :ref:`core_ferceqr__quarterly_identity`
-    * :ref:`core_ferceqr__quarterly_index_pub`
-    * :ref:`core_ferceqr__transactions`
-    * :ref:`out_vcerare__hourly_available_capacity_factor`
+  * :ref:`core_epacems__hourly_emissions`
+  * :ref:`core_ferceqr__contracts`
+  * :ref:`core_ferceqr__quarterly_identity`
+  * :ref:`core_ferceqr__quarterly_index_pub`
+  * :ref:`core_ferceqr__transactions`
+  * :ref:`out_vcerare__hourly_available_capacity_factor`
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2218,7 +2218,7 @@ Data Coverage
 * Thanks to contributions from :user:`rousik` we've generalized the code we use to
   convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases.
 
-  * We have started extracting the FERC Form 2 (natual gas utility financial reports).
+  * We have started extracting the FERC Form 2 (natural gas utility financial reports).
     See issues :issue:`1984,2642` and PRs :pr:`2536,2564,2652`. We haven't yet done any
     integration of the Form 2 into the cleaned and normalized PUDL DB, but the converted
     `FERC Form 2 is available on Datasette <https://data.catalyst.coop/ferc2>`__
