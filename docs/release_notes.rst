@@ -12,6 +12,14 @@ Enhancements
 New Data
 ^^^^^^^^
 
+RUS 7
+~~~~~
+* Transformed more RUS 7 tables. See PR :pr:`5034`.
+
+RUS 12
+~~~~~~
+* Transformed more RUS 12 tables. See PR :pr:`5034`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
