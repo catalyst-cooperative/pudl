@@ -1658,9 +1658,57 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     return df
 
 
+def _clean_emissions_control_dates(col: pd.Series) -> pd.Series:
+    """Parse raw EIA-923 emissions control test date strings into datetimes.
+
+    The raw values encode dates in an unconventional format where the trailing four
+    characters are the year and any leading characters (after stripping dashes)
+    indicate the month (e.g. ``"012024"``, ``"01-2024"``, or ``"12024"`` should all
+    be interpreted as January, 2024). This function validates the input, extracts
+    year and month, coerces invalid months of ``"00"`` to ``"01"`` (January), and
+    returns ``NaT`` for any values where a valid year or month cannot be determined.
+
+    Args:
+        col: Series of raw date strings from the EIA-923 emissions control table.
+
+    Returns:
+        Series of :class:`pandas.Timestamp` values, with unparsable entries set to
+        ``NaT``.
+
+    Raises:
+        ValueError: If any value in *col* contains characters other than digits or
+            dashes, indicating an unexpected format that could produce silently
+            incorrect dates.
+    """
+    col = col.astype("string").str.strip()
+    # Verify that we only have digits and dashes in col, since our cleaning logic
+    # relies on that being the case. If we have other characters, we should raise an
+    # error so we don't accidentally create bad dates.
+    if not col.str.match(r"^[0-9\-]+$").all():
+        raise ValueError(
+            f"Column contains non-digit/non-dash characters: {col[~col.str.match(r'^[0-9\-]+$')]}"
+        )
+    year = col.str.strip().str[-4:].str.zfill(4)
+    month = (
+        col.str.strip()
+        .str[:-4]
+        .str.replace("-", "")
+        .str.zfill(2)
+        .replace(
+            "00", "01"
+        )  # If we have a valid year but an invalid month, set the month to January
+    )
+    valid_month_mask = month.str.isdigit()
+    valid_year_mask = year.str.isdigit() & year.ne("0000")
+    valid_date_mask = valid_month_mask & valid_year_mask
+    return pd.to_datetime(
+        year.where(valid_date_mask) + "-" + month.where(valid_date_mask)
+    )
+
+
 # Comment this out for the moment since we have some more data cleaning to do before
 # all the fields are compatible with their assigned dtypes.
-# @asset(io_manager_key="pudl_io_manager")
+# @asset(io_manager_key="parquet_io_manager")
 @asset
 def _core_eia923__yearly_emissions_control(
     raw_eia923__emissions_control: pd.DataFrame,
@@ -1668,15 +1716,17 @@ def _core_eia923__yearly_emissions_control(
     """Transforms the eia923__emissions_control table.
 
     Transformations include:
+
     * Standardize NA values
-    * Clean month-year date string columns
+    * Clean and standardize format of month-year date string columns
 
     Args:
         raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
         dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__yearly_emissions_control`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_emissions_control`` dataframe ready for
+        harvesting.
     """
     # This column is dropped from all EIA 923 tables
     df = raw_eia923__emissions_control.drop(["early_release"], axis=1)
@@ -1689,24 +1739,10 @@ def _core_eia923__yearly_emissions_control(
     # Convert thousands of tons to tons
     df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
     df.columns = df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
-    df.loc[:, "fgd_sorbent_consumption_tons"] = df.loc[
-        :, "fgd_sorbent_consumption_tons"
-    ].round(-2)
-
-    # Fix malformed report-year string columns (i.e., should be MM-YYYY)
-    def clean_date(val):
-        if pd.isna(val):
-            return None
-        val = str(val).strip()
-        year = val[-4:]
-        month = val[:-4].replace("-", "").zfill(2)
-        if not (month.isdigit() and year.isdigit()):
-            return None
-        return f"{month}-{year}"
 
     date_cols = ["so2_test_date", "particulate_test_date"]
     for col in date_cols:
-        df[col] = df[col].apply(clean_date)
+        df[col] = _clean_emissions_control_dates(df[col])
 
     # Encode operational_status (and potentially other columns):
     # This will standardize the categorical values in any columns that have foreign key
