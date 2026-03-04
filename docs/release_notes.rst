@@ -19,6 +19,12 @@ Enhancements
 New Data
 ^^^^^^^^
 
+RUS-12
+~~~~~~
+
+* Transformed and published additional USDA RUS tables. See :issue:`4886` and PR
+  :pr:`5018`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
