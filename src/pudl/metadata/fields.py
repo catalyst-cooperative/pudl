@@ -9590,7 +9590,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "USD",
     },
     "unit_id_rus": {
-        "type": "string",
+        "type": "integer",
         "description": "RUS-assigned unit identification code.",
     },
     "cost_group": {
@@ -9605,12 +9605,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "cost_per_mwh": {
         "type": "number",
-        "description": "Cost per MWh",
+        "description": "Unit cost of energy production in cost per MWh",
         "unit": "USD_per_MWh",
     },
     "cost_per_mmbtu": {
         "type": "number",
-        "description": "Cost per MMBtu",
+        "description": "Unit cost of energy production in cost per MMBtu",
         "unit": "USD_per_MMBTU",
     },
     "is_full_ownership_portion": {
@@ -9630,7 +9630,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_consumption_coal_lbs": {
         "type": "number",
         "description": (
-            "Pounds of coal consumed for fuel."
+            "Annual pounds of coal consumed for fuel."
             "This field is only reported for plant_type steam."
         ),
         "unit": "lbs",
@@ -9638,7 +9638,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_consumption_gas_cubic_feet": {
         "type": "number",
         "description": (
-            "Cubic feet of natural gas consumed for fuel."
+            "Annual cubic feet of natural gas consumed for fuel."
             "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
         ),
         "unit": "cf",
@@ -9646,7 +9646,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_consumption_oil_gallons": {
         "type": "number",
         "description": (
-            "Gallons of oil consumed for fuel."
+            "Annual gallons of oil consumed for fuel."
             "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
         ),
         "unit": "gal",
@@ -9654,7 +9654,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_consumption_other": {
         "type": "number",
         "description": (
-            "Other fuel consumed. Neither units nor type of fuel are documented."
+            "Annual other fuel consumed. Neither units nor type of fuel are documented."
             "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
         ),
     },

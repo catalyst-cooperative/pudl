@@ -1044,7 +1044,6 @@ PLANT_COST_TYPES_RUS12: set[str] = [
     "other_nuclear_power",
     "plant_acquisition_adjustment",
     "power",
-    "power_cost",
     "reactor_credits",
     "rents",
     "steam",

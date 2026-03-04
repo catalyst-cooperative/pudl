@@ -14,3 +14,4 @@ sources:
           - name: cost
           - name: cost_per_mwh
           - name: cost_per_mmbtu
+          - name: is_total

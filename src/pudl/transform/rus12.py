@@ -5,6 +5,7 @@ from dagster import AssetOut, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl.helpers import cleanstrings_snake
+from pudl.metadata.enums import PLANT_TYPE_RUS12
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -157,18 +158,6 @@ def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     df = rus.early_transform(raw_df=raw_rus12__plant_labor)
     df = cleanstrings_snake(df, ["plant_type"])
 
-    # Remove duplicate Walter Scott plant entries.
-    exclude_cols = ["borrower_id_rus", "borrower_name_rus"]
-    dupe_mask = (
-        df["borrower_id_rus"].isin(["IA0083", "IA0084"])
-        & (df["plant_name_rus"] == "Walter Scott")
-        & df.drop(columns=exclude_cols).duplicated(keep=False)
-        & (
-            df["borrower_id_rus"] == "IA0083"
-        )  # dropping the IA0083 and keeping the IA0084 so both borrowers show up in the data.
-    )
-    df = df.loc[~dupe_mask]
-
     # Test payroll_total column so can remove it in the schema
     payroll_cols = [
         "payroll_maintenance",
@@ -197,21 +186,12 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
     data_cols = ["capacity_kw", "cost", "plant_num", "net_energy_received_mwh"]
 
-    plant_types = [
-        "steam",
-        "hydro",
-        "internal_combustion",
-        "combined_cycle",
-        "nuclear",
-        "other",
-    ]
-
     # Stack by plant type
     df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
-        pattern=rf"^({'|'.join(plant_types)})_({'|'.join(data_cols)})$",
+        pattern=rf"^({'|'.join(PLANT_TYPE_RUS12)})_({'|'.join(data_cols)})$",
         match_names=["plant_type", "data_cols"],
         unstack_level=[
             "plant_type",
@@ -253,15 +233,9 @@ def core_rus12__yearly_sources_and_distribution(
     """
     df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
     # Remove plant type columns handled in sources_and_distribution_by_plant_type function
-    plant_types = [
-        "steam",
-        "hydro",
-        "internal_combustion",
-        "combined_cycle",
-        "nuclear",
-        "other",
-    ]
-    plant_type_mask = df.columns.str.startswith(tuple(f"{p}_" for p in plant_types))
+    plant_type_mask = df.columns.str.startswith(
+        tuple(f"{p}_" for p in PLANT_TYPE_RUS12)
+    )
     df = df.loc[:, ~plant_type_mask]
 
     # Stack by cost and mwh
@@ -348,19 +322,19 @@ def core_rus12__yearly_plant_costs(
         "nuclear": raw_rus12__nuclear_plant_costs,
         "steam": raw_rus12__steam_plant_costs,
     }
-
     df_outs = {}
     for plant_type, raw_table in plant_cost_tables.items():
         df = rus.early_transform(raw_df=raw_table)
-        # there are duplicates for the "Walter Scott" plant
+        # there are duplicates for the "Walter Scott" steam plant
         if plant_type != "steam":
             rus.early_check_pk(
                 df, pk_early=["report_date", "borrower_id_rus", "plant_name_rus"]
             )
-
-        data_cols = ["amount", "per_mmbtu", "dollars_per_mwh"]
-        if plant_type in ["hydro", "nuclear"]:
-            data_cols = ["amount", "dollars_per_mwh"]
+        data_cols = (
+            ["cost", "cost_per_mmbtu", "cost_per_mwh"]
+            if plant_type not in ["hydro", "nuclear"]
+            else ["cost", "cost_per_mwh"]
+        )
         pattern = rf"^(capex|opex|total)_(.+)_({'|'.join(data_cols)})$"
         df = rus.multi_index_stack(
             df,
@@ -382,21 +356,13 @@ def core_rus12__yearly_plant_costs(
     # this total flag is a little different than the others. it grabs the high-level
     # cost group totals and it flags the cost_type's of net and less. Because these
     # are clearly calculated fields from looking at the form.
-    df["is_total"] = df.cost_type.str.contains("total|net|less") | (
-        df.cost_group == "total"
-    )
-    # TODO: settle on names and do this rename in the column maps
-    df_all = df_all.rename(
-        columns={
-            "amount": "cost",
-            "dollars_per_mwh": "cost_per_mwh",
-            "per_mmbtu": "cost_per_mmbtu",
-        }
+    df_all["is_total"] = df_all.cost_type.str.contains("total|net|less") | (
+        df_all.cost_group == "total"
     )
     return df_all
 
 
-def _drop_bad_ownership_plant(df):
+def drop_bad_ownership_plant(df):
     """Drop 1 plant record with unexpected ownership label and duplicate data.
 
     There is a Wisdom steam plant record that is labeled to be both fully owned by
@@ -432,6 +398,29 @@ def _drop_bad_ownership_plant(df):
     ].empty
 
     return df.drop(df[wisdom_steam_2019_mask & bad_ownership_label_mask].index)
+
+
+def fix_string_unit_id_rus(df):
+    """Fix unit_id_rus's bad string IDs.
+
+    There are two instances of unit_id_rus's that have string values in them.
+    Based on pre-cleaned data, we were able to clearly identify that we can use
+    just the numeric values in these bad strings. This enables us to have an integer
+    type for this unit_id_rus column.
+    """
+    df.unit_id_rus = df.unit_id_rus.astype(pd.StringDtype())
+    assert len(df[df.unit_id_rus.str.contains("WSL")]) <= 4
+    df.unit_id_rus = (
+        df.unit_id_rus.replace({"WSL GT 12": "12", "WSL ST 10": "10"})
+        # then actually convert the dtype to make sure
+        # it can be an int. convert to a float first because
+        # this column could have been converted into an object with
+        # floaty string with things like "2.0" that don't love being
+        # directly converted into an int
+        .astype(float)
+        .astype(pd.Int64Dtype())
+    )
+    return df
 
 
 @multi_asset(
@@ -493,18 +482,20 @@ def core_rus12__yearly_plant_operations(
         converter=0.001,
     )
 
-    df = df.astype(
-        {
-            "is_full_ownership_portion": pd.BooleanDtype(),
-            "is_partly_owned_by_borrower": pd.BooleanDtype(),
-        }
-    ).pipe(_drop_bad_ownership_plant)
+    df = (
+        df.astype(
+            {
+                "is_full_ownership_portion": pd.BooleanDtype(),
+                "is_partly_owned_by_borrower": pd.BooleanDtype(),
+            }
+        )
+        .pipe(drop_bad_ownership_plant)
+        .pipe(fix_string_unit_id_rus)
+    )
 
     # for old years, there is no is_partly_owned_by_borrower column and no
     # accompanying documentation. We assume if its a full ownership portion,
     # it should go in both. if not full ownership portion  it should go in by borrower.
-
-    # Older years do not have a record for
     null_partly_owned_mask = df.report_date.dt.year.isin([2006, 2007, 2008])
 
     # From _OR_PowerSupply Plant File Documentation.rtf in 2021 archive
@@ -530,9 +521,7 @@ def core_rus12__yearly_plant_operations(
             | (df.is_full_ownership_portion & ~df.is_partly_owned_by_borrower)
         )
     ]
-
-    # there are a small number of plants that have duplicated values... which seem
-    # hard to reconcile.
+    # Some validation checks...
     idx_check = [
         "report_date",
         "borrower_id_rus",
@@ -543,8 +532,21 @@ def core_rus12__yearly_plant_operations(
         "unit_id_rus",
         "plant_type",
     ]
+    # we want to check whether or not we are loosing any records:
+    both = pd.concat(
+        [df_by_borrower.set_index(idx_check), df_by_plant.set_index(idx_check)],
+        axis="index",
+        join="outer",
+        copy=False,
+    )
+    # There is some overlap between the by_borrower and by_plant records but we
+    # should have all of the original df records
+    assert df.set_index(idx_check).index.difference(both.index, sort=True).empty
+    # Also, there are a small number of plants that have duplicated values...
+    # which seem hard to reconcile.
     assert len(df_by_borrower[df_by_borrower.duplicated(idx_check)]) < 35
     assert len(df_by_plant[df_by_plant.duplicated(idx_check)]) < 38
+
     return (
         Output(
             output_name="core_rus12__yearly_plant_operations_by_plant",
