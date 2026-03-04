@@ -259,8 +259,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "categories reported on this Part correspond to Balance Sheet items in Part C."
             ),
             "additional_primary_key_text": (
-                "This table has no native primary key. It is a list of all investments or loan "
-                "in each year and borrowers can have multiple records with the same ``investment_description``."
+                "This is a list of all investments or loans in each year and borrowers can have "
+                "multiple records with the same ``investment_description``."
             ),
         },
         "schema": {
@@ -318,6 +318,29 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "debt_interest",
                 "debt_principal",
                 "debt_total",
+            ]
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_long_term_leases": {
+        "description": {
+            "additional_summary_text": ("long term leases by property type."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part L)",
+            "additional_primary_key_text": (
+                "Borrowers may receive multiple leases from ``lending_organizations`` in a given year."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "lending_organization",
+                "property_type",
+                "rental_cost_ytd",
             ]
         },
         "sources": ["rus7"],
@@ -402,6 +425,64 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
             ],
             # TODO: we could check to see if we could add a FK relationship here
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_loans": {
+        "description": {
+            "additional_summary_text": (
+                "loan balances, maturity dates, and lending organizations."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part Q - Sections II & IV)",
+            "additional_primary_key_text": (
+                "Borrowers may receive multiple loans from ``lending_organizations`` in a given year."
+            ),
+            "additional_details_text": (
+                "In 2006, the loan maturity date for borrower ND0051's loan from ERC - Paulson, David "
+                "was reported as 2/8/2820. There is no clear way to determine the correct maturity date "
+                "given that 2006 is the first year of data we have and the same loan does not appear in "
+                "future years. For this reason we've nulled the date."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "lending_organization",
+                "loan_balance",
+                "loan_maturity_date",
+                "loan_original_amount",
+                "for_rural_development",
+                "is_loan_guarantee",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_encumbrance_ratio": {
+        "description": {
+            "additional_summary_text": (
+                "ratio of investments and loan guarantees to total utility plant assets."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part Q - Section III)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "encumbrance_ratio",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
         },
         "sources": ["rus7"],
         "etl_group": "rus7",

@@ -141,12 +141,21 @@ def core_rus12__yearly_lines_stations_labor_materials_cost(
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_loans(raw_rus12__loans):
-    """Transform the raw_rus12__loans table."""
-    df = rus.early_transform(raw_df=raw_rus12__loans)
+def core_rus12__yearly_loans(raw_rus12__loans, raw_rus12__loan_guarantees):
+    """Transform the raw_rus12__loans and raw_rus12__loan_guarantees tables."""
+    df_loans = rus.early_transform(
+        raw_df=raw_rus12__loans,
+        boolean_columns_to_fix=["for_rural_development"],
+        string_cols_to_simplify=["lending_organization"],
+    ).assign(is_loan_guarantee=False)
+    df_loan_guarantees = rus.early_transform(
+        raw_df=raw_rus12__loan_guarantees,
+        boolean_columns_to_fix=["for_rural_development"],
+        string_cols_to_simplify=["lending_organization"],
+    ).assign(is_loan_guarantee=True)
+    df = pd.concat([df_loans, df_loan_guarantees], ignore_index=True)
+    # Convert all loan_maturity_dates to datetime
     df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date, format="mixed")
-    df.for_rural_development = df.for_rural_development.astype("boolean")
-
     return df
 
 
@@ -323,4 +332,42 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
     )
     df["is_total"] = df.opex_type.str.startswith("total_")
     # TODO: could remove total columns that aren't used as part of the calculation for others.
+    return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_rus12__yearly_investments(
+    raw_rus12__investments: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the investments table."""
+    df = rus.early_transform(
+        raw_df=raw_rus12__investments,
+        boolean_columns_to_fix=["for_rural_development"],
+    )
+    # Spot fix bad investment type code values that is 0 and should be 1.
+    # 0 is not a valid code and the same description was later listed as 1.
+    mask = (
+        (df.borrower_id_rus == "KY0059")
+        & (df.report_date == "2006-12-01")
+        & (
+            df.investment_description
+            == "Temporary Investments - Cooperative Finance Corp"
+        )
+    )
+    assert len(df.loc[mask]) == 1, (
+        "Expected exactly one record to be affected by this spot fix."
+    )
+    df.loc[mask, "investment_type_code"] = 1
+
+    # TO-DO: clean up property_type field
+    return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_rus12__yearly_encumbrance_ratio(
+    raw_rus12__ratio: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__ratio table."""
+    df = rus.early_transform(raw_df=raw_rus12__ratio)
+    df["encumbrance_ratio"] = df["encumbrance_ratio"].round(2)
     return df
