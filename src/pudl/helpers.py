@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, Literal, NamedTuple
 
 import duckdb
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
