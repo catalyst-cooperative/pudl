@@ -275,20 +275,20 @@ def out_eia923__boiler_fuel(
 )
 def out_eia923__fuel_receipts_costs(
     context,
-    core_eia923__monthly_fuel_receipts_costs: pd.DataFrame,
+    core_eia923__fuel_receipts_costs: pd.DataFrame,
     core_eia923__entity_coalmine: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
     _out_eia__monthly_state_fuel_prices: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Denormalize the :ref:`core_eia923__monthly_fuel_receipts_costs` table."""
+    """Denormalize the :ref:`core_eia923__fuel_receipts_costs` table."""
     core_eia923__entity_coalmine = core_eia923__entity_coalmine.drop(
         columns=["data_maturity"]
     )
     plant_states = core_eia__entity_plants[["plant_id_eia", "state"]]
     frc_df = (
         pd.merge(
-            core_eia923__monthly_fuel_receipts_costs,
+            core_eia923__fuel_receipts_costs,
             core_eia923__entity_coalmine.rename(
                 columns={
                     "state": "mine_state",
@@ -531,7 +531,7 @@ def time_aggregated_eia923_asset_factory(
         out_eia923__fuel_receipts_costs: pd.DataFrame,
         _out_eia__plants_utilities: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Aggregate the :ref:`core_eia923__monthly_fuel_receipts_costs` table monthly or annually."""
+        """Aggregate the :ref:`core_eia923__fuel_receipts_costs` table monthly or annually."""
         return (
             out_eia923__fuel_receipts_costs.set_index(
                 pd.DatetimeIndex(out_eia923__fuel_receipts_costs.report_date)

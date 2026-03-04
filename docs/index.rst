@@ -175,7 +175,7 @@ data integrity issues, but you may want to combine information from more than on
 the tables to make the data more readable and readily interpretable. For example, PUDL
 stores the name that EIA uses to refer to a power plant in the
 :ref:`core_eia__entity_plants` table in association with the plant's unique numeric ID.
-If you are working with data from the :ref:`core_eia923__monthly_fuel_receipts_costs`
+If you are working with data from the :ref:`core_eia923__fuel_receipts_costs`
 table, which records monthly per-plant fuel deliveries, you may want to have the name
 of the plant alongside the fuel delivery information since it's more recognizable than
 the plant ID.
