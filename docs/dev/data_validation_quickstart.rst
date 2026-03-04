@@ -139,6 +139,7 @@ Then you can run:
 .. code-block:: bash
 
     dbt_helper update-tables --row-counts new_table_name # for one table at a time
+    dbt_helper update-tables --row-counts new_table1 new_table2 # for multiple tables
     dbt_helper update-tables --row-counts all # for all new tables
 
 If this is a brand new table, you should see changes appear in
@@ -149,13 +150,6 @@ overwrite existing row counts:
 .. code-block:: bash
 
     dbt_helper update-tables --row-counts --clobber new_table_name
-
-If you want to update or add a few, specific tables, just add a space between
-their names in the command line:
-
-.. code-block:: bash
-
-    dbt_helper update-tables --row-counts --clobber table_1 table_2 table_3
 
 .. tip::
 
