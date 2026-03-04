@@ -7,7 +7,7 @@ import os
 import dagster as dg
 
 import pudl
-from pudl.etl import ferceqr_deployment
+from pudl.deployment import ferceqr_deployment
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,

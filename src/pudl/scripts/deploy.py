@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Deploy PUDL ETL outputs to cloud storage and update git branches.
 
 This CLI orchestrates deployment of completed PUDL ETL builds to public cloud
@@ -32,7 +31,7 @@ from pathlib import Path
 import click
 from gcsfs import GCSFileSystem
 
-from pudl.etl.deploy_outputs import (
+from pudl.deployment.deploy_outputs import (
     prepare_outputs_for_distribution,
     set_gcs_temporary_hold,
     trigger_zenodo_release,

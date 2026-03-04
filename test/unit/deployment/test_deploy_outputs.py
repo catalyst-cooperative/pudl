@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
-from pudl.etl.deploy_outputs import (
+from pudl.deployment.deploy_outputs import (
     prepare_outputs_for_distribution,
     update_git_branch,
     upload_outputs,
@@ -61,8 +61,8 @@ def test_upload_outputs_nightly(tmp_path):
     path_suffixes = ["nightly", "eel-hole"]
 
     with (
-        patch("pudl.etl.deploy_outputs.gcsfs.GCSFileSystem") as mock_gcs_cls,
-        patch("pudl.etl.deploy_outputs.s3fs.S3FileSystem") as mock_s3_cls,
+        patch("pudl.deployment.deploy_outputs.gcsfs.GCSFileSystem") as mock_gcs_cls,
+        patch("pudl.deployment.deploy_outputs.s3fs.S3FileSystem") as mock_s3_cls,
     ):
         mock_gcs = MagicMock()
         mock_s3 = MagicMock()
@@ -103,8 +103,8 @@ def test_upload_outputs_nonexistent_directory(tmp_path):
 
 def test_update_git_branch():
     """Test git branch update merges tag and pushes."""
-    with patch("pudl.etl.deploy_outputs.subprocess.run") as mock_run:
-        mock_run.return_value = MagicMock(returncode=0)
+    with patch("pudl.deployment.deploy_outputs.subprocess.run") as mock_run:
+        mock_run.retudeploymentvalue = MagicMock(returncode=0)
         update_git_branch(tag="nightly-2026-02-09", branch="nightly", staging=False)
 
         kwargs = {"check": True, "capture_output": True, "text": True}
@@ -120,8 +120,8 @@ def test_update_git_branch():
 
 def test_update_git_branch_staging():
     """Test git branch update skips push when staging."""
-    with patch("pudl.etl.deploy_outputs.subprocess.run") as mock_run:
-        mock_run.return_value = MagicMock(returncode=0)
+    with patch("pudl.deployment.deploy_outputs.subprocess.run") as mock_run:
+        mock_run.retudeploymentvalue = MagicMock(returncode=0)
 
         update_git_branch(tag="nightly-2026-02-09", branch="nightly", staging=True)
 
