@@ -1,7 +1,7 @@
 """rus12 transform phase 4
 
 Revision ID: 4c3808642f32
-Revises: a4e2078b82ee
+Revises: 9e1194f1487c
 Create Date: 2026-03-03 18:23:43.344195
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '4c3808642f32'
-down_revision = 'a4e2078b82ee'
+down_revision = '9e1194f1487c'
 branch_labels = None
 depends_on = None
 

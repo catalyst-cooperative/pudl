@@ -305,7 +305,7 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
 @asset(io_manager_key="pudl_io_manager")
 def core_rus12__yearly_plant_costs(
     raw_rus12__combined_cycle_plant_costs: pd.DataFrame,
-    raw_rus12__hydroelectric_plant_costs: pd.DataFrame,
+    raw_rus12__hydro_plant_costs: pd.DataFrame,
     raw_rus12__internal_combustion_plant_costs: pd.DataFrame,
     raw_rus12__nuclear_plant_costs: pd.DataFrame,
     raw_rus12__steam_plant_costs: pd.DataFrame,
@@ -317,7 +317,7 @@ def core_rus12__yearly_plant_costs(
     """
     plant_cost_tables = {
         "combined_cycle": raw_rus12__combined_cycle_plant_costs,
-        "hydro": raw_rus12__hydroelectric_plant_costs,
+        "hydro": raw_rus12__hydro_plant_costs,
         "internal_combustion": raw_rus12__internal_combustion_plant_costs,
         "nuclear": raw_rus12__nuclear_plant_costs,
         "steam": raw_rus12__steam_plant_costs,
@@ -435,7 +435,7 @@ def fix_string_unit_id_rus(df):
 )
 def core_rus12__yearly_plant_operations(
     raw_rus12__combined_cycle_plant_operations: pd.DataFrame,
-    raw_rus12__hydroelectric_plant_operations: pd.DataFrame,
+    raw_rus12__hydro_plant_operations: pd.DataFrame,
     raw_rus12__internal_combustion_plant_operations: pd.DataFrame,
     raw_rus12__nuclear_plant_operations: pd.DataFrame,
     raw_rus12__steam_plant_operations: pd.DataFrame,
@@ -448,16 +448,16 @@ def core_rus12__yearly_plant_operations(
     which record should end up in which output table are documented in
     these tables' resource metadata.
     """
-    plant_operations_tables = {
+    raw_plant_operations_tables = {
         "combined_cycle": raw_rus12__combined_cycle_plant_operations,
-        "hydro": raw_rus12__hydroelectric_plant_operations,
+        "hydro": raw_rus12__hydro_plant_operations,
         "internal_combustion": raw_rus12__internal_combustion_plant_operations,
         "nuclear": raw_rus12__nuclear_plant_operations,
         "steam": raw_rus12__steam_plant_operations,
     }
 
     df_outs = {}
-    for plant_type, raw_table in plant_operations_tables.items():
+    for plant_type, raw_table in raw_plant_operations_tables.items():
         df_plant_type = rus.early_transform(
             raw_df=raw_table,
             boolean_columns_to_fix=[
