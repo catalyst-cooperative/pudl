@@ -275,20 +275,20 @@ def out_eia923__boiler_fuel(
 )
 def out_eia923__fuel_receipts_costs(
     context,
-    core_eia923__monthly_fuel_receipts_costs: pd.DataFrame,
+    core_eia923__fuel_receipts_costs: pd.DataFrame,
     core_eia923__entity_coalmine: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
     _out_eia__monthly_state_fuel_prices: pd.DataFrame,
     core_eia__entity_plants: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Denormalize the :ref:`core_eia923__monthly_fuel_receipts_costs` table."""
+    """Denormalize the :ref:`core_eia923__fuel_receipts_costs` table."""
     core_eia923__entity_coalmine = core_eia923__entity_coalmine.drop(
         columns=["data_maturity"]
     )
     plant_states = core_eia__entity_plants[["plant_id_eia", "state"]]
     frc_df = (
         pd.merge(
-            core_eia923__monthly_fuel_receipts_costs,
+            core_eia923__fuel_receipts_costs,
             core_eia923__entity_coalmine.rename(
                 columns={
                     "state": "mine_state",
@@ -475,8 +475,9 @@ def time_aggregated_eia923_asset_factory(
         # content and ash content we need to calculate these totals.
         return (
             out_eia923__boiler_fuel.assign(
-                total_sulfur_content=lambda x: x.fuel_consumed_units
-                * x.sulfur_content_pct,
+                total_sulfur_content=lambda x: (
+                    x.fuel_consumed_units * x.sulfur_content_pct
+                ),
                 total_ash_content=lambda x: x.fuel_consumed_units * x.ash_content_pct,
             )
             .set_index(pd.DatetimeIndex(out_eia923__boiler_fuel.report_date))
@@ -504,10 +505,12 @@ def time_aggregated_eia923_asset_factory(
                 }
             )
             .assign(
-                fuel_mmbtu_per_unit=lambda x: x.fuel_consumed_mmbtu
-                / x.fuel_consumed_units,
-                sulfur_content_pct=lambda x: x.total_sulfur_content
-                / x.fuel_consumed_units,
+                fuel_mmbtu_per_unit=lambda x: (
+                    x.fuel_consumed_mmbtu / x.fuel_consumed_units
+                ),
+                sulfur_content_pct=lambda x: (
+                    x.total_sulfur_content / x.fuel_consumed_units
+                ),
                 ash_content_pct=lambda x: x.total_ash_content / x.fuel_consumed_units,
             )
             .drop(columns=["total_ash_content", "total_sulfur_content"])
@@ -528,21 +531,25 @@ def time_aggregated_eia923_asset_factory(
         out_eia923__fuel_receipts_costs: pd.DataFrame,
         _out_eia__plants_utilities: pd.DataFrame,
     ) -> pd.DataFrame:
-        """Aggregate the :ref:`core_eia923__monthly_fuel_receipts_costs` table monthly or annually."""
+        """Aggregate the :ref:`core_eia923__fuel_receipts_costs` table monthly or annually."""
         return (
             out_eia923__fuel_receipts_costs.set_index(
                 pd.DatetimeIndex(out_eia923__fuel_receipts_costs.report_date)
             )
             .assign(
                 total_ash_content=lambda x: x.ash_content_pct * x.fuel_received_units,
-                total_sulfur_content=lambda x: x.sulfur_content_pct
-                * x.fuel_received_units,
-                total_mercury_content=lambda x: x.mercury_content_ppm
-                * x.fuel_received_units,
-                total_moisture_content=lambda x: x.moisture_content_pct
-                * x.fuel_received_units,
-                total_chlorine_content=lambda x: x.chlorine_content_ppm
-                * x.fuel_received_units,
+                total_sulfur_content=lambda x: (
+                    x.sulfur_content_pct * x.fuel_received_units
+                ),
+                total_mercury_content=lambda x: (
+                    x.mercury_content_ppm * x.fuel_received_units
+                ),
+                total_moisture_content=lambda x: (
+                    x.moisture_content_pct * x.fuel_received_units
+                ),
+                total_chlorine_content=lambda x: (
+                    x.chlorine_content_ppm * x.fuel_received_units
+                ),
             )
             .pipe(drop_ytd_for_annual_tables, freq)
             .groupby(
@@ -566,17 +573,22 @@ def time_aggregated_eia923_asset_factory(
             )
             .assign(
                 fuel_cost_per_mmbtu=lambda x: x.total_fuel_cost / x.fuel_consumed_mmbtu,
-                fuel_mmbtu_per_unit=lambda x: x.fuel_consumed_mmbtu
-                / x.fuel_received_units,
+                fuel_mmbtu_per_unit=lambda x: (
+                    x.fuel_consumed_mmbtu / x.fuel_received_units
+                ),
                 ash_content_pct=lambda x: x.total_ash_content / x.fuel_received_units,
-                sulfur_content_pct=lambda x: x.total_sulfur_content
-                / x.fuel_received_units,
-                mercury_content_ppm=lambda x: x.total_mercury_content
-                / x.fuel_received_units,
-                moisture_content_pct=lambda x: x.total_moisture_content
-                / x.fuel_received_units,
-                chlorine_content_ppm=lambda x: x.total_chlorine_content
-                / x.fuel_received_units,
+                sulfur_content_pct=lambda x: (
+                    x.total_sulfur_content / x.fuel_received_units
+                ),
+                mercury_content_ppm=lambda x: (
+                    x.total_mercury_content / x.fuel_received_units
+                ),
+                moisture_content_pct=lambda x: (
+                    x.total_moisture_content / x.fuel_received_units
+                ),
+                chlorine_content_ppm=lambda x: (
+                    x.total_chlorine_content / x.fuel_received_units
+                ),
             )
             .drop(
                 columns=[

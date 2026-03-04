@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, Literal, NamedTuple
 
 import duckdb
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -1663,10 +1663,12 @@ def calc_capacity_factor(
             "report_date": dates,
             "hours": dates.apply(
                 lambda d: (
-                    pd.date_range(d, periods=2, freq=freq)[1]
-                    - pd.date_range(d, periods=2, freq=freq)[0]
+                    (
+                        pd.date_range(d, periods=2, freq=freq)[1]
+                        - pd.date_range(d, periods=2, freq=freq)[0]
+                    )
+                    / pd.Timedelta(hours=1)
                 )
-                / pd.Timedelta(hours=1)
             ),
         }
     )
@@ -1895,12 +1897,13 @@ def fix_boolean_columns(
     boolean_columns_to_fix: list[str],
     inplace: bool = False,
 ) -> pd.DataFrame:
-    """Fix standard issues with EIA boolean columns.
+    """Fix standard issues with boolean columns.
 
     Most boolean columns have either "Y" for True or "N" for False. A subset of the
     columns have "X" values which represents a False value. A subset of the columns
     have "U" values, presumably for "Unknown," which must be set to null in order to
-    convert the columns to datatype Boolean.
+    convert the columns to datatype Boolean. Other data sources may use a 1/0 system
+    instead, with 1 as True and 0 as False.
 
     If running with ``inplace=True``, will run in-place versions of the fill and
     replace operations instead of returning a copy of the data frame. This mode is
@@ -1909,7 +1912,7 @@ def fix_boolean_columns(
     """
     fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {
-        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
+        col: {"Y": True, "N": False, "X": False, "U": pd.NA, 1: True, 0: False}
         for col in boolean_columns_to_fix
     }
     if inplace:

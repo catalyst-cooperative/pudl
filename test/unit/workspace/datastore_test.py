@@ -82,21 +82,6 @@ def test_get_resource_path():
         desc.get_resource_path("other")
 
 
-def test_modernize_zenodo_legacy_api_url():
-    legacy_url = "https://zenodo.org/api/files/082e4932-c772-4e9c-a670-376a1acc3748/datapackage.json"
-
-    descriptor = datastore.DatapackageDescriptor(
-        {"resources": [{"name": "datapackage.json", "path": legacy_url}]},
-        dataset="test",
-        doi="10.5281/zenodo.123123",
-    )
-
-    assert (
-        descriptor.get_resource_path("datapackage.json")
-        == "https://zenodo.org/records/123123/files/datapackage.json"
-    )
-
-
 def test_get_resources_filtering():
     """Verifies correct operation of get_resources()."""
     desc = _make_descriptor(

@@ -217,9 +217,23 @@ left-hand columns and EIA utility information goes in the right-hand columns.
 
 Next, you'll have to manually assign ``utility_id_pudl`` values to each row. There is no
 formula you can drag down, so just find the largest ``utility_id_pudl`` and create new
-values incrementing from there. To double check whether a utility has already appeared,
-search by name, creating a reference to the original ``utility_id_pudl`` assignment
-above.
+values incrementing from there.
+
+Next, run the auto-matching script to automatically match utilities with identical
+names (after some light cleaning to remove variations in Inc. vs Incorporated, etc.).
+To test this match without overwriting the existing matching spreadsheet, run:
+
+.. code-block:: console
+
+    $ pixi run auto_match_utilities --test-run
+
+The console will output information about the number of matches made, which utilities
+are mapped to more than one ID, and which warrant additional manual review. Once you
+are satisfied with the proposed changes, run:
+
+.. code-block:: console
+
+    $ pixi run auto_match_utilities
 
 Make sure to save the file when you're done!
 

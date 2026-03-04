@@ -59,9 +59,11 @@ def _prep_lat_long_fips_df(raw_vcerare__lat_lon_fips: pd.DataFrame) -> pd.DataFr
         # Making the county_state_names lowercase to match the values in the capacity factor tables
         raw_vcerare__lat_lon_fips.pipe(simplify_columns)
         .assign(
-            county_state_names=lambda x: x.county_state_names.str.lower()
-            .replace({r"\.": "", "-": "_"}, regex=True)
-            .pipe(_spot_fix_great_lakes_values)
+            county_state_names=lambda x: (
+                x.county_state_names.str.lower()
+                .replace({r"\.": "", "-": "_"}, regex=True)
+                .pipe(_spot_fix_great_lakes_values)
+            )
         )
         # Fix FIPS codes with no leading zeros
         .assign(

@@ -2,7 +2,7 @@
 
 These dictionaries are used to create Encoder instances. Each key is a table name with
 a sub dictionary that includes additional detail. The table names must end with the
-data_source as a sufix (for EIA 860, 861 or 923 tables include ``_eia``).
+data_source as a suffix (for EIA 860, 861 or 923 tables include ``_eia``).
 
 The table-specific dictionaries contain the following keys:
 
@@ -2573,6 +2573,29 @@ YAD,alcoa_power_yadkin,"Alcoa Power Generating, Inc. - Yadkin Division",America/
                 ("OT", "other", "Other"),
             ],
         ).convert_dtypes(),
+        "code_fixes": {},
+        "ignored_codes": [],
+    },
+    "core_rus7__codes_investment_types": {
+        "df": pd.DataFrame(
+            columns=["code", "description"],
+            data=[
+                (1, "Non-Utility Property (Net)"),
+                (2, "Investments in Associated Organizations"),
+                (3, "Investments In Economic Development Projects"),
+                (4, "Other Investments"),
+                (5, "Special Funds"),
+                (6, "Cash – General"),
+                (7, "Special Deposits"),
+                (8, "Temporary Investments"),
+                (9, "Accounts & Notes Receivable – Net"),
+                (
+                    10,
+                    "Commitments to Invest Within 12 Months but not Actually Purchased",
+                ),
+                (11, "Total Investments (1 thru 10)"),
+            ],
+        ).astype({"code": int}),
         "code_fixes": {},
         "ignored_codes": [],
     },

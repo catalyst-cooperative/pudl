@@ -45,7 +45,7 @@ sources:
                   firing_type_3: EXTRACT(year FROM report_date) >= 2009
                   fly_ash_reinjection: EXTRACT(year FROM report_date) >= 2009
                   hrsg: EXTRACT(year FROM report_date) >= 2016
-                  max_steam_flow_1000_lbs_per_hour: EXTRACT(year FROM report_date) >= 2009
+                  max_steam_flow_lbs_per_hour: EXTRACT(year FROM report_date) >= 2009
                   mercury_control_existing_strategy_1: EXTRACT(year FROM report_date) >= 2009
                   mercury_control_existing_strategy_2: EXTRACT(year FROM report_date) >= 2009
                   mercury_control_existing_strategy_3: EXTRACT(year FROM report_date) >= 2009
@@ -154,7 +154,7 @@ sources:
           - name: hrsg
           - name: latitude
           - name: longitude
-          - name: max_steam_flow_1000_lbs_per_hour
+          - name: max_steam_flow_lbs_per_hour
           - name: mercury_control_existing_strategy_1
           - name: mercury_control_existing_strategy_2
           - name: mercury_control_existing_strategy_3

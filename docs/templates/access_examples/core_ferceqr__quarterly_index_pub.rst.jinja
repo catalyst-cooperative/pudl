@@ -1,0 +1,49 @@
+
+.. note::
+
+   This table is partitioned into multiple Parquet files which can be treated
+   as a single Parquet dataset.
+
+.. tabs::
+
+   .. tab:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         # Select all Parquet files under this bucket prefix.
+         df = pd.read_parquet(
+             "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
+             dtype_backend="pyarrow",
+         )
+
+   .. tab:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         # Select all Parquet files under this bucket prefix.
+         df = pl.read_parquet(
+             "s3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/",
+             storage_options={"aws_region": "us-west-2"},
+         )
+
+   .. tab:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         -- Use a wildcard to select all parquet files with this bucket prefix.
+         SELECT * FROM 's3://pudl.catalyst.coop/ferceqr/{{ resource.name }}/*.parquet';
+
+   .. tab:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         library(dplyr)
+
+         # Establish S3 connection
+         bucket <- s3_bucket("pudl.catalyst.coop/ferceqr/{{ resource.name }}")
+
+         # Read all parquet files in that prefix
+         df <- open_dataset(bucket) |> collect()

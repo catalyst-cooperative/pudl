@@ -15,9 +15,11 @@ import shutil
 from pathlib import Path
 
 from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import CodeMetadata, DataSource, Package
+from pudl.metadata.classes import CodeMetadata, DataSource, Package, Resource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
+from pudl.workspace.datastore import Datastore
+from pudl.workspace.setup import PudlPaths
 
 DOCS_DIR = Path(__file__).parent.resolve()
 if os.environ.get("READTHEDOCS"):
@@ -67,6 +69,7 @@ googleanalytics_enabled = True
 
 todo_include_todos = True
 bibtex_bibfiles = [
+    "cooperative_cites.bib",
     "catalyst_pubs.bib",
     "catalyst_cites.bib",
     "further_reading.bib",
@@ -150,6 +153,7 @@ html_theme_options = {
         "color-announcement-background": "yellow",
         "color-announcement-text": "red",
     },
+    "announcement": '<b>Take our ~10 minute <a href="https://forms.gle/E9ou5fgMcR7YVRCRA">2026 Energy Data Ecosystem Survey!</b>',
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -172,6 +176,8 @@ def data_dictionary_metadata_to_rst(app):
     package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
 
 
+# When adding a new data source add it here and ALSO in pyproject.toml in the
+# docs-clean pixi task so generated files are removed.
 INCLUDED_SOURCES = [
     "censusdp1tract",
     "censuspep",
@@ -184,9 +190,12 @@ INCLUDED_SOURCES = [
     "eiaaeo",
     "ferc1",
     "ferc714",
+    "ferceqr",
     "epacems",
     "epacamd_eia",
     "phmsagas",
+    "rus12",
+    "rus7",
     "sec10k",
     "gridpathratoolkit",
     "nrelatb",
@@ -203,10 +212,11 @@ def data_sources_metadata_to_rst(app):
         "ferc1": ["glue"],
         "epacamd_eia": ["glue"],
     }
+    datastore = Datastore(local_cache_path=PudlPaths().data_dir)
     for name in INCLUDED_SOURCES:
         source = DataSource.from_id(name)
         source_resources = [res for res in package.resources if res.etl_group == name]
-        extra_resources = None
+        extra_resources: list[Resource] = []
         if name in extra_etl_groups:
             # get resources for this source from extra etl groups
             extra_resources = [
@@ -217,9 +227,10 @@ def data_sources_metadata_to_rst(app):
             ]
         source.to_rst(
             docs_dir=DOCS_DIR,
-            output_path=DOCS_DIR / f"data_sources/{name}.rst",
+            output_path=str(DOCS_DIR / f"data_sources/{name}.rst"),
             source_resources=source_resources,
             extra_resources=extra_resources,
+            datastore=datastore,
         )
 
 

@@ -14,6 +14,7 @@ repos:
     rev: v6.0.0
     hooks:
       - id: check-added-large-files # Don't accidentally commit giant files.
+        args: ["--maxkb=800"]
       - id: check-merge-conflict # Watch for lingering merge markers.
       - id: check-yaml # Validate all YAML files.
       - id: check-toml
@@ -31,14 +32,14 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.15.4
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.7.4
+    rev: v3.8.1
     hooks:
       - id: prettier
         types_or: [yaml]
@@ -54,7 +55,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.41.0
+    rev: v1.44.0
     hooks:
       - id: typos
         exclude: |
@@ -82,7 +83,7 @@ repos:
 
   # Check Github Actions
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.10
+    rev: v1.7.11
     hooks:
       - id: actionlint
 
@@ -91,6 +92,16 @@ repos:
   #####################################################################################
   - repo: local
     hooks:
+      - id: sort-zenodo-dois
+        name: sort-zenodo-dois
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        files: "^src/pudl/package_data/settings/zenodo_dois\\.yml$"
+        pass_filenames: true
+        always_run: false
+        entry: bash -c 'for file in "$@"; do LC_ALL=C sort "$file" -o "$file"; done' --
+
       - id: sort-row-counts
         name: sort-row-counts
         stages: [pre-commit]

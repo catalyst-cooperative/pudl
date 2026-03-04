@@ -1044,7 +1044,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "hrsg",
                 "latitude",
                 "longitude",
-                "max_steam_flow_1000_lbs_per_hour",
+                "max_steam_flow_lbs_per_hour",
                 "mercury_control_existing_strategy_1",
                 "mercury_control_existing_strategy_2",
                 "mercury_control_existing_strategy_3",
@@ -1260,7 +1260,7 @@ Heat rates are necessary to estimate the amount of fuel consumed by a generation
 and thus the fuel cost per MWh generated.
 
 Plant specific fuel prices are taken from the
-:ref:`core_eia923__monthly_fuel_receipts_costs` table, which only has ~70% coverage,
+:ref:`core_eia923__fuel_receipts_costs` table, which only has ~70% coverage,
 leading to some generators with heat rate estimates still lacking fuel cost
 estimates.
 

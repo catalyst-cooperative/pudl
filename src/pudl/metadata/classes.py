@@ -9,11 +9,12 @@ from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache
 from hashlib import sha1
 from pathlib import Path
+from re import Pattern
 from typing import Annotated, Any, Literal, Self, TypeVar
 
 import duckdb
 import frictionless
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import jinja2
 import numpy as np
 import pandas as pd
@@ -637,8 +638,16 @@ class Field(PudlMeta):
         """Construct from PUDL identifier (`Field.name`)."""
         return cls(**cls.dict_from_id(x))
 
-    def to_duckdb_dtype(self) -> duckdb.sqltypes.DuckDBPyType:
+    def to_duckdb_dtype(
+        self, conn: duckdb.DuckDBPyConnection
+    ) -> duckdb.sqltypes.DuckDBPyType:
         """Return duckdb data type."""
+        if self.constraints.enum:
+            quoted_enum = [f"'{val}'" for val in self.constraints.enum]
+            conn.execute(
+                f"CREATE TYPE {self.name}_type as ENUM ({','.join(quoted_enum)})"
+            )
+            return conn.dtype(f"{self.name}_type")
         return FIELD_DTYPES_DUCKDB[self.type]
 
     def to_polars_dtype(self) -> pl.DataType:
@@ -1011,11 +1020,11 @@ class DataSource(PudlMeta):
             temporal_coverage = ""
         return temporal_coverage
 
-    def add_datastore_metadata(self) -> None:
+    def add_datastore_metadata(self, datastore: Datastore | None = None) -> None:
         """Get source file metadata from the datastore."""
-        dp_desc = Datastore(
-            local_cache_path=PudlPaths().data_dir,
-        ).get_datapackage_descriptor(self.name)
+        if datastore is None:
+            datastore = Datastore(local_cache_path=PudlPaths().data_dir)
+        dp_desc = datastore.get_datapackage_descriptor(self.name)
         partitions = dp_desc.get_partitions()
         if "year" in partitions:
             partitions["years"] = partitions["year"]
@@ -1026,12 +1035,13 @@ class DataSource(PudlMeta):
     def to_rst(
         self,
         docs_dir: DirectoryPath,
-        source_resources: list,
-        extra_resources: list,
-        output_path: str = None,
+        source_resources: "list[Resource]",
+        extra_resources: "list[Resource]",
+        output_path: str | None = None,
+        datastore: Datastore | None = None,
     ) -> None:
         """Output a representation of the data source in RST for documentation."""
-        self.add_datastore_metadata()
+        self.add_datastore_metadata(datastore=datastore)
         template = _get_jinja_environment(docs_dir).get_template(
             f"{self.name}_child.rst.jinja"
         )
@@ -1302,6 +1312,8 @@ class PudlResourceDescriptor(PudlMeta):
     etl_group_id: str = pydantic.Field(alias="etl_group")
     field_namespace_id: str = pydantic.Field(alias="field_namespace")
     create_database_schema: bool = True
+    path: str | None = None
+    extrapaths: list[str] | None = None
 
 
 class Resource(PudlMeta):
@@ -1436,7 +1448,6 @@ class Resource(PudlMeta):
     # Alias required to avoid shadowing Python built-in format()
     format_: String | None = pydantic.Field(alias="format", default=None)
     mediatype: String | None = None
-    path: String | None = None
     dialect: dict[str, str] | None = None
     profile: String = "tabular-data-resource"
     contributors: list[Contributor] = []
@@ -1444,6 +1455,8 @@ class Resource(PudlMeta):
     sources: list[DataSource] = []
     keywords: list[String] = []
     encoder: Encoder | None = None
+    path: str = pydantic.Field(default_factory=lambda data: f"{data['name']}.parquet")
+    extrapaths: list[str] | None = None
     field_namespace: (
         Literal[
             "censusdp1tract",
@@ -1451,6 +1464,7 @@ class Resource(PudlMeta):
             "eiaaeo",
             "eiaapi",
             "epacems",
+            "ferc",
             "ferc1",
             "ferc714",
             "ferceqr",
@@ -1462,6 +1476,7 @@ class Resource(PudlMeta):
             "vcerare",
             "phmsagas",
             "sec",
+            "rus",
         ]
         | None
     ) = None
@@ -1477,6 +1492,7 @@ class Resource(PudlMeta):
             "eiaaeo",
             "entity_eia",
             "epacems",
+            "entity_ferc",
             "ferc1",
             "ferc1_disabled",
             "ferc714",
@@ -1495,6 +1511,9 @@ class Resource(PudlMeta):
             "vcerare",
             "phmsagas",
             "sec10k",
+            "rus7",
+            "static_rus",
+            "rus12",
         ]
         | None
     ) = None
@@ -1556,7 +1575,7 @@ class Resource(PudlMeta):
         * ``schema.foreign_keys``: Foreign keys are fetched by resource name.
         * ``description``: Full description text block is rendered from its component parts.
         """
-        obj = descriptor.model_dump(by_alias=True)
+        obj = descriptor.model_dump(by_alias=True, exclude_none=True)
         obj["name"] = resource_id
         schema = obj["schema"]
         # Expand fields
@@ -1676,20 +1695,25 @@ class Resource(PudlMeta):
             constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
-    def to_frictionless(self) -> frictionless.Resource:
+    def to_frictionless(self) -> dict:
         """Convert to a Frictionless Resource."""
         schema = frictionless.Schema(
             fields=[
-                frictionless.Field(name=f.name, description=f.description)
+                frictionless.Field(
+                    name=f.name,
+                    description=f.description,
+                )
                 for f in self.schema.fields
             ],
             primary_key=self.schema.primary_key,
         )
+
         return frictionless.Resource(
             name=self.name,
             description=self.description,
             schema=schema,
-            path=f"{self.name}.parquet",
+            path=self.path,
+            extrapaths=self.extrapaths,
         )
 
     def to_pyarrow(self) -> pa.Schema:
@@ -1700,9 +1724,11 @@ class Resource(PudlMeta):
             metadata |= {"primary_key": ",".join(self.schema.primary_key)}
         return pa.schema(fields=fields, metadata=metadata)
 
-    def to_duckdb_dtypes(self) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
+    def to_duckdb_dtypes(
+        self, conn: duckdb.DuckDBPyConnection
+    ) -> dict[str, duckdb.sqltypes.DuckDBPyType]:
         """Return Polars data type of each field by field name."""
-        return {f.name: f.to_duckdb_dtype() for f in self.schema.fields}
+        return {f.name: f.to_duckdb_dtype(conn) for f in self.schema.fields}
 
     def to_polars_dtypes(self) -> dict[str, pl.DataType]:
         """Return Polars data type of each field by field name."""
@@ -2345,11 +2371,35 @@ class Package(PudlMeta):
                 )
         return encoded_df
 
-    def to_frictionless(self) -> frictionless.Package:
-        """Convert to a Frictionless Datapackage."""
+    def to_frictionless(
+        self,
+        exclude_pattern: Pattern[str] | None = None,
+        include_pattern: Pattern[str] | None = None,
+    ) -> frictionless.Package:
+        """Convert to a Frictionless Datapackage.
+
+        Allows filtering out specific resources by passing regex patterns to include
+        or exclude resources by name. This is used to generate an independent
+        'datapackage.json' file for ``ferceqr`` assets, which are distributed separately
+        from the rest of PUDL. This method will only look for table names that exactly
+        match the supplied patterns, not substring matches.
+
+        Args:
+            exclude_pattern: Exclude resources whose names exactly match this pattern.
+            include_pattern: Only include resources whose names exactly match this pattern.
+        """
         resources = [r.to_frictionless() for r in self.resources]
-        package = frictionless.Package(name=self.name, resources=resources)
-        return package
+
+        if exclude_pattern is not None:
+            resources = [
+                r for r in resources if re.match(exclude_pattern, r.name) is None
+            ]
+        if include_pattern is not None:
+            resources = [
+                r for r in resources if re.match(include_pattern, r.name) is not None
+            ]
+
+        return frictionless.Package(name=self.name, resources=resources)
 
 
 PUDL_PACKAGE = Package.from_resource_ids()

@@ -30,8 +30,22 @@ class PudlPaths(BaseSettings):
     @model_validator(mode="after")
     def create_directories(self: Self):
         """Create PUDL input and output directories if they don't already exist."""
-        self.input_dir.mkdir(parents=True, exist_ok=True)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        for path_name, path in [
+            ("PUDL_INPUT", self.input_dir),
+            ("PUDL_OUTPUT", self.output_dir),
+        ]:
+            if path.exists() and not path.is_dir():
+                if path.is_symlink():
+                    raise FileExistsError(
+                        f"{path_name} path {path} is a broken symlink. "
+                        f"If it points to an external drive, ensure the drive is mounted. "
+                        f"Otherwise, remove the symlink and try again."
+                    )
+                raise FileExistsError(
+                    f"{path_name} path {path} exists but is not a directory. "
+                    f"Please remove or relocate this file."
+                )
+            path.mkdir(parents=True, exist_ok=True)
         return self
 
     @property

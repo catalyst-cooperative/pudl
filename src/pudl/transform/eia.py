@@ -171,7 +171,7 @@ def occurrence_consistency(
         col_df["record_occurrences"] / col_df["entity_occurrences"]
     )
     col_df[f"{col}_is_consistent"] = col_df[f"{col}_consistent_rate"] > strictness
-    col_df = col_df.sort_values(f"{col}_consistent_rate")
+    col_df = col_df.sort_values(f"{col}_consistent_rate", ascending=False)
     return col_df
 
 
@@ -286,7 +286,13 @@ def _last_operating_date(
     logger.info(f"Rescued dates for {col} records: {len(op_df)}")
     logger.info(
         f"Rescued last {col} for the following units ({entity_idx}): "
-        f"{sorted(op_df[entity_idx].apply(lambda row: '_'.join(row.to_numpy().astype(str)), axis=1))}"
+        f"{
+            sorted(
+                op_df[entity_idx].apply(
+                    lambda row: '_'.join(row.to_numpy().astype(str)), axis=1
+                )
+            )
+        }"
     )
     # add the newly cleaned records
     op_clean_df = pd.concat([op_clean_df, op_df])
@@ -1338,7 +1344,7 @@ finished_eia_assets = [
         "core_eia923__monthly_boiler_fuel": "_core_eia923__boiler_fuel",
         "core_eia923__entity_coalmine": "_core_eia923__coalmine",
         "core_eia923__monthly_energy_storage": "_core_eia923__energy_storage",
-        "core_eia923__monthly_fuel_receipts_costs": "_core_eia923__fuel_receipts_costs",
+        "core_eia923__fuel_receipts_costs": "_core_eia923__fuel_receipts_costs",
         "core_eia923__monthly_generation": "_core_eia923__generation",
         "core_eia923__monthly_generation_fuel": "_core_eia923__generation_fuel",
         "core_eia923__monthly_generation_fuel_nuclear": "_core_eia923__generation_fuel_nuclear",

@@ -31,21 +31,6 @@ integration, don't hesitate to `open an issue on Github
 <https://github.com/catalyst-cooperative/pudl/issues>`__ requesting the data and
 explaining why it would be useful.
 
-
-.. _data-ferceqr:
-
-FERC EQR
-^^^^^^^^
-
-The `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__,
-also known as FERC Form 920, includes the details of transactions between different
-utilities and transactions between utilities and merchant generators.  It covers
-ancillary services as well as energy and capacity, time and location of delivery,
-prices, contract length, etc. It's one of the few public sources of information about
-renewable energy power purchase agreements (PPAs). This is a large (~100s of GB) dataset
-composed of a very large number of relatively clean CSV files, but it requires fuzzy
-processing to get at some of the interesting and only indirectly reported attributes.
-
 .. _data-tds:
 
 Transmission and Distribution Systems

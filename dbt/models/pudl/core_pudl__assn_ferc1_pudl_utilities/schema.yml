@@ -11,5 +11,12 @@ sources:
                 partition_expr:
         columns:
           - name: utility_id_ferc1
+            tests:
+              - not_null
+              - one_value_per_key:
+                  arguments:
+                    other_column_name: utility_id_pudl
           - name: utility_name_ferc1
           - name: utility_id_pudl
+            tests:
+              - not_null
