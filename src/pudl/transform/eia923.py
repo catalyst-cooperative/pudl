@@ -1706,10 +1706,7 @@ def _clean_emissions_control_dates(col: pd.Series) -> pd.Series:
     )
 
 
-# Comment this out for the moment since we have some more data cleaning to do before
-# all the fields are compatible with their assigned dtypes.
-# @asset(io_manager_key="parquet_io_manager")
-@asset
+@asset(io_manager_key="pudl_io_manager")
 def _core_eia923__yearly_emissions_control(
     raw_eia923__emissions_control: pd.DataFrame,
 ) -> pd.DataFrame:

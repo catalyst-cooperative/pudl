@@ -1107,6 +1107,16 @@ and consumption is the net generation."""
                 "greater than or equal to 10 megawatts."
             ),
             "additional_source_text": "(Schedule 8C)",
+            "additional_primary_key_text": (
+                "This table is not yet normalized, and contains information about "
+                "several different types of emissions control equipment, each of which "
+                "has its own ID, and not all of which are present at every plant. As "
+                "a result there is currently no unique, non-null primary key. "
+                "Conceptually, the primary key should consist of plant_id_eia, "
+                "report_date, mercury_control_id_eia, nox_control_id_eia, "
+                "so2_control_id_eia, and particulate_control_id_eia. In practice many "
+                "records have NULL values for all of the control equipment IDs."
+            ),
         },
         "schema": {
             "fields": [
@@ -1134,10 +1144,6 @@ and consumption is the net generation."""
                 "so2_removal_efficiency_tested_pct",
                 "so2_removal_efficiency_annual_pct",
                 "so2_test_date",
-            ],
-            "primary_key": [
-                "plant_id_eia",
-                "report_date",
             ],
         },
         "field_namespace": "eia",
