@@ -18,6 +18,10 @@ sources:
                 column_A: loan_maturity_date
                 column_B: report_date
               description: "The maturity date of the loan should be after the report date."
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__yearly_loans
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: borrower_id_rus
