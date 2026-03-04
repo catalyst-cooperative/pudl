@@ -1344,7 +1344,7 @@ finished_eia_assets = [
         "core_eia923__monthly_boiler_fuel": "_core_eia923__boiler_fuel",
         "core_eia923__entity_coalmine": "_core_eia923__coalmine",
         "core_eia923__monthly_energy_storage": "_core_eia923__energy_storage",
-        "core_eia923__monthly_fuel_receipts_costs": "_core_eia923__fuel_receipts_costs",
+        "core_eia923__fuel_receipts_costs": "_core_eia923__fuel_receipts_costs",
         "core_eia923__monthly_generation": "_core_eia923__generation",
         "core_eia923__monthly_generation_fuel": "_core_eia923__generation_fuel",
         "core_eia923__monthly_generation_fuel_nuclear": "_core_eia923__generation_fuel_nuclear",

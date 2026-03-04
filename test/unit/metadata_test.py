@@ -1,6 +1,7 @@
 """Tests for metadata not covered elsewhere."""
 
 import json
+import re
 
 import frictionless
 import pandas as pd
@@ -330,6 +331,8 @@ def test_frictionless_data_package_filter_resources():
 # everywhere that needs it
 CHECK_DESCRIPTION_PRIMARY_KEYS = False
 
+RE_CAPS = re.compile("[A-Z]")
+
 
 @pytest.mark.parametrize(
     # todo: back this off to sorted(PUDL_RESOURCES.keys()) after the migration.
@@ -354,17 +357,22 @@ def test_description_compliance(resource_id):
         "source_code": resolved.source.type,
         "table_type_code": (
             (resolved.summary.type.split("[")[0] != "None")
-            or len(resolved.summary.description) > 0
+            or (
+                (len(resolved.summary.description) > 0)
+                and RE_CAPS.match(resolved.summary.description[0])
+            )
         ),
         "timeseries_resolution_code": (
             (not resolved.summary.type.startswith("timeseries"))
-            or len(resolved.summary.type.split("[")[1]) > 1
+            or (len(resolved.summary.type.split("[")[1]) > 1)
+            or RE_CAPS.match(resolved.summary.description[0])
         ),
     }
+    fix_with_summary = f"""Ensure RESOURCE_METADATA["{resource_id}"]["description"]["additional_summary_text"] is a complete sentence starting with a capital letter"""
     for key, has_value in name_parse.items():
-        assert has_value, (
-            f"""Table {resource_id} could not be parsed as layer_source__tabletype_slug and no hints were set in the table metadata. Rename {resource_id} or set the following keys in RESOURCE_METADATA["{resource_id}"]["description"]: {key}"""
-        )
+        assert has_value, f"""Table {resource_id} could not be parsed as layer_source__tabletype_slug and insufficient hints were set in the table metadata. Repair using one of the following:
+\t1. Rename {resource_id}
+\t2. Set the following keys in RESOURCE_METADATA["{resource_id}"]["description"]: {key}{("\n\t3. " + fix_with_summary) if key in {"table_type_code", "timeseries_resolution_code"} else ""}"""
     # todo: layer-based checks
     # todo: asset_type-based checks
     # pk-based checks
