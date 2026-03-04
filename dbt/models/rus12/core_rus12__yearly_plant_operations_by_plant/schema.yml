@@ -1,0 +1,25 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_plant_operations_by_plant
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: plant_name_rus
+          - name: unit_id_rus
+          - name: plant_type
+          - name: capacity_mw
+          - name: gross_generation_mwh
+          - name: ownership_pct
+          - name: is_partly_owned_by_borrower
+          - name: fuel_consumption_coal_lbs
+          - name: fuel_consumption_gas_cubic_feet
+          - name: fuel_consumption_oil_gallons
+          - name: fuel_consumption_other
+          - name: operating_hours_in_service
+          - name: operating_hours_on_standby
+          - name: operating_hours_out_of_service_scheduled
+          - name: operating_hours_out_of_service_unscheduled
+          - name: times_started
