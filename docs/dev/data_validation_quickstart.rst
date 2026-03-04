@@ -104,6 +104,12 @@ metadata** you can use ``--clobber``:
 Updating row counts
 -------------------
 
+.. warning::
+
+  You should rarely if ever need to edit the row-counts file directly. It needs to be
+  kept sorted to minimize diffs in git, and manually calculating and editing row counts
+  is both tedious and error prone.
+
 To create or update the row count expectations for a given table you need to:
 
 * Make sure a fresh version of the table is available in ``$PUDL_OUTPUT/parquet``.
@@ -132,7 +138,8 @@ Then you can run:
 
 .. code-block:: bash
 
-    dbt_helper update-tables --row-counts new_table_name
+    dbt_helper update-tables --row-counts new_table_name # for one table at a time
+    dbt_helper update-tables --row-counts all # for all new tables
 
 If this is a brand new table, you should see changes appear in
 ``dbt/seeds/etl_full_row_counts.csv``. If you're updating the row counts for a table
@@ -143,8 +150,28 @@ overwrite existing row counts:
 
     dbt_helper update-tables --row-counts --clobber new_table_name
 
-.. warning::
+If you want to update or add a few, specific tables, just add a space between
+their names in the command line:
 
-  You should rarely if ever need to edit the row-counts file directly. It needs to be
-  kept sorted to minimize diffs in git, and manually calculating and editing row counts
-  is both tedious and error prone.
+.. code-block:: bash
+
+    dbt_helper update-tables --row-counts --clobber table_1 table_2 table_3
+
+.. tip::
+
+  If you want to update a larger subset of tables (e.g.: all EIA 860 tables),
+  you can use this dagster hack to avoid manually copy and pasting tons of table
+  names. (For the time being, you cannot use the same ``--asset-select`` feature
+  as the ``validate`` command.)
+
+  - Launch dagster and go to ``http://localhost:3000/assets``.
+  - Use the search bar to find the group of assets you'd like to update. Use the select
+    all checkbox at the top to grab all assets.
+  - Shift+click the "Materialize Selected" button.
+  - In the search bar at the top left of the Launchpad, triple click to select all
+    table names.
+  - Copy and paste the list of tables into a text editor of your choice and replace
+    remove commas so that table names are separated by a single space (as shown
+    in the codeblock above).
+  - Put that list at the end of the ``dbt_helper update-tables --row-counts``
+    command to update the row counts for all desired tables at once.
