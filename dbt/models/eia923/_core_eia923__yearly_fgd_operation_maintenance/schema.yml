@@ -61,4 +61,11 @@ sources:
                     min_value: 0.0
                     max_value: 1.0
           - name: so2_test_date
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: "DATE '1950-01-01'"
+                    max_value: "current_date"
+                    warn_if: ">0"
+                    error_if: ">5" # A handful of dates in 1900 or 2209
           - name: data_maturity

@@ -1438,6 +1438,7 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     # Convert SO2 test date column to datetime
     # This column only exists for 2008-2011
     # First, convert a few troublesome datetimes that look like m/yy or mm/yy
+    # TODO: There are a handful of dates in years 1900 and 2209 which seem wrong...
     if not fgd_df.so2_test_date.isnull().all():  # If column not empty
         troublesome_dates = fgd_df.so2_test_date.str.contains(
             r"^[0-9]{1,2}\/[0-9]{2}$", regex=True, na=False
