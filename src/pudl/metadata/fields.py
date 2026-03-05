@@ -9535,9 +9535,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Investment type code.",
         "constraints": {
-            "enum": set(
-                CODE_METADATA["core_rus7__codes_investment_types"]["df"]["code"]
-            )
+            "enum": set(CODE_METADATA["core_rus__codes_investment_types"]["df"]["code"])
         },
     },
     "included_investments": {

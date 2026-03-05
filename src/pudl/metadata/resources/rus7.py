@@ -2,8 +2,6 @@
 
 from typing import Any
 
-from pudl.metadata.codes import CODE_METADATA
-
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
         "description": {
@@ -279,22 +277,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["rus7"],
         "etl_group": "rus7",
         "field_namespace": "rus",
-    },
-    "core_rus7__codes_investment_types": {
-        "description": {
-            "additional_summary_text": "investment types.",
-        },
-        "schema": {
-            "fields": ["code", "description"],
-            "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["investment_type_code"]]},
-        },
-        "encoder": CODE_METADATA["core_rus7__codes_investment_types"],
-        "field_namespace": "rus",
-        "sources": ["rus7"],
-        # I added this as RUS instead of RUS7 so we can compile any RUS code table
-        # in one static_assets function
-        "etl_group": "static_rus",
     },
     "core_rus7__yearly_long_term_debt": {
         "description": {
