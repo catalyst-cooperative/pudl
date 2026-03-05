@@ -234,9 +234,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the emissions control equipment controls acid (HCl) gas."
         ),
     },
-    "acid_gas_removal_efficiency_pct": {
+    "acid_gas_removal_efficiency": {
         "type": "number",
-        "description": "Percent removal efficiency for acid gas emissions",
+        "description": "Removal efficiency for acid gas emissions.",
     },
     "actual_peak_demand_savings_mw": {
         "type": "number",
@@ -4540,9 +4540,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "data from CEMS, where possible."
         ),
     },
-    "mercury_removal_efficiency_pct": {
+    "mercury_removal_efficiency": {
         "type": "number",
-        "description": "Percent removal efficiency for mercury emissions rounded to nearest 0.1 percent of weight",
+        "description": "Removal efficiency for mercury emissions.",
     },
     "merge_address": {
         "type": "string",
@@ -5781,7 +5781,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Average annual emission removal rate for particulate matter.",
     },
-    "particulate_removal_efficiency_tested_pct": {
+    "particulate_removal_efficiency_tested": {
         "type": "number",
         "description": (
             "The tested efficiency for the removal of particulate matter at 100 percent load. "
@@ -5790,7 +5790,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and tested efficiency field should be blank."
         ),
     },
-    "particulate_removal_efficiency_annual_pct": {
+    "particulate_removal_efficiency_annual": {
         "type": "number",
         "description": (
             "Particulate removal efficiency, based on the annual operating factor, "
@@ -7106,7 +7106,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Designed removal efficiency for sulfur dioxide when operating at 100 percent load. Reported at the nearest 0.1 percent by weight of gases removed from the flue gas."
         ),
     },
-    "so2_removal_efficiency_tested_pct": {
+    "so2_removal_efficiency_tested": {
         "type": "number",
         "description": (
             "The tested efficiency for the removal of sulfur dioxide at 100 percent load. "
@@ -7115,7 +7115,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "and tested efficiency field should be blank."
         ),
     },
-    "so2_removal_efficiency_annual_pct": {
+    "so2_removal_efficiency_annual": {
         "type": "number",
         "description": (
             "Sulfur dioxide removal efficiency, based on the annual operating factor, "

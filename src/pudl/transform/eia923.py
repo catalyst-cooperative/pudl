@@ -1427,6 +1427,14 @@ def _core_eia923__yearly_fgd_operation_maintenance(
         :, "fgd_sorbent_consumption_tons"
     ].round(-2)
 
+    # Convert 0-100% values to 0-1 values for the efficiency columns
+    efficiency_cols = [
+        "so2_removal_efficiency_tested_pct",
+        "so2_removal_efficiency_annual_pct",
+    ]
+    fgd_df.loc[:, efficiency_cols] = fgd_df.loc[:, efficiency_cols] / 100
+    fgd_df.columns = fgd_df.columns.str.replace("_pct", "")  # Rename columns
+
     # Convert SO2 test date column to datetime
     # This column only exists for 2008-2011
     # First, convert a few troublesome datetimes that look like m/yy or mm/yy
@@ -1478,8 +1486,8 @@ def fgd_continuity_check(fgd):
             "fgd_electricity_consumption_mwh": 0.3,
             "fgd_hours_in_service": 0.1,
             "fgd_sorbent_consumption_tons": 0.2,
-            "so2_removal_efficiency_tested_pct": 0.1,
-            "so2_removal_efficiency_annual_pct": 0.1,
+            "so2_removal_efficiency_tested": 0.1,
+            "so2_removal_efficiency_annual": 0.1,
         },
         groupby_col="report_date",
         n_outliers_allowed=1,
@@ -1715,7 +1723,9 @@ def _core_eia923__yearly_emissions_control(
     Transformations include:
 
     * Standardize NA values
+    * Convert units from thousands of tons to tons
     * Clean and standardize format of month-year date string columns
+    * Standardize operational status codes
 
     Args:
         raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
@@ -1727,7 +1737,7 @@ def _core_eia923__yearly_emissions_control(
     """
     # This column is dropped from all EIA 923 tables
     df = raw_eia923__emissions_control.drop(["early_release"], axis=1)
-    # Convert dates and fix NA values
+    # Convert report_date and fix NA values
     df = (
         df.pipe(_yearly_to_monthly_records)
         .pipe(pudl.helpers.standardize_na_values)
@@ -1742,25 +1752,6 @@ def _core_eia923__yearly_emissions_control(
         df[col] = _clean_emissions_control_dates(df[col])
 
     # Encode operational_status (and potentially other columns):
-    # This will standardize the categorical values in any columns that have foreign key
-    # relationships that point at one of the coding tables. It requires the table
-    # metadata to be defined, but the table doesn't actually need to be written to the
-    # database yet. We can't write the table to the DB yet because some of the date
-    # columns have invalid values.
-    df = PUDL_PACKAGE.encode(df)
-
-    # df["operational_status"] = df.operational_status.str.upper().map(
-    #     pudl.helpers.label_map(
-    #         CODE_METADATA["core_eia__codes_operational_status"]["df"],
-    #         from_col="code",
-    #         to_col="operational_status",
-    #         null_value=pd.NA,
-    #     )
-    # )
-
-    # This will fail because the dates columns contain some invalid values, but would
-    # get the dtypes close to their final form, allowing the pandera schema check to
-    # pass
-    # return pudl.metadata.fields.apply_pudl_dtypes(df, group="eia", strict=True)
+    # df = PUDL_PACKAGE.encode(df)
 
     return df

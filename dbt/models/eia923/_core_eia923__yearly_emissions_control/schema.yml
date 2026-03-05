@@ -12,12 +12,12 @@ sources:
         columns:
           - name: plant_id_eia
           - name: report_date
-          - name: acid_gas_removal_efficiency_pct
+          - name: acid_gas_removal_efficiency
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
-                    min_value: 0
-                    max_value: 100
+                    min_value: 0.0
+                    max_value: 1.0
           - name: annual_nox_emission_rate_lb_per_mmbtu
           - name: data_maturity
           - name: environmental_equipment_name
@@ -26,29 +26,31 @@ sources:
           - name: hours_in_service
           - name: mercury_control_id_eia
           - name: mercury_emission_rate_lb_per_trillion_btu
-          - name: mercury_removal_efficiency_pct
+          - name: mercury_removal_efficiency
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
-                    min_value: 0
-                    max_value: 100
+                    min_value: 0.0
+                    max_value: 1.0
           - name: nox_control_id_eia
           - name: operational_status
           - name: ozone_season_nox_emission_rate_lb_per_mmbtu
           - name: particulate_control_id_eia
           - name: particulate_emission_rate_lb_per_mmbtu
-          - name: particulate_removal_efficiency_tested_pct
+          - name: particulate_removal_efficiency_tested
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
-                    min_value: 0
-                    max_value: 100
-          - name: particulate_removal_efficiency_annual_pct
+                    min_value: 0.0
+                    max_value: 1.0
+          - name: particulate_removal_efficiency_annual
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
-                    min_value: 0
-                    max_value: 100
+                    min_value: 0.0
+                    max_value: 1.0
+                    warn_if: ">0"
+                    error_if: ">66" # A few records have efficiencies between 1 and 10.
           - name: particulate_test_date
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
@@ -56,18 +58,18 @@ sources:
                     min_value: "DATE '1950-01-01'"
                     max_value: "current_date"
           - name: so2_control_id_eia
-          - name: so2_removal_efficiency_tested_pct
+          - name: so2_removal_efficiency_tested
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
-                    min_value: 0
-                    max_value: 100
-          - name: so2_removal_efficiency_annual_pct
+                    min_value: 0.0
+                    max_value: 1.0
+          - name: so2_removal_efficiency_annual
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
-                    min_value: 0
-                    max_value: 100
+                    min_value: 0.0
+                    max_value: 1.0
           - name: so2_test_date
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
