@@ -2673,13 +2673,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of hours worked by employees.",
     },
-    "encumbrance_ratio": {
+    "external_financial_risk_ratio": {
         "type": "number",
         "description": (
-            "The ratio of investments and loan guarantees to total utility plant assets."
-            "Higher numbers indicate more risk with utility financial activity heavily "
-            "reliant on external financing. Lower numbers indicate more conservative "
-            "behavior and less exposure to risk."
+            "total investments + loan guarantee balances / "
+            "total utility plant assets. This ratio shows how much a utility is "
+            "financially exposed to outside entities relative to its own assets."
         ),
     },
     "end_point": {
@@ -4199,8 +4198,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "is_loan_guarantee": {
         "type": "boolean",
         "description": (
-            "Indicates whether a loan is from a private lender and the funding will be "
-            "provided by the federal government if the borrower defaults."
+            "Indicates a third-party loan that the reporting utility (referred as a borrower) "
+            "has co-signed, taking on responsibility for repayment if the primary borrower defaults."
         ),
     },
     "iso_rto_code": {

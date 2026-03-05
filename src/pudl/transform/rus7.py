@@ -394,10 +394,10 @@ def core_rus7__yearly_loans(
 
 
 @asset(io_manager_key="pudl_io_manager")
-def core_rus7__yearly_encumbrance_ratio(
-    raw_rus7__ratio: pd.DataFrame,
+def core_rus7__yearly_external_financial_risk_ratio(
+    raw_rus7__external_financial_risk_ratio: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Transform the raw_rus7__ratio table."""
-    df = rus.early_transform(raw_df=raw_rus7__ratio)
-    df["encumbrance_ratio"] = df["encumbrance_ratio"].round(2)
+    """Transform the raw_rus7__external_financial_risk_ratio table."""
+    df = rus.early_transform(raw_df=raw_rus7__external_financial_risk_ratio)
+    df["external_financial_risk_ratio"] = df["external_financial_risk_ratio"].round(2)
     return df

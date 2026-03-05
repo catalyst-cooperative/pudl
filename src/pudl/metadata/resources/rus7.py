@@ -446,10 +446,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-    "core_rus7__yearly_encumbrance_ratio": {
+    "core_rus7__yearly_external_financial_risk_ratio": {
         "description": {
             "additional_summary_text": (
-                "ratio of investments and loan guarantees to total utility plant assets."
+                "ratio of investments and loan guarantee balances to total utility plant assets."
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part Q - Section III)",
@@ -459,7 +459,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "encumbrance_ratio",
+                "external_financial_risk_ratio",
             ],
             "primary_key": [
                 "report_date",
