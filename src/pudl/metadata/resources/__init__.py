@@ -326,6 +326,12 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             },
         ],
     },
+    "borrowers": {
+        "id_cols": ["borrower_id_rus"],
+        "static_cols": [],
+        "annual_cols": ["borrower_name_rus", "state"],
+        "mapped_schemas": [],
+    },
 }
 """Columns kept for either entity or annual EIA tables in the harvesting process.
 

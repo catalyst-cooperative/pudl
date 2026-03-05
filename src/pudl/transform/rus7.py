@@ -1,9 +1,13 @@
 """Transform the RUS7 tables."""
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
+from pudl import logging_helpers
+from pudl.transform.eia import RusEntity, harvest_entity_tables
+
+logger = logging_helpers.get_logger(__name__)
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -64,14 +68,69 @@ def core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus7__scd_borrowers(raw_rus7__borrowers):
+@asset()
+def _core_rus7__scd_borrowers(raw_rus7__borrowers):
     """Transform the borrowers table."""
     df = rus.early_transform(raw_df=raw_rus7__borrowers)
     rus.early_check_pk(df)
     # TODO: encode region_code?
     return df.assign(
         state=lambda x: x.borrower_id_rus.str.extract(r"^([A-Z]{2})\d{4}$")
+    )
+
+
+@multi_asset(
+    ins={
+        table_name: AssetIn()
+        for table_name in [
+            "_core_rus7__scd_borrowers",
+            "core_rus7__codes_investment_types",
+            "core_rus7__yearly_balance_sheet_assets",
+            "core_rus7__yearly_balance_sheet_liabilities",
+            "core_rus7__yearly_employee_statistics",
+            "core_rus7__yearly_energy_efficiency",
+            "core_rus7__yearly_investments",
+            "core_rus7__yearly_long_term_debt",
+            "core_rus7__yearly_meeting_and_board",
+            "core_rus7__yearly_patronage_capital",
+            "core_rus7__yearly_power_requirements",
+            "core_rus7__yearly_power_requirements_electric_customers",
+            "core_rus7__yearly_power_requirements_electric_sales",
+            "core_rus7__yearly_statement_of_operations",
+        ]
+    },
+    outs={
+        "core_rus7__entity_borrowers": AssetOut(),  # AssetOut(io_manager_key=io_manager_key),
+        "core_rus7__scd_borrowers": AssetOut(io_manager_key="pudl_io_manager"),
+    },
+    config_schema={
+        "debug": Field(
+            bool,
+            default_value=False,
+            description=(
+                "If True, allow inconsistent values in harvested columns and "
+                "produce additional debugging output."
+            ),
+        ),
+    },
+    required_resource_keys={"dataset_settings"},
+    name="harvested_borrowers_rus7",
+)
+def harvested_borrowers_rus7(context, **clean_dfs):
+    """Harvesting IDs & consistent static attributes for EIA entity."""
+    entity = RusEntity.BORROWERS
+    logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
+    # this is weirdly coupled. it needs eia settings even though it doesn't really use it
+    eia_settings = context.resources.dataset_settings.eia
+    debug = context.op_config["debug"]
+
+    entity_df, annual_df, _col_dfs = harvest_entity_tables(
+        entity, clean_dfs, debug=debug, eia_settings=eia_settings
+    )
+
+    return (
+        Output(output_name="core_rus7__entity_borrowers", value=entity_df),
+        Output(output_name="core_rus7__scd_borrowers", value=annual_df),
     )
 
 

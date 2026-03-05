@@ -54,6 +54,12 @@ class EiaEntity(StrEnum):
     GENERATORS = auto()
 
 
+class RusEntity(StrEnum):
+    """Enum for the different types of RUS entities."""
+
+    BORROWERS = auto()
+
+
 def find_timezone(*, lng=None, lat=None, state=None, strict=True, tz_finder=None):
     """Find the timezone associated with the a specified input location.
 
@@ -514,12 +520,6 @@ def harvest_entity_tables(  # noqa: C901
         * Determine what to do with null records
         * Determine how to treat mostly static records
     """
-    # Do some final cleanup and assign appropriate types:
-    clean_dfs = {
-        name: convert_cols_dtypes(df, data_source="eia")
-        for name, df in clean_dfs.items()
-    }
-
     if entity == EiaEntity.UTILITIES:
         # Remove location columns that are associated with plants, not utilities:
         for table, df in clean_dfs.items():
