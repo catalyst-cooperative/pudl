@@ -5,6 +5,10 @@ sources:
       - name: core_rus12__yearly_encumbrance_ratio
         data_tests:
           - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__yearly_encumbrance_ratio
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: borrower_id_rus
