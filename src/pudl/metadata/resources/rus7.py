@@ -377,7 +377,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-    "core_rus7__scd_borrowers": {  # this is kinda a SCD table? with just two things?
+    "core_rus7__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers"),
             "usage_warnings": ["experimental_wip"],
@@ -392,13 +392,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "schema": {
             "fields": [
-                "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "state",
             ],
             "primary_key": [
-                "report_date",
                 "borrower_id_rus",
             ],
             # TODO: we could check to see if we could add a FK relationship here

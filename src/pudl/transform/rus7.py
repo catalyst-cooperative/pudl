@@ -1,11 +1,13 @@
 """Transform the RUS7 tables."""
 
+from enum import StrEnum, auto
+
 import pandas as pd
 from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
-from pudl.transform.eia import RusEntity, harvest_entity_tables
+from pudl.transform.eia import harvest_entity_tables
 
 logger = logging_helpers.get_logger(__name__)
 
@@ -79,6 +81,12 @@ def _core_rus7__scd_borrowers(raw_rus7__borrowers):
     )
 
 
+class RusEntity(StrEnum):
+    """Enum for the different types of RUS entities."""
+
+    BORROWERS = auto()
+
+
 @multi_asset(
     ins={
         table_name: AssetIn()
@@ -99,10 +107,7 @@ def _core_rus7__scd_borrowers(raw_rus7__borrowers):
             "core_rus7__yearly_statement_of_operations",
         ]
     },
-    outs={
-        "core_rus7__entity_borrowers": AssetOut(),  # AssetOut(io_manager_key=io_manager_key),
-        "core_rus7__scd_borrowers": AssetOut(io_manager_key="pudl_io_manager"),
-    },
+    outs={"core_rus7__entity_borrowers": AssetOut(io_manager_key="pudl_io_manager")},
     config_schema={
         "debug": Field(
             bool,
@@ -117,20 +122,22 @@ def _core_rus7__scd_borrowers(raw_rus7__borrowers):
     name="harvested_borrowers_rus7",
 )
 def harvested_borrowers_rus7(context, **clean_dfs):
-    """Harvesting IDs & consistent static attributes for EIA entity."""
+    """Harvesting IDs & consistent static attributes for RUS7 entity."""
     entity = RusEntity.BORROWERS
     logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
-    # this is weirdly coupled. it needs eia settings even though it doesn't really use it
-    eia_settings = context.resources.dataset_settings.eia
     debug = context.op_config["debug"]
+    special_case_strictness = {"borrower_name_rus": 0}
 
     entity_df, annual_df, _col_dfs = harvest_entity_tables(
-        entity, clean_dfs, debug=debug, eia_settings=eia_settings
+        entity,
+        clean_dfs,
+        special_case_strictness=special_case_strictness,
+        debug=debug,
     )
 
     return (
         Output(output_name="core_rus7__entity_borrowers", value=entity_df),
-        Output(output_name="core_rus7__scd_borrowers", value=annual_df),
+        # Output(output_name="core_rus7__scd_borrowers", value=annual_df),
     )
 
 
