@@ -1254,7 +1254,10 @@ def harvested_entity_asset_factory(
 
         debug = context.op_config["debug"]
         clean_dfs = {
-            df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]) for df_name in clean_dfs
+            df_name: PUDL_PACKAGE.encode(clean_dfs[df_name]).pipe(
+                convert_cols_dtypes, "eia"
+            )
+            for df_name in clean_dfs
         }
         if entity == EiaEntity.UTILITIES:
             # Remove location columns that are associated with plants, not utilities:
