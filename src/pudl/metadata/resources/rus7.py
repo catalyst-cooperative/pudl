@@ -423,8 +423,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "additional_details_text": (
                 "This table also includes loan guarantees where the RUS borrower backs a loan "
                 "from another entity and is therefore liable to pay any remaining "
-                "balance should the original borrower default."
-                "\n\n"
+                "balance should the original borrower default. \n\n"
                 "In 2006, the loan maturity date for borrower ND0051's loan from ERC - Paulson, David "
                 "was reported as 2/8/2820. There is no clear way to determine the correct maturity date "
                 "given that 2006 is the first year of data we have and the same loan does not appear in "
@@ -436,7 +435,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "lending_organization",
+                "loan_recipient",
                 "loan_balance",
                 "loan_maturity_date",
                 "loan_original_amount",

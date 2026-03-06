@@ -4372,6 +4372,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The original amount of a loan.",
         "unit": "USD",
     },
+    "loan_recipient": {
+        "type": "string",
+        "description": "The organization that received a loan.",
+    },
     "longitude": {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",

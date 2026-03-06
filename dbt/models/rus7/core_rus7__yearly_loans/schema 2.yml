@@ -22,7 +22,7 @@ sources:
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: report_date
-          - name: loan_recipient
+          - name: lending_organization
           - name: loan_balance
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

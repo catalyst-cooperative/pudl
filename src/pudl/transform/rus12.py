@@ -148,12 +148,12 @@ def core_rus12__yearly_loans(raw_rus12__loans, raw_rus12__loan_guarantees):
     df_loans = rus.early_transform(
         raw_df=raw_rus12__loans,
         boolean_columns_to_fix=["for_rural_development"],
-        string_cols_to_simplify=["lending_organization"],
+        string_cols_to_simplify=["loan_recipient"],
     ).assign(is_loan_guarantee=False)
     df_loan_guarantees = rus.early_transform(
         raw_df=raw_rus12__loan_guarantees,
         boolean_columns_to_fix=["for_rural_development"],
-        string_cols_to_simplify=["lending_organization"],
+        string_cols_to_simplify=["loan_recipient"],
     ).assign(is_loan_guarantee=True)
     df = pd.concat([df_loans, df_loan_guarantees], ignore_index=True)
     # Convert all loan_maturity_dates to datetime

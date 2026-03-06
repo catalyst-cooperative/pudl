@@ -337,7 +337,7 @@ RESOURCE_METADATA = {
                 "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
-                "lending_organization",
+                "loan_recipient",
                 "loan_maturity_date",
                 "loan_original_amount",
                 "loan_balance",

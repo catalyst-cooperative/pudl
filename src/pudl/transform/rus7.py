@@ -350,12 +350,12 @@ def core_rus7__yearly_loans(
     df_loans = rus.early_transform(
         raw_df=raw_rus7__distribution_loans,
         boolean_columns_to_fix=["is_for_rural_development"],
-        string_cols_to_simplify=["lending_organization"],
+        string_cols_to_simplify=["loan_recipient"],
     ).assign(is_loan_guarantee=False)
     df_loan_guarantees = rus.early_transform(
         raw_df=raw_rus7__loan_guarantees,
         boolean_columns_to_fix=["is_for_rural_development"],
-        string_cols_to_simplify=["lending_organization"],
+        string_cols_to_simplify=["loan_recipient"],
     ).assign(is_loan_guarantee=True)
     # Combine raw tables
     df = pd.concat([df_loans, df_loan_guarantees])
@@ -364,7 +364,7 @@ def core_rus7__yearly_loans(
     # prior years.
     mask1 = (
         (df.borrower_id_rus == "NC0050")
-        & (df.lending_organization.str.contains("kenansville"))
+        & (df.loan_recipient.str.contains("kenansville"))
         & (df.report_date.dt.year == 2020)
     )
     assert len(df[mask1]) == 1, (
@@ -377,7 +377,7 @@ def core_rus7__yearly_loans(
     # in future years because it was paid. Just NA for now.
     mask2 = (
         (df.borrower_id_rus == "ND0051")
-        & (df.lending_organization.str.contains("erc - paulson, david"))
+        & (df.loan_recipient.str.contains("erc - paulson, david"))
         & (df.report_date.dt.year == 2006)
         & (df.loan_original_amount == 5000)
     )
@@ -388,7 +388,7 @@ def core_rus7__yearly_loans(
     # Convert all loan_maturity_dates to datetime
     df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date)
 
-    # TO-DO: could standardize lending_organization names
+    # TO-DO: could standardize loan_recipient names
     # TO-DO: there are some validation cases where loan balance exceeds the original amount.
     return df
 
