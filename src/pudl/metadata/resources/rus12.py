@@ -393,7 +393,7 @@ RESOURCE_METADATA = {
                 "Reporting of investments is required by 7 CFR 1717, Subpart N. Investment "
                 "categories reported on this Part correspond to Balance Sheet items in Part C."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
         },
         "schema": {
             "fields": [
