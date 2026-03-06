@@ -428,7 +428,9 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     month_idx = pd.MultiIndex.from_frame(col_df).set_names([None, "report_month"])
     # reshape
     df.columns = month_idx
-    df = df.stack()
+    stacked = df.stack()
+    # Keep return type stable for type-checkers when stack collapses to Series.
+    df = stacked.to_frame() if isinstance(stacked, pd.Series) else stacked
     # restore original index and columns - reset index except level 0
     df = df.reset_index(level=list(range(1, df.index.nlevels)))
     return df
@@ -578,12 +580,12 @@ def plants_eia923(
         ]
     ]
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
-    plant_info_df.associated_combined_heat_power = (
-        plant_info_df.associated_combined_heat_power.replace({"N": False, "Y": True})
-    )
+    plant_info_df["associated_combined_heat_power"] = plant_info_df[
+        "associated_combined_heat_power"
+    ].replace({"N": False, "Y": True})
 
     # Get rid of excessive whitespace introduced to break long lines (ugh)
-    plant_info_df.census_region = plant_info_df.census_region.str.replace(" ", "")
+    plant_info_df["census_region"] = plant_info_df["census_region"].str.replace(" ", "")
     plant_info_df.drop_duplicates(subset="plant_id_eia")
 
     plant_info_df["plant_id_eia"] = plant_info_df["plant_id_eia"].astype(int)
@@ -948,7 +950,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
     pk_dupe_mask = bf.duplicated(pk, keep=False)
 
     params_pk_dupes = InvalidRows(
-        invalid_values=[pd.NA, np.nan, 0], required_valid_cols=required_valid_cols
+        invalid_values={pd.NA, np.nan, 0}, required_valid_cols=required_valid_cols
     )
     bf_no_null_pks_dupes = drop_invalid_rows(
         df=bf[pk_dupe_mask], params=params_pk_dupes
@@ -1319,7 +1321,7 @@ def _core_eia923__monthly_cooling_system_information(
     # cooling_id_eia is sometimes NA, but we also want to use it as a primary
     # key. fortunately it's a string so we can just convert all NA values to
     # "PLANT"
-    csi_df.cooling_id_eia = csi_df.cooling_id_eia.fillna("PLANT")
+    csi_df["cooling_id_eia"] = csi_df["cooling_id_eia"].fillna("PLANT")
 
     # convert cfs to gpm
     cfs_in_gpm = 448.8311688
@@ -1352,7 +1354,7 @@ def _core_eia923__monthly_cooling_system_information(
 
     # The cooling types are human readable strings which we need to re-code;
     # we need to sanitize them somewhat
-    csi_df.cooling_type = csi_df.cooling_type.str.strip().str.upper()
+    csi_df["cooling_type"] = csi_df["cooling_type"].str.strip().str.upper()
 
     primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
     return (
@@ -1893,7 +1895,6 @@ def _core_eia923__yearly_emissions_control(
     * Standardize NA values
     * Convert units from thousands of tons to tons
     * Clean and standardize format of month-year date string columns
-    * Standardize operational status codes
 
     Args:
         raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
