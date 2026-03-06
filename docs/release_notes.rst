@@ -58,7 +58,14 @@ Quality of Life Improvements
 
 * Control whether the files generated via the docs build are kept or deleted after the
   build completes via an environment variable ``PUDL_DOCS_KEEP_GENERATED_FILES`` rather
-  than requiring the user to edit ``docs/conf.py``. See PR :pr:`5048``.
+  than requiring the user to edit ``docs/conf.py``. See PR :pr:`5048`.
+* Migrated PUDL to a working ``dg`` project configuration so contributors can reliably
+  use modern Dagster CLI workflows (for example ``pixi run dg dev``, ``dg launch``, and
+  ``dg check defs``). Added a merged Dagster code-location module, updated ETL docs with
+  a ``dg`` quickstart, and added ``dg`` smoke checks in CI.
+* Added coding agent skills and instructions that customize agent behavior for PUDL.
+  These markdown files can be found under ``.github/instructions/`` and
+  ``.github/skills``. See PR :pr:`5059` and the `VS Code documentation for more details <https://code.visualstudio.com/docs/copilot/customization/overview>`__.
 
 .. _release-v2026.2.0:
 
