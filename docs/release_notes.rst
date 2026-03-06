@@ -28,6 +28,12 @@ RUS-12
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through January 2026. See :issue:`5042` and
+  :pr:`5044`.
+
 Documentation
 ^^^^^^^^^^^^^
 
