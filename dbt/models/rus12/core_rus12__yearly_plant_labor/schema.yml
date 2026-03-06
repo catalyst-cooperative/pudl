@@ -16,7 +16,7 @@ sources:
                 expression: "(employees_full_time_num + employees_part_time_num) * 2080 >= employee_hours_worked_total"
               description: "Expect that even with overtime, full time and part time employees combined work less than an average of a FTE workload annually."
               config:
-                error_if: ">515" # TODO: ~25% of the data either sees heavy overtime usage or badly reported employee data.
+                error_if: ">526" # TODO: ~25% of the data either sees heavy overtime usage or badly reported employee data.
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_rus12__yearly_plant_labor

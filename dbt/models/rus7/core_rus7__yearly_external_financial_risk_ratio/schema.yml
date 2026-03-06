@@ -7,7 +7,7 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_rus12__yearly_encumbrance_ratio
+                table_name: core_rus7__yearly_external_financial_risk_ratio
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date

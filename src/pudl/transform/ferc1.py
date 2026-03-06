@@ -1490,7 +1490,7 @@ class RelativeErrorMagnitude(ErrorMetric):
     """Check relative magnitude of errors in XBRL calculations."""
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
-        """Calculate the mangnitude of the errors relative to total reported value."""
+        """Calculate the magnitude of the errors relative to total reported value."""
         gb_value = np.nan
         denom = gb["reported_value"].abs().sum(min_count=1)
         if np.isclose(denom, 0) | np.isnan(denom):
@@ -1506,7 +1506,7 @@ class AbsoluteErrorMagnitude(ErrorMetric):
     """
 
     def metric(self: Self, gb: DataFrameGroupBy) -> pd.Series:
-        """Calculate the absolute mangnitude of XBRL calculation errors."""
+        """Calculate the absolute magnitude of XBRL calculation errors."""
         return gb.abs_diff.abs().sum()
 
 

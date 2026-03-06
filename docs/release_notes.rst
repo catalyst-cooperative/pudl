@@ -9,6 +9,13 @@ v2026.XX.X (2026-XX-XX)
 Enhancements
 ^^^^^^^^^^^^
 
+* Renamed ``core_eia923__monthly_fuel_receipts_costs`` to
+  :ref:`core_eia923__fuel_receipts_costs` as it is not aggregated monthly and
+  does not belong with our other timeseries tables. Updated table description
+  details for this and related tables to explain why receipts are not aggregated
+  in this table, and how aggregation in the associated monthly and yearly tables
+  affects the columns available and missingness handling. See :pr:`5029`.
+
 New Data
 ^^^^^^^^
 
@@ -18,13 +25,16 @@ RUS 7
 
 RUS 12
 ~~~~~~
-* Transformed more RUS 12 tables. See PR :pr:`5034`.
+* Transformed more RUS 12 tables. See :issue:`4886`, PR :pr:`5018` and PR :pr:`5034`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Documentation
 ^^^^^^^^^^^^^
+
+* Fixed remaining tables with malformed summaries so they render starting with a
+  complete sentence. Added checks to prevent future regressions. See :pr:`5029`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2226,7 +2236,7 @@ Data Coverage
 * Thanks to contributions from :user:`rousik` we've generalized the code we use to
   convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases.
 
-  * We have started extracting the FERC Form 2 (natual gas utility financial reports).
+  * We have started extracting the FERC Form 2 (natural gas utility financial reports).
     See issues :issue:`1984,2642` and PRs :pr:`2536,2564,2652`. We haven't yet done any
     integration of the Form 2 into the cleaned and normalized PUDL DB, but the converted
     `FERC Form 2 is available on Datasette <https://data.catalyst.coop/ferc2>`__

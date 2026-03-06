@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, Literal, NamedTuple
 
 import duckdb
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -1427,7 +1427,7 @@ def cleanstrings_snake(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     for col in cols:
         df.loc[:, col] = (
             df[col]
-            .astype(str)
+            .astype(pd.StringDtype())
             .str.strip()
             .str.lower()
             .str.replace(r"\s+", "_", regex=True)
