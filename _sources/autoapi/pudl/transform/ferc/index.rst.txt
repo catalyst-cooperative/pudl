@@ -1,0 +1,84 @@
+pudl.transform.ferc
+===================
+
+.. py:module:: pudl.transform.ferc
+
+.. autoapi-nested-parse::
+
+   Module for shared helpers for FERC Form transforms.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.ferc.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.ferc.__apply_diffs
+   pudl.transform.ferc.__best_snapshot
+   pudl.transform.ferc.__compare_dedupe_methodologies
+   pudl.transform.ferc.filter_for_freshest_data_xbrl
+   pudl.transform.ferc.get_primary_key_raw_xbrl
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: __apply_diffs(duped_groups: pandas.core.groupby.DataFrameGroupBy) -> pandas.DataFrame
+
+   Take the latest reported non-null value for each group.
+
+
+.. py:function:: __best_snapshot(duped_groups: pandas.core.groupby.DataFrameGroupBy) -> pandas.DataFrame
+
+   Take the row that has most non-null values out of each group.
+
+
+.. py:function:: __compare_dedupe_methodologies(applied_diffs: pandas.DataFrame, best_snapshot: pandas.DataFrame, xbrl_context_cols: list[str])
+
+   Compare deduplication methodologies.
+
+   By cross-referencing these we can make sure that the apply-diff
+   methodology isn't doing something unexpected.
+
+   The main things we want to keep tabs on are: whether apply-diff is
+   adding more than expected differences compared to best-snapshot and
+   whether or not apply-diff is giving us more values than best-snapshot.
+
+
+.. py:function:: filter_for_freshest_data_xbrl(xbrl_table: pandas.DataFrame, primary_keys, compare_methods: bool = False) -> pandas.DataFrame
+
+   Get most updated values for each XBRL context.
+
+   An XBRL context includes an entity ID, the time period the data applies to, and
+   other dimensions such as utility type. Each context has its own ID, but they are
+   frequently redefined with the same contents but different IDs - so we identify
+   them by their actual content.
+
+   Each row in our SQLite database includes all the facts for one context/filing
+   pair.
+
+   If one context is represented in multiple filings, we take the most
+   recently-reported non-null value.
+
+   This means that if a utility reports a non-null value, then later
+   either reports a null value for it or simply omits it from the report,
+   we keep the old non-null value, which may be erroneous. This appears to
+   be fairly rare, affecting < 0.005% of reported values.
+
+
+.. py:function:: get_primary_key_raw_xbrl(sched_table_name: str, ferc_form: Literal['ferc1', 'ferc714']) -> list[str]
+
+   Get the primary key for a raw XBRL table from the XBRL datapackage.
+
+
