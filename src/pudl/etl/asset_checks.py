@@ -10,23 +10,33 @@ For data validation we almost entirely rely on dbt data tests.
 from typing import Any
 
 import geopandas as gpd  # noqa: ICN002
-import pandas as pd
-import pandera as pr
+import pandera.polars as pr
+import polars as pl
 from dagster import (
     AssetCheckResult,
     AssetChecksDefinition,
     AssetKey,
     asset_check,
 )
+from pandera.errors import SchemaErrors
 
+from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import Package, Resource
+from pudl.settings import ferceqr_year_quarters
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
     """Collect basic metadata about the asset."""
+    if isinstance(asset_value, pl.LazyFrame):
+        shape = (
+            asset_value.select(pl.len()).collect(engine="streaming").item(),
+            asset_value.collect_schema().len(),
+        )
+    else:
+        shape = asset_value.shape
     return {
         "asset_type": str(type(asset_value)),
-        "asset_shape": list(getattr(asset_value, "shape", "No shape attribute")),
+        "asset_shape": list(shape),
     }
 
 
@@ -34,13 +44,18 @@ def _collect_dtype_metadata(asset_value, resource: Resource) -> dict[str, Any]:
     """Collect comprehensive column and data type information for comparison."""
     metadata = {}
 
-    # Get actual columns and types
-    actual_columns = (
-        list(asset_value.columns) if hasattr(asset_value, "columns") else []
-    )
+    # Get columns and dtypes from asset
     actual_dtypes = {}
-    if hasattr(asset_value, "dtypes"):
+    if use_pandas_backend := not isinstance(asset_value, pl.LazyFrame):
+        actual_columns = list(asset_value.columns)
         actual_dtypes = {col: str(dtype) for col, dtype in asset_value.dtypes.items()}
+    else:
+        schema = asset_value.collect_schema()
+        actual_columns = schema.names()
+        actual_dtypes = {
+            col: str(dtype)
+            for col, dtype in zip(actual_columns, schema.dtypes(), strict=True)
+        }
 
     # Get expected columns and types
     expected_columns = [field.name for field in resource.schema.fields]
@@ -48,7 +63,9 @@ def _collect_dtype_metadata(asset_value, resource: Resource) -> dict[str, Any]:
 
     for field in resource.schema.fields:
         try:
-            pandera_dtypes[field.name] = str(field.to_pandera_column().dtype)
+            pandera_dtypes[field.name] = str(
+                field.to_pandera_column(use_pandas_backend).dtype
+            )
         except Exception as e:
             pandera_dtypes[field.name] = f"Error: {str(e)}"
 
@@ -112,7 +129,7 @@ def _collect_geometry_metadata(asset_value) -> dict[str, Any]:
     return metadata
 
 
-def _process_schema_errors(schema_errors: pr.errors.SchemaErrors) -> dict[str, Any]:
+def _process_schema_errors(schema_errors: SchemaErrors) -> dict[str, Any]:
     """Process Pandera schema errors into structured metadata."""
     detailed_errors = []
 
@@ -142,8 +159,21 @@ def _process_schema_errors(schema_errors: pr.errors.SchemaErrors) -> dict[str, A
 def asset_check_from_schema(
     asset_key: AssetKey,
     package: Package,
+    duckdb_asset: bool,
+    high_memory_asset: bool,
 ) -> AssetChecksDefinition | None:
-    """Create a dagster asset check based on the resource schema, if defined."""
+    """Create a dagster asset check based on the resource schema, if defined.
+
+    The vast majority of assets will be loaded as Polars LazyFrames directly using
+    the ``PudlParquetIOManager`` and validated with Pandera's Polars backend, but
+    there are two exceptions to this. The first exception are assets which contain
+    a geometry data type. These assets will all be loaded as geopandas GeoDataFrames
+    and use Pandera's Pandas backend as Polars does not support geometry data types.
+    The second exception are assets produced entirely using DuckDB. These assets
+    return ``ParquetData`` objects, which are handled by the default io-manager. In
+    this case, the resulting parquet file(s) will be scanned with Polars to produce
+    a LazyFrame, then handled exactly the same as a typical asset.
+    """
     resource_id = asset_key.to_user_string()
     try:
         resource = package.get_resource(resource_id)
@@ -151,9 +181,22 @@ def asset_check_from_schema(
         return None
 
     pandera_schema = resource.schema.to_pandera()
+    partitions = ferceqr_year_quarters if "ferceqr" in resource_id else None
+    if duckdb_asset:
+        asset_type = ParquetData
+    elif isinstance(pandera_schema, pr.DataFrameSchema):
+        asset_type = pl.LazyFrame
+    else:
+        asset_type = gpd.GeoDataFrame
 
-    @asset_check(asset=asset_key, blocking=True)
-    def pandera_schema_check(asset_value: pd.DataFrame) -> AssetCheckResult:
+    @asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
+    def pandera_schema_check(asset_value: asset_type) -> AssetCheckResult:
+        if isinstance(asset_value, ParquetData):
+            asset_value = get_parquet_table_polars(
+                table_name=resource_id,
+                partitions=asset_value.partitions,
+            )
+
         # Collect all metadata
         metadata = (
             _collect_asset_metadata(asset_value)
@@ -162,10 +205,16 @@ def asset_check_from_schema(
         )
 
         try:
-            pandera_schema.validate(asset_value, lazy=True)
+            if isinstance(asset_value, pl.LazyFrame):
+                validated_schema = asset_value.pipe(pandera_schema.validate, lazy=True)
+                # Only validate data contents if asset is not marked as high memory
+                if not high_memory_asset:
+                    validated_schema.collect(engine="streaming")
+            else:
+                pandera_schema.validate(asset_value, lazy=True)
             return AssetCheckResult(passed=True, metadata=metadata)
 
-        except pr.errors.SchemaErrors as schema_errors:
+        except SchemaErrors as schema_errors:
             metadata.update(_process_schema_errors(schema_errors))
             return AssetCheckResult(passed=False, metadata=metadata)
 
