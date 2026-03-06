@@ -14,3 +14,7 @@ sources:
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: external_financial_risk_ratio
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
