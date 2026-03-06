@@ -56,6 +56,10 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Control whether the files generated via the docs build are kept or deleted after the
+  build completes via an environment variable ``PUDL_DOCS_KEEP_GENERATED_FILES`` rather
+  than requiring the user to edit ``docs/conf.py``. See PR :pr:`5048``.
+
 .. _release-v2026.2.0:
 
 ---------------------------------------------------------------------------------------
