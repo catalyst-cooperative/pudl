@@ -414,15 +414,17 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     },
     "core_rus7__yearly_loans": {
         "description": {
-            "additional_summary_text": (
-                "loan balances, maturity dates, and lending organizations."
-            ),
+            "additional_summary_text": ("loans provided by RUS borrowers."),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part Q - Sections II & IV)",
             "additional_primary_key_text": (
                 "Borrowers may receive multiple loans from ``lending_organizations`` in a given year."
             ),
             "additional_details_text": (
+                "This table also includes loan guarantees where the RUS borrower backs a loan "
+                "from another entity and is therefore liable to pay any remaining "
+                "balance should the original borrower default."
+                "\n\n"
                 "In 2006, the loan maturity date for borrower ND0051's loan from ERC - Paulson, David "
                 "was reported as 2/8/2820. There is no clear way to determine the correct maturity date "
                 "given that 2006 is the first year of data we have and the same loan does not appear in "

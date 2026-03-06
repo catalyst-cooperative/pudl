@@ -280,13 +280,18 @@ RESOURCE_METADATA = {
     },
     "core_rus12__yearly_loans": {
         "description": {
-            "additional_summary_text": ("loan balances and maturity dates."),
+            "additional_summary_text": ("loans provided by RUS borrowers."),
             "additional_primary_key_text": (
                 "This table has no primary key because some borrowers report multiple loan values from "
                 "the same entity in a given year."
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section F - Subsections II & IV)",
+            "additional_details_text": (
+                "This table also includes loan guarantees where the RUS borrower backs a loan "
+                "from another entity and is therefore liable to pay any remaining "
+                "balance should the original borrower default."
+            ),
         },
         "schema": {
             "fields": [
