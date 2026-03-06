@@ -3,7 +3,7 @@
 from enum import StrEnum, auto
 
 import pandas as pd
-from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
+from dagster import AssetIn, Field, asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
@@ -12,7 +12,7 @@ from pudl.transform.eia import harvest_entity_tables
 logger = logging_helpers.get_logger(__name__)
 
 
-@asset
+@asset()
 def _core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
     """Transform the meeting and board (aka governance) table."""
     df = rus.early_transform(
@@ -30,7 +30,7 @@ def _core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
     """Transform the balance sheet assets table."""
     df = rus.early_transform(raw_df=raw_rus7__balance_sheet)
@@ -50,7 +50,7 @@ def _core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
     """Transform the balance sheet liabilities table."""
     df = rus.early_transform(raw_df=raw_rus7__balance_sheet)
@@ -81,7 +81,7 @@ def _core_rus7__scd_borrowers(raw_rus7__borrowers):
     )
 
 
-@asset
+@asset()
 def _core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
     """Transform the employee statistics table."""
     df = rus.early_transform(raw_df=raw_rus7__employee_statistics)
@@ -89,7 +89,7 @@ def _core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     """Transform the energy efficiency table."""
     df = rus.early_transform(raw_df=raw_rus7__energy_efficiency)
@@ -107,7 +107,7 @@ def _core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     return df
 
 
-@asset
+@asset()
 def _core_rus7__power_requirements(raw_rus7__power_requirements):
     """Early transform an internal power_requirements table.
 
@@ -143,7 +143,7 @@ def _core_rus7__power_requirements(raw_rus7__power_requirements):
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_power_requirements_electric_sales(
     _core_rus7__power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -152,7 +152,7 @@ def _core_rus7__yearly_power_requirements_electric_sales(
     The resulting table is a portion of the power_requirements tables, which
     pertains to the sales and revenue of electricity.
     """
-    df = _core_rus7__yearly_power_requirements
+    df = _core_rus7__power_requirements
     # Multi-Stack
     data_cols = ["sales_kwh", "revenue"]
     df = rus.multi_index_stack(
@@ -173,7 +173,7 @@ def _core_rus7__yearly_power_requirements_electric_sales(
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_power_requirements_electric_customers(
     _core_rus7__power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -196,7 +196,7 @@ def _core_rus7__yearly_power_requirements_electric_customers(
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_power_requirements(
     _core_rus7__power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -239,7 +239,7 @@ def _core_rus7__yearly_power_requirements(
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_investments(
     raw_rus7__investments: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -253,7 +253,7 @@ def _core_rus7__yearly_investments(
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_long_term_debt(
     raw_rus7__long_term_debt: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -263,7 +263,7 @@ def _core_rus7__yearly_long_term_debt(
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_patronage_capital(
     raw_rus7__patronage_capital: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -294,7 +294,7 @@ def _core_rus7__yearly_patronage_capital(
     return df
 
 
-@asset
+@asset()
 def _core_rus7__yearly_statement_of_operations(
     raw_rus7__statement_of_operations: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -351,9 +351,9 @@ _CORE_RUS7_TABLES = [
 ]
 
 
-@multi_asset(
+@asset(
     ins={table_name: AssetIn() for table_name in _CORE_RUS7_TABLES},
-    outs={"core_rus7__entity_borrowers": AssetOut(io_manager_key="pudl_io_manager")},
+    io_manager_key="pudl_io_manager",
     config_schema={
         "debug": Field(
             bool,
@@ -364,9 +364,8 @@ _CORE_RUS7_TABLES = [
             ),
         ),
     },
-    name="harvested_borrowers_rus7",
 )
-def harvested_borrowers_rus7(context, **clean_dfs):
+def core_rus7__entity_borrowers(context, **clean_dfs):
     """Harvesting IDs & consistent static attributes for RUS7 entity."""
     entity = RusEntity.BORROWERS
     logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
@@ -379,10 +378,7 @@ def harvested_borrowers_rus7(context, **clean_dfs):
         debug=context.op_config["debug"],
     )
 
-    return (
-        Output(output_name="core_rus7__entity_borrowers", value=entity_df),
-        # Output(output_name="core_rus7__scd_borrowers", value=annual_df),
-    )
+    return entity_df
 
 
 finished_rus_assets = [

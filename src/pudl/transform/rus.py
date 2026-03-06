@@ -181,6 +181,6 @@ def finished_rus_asset_factory(
     )
     def finished_rus_asset(**kwargs) -> pd.DataFrame:
         """Convert RUS _core table to core - the io manager will handle the schema."""
-        return _core_table_name
+        return kwargs[_core_table_name]
 
     return finished_rus_asset
