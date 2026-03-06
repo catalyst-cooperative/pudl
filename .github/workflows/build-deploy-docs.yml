@@ -37,7 +37,7 @@ jobs:
 
       - name: Lint and build PUDL documentation with Sphinx
         run: |
-          pixi run docs-build
+          pixi run docs-build-full
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

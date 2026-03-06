@@ -14,10 +14,11 @@ applyTo: "docs/**/*.rst, README.rst"
 ## Build docs locally
 
 ```bash
+# This takes several minutes to run.
 pixi run docs-build
 ```
 
-## Clean up generated files after building docs
+## Clean up generated files after building docs if necessary
 
 ```bash
 pixi run docs-clean
