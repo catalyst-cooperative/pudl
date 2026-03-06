@@ -25,19 +25,39 @@ function authenticate_gcp() {
 }
 
 function run_ferceqr_etl() {
-    echo "Running FERC EQR ETL"
-    # Launch dagster deployment in the background
-    initialize_postgres &&
-        authenticate_gcp &&
-        dagster dev &
+    set -euo pipefail
 
-    # Kick off the ferceqr_etl job asynchronously
-    dagster job backfill --noprompt -j ferceqr_etl --location pudl.etl
+    cleanup_dg_dev() {
+        if [[ -n "${DG_DEV_PID:-}" ]] && kill -0 "$DG_DEV_PID" 2>/dev/null; then
+            # dg dev can spawn child processes; terminate the whole process group.
+            kill -TERM -- "-$DG_DEV_PID" 2>/dev/null || true
+            wait "$DG_DEV_PID" 2>/dev/null || true
+        fi
+    }
+
+    trap cleanup_dg_dev EXIT INT TERM
+
+    echo "Running FERC EQR ETL"
+    # Launch Dagster deployment in the background.
+    initialize_postgres
+    authenticate_gcp
+    setsid dg dev >/tmp/dg-dev.log 2>&1 &
+    DG_DEV_PID=$!
+
+    # Launch the ferceqr_etl job.
+    dg launch --job ferceqr_etl
     # Wait for a file called 'SUCCESS' or 'FAILURE' to be created in PUDL_OUTPUT indicating completion
     # Timeout after 6 hours if file still doesn't exist
     inotifywait -e create -t 21600 --include 'SUCCESS|FAILURE' "$PUDL_OUTPUT"
-    # Kill dagster deployment
-    killall dagster
+
+    if [[ -f "${PUDL_OUTPUT}/FAILURE" ]]; then
+        echo "FERC EQR ETL failed."
+        return 1
+    fi
+
+    # Explicit shutdown on success. The trap handles failures and interruptions.
+    cleanup_dg_dev
+    trap - EXIT INT TERM
 }
 
 ########################################################################################
