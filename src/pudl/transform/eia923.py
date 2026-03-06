@@ -1853,6 +1853,6 @@ def _core_eia923__yearly_emissions_control(
         df[col] = _clean_emissions_control_dates(df[col])
 
     # Encode operational_status (and potentially other columns):
-    # df = PUDL_PACKAGE.encode(df)
+    df = PUDL_PACKAGE.encode(df)
 
     return df

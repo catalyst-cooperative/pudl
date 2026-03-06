@@ -66,6 +66,4 @@ sources:
                   arguments:
                     min_value: "DATE '1950-01-01'"
                     max_value: "current_date"
-                    warn_if: ">0"
-                    error_if: ">5" # A handful of dates in 1900 or 2209
           - name: data_maturity
