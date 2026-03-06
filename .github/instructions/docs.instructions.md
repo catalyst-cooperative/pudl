@@ -9,11 +9,18 @@ applyTo: "docs/**/*.rst, README.rst"
 - Documentation is built with Sphinx from reStructuredText sources.
 - Keep docs changes consistent with actual commands and current project tooling.
 - Prefer linking to canonical docs pages instead of duplicating long procedural text.
+- Docstrings use the Google style and are rendered in the API reference docs.
 
 ## Build docs locally
 
 ```bash
 pixi run docs-build
+```
+
+## Clean up generated files after building docs
+
+```bash
+pixi run docs-clean
 ```
 
 ## Programmatically generated docs
@@ -26,7 +33,7 @@ pixi run docs-build
   the documentation pages under `docs/data_sources` as well as the PUDL data dictionary.
 - If a warning or error is generated when building the HTML docs from the generated
   RST source files, you can force the generated files to be retained for inspection by
-  setting keep_generated_files to True in `docs/conf.py`.
+  setting the environment variable `PUDL_DOCS_KEEP_GENERATED_FILES` to any value.
 
 ## Release notes
 
