@@ -399,5 +399,5 @@ def core_rus7__yearly_external_financial_risk_ratio(
 ) -> pd.DataFrame:
     """Transform the raw_rus7__external_financial_risk_ratio table."""
     df = rus.early_transform(raw_df=raw_rus7__external_financial_risk_ratio)
-    df["external_financial_risk_ratio"] = df["external_financial_risk_ratio"].round(2)
+    df["external_financial_risk_ratio"] = df["external_financial_risk_ratio"]
     return df
