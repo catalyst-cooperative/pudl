@@ -75,8 +75,9 @@ bibtex_bibfiles = [
     "further_reading.bib",
 ]
 
-# Set this to True if you need to debug generated file formatting.
-keep_generated_files = False
+# Default behavior: do not keep generated files.
+# Any value (including an empty string) opts into keeping them.
+keep_generated_files = "PUDL_DOCS_KEEP_GENERATED_FILES" in os.environ
 
 # Redirects to keep folks from hitting 404 errors:
 redirects = {

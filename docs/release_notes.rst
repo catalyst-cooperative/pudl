@@ -23,7 +23,7 @@ EIA-923
 ~~~~~~~
 
 * Added a new table derived from EIA-923 Schedule 8C describing installed emissions
-  control equipment and its operation: :ref:`_core_eia923__yearly_emissions_control`.
+  control equipment and its operation: :ref:`i_core_eia923__yearly_emissions_control`.
   With this table, we now have preliminary versions of all of EIA-923 Schedule 8.
   See issue :issue:`4081` and PRs :pr:`4668,5048`. Thanks to :user:`alexclippinger` for
   working on this!
@@ -54,7 +54,7 @@ Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Improved parsing of the poorly formatted ``so2_test_date`` column found in
-  :ref:`_core_eia923__yearly_fgd_operation_maintenance`. See PR :pr:`5048`.
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance`. See PR :pr:`5048`.
 * Standardized emissions control equipment efficiencies to be stated as a decimal number
   between 0.0-1.0, rather than a percentage between 0-100. Removed misleading ``_pct``
   column name suffixes on efficiency columns that had values between 0.0-1.0. See PR
@@ -65,6 +65,10 @@ Performance Improvements
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Control whether the files generated via the docs build are kept or deleted after the
+  build completes via an environment variable ``PUDL_DOCS_KEEP_GENERATED_FILES`` rather
+  than requiring the user to edit ``docs/conf.py``. See PR :pr:`5048``.
 
 .. _release-v2026.2.0:
 
