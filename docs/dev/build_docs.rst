@@ -23,6 +23,14 @@ By default, ``docs-build`` disables intersphinx lookups by setting
 ``PUDL_DOCS_DISABLE_INTERSPHINX=1``. This avoids spurious failures when remote
 documentation inventories are unavailable in local or CI test environments.
 
+By default, generated documentation source files are cleaned up after a build.
+If you want to inspect generated ``.rst`` / CSV artifacts, set
+``PUDL_DOCS_KEEP_GENERATED_FILES=1`` when running the build:
+
+.. code-block:: console
+
+    $ PUDL_DOCS_KEEP_GENERATED_FILES=1 pixi run docs-build
+
 If you want a full documentation build with intersphinx enabled (for example,
 to mirror production docs behavior), run:
 
@@ -58,7 +66,6 @@ documentation in your text editor with appropriate plugins.
     by the :mod:`pudl.convert.metadata_to_rst` script that gets run by Sphinx during
     the docs build.
 
-    ``pixi run docs-build`` will build and then delete all of the rst files via
-    ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py``. If you want to
-    preserve them for a one-off build, you can comment out that step in
-    ``docs/conf.py``.
+    ``pixi run docs-build`` will build and then delete all generated files via
+    ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py`` unless
+    ``PUDL_DOCS_KEEP_GENERATED_FILES`` is set.
