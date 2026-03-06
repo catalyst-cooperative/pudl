@@ -195,7 +195,7 @@ def add_fips_ids(
     df: pd.DataFrame,
     geocodes: pd.DataFrame,
     state_col: str = "state",
-    county_col: str = "county",
+    county_col: str | None = "county",
 ) -> pd.DataFrame:
     """Add State and County FIPS IDs to a dataframe.
 
@@ -790,7 +790,7 @@ def simplify_strings(
 def cleanstrings_series(
     col: pd.Series,
     str_map: dict[str, list[str]],
-    unmapped: str | None = None,
+    unmapped: str | NAType | None = None,
     simplify: bool = True,
 ) -> pd.Series:
     """Clean up the strings in a single column/Series.
@@ -839,7 +839,7 @@ def cleanstrings(
     df: pd.DataFrame,
     columns: list[str],
     stringmaps: list[dict[str, list[str]]],
-    unmapped: str | None = None,
+    unmapped: str | NAType | None = None,
     simplify: bool = True,
 ) -> pd.DataFrame:
     """Consolidate freeform strings in several dataframe columns.

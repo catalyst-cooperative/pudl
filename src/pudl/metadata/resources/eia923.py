@@ -1099,6 +1099,57 @@ and consumption is the net generation."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
+    "_core_eia923__yearly_emissions_control": {
+        "description": {
+            "additional_summary_text": (
+                "Actual rate and removal efficiency for air emissions reported by "
+                "thermoelectric or combined-cycle power plants with a total steam turbine capacity "
+                "greater than or equal to 10 megawatts."
+            ),
+            "additional_source_text": "(Schedule 8C)",
+            "additional_primary_key_text": (
+                "This table is not yet normalized, and contains information about "
+                "several different types of emissions control equipment, each of which "
+                "has its own ID, and not all of which are present at every plant. As "
+                "a result there is currently no unique, non-null primary key. "
+                "Conceptually, the primary key should consist of plant_id_eia, "
+                "report_date, mercury_control_id_eia, nox_control_id_eia, "
+                "so2_control_id_eia, and particulate_control_id_eia. In practice many "
+                "records have NULL values for all of the control equipment IDs."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
+                "acid_gas_removal_efficiency",
+                "annual_nox_emission_rate_lb_per_mmbtu",
+                "data_maturity",
+                "environmental_equipment_name",
+                "fgd_electricity_consumption_mwh",
+                "fgd_sorbent_consumption_tons",
+                "hours_in_service",
+                "mercury_control_id_eia",
+                "mercury_emission_rate_lb_per_trillion_btu",
+                "mercury_removal_efficiency",
+                "nox_control_id_eia",
+                "operational_status",
+                "ozone_season_nox_emission_rate_lb_per_mmbtu",
+                "particulate_control_id_eia",
+                "particulate_emission_rate_lb_per_mmbtu",
+                "particulate_removal_efficiency_tested",
+                "particulate_removal_efficiency_annual",
+                "particulate_test_date",
+                "so2_control_id_eia",
+                "so2_removal_efficiency_tested",
+                "so2_removal_efficiency_annual",
+                "so2_test_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
 }
 """EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
 

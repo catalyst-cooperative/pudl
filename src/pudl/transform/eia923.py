@@ -1385,6 +1385,170 @@ def cooling_system_information_continuity(csi):
     )
 
 
+def _normalize_emissions_control_year(
+    raw_year: pd.Series, current_year: int
+) -> pd.Series:
+    """Normalize 2- and 4-digit year strings to integer years."""
+    year = pd.to_numeric(raw_year, errors="raise")
+    two_digit = raw_year.str.len().eq(2)
+    year = year.where(~two_digit, 2000 + year)
+    year = year.where(~(two_digit & year.gt(current_year)), year - 100)
+    return year
+
+
+def _build_emissions_control_dates(
+    raw_value: pd.Series,
+    year: pd.Series,
+    month: pd.Series,
+    day: pd.Series,
+    min_valid_year: int,
+    current_year: int,
+) -> pd.Series:
+    """Validate date parts and convert into pandas timestamps."""
+    year = year.astype("Int64")
+    month = month.astype("Int64")
+    day = day.astype("Int64")
+
+    month = month.mask(month.eq(0), 1)
+
+    invalid_year = year.ne(0) & (year.lt(min_valid_year) | year.gt(current_year))
+    if invalid_year.any():
+        bad = raw_value[invalid_year].dropna().drop_duplicates().tolist()
+        raise ValueError(
+            f"Year out of expected range ({min_valid_year}-{current_year}) in values: {bad}"
+        )
+
+    invalid_month = ~month.between(1, 12, inclusive="both")
+    if invalid_month.any():
+        bad = raw_value[invalid_month].dropna().drop_duplicates().tolist()
+        raise ValueError(f"Month out of range in values: {bad}")
+
+    rendered = (
+        year.astype(str).str.zfill(4)
+        + "-"
+        + month.astype(str).str.zfill(2)
+        + "-"
+        + day.astype(str).str.zfill(2)
+    )
+    parsed = pd.to_datetime(rendered, errors="coerce")
+    parsed = parsed.where(~year.eq(0))
+
+    invalid_day = year.ne(0) & parsed.isna()
+    if invalid_day.any():
+        bad = raw_value[invalid_day].dropna().drop_duplicates().tolist()
+        raise ValueError(f"Invalid date value in values: {bad}")
+
+    return parsed
+
+
+def _clean_emissions_control_dates(
+    col: pd.Series, spot_fixes: dict[str, pd.Timestamp] | None = None
+) -> pd.Series:
+    """Parse raw EIA-923 emissions-control date strings into datetimes.
+
+    Supported formats include compact month-year (``012024``), delimited month-year
+    (``01-2024``, ``1/20``), full date (``1/11/07``), and year-only values
+    (``1990`` -> January 1st). Known non-date tokens (e.g. ``na``, ``CEM``) are
+    converted to ``NaT``.
+
+    Parsing is strict: unknown structures or impossible date parts raise
+    ``ValueError`` so new upstream format changes are caught quickly.
+
+    Args:
+        col: Raw date-like values to clean.
+        spot_fixes: Optional table-specific mapping of raw string values to corrected
+            timestamps. If provided, these mappings are applied before pattern parsing.
+    """
+    current_year = pd.Timestamp.now().year
+    min_valid_year = 1950
+    null_tokens = {"", "na", "n.a.", "n/a", "cem", "en"}
+    spot_fixes = spot_fixes or {}
+
+    raw = col.astype("string").str.strip()
+    out = pd.Series(pd.NaT, index=raw.index, dtype="datetime64[ns]")
+
+    lowered = raw.str.lower()
+    is_nullish = raw.isna() | lowered.isin(null_tokens)
+
+    is_spot_fix = raw.isin(spot_fixes)
+    out.loc[is_spot_fix] = raw.loc[is_spot_fix].map(spot_fixes)
+
+    to_parse = ~(is_nullish | is_spot_fix)
+
+    bad_chars = to_parse & ~raw.str.fullmatch(r"[0-9\-/]+")
+    if bad_chars.any():
+        bad = raw[bad_chars].drop_duplicates().tolist()
+        raise ValueError(f"Column contains non-digit/non-dash characters: {bad}")
+
+    digits_only = raw.str.replace(r"[-/]", "", regex=True)
+    all_zero = to_parse & digits_only.str.fullmatch(r"0+")
+    to_parse = to_parse & ~all_zero
+
+    full_date = to_parse & raw.str.fullmatch(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}")
+    month_year_delimited = to_parse & raw.str.fullmatch(r"\d{1,2}[/-]\d{2,4}")
+    month_year_compact = to_parse & raw.str.fullmatch(r"\d{1,2}\d{4}")
+    year_only = to_parse & raw.str.fullmatch(r"\d{4}")
+
+    unrecognized = to_parse & ~(
+        full_date | month_year_delimited | month_year_compact | year_only
+    )
+    if unrecognized.any():
+        bad = raw[unrecognized].drop_duplicates().tolist()
+        raise ValueError(f"Unexpected emissions-control date format: {bad}")
+
+    if full_date.any():
+        parts = raw[full_date].str.extract(
+            r"(?P<month>\d{1,2})[/-](?P<day>\d{1,2})[/-](?P<year>\d{2,4})"
+        )
+        out.loc[full_date] = _build_emissions_control_dates(
+            raw_value=raw[full_date],
+            year=_normalize_emissions_control_year(parts["year"], current_year),
+            month=pd.to_numeric(parts["month"], errors="raise"),
+            day=pd.to_numeric(parts["day"], errors="raise"),
+            min_valid_year=min_valid_year,
+            current_year=current_year,
+        )
+
+    if month_year_delimited.any():
+        parts = raw[month_year_delimited].str.extract(
+            r"(?P<month>\d{1,2})[/-](?P<year>\d{2,4})"
+        )
+        out.loc[month_year_delimited] = _build_emissions_control_dates(
+            raw_value=raw[month_year_delimited],
+            year=_normalize_emissions_control_year(parts["year"], current_year),
+            month=pd.to_numeric(parts["month"], errors="raise"),
+            day=pd.Series(1, index=parts.index),
+            min_valid_year=min_valid_year,
+            current_year=current_year,
+        )
+
+    if month_year_compact.any():
+        parts = raw[month_year_compact].str.extract(
+            r"(?P<month>\d{1,2})(?P<year>\d{4})"
+        )
+        out.loc[month_year_compact] = _build_emissions_control_dates(
+            raw_value=raw[month_year_compact],
+            year=_normalize_emissions_control_year(parts["year"], current_year),
+            month=pd.to_numeric(parts["month"], errors="raise"),
+            day=pd.Series(1, index=parts.index),
+            min_valid_year=min_valid_year,
+            current_year=current_year,
+        )
+
+    if year_only.any():
+        year = pd.to_numeric(raw[year_only], errors="raise")
+        out.loc[year_only] = _build_emissions_control_dates(
+            raw_value=raw[year_only],
+            year=year,
+            month=pd.Series(1, index=year.index),
+            day=pd.Series(1, index=year.index),
+            min_valid_year=min_valid_year,
+            current_year=current_year,
+        )
+
+    return pd.to_datetime(out)
+
+
 @asset(io_manager_key="pudl_io_manager")
 def _core_eia923__yearly_fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
@@ -1427,31 +1591,26 @@ def _core_eia923__yearly_fgd_operation_maintenance(
         :, "fgd_sorbent_consumption_tons"
     ].round(-2)
 
-    # Convert SO2 test date column to datetime
-    # This column only exists for 2008-2011
-    # First, convert a few troublesome datetimes that look like m/yy or mm/yy
-    if not fgd_df.so2_test_date.isnull().all():  # If column not empty
-        troublesome_dates = fgd_df.so2_test_date.str.contains(
-            r"^[0-9]{1,2}\/[0-9]{2}$", regex=True, na=False
-        )
-        logger.info(
-            f"Rescuing troublesome dates: {fgd_df[troublesome_dates].so2_test_date.unique()}"
-        )
-        fgd_df.loc[troublesome_dates, "so2_test_date"] = fgd_df[
-            troublesome_dates
-        ].so2_test_date.str.pad(5, fillchar="0")
-        fgd_df.loc[troublesome_dates, "so2_test_date"] = pd.to_datetime(
-            fgd_df.loc[troublesome_dates, "so2_test_date"], format="%m/%y"
-        )
+    # Convert 0-100% values to 0-1 values for the efficiency columns
+    efficiency_cols = [
+        "so2_removal_efficiency_tested_pct",
+        "so2_removal_efficiency_annual_pct",
+    ]
+    fgd_df.loc[:, efficiency_cols] = fgd_df.loc[:, efficiency_cols] / 100
+    fgd_df.columns = fgd_df.columns.str.replace("_pct", "")  # Rename columns
 
-    test_datetime = pd.to_datetime(
-        fgd_df.so2_test_date, format="mixed", errors="coerce", dayfirst=False
-    )
-    dropped_dates = fgd_df[
-        (test_datetime.isnull()) & (fgd_df.so2_test_date.notnull())
-    ].so2_test_date.unique()
-    logger.info(f"Dropping SO2 test dates that were not parseable: {dropped_dates}")
-    fgd_df.loc[:, "so2_test_date"] = test_datetime
+    # Parse mixed-format SO2 test dates using strict emissions-control rules.
+    # These spot fixes are specific to FGD data quirks and should not be global.
+    fgd_spot_fixes = {
+        "6-2209": pd.Timestamp("2009-06-22"),
+        "12-1900": pd.Timestamp("2000-12-19"),
+        "15-1993": pd.Timestamp("1993-01-05"),
+    }
+    if "so2_test_date" in fgd_df.columns:
+        fgd_df.loc[:, "so2_test_date"] = _clean_emissions_control_dates(
+            fgd_df["so2_test_date"],
+            spot_fixes=fgd_spot_fixes,
+        )
 
     # Handle mixed boolean types in control flag column
     fgd_df = convert_col_to_bool(
@@ -1464,9 +1623,7 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     # Take the non-NA values from each column for duplicate rows
     pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
 
-    return pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey).pipe(
-        apply_pudl_dtypes, strict=False
-    )
+    return pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
 
 
 @asset_check(asset=_core_eia923__yearly_fgd_operation_maintenance, blocking=True)
@@ -1654,5 +1811,48 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     # Convert thousands of dollars to dollars and remove suffix from column name
     df.loc[:, df.columns.str.endswith("_1000_dollars")] *= 1000
     df.columns = df.columns.str.replace("_1000_dollars", "")
+
+    return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def _core_eia923__yearly_emissions_control(
+    raw_eia923__emissions_control: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__emissions_control table.
+
+    Transformations include:
+
+    * Standardize NA values
+    * Convert units from thousands of tons to tons
+    * Clean and standardize format of month-year date string columns
+    * Standardize operational status codes
+
+    Args:
+        raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
+        dataframe.
+
+    Returns:
+        Cleaned ``_core_eia923__yearly_emissions_control`` dataframe ready for
+        harvesting.
+    """
+    # This column is dropped from all EIA 923 tables
+    df = raw_eia923__emissions_control.drop(["early_release"], axis=1)
+    # Convert report_date and fix NA values
+    df = (
+        df.pipe(_yearly_to_monthly_records)
+        .pipe(pudl.helpers.standardize_na_values)
+        .pipe(pudl.helpers.convert_to_date)
+    )
+    # Convert thousands of tons to tons
+    df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
+    df.columns = df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
+
+    date_cols = ["so2_test_date", "particulate_test_date"]
+    for col in date_cols:
+        df[col] = _clean_emissions_control_dates(df[col])
+
+    # Encode operational_status (and potentially other columns):
+    # df = PUDL_PACKAGE.encode(df)
 
     return df
