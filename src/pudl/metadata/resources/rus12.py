@@ -391,7 +391,8 @@ RESOURCE_METADATA = {
             ),
             "additional_details_text": (
                 "Reporting of investments is required by 7 CFR 1717, Subpart N. Investment "
-                "categories reported on this Part correspond to Balance Sheet items in Part C."
+                "categories reported on this Part correspond to Balance Sheet items in Part "
+                "A Section B in table :ref:`core_rus12__yearly_balance_sheet_assets`."
             ),
             "usage_warnings": ["experimental_wip", "aggregation_hazard"],
         },
