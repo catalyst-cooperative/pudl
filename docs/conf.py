@@ -118,6 +118,10 @@ intersphinx_mapping = {
     "sqlalchemy": ("https://docs.sqlalchemy.org/en/latest/", None),
 }
 
+if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
+    print("Disabling intersphinx lookups (PUDL_DOCS_DISABLE_INTERSPHINX is set).")
+    intersphinx_mapping = {}
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 

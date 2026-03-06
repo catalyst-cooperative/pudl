@@ -16,6 +16,17 @@
 - Project tasks and environments are defined in `pyproject.toml` under `[tool.pixi]`.
 - The canonical hook list is in `.pre-commit-config.yaml`.
 
+## Sandbox-safe command execution
+
+- Prefer already-installed binaries before invoking commands that may trigger package
+  resolution or updates.
+- Prefer direct binaries (for example `dg`, `rg`, `ruff`) when they are already
+  available in the active environment.
+- When using `pixi run`, prefer frozen/locked execution modes that avoid dependency
+  updates.
+- For sandboxed terminal runs, keep cache and temporary directories writable and local
+  to the workspace when possible, e.g. `TMPDIR`, `UV_CACHE_DIR`, `PIXI_HOME`.
+
 ## Always-on coding expectations
 
 - Prefer explicit, readable code and descriptive names over terse names.
