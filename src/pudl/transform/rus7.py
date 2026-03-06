@@ -344,11 +344,11 @@ def core_rus7__yearly_long_term_leases(
 @asset(io_manager_key="pudl_io_manager")
 def core_rus7__yearly_loans(
     raw_rus7__loan_guarantees: pd.DataFrame,
-    raw_rus7__distribution_loans: pd.DataFrame,
+    raw_rus7__loans: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the raw_rus7__loans and raw_rus7__loan_guarantees tables."""
     df_loans = rus.early_transform(
-        raw_df=raw_rus7__distribution_loans,
+        raw_df=raw_rus7__loans,
         boolean_columns_to_fix=["is_for_rural_development"],
         string_cols_to_simplify=["loan_recipient"],
     ).assign(is_loan_guarantee=False)
@@ -388,7 +388,7 @@ def core_rus7__yearly_loans(
     # Convert all loan_maturity_dates to datetime
     df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date)
 
-    # TO-DO: could standardize loan_recipient names
+    # TO-DO: could standardize loan_recipient    names
     # TO-DO: there are some validation cases where loan balance exceeds the original amount.
     return df
 

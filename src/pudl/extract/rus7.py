@@ -78,7 +78,7 @@ raw_rus7_assets = [
         "service_interruptions",
         "owed_by_customers",
         "long_term_leases",
-        "distribution_loans",
+        "loans",
         "utility_plant_changes",
     ]
 ]
