@@ -81,7 +81,8 @@ Quality of Life Improvements
   a ``dg`` quickstart, and added ``dg`` smoke checks in CI.
 * Added coding agent skills and instructions that customize agent behavior for PUDL.
   These markdown files can be found under ``.github/instructions/`` and
-  ``.github/skills``. See PR :pr:`5059` and the `VS Code documentation for more details <https://code.visualstudio.com/docs/copilot/customization/overview>`__.
+  ``.github/skills/``. See PR :pr:`5059` and the `VS Code documentation for more details
+  <https://code.visualstudio.com/docs/copilot/customization/overview>`__.
 
 .. _release-v2026.2.0:
 
