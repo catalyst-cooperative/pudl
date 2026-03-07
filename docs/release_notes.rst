@@ -30,6 +30,9 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
+  PR :pr:`5023`.
+
 .. _release-v2026.2.0:
 
 ---------------------------------------------------------------------------------------
