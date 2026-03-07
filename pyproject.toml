@@ -53,8 +53,9 @@ channels = ["conda-forge"]
 channel-priority = "strict"
 preview = ["pixi-build"]
 
-# This is an expansive listing of all PUDL dependencies that are available via
-# conda-forge. It includes development, testing, and run-time dependencies.
+# This is the baseline dependency set used by production and CI environments.
+# Optional development workflows (notebooks, visualization, ML ops) should live
+# in feature-specific dependency tables below.
 # For any dependency with an upper bound on the version, please add a
 # comment explaining why it's necessary.
 [tool.pixi.dependencies]
@@ -97,18 +98,8 @@ grpcio-status = "==1.73.1"
 hypothesis = ">=6.123"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
-jupyter = ">=1.1"
-jupyter-lsp = ">=2.3"
-jupyter-resource-usage = ">=1.2"
-jupyterlab = ">=4.5"
-jupyterlab-lsp = ">=5.2"
-matplotlib-base = ">=3.10"
 memray = ">=1.18.0"
-mlflow = ">=3.8"
-nbconvert = ">=7"
-nbformat = ">=5.10"
 networkx = ">=3.6"
-nodejs = ">=24"
 numba = ">=0.63.1"
 numexpr = ">=2.10"
 numpy = ">=2.3"
@@ -164,6 +155,40 @@ urllib3 = ">=2.4"
 uv = ">=0.10"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
+
+[tool.pixi.feature.notebooks.dependencies]
+# Keep notebook and visualization tooling out of production/CI by default.
+jupyter = ">=1.1"
+jupyter-lsp = ">=2.3"
+jupyter-resource-usage = ">=1.2"
+jupyterlab = ">=4.5"
+jupyterlab-lsp = ">=5.2"
+marimo = ">=0.18"
+matplotlib-base = ">=3.10"
+nbconvert = ">=7"
+nbformat = ">=5.10"
+nodejs = ">=24"
+plotly = ">=6.3"
+
+[tool.pixi.feature.mlops.dependencies]
+# ML ops workflows are optional and can be layered onto prod/dev environments.
+mlflow = ">=3.8"
+
+[tool.pixi.environments]
+# NOTE: The pairs below are intentional aliases-for-now.
+# - default/dev currently resolve to the same feature set.
+# - prod/ci currently resolve to the same feature set.
+# They are kept separate to encode execution intent in commands and docs,
+# and to allow future divergence without renaming existing workflow usage.
+# Local default keeps notebook tooling for day-to-day exploration.
+default = { features = ["notebooks"], solve-group = "pudl" }
+# Minimal execution environments for nightly ETL and CI checks.
+prod = { solve-group = "pudl" }
+ci = { solve-group = "pudl" }
+# Explicit names for convenience and discoverability.
+dev = { features = ["notebooks"], solve-group = "pudl" }
+mlops = { features = ["mlops"], solve-group = "pudl" }
+dev-mlops = { features = ["notebooks", "mlops"], solve-group = "pudl" }
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
@@ -225,8 +250,6 @@ grpcio-health-checking = "==1.73.1"
 grpcio-status = "==1.73.1"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
-matplotlib-base = ">=3.10"
-mlflow = ">=3.9"
 networkx = ">=3.6"
 numba = ">=0.63.1"
 numexpr = ">=2.10"
