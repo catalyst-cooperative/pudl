@@ -1788,7 +1788,7 @@ def _core_eia923__yearly_byproduct_disposition(
 
     * Replace . values with NA
     * Drop rows with NA byproduct_description. This also removes all duplicates based on
-        report_year, plant_id_eia, and byproduct_description
+        report_date, plant_id_eia, and byproduct_description
     * Convert 1000 tons to tons (avoiding steam sales, which are reported in MMBtu)
     * Create a byproducts_unit column based on the byproduct_disposition
 
@@ -1799,7 +1799,9 @@ def _core_eia923__yearly_byproduct_disposition(
     Returns:
         Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
     """
-    df = pudl.helpers.standardize_na_values(raw_eia923__byproduct_disposition)
+    df = raw_eia923__byproduct_disposition.pipe(
+        pudl.helpers.standardize_na_values
+    ).pipe(pudl.helpers.convert_to_date)
 
     # Drops known duplicate primary keys.
     # These rows contain no meaningful data. To prevent dropping future rows unexpectedly, we
@@ -1835,7 +1837,7 @@ def _core_eia923__yearly_byproduct_disposition(
     cols_to_check = list(
         df.filter(regex=r"^(disposal|sold|stored|used|total)_.*_units$").columns
     ) + ["no_byproducts_to_report"]
-    df = df.groupby(["report_year", "plant_id_eia"]).filter(
+    df = df.groupby(["report_date", "plant_id_eia"]).filter(
         lambda group: group[cols_to_check].notna().any(axis=None)
     )
     return df
@@ -1857,7 +1859,7 @@ def disposition_continuity_check(bpd):
             "used_onsite_units": 0.4,
             "total_disposal_units": 0.4,
         },
-        groupby_col="report_year",
+        groupby_col="report_date",
         n_outliers_allowed=5,
     )
 
@@ -1869,28 +1871,33 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     """Transforms the eia923__byproduct_expenses_and_revenues table.
 
     Transformations include:
+
     * Standardize NA values
+    * Convert integer year to datetime
     * Convert 1000 dollars (opex and revenue columns) to dollars
 
     Args:
-        raw_eia923__byproduct_expenses_and_revenues: The raw ``raw_eia923__byproduct_expenses_and_revenues``
-        dataframe.
+        raw_eia923__byproduct_expenses_and_revenues: The raw
+          ``raw_eia923__byproduct_expenses_and_revenues`` dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__yearly_byproduct_expenses_and_revenues`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_byproduct_expenses_and_revenues`` dataframe ready
+        for harvesting.
     """
-    df = raw_eia923__byproduct_expenses_and_revenues.copy()
-
-    # This column is dropped from all EIA 923 tables
-    df = df.drop(["early_release"], axis=1)
-
-    df = pudl.helpers.standardize_na_values(df)
-
-    # One dupe for plant_id_eia=6504 and report_year=2010 with no differences in byproduct dollars reported
-    df = pudl.helpers.dedupe_and_drop_nas(
-        df, primary_key_cols=["plant_id_eia", "report_year"]
+    df = (
+        # This column is dropped from all EIA 923 tables
+        raw_eia923__byproduct_expenses_and_revenues.drop(
+            ["early_release"], axis="columns"
+        )
+        .pipe(pudl.helpers.standardize_na_values)
+        .pipe(pudl.helpers.convert_to_date)
+        # One dupe for plant_id_eia=6504 and report_date=2010-01-01
+        # with no differences in byproduct dollars reported
+        .pipe(
+            pudl.helpers.dedupe_and_drop_nas,
+            primary_key_cols=["plant_id_eia", "report_date"],
+        )
     )
-
     # Convert thousands of dollars to dollars and remove suffix from column name
     df.loc[:, df.columns.str.endswith("_1000_dollars")] *= 1000
     df.columns = df.columns.str.replace("_1000_dollars", "")
@@ -1918,11 +1925,8 @@ def _core_eia923__yearly_emissions_control(
         Cleaned ``_core_eia923__yearly_emissions_control`` dataframe ready for
         harvesting.
     """
-    # This column is dropped from all EIA 923 tables
-    df = raw_eia923__emissions_control.drop(["early_release"], axis=1)
-    # Convert report_date and fix NA values
     df = (
-        df.pipe(_yearly_to_monthly_records)
+        raw_eia923__emissions_control.drop(["early_release"], axis="columns")
         .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.convert_to_date)
     )

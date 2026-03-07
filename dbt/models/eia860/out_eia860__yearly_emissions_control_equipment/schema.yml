@@ -8,9 +8,9 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_eia860__yearly_emissions_control_equipment
-                partition_expr: report_year
+                partition_expr: report_date
         columns:
-          - name: report_year
+          - name: report_date
           - name: plant_id_eia
           - name: plant_id_pudl
           - name: plant_name_eia
