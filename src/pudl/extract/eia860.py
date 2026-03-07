@@ -93,13 +93,25 @@ raw_table_names = (
     "raw_eia860__utility",
 )
 
+eia860m_appendable_tables = frozenset(
+    {
+        "generator_existing",
+        "generator_proposed",
+        "generator_retired",
+    }
+)
+
 
 raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
 
 
 # TODO (bendnorman): Figure out type hint for context keyword and multi_asset return
 @multi_asset(
-    outs={table_name: AssetOut() for table_name in sorted(raw_table_names)},
+    outs={
+        table_name: AssetOut(is_required=False)
+        for table_name in sorted(raw_table_names)
+    },
+    can_subset=True,
     required_resource_keys={"datastore", "dataset_settings"},
 )
 def extract_eia860(context, raw_eia860__all_dfs):
@@ -113,8 +125,15 @@ def extract_eia860(context, raw_eia860__all_dfs):
     """
     eia_settings = context.resources.dataset_settings.eia
     ds = context.resources.datastore
+    selected_outputs = set(context.selected_output_names)
 
-    if eia_settings.eia860.eia860m:
+    selected_eia860m_appendable_tables = {
+        output_name.removeprefix("raw_eia860__")
+        for output_name in selected_outputs
+        if output_name.startswith("raw_eia860__")
+    } & eia860m_appendable_tables
+
+    if eia_settings.eia860.eia860m and selected_eia860m_appendable_tables:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
             year_month=eia_settings.eia860.eia860m_year_months
         )
@@ -132,4 +151,5 @@ def extract_eia860(context, raw_eia860__all_dfs):
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in raw_eia860__all_dfs.items()
+        if table_name in selected_outputs
     )
