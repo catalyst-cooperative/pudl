@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: _core_eia923__yearly_byproduct_expenses_and_revenues
-                partition_expr: report_year
+                partition_expr: report_date
           - expect_sum_close_to_total_column:
               name: revenue_discrepancy_rate
               arguments:
@@ -59,7 +59,7 @@ sources:
                 max_discrepancy_rate: 0.01
         columns:
           - name: plant_id_eia
-          - name: report_year
+          - name: report_date
           - name: data_maturity
           - name: capex_air_abatement
           - name: capex_other_abatement
