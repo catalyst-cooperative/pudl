@@ -76,7 +76,8 @@ bibtex_bibfiles = [
 ]
 
 # Default behavior: do not keep generated files. Clean up after the build exits.
-keep_generated_files = False
+# If this environment variable is defined, don't remove the generated files.
+keep_generated_files = "PUDL_DOCS_KEEP_GENERATED_FILES" in os.environ
 
 # Redirects to keep folks from hitting 404 errors:
 redirects = {
