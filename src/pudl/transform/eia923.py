@@ -1912,6 +1912,10 @@ def _core_eia923__yearly_emissions_control(
         .pipe(pudl.helpers.standardize_na_values)
         .pipe(pudl.helpers.convert_to_date)
     )
+    # A few dozen records from 2013 have "Not applicable" in this column.
+    df["environmental_equipment_name"] = df["environmental_equipment_name"].replace(
+        "Not applicable", pd.NA
+    )
     # Convert thousands of tons to tons
     df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
     df.columns = df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
