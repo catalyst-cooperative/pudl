@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: _core_eia923__yearly_byproduct_expenses_and_revenues
-                partition_expr: report_date
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_sum_close_to_total_column:
               name: revenue_discrepancy_rate
               arguments:
