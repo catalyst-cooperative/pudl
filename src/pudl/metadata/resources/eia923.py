@@ -1016,7 +1016,7 @@ and consumption is the net generation."""
         },
         "schema": {
             "fields": [
-                "report_year",
+                "report_date",
                 "plant_id_eia",
                 "byproduct_description",
                 "byproduct_units",
@@ -1034,7 +1034,7 @@ and consumption is the net generation."""
             ],
             "primary_key": [
                 "plant_id_eia",
-                "report_year",
+                "report_date",
                 "byproduct_description",
             ],
         },
@@ -1059,7 +1059,7 @@ and consumption is the net generation."""
         "schema": {
             "fields": [
                 "plant_id_eia",
-                "report_year",
+                "report_date",
                 "data_maturity",
                 "capex_air_abatement",
                 "capex_other_abatement",
@@ -1092,7 +1092,7 @@ and consumption is the net generation."""
             ],
             "primary_key": [
                 "plant_id_eia",
-                "report_year",
+                "report_date",
             ],
         },
         "field_namespace": "eia",
