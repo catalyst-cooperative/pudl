@@ -281,7 +281,10 @@ def test__clean_emissions_control_dates(raw_values, expected_dates, spot_fixes):
     """Test that raw EIA-923 date strings are parsed correctly."""
     col = pd.array(raw_values, dtype="string")
     result = eia923._clean_emissions_control_dates(
-        pd.Series(col), spot_fixes=spot_fixes
+        pd.Series(col),
+        spot_fixes=spot_fixes,
+        min_valid_year=1950,
+        max_valid_year=2025,
     )
     expected = pd.to_datetime(pd.Series(expected_dates))
     pd.testing.assert_series_equal(result, expected, check_names=False)
@@ -319,4 +322,8 @@ def test__clean_emissions_control_dates__raises(raw_values, match):
     non-digit/non-dash characters.
     """
     with pytest.raises(Exception, match=match):
-        eia923._clean_emissions_control_dates(pd.Series(raw_values, dtype="string"))
+        eia923._clean_emissions_control_dates(
+            pd.Series(raw_values, dtype="string"),
+            min_valid_year=1950,
+            max_valid_year=2025,
+        )

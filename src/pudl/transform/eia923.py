@@ -11,7 +11,7 @@ from dagster import (
 )
 
 import pudl
-from pudl.helpers import convert_col_to_bool
+from pudl.helpers import convert_col_to_bool, normalize_year_fragments
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -1387,44 +1387,13 @@ def cooling_system_information_continuity(csi):
     )
 
 
-def _normalize_emissions_control_year(
-    raw_year: pd.Series, current_year: int
-) -> pd.Series:
-    """Normalize year fragments used in emissions-control date parsing.
-
-    This helper accepts string years that are either 2-digit (e.g. ``"05"`` or
-    ``"95"``) or 4-digit (e.g. ``"2008"``) and returns integer years.
-
-    Two-digit years are interpreted using a rolling-century rule that prefers the
-    2000s, unless that would create a future year. For example, if ``current_year`` is
-    2026:
-
-    * ``"05"`` -> ``2005``
-    * ``"95"`` -> ``1995``
-
-    Args:
-        raw_year: String-like year tokens extracted from raw date text.
-        current_year: Upper year bound used to avoid mapping to future years.
-
-    Returns:
-        A Series of integer-like year values.
-    """
-    year = pd.to_numeric(raw_year, errors="raise")
-    two_digit = raw_year.str.len().eq(2)
-    # Start by mapping all 2-digit years into the 2000s.
-    year = year.where(~two_digit, 2000 + year)
-    # If that creates a future year, shift to the prior century.
-    year = year.where(~(two_digit & year.gt(current_year)), year - 100)
-    return year
-
-
 def _build_emissions_control_dates(
     raw_value: pd.Series,
     year: pd.Series,
     month: pd.Series,
     day: pd.Series,
     min_valid_year: int,
-    current_year: int,
+    max_valid_year: int,
 ) -> pd.Series:
     """Validate date parts and build parsed timestamps.
 
@@ -1433,8 +1402,7 @@ def _build_emissions_control_dates(
     validation rules:
 
     * month ``00`` is coerced to January
-    * year ``0000`` is treated as missing (``NaT``)
-    * non-zero years must be in ``[min_valid_year, current_year]``
+    * years must be in ``[min_valid_year, max_valid_year]``
     * invalid calendar dates (e.g. day 32) raise
 
     Args:
@@ -1443,10 +1411,10 @@ def _build_emissions_control_dates(
         month: Parsed month components.
         day: Parsed day components.
         min_valid_year: Lower accepted year bound.
-        current_year: Upper accepted year bound.
+        max_valid_year: Upper accepted year bound.
 
     Returns:
-        Parsed timestamps with invalid/missing year ``0000`` represented as ``NaT``.
+        Parsed timestamps for valid date parts.
 
     Raises:
         ValueError: If year/month/day parts violate expected constraints.
@@ -1458,11 +1426,11 @@ def _build_emissions_control_dates(
     # EIA occasionally uses month 00; treat it as January.
     month = month.mask(month.eq(0), 1)
 
-    invalid_year = year.ne(0) & (year.lt(min_valid_year) | year.gt(current_year))
+    invalid_year = year.lt(min_valid_year) | year.gt(max_valid_year)
     if invalid_year.any():
         bad = raw_value[invalid_year].dropna().drop_duplicates().tolist()
         raise ValueError(
-            f"Year out of expected range ({min_valid_year}-{current_year}) in values: {bad}"
+            f"Year out of expected range ({min_valid_year}-{max_valid_year}) in values: {bad}"
         )
 
     invalid_month = ~month.between(1, 12, inclusive="both")
@@ -1479,10 +1447,8 @@ def _build_emissions_control_dates(
     )
     # Build dates in one vectorized pass; invalid calendar combinations become NaT.
     parsed = pd.to_datetime(rendered, errors="coerce")
-    # Preserve historical behavior: year 0000 is interpreted as missing, not an error.
-    parsed = parsed.where(~year.eq(0))
 
-    invalid_day = year.ne(0) & parsed.isna()
+    invalid_day = parsed.isna()
     if invalid_day.any():
         bad = raw_value[invalid_day].dropna().drop_duplicates().tolist()
         raise ValueError(f"Invalid date value in values: {bad}")
@@ -1490,8 +1456,75 @@ def _build_emissions_control_dates(
     return parsed
 
 
+def _parse_emissions_control_date_subset(
+    raw_subset: pd.Series,
+    pattern: str,
+    min_valid_year: int,
+    max_valid_year: int,
+    month_group: str | None,
+    day_group: str | None,
+    default_month: int = 1,
+    default_day: int = 1,
+) -> pd.Series:
+    """Parse one recognized emissions-control date format for a subset of rows.
+
+    Args:
+        raw_subset: Raw date strings for rows matching one known format.
+        pattern: Regex pattern with a required ``year`` capture group and optional
+            ``month`` / ``day`` groups.
+        min_valid_year: Lower accepted year bound.
+        max_valid_year: Upper accepted year bound.
+        month_group: Name of the extracted month group or ``None`` to use
+            ``default_month``.
+        day_group: Name of the extracted day group or ``None`` to use ``default_day``.
+        default_month: Month value used when ``month_group`` is omitted.
+        default_day: Day value used when ``day_group`` is omitted.
+
+    Returns:
+        Parsed datetime series for the input subset, with ``0000`` year fragments
+        converted to ``NaT`` before year normalization.
+    """
+    parts = raw_subset.str.extract(pattern)
+    out = pd.Series(pd.NaT, index=parts.index, dtype="datetime64[ns]")
+
+    year_zero = parts["year"].eq("0000")
+    valid_parts = parts.loc[~year_zero]
+    if valid_parts.empty:
+        return out
+
+    valid_idx = valid_parts.index
+    year = normalize_year_fragments(
+        valid_parts["year"],
+        min_valid_year=min_valid_year,
+        max_valid_year=max_valid_year,
+    )
+    month = (
+        pd.to_numeric(valid_parts[month_group], errors="raise")
+        if month_group
+        else pd.Series(default_month, index=valid_idx)
+    )
+    day = (
+        pd.to_numeric(valid_parts[day_group], errors="raise")
+        if day_group
+        else pd.Series(default_day, index=valid_idx)
+    )
+
+    out.loc[valid_idx] = _build_emissions_control_dates(
+        raw_value=raw_subset.loc[valid_idx],
+        year=year,
+        month=month,
+        day=day,
+        min_valid_year=min_valid_year,
+        max_valid_year=max_valid_year,
+    )
+    return out
+
+
 def _clean_emissions_control_dates(
-    col: pd.Series, spot_fixes: dict[str, pd.Timestamp] | None = None
+    col: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+    spot_fixes: dict[str, pd.Timestamp] | None = None,
 ) -> pd.Series:
     """Parse raw EIA-923 emissions-control date strings into datetimes.
 
@@ -1521,8 +1554,6 @@ def _clean_emissions_control_dates(
         ValueError: If characters, structure, or date parts violate parsing
             assumptions.
     """
-    current_year = pd.Timestamp.now().year
-    min_valid_year = 1950
     null_tokens = {"", "na", "n.a.", "n/a", "cem", "en"}
     spot_fixes = spot_fixes or {}
 
@@ -1561,58 +1592,37 @@ def _clean_emissions_control_dates(
         bad = raw[unrecognized].drop_duplicates().tolist()
         raise ValueError(f"Unexpected emissions-control date format: {bad}")
 
-    if full_date.any():
-        # Parse m/d/y (or m-d-y) style values.
-        parts = raw[full_date].str.extract(
-            r"(?P<month>\d{1,2})[/-](?P<day>\d{1,2})[/-](?P<year>\d{2,4})"
-        )
-        out.loc[full_date] = _build_emissions_control_dates(
-            raw_value=raw[full_date],
-            year=_normalize_emissions_control_year(parts["year"], current_year),
-            month=pd.to_numeric(parts["month"], errors="raise"),
-            day=pd.to_numeric(parts["day"], errors="raise"),
+    # Parse each recognized format through a shared helper. Year fragment sentinel
+    # values like "0000" are converted to NaT before year normalization.
+    format_specs = [
+        (
+            full_date,
+            r"(?P<month>\d{1,2})[/-](?P<day>\d{1,2})[/-](?P<year>\d{2,4})",
+            "month",
+            "day",
+        ),
+        (
+            month_year_delimited,
+            r"(?P<month>\d{1,2})[/-](?P<year>\d{2,4})",
+            "month",
+            None,
+        ),
+        (
+            month_year_compact,
+            r"(?P<month>\d{1,2})(?P<year>\d{4})",
+            "month",
+            None,
+        ),
+        (year_only, r"(?P<year>\d{4})", None, None),
+    ]
+    for mask, pattern, month_group, day_group in format_specs:
+        out.loc[mask] = _parse_emissions_control_date_subset(
+            raw_subset=raw.loc[mask],
+            pattern=pattern,
             min_valid_year=min_valid_year,
-            current_year=current_year,
-        )
-
-    if month_year_delimited.any():
-        # Parse m/y (or m-y) values and default day to 1.
-        parts = raw[month_year_delimited].str.extract(
-            r"(?P<month>\d{1,2})[/-](?P<year>\d{2,4})"
-        )
-        out.loc[month_year_delimited] = _build_emissions_control_dates(
-            raw_value=raw[month_year_delimited],
-            year=_normalize_emissions_control_year(parts["year"], current_year),
-            month=pd.to_numeric(parts["month"], errors="raise"),
-            day=pd.Series(1, index=parts.index),
-            min_valid_year=min_valid_year,
-            current_year=current_year,
-        )
-
-    if month_year_compact.any():
-        # Parse compact mmyyyy / myyyy values and default day to 1.
-        parts = raw[month_year_compact].str.extract(
-            r"(?P<month>\d{1,2})(?P<year>\d{4})"
-        )
-        out.loc[month_year_compact] = _build_emissions_control_dates(
-            raw_value=raw[month_year_compact],
-            year=_normalize_emissions_control_year(parts["year"], current_year),
-            month=pd.to_numeric(parts["month"], errors="raise"),
-            day=pd.Series(1, index=parts.index),
-            min_valid_year=min_valid_year,
-            current_year=current_year,
-        )
-
-    if year_only.any():
-        # Year-only values are interpreted as January 1st of that year.
-        year = pd.to_numeric(raw[year_only], errors="raise")
-        out.loc[year_only] = _build_emissions_control_dates(
-            raw_value=raw[year_only],
-            year=year,
-            month=pd.Series(1, index=year.index),
-            day=pd.Series(1, index=year.index),
-            min_valid_year=min_valid_year,
-            current_year=current_year,
+            max_valid_year=max_valid_year,
+            month_group=month_group,
+            day_group=day_group,
         )
 
     return pd.to_datetime(out)
@@ -1678,6 +1688,8 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     if "so2_test_date" in fgd_df.columns:
         fgd_df.loc[:, "so2_test_date"] = _clean_emissions_control_dates(
             fgd_df["so2_test_date"],
+            min_valid_year=1950,
+            max_valid_year=fgd_df["report_date"].dt.year.max(),
             spot_fixes=fgd_spot_fixes,
         )
 
@@ -1920,9 +1932,13 @@ def _core_eia923__yearly_emissions_control(
     df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
     df.columns = df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
 
-    date_cols = ["so2_test_date", "particulate_test_date"]
-    for col in date_cols:
-        df[col] = _clean_emissions_control_dates(df[col])
+    date_cols = {"so2_test_date": 1975, "particulate_test_date": 1950}
+    for col, min_valid_year in date_cols.items():
+        df[col] = _clean_emissions_control_dates(
+            df[col],
+            min_valid_year=min_valid_year,
+            max_valid_year=df["report_date"].dt.year.max(),
+        )
 
     # Encode operational_status (and potentially other columns):
     df = PUDL_PACKAGE.encode(df)

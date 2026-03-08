@@ -2472,3 +2472,77 @@ def duckdb_extract_zipped_csv(
 
         for page in pages:
             yield page, conn.read_csv(str(tmp_dir / zip_path / page))
+
+
+def normalize_year_fragments(
+    raw_year: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+    base_century: int = 2000,
+) -> pd.Series:
+    """Normalize year fragments into 4-digit years using a rolling-century rule.
+
+    This helper accepts a Series of string years that are either 2-digit (e.g. ``"05"``
+    or ``"95"``) or 4-digit (e.g. ``"2008"``) and returns integer 4-digit years.
+
+    Two-digit years are interpreted using a rolling-century rule anchored to
+    ``base_century``. By default ``base_century=2000``, so this logic is geared toward
+    20th/21st century data: two-digit values are first mapped into 2000-2099, and then
+    shifted back 100 years when they exceed ``max_valid_year``.
+
+    For example, with ``base_century=2000`` and ``max_valid_year=2026``:
+
+    * ``"05"`` -> ``2005``
+    * ``"95"`` -> ``1995``
+
+    Args:
+        raw_year: Series of string-like year tokens extracted from raw date text.
+        min_valid_year: Lower year bound used to avoid mapping to past years.
+        max_valid_year: Upper year bound used to avoid mapping to future years.
+        base_century: Century anchor for two-digit years. Must be divisible by 100.
+            Defaults to 2000.
+
+    Returns:
+        A Series of integer-like 4-digit year values.
+
+    Raises:
+        ValueError: If the valid year range is too wide to apply the rolling-century
+            logic, or if any resulting year falls outside the valid range.
+    """
+    if min_valid_year > max_valid_year:
+        raise ValueError(
+            f"Expected min_valid_year <= max_valid_year, got {min_valid_year=} and {max_valid_year=}."
+        )
+    if base_century % 100 != 0:
+        raise ValueError(
+            f"Expected base_century to be divisible by 100, got {base_century=}."
+        )
+    if max_valid_year - min_valid_year >= 100:
+        raise ValueError(
+            "Normalizing the century only works if the valid year range is less than 100 years."
+            f" Got min_valid_year={min_valid_year} and max_valid_year={max_valid_year}."
+        )
+    raw_year = raw_year.astype("string")
+    invalid_shape = ~raw_year.str.fullmatch(r"\d{2}|\d{4}")
+    if invalid_shape.any():
+        bad = raw_year[invalid_shape].dropna().drop_duplicates().tolist()
+        raise ValueError(
+            f"Expected only 2- or 4-digit year fragments, found invalid values: {bad}"
+        )
+    year = pd.to_numeric(raw_year, errors="raise")
+    two_digit = raw_year.str.len().eq(2)
+    # Start by mapping all 2-digit years into the configured base century.
+    year = year.where(~two_digit, base_century + year)
+    # If that creates a future year, shift to the prior century.
+    year = year.where(~(two_digit & year.gt(max_valid_year)), year - 100)
+    if year.lt(min_valid_year).any() or year.gt(max_valid_year).any():
+        bad = (
+            raw_year[year.lt(min_valid_year) | year.gt(max_valid_year)]
+            .dropna()
+            .drop_duplicates()
+            .tolist()
+        )
+        raise ValueError(
+            f"Year out of expected range ({min_valid_year}-{max_valid_year}) in values: {bad}"
+        )
+    return year
