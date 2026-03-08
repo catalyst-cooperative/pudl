@@ -76,7 +76,8 @@ bibtex_bibfiles = [
 ]
 
 # Default behavior: do not keep generated files. Clean up after the build exits.
-keep_generated_files = False
+# If this environment variable is defined, don't remove the generated files.
+keep_generated_files = "PUDL_DOCS_KEEP_GENERATED_FILES" in os.environ
 
 # Redirects to keep folks from hitting 404 errors:
 redirects = {
@@ -116,6 +117,10 @@ intersphinx_mapping = {
     "sklearn": ("https://scikit-learn.org/stable", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org/en/latest/", None),
 }
+
+if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
+    print("Disabling intersphinx lookups (PUDL_DOCS_DISABLE_INTERSPHINX is set).")
+    intersphinx_mapping = {}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

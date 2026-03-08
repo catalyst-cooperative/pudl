@@ -11,13 +11,32 @@ needs to be able to create an appropriate python environment. This process is
 controlled by ``docs/conf.py``.
 
 If you are editing the documentation and need to regenerate the outputs as
-you go to see your changes reflected locally, the most reliable option is to
-use ``make``. Make will remove the previously generated outputs and regenerate
-everything from scratch:
+you go to see your changes reflected locally, use the ``pixi`` tasks. The
+default task removes previously generated outputs and regenerates everything
+from scratch:
 
 .. code-block:: console
 
-    $ make docs-build
+    $ pixi run docs-build
+
+By default, ``docs-build`` disables intersphinx lookups by setting
+``PUDL_DOCS_DISABLE_INTERSPHINX=1``. This avoids spurious failures when remote
+documentation inventories are unavailable in local or CI test environments.
+
+By default, generated documentation source files are cleaned up after a build.
+If you want to inspect generated ``.rst`` / CSV artifacts, set
+``PUDL_DOCS_KEEP_GENERATED_FILES=1`` when running the build:
+
+.. code-block:: console
+
+    $ PUDL_DOCS_KEEP_GENERATED_FILES=1 pixi run docs-build
+
+If you want a full documentation build with intersphinx enabled (for example,
+to mirror production docs behavior), run:
+
+.. code-block:: console
+
+    $ pixi run docs-build-full
 
 If you're just working on a single page and don't care about the entire set
 of documents being regenerated and linked together, you can call Sphinx
@@ -47,7 +66,6 @@ documentation in your text editor with appropriate plugins.
     by the :mod:`pudl.convert.metadata_to_rst` script that gets run by Sphinx during
     the docs build.
 
-    `make docs-build` will build and the delete all of the rst files via
-    ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py``. If you want to
-    preserve them for a one-off build, you can comment out that step in
-    ``docs/conf.py``.
+    ``pixi run docs-build`` will build and then delete all generated files via
+    ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py`` unless
+    ``PUDL_DOCS_KEEP_GENERATED_FILES`` is set.

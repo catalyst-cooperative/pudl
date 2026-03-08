@@ -62,6 +62,29 @@ and handle IO. If you are planning on contributing to PUDL, it is recommended yo
 read through the `Dagster Docs <https://docs.dagster.io/getting-started>`__ to
 familiarize yourself with the tool's main concepts.
 
+^^^^^^^^^^^^^
+dg quickstart
+^^^^^^^^^^^^^
+
+PUDL is configured as a ``dg`` project. These commands are a quick way to confirm
+your local Dagster setup is healthy before launching runs:
+
+.. code-block:: console
+
+    $ pixi run dg check toml
+    $ pixi run dg check defs --verbose
+    $ pixi run dg list defs
+
+To start the Dagster UI and then launch a run from the CLI:
+
+.. code-block:: console
+
+    $ pixi run dg dev
+    $ pixi run dg launch --job etl_fast
+
+For full ``dg`` CLI documentation and options, see the Dagster docs:
+`dg CLI reference <https://docs.dagster.io/api/clis/dg>`__.
+
 There are a handful of Dagster concepts worth understanding prior
 to interacting with the PUDL data processing pipeline:
 
@@ -182,7 +205,7 @@ Once ``DAGSTER_HOME`` is set, launch the dagster UI by running:
 
 .. code-block:: console
 
-    $ dagster dev
+    $ pixi run dg dev
 
 .. note::
 
@@ -211,8 +234,8 @@ where you can adjust the years to extract for each dataset. Then click
 "Launch Run" in the lower right hand corner of the window. The UI will
 take you to a new window that provides information about the status of
 the job. The bottom part of the window contains dagster logs. You can
-view logs from the ``pudl`` package in the CLI window the ``dagster-webserver`` process
-is running in.
+view logs from the ``pudl`` package in the CLI window where ``dg dev``
+is running.
 
 You can adjust the years to process for each dataset using the Launchpad tab::
 
@@ -343,6 +366,20 @@ Running the ETL with CLI Commands
 You can also execute the ETL jobs using CLI commands. These are thin wrappers around
 Dagster's job execution API.
 
+For direct Dagster CLI execution via ``dg``, run:
+
+.. code-block:: console
+
+  $ pixi run dg launch --job ferc_to_sqlite
+  $ pixi run dg launch --job etl_fast
+  $ pixi run dg launch --job etl_full
+
+You can also target specific assets rather than an entire job:
+
+.. code-block:: console
+
+  $ pixi run dg launch --assets "raw_eia860"
+
 .. note::
 
   We recommend using the Dagster UI to execute the ETL as it provides additional
@@ -354,12 +391,12 @@ There are two main CLI commands for executing the PUDL processing pipeline:
    You must run this script before you can run ``pudl_etl``.
 2. ``pudl_etl`` executes the ``pudl.etl`` asset graph.
 
-We also have targets set up in the ``Makefile`` for running these scripts:
+We also have ``pixi`` tasks defined in ``pyproject.toml``
 
 .. code-block:: console
 
-    $ make ferc
-    $ make pudl
+    $ pixi run ferc
+    $ pixi run pudl
 
 Settings Files
 --------------
