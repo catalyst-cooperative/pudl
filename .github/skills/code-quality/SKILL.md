@@ -59,4 +59,4 @@ pixi run pre-commit-install
 
 - `.pre-commit-config.yaml`
 - `docs/dev/dev_setup.rst`
-- `.github/instructions/code-quality.instructions.md`
+- [Code Quality Instructions](../../instructions/code-quality.instructions.md)

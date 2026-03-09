@@ -21,6 +21,6 @@
 ## Canonical sources
 
 - `docs/dev/pudl_id_mapping.rst`
-- `docs/pudl/id_mapping/id_mapping.md`
+- [PUDL ID Mapping Methodology](../../../../docs/pudl/id_mapping/id_mapping.md)
 - `docs/methodology/index.rst`
 - `src/pudl/analysis/` (where applicable)

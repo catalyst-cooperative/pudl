@@ -61,4 +61,4 @@ pixi run pytest --no-cov test/unit/path/to/test_file.py::TestClass::test_case
 ## References
 
 - `docs/dev/testing.rst`
-- `.github/instructions/testing.instructions.md`
+- [Testing Instructions](../../instructions/testing.instructions.md)

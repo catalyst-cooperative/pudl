@@ -63,4 +63,4 @@ pixi run dbt_helper update-tables --row-counts --clobber out_eia__yearly_generat
 
 - `docs/dev/data_validation_quickstart.rst`
 - `docs/dev/data_validation_reference.rst`
-- `.github/instructions/dbt-data-validation.instructions.md`
+- [dbt Data Validation Instructions](../../instructions/dbt-data-validation.instructions.md)

@@ -48,4 +48,4 @@ PUDL_DOCS_KEEP_GENERATED_FILES=1 pixi run docs-build
 - `docs/data_dictionaries/index.rst`
 - `docs/conf.py`
 - `docs/templates/`
-- `.github/skills/alembic/SKILL.md`
+- [Alembic Skill](../../alembic/SKILL.md)

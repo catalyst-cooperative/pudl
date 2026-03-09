@@ -39,6 +39,6 @@ pixi run pre-commit-run
 - `docs/dev/testing.rst`
 - `docs/dev/data_validation_quickstart.rst`
 - `docs/dev/data_validation_reference.rst`
-- `.github/skills/pytest/SKILL.md`
-- `.github/skills/dbt/SKILL.md`
-- `.github/skills/code-quality/SKILL.md`
+- [Pytest Skill](../../pytest/SKILL.md)
+- [dbt Skill](../../dbt/SKILL.md)
+- [Code Quality Skill](../../code-quality/SKILL.md)

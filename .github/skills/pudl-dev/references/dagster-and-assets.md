@@ -25,4 +25,4 @@
 - `docs/dev/run_the_etl.rst`
 - `docs/dev/nightly_data_builds.rst`
 - `docs/dev/ferceqr_data_builds.rst`
-- `.github/skills/dagster-expert/SKILL.md`
+- [Dagster Expert Skill](../../dagster-expert/SKILL.md)

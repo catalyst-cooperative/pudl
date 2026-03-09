@@ -37,6 +37,12 @@ products are tightly coupled.
    - `pudl` (data-access focused)
    - `dagster-expert`
 
+## Shared data context
+
+Data/metadata/source/methodology guidance is centralized in the `pudl` skill.
+Use the linked "Shared" entries in the reference index below rather than
+maintaining duplicates in `pudl-dev`.
+
 ## Canonical-source policy
 
 The files in this skill are distilled for coding agents. Canonical project guidance
@@ -49,10 +55,9 @@ remains in PUDL documentation and source code. Each reference points to canonica
 - [Testing and Validation](./references/testing-and-validation.md) - pytest scopes, dbt validation workflow, and quality checks.
 - [Metadata and Schema](./references/metadata-and-schema.md) - metadata source-of-truth files, dbt schema coupling, and migrations.
 - [Dagster and Assets](./references/dagster-and-assets.md) - Dagster-oriented project structure and asset orchestration context.
-- [Data Access and Outputs](./references/data-access-and-outputs.md) - cloud/local output access patterns and output-layer usage.
-- [Data Sources and Dictionaries](./references/data-sources-and-dictionaries.md) - dataset coverage, table dictionary docs, and source mappings.
-- [Generated Docs and Metadata Querying](./references/generated-docs-and-metadata-querying.md) - recover rich table/source metadata when generated pages are not present.
+- [Shared: Data Access and Outputs](../pudl/references/data-access-and-outputs.md) - cloud/local output access patterns and output-layer usage.
+- [Shared: Metadata and Querying](../pudl/references/metadata-and-querying.md) - machine-queryable metadata APIs and generated-doc fallbacks.
+- [Shared: Data Sources, Dictionaries, and Methodology](../pudl/references/data-sources-dictionaries-and-methodology.md) - source coverage, dictionary semantics, and methodology interpretation.
 - [Docs Generation Traceability](./references/docs-generation-traceability.md) - map generated artifacts to build hooks, templates, and metadata classes.
-- [Methodology and Analytics](./references/methodology-and-analytics.md) - modeling/imputation context for interpretation and debugging.
 - [Releases and Operations](./references/releases-and-operations.md) - release workflow, nightly build context, and operational docs.
 - [ID Mapping and Entity Linkages](./references/id-mapping-and-entity-linkages.md) - historical and practical guidance for cross-dataset entity matching.
