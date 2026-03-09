@@ -3,7 +3,6 @@
 Defines useful fixtures, command line args.
 """
 
-import json
 import logging
 import os
 import shutil
@@ -98,9 +97,10 @@ def pytest_addoption(parser):
 
 
 def _run_dg_launch_with_coverage(
-    job_name: str, run_config: dict[str, Any] | None = None
+    job_name: str,
+    config_file: Path | None = None,
 ) -> None:
-    """Run a dg launch job under coverage collection.
+    """Run a dg launch command under coverage collection.
 
     Uses the dg executable path directly since ``dg`` is a console script and not a
     Python module importable via ``python -m dg``.
@@ -109,8 +109,6 @@ def _run_dg_launch_with_coverage(
     if dg_path is None:
         pytest.exit("Could not find `dg` executable in PATH.")
 
-    if run_config is None:
-        run_config = {"execution": {"config": {"in_process": {}}}}
     cmd = [
         sys.executable,
         "-m",
@@ -121,14 +119,16 @@ def _run_dg_launch_with_coverage(
         "launch",
         "--job",
         job_name,
-        "--config-json",
-        json.dumps(run_config),
         "--verbose",
     ]
+    launch_target = job_name
+
+    if config_file is not None:
+        cmd.extend(["--config", str(config_file)])
     # Command args are fully constructed in-process and do not include user input.
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
-    logger.info(f"Starting prebuild job via dg launch: {job_name}")
+    logger.info(f"Starting prebuild via dg launch: {launch_target}")
     logger.info("Command: %s", " ".join(cmd))
 
     # Stream subprocess output into pytest's live logging so progress is visible.
@@ -142,13 +142,19 @@ def _run_dg_launch_with_coverage(
     ) as proc:
         assert proc.stdout is not None
         for line in proc.stdout:
-            logger.info("[dg %s] %s", job_name, line.rstrip())
+            # The child process already formats its own log lines; avoid wrapping
+            # those lines in another logger format to prevent duplicate prefixes.
+            if line.endswith("\n"):
+                sys.stdout.write(f"[dg prebuild] {line}")
+            else:
+                sys.stdout.write(f"[dg prebuild] {line}\n")
+            sys.stdout.flush()
 
         returncode = proc.wait()
         if returncode != 0:
             raise subprocess.CalledProcessError(returncode, cmd)
 
-    logger.info(f"Completed prebuild job via dg launch: {job_name}")
+    logger.info(f"Completed prebuild via dg launch: {launch_target}")
 
 
 @pytest.fixture(scope="session", name="test_dir")
@@ -227,7 +233,7 @@ def ferc1_dbf_sql_engine(
 
 
 @pytest.fixture(scope="session")
-def prebuilt_integration_dbs(live_dbs: bool, etl_settings: EtlSettings):
+def prebuilt_integration_dbs(live_dbs: bool):
     """Prebuild fast integration databases in pytest-managed output directories.
 
     When ``--live-dbs`` is not set, ``configure_paths_for_tests`` has already pointed
@@ -245,23 +251,16 @@ def prebuilt_integration_dbs(live_dbs: bool, etl_settings: EtlSettings):
     pudl_engine = sa.create_engine(PudlPaths().pudl_db)
     md.create_all(pudl_engine)
 
-    if etl_settings.datasets is None:
-        raise ValueError("Missing datasets settings in ETL settings.")
-    if etl_settings.ferc_to_sqlite_settings is None:
-        raise ValueError("Missing ferc_to_sqlite_settings in ETL settings.")
+    ci_config_path = (
+        Path(__file__).resolve().parent.parent
+        / "src/pudl/package_data/settings/dg_pytest_integration.yml"
+    )
+    if not ci_config_path.exists():
+        raise FileNotFoundError(f"Missing CI integration config: {ci_config_path}")
 
     _run_dg_launch_with_coverage(
         "pudl",
-        run_config={
-            "execution": {"config": {"in_process": {}}},
-            "resources": {
-                "dataset_settings": {"config": etl_settings.datasets.model_dump()},
-                "ferc_to_sqlite_settings": {
-                    "config": etl_settings.ferc_to_sqlite_settings.model_dump()
-                },
-                "runtime_settings": {"config": {}},
-            },
-        },
+        config_file=ci_config_path,
     )
 
 
@@ -391,23 +390,8 @@ def dataset_settings_config(request, etl_settings: EtlSettings):
 
 @pytest.fixture(scope="session", autouse=True)
 def logger_config():
-    """Configure root logger to filter out excessive logs from certain dependencies."""
-    pudl.logging_helpers.configure_root_logger(
-        dependency_loglevels={
-            "aiobotocore": logging.WARNING,
-            "alembic": logging.WARNING,
-            "arelle": logging.INFO,
-            "asyncio": logging.INFO,
-            "boto3": logging.WARNING,
-            "botocore": logging.WARNING,
-            "fsspec": logging.INFO,
-            "google": logging.INFO,
-            "matplotlib": logging.WARNING,
-            "numba": logging.WARNING,
-            "urllib3": logging.INFO,
-        },
-        propagate=True,
-    )
+    """Configure root logger for pytest log capture and shared defaults."""
+    pudl.logging_helpers.configure_root_logger(propagate=True)
 
 
 @pytest.fixture(scope="session")

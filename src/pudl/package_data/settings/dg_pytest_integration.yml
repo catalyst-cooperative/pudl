@@ -1,11 +1,6 @@
 execution:
   config:
-    multiprocess:
-      max_concurrent: 0
-      tag_concurrency_limits:
-        - key: memory-use
-          value: high
-          limit: 4
+    in_process: {}
 loggers:
   console:
     config:
