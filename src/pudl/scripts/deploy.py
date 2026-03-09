@@ -3,35 +3,35 @@
 This CLI orchestrates deployment of completed PUDL ETL builds to public cloud
 storage (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.
 
-The script takes a deploy_type (nightly or stable), a source_path pointing to ETL
-outputs (local or GCS), a git tag, and an optional staging flag for safe testing.
+The script takes a git tag, and an optional staging flag for safe testing. It will
+use the git tag to identify builds associated with the tag, and determine whether
+the deployment is intended to be a nightly or stable deployment. It expects nightly
+deployments to have tags conforming to the pattern 'nightly-YYYY-MM-DD' and stable
+deployments 'vYYYY.M.D'.
 
 Examples:
     Deploy nightly build to production:
-        pudl_deploy nightly gs://builds.catalyst.coop/2025-02-05-1234-abc123-main
-            --git-tag nightly-2025-02-05
+        pudl_deploy nightly-2025-02-05
 
     Deploy stable release to production:
-        pudl_deploy stable gs://builds.catalyst.coop/2025-02-05-1234-abc123-v2025.2.3
-            --git-tag v2025.2.3
+        pudl_deploy v2025.2.3
 
     Test deployment changes with staging mode:
-        pudl_deploy nightly gs://builds.catalyst.coop/2025-02-05-1234-abc123-main
-            --git-tag nightly-2025-02-05 --staging
+        pudl_deploy nightly-2025-02-05 --staging
 
 Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
 triggers, and Cloud Run deployments. This allows safe validation of deployment
 changes before production use.
 """
 
-import sys
+import re
 import tempfile
 from pathlib import Path
 
 import click
-from gcsfs import GCSFileSystem
 
 from pudl.deployment.deploy_outputs import (
+    get_build_from_tag,
     prepare_outputs_for_distribution,
     set_gcs_temporary_hold,
     trigger_zenodo_release,
@@ -118,15 +118,8 @@ def _deploy_stable(source_dir: Path, git_tag: str, staging: bool, github_token: 
     context_settings={"help_option_names": ["-h", "--help"]},
 )
 @click.argument(
-    "deploy_type",
-    type=click.Choice(["nightly", "stable"], case_sensitive=False),
-)
-@click.argument("source_path", type=str)
-@click.option(
-    "--git-tag",
+    "git-tag",
     type=str,
-    required=True,
-    help="Git tag to merge into branch (e.g., nightly-2026-02-09 or v2026.2.9).",
 )
 @click.option(
     "--github-token",
@@ -145,8 +138,6 @@ def _deploy_stable(source_dir: Path, git_tag: str, staging: bool, github_token: 
     show_default=True,
 )
 def pudl_deploy(
-    deploy_type: str,
-    source_path: str,
     git_tag: str,
     github_token: str,
     staging: bool,
@@ -161,32 +152,34 @@ def pudl_deploy(
     5. Trigger Zenodo release (if not staging)
     6. Update Cloud Run service (nightly only, not staging)
     """
-    # TODO 2026-02-11: munge GCS to local - pull out later
-    if source_path.startswith("gs://"):
-        fs = GCSFileSystem()
-        local_copy_path = Path(tempfile.mkdtemp())
-        fs.get(source_path, local_copy_path, recursive=True)
+    # Check if tag is a nightly or stable build
+    if re.match(r"v\d{4}\.\d{1,2}\.\d{1,2}", git_tag):
+        deploy_type = "stable"
+    elif re.match(r"nightly-\d{4}-\d{2}-\d{2}", git_tag):
+        deploy_type = "nightly"
     else:
-        local_copy_path = Path(source_path)
-
-    try:
-        logger.info(
-            f"Starting deployment: deploy_type={deploy_type}, "
-            f"source_path={source_path}, git_tag={git_tag}, staging={staging}"
+        raise RuntimeError(
+            f"Git tag does not look like a stable or nightly tag. Input tag: {git_tag}"
         )
 
-        prepare_outputs_for_distribution(local_copy_path)
+    # Find build associated with tag
+    build_path = get_build_from_tag(git_tag)
+    local_copy_path = Path(tempfile.mkdtemp())
 
-        if deploy_type == "nightly":
-            _deploy_nightly(local_copy_path, git_tag, staging, github_token)
-        else:
-            _deploy_stable(local_copy_path, git_tag, staging, github_token)
+    logger.info(
+        f"Starting deployment for tag {git_tag}\n"
+        f"Build path: {build_path}\n"
+        f"Deployment type: {deploy_type}\n"
+    )
 
-        logger.info("Deployment completed successfully")
+    prepare_outputs_for_distribution(local_copy_path)
 
-    except Exception:
-        logger.exception("Deployment failed")
-        sys.exit(1)
+    if deploy_type == "nightly":
+        _deploy_nightly(local_copy_path, git_tag, staging, github_token)
+    else:
+        _deploy_stable(local_copy_path, git_tag, staging, github_token)
+
+    logger.info("Deployment completed successfully")
 
 
 if __name__ == "__main__":

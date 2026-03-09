@@ -5,14 +5,17 @@ This module handles distribution of completed ETL builds to public cloud storage
 """
 
 import logging
+import re
 import shutil
 import subprocess
 import zipfile
+from datetime import datetime
 from pathlib import Path
 
 import gcsfs
 import requests
 import s3fs
+from upath import UPath
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -83,9 +86,9 @@ def prepare_outputs_for_distribution(output_dir: Path) -> None:
     logger.info("Output preparation complete")
 
 
-def _run(cmd: list[str]) -> None:
+def _run(cmd: list[str]) -> str | None:
     """Wrap subprocess.run so we see error output."""
-    subprocess.run(cmd, check=True, capture_output=True, text=True)  # noqa: S603
+    return subprocess.run(cmd, check=True, capture_output=True, text=True).stdout  # noqa: S603
 
 
 def upload_outputs(
@@ -256,3 +259,41 @@ def set_gcs_temporary_hold(gcs_path: str) -> None:
     )
 
     logger.info(f"Temporary hold set on {gcs_path}")
+
+
+def check_build_success(build_path: UPath):
+    """Raise error if success file doesn't exist in build directory."""
+    if not (build_path / "success").exists():
+        raise RuntimeError("Can't find 'success' file in build directory!")
+    return build_path
+
+
+def get_build_from_tag(tag: str) -> UPath:
+    """Find any builds associated with a git tag and return a GCS path to most recent build."""
+    build_bucket = UPath("gs://builds.catalyst.coop")
+    try:
+        git_ref = _run(["git", "rev-parse", "--short", f"{tag}^{{}}"]).strip()
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Can't find git tag: {tag}") from e
+
+    # Loop through all builds associated with git ref and find most recent one
+    most_recent_build_dt = datetime.min
+    most_recent_build_path = None
+    build_path_pattern = re.compile(r"(\d{4}-\d{2}-\d{2}-\d{4})-([a-z|0-9]{9})-(.+)")
+    for build_path in build_bucket.glob(f"*-{git_ref}-*"):
+        match = build_path_pattern.search(str(build_path))
+        if (
+            next_dt := datetime.strptime(match.group(1), "%Y-%m-%d-%H%M")
+        ) > most_recent_build_dt:
+            most_recent_build_dt = next_dt
+            most_recent_build_path = build_path
+
+    # Check that we found a build
+    if most_recent_build_path is None:
+        raise RuntimeError(
+            f"Can't find a build associated with tag: {tag}, ref: {git_ref}"
+        )
+    logger.info(
+        f"Most recent build associated with tag {tag}: {most_recent_build_path.as_uri()}"
+    )
+    return check_build_success(build_path)

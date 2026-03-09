@@ -1,11 +1,14 @@
 """Test distribution logic for ETL outputs."""
 
+import hashlib
 import zipfile
+from pathlib import Path
 from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from pudl.deployment.deploy_outputs import (
+    get_build_from_tag,
     prepare_outputs_for_distribution,
     update_git_branch,
     upload_outputs,
@@ -133,3 +136,57 @@ def test_update_git_branch_staging():
                 call(["git", "merge", "--ff-only", "nightly-2026-02-09"], **kwargs),
             ]
         )
+
+
+@pytest.mark.parametrize(
+    "create_builds,build_successful",
+    [
+        (True, True),
+        (True, False),
+        (False, True),
+    ],
+)
+def test_get_build_from_tag(
+    tmp_path: Path, create_builds: bool, build_successful: bool
+):
+    """Test getting build path from git tag."""
+    example_tag = "example_tag"
+    expected_hash = hashlib.sha1(b"Fake data to hash").hexdigest()[0:9]  # noqa: S324
+    other_hash = hashlib.sha1(b"More fake data to hash").hexdigest()[0:9]  # noqa: S324
+
+    # Create build directories in tmp_path
+    if create_builds:
+        for build_name, most_recent_build in [
+            (f"2026-02-04-1230-{expected_hash}-main", True),
+            (f"2026-02-04-0530-{expected_hash}-main", False),
+            (f"2026-01-01-0000-{expected_hash}-main", False),
+            (f"2026-01-01-1200-{other_hash}-main", True),
+            (f"2025-12-31-1200-{other_hash}-main", False),
+        ]:
+            build_path = tmp_path / build_name
+            build_path.mkdir()
+            if build_successful:
+                (build_path / "success").touch()
+            if most_recent_build and (expected_hash in build_name):
+                expected_path = build_path
+
+    # Setup mocks and run tests
+    with (
+        patch("pudl.deployment.deploy_outputs._run") as run_mock,
+        patch("pudl.deployment.deploy_outputs.UPath") as build_path_mock,
+    ):
+        run_mock.return_value = expected_hash
+        build_path_mock.return_value = tmp_path
+
+        if not create_builds:
+            with pytest.raises(
+                RuntimeError, match=r"Can't find a build associated with tag:.+"
+            ):
+                get_build_from_tag(example_tag)
+        elif not build_successful:
+            with pytest.raises(
+                RuntimeError, match="Can't find 'success' file in build directory!"
+            ):
+                get_build_from_tag(example_tag)
+        else:
+            assert get_build_from_tag(example_tag) == expected_path
