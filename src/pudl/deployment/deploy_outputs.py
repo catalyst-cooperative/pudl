@@ -29,7 +29,7 @@ class DeploymentType(Enum):
     STABLE = "stable"
 
 
-def prepare_outputs_for_distribution(output_dir: Path) -> None:
+def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> None:
     """Prepare ETL outputs for distribution.
 
     Takes raw ETL output structure and produces distribution-ready outputs:
@@ -43,29 +43,34 @@ def prepare_outputs_for_distribution(output_dir: Path) -> None:
     them.
 
     Args:
-        output_dir: Directory containing ETL outputs to prepare.
+        local_path: Path on local filesystem where we will prep outputs for distribution.
+        build_path: Remote path containing raw build outputs.
     """
-    output_dir = Path(output_dir)
-    logger.info(f"Preparing outputs in {output_dir} for distribution")
-    logger.info(f"Contents: {output_dir.glob('*')}")
+    # Copy raw build outputs to local path
+    local_path = Path(local_path)
+    fs = build_path.fs
+    fs.get(build_path, str(local_path), recursive=True)
+
+    logger.info(f"Preparing outputs in {local_path} for distribution")
+    logger.info(f"Contents: {local_path.glob('*')}")
 
     # Move files around
-    parquet_dir = output_dir / "parquet"
+    parquet_dir = local_path / "parquet"
     parquet_files = parquet_dir.glob("*.parquet")
     logger.info(f"Found parquets: {parquet_files}")
     for parquet_file in parquet_dir.glob("*.parquet"):
-        shutil.move(str(parquet_file), str(output_dir / parquet_file.name))
+        shutil.move(str(parquet_file), str(local_path / parquet_file.name))
 
     datapackage = parquet_dir / "pudl_parquet_datapackage.json"
     if datapackage.exists():
-        shutil.move(str(datapackage), str(output_dir / datapackage.name))
+        shutil.move(str(datapackage), str(local_path / datapackage.name))
 
     shutil.rmtree(parquet_dir)
 
     # Compress SQLite databases
-    sqlite_files = list(output_dir.glob("*.sqlite"))
+    sqlite_files = list(local_path.glob("*.sqlite"))
     for sqlite_file in sqlite_files:
-        zip_path = output_dir / f"{sqlite_file.name}.zip"
+        zip_path = local_path / f"{sqlite_file.name}.zip"
         with zipfile.ZipFile(
             zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=9
         ) as zf:
@@ -74,21 +79,21 @@ def prepare_outputs_for_distribution(output_dir: Path) -> None:
         logger.info(f"Compressed {sqlite_file.name}")
 
     # Create parquet archive (store mode, no compression)
-    parquet_files = list(output_dir.glob("*.parquet"))
-    assert len(parquet_files) > 0, f"No parquet files in {output_dir}."
-    archive_path = output_dir / "pudl_parquet.zip"
+    parquet_files = list(local_path.glob("*.parquet"))
+    assert len(parquet_files) > 0, f"No parquet files in {local_path}."
+    archive_path = local_path / "pudl_parquet.zip"
     with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_STORED) as zf:
         for parquet_file in parquet_files:
             zf.write(parquet_file, arcname=parquet_file.name)
 
-        datapackage = output_dir / "pudl_parquet_datapackage.json"
+        datapackage = local_path / "pudl_parquet_datapackage.json"
         if datapackage.exists():
             zf.write(datapackage, arcname=datapackage.name)
 
     logger.info(f"Created parquet archive: {archive_path}")
 
     logger.info("Removing dbt database.")
-    test_db = output_dir / "pudl_dbt_tests.duckdb"
+    test_db = local_path / "pudl_dbt_tests.duckdb"
     test_db.unlink()
 
     logger.info("Output preparation complete")

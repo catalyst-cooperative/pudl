@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, call, patch
 
 import pytest
+from upath import UPath
 
 from pudl.deployment.deploy_outputs import (
     get_build_from_tag,
@@ -18,18 +19,20 @@ from pudl.deployment.deploy_outputs import (
 def test_prepare_outputs_for_distribution(tmp_path):
     """Test complete output preparation workflow."""
     output_dir = tmp_path / "output"
+    build_path = tmp_path / "build_path"
     output_dir.mkdir()
-    parquet_dir = output_dir / "parquet"
+    build_path.mkdir()
+    parquet_dir = build_path / "parquet"
     parquet_dir.mkdir()
 
-    (output_dir / "pudl.sqlite").write_text("db content")
-    (output_dir / "ferc1.sqlite").write_text("ferc db")
-    (output_dir / "pudl_dbt_tests.duckdb").write_text("test db")
+    (build_path / "pudl.sqlite").write_text("db content")
+    (build_path / "ferc1.sqlite").write_text("ferc db")
+    (build_path / "pudl_dbt_tests.duckdb").write_text("test db")
     (parquet_dir / "table1.parquet").write_text("p1")
     (parquet_dir / "table2.parquet").write_text("p2")
     (parquet_dir / "pudl_parquet_datapackage.json").write_text("{}")
 
-    prepare_outputs_for_distribution(output_dir)
+    prepare_outputs_for_distribution(output_dir, UPath(build_path))
 
     # SQLite files compressed and originals removed
     assert (output_dir / "pudl.sqlite.zip").exists()
@@ -51,7 +54,7 @@ def test_prepare_outputs_for_distribution(tmp_path):
         assert "pudl_parquet_datapackage.json" in names
 
     assert not (output_dir / "pudl_dbt_tests.duckdb").exists()
-    assert not parquet_dir.exists()
+    assert not (output_dir / "parquet").exists()
 
 
 def test_upload_outputs_nightly(tmp_path):

@@ -173,7 +173,7 @@ def pudl_deploy(
         f"Deployment type: {deploy_type}\n"
     )
 
-    prepare_outputs_for_distribution(local_copy_path)
+    prepare_outputs_for_distribution(local_copy_path, build_path)
 
     _deploy_outputs(
         source_dir=local_copy_path,
