@@ -65,6 +65,7 @@ repos:
             |.*\.bib
             |.*\.csv
             |.*\.html
+            |.*\.json
           )$ | migrations/ | devtools/ | test/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
         args: [] # Make this read, not write
 
