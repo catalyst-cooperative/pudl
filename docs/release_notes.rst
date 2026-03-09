@@ -68,6 +68,15 @@ Bug Fixes & Data Cleaning
   between 0.0-1.0, rather than a percentage between 0-100. Removed misleading ``_pct``
   column name suffixes on efficiency columns that had values between 0.0-1.0. See PR
   :pr:`5048`.
+* Standardized a few new environmental equipment tables from EIA to use ``report_date``
+  rather than ``report_year`` as their time dimension in anticipation of more deeply
+  integrating them into PUDL. See issue :issue:`4741` and PR :pr:`5063`. Affected
+  tables include:
+
+  * :ref:`_core_eia923__yearly_byproduct_disposition`
+  * :ref:`_core_eia923__yearly_byproduct_expenses_and_revenues`
+  * :ref:`core_eia860__scd_emissions_control_equipment`
+  * :ref:`out_eia860__yearly_emissions_control_equipment`
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
