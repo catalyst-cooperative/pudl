@@ -15,7 +15,6 @@ import json
 import logging
 from collections import OrderedDict
 from pathlib import Path
-from typing import TypeVar
 
 logging.basicConfig()
 logger = logging.getLogger()
@@ -23,10 +22,7 @@ logger = logging.getLogger()
 MIB_PER_GB = 1e9 / 2**20
 
 
-T = TypeVar("T")
-
-
-def _flat[T](ls: list[list[T]]) -> list[T]:
+def _flat(ls: list[list]) -> list:
     return list(itertools.chain.from_iterable(ls))
 
 
@@ -49,25 +45,28 @@ def to_config(
 
     # NOTE (daz): the best documentation of the actual data structure I've found is at
     # https://cloud.google.com/python/docs/reference/batch/latest/google.cloud.batch_v1.types.Job
-    task_spec = {
-        "runnables": [
-            {
-                "container": {
-                    "imageUri": container_image,
-                    "commands": [container_command] + _flat(container_arg),
-                },
-                "environment": {"variables": env_dict},
-            },
-        ],
-        "computeResource": {
-            "cpuMilli": vcpu * 1000,
-            "memoryMib": int(mem_gb * MIB_PER_GB),
-            "bootDiskMib": disk_gb * 1024,
-        },
-        "maxRunDuration": f"{60 * 60 * 1}s",  # 1 hour
-    }
     config = {
-        "taskGroups": [{"taskSpec": task_spec}],
+        "taskGroups": [
+            {
+                "taskSpec": {
+                    "runnables": [
+                        {
+                            "container": {
+                                "imageUri": container_image,
+                                "commands": [container_command] + _flat(container_arg),
+                            },
+                            "environment": {"variables": env_dict},
+                        },
+                    ],
+                    "computeResource": {
+                        "cpuMilli": vcpu * 1000,
+                        "memoryMib": int(mem_gb * MIB_PER_GB),
+                        "bootDiskMib": disk_gb * 1024,
+                    },
+                    "maxRunDuration": f"{60 * 60 * 12}s",
+                }
+            }
+        ],
         "allocationPolicy": {
             "serviceAccount": {
                 "email": "deploy-pudl-vm-service-account@catalyst-cooperative-pudl.iam.gserviceaccount.com"
