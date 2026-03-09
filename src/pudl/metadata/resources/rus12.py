@@ -175,6 +175,8 @@ RESOURCE_METADATA = {
             "primary_key": ["borrower_id_rus"],
             "foreign_key_rules": {
                 "fields": [["borrower_id_rus"]],
+                # We must remove all of the rus7 tables - otherwise
+                # these would get a FK relationship from this rus12 table
                 "exclude": [
                     "core_rus7__entity_borrowers",
                     "core_rus7__yearly_meeting_and_board",

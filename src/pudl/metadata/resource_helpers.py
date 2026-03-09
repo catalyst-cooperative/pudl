@@ -13,8 +13,7 @@ collects all instances of these values and and chooses a canonical value. By def
 PUDL chooses the most consistently reported value of a given attribute as long as it
 is at least 70% of the given instances reported. If an attribute was reported
 inconsistently across the original EIA tables, then it will show up as a
-null value. All tables downstream of this one inherit the canonical values established
-here."""
+null value."""
 
 
 HARVESTING_DETAIL_TEXT_RUS = """RUS reports many attributes in many different tables
@@ -24,7 +23,9 @@ By default, PUDL chooses the most consistently reported value of a given attribu
 long as it is at least 70% of the given instances reported. For the ``borrower_name_rus``
 PUDL chooses the most consistently reported value regardless of if it meets this 70%
 threshold so that all borrowers will to have a name. We chose this because most name
-changes were insignificant (eg. "and" changed to "&" or "coop" changed to "cooperative")."""
+changes were insignificant (eg. "and" changed to "&" or "coop" changed to "cooperative").
+All tables downstream of this one inherit the canonical values established
+here."""
 
 
 def canonical_harvested_details(entities: str, is_static: bool) -> str:

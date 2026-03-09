@@ -394,6 +394,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["borrower_id_rus"]],
                 "exclude": [
+                    # We must remove all of the rus12 tables - otherwise
+                    # these would get a FK relationship from this rus7 table
                     "core_rus12__yearly_meeting_and_board",
                     "core_rus12__yearly_balance_sheet_assets",
                     "core_rus12__yearly_balance_sheet_liabilities",
