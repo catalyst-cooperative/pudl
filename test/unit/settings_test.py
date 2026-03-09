@@ -23,7 +23,9 @@ from pudl.settings import (
     Ferc1XbrlToSqliteSettings,
     FercToSqliteSettings,
     GenericDatasetSettings,
+    GridPathRAToolkitSettings,
     _convert_settings_to_dagster_config,
+    load_etl_settings,
 )
 from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
@@ -270,6 +272,33 @@ class TestDatasetsSettings:
         assert dct["eia"].keys() == expected_dct["eia"].keys()
         assert isinstance(dct["eia"]["eia860"]["years"], Field)
         assert isinstance(dct["eia"]["eia923"]["years"], Field)
+
+
+class TestGridPathRAToolkitSettings:
+    """Test GridPath RA Toolkit settings validation and part selection."""
+
+    def test_parts_compiled_from_selected_options(self: Self):
+        """Ensure parts are derived even when ``parts`` is omitted from config."""
+        settings = GridPathRAToolkitSettings(
+            technology_types=["wind"],
+            processing_levels=["extended"],
+            daily_weather=True,
+        )
+
+        assert settings.parts == [
+            "daily_weather",
+            "aggregated_extended_wind_capacity",
+            "wind_capacity_aggregations",
+        ]
+
+    def test_fast_profile_gridpath_parts_not_empty(self: Self):
+        """Ensure packaged fast settings yield GridPath parts used by Dagster assets."""
+        etl_settings = load_etl_settings("src/pudl/package_data/settings/etl_fast.yml")
+        assert etl_settings.datasets is not None
+
+        gridpath_settings = etl_settings.datasets.gridpathratoolkit
+        assert gridpath_settings.parts
+        assert "aggregated_extended_wind_capacity" in gridpath_settings.parts
 
 
 class TestEtlSettings:
