@@ -24,19 +24,19 @@ triggers, and Cloud Run deployments. This allows safe validation of deployment
 changes before production use.
 """
 
-import re
 import tempfile
 from pathlib import Path
 
 import click
 
 from pudl.deployment.deploy_outputs import (
+    DeploymentType,
     get_build_from_tag,
+    get_deployment_type_from_tag,
     prepare_outputs_for_distribution,
     set_gcs_temporary_hold,
     trigger_zenodo_release,
     update_git_branch,
-    update_pudl_viewer,
     upload_outputs,
 )
 from pudl.logging_helpers import get_logger
@@ -44,68 +44,75 @@ from pudl.logging_helpers import get_logger
 logger = get_logger(__name__)
 
 
-def _deploy_nightly(source_dir: Path, git_tag: str, staging: bool, github_token: str):
-    """Execute nightly deployment workflow.
+DEPLOYMENT_TYPE_STATIC_SETTINGS = {
+    DeploymentType.NIGHTLY: {
+        "zenodo_env": "sandbox",
+        "ignore_regex": "",
+        "publish": True,
+    },
+    DeploymentType.STABLE: {
+        "zenodo_env": "production",
+        "ignore_regex": r".*parquet.*",
+        "publish": False,
+    },
+}
 
-    Deploys to nightly and eel-hole paths, updates nightly branch, triggers sandbox
-    Zenodo release, and updates Cloud Run service.
-    """
-    logger.info("Executing nightly deployment workflow")
 
-    path_suffixes = ["nightly", "eel-hole"]
+def _get_deployment_path_suffixes(
+    deploy_type: DeploymentType, git_tag: str, staging: bool
+) -> list[str]:
+    if deploy_type == DeploymentType.NIGHTLY:
+        path_suffixes = ["nightly", "eel-hole"]
+    else:
+        path_suffixes = [git_tag, "stable"]
     if staging:
         path_suffixes = [f"staging/{s}" for s in path_suffixes]
+    return path_suffixes
 
-    upload_outputs(
-        source_dir=source_dir,
-        path_suffixes=path_suffixes,
-    )
 
-    update_git_branch(tag=git_tag, branch="nightly", staging=staging)
-    if not staging:
-        trigger_zenodo_release(
-            build_ref=git_tag,
-            env="sandbox",
-            source_dir="s3://pudl.catalyst.coop/nightly/",
-            ignore_regex="",
-            publish=True,
-            token=github_token,
-        )
-
-        update_pudl_viewer()
+def _get_zenodo_release_source_dir(deploy_type: DeploymentType, git_tag: str) -> str:
+    if deploy_type == DeploymentType.NIGHTLY:
+        source_dir = "s3://pudl.catalyst.coop/nightly/"
     else:
-        logger.info("Skipping Zenodo and Cloud Run operations (staging mode)")
+        source_dir = f"s3://pudl.catalyst.coop/{git_tag}/"
+    return source_dir
 
 
-def _deploy_stable(source_dir: Path, git_tag: str, staging: bool, github_token: str):
+def _deploy_outputs(
+    source_dir: Path,
+    deploy_type: DeploymentType,
+    git_tag: str,
+    staging: bool,
+    github_token: str,
+):
     """Execute stable deployment workflow.
 
     Deploys to versioned and stable paths, updates stable branch, sets GCS temporary
     hold on versioned release, and triggers production Zenodo release (unpublished).
     """
-    logger.info("Executing stable deployment workflow")
-
-    path_suffixes = [git_tag, "stable"]
-    if staging:
-        path_suffixes = [f"staging/{s}" for s in path_suffixes]
+    path_suffixes = _get_deployment_path_suffixes(
+        deploy_type=deploy_type,
+        git_tag=git_tag,
+        staging=staging,
+    )
 
     upload_outputs(
         source_dir=source_dir,
         path_suffixes=path_suffixes,
     )
-
-    update_git_branch(tag=git_tag, branch="stable", staging=staging)
+    update_git_branch(tag=git_tag, branch=deploy_type.value, staging=staging)
 
     if not staging:
-        gcs_path = f"gs://pudl.catalyst.coop/{git_tag}/"
-        set_gcs_temporary_hold(gcs_path=gcs_path)
+        if deploy_type == DeploymentType.STABLE:
+            gcs_path = f"gs://pudl.catalyst.coop/{git_tag}/"
+            set_gcs_temporary_hold(gcs_path=gcs_path)
 
         trigger_zenodo_release(
             build_ref=git_tag,
-            env="production",
-            source_dir=f"s3://pudl.catalyst.coop/{git_tag}/",
-            ignore_regex=r".*parquet.*",
-            publish=False,
+            env=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["zenodo_env"],
+            source_dir=_get_zenodo_release_source_dir(deploy_type, git_tag),
+            ignore_regex=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["ignore_regex"],
+            publish=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["publish"],
             token=github_token,
         )
 
@@ -153,31 +160,28 @@ def pudl_deploy(
     6. Update Cloud Run service (nightly only, not staging)
     """
     # Check if tag is a nightly or stable build
-    if re.match(r"v\d{4}\.\d{1,2}\.\d{1,2}", git_tag):
-        deploy_type = "stable"
-    elif re.match(r"nightly-\d{4}-\d{2}-\d{2}", git_tag):
-        deploy_type = "nightly"
-    else:
-        raise RuntimeError(
-            f"Git tag does not look like a stable or nightly tag. Input tag: {git_tag}"
-        )
+    deploy_type = get_deployment_type_from_tag(git_tag)
 
     # Find build associated with tag
     build_path = get_build_from_tag(git_tag)
+    # Create local directory to prep clean ETL outputs
     local_copy_path = Path(tempfile.mkdtemp())
 
     logger.info(
-        f"Starting deployment for tag {git_tag}\n"
+        f"Starting deployment for tag: {git_tag}\n"
         f"Build path: {build_path}\n"
         f"Deployment type: {deploy_type}\n"
     )
 
     prepare_outputs_for_distribution(local_copy_path)
 
-    if deploy_type == "nightly":
-        _deploy_nightly(local_copy_path, git_tag, staging, github_token)
-    else:
-        _deploy_stable(local_copy_path, git_tag, staging, github_token)
+    _deploy_outputs(
+        source_dir=local_copy_path,
+        deploy_type=deploy_type,
+        git_tag=git_tag,
+        staging=staging,
+        github_token=github_token,
+    )
 
     logger.info("Deployment completed successfully")
 

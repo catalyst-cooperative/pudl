@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import zipfile
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 
 import gcsfs
@@ -19,6 +20,13 @@ from upath import UPath
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+class DeploymentType(Enum):
+    """Deployments can be 'nightly' or 'stable'."""
+
+    NIGHTLY = "nightly"
+    STABLE = "stable"
 
 
 def prepare_outputs_for_distribution(output_dir: Path) -> None:
@@ -145,6 +153,10 @@ def update_git_branch(tag: str, branch: str, staging: bool) -> None:
     Raises:
         subprocess.CalledProcessError: If git commands fail.
     """
+    if get_deployment_type_from_tag(tag).value != branch:
+        raise RuntimeError(
+            f"Git tag, {tag} does not match deployment branch, {branch}."
+        )
     logger.info(f"Updating git branch {branch} to tag {tag}")
 
     _run(["git", "checkout", branch])
@@ -297,3 +309,16 @@ def get_build_from_tag(tag: str) -> UPath:
         f"Most recent build associated with tag {tag}: {most_recent_build_path.as_uri()}"
     )
     return check_build_success(build_path)
+
+
+def get_deployment_type_from_tag(git_tag: str) -> DeploymentType:
+    """Check if tag looks like a 'nightly' or 'stable' tag."""
+    if re.match(r"v\d{4}\.\d{1,2}\.\d{1,2}", git_tag):
+        deploy_type = DeploymentType.STABLE
+    elif re.match(r"nightly-\d{4}-\d{2}-\d{2}", git_tag):
+        deploy_type = DeploymentType.NIGHTLY
+    else:
+        raise RuntimeError(
+            f"Git tag does not look like a stable or nightly tag. Input tag: {git_tag}"
+        )
+    return deploy_type
