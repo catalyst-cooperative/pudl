@@ -43,6 +43,10 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Normalized RUS-7 and RUS-12 borrower ID's, names and state in
+  :ref:`core_rus7__entity_borrowers` and :ref:`core_rus12__entity_borrowers`.
+  See :issue:`5040` and PR :pr:`5056`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
