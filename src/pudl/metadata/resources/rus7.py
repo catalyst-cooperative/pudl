@@ -3,6 +3,7 @@
 from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
+from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
@@ -368,8 +369,11 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers"),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "harvested"],
             "additional_details_text": (
+                "This table contains canonical values for borrowers are set. It contains "
+                "values which are expected to remain fixed over time."
+                f"{HARVESTING_DETAIL_TEXT_RUS}.\n\n"
                 # note from readme about this table
                 "This table contains all of the Active Distribution Borrowers as of each report year "
                 "who were eligible to report to RUS Form 7.  If these Borrowers have reported to RUS "
@@ -387,7 +391,26 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "primary_key": [
                 "borrower_id_rus",
             ],
-            # TODO: we could check to see if we could add a FK relationship here
+            "foreign_key_rules": {
+                "fields": [["borrower_id_rus"]],
+                "exclude": [
+                    "core_rus12__yearly_meeting_and_board",
+                    "core_rus12__yearly_balance_sheet_assets",
+                    "core_rus12__yearly_balance_sheet_liabilities",
+                    "core_rus12__yearly_long_term_debt",
+                    "core_rus12__entity_borrowers",
+                    "core_rus12__yearly_renewable_plants",
+                    "core_rus12__yearly_lines_stations_labor_materials_cost",
+                    "core_rus12__yearly_sources_and_distribution_by_plant_type",
+                    "core_rus12__yearly_sources_and_distribution",
+                    "core_rus12__yearly_loans",
+                    "core_rus12__yearly_plant_labor",
+                    "core_rus12__yearly_statement_of_operations",
+                    "core_rus12__yearly_plant_costs",
+                    "core_rus12__yearly_plant_operations_by_borrower",
+                    "core_rus12__yearly_plant_operations_by_plant",
+                ],
+            },
         },
         "sources": ["rus7"],
         "etl_group": "rus7",

@@ -604,7 +604,7 @@ def core_rus12__entity_borrowers(context, **clean_dfs):
     logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
     # We want **all** borrowers to have non-null names in this entity
     # table. They aren't always super consistent over time, but we have
-    # vetting them (see https://github.com/catalyst-cooperative/pudl/pull/5056#issuecomment-4008247047)
+    # vetted them (see https://github.com/catalyst-cooperative/pudl/pull/5056#issuecomment-4008247047)
     # and thus decided to set the threshold for consistency strictness
     # at 0% (instead of the default 70%) so we the most consistent value
     # no matter what.

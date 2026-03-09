@@ -1,5 +1,7 @@
 """Table definitions for the RUS12 tables."""
 
+from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
+
 PLANT_OPERATIONS_DETAIL = (
     "The data in this table comes from five different portions of RUS 12 "
     "corresponding to different plant types (steam, hydroelectric, "
@@ -153,6 +155,9 @@ RESOURCE_METADATA = {
             "additional_summary_text": ("active RUS borrowers."),
             "usage_warnings": ["experimental_wip"],
             "additional_details_text": (
+                "This table contains canonical values for borrowers are set. It contains "
+                "values which are expected to remain fixed over time."
+                f"{HARVESTING_DETAIL_TEXT_RUS}.\n\n"
                 # note from readme about this table
                 "This table contains all of the Active Distribution Borrowers as of each report year "
                 "who were eligible to report to RUS Form 12.  If these Borrowers have reported to RUS "
@@ -168,7 +173,25 @@ RESOURCE_METADATA = {
                 "state",
             ],
             "primary_key": ["borrower_id_rus"],
-            # TODO: we could check to see if we could add a FK relationship here
+            "foreign_key_rules": {
+                "fields": [["borrower_id_rus"]],
+                "exclude": [
+                    "core_rus7__entity_borrowers",
+                    "core_rus7__yearly_meeting_and_board",
+                    "core_rus7__yearly_balance_sheet_assets",
+                    "core_rus7__yearly_balance_sheet_liabilities",
+                    "core_rus7__yearly_employee_statistics",
+                    "core_rus7__yearly_energy_efficiency",
+                    "core_rus7__yearly_power_requirements_electric_customers",
+                    "core_rus7__yearly_power_requirements_electric_sales",
+                    "core_rus7__yearly_power_requirements",
+                    "core_rus7__yearly_investments",
+                    "core_rus7__codes_investment_types",
+                    "core_rus7__yearly_long_term_debt",
+                    "core_rus7__yearly_patronage_capital",
+                    "core_rus7__yearly_statement_of_operations",
+                ],
+            },
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
