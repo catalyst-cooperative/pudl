@@ -155,7 +155,7 @@ def update_git_branch(tag: str, branch: str, staging: bool) -> None:
     """
     if get_deployment_type_from_tag(tag).value != branch:
         raise RuntimeError(
-            f"Git tag, {tag} does not match deployment branch, {branch}."
+            f"Git tag, {tag}, does not match deployment branch, {branch}."
         )
     logger.info(f"Updating git branch {branch} to tag {tag}")
 
