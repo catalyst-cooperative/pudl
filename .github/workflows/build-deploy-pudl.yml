@@ -89,7 +89,7 @@ jobs:
       - name: Build image and push to Docker Hub
         id: docker-build
         if: ${{ env.SKIP_BUILD != 'true' }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/Dockerfile
