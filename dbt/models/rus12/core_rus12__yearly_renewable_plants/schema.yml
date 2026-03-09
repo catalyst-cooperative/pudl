@@ -9,14 +9,13 @@ sources:
               arguments:
                 column_A: invested
                 column_B: rus_funding
-                or_equal: True
+                or_equal: true
               config:
-                error_if: ">14" # TODO: Investigate these cases, many of them seem to be terminated contracts
-              description: "Expect that RUS will generally not invest more than is invested in a plant."
+                error_if: ">14"
+              description: Expect that RUS will generally not invest more than is invested in a plant.
         columns:
           - name: report_date
           - name: borrower_id_rus
-          - name: borrower_name_rus
           - name: plant_name_rus
           - name: prime_mover_id
           - name: prime_mover_type
@@ -60,7 +59,7 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">1"
-                  description: "Expect opex investments per mwh to be negative. Investigate IN0106 in 2021 as the only exception." #TODO
+                  description: Expect opex investments per mwh to be negative. Investigate IN0106 in 2021 as the only exception.
           - name: power_cost_per_mwh
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

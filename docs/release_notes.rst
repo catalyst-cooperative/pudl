@@ -55,6 +55,9 @@ New Data Tests & Validations
 * Add dbt data validations that will flag emissions removal efficiencies outside the
   valid range 0.0-1.0 and emissions control equipment test dates from before 1950 or
   after the current year. See PR :pr:`5048`.
+* Normalized RUS-7 and RUS-12 borrower ID's, names and state in
+  :ref:`core_rus7__entity_borrowers` and :ref:`core_rus12__entity_borrowers`.
+  See :issue:`5040` and PR :pr:`5056`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
