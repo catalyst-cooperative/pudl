@@ -1008,6 +1008,7 @@ and consumption is the net generation."""
                 "by-products reported by thermoelectric power "
                 "plants with total steam turbine capacity of 100 megawatts or greater."
             ),
+            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Schedule 8A)",
             "additional_details_text": (
                 "All by-products other than steam sales are reported in thousand tons and "
@@ -1049,6 +1050,7 @@ and consumption is the net generation."""
                 "thermoelectric power plants with total steam turbine capacity of 100 "
                 "megawatts or greater and that produced combustion by-products during the reporting year."
             ),
+            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Schedule 8B)",
             "additional_details_text": (
                 "Cost data must be entered for all entries on Schedule 8A. "
@@ -1106,6 +1108,7 @@ and consumption is the net generation."""
                 "thermoelectric or combined-cycle power plants with a total steam turbine capacity "
                 "greater than or equal to 10 megawatts."
             ),
+            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Schedule 8C)",
             "additional_primary_key_text": (
                 "This table is not yet normalized, and contains information about "
@@ -1116,6 +1119,15 @@ and consumption is the net generation."""
                 "report_date, mercury_control_id_eia, nox_control_id_eia, "
                 "so2_control_id_eia, and particulate_control_id_eia. In practice many "
                 "records have NULL values for all of the control equipment IDs."
+            ),
+            "additional_details_text": (
+                "In the raw data, the so2_test_date and particulate_test_date columns "
+                "contained a wide variety of non-standard date formats. "
+                "They have been standardized to ISO-8601 (YYYY-MM-DD) where "
+                "possible. Missing days and months have been filled in with 01. A "
+                "handful of manual spot-fixes have been applied to particularly "
+                "strange formats. Two-digit years have been assumed to fall between "
+                "1950 and the last year observed in the report_date column."
             ),
         },
         "schema": {

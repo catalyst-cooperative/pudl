@@ -1688,6 +1688,8 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     if "so2_test_date" in fgd_df.columns:
         fgd_df.loc[:, "so2_test_date"] = _clean_emissions_control_dates(
             fgd_df["so2_test_date"],
+            # Significant data starts appearing in the 1950s. A handful of values in
+            # 1900 to be errors / badly formatted (see spot fixes above)
             min_valid_year=1950,
             max_valid_year=fgd_df["report_date"].dt.year.max(),
             spot_fixes=fgd_spot_fixes,
@@ -1932,6 +1934,7 @@ def _core_eia923__yearly_emissions_control(
     df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
     df.columns = df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
 
+    # min_valid_year is set based on when significant data starts appearing.
     date_cols = {"so2_test_date": 1975, "particulate_test_date": 1950}
     for col, min_valid_year in date_cols.items():
         df[col] = _clean_emissions_control_dates(

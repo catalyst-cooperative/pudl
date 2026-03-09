@@ -2519,7 +2519,7 @@ def normalize_year_fragments(
         )
     if max_valid_year - min_valid_year >= 100:
         raise ValueError(
-            "Normalizing the century only works if the valid year range is less than 100 years."
+            "For normalization by rolling century to work the valid year range must be less than 100 years."
             f" Got min_valid_year={min_valid_year} and max_valid_year={max_valid_year}."
         )
     raw_year = raw_year.astype("string")

@@ -1055,7 +1055,7 @@ def test_normalize_year_fragments_raises_invalid_values(
             1900,
             2000,
             2000,
-            "valid year range is less than 100 years",
+            "valid year range must be less than 100 years",
             id="range-too-wide",
         ),
         pytest.param(

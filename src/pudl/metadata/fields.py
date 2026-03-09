@@ -236,7 +236,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "acid_gas_removal_efficiency": {
         "type": "number",
-        "description": "Removal efficiency for acid gas emissions.",
+        "description": "Removal efficiency for acid gas emissions. Ranges from 0 to 1.",
     },
     "actual_peak_demand_savings_mw": {
         "type": "number",
@@ -379,6 +379,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Actual controlled (or uncontrolled) nitrogen oxides emission rate. "
             "Based on data from CEMS where possible."
         ),
+        "unit": "lb/MMBtu",
     },
     "annual_total_chlorine_lbs": {
         "description": (
@@ -4542,7 +4543,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "mercury_removal_efficiency": {
         "type": "number",
-        "description": "Removal efficiency for mercury emissions.",
+        "description": "Removal efficiency for mercury emissions. Ranges from 0 to 1.",
     },
     "merge_address": {
         "type": "string",
@@ -5638,6 +5639,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ozone_season_nox_emission_rate_lb_per_mmbtu": {
         "type": "number",
         "description": "Actual controlled (or uncontrolled) nitrogen oxides emission rate during the ozone season (May to September)",
+        "unit": "lb/MMBtu",
     },
     "ownership_pct": {
         "type": "number",
@@ -5780,6 +5782,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "particulate_emission_rate_lb_per_mmbtu": {
         "type": "number",
         "description": "Average annual emission removal rate for particulate matter.",
+        "unit": "lb/MMBtu",
     },
     "particulate_removal_efficiency_tested": {
         "type": "number",
@@ -5787,7 +5790,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The tested efficiency for the removal of particulate matter at 100 percent load. "
             "If not tested at 100 percent load, then the load at which the test was conducted "
             "is included as a comment on Schedule 9. If no test was conducted, the test date "
-            "and tested efficiency field should be blank."
+            "and tested efficiency field should be blank. Ranges from 0 to 1."
         ),
     },
     "particulate_removal_efficiency_annual": {
@@ -5797,7 +5800,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "which is defined as annual fuel consumption (MMBtu) divided by the product "
             "of the boiler design firing rate (MMBtu per hour) and hours of operation per year."
             "When actual data are not available, estimates are provided based on equipment "
-            "design performance specifications."
+            "design performance specifications. Ranges from 0 to 1."
         ),
     },
     "particulate_test_date": {
@@ -7112,7 +7115,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The tested efficiency for the removal of sulfur dioxide at 100 percent load. "
             "If not tested at 100 percent load, then the load at which the test was conducted "
             "is included as a comment on Schedule 9. If no test was conducted, the test date "
-            "and tested efficiency field should be blank."
+            "and tested efficiency field should be blank. Ranges from 0 to 1."
         ),
     },
     "so2_removal_efficiency_annual": {
@@ -7122,7 +7125,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "which is defined as annual fuel consumption (MMBtu) divided by the product "
             "of the boiler design firing rate (MMBtu per hour) and hours of operation per year."
             "When actual data are not available, estimates are provided based on equipment "
-            "design performance specifications."
+            "design performance specifications. Ranges from 0 to 1."
         ),
     },
     "so2_test_date": {
