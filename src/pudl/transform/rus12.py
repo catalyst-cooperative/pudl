@@ -1,15 +1,19 @@
 """Transform the RUS12 tables."""
 
 import pandas as pd
-from dagster import AssetOut, Output, asset, multi_asset
+from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
+from pudl import logging_helpers
 from pudl.helpers import cleanstrings_snake
 from pudl.metadata.enums import PLANT_TYPE_RUS12
+from pudl.transform.eia import harvest_entity_tables
+
+logger = logging_helpers.get_logger(__name__)
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board):
+@asset
+def _core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board):
     """Transform the core_rus12__yearly_meeting_and_board table."""
     df = rus.early_transform(
         raw_df=raw_rus12__meeting_and_board,
@@ -26,8 +30,8 @@ def core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
+@asset
+def _core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
     """Transform the core_rus12__yearly_balance_sheet_assets table."""
     df = rus.early_transform(raw_df=raw_rus12__balance_sheet)
     rus.early_check_pk(df)
@@ -46,8 +50,8 @@ def core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
+@asset
+def _core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
     """Transform the core_rus12__yearly_balance_sheet_liabilities table."""
     df = rus.early_transform(raw_df=raw_rus12__balance_sheet)
     rus.early_check_pk(df)
@@ -66,8 +70,8 @@ def core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__scd_borrowers(raw_rus12__borrowers):
+@asset
+def _core_rus12__scd_borrowers(raw_rus12__borrowers):
     """Transform the core_rus12__scd_borrowers table."""
     df = rus.early_transform(raw_df=raw_rus12__borrowers)
     rus.early_check_pk(df)
@@ -77,8 +81,8 @@ def core_rus12__scd_borrowers(raw_rus12__borrowers):
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
+@asset
+def _core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     """Transform the core_rus12__yearly_renewable_plants table."""
     df = rus.early_transform(raw_df=raw_rus12__renewable_plants)
 
@@ -106,15 +110,15 @@ def core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt):
+@asset
+def _core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt):
     """Transform the core_rus12__yearly_long_term_debt table."""
     # TODO: the debt_description column could potentially get some cleaning.
     return rus.early_transform(raw_df=raw_rus12__long_term_debt)
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_lines_stations_labor_materials_cost(
+@asset
+def _core_rus12__yearly_lines_stations_labor_materials_cost(
     raw_rus12__lines_and_stations_labor_materials,
 ):
     """Transform the raw_rus12__lines_and_stations_labor_materials table."""
@@ -142,8 +146,8 @@ def core_rus12__yearly_lines_stations_labor_materials_cost(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_loans(raw_rus12__loans):
+@asset
+def _core_rus12__yearly_loans(raw_rus12__loans):
     """Transform the raw_rus12__loans table."""
     df = rus.early_transform(raw_df=raw_rus12__loans)
     df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date, format="mixed")
@@ -152,8 +156,8 @@ def core_rus12__yearly_loans(raw_rus12__loans):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
+@asset
+def _core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     """Transform the raw_rus12__plant_labor table."""
     df = rus.early_transform(raw_df=raw_rus12__plant_labor)
     df = cleanstrings_snake(df, ["plant_type"])
@@ -173,8 +177,8 @@ def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_sources_and_distribution_by_plant_type(
+@asset
+def _core_rus12__yearly_sources_and_distribution_by_plant_type(
     raw_rus12__sources_and_distribution,
 ):
     """Transform the raw_rus12__sources_and_distribution table.
@@ -210,8 +214,8 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_sources_and_distribution(
+@asset
+def _core_rus12__yearly_sources_and_distribution(
     raw_rus12__sources_and_distribution,
 ):
     """Transform the raw_rus12__sources_and_distribution table.
@@ -254,8 +258,8 @@ def core_rus12__yearly_sources_and_distribution(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations):
+@asset
+def _core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations):
     """Transform the raw_rus12__statement_of_operations table.
 
     This function drops a number of columns that contain per_kwh values that are
@@ -302,8 +306,8 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_plant_costs(
+@asset
+def _core_rus12__yearly_plant_costs(
     raw_rus12__combined_cycle_plant_costs: pd.DataFrame,
     raw_rus12__hydro_plant_costs: pd.DataFrame,
     raw_rus12__internal_combustion_plant_costs: pd.DataFrame,
@@ -425,15 +429,11 @@ def fix_string_unit_id_rus(df):
 
 @multi_asset(
     outs={
-        "core_rus12__yearly_plant_operations_by_plant": AssetOut(
-            io_manager_key="pudl_io_manager"
-        ),
-        "core_rus12__yearly_plant_operations_by_borrower": AssetOut(
-            io_manager_key="pudl_io_manager"
-        ),
+        "_core_rus12__yearly_plant_operations_by_plant": AssetOut(),
+        "_core_rus12__yearly_plant_operations_by_borrower": AssetOut(),
     }
 )
-def core_rus12__yearly_plant_operations(
+def _core_rus12__yearly_plant_operations(
     raw_rus12__combined_cycle_plant_operations: pd.DataFrame,
     raw_rus12__hydro_plant_operations: pd.DataFrame,
     raw_rus12__internal_combustion_plant_operations: pd.DataFrame,
@@ -549,11 +549,87 @@ def core_rus12__yearly_plant_operations(
 
     return (
         Output(
-            output_name="core_rus12__yearly_plant_operations_by_plant",
+            output_name="_core_rus12__yearly_plant_operations_by_plant",
             value=df_by_plant,
         ),
         Output(
-            output_name="core_rus12__yearly_plant_operations_by_borrower",
+            output_name="_core_rus12__yearly_plant_operations_by_borrower",
             value=df_by_borrower,
         ),
     )
+
+
+######################################
+# HARVESTING aka NORMALIZATION
+######################################
+# The USDA would be proud of this name
+
+
+_CORE_RUS12_TABLES = [
+    "_core_rus12__scd_borrowers",
+    "_core_rus12__yearly_balance_sheet_assets",
+    "_core_rus12__yearly_balance_sheet_liabilities",
+    "_core_rus12__yearly_lines_stations_labor_materials_cost",
+    "_core_rus12__yearly_loans",
+    "_core_rus12__yearly_long_term_debt",
+    "_core_rus12__yearly_meeting_and_board",
+    "_core_rus12__yearly_plant_costs",
+    "_core_rus12__yearly_plant_labor",
+    "_core_rus12__yearly_plant_operations_by_borrower",
+    "_core_rus12__yearly_plant_operations_by_plant",
+    "_core_rus12__yearly_renewable_plants",
+    "_core_rus12__yearly_sources_and_distribution",
+    "_core_rus12__yearly_sources_and_distribution_by_plant_type",
+    "_core_rus12__yearly_statement_of_operations",
+]
+
+
+@asset(
+    ins={table_name: AssetIn() for table_name in _CORE_RUS12_TABLES},
+    io_manager_key="pudl_io_manager",
+    config_schema={
+        "debug": Field(
+            bool,
+            default_value=False,
+            description=(
+                "If True, allow inconsistent values in harvested columns and "
+                "produce additional debugging output."
+            ),
+        ),
+    },
+)
+def core_rus12__entity_borrowers(context, **clean_dfs):
+    """Harvesting IDs & consistent static attributes for RUS12 entity."""
+    entity = rus.RusEntity.BORROWERS
+    logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
+    # We want **all** borrowers to have non-null names in this entity
+    # table. They aren't always super consistent over time, but we have
+    # vetting them (see https://github.com/catalyst-cooperative/pudl/pull/5056#issuecomment-4008247047)
+    # and thus decided to set the threshold for consistency strictness
+    # at 0% (instead of the default 70%) so we the most consistent value
+    # no matter what.
+    special_case_strictness = {"borrower_name_rus": 0}
+    # We only need the entity table, but the harvesting process
+    # always produces entity (aka static) as annual (aka scd) tables.
+    # as well as a helpful-for-debugging dictionary of dfs for all
+    # values columns we are harvesting
+    entity_df, annual_df, _col_dfs = harvest_entity_tables(
+        entity,
+        clean_dfs,
+        special_case_strictness=special_case_strictness,
+        debug=context.op_config["debug"],
+    )
+
+    return entity_df
+
+
+finished_rus_assets = [
+    rus.finished_rus_asset_factory(
+        table_name=_core_table_name.removeprefix("_"),
+        _core_table_name=_core_table_name,
+        io_manager_key="pudl_io_manager",
+    )
+    for _core_table_name in _CORE_RUS12_TABLES
+    # Don't attempt to core-ify this table
+    if _core_table_name not in ["_core_rus12__scd_borrowers"]
+]

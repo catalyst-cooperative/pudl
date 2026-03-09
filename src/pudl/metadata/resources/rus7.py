@@ -18,7 +18,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "last_annual_meeting_date",
                 "members_num",
                 "members_present_at_meeting_num",
@@ -49,7 +48,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "asset_type",
                 "ending_balance",
                 "is_total",
@@ -76,7 +74,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "liability_type",
                 "ending_balance",
                 "is_total",
@@ -101,7 +98,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "employees_fte_num",
                 "employee_hours_worked_regular_time",
                 "employee_hours_worked_over_time",
@@ -134,7 +130,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "customer_class",
                 "observation_period",
                 "customers_num",
@@ -164,7 +159,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "customer_class",
                 "observation_period",
                 "customers_num",
@@ -192,7 +186,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "customer_class",
                 "sales_mwh",
                 "revenue",
@@ -226,7 +219,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 # we could pull out the revenue/costs into one table and then the kwh into another.
                 "electric_sales_revenue",
                 "transmission_revenue",
@@ -267,7 +259,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "investment_description",
                 "investment_type_code",
                 "included_investments",
@@ -312,7 +303,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "debt_description",
                 "debt_ending_balance",
                 "debt_interest",
@@ -334,7 +324,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "patronage_type",
                 "patronage_report_year",
                 "patronage_cumulative",
@@ -358,7 +347,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "opex_group",
                 "opex_type",
                 "opex_report_month",

@@ -1,7 +1,5 @@
 """Transform the RUS7 tables."""
 
-from enum import StrEnum, auto
-
 import pandas as pd
 from dagster import AssetIn, Field, asset
 
@@ -12,7 +10,7 @@ from pudl.transform.eia import harvest_entity_tables
 logger = logging_helpers.get_logger(__name__)
 
 
-@asset()
+@asset
 def _core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
     """Transform the meeting and board (aka governance) table."""
     df = rus.early_transform(
@@ -30,7 +28,7 @@ def _core_rus7__yearly_meeting_and_board(raw_rus7__meeting_and_board):
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
     """Transform the balance sheet assets table."""
     df = rus.early_transform(raw_df=raw_rus7__balance_sheet)
@@ -50,7 +48,7 @@ def _core_rus7__yearly_balance_sheet_assets(raw_rus7__balance_sheet):
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
     """Transform the balance sheet liabilities table."""
     df = rus.early_transform(raw_df=raw_rus7__balance_sheet)
@@ -70,7 +68,7 @@ def _core_rus7__yearly_balance_sheet_liabilities(raw_rus7__balance_sheet):
     return df
 
 
-@asset()
+@asset
 def _core_rus7__scd_borrowers(raw_rus7__borrowers):
     """Transform the borrowers table."""
     df = rus.early_transform(raw_df=raw_rus7__borrowers)
@@ -81,7 +79,7 @@ def _core_rus7__scd_borrowers(raw_rus7__borrowers):
     )
 
 
-@asset()
+@asset
 def _core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
     """Transform the employee statistics table."""
     df = rus.early_transform(raw_df=raw_rus7__employee_statistics)
@@ -89,7 +87,7 @@ def _core_rus7__yearly_employee_statistics(raw_rus7__employee_statistics):
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     """Transform the energy efficiency table."""
     df = rus.early_transform(raw_df=raw_rus7__energy_efficiency)
@@ -107,7 +105,7 @@ def _core_rus7__yearly_energy_efficiency(raw_rus7__energy_efficiency):
     return df
 
 
-@asset()
+@asset
 def _core_rus7__power_requirements(raw_rus7__power_requirements):
     """Early transform an internal power_requirements table.
 
@@ -143,7 +141,7 @@ def _core_rus7__power_requirements(raw_rus7__power_requirements):
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_power_requirements_electric_sales(
     _core_rus7__power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -173,7 +171,7 @@ def _core_rus7__yearly_power_requirements_electric_sales(
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_power_requirements_electric_customers(
     _core_rus7__power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -196,7 +194,7 @@ def _core_rus7__yearly_power_requirements_electric_customers(
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_power_requirements(
     _core_rus7__power_requirements: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -239,7 +237,7 @@ def _core_rus7__yearly_power_requirements(
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_investments(
     raw_rus7__investments: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -253,7 +251,7 @@ def _core_rus7__yearly_investments(
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_long_term_debt(
     raw_rus7__long_term_debt: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -263,7 +261,7 @@ def _core_rus7__yearly_long_term_debt(
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_patronage_capital(
     raw_rus7__patronage_capital: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -294,7 +292,7 @@ def _core_rus7__yearly_patronage_capital(
     return df
 
 
-@asset()
+@asset
 def _core_rus7__yearly_statement_of_operations(
     raw_rus7__statement_of_operations: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -326,12 +324,6 @@ def _core_rus7__yearly_statement_of_operations(
 # HARVESTING aka NORMALIZATION
 ######################################
 # The USDA would be proud of this name
-
-
-class RusEntity(StrEnum):
-    """Enum for the different types of RUS entities."""
-
-    BORROWERS = auto()
 
 
 _CORE_RUS7_TABLES = [
@@ -367,10 +359,19 @@ _CORE_RUS7_TABLES = [
 )
 def core_rus7__entity_borrowers(context, **clean_dfs):
     """Harvesting IDs & consistent static attributes for RUS7 entity."""
-    entity = RusEntity.BORROWERS
+    entity = rus.RusEntity.BORROWERS
     logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
+    # We want **all** borrowers to have non-null names in this entity
+    # table. They aren't always super consistent over time, but we have
+    # vetting them (see https://github.com/catalyst-cooperative/pudl/pull/5056#issuecomment-4008247047)
+    # and thus decided to set the threshold for consistency strictness
+    # at 0% (instead of the default 70%) so we the most consistent value
+    # no matter what.
     special_case_strictness = {"borrower_name_rus": 0}
-
+    # We only need the entity table, but the harvesting process
+    # always produces entity (aka static) as annual (aka scd) tables.
+    # as well as a helpful-for-debugging dictionary of dfs for all
+    # values columns we are harvesting
     entity_df, annual_df, _col_dfs = harvest_entity_tables(
         entity,
         clean_dfs,

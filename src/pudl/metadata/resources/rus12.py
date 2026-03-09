@@ -52,7 +52,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "last_annual_meeting_date",
                 "members_num",
                 "members_present_at_meeting_num",
@@ -81,7 +80,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "asset_type",
                 "balance",
                 "is_total",
@@ -109,7 +107,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "liability_type",
                 "balance",
                 "is_total",
@@ -140,7 +137,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "debt_description",
                 "debt_ending_balance",
                 "debt_interest",
@@ -152,7 +148,7 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__scd_borrowers": {
+    "core_rus12__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
             "usage_warnings": ["experimental_wip"],
@@ -167,15 +163,11 @@ RESOURCE_METADATA = {
         },
         "schema": {
             "fields": [
-                "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "state",
             ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-            ],
+            "primary_key": ["borrower_id_rus"],
             # TODO: we could check to see if we could add a FK relationship here
         },
         "sources": ["rus12"],
@@ -194,7 +186,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "prime_mover_id",
                 "prime_mover_type",
@@ -235,7 +226,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "labor_or_material",
                 "operation_or_maintenance",
                 "lines_or_stations",
@@ -266,7 +256,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_type",
                 "capacity_mw",
                 "plant_num",
@@ -302,7 +291,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "source_of_energy",
                 "net_energy_received_mwh",
                 "cost",
@@ -331,7 +319,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "loan_organization",
                 "loan_maturity_date",
                 "loan_original_amount",
@@ -376,7 +363,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "plant_type",
                 "employees_full_time_num",
@@ -403,7 +389,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "opex_group",
                 "opex_type",
                 "opex_report_month",
@@ -446,7 +431,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "plant_type",
                 "cost_group",
@@ -479,7 +463,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "unit_id_rus",
                 "plant_type",
@@ -530,7 +513,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "unit_id_rus",
                 "plant_type",
