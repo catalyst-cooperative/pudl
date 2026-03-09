@@ -45,7 +45,7 @@ sources:
                     min_value: 0.0
               - dbt_expectations.expect_column_max_to_be_between:
                   arguments:
-                    min_value: 100.0
+                    max_value: 100.0
           - name: is_full_ownership_portion
           - name: is_partly_owned_by_borrower
           - name: fuel_consumption_coal_lbs
@@ -55,8 +55,8 @@ sources:
                     min_value: 0.0
               - dbt_expectations.expect_column_max_to_be_between:
                   arguments:
-                    min_value: 0.0
-                    row_condition: plant_type NOT IN ('hydro', 'nuclear')
+                    max_value: 0.0
+                    row_condition: plant_type IN ('hydro', 'nuclear')
           - name: fuel_consumption_gas_cubic_feet
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -64,8 +64,8 @@ sources:
                     min_value: 0.0
               - dbt_expectations.expect_column_max_to_be_between:
                   arguments:
-                    min_value: 0.0
-                    row_condition: plant_type NOT IN ('hydro', 'nuclear')
+                    max_value: 0.0
+                    row_condition: plant_type IN ('hydro', 'nuclear')
           - name: fuel_consumption_oil_gallons
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -73,8 +73,8 @@ sources:
                     min_value: 0.0
               - dbt_expectations.expect_column_max_to_be_between:
                   arguments:
-                    min_value: 0.0
-                    row_condition: plant_type NOT IN ('hydro', 'nuclear')
+                    max_value: 0.0
+                    row_condition: plant_type IN ('hydro', 'nuclear')
           - name: fuel_consumption_other
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -82,8 +82,8 @@ sources:
                     min_value: 0.0
               - dbt_expectations.expect_column_max_to_be_between:
                   arguments:
-                    min_value: 0.0
-                    row_condition: plant_type NOT IN ('hydro', 'nuclear')
+                    max_value: 0.0
+                    row_condition: plant_type IN ('hydro', 'nuclear')
           - name: operating_hours_in_service
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
