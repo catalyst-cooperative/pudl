@@ -68,7 +68,7 @@ database online `here <https://data.catalyst.coop/ferc1_dbf/>`__.
 import json
 from itertools import chain
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, TypedDict
 
 import pandas as pd
 import sqlalchemy as sa
@@ -98,7 +98,20 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
-TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
+FERC1_DBF_SQLITE_ASSET_KEY = AssetKey("raw_ferc1_dbf__sqlite")
+FERC1_XBRL_SQLITE_ASSET_KEY = AssetKey("raw_ferc1_xbrl__sqlite")
+
+RawFercTableName = str | list[str]
+
+
+class RawTableMapping(TypedDict):
+    """Mapping between normalized PUDL table and raw DBF/XBRL table names."""
+
+    dbf: RawFercTableName
+    xbrl: RawFercTableName
+
+
+TABLE_NAME_MAP_FERC1: dict[str, RawTableMapping] = {
     "core_ferc1__yearly_steam_plants_fuel_sched402": {
         "dbf": "f1_fuel",
         "xbrl": "steam_electric_generating_plant_statistics_large_plants_fuel_statistics_402",
@@ -208,7 +221,7 @@ TABLE_NAME_MAP_FERC1: dict[str, dict[str, str]] = {
 }
 """A mapping of PUDL DB table names to their XBRL and DBF source table names."""
 
-XBRL_META_ONLY_FERC1 = {
+XBRL_META_ONLY_FERC1: dict[str, RawTableMapping] = {
     "nuclear_fuel_materials_ferc1": {
         "dbf": "f1_nuclear_fuel",
         "xbrl": "nuclear_fuel_materials_202",
@@ -240,7 +253,10 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         self, global_settings: FercToSqliteSettings
     ) -> GenericDatasetSettings:
         """Returns settings for FERC Form 1 DBF dataset."""
-        return global_settings.ferc1_dbf_to_sqlite_settings
+        settings = global_settings.ferc1_dbf_to_sqlite_settings
+        if settings is None:
+            raise ValueError("ferc1_dbf_to_sqlite_settings must be configured")
+        return settings
 
     def finalize_schema(self, meta: sa.MetaData) -> sa.MetaData:
         """Modifies schema before it's written to sqlite database.
@@ -290,7 +306,7 @@ class Ferc1DbfExtractor(FercDbfExtractor):
         # are identified in the PUDL_RIDS map, others are still unknown.
         records = []
         for rid in missing_ids:
-            entry = {"respondent_id": rid}
+            entry: dict[str, int | str] = {"respondent_id": rid}
             known_name = self.PUDL_RIDS.get(rid, None)
             if known_name:
                 entry["respondent_name"] = f"{known_name} (PUDL determined)"
@@ -359,9 +375,10 @@ def create_raw_ferc1_assets() -> list[AssetSpec]:
     )
     dbf_table_names = tuple(set(flattened_dbfs))
     raw_ferc1_dbf_assets = [
-        AssetSpec(key=AssetKey(f"raw_ferc1_dbf__{table_name}")).with_io_manager_key(
-            "ferc1_dbf_sqlite_io_manager"
-        )
+        AssetSpec(
+            key=AssetKey(f"raw_ferc1_dbf__{table_name}"),
+            deps=[FERC1_DBF_SQLITE_ASSET_KEY],
+        ).with_io_manager_key("ferc1_dbf_sqlite_io_manager")
         for table_name in dbf_table_names
     ]
 
@@ -375,9 +392,10 @@ def create_raw_ferc1_assets() -> list[AssetSpec]:
     )
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc1_xbrl_assets = [
-        AssetSpec(key=AssetKey(f"raw_ferc1_xbrl__{table_name}")).with_io_manager_key(
-            "ferc1_xbrl_sqlite_io_manager"
-        )
+        AssetSpec(
+            key=AssetKey(f"raw_ferc1_xbrl__{table_name}"),
+            deps=[FERC1_XBRL_SQLITE_ASSET_KEY],
+        ).with_io_manager_key("ferc1_xbrl_sqlite_io_manager")
         for table_name in xbrl_table_names
     ]
     return raw_ferc1_dbf_assets + raw_ferc1_xbrl_assets
@@ -391,7 +409,7 @@ raw_ferc1_assets = create_raw_ferc1_assets()
 # asset name.
 
 
-@asset
+@asset(deps=[FERC1_XBRL_SQLITE_ASSET_KEY])
 def raw_ferc1_xbrl__metadata_json(
     context,
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -406,7 +424,10 @@ def raw_ferc1_xbrl__metadata_json(
         filings. If there is no instant/duration table, an empty list is returned
         instead.
     """
-    metadata_path = PudlPaths().output_dir / "ferc1_xbrl_taxonomy_metadata.json"
+    metadata_path = (
+        PudlPaths().output_dir  # type: ignore[call-arg]
+        / "ferc1_xbrl_taxonomy_metadata.json"
+    )
     with Path.open(metadata_path) as f:
         xbrl_meta_all = json.load(f)
 

@@ -1,25 +1,46 @@
-"""Dagster definitions for the FERC to SQLite process."""
+"""Dagster asset definitions for granular FERC to SQLite extraction."""
 
-import importlib.resources
-
-from dagster import Definitions, graph
+import dagster as dg
 
 import pudl
-from pudl.extract.ferc import ALL_DBF_EXTRACTORS
-from pudl.extract.xbrl import xbrl2sqlite_op_factory
+from pudl.extract.ferc import (
+    Ferc1DbfExtractor,
+    Ferc2DbfExtractor,
+    Ferc6DbfExtractor,
+    Ferc60DbfExtractor,
+)
+from pudl.extract.xbrl import FercXbrlDatastore, convert_form, xbrl2sqlite_op_factory
 from pudl.resources import RuntimeSettings, datastore, ferc_to_sqlite_settings
-from pudl.settings import EtlSettings, XbrlFormNumber
+from pudl.settings import XbrlFormNumber
+from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@graph
+# Backward-compatible op graph for unit tests and legacy callers.
+FERC1_DBF_OP = Ferc1DbfExtractor.get_dagster_op()
+FERC2_DBF_OP = Ferc2DbfExtractor.get_dagster_op()
+FERC6_DBF_OP = Ferc6DbfExtractor.get_dagster_op()
+FERC60_DBF_OP = Ferc60DbfExtractor.get_dagster_op()
+FORM1_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)
+FORM2_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM2)
+FORM6_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM6)
+FORM60_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM60)
+FORM714_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM714)
+
+
+@dg.graph
 def ferc_to_sqlite():
-    """Clone the FERC FoxPro databases and XBRL filings into SQLite."""
-    for extractor in ALL_DBF_EXTRACTORS:
-        extractor.get_dagster_op()()
-    for form in XbrlFormNumber:
-        xbrl2sqlite_op_factory(form)()
+    """Clone FERC DBF and XBRL sources into SQLite (compatibility graph)."""
+    FERC1_DBF_OP()
+    FERC2_DBF_OP()
+    FERC6_DBF_OP()
+    FERC60_DBF_OP()
+    FORM1_XBRL_OP()
+    FORM2_XBRL_OP()
+    FORM6_XBRL_OP()
+    FORM60_XBRL_OP()
+    FORM714_XBRL_OP()
 
 
 default_resources_defs = {
@@ -28,44 +49,135 @@ default_resources_defs = {
     "datastore": datastore,
 }
 
-ferc_to_sqlite_full_settings = EtlSettings.from_yaml(
-    importlib.resources.files("pudl.package_data.settings") / "etl_full.yml"
-).ferc_to_sqlite_settings
 
-ferc_to_sqlite_full = ferc_to_sqlite.to_job(
-    resource_defs=default_resources_defs,
-    name="ferc_to_sqlite_full",
-    config={
-        "resources": {
-            "ferc_to_sqlite_settings": {
-                "config": ferc_to_sqlite_full_settings.model_dump(),
-            },
-            "runtime_settings": {
-                "config": {},
-            },
+def dbf_to_sqlite_asset_factory(
+    *, key: dg.AssetKey, dataset: str, extractor_class
+) -> dg.AssetsDefinition:
+    """Create a DBF-to-SQLite prerequisite asset for a specific FERC dataset."""
+
+    @dg.asset(
+        key=key,
+        group_name="raw_ferc_to_sqlite",
+        required_resource_keys={
+            "ferc_to_sqlite_settings",
+            "datastore",
+            "runtime_settings",
         },
-    },
+        tags={"dataset": dataset, "data_format": "dbf"},
+    )
+    def _asset(context) -> str:
+        extractor_class(
+            datastore=context.resources.datastore,
+            settings=context.resources.ferc_to_sqlite_settings,
+            output_path=PudlPaths().output_dir,
+        ).execute()
+        return "complete"
+
+    return _asset
+
+
+def xbrl_to_sqlite_asset_factory(
+    *, key: dg.AssetKey, form: XbrlFormNumber
+) -> dg.AssetsDefinition:
+    """Create an XBRL-to-SQLite prerequisite asset for a specific FERC form."""
+
+    @dg.asset(
+        key=key,
+        group_name="raw_ferc_to_sqlite",
+        required_resource_keys={
+            "ferc_to_sqlite_settings",
+            "datastore",
+            "runtime_settings",
+        },
+        tags={"dataset": f"ferc{form.value}", "data_format": "xbrl"},
+    )
+    def _asset(context) -> str:
+        runtime_settings = context.resources.runtime_settings
+        settings = context.resources.ferc_to_sqlite_settings.get_xbrl_dataset_settings(
+            form
+        )
+        if settings is None or settings.disabled:
+            logger.info(
+                f"Skipping dataset ferc{form.value}_xbrl: no config or is disabled."
+            )
+            return "skipped"
+
+        output_path = PudlPaths().output_dir
+        sqlite_path = PudlPaths().sqlite_db_path(f"ferc{form.value}_xbrl")
+        if sqlite_path.exists():
+            sqlite_path.unlink()
+        duckdb_path = PudlPaths().duckdb_db_path(f"ferc{form.value}_xbrl")
+        if duckdb_path.exists():
+            duckdb_path.unlink()
+
+        convert_form(
+            settings,
+            form,
+            FercXbrlDatastore(context.resources.datastore),
+            output_path=output_path,
+            sqlite_path=sqlite_path,
+            duckdb_path=duckdb_path,
+            batch_size=runtime_settings.xbrl_batch_size,
+            workers=runtime_settings.xbrl_num_workers,
+            loglevel=runtime_settings.xbrl_loglevel,
+        )
+        return "complete"
+
+    return _asset
+
+
+raw_ferc1_dbf__sqlite = dbf_to_sqlite_asset_factory(
+    key=dg.AssetKey("raw_ferc1_dbf__sqlite"),
+    dataset="ferc1",
+    extractor_class=Ferc1DbfExtractor,
+)
+raw_ferc2_dbf__sqlite = dbf_to_sqlite_asset_factory(
+    key=dg.AssetKey("raw_ferc2_dbf__sqlite"),
+    dataset="ferc2",
+    extractor_class=Ferc2DbfExtractor,
+)
+raw_ferc6_dbf__sqlite = dbf_to_sqlite_asset_factory(
+    key=dg.AssetKey("raw_ferc6_dbf__sqlite"),
+    dataset="ferc6",
+    extractor_class=Ferc6DbfExtractor,
+)
+raw_ferc60_dbf__sqlite = dbf_to_sqlite_asset_factory(
+    key=dg.AssetKey("raw_ferc60_dbf__sqlite"),
+    dataset="ferc60",
+    extractor_class=Ferc60DbfExtractor,
 )
 
-ferc_to_sqlite_fast_settings = EtlSettings.from_yaml(
-    importlib.resources.files("pudl.package_data.settings") / "etl_fast.yml"
-).ferc_to_sqlite_settings
-
-ferc_to_sqlite_fast = ferc_to_sqlite.to_job(
-    resource_defs=default_resources_defs,
-    name="ferc_to_sqlite_fast",
-    config={
-        "resources": {
-            "ferc_to_sqlite_settings": {
-                "config": ferc_to_sqlite_fast_settings.model_dump(),
-            },
-            "runtime_settings": {
-                "config": {},
-            },
-        },
-    },
+raw_ferc1_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
+    key=dg.AssetKey("raw_ferc1_xbrl__sqlite"),
+    form=XbrlFormNumber.FORM1,
+)
+raw_ferc2_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
+    key=dg.AssetKey("raw_ferc2_xbrl__sqlite"),
+    form=XbrlFormNumber.FORM2,
+)
+raw_ferc6_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
+    key=dg.AssetKey("raw_ferc6_xbrl__sqlite"),
+    form=XbrlFormNumber.FORM6,
+)
+raw_ferc60_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
+    key=dg.AssetKey("raw_ferc60_xbrl__sqlite"),
+    form=XbrlFormNumber.FORM60,
+)
+raw_ferc714_xbrl__sqlite = xbrl_to_sqlite_asset_factory(
+    key=dg.AssetKey("raw_ferc714_xbrl__sqlite"),
+    form=XbrlFormNumber.FORM714,
 )
 
-defs: Definitions = Definitions(jobs=[ferc_to_sqlite_full, ferc_to_sqlite_fast])
-"""A collection of dagster assets, resources, IO managers, and jobs for the FERC to
-SQLite ETL."""
+defs: dg.Definitions = dg.Definitions(
+    assets=[
+        raw_ferc1_dbf__sqlite,
+        raw_ferc2_dbf__sqlite,
+        raw_ferc6_dbf__sqlite,
+        raw_ferc60_dbf__sqlite,
+        raw_ferc1_xbrl__sqlite,
+        raw_ferc2_xbrl__sqlite,
+        raw_ferc6_xbrl__sqlite,
+        raw_ferc60_xbrl__sqlite,
+        raw_ferc714_xbrl__sqlite,
+    ]
+)

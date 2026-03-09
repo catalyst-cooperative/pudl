@@ -1,7 +1,9 @@
 """Module for validating pudl etl settings."""
 
+import importlib.resources
 import json
 from enum import Enum, StrEnum, auto, unique
+from pathlib import Path
 from typing import Any, ClassVar, Self
 
 import fsspec
@@ -921,6 +923,20 @@ class EtlSettings(BaseSettings):
         return self
 
 
+def load_etl_settings(path: str | Path) -> EtlSettings:
+    """Load ETL settings from a path, supporting relative paths from cwd."""
+    return EtlSettings.from_yaml(str(Path(path).expanduser().resolve()))
+
+
+def load_packaged_etl_settings(setting_filename: str) -> EtlSettings:
+    """Load ETL settings from a profile in ``pudl.package_data.settings``."""
+    settings_path = (
+        importlib.resources.files("pudl.package_data.settings")
+        / f"{setting_filename}.yml"
+    )
+    return EtlSettings.from_yaml(str(settings_path))
+
+
 def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:
     """Recursively convert a dictionary of dataset settings to dagster config in place.
 
@@ -939,12 +955,13 @@ def _convert_settings_to_dagster_config(settings_dict: dict[str, Any]) -> None:
             settings_dict[key] = DagsterField(type(value), default_value=value)
 
 
-def create_dagster_config(settings: GenericDatasetSettings) -> dict[str, DagsterField]:
+def create_dagster_config(
+    settings: FrozenBaseModel | BaseSettings,
+) -> dict[str, DagsterField]:
     """Create a dictionary of dagster config out of a :class:`GenericDatasetsSettings`.
 
     Args:
-        settings: A dataset settings object, subclassed from
-            :class:`GenericDatasetSettings`.
+        settings: A pydantic settings model used by ETL resources.
 
     Returns:
         A dictionary of :class:`DagsterField` objects.

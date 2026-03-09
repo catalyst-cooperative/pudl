@@ -1,0 +1,12 @@
+execution:
+  config:
+    in_process: {}
+resources:
+  dataset_settings:
+    config:
+      etl_settings_path: src/pudl/package_data/settings/etl_full.yml
+  ferc_to_sqlite_settings:
+    config:
+      etl_settings_path: src/pudl/package_data/settings/etl_full.yml
+  runtime_settings:
+    config: {}
