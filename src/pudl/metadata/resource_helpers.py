@@ -22,7 +22,7 @@ tables, PUDL collects all instances of these values and and chooses a canonical 
 By default, PUDL chooses the most consistently reported value of a given attribute as
 long as it is at least 70% of the given instances reported. For the ``borrower_name_rus``
 PUDL chooses the most consistently reported value regardless of if it meets this 70%
-threshold so that all borrowers will to have a name. We chose this because most name
+threshold so that all borrowers will have a name. We chose this because most name
 changes were insignificant (eg. "and" changed to "&" or "coop" changed to "cooperative").
 All tables downstream of this one inherit the canonical values established
 here."""
