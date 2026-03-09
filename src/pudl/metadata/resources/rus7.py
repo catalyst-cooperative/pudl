@@ -2,6 +2,8 @@
 
 from typing import Any
 
+from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
         "description": {
@@ -16,7 +18,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "last_annual_meeting_date",
                 "members_num",
                 "members_present_at_meeting_num",
@@ -47,7 +48,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "asset_type",
                 "ending_balance",
                 "is_total",
@@ -74,7 +74,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "liability_type",
                 "ending_balance",
                 "is_total",
@@ -99,7 +98,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "employees_fte_num",
                 "employee_hours_worked_regular_time",
                 "employee_hours_worked_over_time",
@@ -132,7 +130,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "customer_class",
                 "observation_period",
                 "customers_num",
@@ -162,7 +159,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "customer_class",
                 "observation_period",
                 "customers_num",
@@ -190,7 +186,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "customer_class",
                 "sales_mwh",
                 "revenue",
@@ -224,7 +219,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 # we could pull out the revenue/costs into one table and then the kwh into another.
                 "electric_sales_revenue",
                 "transmission_revenue",
@@ -265,7 +259,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "investment_description",
                 "investment_type_code",
                 "included_investments",
@@ -294,7 +287,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "debt_description",
                 "debt_ending_balance",
                 "debt_interest",
@@ -339,7 +331,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "patronage_type",
                 "patronage_report_year",
                 "patronage_cumulative",
@@ -363,7 +354,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "opex_group",
                 "opex_type",
                 "opex_report_month",
@@ -382,11 +372,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
-    "core_rus7__scd_borrowers": {  # this is kinda a SCD table? with just two things?
+    "core_rus7__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers"),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "harvested"],
             "additional_details_text": (
+                "This table contains canonical values for borrowers are set. It contains "
+                "values which are expected to remain fixed over time."
+                f"{HARVESTING_DETAIL_TEXT_RUS}.\n\n"
                 # note from readme about this table
                 "This table contains all of the Active Distribution Borrowers as of each report year "
                 "who were eligible to report to RUS Form 7.  If these Borrowers have reported to RUS "
@@ -397,16 +390,35 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         },
         "schema": {
             "fields": [
-                "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "state",
             ],
             "primary_key": [
-                "report_date",
                 "borrower_id_rus",
             ],
-            # TODO: we could check to see if we could add a FK relationship here
+            "foreign_key_rules": {
+                "fields": [["borrower_id_rus"]],
+                "exclude": [
+                    # We must remove all of the rus12 tables - otherwise
+                    # these would get a FK relationship from this rus7 table
+                    "core_rus12__yearly_meeting_and_board",
+                    "core_rus12__yearly_balance_sheet_assets",
+                    "core_rus12__yearly_balance_sheet_liabilities",
+                    "core_rus12__yearly_long_term_debt",
+                    "core_rus12__entity_borrowers",
+                    "core_rus12__yearly_renewable_plants",
+                    "core_rus12__yearly_lines_stations_labor_materials_cost",
+                    "core_rus12__yearly_sources_and_distribution_by_plant_type",
+                    "core_rus12__yearly_sources_and_distribution",
+                    "core_rus12__yearly_loans",
+                    "core_rus12__yearly_plant_labor",
+                    "core_rus12__yearly_statement_of_operations",
+                    "core_rus12__yearly_plant_costs",
+                    "core_rus12__yearly_plant_operations_by_borrower",
+                    "core_rus12__yearly_plant_operations_by_plant",
+                ],
+            },
         },
         "sources": ["rus7"],
         "etl_group": "rus7",

@@ -7,13 +7,25 @@ each module there to actually store resource metadata.
 
 from typing import Any
 
-HARVESTING_DETAIL_TEXT = """EIA reports many attributes in many different tables across
+HARVESTING_DETAIL_TEXT_EIA = """EIA reports many attributes in many different tables across
 EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
 collects all instances of these values and and chooses a canonical value. By default,
 PUDL chooses the most consistently reported value of a given attribute as long as it
 is at least 70% of the given instances reported. If an attribute was reported
 inconsistently across the original EIA tables, then it will show up as a
 null value."""
+
+
+HARVESTING_DETAIL_TEXT_RUS = """RUS reports many attributes in many different tables
+across throughout RUS-7 and RUS-12. In order to compile tidy, well-normalized database
+tables, PUDL collects all instances of these values and and chooses a canonical value.
+By default, PUDL chooses the most consistently reported value of a given attribute as
+long as it is at least 70% of the given instances reported. For the ``borrower_name_rus``
+PUDL chooses the most consistently reported value regardless of if it meets this 70%
+threshold so that all borrowers will have a name. We chose this because most name
+changes were insignificant (eg. "and" changed to "&" or "coop" changed to "cooperative").
+All tables downstream of this one inherit the canonical values established
+here."""
 
 
 def canonical_harvested_details(entities: str, is_static: bool) -> str:
@@ -39,7 +51,7 @@ def canonical_harvested_details(entities: str, is_static: bool) -> str:
     return f"""This is one of two tables where canonical
 values for {entities} are set. It contains values which are expected to {"remain fixed" if is_static else "vary slowly"}, while
 :ref:`core_eia{"860" if is_static else ""}__{"scd" if is_static else "entity"}_{entities}` contains those {"which may vary from year to year" if is_static else "expected to remain fixed"}.
-{HARVESTING_DETAIL_TEXT}
+{HARVESTING_DETAIL_TEXT_EIA}
 All tables downstream of this one inherit the canonical values established here."""
 
 
@@ -60,7 +72,7 @@ def inherits_harvested_values_details(entities: str) -> str:
             ``core_eia860__scd_generators`` and ``core_eia860__scd_plants`` upstream.
     """
     return f"""This table inherits canonicalized values for {entities}.
-{HARVESTING_DETAIL_TEXT}"""
+{HARVESTING_DETAIL_TEXT_EIA}"""
 
 
 def merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
