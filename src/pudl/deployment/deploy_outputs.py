@@ -254,7 +254,7 @@ def set_gcs_temporary_hold(gcs_path: str) -> None:
     accidental deletion or lifecycle policies.
 
     Args:
-        gcs_path: GCS path to objects (e.g., "gs://pudl.catalyst.coop/v2025.2.3/*").
+        gcs_path: GCS path to objects (e.g., "gs://pudl.catalyst.coop/v2025.2.3/").
         billing_project: which project to bill for Requester Pays buckets.
     """
     logger.info(f"Setting temporary hold on {gcs_path}")
