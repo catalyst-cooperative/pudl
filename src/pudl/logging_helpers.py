@@ -73,23 +73,34 @@ def configure_root_logger(
     for dependency_name, dependency_loglevel in dependency_loglevels.items():
         logging.getLogger(dependency_name).setLevel(dependency_loglevel)
 
-    logger = get_dagster_logger("catalystcoop")
+    # Normalize upstream ferc_xbrl_extractor logging to flow through our configured
+    # handlers and formatter without requiring changes in that package.
+    ferc_xbrl_logger = logging.getLogger("catalystcoop.ferc_xbrl_extractor")
+    if ferc_xbrl_logger.handlers:
+        ferc_xbrl_logger.handlers.clear()
+    ferc_xbrl_logger.propagate = True
+
     log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
-    coloredlogs.install(
-        fmt=log_format,
-        level=loglevel,
-        logger=logger,
-        isatty=color_logs,
-    )
+    loggers_to_configure = [
+        get_dagster_logger("catalystcoop"),
+        logging.getLogger("catalystcoop"),
+    ]
+    for logger in loggers_to_configure:
+        coloredlogs.install(
+            fmt=log_format,
+            level=loglevel,
+            logger=logger,
+            isatty=color_logs,
+        )
 
-    logger.addHandler(logging.NullHandler())
+        logger.addHandler(logging.NullHandler())
 
-    if logfile is not None:
-        file_logger = logging.FileHandler(logfile)
-        file_logger.setFormatter(logging.Formatter(log_format))
-        logger.addHandler(file_logger)
+        if logfile is not None:
+            file_logger = logging.FileHandler(logfile)
+            file_logger.setFormatter(logging.Formatter(log_format))
+            logger.addHandler(file_logger)
 
-    logger.propagate = propagate
+        logger.propagate = propagate
 
     if propagate:
         logging.getLogger("dagster").propagate = True
