@@ -7,14 +7,13 @@ sources:
           - expect_columns_not_all_null
           - dbt_utils.expression_is_true:
               arguments:
-                expression: "debt_interest + debt_principal = debt_total"
+                expression: debt_interest + debt_principal = debt_total
               config:
                 error_if: ">5"
-              description: "Examine a few cases where interest + principal != total" #TODO
+              description: Examine a few cases where interest + principal != total
         columns:
           - name: report_date
           - name: borrower_id_rus
-          - name: borrower_name_rus
           - name: debt_description
           - name: debt_ending_balance
             data_tests:
@@ -23,7 +22,7 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">38"
-                  description: "Investigate negative values." #TODO
+                  description: Investigate negative values.
           - name: debt_interest
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -31,7 +30,7 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">11"
-                  description: "Investigate negative values." #TODO
+                  description: Investigate negative values.
           - name: debt_principal
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -44,4 +43,4 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">5"
-                  description: "Investigate negative values." #TODO
+                  description: Investigate negative values.
