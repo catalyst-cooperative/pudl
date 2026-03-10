@@ -62,31 +62,23 @@ and handle IO. If you are planning on contributing to PUDL, it is recommended yo
 read through the `Dagster Docs <https://docs.dagster.io/getting-started>`__ to
 familiarize yourself with the tool's main concepts.
 
-^^^^^^^^^^^^^
-dg quickstart
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+``dg`` quickstart
+^^^^^^^^^^^^^^^^^
 
-PUDL is configured as a ``dg`` project. These commands are a quick way to confirm
-your local Dagster setup is healthy before launching runs:
-
-.. code-block:: console
-
-    $ pixi run dg check toml
-    $ pixi run dg check defs --verbose
-    $ pixi run dg list defs
-
-To start the Dagster UI and then launch a run from the CLI:
+PUDL is configured as a ``dg`` project. ``dg`` is Dagster's official CLI. It can run
+most if not all of the tasks managed through the UI.
 
 .. code-block:: console
 
+    # Start up the Dagster UI webserver and daemons
     $ pixi run dg dev
+    # Launch a full job with its default config
     $ pixi run dg launch --job etl_fast
-
-To materialize just selected assets using the CLI:
-
-.. code-block:: console
-
+    # Select a subset of assets to materialize
     $ pixi run dg launch --assets "group:raw_eia861"
+    # List all of the Dagster definitions
+    $ pixi run dg list defs
 
 For full ``dg`` CLI documentation and options, see the Dagster docs:
 `dg CLI reference <https://docs.dagster.io/api/clis/dg>`__.
@@ -98,7 +90,8 @@ to interacting with the PUDL data processing pipeline:
 `The Dagster UI <https://docs.dagster.io/concepts/webserver/ui>`__
 is used for monitoring and executing ETL runs.
 
-**Software Defined Assets (SDAs):**
+Software Defined Assets (SDAs)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     *An asset is an object in persistent storage, such as a table, file, or
     persisted machine learning model. A software-defined asset is a Dagster object that
@@ -120,7 +113,8 @@ means running the associated functions and writing the output to disk
 somewhere. When you are running the main PUDL ETL, you are **materializing
 assets**.
 
-**Operations (Ops):**
+Operations (Ops):
+^^^^^^^^^^^^^^^^^
 
 `Ops <https://docs.dagster.io/concepts/ops-jobs-graphs/ops>`__ are functions
 that are run in a graph. They are not linked to assets, and are a lower-level
@@ -143,7 +137,9 @@ from sqlite, pickle and parquet files. For example, the
 :func:`pudl.io_managers.pudl_sqlite_io_manager` allows assets to read and write
 dataframes and execute SQL statements.
 
-**Resources:**
+Resources:
+^^^^^^^^^^
+
 `Resources <https://docs.dagster.io/concepts/resources>`__ are objects
 that can be shared across multiple software-defined assets.
 For example, multiple PUDL assets use the :func:`pudl.resources.datastore`
@@ -152,14 +148,16 @@ resource to pull data from PUDL's raw data archives on Zenodo.
 Generally, inputs to assets should either be other assets or
 python objects in Resources.
 
-**Jobs**:
+Jobs
+^^^^
 `Jobs <https://docs.dagster.io/concepts/ops-jobs-graphs/jobs>`__
 are preconfigured collections of assets, resources and IO Managers.
 Jobs are the main unit of execution in Dagster. For example,
 the ``etl_fast`` job defined in :mod:`pudl.etl` executes the
 FERC, EIA and EPA CEMS pipelines for the most recent year.
 
-**Definitions**:
+Definitions
+^^^^^^^^^^^
 `Definitions  <https://docs.dagster.io/concepts/code-locations>`__
 are collections of assets, resources, IO managers and jobs that can
 be loaded into the dagster UI and executed. Definitions can have multiple
@@ -372,7 +370,22 @@ Running the ETL with CLI Commands
 You can also execute the ETL jobs using CLI commands. These are thin wrappers around
 Dagster's job execution API.
 
-For direct Dagster CLI execution via ``dg``, run:
+THe ``dg`` command line interface is Dagster's official tool and has a ton of built-in
+functionality. For full documentation see the Dagster docs:
+`dg CLI reference <https://docs.dagster.io/api/clis/dg>`__.
+
+These commands are a quick way to confirm your local Dagster setup is healthy before
+launching runs:
+
+.. code-block:: console
+
+    $ pixi run dg check toml
+    $ pixi run dg check defs --verbose
+    $ pixi run dg list defs
+
+You can also kick off full jobs with their default configuration using ``dg launch``.
+The Dagster UI does not need to be running for this to work, but if it is running,
+you'll see the run appear in it.
 
 .. code-block:: console
 
@@ -380,24 +393,37 @@ For direct Dagster CLI execution via ``dg``, run:
   $ pixi run dg launch --job etl_fast
   $ pixi run dg launch --job etl_full
 
-You can also target specific assets rather than an entire job:
+You can also target specific assets rather than an entire job, and use Dagster's rich
+`asset selection syntax <https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference>`__
+to pick and choose:
 
 .. code-block:: console
 
-  $ pixi run dg launch --assets "raw_eia860"
+  # Materialize all assets in the raw_eia861 group
+  $ pixi run dg launch --assets "group:raw_eia861"
+  # Materialize all assets upstream and downstream of a table
+  $ pixi run dg launch --assets "+key:core_eia923__fuel_receipts_costs+"
+
 
 .. note::
 
   We recommend using the Dagster UI to execute the ETL as it provides additional
   functionality for re-execution and viewing asset dependences.
 
-There are two main CLI commands for executing the PUDL processing pipeline:
+PUDL also has a couple of custom job launching scripts, which allow the configuration of
+the job to be set:
 
 1. ``ferc_to_sqlite`` executes the ``pudl.ferc_to_sqlite`` dagster graph.
    You must run this script before you can run ``pudl_etl``.
 2. ``pudl_etl`` executes the ``pudl.etl`` asset graph.
 
-We also have ``pixi`` tasks defined in ``pyproject.toml``
+.. note::
+
+   We plan to deprecate these custom scripts in 2026Q2, and move to using Dagster's
+   built-in file-based configuration system.
+
+We also have ``pixi`` tasks defined in ``pyproject.toml`` that correspond to running the
+above scripts with default configurations, to process all data (these can take hours):
 
 .. code-block:: console
 
