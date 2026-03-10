@@ -71,7 +71,7 @@ from pudl.metadata.sources import SOURCES
 FIELD_METADATA: dict[str, dict[str, Any]] = {
     "delivered_gas_heat_content_mmbtu_per_mcf": {
         "description": "The average annual heat content of gas delivered directly to consumers.",
-        "unit": "MMBtu_per_Mcf",
+        "unit": "MMBTU_per_Mcf",
         "type": "number",
     },
     "operational_consumption_facility_space_heat_mcf": {
@@ -379,7 +379,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Actual controlled (or uncontrolled) nitrogen oxides emission rate. "
             "Based on data from CEMS where possible."
         ),
-        "unit": "lb/MMBtu",
+        "unit": "lb_per_MMBTU",
     },
     "annual_total_chlorine_lbs": {
         "description": (
@@ -668,7 +668,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "bulk_agg_fuel_cost_per_mmbtu": {
         "type": "number",
         "description": (
-            "Fuel cost per mmbtu reported in the EIA bulk electricity data. This is an "
+            "Fuel cost per MMBTU reported in the EIA bulk electricity data. This is an "
             "aggregate average fuel price for a whole state, region, month, sector, "
             "etc. Used to fill in missing fuel prices."
         ),
@@ -731,7 +731,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "byproduct_units": {
         "type": "string",
         "description": (
-            "Reported unit of measure for combustion byproduct. MMBtu for steam, tons for all other byproducts."
+            "Reported unit of measure for combustion byproduct. MMBTU for steam, tons for all other byproducts."
         ),
         "constraints": {"enum": ["mmbtu", "tons"]},
     },
@@ -1109,7 +1109,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "coal_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Coal heat content as a percentage of overall fuel heat content (mmBTU)."
+            "Coal heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "coalmine_county_id_fips": {
@@ -1580,7 +1580,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Per-capita annual demand, averaged using Census county-level population estimates."
         ),
-        "unit": "MWh/person",
+        "unit": "MWh_per_person",
     },
     "demand_charges": {
         "type": "number",
@@ -1595,7 +1595,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "demand_density_mwh_km2": {
         "type": "number",
         "description": "Annual demand per km2 of a given service territory.",
-        "unit": "MWh/km2",
+        "unit": "MWh_per_km2",
     },
     "has_air_permit_limits": {
         "type": "boolean",
@@ -1681,19 +1681,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "disposal_landfill_units": {
         "type": "number",
         "description": (
-            "Disposed by-products in landfill, to the nearest hundred tons or in MMBtu for steam sales."
+            "Disposed by-products in landfill, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "disposal_offsite_units": {
         "type": "number",
         "description": (
-            "Disposed by-products offsite, to the nearest hundred tons or in MMBtu for steam sales."
+            "Disposed by-products offsite, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "disposal_ponds_units": {
         "type": "number",
         "description": (
-            "Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales."
+            "Disposed by-products in ponds, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "distributed_generation": {
@@ -2942,9 +2942,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_use_mmbtu": {
         "type": "number",
         "description": (
-            "Energy use, in MMBtu; also referred to as energy consumption, energy demand, or delivered energy, depending on type."
+            "Energy use, in MMBTU; also referred to as energy consumption, energy demand, or delivered energy, depending on type."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "energy_use_sector": {
         "type": "string",
@@ -3375,7 +3375,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total consumption of fuel to produce electricity, in physical unit, year to date."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "fuel_consumed_for_electricity_units": {
         "type": "number",
@@ -3388,7 +3388,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "fuel_consumed_total_cost": {
         "type": "number",
@@ -3420,23 +3420,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_mmbtu": {
         "type": "number",
-        "description": "Total heat content for plant (in MMBtu).",
-        "unit": "MMBtu",
+        "description": "Total heat content for plant (in MMBTU).",
+        "unit": "MMBTU",
     },
     "fuel_cost_per_mmbtu": {
         "type": "number",
-        "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
-        "unit": "USD_per_MMBtu",
+        "description": "Average fuel cost per MMBTU of heat content in nominal USD.",
+        "unit": "USD_per_MMBTU",
     },
     "fuel_cost_per_mmbtu_eia": {
         "type": "number",
-        "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
-        "unit": "USD_per_MMBtu",
+        "description": "Average fuel cost per MMBTU of heat content in nominal USD.",
+        "unit": "USD_per_MMBTU",
     },
     "fuel_cost_per_mmbtu_ferc1": {
         "type": "number",
-        "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
-        "unit": "USD_per_MMBtu",
+        "description": "Average fuel cost per MMBTU of heat content in nominal USD.",
+        "unit": "USD_per_MMBTU",
     },
     "fuel_cost_per_mwh": {
         "type": "number",
@@ -3476,11 +3476,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_cost_real_per_mmbtu_eiaaeo": {
         "type": "number",
         "description": (
-            "Average fuel cost per mmBTU of heat content in real USD, "
+            "Average fuel cost per MMBTU of heat content in real USD, "
             "standardized to the value of a USD in the year defined by "
             "``real_cost_basis_year``."
         ),
-        "unit": "USD_per_MMBtu",
+        "unit": "USD_per_MMBTU",
     },
     "fuel_derived_from": {
         "type": "string",
@@ -3522,7 +3522,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Heat content of the fuel in millions of Btus per physical unit."
         ),
-        "unit": "MMBtu_per_unit",
+        "unit": "MMBTU_per_unit",
     },
     "fuel_pct": {
         "type": "number",
@@ -3544,9 +3544,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_received_mmbtu": {
         "type": "number",
         "description": (
-            "Aggregated fuel receipts, in MMBtu, in EIA bulk electricity data."
+            "Aggregated fuel receipts, in MMBTU, in EIA bulk electricity data."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "fuel_received_units": {
         "type": "number",
@@ -3673,7 +3673,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "gas_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Natural gas heat content as a percentage of overall fuel heat content (MMBtu)."
+            "Natural gas heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "generation_activity": {
@@ -3808,7 +3808,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "heat_content_mmbtu": {
         "type": "number",
         "description": "The energy contained in fuel burned, measured in million BTU.",
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "hour_of_year": {
         "type": "integer",
@@ -3821,33 +3821,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Fuel content per unit of electricity generated. Coming from MCOE calculation."
         ),
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "unit_heat_rate_mmbtu_per_mwh_eia": {
         "type": "number",
         "description": (
             "Fuel content per unit of electricity generated. Coming from MCOE calculation."
         ),
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "unit_heat_rate_mmbtu_per_mwh_ferc1": {
         "type": "number",
         "description": (
             "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation."
         ),
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "heat_rate_mmbtu_per_mwh": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated.",
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "heat_rate_penalty": {
         "type": "number",
         "description": (
             "Heat rate penalty for retrofitting. This column only has contents to retrofit technologies. It seems to be a rate between 0.35 and 0.09"
         ),
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "highest_distribution_voltage_kv": {
         "type": "number",
@@ -4445,15 +4445,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "max_fuel_mmbtu_per_unit": {
         "type": "number",
-        "description": "Maximum heat content per physical unit of fuel in MMBtu.",
-        "unit": "MMBtu",
+        "description": "Maximum heat content per physical unit of fuel in MMBTU.",
+        "unit": "MMBTU",
     },
     "max_oil_heat_input": {
         "type": "number",
         "description": (
-            "The maximum oil heat input (percent of MMBtus) expected for proposed unit when co-firing with natural gas"
+            "The maximum oil heat input (percent of MMBTUs) expected for proposed unit when co-firing with natural gas"
         ),
-        "unit": "% MMBtu",
+        "unit": "% MMBTU",
     },
     "max_oil_output_mw": {
         "type": "number",
@@ -4464,7 +4464,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "max_steam_flow_lbs_per_hour": {
         "type": "number",
-        "unit": "lbs_per_hour",
+        "unit": "lb_per_hour",
         "description": "Maximum continuous steam flow at 100 percent load.",
     },
     "mercury_content_ppm": {
@@ -4567,8 +4567,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "min_fuel_mmbtu_per_unit": {
         "type": "number",
-        "description": "Minimum heat content per physical unit of fuel in MMBtu.",
-        "unit": "MMBtu",
+        "description": "Minimum heat content per physical unit of fuel in MMBTU.",
+        "unit": "MMBTU",
     },
     "mine_id_msha": {"type": "integer", "description": "MSHA issued mine identifier."},
     "mine_id_pudl": {
@@ -5077,7 +5077,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "nuclear_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Nuclear heat content as a percentage of overall fuel heat content (MMBtu)."
+            "Nuclear heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "nuclear_unit_id": {
@@ -5120,7 +5120,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "oil_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Oil heat content as a percentage of overall fuel heat content (MMBtu)."
+            "Oil heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "operates_generating_plant": {
@@ -5639,7 +5639,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ozone_season_nox_emission_rate_lb_per_mmbtu": {
         "type": "number",
         "description": "Actual controlled (or uncontrolled) nitrogen oxides emission rate during the ozone season (May to September)",
-        "unit": "lb/MMBtu",
+        "unit": "lb_per_MMBTU",
     },
     "ownership_pct": {
         "type": "number",
@@ -5782,7 +5782,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "particulate_emission_rate_lb_per_mmbtu": {
         "type": "number",
         "description": "Average annual emission removal rate for particulate matter.",
-        "unit": "lb/MMBtu",
+        "unit": "lb_per_MMBTU",
     },
     "particulate_removal_efficiency_tested": {
         "type": "number",
@@ -5797,8 +5797,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Particulate removal efficiency, based on the annual operating factor, "
-            "which is defined as annual fuel consumption (MMBtu) divided by the product "
-            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year."
+            "which is defined as annual fuel consumption (MMBTU) divided by the product "
+            "of the boiler design firing rate (MMBTU per hour) and hours of operation per year."
             "When actual data are not available, estimates are provided based on equipment "
             "design performance specifications. Ranges from 0 to 1."
         ),
@@ -6119,7 +6119,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "power_cost_per_mwh": {
         "type": "number",
         "description": ("The cost of power per mwh."),
-        "unit": "USD/MWh",
+        "unit": "USD_per_MWh",
     },
     "power_requirement_mw": {
         "description": (
@@ -7070,7 +7070,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "so2_emission_rate_lbs_per_hour": {
         "type": "number",
-        "unit": "lbs_per_hour",
+        "unit": "lb_per_hour",
         "description": (
             "Sulfur dioxide emission rate when operating at 100 percent load (pounds per hour)."
         ),
@@ -7122,8 +7122,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Sulfur dioxide removal efficiency, based on the annual operating factor, "
-            "which is defined as annual fuel consumption (MMBtu) divided by the product "
-            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year."
+            "which is defined as annual fuel consumption (MMBTU) divided by the product "
+            "of the boiler design firing rate (MMBTU per hour) and hours of operation per year."
             "When actual data are not available, estimates are provided based on equipment "
             "design performance specifications. Ranges from 0 to 1."
         ),
@@ -7137,7 +7137,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sold_units": {
         "type": "number",
         "description": (
-            "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBtu."
+            "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBTU."
         ),
     },
     "sold_to_utility_mwh": {
@@ -7369,16 +7369,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "stored_offsite_units": {
         "type": "number",
-        "unit": "tons or MMBtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Stored by-products offsite, to the nearest hundred tons or in MMBtu for steam sales."
+            "Stored by-products offsite, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "stored_onsite_units": {
         "type": "number",
-        "unit": "tons or MMBtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Stored by-products onsite, to the nearest hundred tons or in MMBtu for steam sales."
+            "Stored by-products onsite, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "street_address": {
@@ -7755,9 +7755,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "total_disposal_units": {
         "type": "number",
-        "unit": "tons or mmbtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Total by-product disposal, to the nearest hundred tons or in MMBtu for steam sales."
+            "Total by-product disposal, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "total_disposition_mwh": {
@@ -7995,16 +7995,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "used_offsite_units": {
         "type": "number",
-        "unit": "tons or mmbtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Used offsite by-products, to the nearest hundred tons or in MMBtu for steam sales."
+            "Used offsite by-products, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "used_onsite_units": {
         "type": "number",
-        "unit": "tons or mmbtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Used onsite by-products, to the nearest hundred tons or in MMBtu for steam sales."
+            "Used onsite by-products, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "utility_id_eia": {
@@ -8163,14 +8163,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "waste_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Waste-heat heat content as a percentage of overall fuel heat content (MMBtu)."
+            "Waste-heat heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "waste_heat_input_mmbtu_per_hour": {
         "type": "number",
-        "unit": "MMBtu_per_hour",
+        "unit": "MMBTU_per_hour",
         "description": (
-            "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour)."
+            "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBTU per hour)."
         ),
     },
     "num_water_heaters": {
@@ -8208,7 +8208,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "wet_dry_bottom": {
         "type": "string",
-        "unit": "MMBtu_per_hour",
+        "unit": "MMBTU_per_hour",
         "description": (
             "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers."
         ),
@@ -9528,7 +9528,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Warning: We found values much larger than expected that we have not yet "
             "cleaned - this is likely a reporting unit error."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "electric_sales_revenue": {
         "type": "integer",
@@ -9685,7 +9685,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "cost_per_mmbtu": {
         "type": "number",
-        "description": "Unit cost of energy production in cost per MMBtu",
+        "description": "Unit cost of energy production in cost per MMBTU",
         "unit": "USD_per_MMBTU",
     },
     "is_full_ownership_portion": {
@@ -9708,7 +9708,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Annual pounds of coal consumed for fuel."
             "This field is only reported for plant_type steam."
         ),
-        "unit": "lbs",
+        "unit": "lb",
     },
     "fuel_consumption_gas_cubic_feet": {
         "type": "number",
