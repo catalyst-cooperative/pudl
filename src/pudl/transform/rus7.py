@@ -413,7 +413,7 @@ def _core_rus7__yearly_external_financial_risk_ratio(
 # The USDA would be proud of this name
 
 
-CORE_RUS7_TABLES = [
+_CORE_RUS7_TABLES = [
     "_core_rus7__scd_borrowers",
     "_core_rus7__yearly_balance_sheet_assets",
     "_core_rus7__yearly_balance_sheet_liabilities",
@@ -434,7 +434,7 @@ CORE_RUS7_TABLES = [
 
 
 @asset(
-    ins={table_name: AssetIn() for table_name in CORE_RUS7_TABLES},
+    ins={table_name: AssetIn() for table_name in _CORE_RUS7_TABLES},
     io_manager_key="pudl_io_manager",
     config_schema={
         "debug": Field(
@@ -478,7 +478,7 @@ finished_rus_assets = [
         _core_table_name=_core_table_name,
         io_manager_key="pudl_io_manager",
     )
-    for _core_table_name in CORE_RUS7_TABLES
+    for _core_table_name in _CORE_RUS7_TABLES
     # Don't attempt to core-ify this table
     if _core_table_name not in ["_core_rus7__scd_borrowers"]
 ]

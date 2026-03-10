@@ -12,7 +12,7 @@ sources:
                 or_equal: true
               config:
                 error_if: ">14"
-              description: "Expect that RUS will generally not invest more than is invested in a plant."
+              description: Expect that RUS will generally not invest more than is invested in a plant.
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_rus12__yearly_renewable_plants
