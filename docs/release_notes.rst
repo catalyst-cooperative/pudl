@@ -39,6 +39,8 @@ Documentation
 
 * Fixed remaining tables with malformed summaries so they render starting with a
   complete sentence. Added checks to prevent future regressions. See :pr:`5029`.
+* Replaced stale references to our use of ``make`` with current ``pixi run`` task
+  commands. See PR :pr:`5075`
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -55,6 +57,11 @@ Performance Improvements
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Adapted the PUDL project layout and configuration slightly in order to allow us to
+  start using
+  `dg: Dagster's official CLI tool <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
+  See PR :pr:`5075`.
 
 .. _release-v2026.2.0:
 
