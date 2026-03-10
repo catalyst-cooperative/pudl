@@ -73,8 +73,8 @@ Bug Fixes & Data Cleaning
   integrating them into PUDL. See issue :issue:`4741` and PR :pr:`5063`. Affected
   tables include:
 
-  * :ref:`_core_eia923__yearly_byproduct_disposition`
-  * :ref:`_core_eia923__yearly_byproduct_expenses_and_revenues`
+  * :ref:`i_core_eia923__yearly_byproduct_disposition`
+  * :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`
   * :ref:`core_eia860__scd_emissions_control_equipment`
   * :ref:`out_eia860__yearly_emissions_control_equipment`
 
