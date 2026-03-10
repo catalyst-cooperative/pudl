@@ -1,13 +1,19 @@
 """Transform the RUS12 tables."""
 
 import pandas as pd
-from dagster import asset
+from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
+from pudl import logging_helpers
+from pudl.helpers import cleanstrings_snake
+from pudl.metadata.enums import PLANT_TYPE_RUS12
+from pudl.transform.eia import harvest_entity_tables
+
+logger = logging_helpers.get_logger(__name__)
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board):
+@asset
+def _core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board):
     """Transform the core_rus12__yearly_meeting_and_board table."""
     df = rus.early_transform(
         raw_df=raw_rus12__meeting_and_board,
@@ -24,8 +30,8 @@ def core_rus12__yearly_meeting_and_board(raw_rus12__meeting_and_board):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
+@asset
+def _core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
     """Transform the core_rus12__yearly_balance_sheet_assets table."""
     df = rus.early_transform(raw_df=raw_rus12__balance_sheet)
     rus.early_check_pk(df)
@@ -44,8 +50,8 @@ def core_rus12__yearly_balance_sheet_assets(raw_rus12__balance_sheet):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
+@asset
+def _core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
     """Transform the core_rus12__yearly_balance_sheet_liabilities table."""
     df = rus.early_transform(raw_df=raw_rus12__balance_sheet)
     rus.early_check_pk(df)
@@ -64,8 +70,8 @@ def core_rus12__yearly_balance_sheet_liabilities(raw_rus12__balance_sheet):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__scd_borrowers(raw_rus12__borrowers):
+@asset
+def _core_rus12__scd_borrowers(raw_rus12__borrowers):
     """Transform the core_rus12__scd_borrowers table."""
     df = rus.early_transform(raw_df=raw_rus12__borrowers)
     rus.early_check_pk(df)
@@ -75,8 +81,8 @@ def core_rus12__scd_borrowers(raw_rus12__borrowers):
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
+@asset
+def _core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     """Transform the core_rus12__yearly_renewable_plants table."""
     df = rus.early_transform(raw_df=raw_rus12__renewable_plants)
 
@@ -104,15 +110,15 @@ def core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt):
+@asset
+def _core_rus12__yearly_long_term_debt(raw_rus12__long_term_debt):
     """Transform the core_rus12__yearly_long_term_debt table."""
     # TODO: the debt_description column could potentially get some cleaning.
     return rus.early_transform(raw_df=raw_rus12__long_term_debt)
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_lines_stations_labor_materials_cost(
+@asset
+def _core_rus12__yearly_lines_stations_labor_materials_cost(
     raw_rus12__lines_and_stations_labor_materials,
 ):
     """Transform the raw_rus12__lines_and_stations_labor_materials table."""
@@ -140,8 +146,8 @@ def core_rus12__yearly_lines_stations_labor_materials_cost(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_loans(raw_rus12__loans):
+@asset
+def _core_rus12__yearly_loans(raw_rus12__loans):
     """Transform the raw_rus12__loans table."""
     df = rus.early_transform(raw_df=raw_rus12__loans)
     df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date, format="mixed")
@@ -150,22 +156,11 @@ def core_rus12__yearly_loans(raw_rus12__loans):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
+@asset
+def _core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     """Transform the raw_rus12__plant_labor table."""
     df = rus.early_transform(raw_df=raw_rus12__plant_labor)
-
-    # Remove duplicate Walter Scott plant entries.
-    exclude_cols = ["borrower_id_rus", "borrower_name_rus"]
-    dupe_mask = (
-        df["borrower_id_rus"].isin(["IA0083", "IA0084"])
-        & (df["plant_name_rus"] == "Walter Scott")
-        & df.drop(columns=exclude_cols).duplicated(keep=False)
-        & (
-            df["borrower_id_rus"] == "IA0083"
-        )  # dropping the IA0083 and keeping the IA0084 so both borrowers show up in the data.
-    )
-    df = df.loc[~dupe_mask]
+    df = cleanstrings_snake(df, ["plant_type"])
 
     # Test payroll_total column so can remove it in the schema
     payroll_cols = [
@@ -182,8 +177,8 @@ def core_rus12__yearly_plant_labor(raw_rus12__plant_labor):
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_sources_and_distribution_by_plant_type(
+@asset
+def _core_rus12__yearly_sources_and_distribution_by_plant_type(
     raw_rus12__sources_and_distribution,
 ):
     """Transform the raw_rus12__sources_and_distribution table.
@@ -195,21 +190,12 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
     data_cols = ["capacity_kw", "cost", "plant_num", "net_energy_received_mwh"]
 
-    plant_types = [
-        "fossil_steam",
-        "hydro",
-        "internal_combustion",
-        "combined_cycle",
-        "nuclear",
-        "other",
-    ]
-
     # Stack by plant type
     df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
-        pattern=rf"^({'|'.join(plant_types)})_({'|'.join(data_cols)})$",
+        pattern=rf"^({'|'.join(PLANT_TYPE_RUS12)})_({'|'.join(data_cols)})$",
         match_names=["plant_type", "data_cols"],
         unstack_level=[
             "plant_type",
@@ -228,8 +214,8 @@ def core_rus12__yearly_sources_and_distribution_by_plant_type(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_sources_and_distribution(
+@asset
+def _core_rus12__yearly_sources_and_distribution(
     raw_rus12__sources_and_distribution,
 ):
     """Transform the raw_rus12__sources_and_distribution table.
@@ -251,15 +237,9 @@ def core_rus12__yearly_sources_and_distribution(
     """
     df = rus.early_transform(raw_df=raw_rus12__sources_and_distribution)
     # Remove plant type columns handled in sources_and_distribution_by_plant_type function
-    plant_types = [
-        "fossil_steam",
-        "hydro",
-        "internal_combustion",
-        "combined_cycle",
-        "nuclear",
-        "other",
-    ]
-    plant_type_mask = df.columns.str.startswith(tuple(f"{p}_" for p in plant_types))
+    plant_type_mask = df.columns.str.startswith(
+        tuple(f"{p}_" for p in PLANT_TYPE_RUS12)
+    )
     df = df.loc[:, ~plant_type_mask]
 
     # Stack by cost and mwh
@@ -278,8 +258,8 @@ def core_rus12__yearly_sources_and_distribution(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations):
+@asset
+def _core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operations):
     """Transform the raw_rus12__statement_of_operations table.
 
     This function drops a number of columns that contain per_kwh values that are
@@ -324,3 +304,332 @@ def core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operation
     df["is_total"] = df.opex_type.str.startswith("total_")
     # TODO: could remove total columns that aren't used as part of the calculation for others.
     return df
+
+
+@asset
+def _core_rus12__yearly_plant_costs(
+    raw_rus12__combined_cycle_plant_costs: pd.DataFrame,
+    raw_rus12__hydro_plant_costs: pd.DataFrame,
+    raw_rus12__internal_combustion_plant_costs: pd.DataFrame,
+    raw_rus12__nuclear_plant_costs: pd.DataFrame,
+    raw_rus12__steam_plant_costs: pd.DataFrame,
+):
+    """Transform the plant cost tables.
+
+    This transform takes all of the plant production cost tables, processes
+    them similarly and combines them into one plant cost table.
+    """
+    plant_cost_tables = {
+        "combined_cycle": raw_rus12__combined_cycle_plant_costs,
+        "hydro": raw_rus12__hydro_plant_costs,
+        "internal_combustion": raw_rus12__internal_combustion_plant_costs,
+        "nuclear": raw_rus12__nuclear_plant_costs,
+        "steam": raw_rus12__steam_plant_costs,
+    }
+    df_outs = {}
+    for plant_type, raw_table in plant_cost_tables.items():
+        df = rus.early_transform(raw_df=raw_table)
+        # there are duplicates for the "Walter Scott" steam plant
+        if plant_type != "steam":
+            rus.early_check_pk(
+                df, pk_early=["report_date", "borrower_id_rus", "plant_name_rus"]
+            )
+        data_cols = (
+            ["cost", "cost_per_mmbtu", "cost_per_mwh"]
+            if plant_type not in ["hydro", "nuclear"]
+            else ["cost", "cost_per_mwh"]
+        )
+        pattern = rf"^(capex|opex|total)_(.+)_({'|'.join(data_cols)})$"
+        df = rus.multi_index_stack(
+            df,
+            idx_ish=[
+                "report_date",
+                "borrower_id_rus",
+                "borrower_name_rus",
+                "plant_name_rus",
+            ],
+            data_cols=data_cols,
+            pattern=pattern,
+            match_names=["cost_group", "cost_type", "data_cols"],
+            unstack_level=["cost_group", "cost_type"],
+            assume_no_dropped_cols=True,
+        )
+        df["plant_type"] = plant_type
+        df_outs[plant_type] = df
+    df_all = pd.concat(df_outs.values())
+    # this total flag is a little different than the others. it grabs the high-level
+    # cost group totals and it flags the cost_type's of net and less. Because these
+    # are clearly calculated fields from looking at the form.
+    df_all["is_total"] = df_all.cost_type.str.contains("total|net|less") | (
+        df_all.cost_group == "total"
+    )
+    return df_all
+
+
+def drop_bad_ownership_plant(df):
+    """Drop 1 plant record with unexpected ownership label and duplicate data.
+
+    There is a Wisdom steam plant record that is labeled to be both fully owned by
+    borrower and partly owned for one year. Which is an unexpected combo based on the
+    `_OR_PowerSupply Plant File Documentation.rst` documentation file in the rus12
+    archive. Luckily this plant has exactly the same records as the other Wisdom steam
+    plant that year with more expected ownership labels.
+
+    So we check if the two plant records for that year have the same data, then
+    drop the one badly labeled ownership record.
+    """
+    bad_ownership_label_mask = (
+        ~df.is_full_ownership_portion & ~df.is_partly_owned_by_borrower
+    )
+    assert len(df[bad_ownership_label_mask]) == 1
+
+    wisdom_steam_2019_mask = (
+        (df.plant_name_rus == "Wisdom")
+        & (df.report_date.dt.year == 2019)
+        & (df.plant_type == "steam")
+    )
+
+    idx = [
+        "borrower_id_rus",
+        "borrower_name_rus",
+        "plant_name_rus",
+        "is_full_ownership_portion",
+        "is_partly_owned_by_borrower",
+    ]
+    assert df[
+        wisdom_steam_2019_mask
+        & (~df.duplicated(subset=[col for col in df if col not in idx], keep=False))
+    ].empty
+
+    return df.drop(df[wisdom_steam_2019_mask & bad_ownership_label_mask].index)
+
+
+def fix_string_unit_id_rus(df):
+    """Fix unit_id_rus's bad string IDs.
+
+    There are two instances of unit_id_rus's that have string values in them.
+    Based on pre-cleaned data, we were able to clearly identify that we can use
+    just the numeric values in these bad strings. This enables us to have an integer
+    type for this unit_id_rus column.
+    """
+    df.unit_id_rus = df.unit_id_rus.astype(pd.StringDtype())
+    assert len(df[df.unit_id_rus.str.contains("WSL")]) <= 4
+    df.unit_id_rus = (
+        df.unit_id_rus.replace({"WSL GT 12": "12", "WSL ST 10": "10"})
+        # then actually convert the dtype to make sure
+        # it can be an int. convert to a float first because
+        # this column could have been converted into an object with
+        # floaty string with things like "2.0" that don't love being
+        # directly converted into an int
+        .astype(float)
+        .astype(pd.Int64Dtype())
+    )
+    return df
+
+
+@multi_asset(
+    outs={
+        "_core_rus12__yearly_plant_operations_by_plant": AssetOut(),
+        "_core_rus12__yearly_plant_operations_by_borrower": AssetOut(),
+    }
+)
+def _core_rus12__yearly_plant_operations(
+    raw_rus12__combined_cycle_plant_operations: pd.DataFrame,
+    raw_rus12__hydro_plant_operations: pd.DataFrame,
+    raw_rus12__internal_combustion_plant_operations: pd.DataFrame,
+    raw_rus12__nuclear_plant_operations: pd.DataFrame,
+    raw_rus12__steam_plant_operations: pd.DataFrame,
+):
+    """Transform the plant operations tables.
+
+    This transform takes all of the plant operations tables, processes
+    them similarly and combines them into one plant table. Which is then
+    split out into two tables: by borrower and by plant. The details of
+    which record should end up in which output table are documented in
+    these tables' resource metadata.
+    """
+    raw_plant_operations_tables = {
+        "combined_cycle": raw_rus12__combined_cycle_plant_operations,
+        "hydro": raw_rus12__hydro_plant_operations,
+        "internal_combustion": raw_rus12__internal_combustion_plant_operations,
+        "nuclear": raw_rus12__nuclear_plant_operations,
+        "steam": raw_rus12__steam_plant_operations,
+    }
+
+    df_outs = {}
+    for plant_type, raw_table in raw_plant_operations_tables.items():
+        df_plant_type = rus.early_transform(
+            raw_df=raw_table,
+            boolean_columns_to_fix=[
+                "is_full_ownership_portion",
+                "is_partly_owned_by_borrower",
+            ],
+        )
+        df_plant_type["plant_type"] = plant_type
+        df_outs[plant_type] = df_plant_type
+    df = pd.concat(df_outs.values())
+    for old_unit in ["1000_lbs", "1000_cubic_feet", "1000_gallons"]:
+        df = rus.convert_units(
+            df,
+            old_unit=old_unit,
+            new_unit=old_unit.removeprefix("1000_"),
+            converter=1000,
+        )
+    df = rus.convert_units(
+        df,
+        old_unit="kw",
+        new_unit="mw",
+        converter=0.001,
+    )
+
+    df = (
+        df.astype(
+            {
+                "is_full_ownership_portion": pd.BooleanDtype(),
+                "is_partly_owned_by_borrower": pd.BooleanDtype(),
+            }
+        )
+        .pipe(drop_bad_ownership_plant)
+        .pipe(fix_string_unit_id_rus)
+    )
+
+    # for old years, there is no is_partly_owned_by_borrower column and no
+    # accompanying documentation. We assume if its a full ownership portion,
+    # it should go in both. if not full ownership portion  it should go in by borrower.
+    null_partly_owned_mask = df.report_date.dt.year.isin([2006, 2007, 2008])
+
+    # From _OR_PowerSupply Plant File Documentation.rtf in 2021 archive
+    # TO FOCUS ONLY ON DATA FOR THE BORROWERS’ SHARE OF THE PLANTS
+    # FullOwnershipScope    BorrowerShared
+    # FALSE                 TRUE
+    # TRUE                  FALSE
+    df_by_borrower = df[
+        (null_partly_owned_mask)
+        | (
+            (~df.is_full_ownership_portion & df.is_partly_owned_by_borrower)
+            | (df.is_full_ownership_portion & ~df.is_partly_owned_by_borrower)
+        )
+    ]
+    # TO FOCUS ON DATA FOR THE WHOLE PLANT
+    # FullOwnershipScope    BorrowerShared
+    # TRUE                  TRUE
+    # TRUE                  FALSE
+    df_by_plant = df[
+        (null_partly_owned_mask & ~df.is_full_ownership_portion)
+        | (
+            (df.is_full_ownership_portion & df.is_partly_owned_by_borrower)
+            | (df.is_full_ownership_portion & ~df.is_partly_owned_by_borrower)
+        )
+    ]
+    # Some validation checks...
+    idx_check = [
+        "report_date",
+        "borrower_id_rus",
+        "borrower_name_rus",
+        "plant_name_rus",
+        "is_full_ownership_portion",
+        "is_partly_owned_by_borrower",
+        "unit_id_rus",
+        "plant_type",
+    ]
+    # we want to check whether or not we are loosing any records:
+    both = pd.concat(
+        [df_by_borrower.set_index(idx_check), df_by_plant.set_index(idx_check)],
+        axis="index",
+        join="outer",
+        copy=False,
+    )
+    # There is some overlap between the by_borrower and by_plant records but we
+    # should have all of the original df records
+    assert df.set_index(idx_check).index.difference(both.index, sort=True).empty
+    # Also, there are a small number of plants that have duplicated values...
+    # which seem hard to reconcile.
+    assert len(df_by_borrower[df_by_borrower.duplicated(idx_check)]) < 35
+    assert len(df_by_plant[df_by_plant.duplicated(idx_check)]) < 38
+
+    return (
+        Output(
+            output_name="_core_rus12__yearly_plant_operations_by_plant",
+            value=df_by_plant,
+        ),
+        Output(
+            output_name="_core_rus12__yearly_plant_operations_by_borrower",
+            value=df_by_borrower,
+        ),
+    )
+
+
+######################################
+# HARVESTING aka NORMALIZATION
+######################################
+# The USDA would be proud of this name
+
+
+_CORE_RUS12_TABLES = [
+    "_core_rus12__scd_borrowers",
+    "_core_rus12__yearly_balance_sheet_assets",
+    "_core_rus12__yearly_balance_sheet_liabilities",
+    "_core_rus12__yearly_lines_stations_labor_materials_cost",
+    "_core_rus12__yearly_loans",
+    "_core_rus12__yearly_long_term_debt",
+    "_core_rus12__yearly_meeting_and_board",
+    "_core_rus12__yearly_plant_costs",
+    "_core_rus12__yearly_plant_labor",
+    "_core_rus12__yearly_plant_operations_by_borrower",
+    "_core_rus12__yearly_plant_operations_by_plant",
+    "_core_rus12__yearly_renewable_plants",
+    "_core_rus12__yearly_sources_and_distribution",
+    "_core_rus12__yearly_sources_and_distribution_by_plant_type",
+    "_core_rus12__yearly_statement_of_operations",
+]
+
+
+@asset(
+    ins={table_name: AssetIn() for table_name in _CORE_RUS12_TABLES},
+    io_manager_key="pudl_io_manager",
+    config_schema={
+        "debug": Field(
+            bool,
+            default_value=False,
+            description=(
+                "If True, allow inconsistent values in harvested columns and "
+                "produce additional debugging output."
+            ),
+        ),
+    },
+)
+def core_rus12__entity_borrowers(context, **clean_dfs):
+    """Harvesting IDs & consistent static attributes for RUS12 entity."""
+    entity = rus.RusEntity.BORROWERS
+    logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
+    # We want **all** borrowers to have non-null names in this entity
+    # table. They aren't always super consistent over time, but we have
+    # vetted them (see https://github.com/catalyst-cooperative/pudl/pull/5056#issuecomment-4008247047)
+    # and thus decided to set the threshold for consistency strictness
+    # at 0% (instead of the default 70%) so we the most consistent value
+    # no matter what.
+    special_case_strictness = {"borrower_name_rus": 0}
+    # We only need the entity table, but the harvesting process
+    # always produces entity (aka static) as annual (aka scd) tables.
+    # as well as a helpful-for-debugging dictionary of dfs for all
+    # values columns we are harvesting
+    entity_df, annual_df, _col_dfs = harvest_entity_tables(
+        entity,
+        clean_dfs,
+        special_case_strictness=special_case_strictness,
+        debug=context.op_config["debug"],
+    )
+
+    return entity_df
+
+
+finished_rus_assets = [
+    rus.finished_rus_asset_factory(
+        table_name=_core_table_name.removeprefix("_"),
+        _core_table_name=_core_table_name,
+        io_manager_key="pudl_io_manager",
+    )
+    for _core_table_name in _CORE_RUS12_TABLES
+    # Don't attempt to core-ify this table
+    if _core_table_name not in ["_core_rus12__scd_borrowers"]
+]

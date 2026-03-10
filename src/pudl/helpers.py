@@ -1427,7 +1427,7 @@ def cleanstrings_snake(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     for col in cols:
         df.loc[:, col] = (
             df[col]
-            .astype(str)
+            .astype(pd.StringDtype())
             .str.strip()
             .str.lower()
             .str.replace(r"\s+", "_", regex=True)

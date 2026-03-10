@@ -8,7 +8,6 @@ sources:
         columns:
           - name: report_date
           - name: borrower_id_rus
-          - name: borrower_name_rus
           - name: plant_type
           - name: capacity_mw
             data_tests:
@@ -31,4 +30,4 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: ">24" #TODO: Almost entirely explained by GA0109 (hydro plant)
+                    error_if: ">24"

@@ -1,5 +1,46 @@
 """Table definitions for the RUS12 tables."""
 
+from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
+
+PLANT_OPERATIONS_DETAIL = (
+    "The data in this table comes from five different portions of RUS 12 "
+    "corresponding to different plant types (steam, hydroelectric, "
+    "combined_cycle, internal_combustion and nuclear).\n"
+    "The original form "
+    "includes plant operations data for each plant type reported in multiple ways: with "
+    "records corresponding to the portion of plants that borrowers own as well as the "
+    "whole plant. We split these records into two tables, "
+    ":ref:`core_rus12__yearly_plant_operations_by_borrower`, which contains records "
+    "reported at the borrower level, and  "
+    ":ref:`core_rus12__yearly_plant_operations_by_plant`, which contains records reported "
+    "at the plant level."
+    "Records that are wholly owned by one borrower show up in both "
+    ":ref:`core_rus12__yearly_plant_operations_by_borrower` and "
+    ":ref:`core_rus12__yearly_plant_operations_by_plant`.\n\n"
+    "There are two boolean columns used to delineate which records are associated "
+    "with the borrowers' share vs the whole plant - which is documented in "
+    "``_OR_PowerSupply Plant File Documentation.rtf`` in the newer years in the "
+    "RUS 12 archive. One of these two fields - ``is_partly_owned_by_borrower`` - "
+    "was not reported before 2009. For the pre-2009 years, we assume that all records "
+    "that report TRUE for is_full_ownership_portion should end up in the by-plant table "
+    "while all records should end up in the by-borrower portion of the table."
+    "Like the post-2009 records, this involves records from the original tables ending "
+    "up in both of these PUDL tables.\n\n"
+    "Also there are two cleaning steps that we performed that alter the original data "
+    "slightly:\n\n"
+    "* **One dropped with unexpected ownership label and duplicate data**: There is a "
+    "  Wisdom steam plant record that is labeled to be both fully owned by borrower "
+    "  and partly owned for one year, which is an unexpected combo based on the "
+    "  `_OR_PowerSupply Plant File Documentation.rst` documentation file in the rus12 "
+    "  archive. Luckily this plant has exactly the same records as the other Wisdom steam"
+    "  plant that year with more expected ownership labels."
+    "* **Replaced two string values for unit_id_rus**: There are two instances from 2018 "
+    "  of unit_id_rus's that have string values in them - ``WSL GT 12`` and ``WSL ST 10``. "
+    "  Based on pre-cleaned data, we were able to clearly identify that we can use just "
+    "  the numeric values in these bad strings - 12 and 10 respectively. This enables us "
+    "  to have an integer type for this unit_id_rus column."
+)
+
 RESOURCE_METADATA = {
     "core_rus12__yearly_meeting_and_board": {
         "description": {
@@ -13,7 +54,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "last_annual_meeting_date",
                 "members_num",
                 "members_present_at_meeting_num",
@@ -34,7 +74,7 @@ RESOURCE_METADATA = {
             "additional_summary_text": (
                 "assets and other debts from the balance sheet."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
             "additional_source_text": "(Part A - Section B)",
             "additional_details_text": "",
         },
@@ -42,7 +82,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "asset_type",
                 "balance",
                 "is_total",
@@ -62,7 +101,7 @@ RESOURCE_METADATA = {
             "additional_summary_text": (
                 "liabilities and other credits from the balance sheet."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
             "additional_source_text": "(Part A - Section B)",
             "additional_details_text": "",
         },
@@ -70,7 +109,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "liability_type",
                 "balance",
                 "is_total",
@@ -101,7 +139,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "debt_description",
                 "debt_ending_balance",
                 "debt_interest",
@@ -113,11 +150,14 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__scd_borrowers": {
+    "core_rus12__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
             "usage_warnings": ["experimental_wip"],
             "additional_details_text": (
+                "This table contains canonical values for borrowers are set. It contains "
+                "values which are expected to remain fixed over time."
+                f"{HARVESTING_DETAIL_TEXT_RUS}.\n\n"
                 # note from readme about this table
                 "This table contains all of the Active Distribution Borrowers as of each report year "
                 "who were eligible to report to RUS Form 12.  If these Borrowers have reported to RUS "
@@ -128,16 +168,32 @@ RESOURCE_METADATA = {
         },
         "schema": {
             "fields": [
-                "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "state",
             ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-            ],
-            # TODO: we could check to see if we could add a FK relationship here
+            "primary_key": ["borrower_id_rus"],
+            "foreign_key_rules": {
+                "fields": [["borrower_id_rus"]],
+                # We must remove all of the rus7 tables - otherwise
+                # these would get a FK relationship from this rus12 table
+                "exclude": [
+                    "core_rus7__entity_borrowers",
+                    "core_rus7__yearly_meeting_and_board",
+                    "core_rus7__yearly_balance_sheet_assets",
+                    "core_rus7__yearly_balance_sheet_liabilities",
+                    "core_rus7__yearly_employee_statistics",
+                    "core_rus7__yearly_energy_efficiency",
+                    "core_rus7__yearly_power_requirements_electric_customers",
+                    "core_rus7__yearly_power_requirements_electric_sales",
+                    "core_rus7__yearly_power_requirements",
+                    "core_rus7__yearly_investments",
+                    "core_rus7__codes_investment_types",
+                    "core_rus7__yearly_long_term_debt",
+                    "core_rus7__yearly_patronage_capital",
+                    "core_rus7__yearly_statement_of_operations",
+                ],
+            },
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
@@ -155,7 +211,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "prime_mover_id",
                 "prime_mover_type",
@@ -196,7 +251,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "labor_or_material",
                 "operation_or_maintenance",
                 "lines_or_stations",
@@ -227,7 +281,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_type",
                 "capacity_mw",
                 "plant_num",
@@ -263,7 +316,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "source_of_energy",
                 "net_energy_received_mwh",
                 "cost",
@@ -292,7 +344,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "loan_organization",
                 "loan_maturity_date",
                 "loan_original_amount",
@@ -316,20 +367,27 @@ RESOURCE_METADATA = {
                 "The data cannot be backfilled because there is no way to distinguish between "
                 "duplicate rows pre-2009."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
             "additional_source_text": "(Parts D, E, F, G - Section B)",
             "additional_details_text": (
                 "Note the lack of plant_type pre-2009 leading to a lack of "
                 "reliable primary keys.\n\n"
-                "For plant Walter Scott, there were duplicate rows reported by borrowers IA0083 and IA0084. "
-                "We removed the rows from borrower IA0083 to prevent double counting."
+                "Plant-level data from :ref:`core_rus12__yearly_plant_operations_by_plant` "
+                "can be matched to data from this table, but you must also join this data using"
+                "the ``borrower_id_rus`` column as well as the ``report_date`` and ``plant_name``. "
+                "This is because the :ref:`core_rus12__yearly_plant_operations_by_plant` table "
+                "includes records from each plant owner. "
+                "The RUS instructions note that:\n\n"
+                "you should use caution when using total plant data since there are cases where more than one "
+                "Borrower shares units at the same plant which means that you will be getting duplicate plant "
+                "total records (and there is no guarantee that the total plant records entered by two borrowers "
+                "for the same plant will be identical)."
             ),
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "plant_type",
                 "employees_full_time_num",
@@ -349,14 +407,13 @@ RESOURCE_METADATA = {
             "additional_summary_text": (
                 "opex and cost of electric service for RUS borrowers by time period."
             ),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
             "additional_source_text": "(Part A - Section A)",
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "opex_group",
                 "opex_type",
                 "opex_report_month",
@@ -369,6 +426,134 @@ RESOURCE_METADATA = {
                 "borrower_id_rus",
                 "opex_group",
                 "opex_type",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_plant_costs": {
+        "description": {
+            "additional_summary_text": ("costs of net energy generated by plant."),
+            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
+            "additional_source_text": "(Part F - Section D)",
+            "additional_primary_key_text": (
+                "This table has no primary key because there is one plant (Walter "
+                "Scott) that has duplicate records every year. Based on other RUS-12 tables, "
+                "it is likely that these duplicate records are the borrowers' ownership "
+                "portion of the plant as well as the total plant but there is no clear "
+                "indication in this table.\n\n"
+                "The primary key of this table otherwise would be: "
+                "['report_date', 'borrower_id_rus', 'plant_name_rus', 'cost_group', 'cost_type']."
+            ),
+            "additional_details_text": (
+                "The cost column in this table is expected to be largely non-null, the "
+                "cost_per_mwh and cost_per_mmbtu columns only apply to some cost_type's "
+                "and even plant_type's and thus are expected to contain many nulls."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "plant_name_rus",
+                "plant_type",
+                "cost_group",
+                "cost_type",
+                "cost",
+                "cost_per_mwh",
+                "cost_per_mmbtu",
+                "is_total",
+            ]
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_plant_operations_by_borrower": {
+        "description": {
+            "additional_summary_text": (
+                "borrower portion of plant operational data including fuel consumption and operational hours."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part D, E, F (CC), F (IC) & G - Section A)",
+            "additional_primary_key_text": (
+                "This table has no primary key because there are a handful of plants that "
+                "have duplicate records. The primary key of this table "
+                "otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`, `is_full_ownership_portion`, `is_partly_owned_by_borrower`]."
+            ),
+            "additional_details_text": PLANT_OPERATIONS_DETAIL,
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "plant_name_rus",
+                "unit_id_rus",
+                "plant_type",
+                "capacity_mw",
+                "gross_generation_mwh",
+                "ownership_pct",
+                "is_full_ownership_portion",
+                "is_partly_owned_by_borrower",
+                "fuel_consumption_coal_lbs",
+                "fuel_consumption_gas_cubic_feet",
+                "fuel_consumption_oil_gallons",
+                "fuel_consumption_other",
+                "operating_hours_in_service",
+                "operating_hours_on_standby",
+                "operating_hours_out_of_service_scheduled",
+                "operating_hours_out_of_service_unscheduled",
+                "times_started",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_plant_operations_by_plant": {
+        "description": {
+            "additional_summary_text": (
+                "whole plant operational data including fuel consumption and operational hours."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part D, E, F (CC), F (IC) & G - Section A)",
+            "additional_primary_key_text": (
+                "This table has no primary key because there are a handful of plants that "
+                "have duplicate records. The primary key of this table "
+                "otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`, `is_full_ownership_portion`, `is_partly_owned_by_borrower`]."
+            ),
+            "additional_details_text": (
+                f"{PLANT_OPERATIONS_DETAIL}.\n\n"
+                "Plant-level data can be matched to the :ref:core_rus12__yearly_plant_labor` and forthcoming "
+                "core_rus12__yearly_plant_factors_and_maximum_demand, which report Section B and C data for "
+                "all plants. The RUS instructions note that:\n\n"
+                "you should use caution when using total plant data since there are cases where more than one "
+                "Borrower shares units at the same plant which means that you will be getting duplicate plant "
+                "total records (and there is no guarantee that the total plant records entered by two borrowers "
+                "for the same plant will be identical)."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "plant_name_rus",
+                "unit_id_rus",
+                "plant_type",
+                "capacity_mw",
+                "gross_generation_mwh",
+                "ownership_pct",
+                "is_partly_owned_by_borrower",
+                "fuel_consumption_coal_lbs",
+                "fuel_consumption_gas_cubic_feet",
+                "fuel_consumption_oil_gallons",
+                "fuel_consumption_other",
+                "operating_hours_in_service",
+                "operating_hours_on_standby",
+                "operating_hours_out_of_service_scheduled",
+                "operating_hours_out_of_service_unscheduled",
+                "times_started",
             ],
         },
         "sources": ["rus12"],

@@ -9,19 +9,45 @@ v2026.XX.X (2026-XX-XX)
 Enhancements
 ^^^^^^^^^^^^
 
+* Renamed ``core_eia923__monthly_fuel_receipts_costs`` to
+  :ref:`core_eia923__fuel_receipts_costs` as it is not aggregated monthly and
+  does not belong with our other timeseries tables. Updated table description
+  details for this and related tables to explain why receipts are not aggregated
+  in this table, and how aggregation in the associated monthly and yearly tables
+  affects the columns available and missingness handling. See :pr:`5029`.
+
 New Data
 ^^^^^^^^
+
+RUS-12
+~~~~~~
+
+* Transformed and published additional USDA RUS tables. See :issue:`4886` and PR
+  :pr:`5018`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through January 2026. See :issue:`5042` and
+  :pr:`5044`.
+
 Documentation
 ^^^^^^^^^^^^^
+
+* Fixed remaining tables with malformed summaries so they render starting with a
+  complete sentence. Added checks to prevent future regressions. See :pr:`5029`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * Modified schema checks so they can be applied to the largest tables, which have
   typically been excluded from these checks. See :issue:`5022`
+
+* Normalized RUS-7 and RUS-12 borrower ID's, names and state in
+  :ref:`core_rus7__entity_borrowers` and :ref:`core_rus12__entity_borrowers`.
+  See :issue:`5040` and PR :pr:`5056`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
