@@ -19,17 +19,6 @@ from scratch:
 
     $ pixi run docs-build
 
-By default, ``docs-build`` disables intersphinx lookups by setting
-``PUDL_DOCS_DISABLE_INTERSPHINX=1``. This avoids spurious failures when remote
-documentation inventories are unavailable in local or CI test environments.
-
-If you want a full documentation build with intersphinx enabled (for example,
-to mirror production docs behavior), run:
-
-.. code-block:: console
-
-    $ pixi run docs-build-full
-
 If you're just working on a single page and don't care about the entire set
 of documents being regenerated and linked together, you can call Sphinx
 directly:
@@ -60,5 +49,5 @@ documentation in your text editor with appropriate plugins.
 
     ``pixi run docs-build`` will build and then delete all of the rst files via
     ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py``. If you want to
-    preserve them for a one-off build, you can comment out that step in
-    ``docs/conf.py``.
+    preserve them for a one-off build, you can set ``keep_generated_files = True``
+    in ``docs/conf.py``. By default it is set to ``False``.

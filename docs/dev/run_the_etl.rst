@@ -82,6 +82,12 @@ To start the Dagster UI and then launch a run from the CLI:
     $ pixi run dg dev
     $ pixi run dg launch --job etl_fast
 
+To materialize just selected assets using the CLI:
+
+.. code-block:: console
+
+    $ pixi run dg launch --assets "group:raw_eia861"
+
 For full ``dg`` CLI documentation and options, see the Dagster docs:
 `dg CLI reference <https://docs.dagster.io/api/clis/dg>`__.
 
