@@ -43,7 +43,7 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * Modified schema checks so they can be applied to the largest tables, which have
-  typically been excluded from these checks. See :issue:`5022`
+  typically been excluded from these checks. See Issue :issue:`5022` and PR :pr`5043`.
 
 * Normalized RUS-7 and RUS-12 borrower ID's, names and state in
   :ref:`core_rus7__entity_borrowers` and :ref:`core_rus12__entity_borrowers`.
