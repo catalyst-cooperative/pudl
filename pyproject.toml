@@ -134,7 +134,7 @@ pytest-order = ">=1.3"
 pytest-xdist = ">=3.8"
 python-calamine = ">=0.6.1"
 python-dotenv = ">=1"
-python-duckdb = ">=1.4"
+python-duckdb = ">=1.4,<1.5"
 pytz = ">=2025"
 pyyaml = ">=6"
 readthedocs-sphinx-ext = ">=2"
@@ -240,7 +240,7 @@ pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
 python-calamine = ">=0.6.1"
 python-dotenv = ">=1"
-python-duckdb = ">=1.4"
+python-duckdb = ">=1.4,<1.5"
 pytz = ">=2025"
 pyyaml = ">=6"
 requests = ">=2.32"
@@ -285,7 +285,7 @@ bash -c 'shopt -s nullglob; rm -rf \
 docs-build = { cmd = """
 doc8 docs/ README.rst && \
 coverage run --append -m sphinx --jobs auto -v -W -b html docs docs/_build/html
-""", depends-on = ["docs-clean"], description = "Build Sphinx documentation" }
+""", depends-on = ["docs-clean"], description = "Build PUDL docs using Sphinx" }
 
 # Testing tasks
 coverage-erase = { cmd = "coverage erase", description = "Clear coverage data" }
@@ -526,6 +526,17 @@ exclude_lines = [
 modules = [
     { type = "module", name = "pudl.etl" },
     { type = "module", name = "pudl.ferc_to_sqlite" },
+]
+
+[tool.dg]
+directory_type = "project"
+
+[tool.dg.project]
+root_module = "pudl"
+code_location_target_module = "pudl.definitions"
+registry_modules = [
+    "pudl.etl",
+    "pudl.ferc_to_sqlite",
 ]
 
 [tool.typos.default]
