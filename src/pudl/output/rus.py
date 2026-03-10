@@ -21,7 +21,7 @@ def out_rus_asset_factory(
         io_manager_key: the name of the IO Manager of the final asset.
 
     Returns:
-        A RUS asset.
+        A RUS output asset.
     """
     out_table_name = f"out_{core_table_name.removeprefix('core_')}"
 
@@ -33,7 +33,7 @@ def out_rus_asset_factory(
     def out_rus_asset(**ins) -> pd.DataFrame:
         """Convert RUS core table to out - merge in the borrower info."""
         return pd.merge(
-            ins[out_table_name], ins[core_table_name], on=["borrower_id_rus"]
+            ins[borrower_table_name], ins[core_table_name], on=["borrower_id_rus"]
         )
 
     return out_rus_asset
