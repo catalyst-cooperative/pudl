@@ -5,8 +5,8 @@ from io import StringIO
 import pandas as pd
 import pytest
 
+import pudl.transform.eia861 as eia861
 from pudl.metadata.fields import apply_pudl_dtypes
-from pudl.transform import eia861
 
 # Test that rows with the same primary key are combined correctly
 actual_1 = pd.read_csv(

@@ -36,7 +36,7 @@ from dagster import (
 
 import pudl
 from pudl.helpers import convert_cols_dtypes
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
@@ -284,15 +284,13 @@ def _last_operating_date(
     # find the new clean plant records by selecting the True consistent records
     op_df = op_df[op_df[f"{col}_is_consistent"]].drop_duplicates(subset=entity_idx)
     logger.info(f"Rescued dates for {col} records: {len(op_df)}")
+    rescued_units = sorted(
+        op_df[entity_idx].apply(
+            lambda row: "_".join(row.to_numpy().astype(str)), axis=1
+        )
+    )
     logger.info(
-        f"Rescued last {col} for the following units ({entity_idx}): "
-        f"{
-            sorted(
-                op_df[entity_idx].apply(
-                    lambda row: '_'.join(row.to_numpy().astype(str)), axis=1
-                )
-            )
-        }"
+        f"Rescued last {col} for the following units ({entity_idx}): {rescued_units}"
     )
     # add the newly cleaned records
     op_clean_df = pd.concat([op_clean_df, op_df])

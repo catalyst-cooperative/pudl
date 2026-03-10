@@ -5,7 +5,8 @@ from typing import Literal
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
-import pudl
+import pudl.logging_helpers
+import pudl.metadata.dfs
 from pudl.metadata.classes import Package
 from pudl.metadata.dfs import (
     FERC_ACCOUNTS,

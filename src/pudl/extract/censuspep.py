@@ -3,8 +3,8 @@
 import pandas as pd
 from dagster import Output, asset
 
+import pudl.extract.excel as excel
 import pudl.logging_helpers
-from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
 
 logger = pudl.logging_helpers.get_logger(__name__)

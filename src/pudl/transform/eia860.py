@@ -6,8 +6,7 @@ from dagster import asset, asset_check
 
 import pudl
 from pudl.helpers import drop_records_with_null_in_column
-from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import DataSource
+from pudl.metadata.classes import PUDL_PACKAGE, DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
 from pudl.metadata.fields import apply_pudl_dtypes

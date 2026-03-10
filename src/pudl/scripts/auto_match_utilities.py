@@ -7,7 +7,7 @@ from typing import Literal
 import click
 import pandas as pd
 
-from pudl.analysis.record_linkage import name_cleaner
+import pudl.analysis.record_linkage.name_cleaner as name_cleaner
 from pudl.helpers import get_parquet_table
 from pudl.logging_helpers import get_logger
 

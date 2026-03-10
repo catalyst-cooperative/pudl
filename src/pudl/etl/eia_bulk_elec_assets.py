@@ -2,7 +2,9 @@
 
 from dagster import asset
 
-import pudl
+import pudl.extract.eiaapi
+import pudl.logging_helpers
+import pudl.transform.eiaapi
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

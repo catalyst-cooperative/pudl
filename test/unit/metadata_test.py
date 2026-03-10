@@ -8,8 +8,8 @@ import pandas as pd
 import pandera.pandas as pr
 import pytest
 
-from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.classes import (
+    PUDL_PACKAGE,
     DataSource,
     Field,
     Package,
@@ -370,9 +370,12 @@ def test_description_compliance(resource_id):
     }
     fix_with_summary = f"""Ensure RESOURCE_METADATA["{resource_id}"]["description"]["additional_summary_text"] is a complete sentence starting with a capital letter"""
     for key, has_value in name_parse.items():
+        extra_step = ""
+        if key in {"table_type_code", "timeseries_resolution_code"}:
+            extra_step = f"\n\t3. {fix_with_summary}"
         assert has_value, f"""Table {resource_id} could not be parsed as layer_source__tabletype_slug and insufficient hints were set in the table metadata. Repair using one of the following:
 \t1. Rename {resource_id}
-\t2. Set the following keys in RESOURCE_METADATA["{resource_id}"]["description"]: {key}{("\n\t3. " + fix_with_summary) if key in {"table_type_code", "timeseries_resolution_code"} else ""}"""
+\t2. Set the following keys in RESOURCE_METADATA["{resource_id}"]["description"]: {key}{extra_step}"""
     # todo: layer-based checks
     # todo: asset_type-based checks
     # pk-based checks

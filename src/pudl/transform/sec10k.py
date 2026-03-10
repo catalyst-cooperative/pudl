@@ -8,8 +8,8 @@ for denormalized output tables.
 import dagster as dg
 import pandas as pd
 
+import pudl.analysis.record_linkage.name_cleaner as name_cleaner
 from pudl import logging_helpers
-from pudl.analysis.record_linkage import name_cleaner
 from pudl.metadata.dfs import ALPHA_2_COUNTRY_CODES, SEC_EDGAR_STATE_AND_COUNTRY_CODES
 
 logger = logging_helpers.get_logger(__name__)

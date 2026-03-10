@@ -14,8 +14,13 @@ import os
 import shutil
 from pathlib import Path
 
-from pudl.metadata import PUDL_PACKAGE
-from pudl.metadata.classes import CodeMetadata, DataSource, Package, Resource
+from pudl.metadata.classes import (
+    PUDL_PACKAGE,
+    CodeMetadata,
+    DataSource,
+    Package,
+    Resource,
+)
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resources import RESOURCE_METADATA
 from pudl.workspace.datastore import Datastore
