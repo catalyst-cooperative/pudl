@@ -56,6 +56,10 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Made our raw spreadsheet extraction multi-assets and static table multi-assets
+  subsettable for better ergonomics when selecting upstream asset dependencies using
+  Dagster's ``dg`` CLI. See issue :issue:`5061` and PR :pr:`5062`.
+
 .. _release-v2026.2.0:
 
 ---------------------------------------------------------------------------------------
