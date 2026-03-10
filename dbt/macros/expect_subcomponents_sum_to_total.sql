@@ -5,15 +5,24 @@
     value_column,
     subcomponents_list,
     total_label,
-    tolerance=0.01
+    tolerance=0.01,
+    row_condition=None
 ) %}
 
-WITH grouped AS (
+WITH filtered AS (
+    SELECT *
+    FROM {{ model }}
+    {% if row_condition is not none %}
+    WHERE {{ row_condition }}
+    {% endif %}
+),
+
+grouped AS (
     SELECT
         {{ group_by_columns | join(', ') }},
         {{ categorical_column }},
         SUM({{ value_column }}) AS total
-    FROM {{ model }}
+    FROM filtered
     GROUP BY {{ group_by_columns | join(', ') }}, {{ categorical_column }}
 ),
 

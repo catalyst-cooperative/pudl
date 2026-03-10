@@ -83,7 +83,7 @@ RESOURCE_METADATA = {
                 "report_date",
                 "borrower_id_rus",
                 "asset_type",
-                "balance",
+                "ending_balance",
                 "is_total",
             ],
             "primary_key": [
@@ -110,7 +110,7 @@ RESOURCE_METADATA = {
                 "report_date",
                 "borrower_id_rus",
                 "liability_type",
-                "balance",
+                "ending_balance",
                 "is_total",
             ],
             "primary_key": [
