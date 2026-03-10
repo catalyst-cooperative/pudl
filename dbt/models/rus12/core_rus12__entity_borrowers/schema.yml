@@ -2,11 +2,14 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: core_rus12__scd_borrowers
+      - name: core_rus12__entity_borrowers
         data_tests:
           - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__entity_borrowers
+                partition_expr:
         columns:
-          - name: report_date
           - name: borrower_id_rus
           - name: borrower_name_rus
           - name: state
