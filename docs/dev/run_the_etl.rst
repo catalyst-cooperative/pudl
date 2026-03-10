@@ -81,7 +81,7 @@ most if not all of the tasks managed through the UI.
     $ pixi run dg list defs
 
 For full ``dg`` CLI documentation and options, see the Dagster docs:
-`dg CLI reference <https://docs.dagster.io/api/clis/dg>`__.
+`dg CLI reference <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
 
 There are a handful of Dagster concepts worth understanding prior
 to interacting with the PUDL data processing pipeline:
@@ -372,7 +372,7 @@ Dagster's job execution API.
 
 THe ``dg`` command line interface is Dagster's official tool and has a ton of built-in
 functionality. For full documentation see the Dagster docs:
-`dg CLI reference <https://docs.dagster.io/api/clis/dg>`__.
+`dg CLI reference <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
 
 These commands are a quick way to confirm your local Dagster setup is healthy before
 launching runs:
