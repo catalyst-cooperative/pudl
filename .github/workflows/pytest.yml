@@ -54,6 +54,10 @@ jobs:
               - '!.github/workflows/update-lockfiles.yml'
               - '!.github/workflows/zenodo-cache-sync.yml'
               - '!.github/workflows/zenodo-data-release.yml'
+              - '!.github/skills/**
+              - '!.github/agents/**
+              - '!.github/instructions/**
+              - '!.github/AGENTS.md
               - '!AGENTS.md'
               - '!README.rst'
               - '!CONTRIBUTING.rst'
@@ -146,6 +150,41 @@ jobs:
           name: coverage-unit
           include-hidden-files: true
           path: .coverage
+
+  ci-dg-smoke:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Install pudl environment using pixi
+        uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+
+      - name: Make input, output and dagster dirs
+        run: |
+          mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+          touch ${{ env.DAGSTER_HOME }}/dagster.yaml
+
+      - name: Run dg smoke checks
+        run: |
+          pixi run dg check toml
+          pixi run dg check defs --verbose
+          pixi run dg list defs --json > /tmp/dg-defs.json
+          test -s /tmp/dg-defs.json
 
   ci-integration:
     # The blacksmith-4vcpu-ubuntu-2404 runner has 4vCPUs, 16GB RAM, 80 GB disk.
