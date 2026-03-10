@@ -862,7 +862,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.2.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-559.0.0-py313habf4b1d_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-560.0.0-py313habf4b1d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.9.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-control-1.10.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/google-crc32c-1.8.0-py313h49a2f01_1.conda
@@ -1489,7 +1489,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-oauthlib-1.2.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.40.1-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.5.0-pyhcf101f3_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-559.0.0-py313h8f79df9_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-560.0.0-py313h8f79df9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.9.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-control-1.10.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-crc32c-1.8.0-py313h11ab6f4_1.conda
@@ -3904,8 +3904,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.2.1.dev36
-  sha256: 066715f9e0ff5bfc3fbe529555f451255a9597ed7e50f4fbeed3c8f281af98fd
+  version: 2026.2.1.dev40
+  sha256: feba0952d8635aca5f8cefe6c7c504a74d26ff0bd05b419af75c34fbf709d014
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -6291,20 +6291,21 @@ packages:
   - pkg:pypi/cffi?source=compressed-mapping
   size: 206247187
   timestamp: 1773176369741
-- conda: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-559.0.0-py313habf4b1d_0.conda
-  sha256: 812ce539017d90d672183b8410e9689f933473176fdb089cd8fb478edebb9a8d
-  md5: 37ef6985d374dfb1683a88bb5dc4fc97
+- conda: https://conda.anaconda.org/conda-forge/osx-64/google-cloud-sdk-560.0.0-py313habf4b1d_0.conda
+  sha256: 982fb649d824842063dffb86d9dcb5272807805af4b89f99eee792f0eff951cb
+  md5: c4f619f5c5a932d4421856d70b439906
   depends:
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   license: Apache-2.0
   license_family: Apache
-  purls: []
-  size: 92296973
-  timestamp: 1772625957348
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-559.0.0-py313h8f79df9_0.conda
-  sha256: 37989143f5fc98b97a5fab9d717291216370faf122540b73c4fa3d23d846fe1f
-  md5: a0990225cc3a2bccb978a50c1d8ddcaf
+  purls:
+  - pkg:pypi/cffi?source=compressed-mapping
+  size: 92300974
+  timestamp: 1773177513109
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-cloud-sdk-560.0.0-py313h8f79df9_0.conda
+  sha256: ae7f3de63b55729dac018f7da592f78ffb8bfb85eb15c4af870e300000698ef7
+  md5: cb62df2ff7aa9da1edd872b2eb4fd86e
   depends:
   - python >=3.13,<3.14.0a0
   - python >=3.13,<3.14.0a0 *_cp313
@@ -6312,8 +6313,8 @@ packages:
   license: Apache-2.0
   license_family: Apache
   purls: []
-  size: 92537355
-  timestamp: 1772628054837
+  size: 92691965
+  timestamp: 1773179033300
 - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-storage-3.9.0-pyhcf101f3_0.conda
   sha256: a42b7f24ded8a97ae18d46bbdf9485d951346e41c66b18f7f793d521c05a53d5
   md5: 71aa090f8647c9b9efa63994eaa0dc18
