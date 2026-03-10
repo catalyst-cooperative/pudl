@@ -417,6 +417,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_rus12__yearly_plant_costs",
                     "core_rus12__yearly_plant_operations_by_borrower",
                     "core_rus12__yearly_plant_operations_by_plant",
+                    "core_rus12__yearly_investments",
+                    "core_rus12__yearly_external_financial_risk_ratio",
                 ],
             },
         },

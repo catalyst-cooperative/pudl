@@ -146,7 +146,7 @@ def _core_rus12__yearly_lines_stations_labor_materials_cost(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset
 def _core_rus12__yearly_loans(raw_rus12__loans, raw_rus12__loan_guarantees):
     """Transform the raw_rus12__loans and raw_rus12__loan_guarantees tables."""
     df_loans = rus.early_transform(
@@ -315,8 +315,8 @@ def _core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operatio
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_investments(
+@asset
+def _core_rus12__yearly_investments(
     raw_rus12__investments: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the investments table."""
@@ -343,8 +343,8 @@ def core_rus12__yearly_investments(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus12__yearly_external_financial_risk_ratio(
+@asset
+def _core_rus12__yearly_external_financial_risk_ratio(
     raw_rus12__external_financial_risk_ratio: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the raw_rus12__external_financial_risk_ratio table."""
@@ -353,7 +353,7 @@ def core_rus12__yearly_external_financial_risk_ratio(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset
 def _core_rus12__yearly_plant_costs(
     raw_rus12__combined_cycle_plant_costs: pd.DataFrame,
     raw_rus12__hydro_plant_costs: pd.DataFrame,
@@ -616,6 +616,8 @@ _CORE_RUS12_TABLES = [
     "_core_rus12__scd_borrowers",
     "_core_rus12__yearly_balance_sheet_assets",
     "_core_rus12__yearly_balance_sheet_liabilities",
+    "_core_rus12__yearly_external_financial_risk_ratio",
+    "_core_rus12__yearly_investments",
     "_core_rus12__yearly_lines_stations_labor_materials_cost",
     "_core_rus12__yearly_loans",
     "_core_rus12__yearly_long_term_debt",

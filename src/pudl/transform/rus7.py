@@ -320,8 +320,8 @@ def _core_rus7__yearly_statement_of_operations(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus7__yearly_long_term_leases(
+@asset
+def _core_rus7__yearly_long_term_leases(
     raw_rus7__long_term_leases: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the long term leases table."""
@@ -345,7 +345,7 @@ def core_rus7__yearly_long_term_leases(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset
 def _core_rus7__yearly_loans(
     raw_rus7__loan_guarantees: pd.DataFrame,
     raw_rus7__loans: pd.DataFrame,
@@ -397,8 +397,8 @@ def _core_rus7__yearly_loans(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
-def core_rus7__yearly_external_financial_risk_ratio(
+@asset
+def _core_rus7__yearly_external_financial_risk_ratio(
     raw_rus7__external_financial_risk_ratio: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the raw_rus7__external_financial_risk_ratio table."""
@@ -413,14 +413,17 @@ def core_rus7__yearly_external_financial_risk_ratio(
 # The USDA would be proud of this name
 
 
-_CORE_RUS7_TABLES = [
+CORE_RUS7_TABLES = [
     "_core_rus7__scd_borrowers",
     "_core_rus7__yearly_balance_sheet_assets",
     "_core_rus7__yearly_balance_sheet_liabilities",
     "_core_rus7__yearly_employee_statistics",
     "_core_rus7__yearly_energy_efficiency",
+    "_core_rus7__yearly_external_financial_risk_ratio",
     "_core_rus7__yearly_investments",
+    "_core_rus7__yearly_loans",
     "_core_rus7__yearly_long_term_debt",
+    "_core_rus7__yearly_long_term_leases",
     "_core_rus7__yearly_meeting_and_board",
     "_core_rus7__yearly_patronage_capital",
     "_core_rus7__yearly_power_requirements",
@@ -431,7 +434,7 @@ _CORE_RUS7_TABLES = [
 
 
 @asset(
-    ins={table_name: AssetIn() for table_name in _CORE_RUS7_TABLES},
+    ins={table_name: AssetIn() for table_name in CORE_RUS7_TABLES},
     io_manager_key="pudl_io_manager",
     config_schema={
         "debug": Field(
@@ -475,7 +478,7 @@ finished_rus_assets = [
         _core_table_name=_core_table_name,
         io_manager_key="pudl_io_manager",
     )
-    for _core_table_name in _CORE_RUS7_TABLES
+    for _core_table_name in CORE_RUS7_TABLES
     # Don't attempt to core-ify this table
     if _core_table_name not in ["_core_rus7__scd_borrowers"]
 ]
