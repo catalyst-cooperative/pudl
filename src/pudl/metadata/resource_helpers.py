@@ -126,12 +126,12 @@ def merge_descriptions(left: dict[str, Any], right: dict[str, Any]) -> dict[str,
     return result
 
 
-def core_to_out_resources(
+def core_to_out_harvested_resources(
     core_table_names: list[str],
     core_table_metadata: dict,
     out_cols_to_add: list[str],
 ) -> dict:
-    """Make out_ tables from core_ resource metadata when extra columns are standard."""
+    """Make out tables from core resource metadata when extra columns are standard."""
     # We are **not** trying to edit the core metadata, just build new stuff from it
     # but dicts are very mutable so we must deepcopy
     copied_table_metadata = copy.deepcopy(core_table_metadata)
@@ -147,6 +147,10 @@ def core_to_out_resources(
                 #     else out_cols_to_add
                 # )
                 meta_part["fields"] = out_cols_to_add + meta_part["fields"]
+            elif meta_part_name == "description":
+                meta_part["usage_warnings"] = ["harvested"] + meta_part[
+                    "usage_warnings"
+                ]
             meta_tbl[meta_part_name] = meta_part
         out_resources[f"out_{core_tbl.removeprefix('core_')}"] = meta_tbl
     return out_resources

@@ -327,29 +327,13 @@ def _core_rus7__yearly_statement_of_operations(
 # The USDA would be proud of this name
 
 
-_CORE_RUS7_TABLES = [
-    "_core_rus7__scd_borrowers",
-    "_core_rus7__yearly_balance_sheet_assets",
-    "_core_rus7__yearly_balance_sheet_liabilities",
-    "_core_rus7__yearly_employee_statistics",
-    "_core_rus7__yearly_energy_efficiency",
-    "_core_rus7__yearly_investments",
-    "_core_rus7__yearly_long_term_debt",
-    "_core_rus7__yearly_meeting_and_board",
-    "_core_rus7__yearly_patronage_capital",
-    "_core_rus7__yearly_power_requirements",
-    "_core_rus7__yearly_power_requirements_electric_customers",
-    "_core_rus7__yearly_power_requirements_electric_sales",
-    "_core_rus7__yearly_statement_of_operations",
-]
-
-__CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
+_CORE_RUS7_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS7]
 
 
 @asset(
     ins={
         table_name: AssetIn()
-        for table_name in ["_core_rus7__scd_borrowers"] + __CORE_RUS7_TABLES
+        for table_name in ["_core_rus7__scd_borrowers"] + _CORE_RUS7_TABLES
     },
     io_manager_key="pudl_io_manager",
     config_schema={
@@ -394,5 +378,5 @@ finished_rus_assets = [
         _core_table_name=_core_table_name,
         io_manager_key="pudl_io_manager",
     )
-    for _core_table_name in __CORE_RUS7_TABLES
+    for _core_table_name in _CORE_RUS7_TABLES
 ]

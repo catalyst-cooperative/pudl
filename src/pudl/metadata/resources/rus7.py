@@ -7,7 +7,7 @@ from pudl.metadata.resource_helpers import (
     HARVESTED_CORE_TABLES_RUS7,
     HARVESTED_CORE_TABLES_RUS12,
     HARVESTING_DETAIL_TEXT_RUS,
-    core_to_out_resources,
+    core_to_out_harvested_resources,
 )
 
 RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
@@ -411,7 +411,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
 }
 
 
-RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_resources(
+RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
     HARVESTED_CORE_TABLES_RUS7,
     RESOURCE_METADATA_BASE,
     ["borrower_name_rus", "state"],

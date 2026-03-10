@@ -4,7 +4,7 @@ from pudl.metadata.resource_helpers import (
     HARVESTED_CORE_TABLES_RUS7,
     HARVESTED_CORE_TABLES_RUS12,
     HARVESTING_DETAIL_TEXT_RUS,
-    core_to_out_resources,
+    core_to_out_harvested_resources,
 )
 
 PLANT_OPERATIONS_DETAIL = (
@@ -159,7 +159,7 @@ RESOURCE_METADATA_BASE = {
     "core_rus12__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "harvested"],
             "additional_details_text": (
                 "This table contains canonical values for borrowers are set. It contains "
                 "values which are expected to remain fixed over time."
@@ -554,7 +554,7 @@ RESOURCE_METADATA_BASE = {
 }
 
 
-RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_resources(
+RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
     HARVESTED_CORE_TABLES_RUS12,
     RESOURCE_METADATA_BASE.copy(),
     ["borrower_name_rus", "state"],

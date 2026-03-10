@@ -35,7 +35,13 @@ def out_rus_asset_factory(
     def out_rus_asset(**ins) -> pd.DataFrame:
         """Convert RUS core table to out - merge in the borrower info."""
         return pd.merge(
-            ins[borrower_table_name], ins[core_table_name], on=["borrower_id_rus"]
+            ins[core_table_name],
+            ins[borrower_table_name],
+            on=["borrower_id_rus"],
+            # return full coverage of the core table but
+            # its okay if some borrowers don't show up in the core table
+            how="left",
+            validate="m:1",
         )
 
     return out_rus_asset
