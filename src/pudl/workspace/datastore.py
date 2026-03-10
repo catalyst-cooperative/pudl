@@ -26,8 +26,8 @@ from upath import UPath
 from urllib3.util.retry import Retry
 
 import pudl
+import pudl.workspace.resource_cache as resource_cache
 from pudl.helpers import retry
-from pudl.workspace import resource_cache
 from pudl.workspace.resource_cache import PudlResourceKey, UPathCache
 from pudl.workspace.setup import PudlPaths
 

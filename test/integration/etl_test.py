@@ -11,7 +11,12 @@ import pytest
 import sqlalchemy as sa
 from dagster import build_init_resource_context
 
-import pudl
+import pudl.extract.eia176
+import pudl.extract.eia191
+import pudl.extract.eia757a
+import pudl.extract.eia860
+import pudl.extract.eia923
+import pudl.extract.ferc1
 from pudl.etl.check_foreign_keys import check_foreign_keys
 from pudl.resources import dataset_settings
 

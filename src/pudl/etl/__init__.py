@@ -7,6 +7,68 @@ import os
 import dagster as dg
 
 import pudl
+import pudl.analysis.allocate_gen_fuel
+import pudl.analysis.mcoe
+import pudl.analysis.ml_tools
+import pudl.analysis.plant_parts_eia
+import pudl.analysis.record_linkage.classify_plants_ferc1
+import pudl.analysis.record_linkage.eia_ferc1_record_linkage
+import pudl.analysis.service_territory
+import pudl.analysis.state_demand
+import pudl.convert.censusdp1tract_to_sqlite
+import pudl.extract.censuspep
+import pudl.extract.eia176
+import pudl.extract.eia191
+import pudl.extract.eia757a
+import pudl.extract.eia860
+import pudl.extract.eia860m
+import pudl.extract.eia861
+import pudl.extract.eia923
+import pudl.extract.eia930
+import pudl.extract.eiaaeo
+import pudl.extract.ferc1
+import pudl.extract.ferc714
+import pudl.extract.ferccid
+import pudl.extract.ferceqr
+import pudl.extract.gridpathratoolkit
+import pudl.extract.nrelatb
+import pudl.extract.phmsagas
+import pudl.extract.rus7
+import pudl.extract.rus12
+import pudl.extract.sec10k
+import pudl.extract.vcerare
+import pudl.helpers
+import pudl.logging_helpers
+import pudl.output.censusdp1tract
+import pudl.output.eia
+import pudl.output.eia860
+import pudl.output.eia923
+import pudl.output.eia930
+import pudl.output.eiaapi
+import pudl.output.ferc1
+import pudl.output.ferc714
+import pudl.output.sec10k
+import pudl.transform.censuspep
+import pudl.transform.eia
+import pudl.transform.eia176
+import pudl.transform.eia860
+import pudl.transform.eia860m
+import pudl.transform.eia861
+import pudl.transform.eia923
+import pudl.transform.eia930
+import pudl.transform.eiaaeo
+import pudl.transform.epacems
+import pudl.transform.ferc1
+import pudl.transform.ferc714
+import pudl.transform.ferccid
+import pudl.transform.ferceqr
+import pudl.transform.gridpathratoolkit
+import pudl.transform.nrelatb
+import pudl.transform.phmsagas
+import pudl.transform.rus7
+import pudl.transform.rus12
+import pudl.transform.sec10k
+import pudl.transform.vcerare
 from pudl.etl import ferceqr_deployment
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
@@ -17,7 +79,7 @@ from pudl.io_managers import (
     parquet_io_manager,
     pudl_mixed_format_io_manager,
 )
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.resources import (
     dataset_settings,
     datastore,

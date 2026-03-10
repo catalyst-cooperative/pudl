@@ -9,7 +9,7 @@ from typing import Any
 import pytest
 import responses
 
-from pudl.workspace import datastore
+import pudl.workspace.datastore as datastore
 from pudl.workspace.resource_cache import PudlResourceKey
 
 

@@ -8,7 +8,7 @@ import pandas as pd
 import sqlalchemy as sa
 from dotenv import load_dotenv
 
-import pudl
+import pudl.logging_helpers
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)

@@ -3,7 +3,11 @@
 import pandas as pd
 from dagster import asset
 
-import pudl
+import pudl.extract.excel
+import pudl.helpers
+import pudl.logging_helpers
+import pudl.metadata.classes
+import pudl.transform.eia860
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

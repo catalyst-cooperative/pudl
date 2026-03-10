@@ -142,6 +142,8 @@ import pandas as pd
 from dagster import AssetIn, AssetsDefinition, Field, asset
 
 import pudl
+import pudl.logging_helpers
+import pudl.output.eia923
 from pudl.metadata.fields import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)

@@ -18,7 +18,8 @@ from dagster import (
     materialize_to_memory,
 )
 
-import pudl
+import pudl.ferc_to_sqlite
+import pudl.logging_helpers
 from pudl import resources
 from pudl.etl import defs
 from pudl.etl.cli import pudl_etl_job_factory
@@ -32,7 +33,7 @@ from pudl.io_managers import (
     ferc714_xbrl_sqlite_io_manager,
     pudl_mixed_format_io_manager,
 )
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.settings import (
     DatasetsSettings,
     EtlSettings,

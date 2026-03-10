@@ -8,7 +8,7 @@ import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
 
-import pudl
+import pudl.helpers
 from pudl.helpers import (
     add_fips_ids,
     apply_pudl_dtypes,

@@ -31,7 +31,12 @@ from pydantic import (
     model_validator,
 )
 
-import pudl
+import pudl.analysis.fuel_by_plant
+import pudl.extract.ferc1
+import pudl.helpers
+import pudl.logging_helpers
+import pudl.metadata.classes
+import pudl.transform.ferc1
 from pudl.transform.ferc1 import (
     GroupMetricChecks,
     GroupMetricTolerances,

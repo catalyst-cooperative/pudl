@@ -6,7 +6,7 @@ import pandera.pandas as pa
 import pytest
 from pandera.typing import DataFrame
 
-from pudl.analysis import timeseries_cleaning
+import pudl.analysis.timeseries_cleaning as timeseries_cleaning
 
 
 def simulate_series(

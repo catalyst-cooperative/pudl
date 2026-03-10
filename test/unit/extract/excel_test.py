@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from pudl.extract import excel
+import pudl.extract.excel as excel
 
 
 class TestMetadata:

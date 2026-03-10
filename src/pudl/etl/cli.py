@@ -13,7 +13,7 @@ from dagster import (
     execute_job,
 )
 
-import pudl
+import pudl.logging_helpers
 from pudl.etl import defs
 from pudl.helpers import get_dagster_execution_config
 from pudl.settings import EpaCemsSettings, EtlSettings

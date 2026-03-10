@@ -18,8 +18,8 @@ from datetime import datetime
 import pandas as pd
 from dagster import AssetOut, Output, asset, multi_asset
 
+import pudl.extract.excel as excel
 import pudl.logging_helpers
-from pudl.extract import excel
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 
 logger = pudl.logging_helpers.get_logger(__name__)

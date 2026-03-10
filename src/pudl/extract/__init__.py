@@ -7,31 +7,3 @@ the :mod:`pudl.workspace` subpackage, and ends with a dictionary of "raw"
 are ready for normalization and data cleaning by the data source specific modules in the
 :mod:`pudl.transform` subpackage.
 """
-
-from . import (
-    censuspep,
-    eia176,
-    eia191,
-    eia757a,
-    eia860,
-    eia860m,
-    eia861,
-    eia923,
-    eia930,
-    eiaaeo,
-    eiaapi,
-    epacems,
-    excel,
-    ferc1,
-    ferc714,
-    ferccid,
-    ferceqr,
-    gridpathratoolkit,
-    nrelatb,
-    phmsagas,
-    rus7,
-    rus12,
-    sec10k,
-    vcerare,
-    xbrl,
-)

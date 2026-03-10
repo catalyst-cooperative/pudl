@@ -15,7 +15,7 @@ from pudl.helpers import (
     convert_to_date,
     standardize_na_values,
 )
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,

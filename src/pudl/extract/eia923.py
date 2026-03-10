@@ -6,8 +6,8 @@ This module pulls data from archived copies of EIA's published Excel spreadsheet
 import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
+import pudl.extract.excel as excel
 import pudl.logging_helpers
-from pudl.extract import excel
 from pudl.extract.extractor import raw_df_factory
 from pudl.helpers import remove_leading_zeros_from_numeric_strings
 

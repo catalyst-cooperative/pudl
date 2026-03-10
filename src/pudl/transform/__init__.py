@@ -59,31 +59,3 @@ denormalized columns may also be part of the primary key. This information is im
 for the step after the intra-table transformations during which the collection of EIA
 tables is normalized as a whole.
 """
-
-from . import (
-    censuspep,
-    classes,
-    eia,
-    eia176,
-    eia860,
-    eia860m,
-    eia861,
-    eia923,
-    eia930,
-    eiaaeo,
-    eiaapi,
-    epacems,
-    ferc,
-    ferc1,
-    ferc714,
-    ferccid,
-    ferceqr,
-    gridpathratoolkit,
-    nrelatb,
-    params,
-    phmsagas,
-    rus7,
-    rus12,
-    sec10k,
-    vcerare,
-)

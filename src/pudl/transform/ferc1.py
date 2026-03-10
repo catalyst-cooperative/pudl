@@ -25,10 +25,12 @@ from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
 from pydantic import BaseModel, Field, field_validator
 
-import pudl
+import pudl.helpers
+import pudl.logging_helpers
+import pudl.metadata.classes
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.helpers import assert_cols_areclose, convert_cols_dtypes
-from pudl.metadata import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.settings import Ferc1Settings
 from pudl.transform.classes import (
@@ -3032,6 +3034,8 @@ class Ferc1AbstractTableTransformer(AbstractTableTransformer):
         logger.debug(
             f"{self.table_id.value}: Assigning {source_ferc1.value} source utility IDs."
         )
+        import pudl.glue.ferc1_eia
+
         utility_map_ferc1 = pudl.glue.ferc1_eia.get_utility_map_ferc1()
         # use the source utility ID column to get a unique map and for merging
         util_id_col = f"utility_id_ferc1_{source_ferc1.value}"

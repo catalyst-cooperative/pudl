@@ -5,7 +5,7 @@ from io import StringIO
 import pandas as pd
 import pytest
 
-from pudl.analysis import allocate_gen_fuel
+import pudl.analysis.allocate_gen_fuel as allocate_gen_fuel
 from pudl.metadata.fields import apply_pudl_dtypes
 
 # Reusable input files...

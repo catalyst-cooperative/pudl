@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import pudl
+import pudl.logging_helpers
 from pudl.analysis.ml_tools import get_ml_models_config
 from pudl.analysis.record_linkage.classify_plants_ferc1 import (
     _FUEL_COLS,
