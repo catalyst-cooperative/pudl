@@ -172,7 +172,12 @@ quantities are actually different.
   for percent, ``_ppm`` for parts per million, or a generic ``_per_unit`` when
   the type of unit varies, as in columns containing a heterogeneous collection
   of fuels)
-* Financial values are assumed to be in nominal US dollars (I.e., the suffix
+* If a column contains a percentage, denoted by the ``_pct`` suffix, then the
+  values should in general lie between 0 and 100 **not** between 0.0 and 1.0.
+  E.g. a value of 50 indicates 50% or a decimal value of 0.5. Often "percent"
+  columns create confusion and data entry errors because some respondents use
+  one interpretation and some the other. Always check the data!
+* Financial values are assumed to be in nominal US dollars (i.e., the suffix
   _usd is implied.)If they are not reported in USD, convert them to USD. If
   they must be kept in their original form for some reason, append a suffix
   that lets the user know they are not USD.

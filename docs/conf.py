@@ -75,7 +75,7 @@ bibtex_bibfiles = [
     "further_reading.bib",
 ]
 
-# Set this to True if you need to debug generated file formatting.
+# Default behavior: do not keep generated files. Clean up after the build exits.
 keep_generated_files = False
 
 # Redirects to keep folks from hitting 404 errors:
