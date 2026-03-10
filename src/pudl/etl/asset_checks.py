@@ -10,7 +10,8 @@ For data validation we almost entirely rely on dbt data tests.
 from typing import Any
 
 import geopandas as gpd  # noqa: ICN002
-import pandera.polars as pr
+import pandera.pandas as pr_pandas
+import pandera.polars as pr_polars
 import polars as pl
 from dagster import (
     AssetCheckResult,
@@ -156,7 +157,7 @@ def _process_schema_errors(schema_errors: SchemaErrors) -> dict[str, Any]:
     }
 
 
-def asset_check_from_schema(
+def asset_check_from_schema(  # noqa: C901
     asset_key: AssetKey,
     package: Package,
     duckdb_asset: bool,
@@ -184,10 +185,15 @@ def asset_check_from_schema(
     partitions = ferceqr_year_quarters if "ferceqr" in resource_id else None
     if duckdb_asset:
         asset_type = ParquetData
-    elif isinstance(pandera_schema, pr.DataFrameSchema):
+    elif isinstance(pandera_schema, pr_polars.DataFrameSchema):
         asset_type = pl.LazyFrame
-    else:
+    elif isinstance(pandera_schema, pr_pandas.DataFrameSchema):
         asset_type = gpd.GeoDataFrame
+    else:
+        raise ValueError(
+            "Unexpected return type from `Resource.schema.to_pandera()`."
+            f"Expected a pandera `DataFrameSchema`, but got: `{type(pandera_schema)}`"
+        )
 
     @asset_check(asset=asset_key, blocking=True, partitions_def=partitions)
     def pandera_schema_check(asset_value: asset_type) -> AssetCheckResult:
