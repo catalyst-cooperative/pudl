@@ -86,7 +86,9 @@ For full ``dg`` CLI documentation and options, see the Dagster docs:
 There are a handful of Dagster concepts worth understanding prior
 to interacting with the PUDL data processing pipeline:
 
-**Dagster UI:**
+Dagster UI
+^^^^^^^^^^
+
 `The Dagster UI <https://docs.dagster.io/concepts/webserver/ui>`__
 is used for monitoring and executing ETL runs.
 
@@ -124,7 +126,8 @@ Due to some limitations of the asset model, we need to use bare ops for the
 FERC-to-SQLite workflow. When you are running that phase, you are **launching a
 job run**.
 
-**IO Managers:**
+IO Managers:
+^^^^^^^^^^^^
 
     *IO Managers are user-provided objects that store asset outputs
     and load them as inputs to downstream assets.*
@@ -367,10 +370,8 @@ out-of-memory issues while running many quarters in one ``backfill``.
 
 Running the ETL with CLI Commands
 ---------------------------------
-You can also execute the ETL jobs using CLI commands. These are thin wrappers around
-Dagster's job execution API.
 
-THe ``dg`` command line interface is Dagster's official tool and has a ton of built-in
+The ``dg`` command line interface is Dagster's official tool and has a ton of built-in
 functionality. For full documentation see the Dagster docs:
 `dg CLI reference <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
 
@@ -410,8 +411,9 @@ to pick and choose:
   We recommend using the Dagster UI to execute the ETL as it provides additional
   functionality for re-execution and viewing asset dependences.
 
-PUDL also has a couple of custom job launching scripts, which allow the configuration of
-the job to be set:
+PUDL also has a couple of custom job launching scripts, which automatically use one of
+our preset YAML files to configure the execution graph, including data sources, years,
+etc.
 
 1. ``ferc_to_sqlite`` executes the ``pudl.ferc_to_sqlite`` dagster graph.
    You must run this script before you can run ``pudl_etl``.
