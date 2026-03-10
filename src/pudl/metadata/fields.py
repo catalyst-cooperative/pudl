@@ -720,7 +720,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "Fly ash from units with dry FGD",
                 "Other FGD byproducts",
                 "Other (specify via footnote on Schedule 9)",
-                "Steam Sales (MMBTU)",
+                "Steam Sales (MMBtu)",
             ],
         },
     },
