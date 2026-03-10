@@ -1,21 +1,11 @@
 """Table definitions for the RUS12 tables."""
 
-from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
-
-HARVESTED_CORE_TABLES_RUS7 = [
-    "core_rus7__yearly_meeting_and_board",
-    "core_rus7__yearly_balance_sheet_assets",
-    "core_rus7__yearly_balance_sheet_liabilities",
-    "core_rus7__yearly_employee_statistics",
-    "core_rus7__yearly_energy_efficiency",
-    "core_rus7__yearly_power_requirements_electric_customers",
-    "core_rus7__yearly_power_requirements_electric_sales",
-    "core_rus7__yearly_power_requirements",
-    "core_rus7__yearly_investments",
-    "core_rus7__yearly_long_term_debt",
-    "core_rus7__yearly_patronage_capital",
-    "core_rus7__yearly_statement_of_operations",
-]
+from pudl.metadata.resource_helpers import (
+    HARVESTED_CORE_TABLES_RUS7,
+    HARVESTED_CORE_TABLES_RUS12,
+    HARVESTING_DETAIL_TEXT_RUS,
+    core_to_out_resources,
+)
 
 PLANT_OPERATIONS_DETAIL = (
     "The data in this table comes from five different portions of RUS 12 "
@@ -55,8 +45,9 @@ PLANT_OPERATIONS_DETAIL = (
     "  the numeric values in these bad strings - 12 and 10 respectively. This enables us "
     "  to have an integer type for this unit_id_rus column."
 )
-
-RESOURCE_METADATA = {
+# This is the base resource metadata. We'll add all of the output versions of the harvested
+# core tables below using core_to_out_resources
+RESOURCE_METADATA_BASE = {
     "core_rus12__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (
@@ -561,3 +552,10 @@ RESOURCE_METADATA = {
         "field_namespace": "rus",
     },
 }
+
+
+RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_resources(
+    HARVESTED_CORE_TABLES_RUS12,
+    RESOURCE_METADATA_BASE.copy(),
+    ["borrower_name_rus", "state"],
+)

@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus12__yearly_balance_sheet_assets
+        columns:
+          - name: borrower_name_rus
+          - name: state
+          - name: report_date
+          - name: borrower_id_rus
+          - name: asset_type
+          - name: balance
+          - name: is_total

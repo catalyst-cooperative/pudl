@@ -3,8 +3,10 @@
 import pandas as pd
 from dagster import AssetIn, AssetsDefinition, asset
 
-from pudl.metadata.resources.rus7 import HARVESTED_CORE_TABLES_RUS12
-from pudl.metadata.resources.rus12 import HARVESTED_CORE_TABLES_RUS7
+from pudl.metadata.resource_helpers import (
+    HARVESTED_CORE_TABLES_RUS7,
+    HARVESTED_CORE_TABLES_RUS12,
+)
 
 
 def out_rus_asset_factory(
@@ -43,7 +45,7 @@ out_rus7_assets = [
     out_rus_asset_factory(
         core_table_name=core_table_name,
         borrower_table_name="core_rus7__entity_borrowers",
-        # io_manager_key="pudl_io_manager",
+        io_manager_key="pudl_io_manager",
     )
     for core_table_name in HARVESTED_CORE_TABLES_RUS7
 ]
@@ -52,7 +54,7 @@ out_rus12_assets = [
     out_rus_asset_factory(
         core_table_name=core_table_name,
         borrower_table_name="core_rus12__entity_borrowers",
-        # io_manager_key="pudl_io_manager",
+        io_manager_key="pudl_io_manager",
     )
     for core_table_name in HARVESTED_CORE_TABLES_RUS12
 ]

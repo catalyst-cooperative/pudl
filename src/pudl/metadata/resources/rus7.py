@@ -3,26 +3,14 @@
 from typing import Any
 
 from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
+from pudl.metadata.resource_helpers import (
+    HARVESTED_CORE_TABLES_RUS7,
+    HARVESTED_CORE_TABLES_RUS12,
+    HARVESTING_DETAIL_TEXT_RUS,
+    core_to_out_resources,
+)
 
-HARVESTED_CORE_TABLES_RUS12 = [
-    "core_rus12__yearly_meeting_and_board",
-    "core_rus12__yearly_balance_sheet_assets",
-    "core_rus12__yearly_balance_sheet_liabilities",
-    "core_rus12__yearly_long_term_debt",
-    "core_rus12__yearly_renewable_plants",
-    "core_rus12__yearly_lines_stations_labor_materials_cost",
-    "core_rus12__yearly_sources_and_distribution_by_plant_type",
-    "core_rus12__yearly_sources_and_distribution",
-    "core_rus12__yearly_loans",
-    "core_rus12__yearly_plant_labor",
-    "core_rus12__yearly_statement_of_operations",
-    "core_rus12__yearly_plant_costs",
-    "core_rus12__yearly_plant_operations_by_borrower",
-    "core_rus12__yearly_plant_operations_by_plant",
-]
-
-RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (
@@ -421,3 +409,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "rus",
     },
 }
+
+
+RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_resources(
+    HARVESTED_CORE_TABLES_RUS7,
+    RESOURCE_METADATA_BASE,
+    ["borrower_name_rus", "state"],
+)
