@@ -1,12 +1,13 @@
 """Transform the RUS12 tables."""
 
 import pandas as pd
-from dagster import AssetOut, Output, asset, multi_asset
+from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
 from pudl.helpers import cleanstrings_snake
 from pudl.metadata.enums import PLANT_TYPE_RUS12
+from pudl.transform.eia import harvest_entity_tables
 
 logger = logging_helpers.get_logger(__name__)
 
@@ -81,6 +82,44 @@ def _core_rus12__scd_borrowers(raw_rus12__borrowers):
 
 
 @asset
+def _core_rus12__yearly_external_financial_risk_ratio(
+    raw_rus12__external_financial_risk_ratio: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__external_financial_risk_ratio table."""
+    df = rus.early_transform(raw_df=raw_rus12__external_financial_risk_ratio)
+    df["external_financial_risk_ratio"] = df["external_financial_risk_ratio"]
+    return df
+
+
+@asset
+def _core_rus12__yearly_investments(
+    raw_rus12__investments: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the investments table."""
+    df = rus.early_transform(
+        raw_df=raw_rus12__investments,
+        boolean_columns_to_fix=["for_rural_development"],
+    )
+    # Spot fix bad investment type code values that is 0 and should be 1.
+    # 0 is not a valid code and the same description was later listed as 1.
+    mask = (
+        (df.borrower_id_rus == "KY0059")
+        & (df.report_date == "2006-12-01")
+        & (
+            df.investment_description
+            == "Temporary Investments - Cooperative Finance Corp"
+        )
+    )
+    assert len(df.loc[mask]) == 1, (
+        "Expected exactly one record to be affected by this spot fix."
+    )
+    df.loc[mask, "investment_type_code"] = 1
+
+    # TO-DO: clean up property_type field
+    return df
+
+
+@asset
 def _core_rus12__yearly_renewable_plants(raw_rus12__renewable_plants):
     """Transform the core_rus12__yearly_renewable_plants table."""
     df = rus.early_transform(raw_df=raw_rus12__renewable_plants)
@@ -146,9 +185,20 @@ def _core_rus12__yearly_lines_stations_labor_materials_cost(
 
 
 @asset
-def core_rus12__yearly_loans(raw_rus12__loans):
-    """Transform the raw_rus12__loans table."""
-    df = rus.early_transform(raw_df=raw_rus12__loans)
+def _core_rus12__yearly_loans(raw_rus12__loans, raw_rus12__loan_guarantees):
+    """Transform the raw_rus12__loans and raw_rus12__loan_guarantees tables."""
+    df_loans = rus.early_transform(
+        raw_df=raw_rus12__loans,
+        boolean_columns_to_fix=["for_rural_development"],
+        string_cols_to_simplify=["loan_recipient"],
+    ).assign(is_loan_guarantee=False)
+    df_loan_guarantees = rus.early_transform(
+        raw_df=raw_rus12__loan_guarantees,
+        boolean_columns_to_fix=["for_rural_development"],
+        string_cols_to_simplify=["loan_recipient"],
+    ).assign(is_loan_guarantee=True)
+    df = pd.concat([df_loans, df_loan_guarantees], ignore_index=True)
+    # Convert all loan_maturity_dates to datetime
     df.loan_maturity_date = pd.to_datetime(df.loan_maturity_date, format="mixed")
     return df
 
@@ -304,7 +354,7 @@ def _core_rus12__yearly_statement_of_operations(raw_rus12__statement_of_operatio
 
 
 @asset
-def core_rus12__yearly_plant_costs(
+def _core_rus12__yearly_plant_costs(
     raw_rus12__combined_cycle_plant_costs: pd.DataFrame,
     raw_rus12__hydro_plant_costs: pd.DataFrame,
     raw_rus12__internal_combustion_plant_costs: pd.DataFrame,
@@ -554,3 +604,81 @@ def _core_rus12__yearly_plant_operations(
             value=df_by_borrower,
         ),
     )
+
+
+######################################
+# HARVESTING aka NORMALIZATION
+######################################
+# The USDA would be proud of this name
+
+
+_CORE_RUS12_TABLES = [
+    "_core_rus12__scd_borrowers",
+    "_core_rus12__yearly_balance_sheet_assets",
+    "_core_rus12__yearly_balance_sheet_liabilities",
+    "_core_rus12__yearly_external_financial_risk_ratio",
+    "_core_rus12__yearly_investments",
+    "_core_rus12__yearly_lines_stations_labor_materials_cost",
+    "_core_rus12__yearly_loans",
+    "_core_rus12__yearly_long_term_debt",
+    "_core_rus12__yearly_meeting_and_board",
+    "_core_rus12__yearly_plant_costs",
+    "_core_rus12__yearly_plant_labor",
+    "_core_rus12__yearly_plant_operations_by_borrower",
+    "_core_rus12__yearly_plant_operations_by_plant",
+    "_core_rus12__yearly_renewable_plants",
+    "_core_rus12__yearly_sources_and_distribution",
+    "_core_rus12__yearly_sources_and_distribution_by_plant_type",
+    "_core_rus12__yearly_statement_of_operations",
+]
+
+
+@asset(
+    ins={table_name: AssetIn() for table_name in _CORE_RUS12_TABLES},
+    io_manager_key="pudl_io_manager",
+    config_schema={
+        "debug": Field(
+            bool,
+            default_value=False,
+            description=(
+                "If True, allow inconsistent values in harvested columns and "
+                "produce additional debugging output."
+            ),
+        ),
+    },
+)
+def core_rus12__entity_borrowers(context, **clean_dfs):
+    """Harvesting IDs & consistent static attributes for RUS12 entity."""
+    entity = rus.RusEntity.BORROWERS
+    logger.info("Harvesting IDs & consistent static attributes for RUS Borrowers")
+    # We want **all** borrowers to have non-null names in this entity
+    # table. They aren't always super consistent over time, but we have
+    # vetted them (see https://github.com/catalyst-cooperative/pudl/pull/5056#issuecomment-4008247047)
+    # and thus decided to set the threshold for consistency strictness
+    # at 0% (instead of the default 70%) so we the most consistent value
+    # no matter what.
+    special_case_strictness = {"borrower_name_rus": 0}
+    # We only need the entity table, but the harvesting process
+    # always produces entity (aka static) as annual (aka scd) tables.
+    # as well as a helpful-for-debugging dictionary of dfs for all
+    # values columns we are harvesting
+    entity_df, annual_df, _col_dfs = harvest_entity_tables(
+        entity,
+        clean_dfs,
+        special_case_strictness=special_case_strictness,
+        debug=context.op_config["debug"],
+    )
+
+    return entity_df
+
+
+finished_rus_assets = [
+    rus.finished_rus_asset_factory(
+        table_name=_core_table_name.removeprefix("_"),
+        _core_table_name=_core_table_name,
+        io_manager_key="pudl_io_manager",
+    )
+    for _core_table_name in _CORE_RUS12_TABLES
+    # Don't attempt to core-ify this table
+    if _core_table_name not in ["_core_rus12__scd_borrowers"]
+]
