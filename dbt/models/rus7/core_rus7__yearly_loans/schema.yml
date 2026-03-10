@@ -20,7 +20,6 @@ sources:
         columns:
           - name: report_date
           - name: borrower_id_rus
-          - name: borrower_name_rus
           - name: report_date
           - name: loan_recipient
           - name: loan_balance

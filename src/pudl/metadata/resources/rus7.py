@@ -311,7 +311,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "lending_organization",
                 "property_type",
                 "rental_cost_ytd",
@@ -448,7 +447,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "loan_recipient",
                 "loan_balance",
                 "loan_maturity_date",
@@ -473,7 +471,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "external_financial_risk_ratio",
             ],
             "primary_key": [

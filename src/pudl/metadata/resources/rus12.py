@@ -459,7 +459,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "investment_description",
                 "investment_type_code",
                 "included_investments",
@@ -522,7 +521,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "external_financial_risk_ratio",
             ],
             "primary_key": [

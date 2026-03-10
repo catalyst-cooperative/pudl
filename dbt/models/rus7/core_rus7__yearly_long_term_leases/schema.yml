@@ -12,7 +12,6 @@ sources:
         columns:
           - name: report_date
           - name: borrower_id_rus
-          - name: borrower_name_rus
           - name: lending_organization
           - name: property_type
           - name: rental_cost_ytd
