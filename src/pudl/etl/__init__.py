@@ -1,15 +1,75 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
 
-import importlib
 import importlib.resources
 import itertools
 import os
 
 import dagster as dg
 
+import pudl
+import pudl.analysis.allocate_gen_fuel
+import pudl.analysis.mcoe
 import pudl.analysis.ml_tools
+import pudl.analysis.plant_parts_eia
+import pudl.analysis.record_linkage.classify_plants_ferc1
+import pudl.analysis.record_linkage.eia_ferc1_record_linkage
+import pudl.analysis.service_territory
+import pudl.analysis.state_demand
+import pudl.convert.censusdp1tract_to_sqlite
+import pudl.extract.censuspep
+import pudl.extract.eia176
+import pudl.extract.eia191
+import pudl.extract.eia757a
+import pudl.extract.eia860
+import pudl.extract.eia860m
+import pudl.extract.eia861
+import pudl.extract.eia923
+import pudl.extract.eia930
+import pudl.extract.eiaaeo
+import pudl.extract.ferc1
+import pudl.extract.ferc714
+import pudl.extract.ferccid
+import pudl.extract.ferceqr
+import pudl.extract.gridpathratoolkit
+import pudl.extract.nrelatb
+import pudl.extract.phmsagas
+import pudl.extract.rus12
+import pudl.extract.rus7
+import pudl.extract.sec10k
+import pudl.extract.vcerare
 import pudl.helpers
 import pudl.logging_helpers
+import pudl.output.censusdp1tract
+import pudl.output.eia
+import pudl.output.eia860
+import pudl.output.eia923
+import pudl.output.eia930
+import pudl.output.eiaapi
+import pudl.output.ferc1
+import pudl.output.ferc714
+import pudl.output.sec10k
+import pudl.transform.censuspep
+import pudl.transform.eia
+import pudl.transform.eia176
+import pudl.transform.eia860
+import pudl.transform.eia860m
+import pudl.transform.eia861
+import pudl.transform.eia923
+import pudl.transform.eia930
+import pudl.transform.eiaaeo
+import pudl.transform.epacems
+import pudl.transform.ferc1
+import pudl.transform.ferc714
+import pudl.transform.ferccid
+import pudl.transform.ferceqr
+import pudl.transform.gridpathratoolkit
+import pudl.transform.nrelatb
+import pudl.transform.phmsagas
+import pudl.transform.rus12
+import pudl.transform.rus7
+import pudl.transform.sec10k
+import pudl.transform.vcerare
+from pudl.etl import ferceqr_deployment
 from pudl.etl.asset_checks import asset_check_from_schema
 from pudl.io_managers import (
     ferc1_dbf_sqlite_io_manager,
@@ -27,100 +87,100 @@ from pudl.resources import (
 )
 from pudl.settings import EtlSettings
 
+from . import (
+    eia_bulk_elec_assets,
+    glue_assets,
+    static_assets,
+)
+
 logger = pudl.logging_helpers.get_logger(__name__)
 
-
-def _load_modules(module_paths: list[str]) -> list[object]:
-    """Import asset modules from dotted paths."""
-    return [importlib.import_module(module_path) for module_path in module_paths]
-
-
 raw_module_groups = {
-    "raw_censuspep": ["pudl.extract.censuspep"],
-    "raw_eia176": ["pudl.extract.eia176"],
-    "raw_eia191": ["pudl.extract.eia191"],
-    "raw_eia757a": ["pudl.extract.eia757a"],
-    "raw_eia860": ["pudl.extract.eia860"],
-    "raw_eia860m": ["pudl.extract.eia860m"],
-    "raw_eia861": ["pudl.extract.eia861"],
-    "raw_eia923": ["pudl.extract.eia923"],
-    "raw_eia930": ["pudl.extract.eia930"],
-    "raw_eiaaeo": ["pudl.extract.eiaaeo"],
-    "raw_ferc1": ["pudl.extract.ferc1"],
-    "raw_ferc714": ["pudl.extract.ferc714"],
-    "raw_ferccid": ["pudl.extract.ferccid"],
-    "raw_gridpathratoolkit": ["pudl.extract.gridpathratoolkit"],
-    "raw_nrelatb": ["pudl.extract.nrelatb"],
-    "raw_phmsagas": ["pudl.extract.phmsagas"],
-    "raw_rus7": ["pudl.extract.rus7"],
-    "raw_sec10k": ["pudl.extract.sec10k"],
-    "raw_vcerare": ["pudl.extract.vcerare"],
-    "raw_ferceqr": ["pudl.extract.ferceqr"],
-    "raw_rus12": ["pudl.extract.rus12"],
+    "raw_censuspep": [pudl.extract.censuspep],
+    "raw_eia176": [pudl.extract.eia176],
+    "raw_eia191": [pudl.extract.eia191],
+    "raw_eia757a": [pudl.extract.eia757a],
+    "raw_eia860": [pudl.extract.eia860],
+    "raw_eia860m": [pudl.extract.eia860m],
+    "raw_eia861": [pudl.extract.eia861],
+    "raw_eia923": [pudl.extract.eia923],
+    "raw_eia930": [pudl.extract.eia930],
+    "raw_eiaaeo": [pudl.extract.eiaaeo],
+    "raw_ferc1": [pudl.extract.ferc1],
+    "raw_ferc714": [pudl.extract.ferc714],
+    "raw_ferccid": [pudl.extract.ferccid],
+    "raw_gridpathratoolkit": [pudl.extract.gridpathratoolkit],
+    "raw_nrelatb": [pudl.extract.nrelatb],
+    "raw_phmsagas": [pudl.extract.phmsagas],
+    "raw_rus7": [pudl.extract.rus7],
+    "raw_sec10k": [pudl.extract.sec10k],
+    "raw_vcerare": [pudl.extract.vcerare],
+    "raw_ferceqr": [pudl.extract.ferceqr],
+    "raw_rus12": [pudl.extract.rus12],
 }
 
 
 core_module_groups = {
-    "core_assn": ["pudl.etl.glue_assets"],
+    "core_assn": [glue_assets],
     "core_censusdp1tract": [
-        "pudl.convert.censusdp1tract_to_sqlite",
-        "pudl.output.censusdp1tract",
+        pudl.convert.censusdp1tract_to_sqlite,
+        pudl.output.censusdp1tract,
     ],
-    "core_censuspep": ["pudl.transform.censuspep"],
-    "core_codes": ["pudl.etl.static_assets"],
-    "core_eia": ["pudl.transform.eia"],
-    "core_eiaaeo": ["pudl.transform.eiaaeo"],
-    "core_eia_bulk_elec": ["pudl.etl.eia_bulk_elec_assets"],
-    "core_eia176": ["pudl.transform.eia176"],
-    "core_eia860": ["pudl.transform.eia860", "pudl.transform.eia860m"],
-    "core_eia861": ["pudl.transform.eia861"],
-    "core_eia923": ["pudl.transform.eia923"],
-    "core_eia930": ["pudl.transform.eia930"],
-    "core_epacems": ["pudl.transform.epacems"],
-    "core_ferc1": ["pudl.transform.ferc1"],
-    "core_ferc714": ["pudl.transform.ferc714"],
-    "core_ferccid": ["pudl.transform.ferccid"],
-    "core_ferceqr": ["pudl.transform.ferceqr"],
-    "core_gridpathratoolkit": ["pudl.transform.gridpathratoolkit"],
-    "core_sec10k": ["pudl.transform.sec10k"],
-    "core_nrelatb": ["pudl.transform.nrelatb"],
-    "core_vcerare": ["pudl.transform.vcerare"],
-    "core_phmsagas": ["pudl.transform.phmsagas"],
-    "core_rus7": ["pudl.transform.rus7"],
-    "core_rus12": ["pudl.transform.rus12"],
+    "core_censuspep": [pudl.transform.censuspep],
+    "core_codes": [static_assets],
+    "core_eia": [pudl.transform.eia],
+    "core_eiaaeo": [pudl.transform.eiaaeo],
+    "core_eia_bulk_elec": [eia_bulk_elec_assets],
+    "core_eia176": [pudl.transform.eia176],
+    "core_eia860": [pudl.transform.eia860, pudl.transform.eia860m],
+    "core_eia861": [pudl.transform.eia861],
+    "core_eia923": [pudl.transform.eia923],
+    "core_eia930": [pudl.transform.eia930],
+    "core_epacems": [pudl.transform.epacems],
+    "core_ferc1": [pudl.transform.ferc1],
+    "core_ferc714": [pudl.transform.ferc714],
+    "core_ferccid": [pudl.transform.ferccid],
+    "core_ferceqr": [pudl.transform.ferceqr],
+    "core_gridpathratoolkit": [pudl.transform.gridpathratoolkit],
+    "core_sec10k": [pudl.transform.sec10k],
+    "core_nrelatb": [pudl.transform.nrelatb],
+    "core_vcerare": [pudl.transform.vcerare],
+    "core_phmsagas": [pudl.transform.phmsagas],
+    "core_rus7": [pudl.transform.rus7],
+    "core_rus12": [pudl.transform.rus12],
 }
 
 out_module_groups = {
     "eia_ferc1_record_linkage": [
-        "pudl.analysis.plant_parts_eia",
-        "pudl.analysis.record_linkage.eia_ferc1_record_linkage",
+        pudl.analysis.plant_parts_eia,
+        pudl.analysis.record_linkage.eia_ferc1_record_linkage,
     ],
-    "out_allocate_gen_fuel": ["pudl.analysis.allocate_gen_fuel"],
-    "out_derived_gen_attributes": ["pudl.analysis.mcoe"],
+    "out_allocate_gen_fuel": [pudl.analysis.allocate_gen_fuel],
+    "out_derived_gen_attributes": [pudl.analysis.mcoe],
     "out_eia": [
-        "pudl.output.eia",
-        "pudl.output.eia860",
-        "pudl.output.eia923",
-        "pudl.output.eia930",
-        "pudl.output.eiaapi",
+        pudl.output.eia,
+        pudl.output.eia860,
+        pudl.output.eia923,
+        pudl.output.eia930,
+        pudl.output.eiaapi,
     ],
     "out_ferc1": [
-        "pudl.output.ferc1",
-        "pudl.analysis.record_linkage.classify_plants_ferc1",
+        pudl.output.ferc1,
+        pudl.analysis.record_linkage.classify_plants_ferc1,
     ],
-    "out_respondents_ferc714": ["pudl.output.ferc714"],
-    "out_sec10k": ["pudl.output.sec10k"],
-    "out_service_territory_eia861": ["pudl.analysis.service_territory"],
-    "out_state_demand_ferc714": ["pudl.analysis.state_demand"],
+    "out_respondents_ferc714": [pudl.output.ferc714],
+    "out_sec10k": [pudl.output.sec10k],
+    "out_service_territory_eia861": [pudl.analysis.service_territory],
+    "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
 
 ferceqr_deployment_assets = (
-    {"ferceqr_deployment": ["pudl.etl.ferceqr_deployment"]}
+    {"ferceqr_deployment": [ferceqr_deployment]}
     if os.getenv("FERCEQR_BUILD", None)
     else {}
 )
 
-all_asset_module_paths = (
+all_asset_modules = (
     raw_module_groups
     | core_module_groups
     | out_module_groups
@@ -129,11 +189,11 @@ all_asset_module_paths = (
 default_assets = list(
     itertools.chain.from_iterable(
         dg.load_assets_from_modules(
-            _load_modules(module_paths),
+            modules,
             group_name=group_name,
             include_specs=True,
         )
-        for group_name, module_paths in all_asset_module_paths.items()
+        for group_name, modules in all_asset_modules.items()
     )
 )
 
@@ -141,9 +201,9 @@ default_assets = list(
 default_asset_checks = list(
     itertools.chain.from_iterable(
         dg.load_asset_checks_from_modules(
-            _load_modules(module_paths),
+            modules,
         )
-        for module_paths in all_asset_module_paths.values()
+        for modules in all_asset_modules.values()
     )
 )
 
@@ -202,9 +262,7 @@ default_resources = {
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
-    "ferceqr_extract_settings": importlib.import_module(
-        "pudl.extract.ferceqr"
-    ).ExtractSettings(
+    "ferceqr_extract_settings": pudl.extract.ferceqr.ExtractSettings(
         archive=os.getenv(  # Default to read directly from GCS if local path not specified
             "FERCEQR_ARCHIVE_PATH", "gs://archives.catalyst.coop/ferceqr/published"
         )
@@ -287,6 +345,6 @@ defs: dg.Definitions = dg.Definitions(
             selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
         ),
     ],
-    sensors=[importlib.import_module("pudl.etl.ferceqr_deployment").ferceqr_sensor],
+    sensors=[ferceqr_deployment.ferceqr_sensor],
 )
 """A collection of dagster assets, resources, IO managers, and jobs for the PUDL ETL."""

@@ -9,6 +9,7 @@ import pandas as pd
 from dagster import AssetOut, Output, multi_asset
 
 import pudl
+import pudl.extract.eia860m
 import pudl.extract.excel as excel
 import pudl.logging_helpers
 from pudl.extract.extractor import raw_df_factory
