@@ -160,25 +160,28 @@ def _get_keys_from_assets(
     AssetSpecs always only have one key, and don't have ``asset.keys``. So we
     look for ``asset.key`` and wrap it in a list.
     """
-    if hasattr(asset_def, "node_def"):
-        is_high_memory = asset_def.node_def.tags.get("memory-use") == "high"
-    else:
-        is_high_memory = False
     if isinstance(asset_def, dg.AssetsDefinition):
-        return [(key, is_high_memory) for key in asset_def.keys]
+        return list(asset_def.keys)
     if isinstance(asset_def, dg.AssetSpec):
-        return [(asset_def.key, is_high_memory)]
+        return [asset_def.key]
     return []
 
 
 _asset_keys = itertools.chain.from_iterable(
     _get_keys_from_assets(asset_def) for asset_def in default_assets
 )
+
+# Set of assets which are transformed with duckdb and handled differently in schema checks
 duckdb_assets = [
     "core_ferceqr__quarterly_identity",
     "core_ferceqr__contracts",
     "core_ferceqr__quarterly_index_pub",
     "core_ferceqr__transactions",
+]
+# Set of assets too large to apply full schema check
+high_memory_assets = [
+    "out_vcerare__hourly_available_capacity_factor",
+    "core_epacems__hourly_emissions",
 ]
 default_asset_checks += [
     check
@@ -187,9 +190,9 @@ default_asset_checks += [
             asset_key,
             PUDL_PACKAGE,
             duckdb_asset=asset_key.to_user_string() in duckdb_assets,
-            high_memory_asset=is_high_memory,
+            high_memory_asset=asset_key.to_user_string() in high_memory_assets,
         )
-        for asset_key, is_high_memory in _asset_keys
+        for asset_key in _asset_keys
     )
     if check is not None
 ]
