@@ -86,6 +86,9 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Made our raw spreadsheet extraction multi-assets and static table multi-assets
+  subsettable for better ergonomics when selecting upstream asset dependencies using
+  Dagster's ``dg`` CLI. See issue :issue:`5061` and PR :pr:`5062`.
 * Adapted the PUDL project layout and configuration slightly in order to allow us to
   start using
   `dg: Dagster's official CLI tool <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
