@@ -25,7 +25,6 @@ from dagster import AssetIn, AssetsDefinition, asset
 from pandas.core.groupby import DataFrameGroupBy
 from pydantic import BaseModel, Field, field_validator
 
-import pudl
 import pudl.helpers
 import pudl.logging_helpers
 import pudl.metadata.classes

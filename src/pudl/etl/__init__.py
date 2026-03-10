@@ -33,8 +33,8 @@ import pudl.extract.ferceqr
 import pudl.extract.gridpathratoolkit
 import pudl.extract.nrelatb
 import pudl.extract.phmsagas
-import pudl.extract.rus12
 import pudl.extract.rus7
+import pudl.extract.rus12
 import pudl.extract.sec10k
 import pudl.extract.vcerare
 import pudl.helpers
@@ -65,8 +65,8 @@ import pudl.transform.ferceqr
 import pudl.transform.gridpathratoolkit
 import pudl.transform.nrelatb
 import pudl.transform.phmsagas
-import pudl.transform.rus12
 import pudl.transform.rus7
+import pudl.transform.rus12
 import pudl.transform.sec10k
 import pudl.transform.vcerare
 from pudl.etl import ferceqr_deployment
