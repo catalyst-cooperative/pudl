@@ -1643,10 +1643,12 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     * Ensure a unique primary key and drop some duplicated rows.
 
     Args:
-        raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
+        raw_eia923__fgd_operation_maintenance: The raw
+            ``raw_eia923__fgd_operation_maintenance`` dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for
+        harvesting.
     """
     fgd_df = raw_eia923__fgd_operation_maintenance
 
@@ -1689,7 +1691,7 @@ def _core_eia923__yearly_fgd_operation_maintenance(
         fgd_df.loc[:, "so2_test_date"] = _clean_emissions_control_dates(
             fgd_df["so2_test_date"],
             # Significant data starts appearing in the 1950s. A handful of values in
-            # 1900 to be errors / badly formatted (see spot fixes above)
+            # 1900 are assumed to be errors / badly formatted (see spot fixes above)
             min_valid_year=1950,
             max_valid_year=fgd_df["report_date"].dt.year.max(),
             spot_fixes=fgd_spot_fixes,
