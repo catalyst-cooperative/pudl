@@ -3,6 +3,19 @@ sources:
   - name: pudl
     tables:
       - name: core_rus12__yearly_plant_costs
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__yearly_plant_costs
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - expect_columns_ratio:
+              arguments:
+                numerator_column: cost_per_mwh
+                denominator_column: cost_per_mmbtu
+                min_ratio: 3.412142
+              config:
+                error_if: ">96" # ~6% of the data
         columns:
           - name: report_date
           - name: borrower_id_rus
@@ -11,6 +24,24 @@ sources:
           - name: cost_group
           - name: cost_type
           - name: cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">213" # 0.4% of the data
           - name: cost_per_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">381" # 0.7% of the data
           - name: cost_per_mmbtu
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">23"
           - name: is_total
