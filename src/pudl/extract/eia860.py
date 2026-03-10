@@ -59,7 +59,7 @@ class Extractor(excel.ExcelExtractor):
 
 
 # TODO (bendnorman): Add this information to the metadata
-raw_table_names = (
+RAW_EIA860_TABLE_NAMES = {
     "raw_eia860__boiler_cooling",
     "raw_eia860__boiler_generator_assn",
     "raw_eia860__boiler_info",
@@ -91,15 +91,7 @@ raw_table_names = (
     "raw_eia860__plant",
     "raw_eia860__stack_flue_equipment",
     "raw_eia860__utility",
-)
-
-eia860m_appendable_tables = frozenset(
-    {
-        "generator_existing",
-        "generator_proposed",
-        "generator_retired",
-    }
-)
+}
 
 
 raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
@@ -109,7 +101,7 @@ raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
 @multi_asset(
     outs={
         table_name: AssetOut(is_required=False)
-        for table_name in sorted(raw_table_names)
+        for table_name in sorted(RAW_EIA860_TABLE_NAMES)
     },
     can_subset=True,
     required_resource_keys={"datastore", "dataset_settings"},
@@ -131,7 +123,7 @@ def extract_eia860(context, raw_eia860__all_dfs):
         output_name.removeprefix("raw_eia860__")
         for output_name in selected_outputs
         if output_name.startswith("raw_eia860__")
-    } & eia860m_appendable_tables
+    } & {"generator_existing", "generator_proposed", "generator_retired"}
 
     if eia_settings.eia860.eia860m and selected_eia860m_appendable_tables:
         eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
