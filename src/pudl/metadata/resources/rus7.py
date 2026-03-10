@@ -5,6 +5,23 @@ from typing import Any
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
 
+HARVESTED_CORE_TABLES_RUS12 = [
+    "core_rus12__yearly_meeting_and_board",
+    "core_rus12__yearly_balance_sheet_assets",
+    "core_rus12__yearly_balance_sheet_liabilities",
+    "core_rus12__yearly_long_term_debt",
+    "core_rus12__yearly_renewable_plants",
+    "core_rus12__yearly_lines_stations_labor_materials_cost",
+    "core_rus12__yearly_sources_and_distribution_by_plant_type",
+    "core_rus12__yearly_sources_and_distribution",
+    "core_rus12__yearly_loans",
+    "core_rus12__yearly_plant_labor",
+    "core_rus12__yearly_statement_of_operations",
+    "core_rus12__yearly_plant_costs",
+    "core_rus12__yearly_plant_operations_by_borrower",
+    "core_rus12__yearly_plant_operations_by_plant",
+]
+
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
         "description": {
@@ -393,25 +410,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "foreign_key_rules": {
                 "fields": [["borrower_id_rus"]],
-                "exclude": [
-                    # We must remove all of the rus12 tables - otherwise
-                    # these would get a FK relationship from this rus7 table
-                    "core_rus12__yearly_meeting_and_board",
-                    "core_rus12__yearly_balance_sheet_assets",
-                    "core_rus12__yearly_balance_sheet_liabilities",
-                    "core_rus12__yearly_long_term_debt",
-                    "core_rus12__entity_borrowers",
-                    "core_rus12__yearly_renewable_plants",
-                    "core_rus12__yearly_lines_stations_labor_materials_cost",
-                    "core_rus12__yearly_sources_and_distribution_by_plant_type",
-                    "core_rus12__yearly_sources_and_distribution",
-                    "core_rus12__yearly_loans",
-                    "core_rus12__yearly_plant_labor",
-                    "core_rus12__yearly_statement_of_operations",
-                    "core_rus12__yearly_plant_costs",
-                    "core_rus12__yearly_plant_operations_by_borrower",
-                    "core_rus12__yearly_plant_operations_by_plant",
-                ],
+                # We must remove all of the rus12 tables - otherwise
+                # these would get a FK relationship from this rus7 table
+                "exclude": ["core_rus12__entity_borrowers"]
+                + HARVESTED_CORE_TABLES_RUS12,
             },
         },
         "sources": ["rus7"],
