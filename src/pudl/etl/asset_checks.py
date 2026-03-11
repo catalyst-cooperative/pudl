@@ -65,7 +65,7 @@ def _collect_dtype_metadata(asset_value, resource: Resource) -> dict[str, Any]:
     for field in resource.schema.fields:
         try:
             pandera_dtypes[field.name] = str(
-                field.to_pandera_column(use_pandas_backend).dtype
+                field.to_pandera_column(use_pandas_backend=use_pandas_backend).dtype
             )
         except Exception as e:
             pandera_dtypes[field.name] = f"Error: {str(e)}"
