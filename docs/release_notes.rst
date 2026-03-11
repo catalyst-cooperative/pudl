@@ -28,11 +28,15 @@ EIA-923
   See issue :issue:`4081` and PRs :pr:`4668,5048`. Thanks to :user:`alexclippinger` for
   working on this!
 
-RUS-12
+RUS 7
+~~~~~
+
+* Transformed more RUS 7 tables. See PR :pr:`5034`.
+
+RUS 12
 ~~~~~~
 
-* Transformed and published additional USDA RUS tables. See :issue:`4886` and PR
-  :pr:`5018`.
+* Transformed more RUS 12 tables. See :issue:`4886`, PR :pr:`5018` and PR :pr:`5034`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
