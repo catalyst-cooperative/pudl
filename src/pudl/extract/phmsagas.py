@@ -129,7 +129,7 @@ raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")
 
 @multi_asset(
     outs={
-        table_name: AssetOut()
+        table_name: AssetOut(is_required=False)
         for table_name in sorted(
             (
                 "raw_phmsagas__yearly_distribution",
@@ -149,9 +149,10 @@ raw_phmsagas__all_dfs = raw_df_factory(Extractor, name="phmsagas")
                 "raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_material",
             )
         )
-    }
+    },
+    can_subset=True,
 )
-def extract_phmsagas(raw_phmsagas__all_dfs):
+def extract_phmsagas(context, raw_phmsagas__all_dfs):
     """Extract raw PHMSA gas data from excel sheets into dataframes."""
     # create descriptive table_names
     raw_phmsagas__all_dfs = {
@@ -159,8 +160,10 @@ def extract_phmsagas(raw_phmsagas__all_dfs):
         for table_name, df in raw_phmsagas__all_dfs.items()
     }
     raw_phmsagas__all_dfs = dict(sorted(raw_phmsagas__all_dfs.items()))
+    selected_outputs = set(context.selected_output_names)
 
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in raw_phmsagas__all_dfs.items()
+        if table_name in selected_outputs
     )
