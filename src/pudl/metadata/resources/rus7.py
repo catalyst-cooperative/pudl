@@ -418,4 +418,136 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "etl_group": "rus7",
         "field_namespace": "rus",
     },
+    # "core_rus7__yearly_owed_by_customers": {
+    #     "description": {
+    #         "additional_summary_text": (
+    #             "debt owed by customers."
+    #         ),
+    #         "usage_warnings": ["experimental_wip"],
+    #         "additional_source_text": "(Part J)",
+    #     },
+    #     "schema": {
+    #         "fields": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "amount_due_over_60_days",
+    #             "amount_written_off_ytd"
+    #         ],
+    #         "primary_key": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "loan_status",
+    #         ],
+    #     },
+    #     "sources": ["rus7"],
+    #     "etl_group": "rus7",
+    #     "field_namespace": "rus",
+    # },
+    # "core_rus7__yearly_customer_energy_efficiency_and_conservation_loans": {
+    #     "description": {
+    #         "additional_summary_text": (
+    #             "the repayment status of loans made by a borrower to customers for investments in energy efficiency and conservation initiatives."
+    #         ),
+    #         "usage_warnings": ["experimental_wip"],
+    #         "additional_source_text": "(Part J)",
+    #     },
+    #     "schema": {
+    #         "fields": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "loan_status", # deliquency or default
+    #             "actual_pct",
+    #             "anticipated_pct",
+    #             "ytd_dollars"
+    #         ],
+    #         "primary_key": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "loan_status",
+    #         ],
+    #     },
+    #     "sources": ["rus7"],
+    #     "etl_group": "rus7",
+    #     "field_namespace": "rus",
+    # },
+    # "core_rus7__yearly_service_interruptions": {
+    #     "description": {
+    #         "additional_summary_text": (
+    #             "service interruptions by cause."
+    #         ),
+    #         "usage_warnings": ["experimental_wip"],
+    #         "additional_source_text": "(Part G)",
+    #     },
+    #     "schema": {
+    #         "fields": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "service_interruption_cause",
+    #             "observation_period",
+    #             "saidi_minutes",
+    #             "is_total",
+    #         ],
+    #         "primary_key": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "service_interruption_cause",
+    #             "observation_period",
+    #         ],
+    #     },
+    #     "sources": ["rus7"],
+    #     "etl_group": "rus7",
+    #     "field_namespace": "rus",
+    # },
+    # "core_rus7__yearly_distribution_services": {
+    #     "description": {
+    #         "additional_summary_text": (
+    #             "distribution services."
+    #         ),
+    #         "usage_warnings": ["experimental_wip"],
+    #         "additional_source_text": "(Part B)",
+    #     },
+    #     "schema": {
+    #         "fields": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "service_status",
+    #             "services",
+    #             "is_total"
+    #         ],
+    #         "primary_key": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "service_status"
+    #         ],
+    #     },
+    #     "sources": ["rus7"],
+    #     "etl_group": "rus7",
+    #     "field_namespace": "rus",
+    # },
+    # "core_rus7__yearly_transmission_and_distribution_mileage": {
+    #     "description": {
+    #         "additional_summary_text": (
+    #             "miles of transmission and distribution infrastructure."
+    #         ),
+    #         "usage_warnings": ["experimental_wip"],
+    #         "additional_source_text": "(Part B)",
+    #     },
+    #     "schema": {
+    #         "fields": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "line_type",
+    #             "miles",
+    #             "is_total"
+    #         ],
+    #         "primary_key": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "line_type",
+    #         ],
+    #     },
+    #     "sources": ["rus7"],
+    #     "etl_group": "rus7",
+    #     "field_namespace": "rus",
+    # },
 }
