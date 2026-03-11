@@ -6,7 +6,8 @@
     subcomponents_list,
     total_label,
     tolerance=0.01,
-    row_condition=None
+    row_condition=None,
+    negative_subcomponents_list=None
 ) %}
 
 WITH filtered AS (
@@ -29,31 +30,70 @@ grouped AS (
 summary AS (
     SELECT
         {{ group_by_columns | join(', ') }},
-        SUM(CASE WHEN {{ categorical_column }} IN (
-            {%- for subcomp in subcomponents_list %}
-            '{{ subcomp }}'{% if not loop.last %}, {% endif %}
-            {%- endfor %}
-        ) THEN total END) AS subcomponents_sum,
-        MAX(CASE WHEN {{ categorical_column }} = '{{ total_label }}' THEN total END) AS grand_total,
-        ABS(
-            SUM(CASE WHEN {{ categorical_column }} IN (
-                {%- for subcomp in subcomponents_list %}
-                '{{ subcomp }}'{% if not loop.last %}, {% endif %}
-                {%- endfor %}
-            ) THEN total END) -
-            MAX(CASE WHEN {{ categorical_column }} = '{{ total_label }}' THEN total END)
-        ) AS absolute_diff,
-        ROUND(
-            ABS(
-                SUM(CASE WHEN {{ categorical_column }} IN (
+
+        -- Calculate weighted sum of positive and negative subcomponents
+        SUM(
+            CASE
+                WHEN {{ categorical_column }} IN (
                     {%- for subcomp in subcomponents_list %}
                     '{{ subcomp }}'{% if not loop.last %}, {% endif %}
                     {%- endfor %}
-                ) THEN total END) -
+                ) THEN total
+                {% if negative_subcomponents_list is not none and negative_subcomponents_list | length > 0 %}
+                WHEN {{ categorical_column }} IN (
+                    {%- for neg_subcomp in negative_subcomponents_list %}
+                    '{{ neg_subcomp }}'{% if not loop.last %}, {% endif %}
+                    {%- endfor %}
+                ) THEN -1 * total
+                {% endif %}
+            END
+        ) AS subcomponents_sum,
+
+        MAX(CASE WHEN {{ categorical_column }} = '{{ total_label }}' THEN total END) AS grand_total,
+
+        ABS(
+            SUM(
+                CASE
+                    WHEN {{ categorical_column }} IN (
+                        {%- for subcomp in subcomponents_list %}
+                        '{{ subcomp }}'{% if not loop.last %}, {% endif %}
+                        {%- endfor %}
+                    ) THEN total
+                    {% if negative_subcomponents_list is not none and negative_subcomponents_list | length > 0 %}
+                    WHEN {{ categorical_column }} IN (
+                        {%- for neg_subcomp in negative_subcomponents_list %}
+                        '{{ neg_subcomp }}'{% if not loop.last %}, {% endif %}
+                        {%- endfor %}
+                    ) THEN -1 * total
+                    {% endif %}
+                END
+            ) -
+            MAX(CASE WHEN {{ categorical_column }} = '{{ total_label }}' THEN total END)
+        ) AS absolute_diff,
+
+        ROUND(
+            ABS(
+                SUM(
+                    CASE
+                        WHEN {{ categorical_column }} IN (
+                            {%- for subcomp in subcomponents_list %}
+                            '{{ subcomp }}'{% if not loop.last %}, {% endif %}
+                            {%- endfor %}
+                        ) THEN total
+                        {% if negative_subcomponents_list is not none and negative_subcomponents_list | length > 0 %}
+                        WHEN {{ categorical_column }} IN (
+                            {%- for neg_subcomp in negative_subcomponents_list %}
+                            '{{ neg_subcomp }}'{% if not loop.last %}, {% endif %}
+                            {%- endfor %}
+                        ) THEN -1 * total
+                        {% endif %}
+                    END
+                ) -
                 MAX(CASE WHEN {{ categorical_column }} = '{{ total_label }}' THEN total END)
             ) / NULLIF(MAX(CASE WHEN {{ categorical_column }} = '{{ total_label }}' THEN total END), 0) * 100,
             2
         ) AS pct_diff
+
     FROM grouped
     GROUP BY {{ group_by_columns | join(', ') }}
 )

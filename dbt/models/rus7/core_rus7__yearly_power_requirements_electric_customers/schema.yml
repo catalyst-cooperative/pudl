@@ -5,6 +5,26 @@ sources:
       - name: core_rus7__yearly_power_requirements_electric_customers
         data_tests:
           - expect_columns_not_all_null
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, observation_period]
+                categorical_column: customer_class
+                value_column: customers_num
+                subcomponents_list:
+                  [
+                    "residential_excluding_seasonal",
+                    "commercial_and_industrial_large",
+                    "commercial_and_industrial_small",
+                    "irrigation",
+                    "public_other",
+                    "public_street_lighting",
+                    "residential_seasonal",
+                    "sales_for_resale_other",
+                    "sales_for_resale_rus_borrowers",
+                  ]
+                total_label: "total"
+                tolerance: 0
         columns:
           - name: report_date
           - name: borrower_id_rus

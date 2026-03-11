@@ -407,7 +407,7 @@ RESOURCE_METADATA = {
             "additional_summary_text": (
                 "opex and cost of electric service for RUS borrowers by time period."
             ),
-            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
+            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part A - Section A)",
         },
         "schema": {
