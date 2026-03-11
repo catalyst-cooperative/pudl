@@ -108,7 +108,7 @@ raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
 
 @multi_asset(
     outs={
-        table_name: AssetOut()
+        table_name: AssetOut(is_required=False)
         for table_name in sorted(
             (
                 "raw_eia923__boiler_fuel",
@@ -129,8 +129,9 @@ raw_eia923__all_dfs = raw_df_factory(Extractor, name="eia923")
             )
         )
     },
+    can_subset=True,
 )
-def extract_eia923(raw_eia923__all_dfs):
+def extract_eia923(context, raw_eia923__all_dfs):
     """Extract raw EIA-923 data from excel sheets into dataframes."""
     # create descriptive table_names
     raw_eia923__all_dfs = {
@@ -139,8 +140,10 @@ def extract_eia923(raw_eia923__all_dfs):
     }
 
     raw_eia923__all_dfs = dict(sorted(raw_eia923__all_dfs.items()))
+    selected_outputs = set(context.selected_output_names)
 
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in raw_eia923__all_dfs.items()
+        if table_name in selected_outputs
     )
