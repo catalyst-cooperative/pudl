@@ -1,7 +1,7 @@
 """Rename balance to ending balance for rus12 balance sheet tables
 
 Revision ID: 8c13e0fc4c8d
-Revises: 758a4b398eeb
+Revises: 34128b78508d
 Create Date: 2026-03-10 15:12:05.474789
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '8c13e0fc4c8d'
-down_revision = '758a4b398eeb'
+down_revision = '34128b78508d'
 branch_labels = None
 depends_on = None
 
