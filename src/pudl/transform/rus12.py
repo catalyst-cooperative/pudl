@@ -102,18 +102,21 @@ def _core_rus12__yearly_investments(
     )
     # Spot fix bad investment type code values that is 0 and should be 1.
     # 0 is not a valid code and the same description was later listed as 1.
-    mask = (
-        (df.borrower_id_rus == "KY0059")
-        & (df.report_date == "2006-12-01")
-        & (
-            df.investment_description
-            == "Temporary Investments - Cooperative Finance Corp"
+    # Need 2006 conditional for integration tests that run the fast ETL with
+    # only the most recent year of data.
+    if 2006 in df.report_date.dt.year:
+        mask = (
+            (df.borrower_id_rus == "KY0059")
+            & (df.report_date == "2006-12-01")
+            & (
+                df.investment_description
+                == "Temporary Investments - Cooperative Finance Corp"
+            )
         )
-    )
-    assert len(df.loc[mask]) == 1, (
-        "Expected exactly one record to be affected by this spot fix."
-    )
-    df.loc[mask, "investment_type_code"] = 1
+        assert len(df.loc[mask]) == 1, (
+            "Expected exactly one record to be affected by this spot fix."
+        )
+        df.loc[mask, "investment_type_code"] = 1
 
     # TO-DO: clean up property_type field
     return df
