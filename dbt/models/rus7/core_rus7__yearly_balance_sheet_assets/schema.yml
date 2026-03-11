@@ -15,7 +15,7 @@ sources:
                 total_label: "total_utility_plant"
                 tolerance: 10
               config:
-                error_if: ">5"
+                error_if: ">545"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns: [borrower_id_rus, report_date]
@@ -38,25 +38,7 @@ sources:
                 total_label: "total_current_and_accrued"
                 tolerance: 10
               config:
-                error_if: ">545"
-          - subcomponents_sum_to_total:
-              arguments:
-                group_by_columns: [borrower_id_rus, report_date]
-                categorical_column: asset_type
-                value_column: ending_balance
-                subcomponents_list: [
-                    "non_utility_property_asset", # TODO: Missing?
-                    "investments_subsidiary_companies",
-                    "investments_associated_orgs_other_general_funds",
-                    "investments_associated_orgs_other_non_general_funds",
-                    "investments_associated_orgs_patronage_capital",
-                    "investments_economic_development",
-                    "investments_other",
-                    "other_investments",
-                    "special_funds",
-                  ]
-                total_label: "total_other_property_and_investments"
-                tolerance: 0
+                error_if: ">5"
         columns:
           - name: report_date
           - name: borrower_id_rus

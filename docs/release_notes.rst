@@ -46,6 +46,13 @@ New Data Tests & Validations
 * Normalized RUS-7 and RUS-12 borrower ID's, names and state in
   :ref:`core_rus7__entity_borrowers` and :ref:`core_rus12__entity_borrowers`.
   See :issue:`5040` and PR :pr:`5056`.
+* Validate that sub-components in :ref:`core_rus7__yearly_energy_efficiency`,
+  :ref:`core_rus7__yearly_patronage_capital`,
+  :ref:`core_rus7__yearly_power_requirements_electric_customers`,
+  :ref:`core_rus7__yearly_power_requirements_electric_sales`,
+  :ref:`core_rus7__yearly_statement_of_operations` and
+  :ref:`core_rus12__yearly_statement_of_operations` sum to their reported totals.
+  See :issue:`5039` and :pr:`5073`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
