@@ -1,0 +1,6 @@
+"""Placeholder defs package for dg project compatibility.
+
+PUDL currently defines assets and jobs in Python modules rather than
+component ``defs.yaml`` instances. The directory exists so ``dg check defs`` can
+run while we keep the current layout.
+"""
