@@ -10818,7 +10818,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "cost_of_electric_service",
                     "customer_accounts",
                     "customer_service",
-                    "deprecation",
+                    "depreciation",
                     "distribution_maintenance",
                     "distribution_operation",
                     "equity_investment_losses",
