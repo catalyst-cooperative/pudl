@@ -375,6 +375,29 @@ def _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pd.DataFrame):
     )
 
 
+@asset
+def _core_rus7__yearly_service_interruptions(
+    raw_rus7__service_interruptions: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the service_interruptions table."""
+    df = rus.early_transform(raw_df=raw_rus7__service_interruptions)
+    rus.early_check_pk(df)
+
+    cause_groups = ["major_event", "other", "planned", "power_supplier", "total"]
+    periods = ["five_year_average", "annual"]
+
+    pattern = rf"^({'|'.join(cause_groups)})_({'|'.join(periods)})_(saidi_minutes)$"
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols="saidi_minutes",
+        pattern=pattern,
+        match_names=["service_interruption_cause", "observation_period", "data_cols"],
+        unstack_level=["service_interruption_cause", "observation_period"],
+    )
+    return df
+
+
 ######################################
 # HARVESTING aka NORMALIZATION
 ######################################

@@ -430,6 +430,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     #         "fields": [
     #             "report_date",
     #             "borrower_id_rus",
+    #             "borrower_name_rus",
     #             "amount_due_over_60_days",
     #             "amount_written_off_ytd"
     #         ],
@@ -455,6 +456,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     #         "fields": [
     #             "report_date",
     #             "borrower_id_rus",
+    #             "borrower_name_rus",
     #             "loan_status", # deliquency or default
     #             "actual_pct",
     #             "anticipated_pct",
@@ -464,6 +466,34 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     #             "report_date",
     #             "borrower_id_rus",
     #             "loan_status",
+    #         ],
+    #     },
+    #     "sources": ["rus7"],
+    #     "etl_group": "rus7",
+    #     "field_namespace": "rus",
+    # },
+    # "core_rus7__yearly_service_interruptions": {
+    #     "description": {
+    #         "additional_summary_text": (
+    #             "service interruptions by cause."
+    #         ),
+    #         "usage_warnings": ["experimental_wip"],
+    #         "additional_source_text": "(Part G)",
+    #     },
+    #     "schema": {
+    #         "fields": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "borrower_name_rus",
+    #             "service_interruption_cause",
+    #             "observation_period",
+    #             "saidi_minutes"
+    #         ],
+    #         "primary_key": [
+    #             "report_date",
+    #             "borrower_id_rus",
+    #             "service_interruption_cause",
+    #             "observation_period",
     #         ],
     #     },
     #     "sources": ["rus7"],
