@@ -2194,6 +2194,7 @@ def get_parquet_table_polars(
         parquet_path = paths.parquet_path(table_name)
     else:
         parquet_data = ParquetData(table_name=table_name, partitions=partitions)
+        # Points to a directory of parquet files when there partitions is non None
         parquet_path = parquet_data.parquet_path
 
     return pl.scan_parquet(parquet_path).cast(schema, strict=False)
