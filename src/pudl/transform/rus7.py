@@ -331,7 +331,7 @@ def _core_rus7__yearly_long_term_leases(
     # reported in other years to the same borrower.
     # Need 2013 conditional for integration tests that run the fast ETL with
     # only the most recent year of data.
-    if 2013 in df.report_date.dt.year:
+    if 2013 in df.report_date.dt.year.to_numpy():
         mask = (
             (df.borrower_id_rus == "LA0015")
             & (df.report_date == "2013-12-01")
@@ -371,7 +371,7 @@ def _core_rus7__yearly_loans(
     # prior years.
     # Need 2020 conditional for integration tests that run the fast ETL with
     # only the most recent year of data.
-    if 2020 in df.report_date.dt.year:
+    if 2020 in df.report_date.dt.year.to_numpy():
         mask1 = (
             (df.borrower_id_rus == "NC0050")
             & (df.loan_recipient.str.contains("kenansville"))
@@ -388,7 +388,7 @@ def _core_rus7__yearly_loans(
 
     # Need 2006 conditional for integration tests that run the fast ETL with
     # only the most recent year of data.
-    if 2006 in df.report_date.dt.year:
+    if 2006 in df.report_date.dt.year.to_numpy():
         mask2 = (
             (df.borrower_id_rus == "ND0051")
             & (df.loan_recipient.str.contains("erc - paulson, david"))

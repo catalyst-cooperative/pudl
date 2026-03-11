@@ -104,7 +104,7 @@ def _core_rus12__yearly_investments(
     # 0 is not a valid code and the same description was later listed as 1.
     # Need 2006 conditional for integration tests that run the fast ETL with
     # only the most recent year of data.
-    if 2006 in df.report_date.dt.year:
+    if 2006 in df.report_date.dt.year.to_numpy():
         mask = (
             (df.borrower_id_rus == "KY0059")
             & (df.report_date == "2006-12-01")
