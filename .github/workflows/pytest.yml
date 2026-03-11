@@ -54,9 +54,11 @@ jobs:
               - '!.github/workflows/update-lockfiles.yml'
               - '!.github/workflows/zenodo-cache-sync.yml'
               - '!.github/workflows/zenodo-data-release.yml'
-              - '!.github/AGENTS.md'
-              - '!.github/instructions/**'
               - '!.github/skills/**'
+              - '!.github/agents/**'
+              - '!.github/instructions/**'
+              - '!.github/AGENTS.md'
+              - '!AGENTS.md'
               - '!README.rst'
               - '!CONTRIBUTING.rst'
               - '!LICENSE.txt'
@@ -173,7 +175,9 @@ jobs:
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Make input, output and dagster dirs
-        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+        run: |
+          mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+          touch ${{ env.DAGSTER_HOME }}/dagster.yaml
 
       - name: Run dg smoke checks
         run: |

@@ -1039,9 +1039,10 @@ def _core_eia860__emissions_control_equipment(
 ) -> pd.DataFrame:
     """Pull and transform the emissions control equipment table."""
     # Replace empty strings, whitespace, and '.' fields with real NA values
-    emce_df = pudl.helpers.standardize_na_values(
-        raw_eia860__emissions_control_equipment
-    )
+    emce_df = raw_eia860__emissions_control_equipment.pipe(
+        pudl.helpers.standardize_na_values
+    ).pipe(pudl.helpers.convert_to_date)
+    report_date_2013 = emce_df["report_date"] == pd.Timestamp("2013-01-01")
 
     # Spot fix bad months
     emce_df["emission_control_operating_month"] = emce_df[
@@ -1051,45 +1052,45 @@ def _core_eia860__emissions_control_equipment(
     # I thought about doing some sort of backfill here, but decided not to because
     # emission_control_id_pudl is not guaranteed to be consistent over time
     bad_month_1 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 10346)
         & (emce_df["nox_control_id_eia"] == "BOIL01")
     )
     bad_month_2 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 10202)
         & (emce_df["particulate_control_id_eia"].isin(["5PMDC", "5PPPT"]))
     )
     bad_month_3 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 3131)
         & (emce_df["emission_control_operating_year"] == "2005")
     )
-    bad_month_4 = (emce_df["report_year"] == 2013) & (emce_df["plant_id_eia"] == 10405)
+    bad_month_4 = report_date_2013 & (emce_df["plant_id_eia"] == 10405)
     bad_month_5 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 50661)
         & (emce_df["nox_control_id_eia"].isin(["ASNCR", "BSNCR"]))
     )
     bad_month_6 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 4054)
         & (emce_df["emission_control_operating_year"] == "2011")
     )
     bad_month_7 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 50544)
         & (emce_df["emission_control_operating_year"] == "1990")
     )
     bad_month_8 = (
-        (emce_df["report_year"] == 2013)
+        report_date_2013
         & (emce_df["plant_id_eia"] == 50189)
         & (emce_df["particulate_control_id_eia"].isin(["EGS1", "EGS2", "ESP1CB"]))
     )
 
     # Add this conditional in case we're doing the fast ETL with one year of data
     # (in which case the assertions will fail)
-    if 2013 in emce_df.report_year.unique():
+    if report_date_2013.any():
         assert len(emce_df[bad_month_1]) == 1
         emce_df.loc[bad_month_1, "emission_control_operating_month"] = 6
         assert len(emce_df[bad_month_2]) == 4
@@ -1127,14 +1128,14 @@ def _core_eia860__emissions_control_equipment(
     # Add a emission_control_id_pudl as a primary key. This is not unique over years.
     # We could maybe try and do this, but not doing it now.
     emce_df["emission_control_id_pudl"] = (
-        emce_df.groupby(["report_year", "plant_id_eia"]).cumcount() + 1
+        emce_df.groupby(["report_date", "plant_id_eia"]).cumcount() + 1
     )
     # Fix outlier value in emission_control_equipment_cost. We know this is an
     # outlier because it is the highest value reported in the dataset and
     # the other years from the same plant show that it likely contains three
     # extra zeros. We use the primary keys to spot fix the value.
     outlier_primary_keys = (
-        (emce_df["report_year"] == 2017)
+        (emce_df["report_date"] == pd.Timestamp("2017-01-01"))
         & (emce_df["plant_id_eia"] == 57794)
         & (emce_df["emission_control_equipment_cost"] == 3200000)
     )

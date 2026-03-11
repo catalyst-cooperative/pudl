@@ -102,7 +102,10 @@ def __get_compiled_sql_contexts(nodes: list[GenericTestNode]) -> list[NodeContex
         for node in nodes:
             con.execute(node.compiled_code)
             node_df = con.fetchdf()
-            node_str = node_df.head(20).to_markdown(maxcolwidths=40, index=False)
+            # tabulate can raise on pd.NA, so normalize nulls to a sentinel string.
+            node_head = node_df.head(20).astype(object)
+            node_head = node_head.where(node_head.notna(), "NULL")
+            node_str = node_head.to_markdown(maxcolwidths=40, index=False)
             if node_str is None:
                 logger.warning(f"Couldn't format data for node {node.name}.")
                 continue

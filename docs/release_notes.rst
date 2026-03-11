@@ -19,6 +19,15 @@ Enhancements
 New Data
 ^^^^^^^^
 
+EIA-923
+~~~~~~~
+
+* Added a new table derived from EIA-923 Schedule 8C describing installed emissions
+  control equipment and its operation: :ref:`i_core_eia923__yearly_emissions_control`.
+  With this table, we now have preliminary versions of all of EIA-923 Schedule 8.
+  See issue :issue:`4081` and PRs :pr:`4668,5048`. Thanks to :user:`alexclippinger` for
+  working on this!
+
 RUS-12
 ~~~~~~
 
@@ -39,16 +48,37 @@ Documentation
 
 * Fixed remaining tables with malformed summaries so they render starting with a
   complete sentence. Added checks to prevent future regressions. See :pr:`5029`.
+* Replaced stale references to our use of ``make`` with current ``pixi run`` task
+  commands. See PR :pr:`5075`
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Add dbt data validations that will flag emissions removal efficiencies outside the
+  valid range 0.0-1.0 and emissions control equipment test dates from before 1950 or
+  after the current year. See PR :pr:`5048`.
 * Normalized RUS-7 and RUS-12 borrower ID's, names and state in
   :ref:`core_rus7__entity_borrowers` and :ref:`core_rus12__entity_borrowers`.
   See :issue:`5040` and PR :pr:`5056`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Improved parsing of the poorly formatted ``so2_test_date`` column found in
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance`. See PR :pr:`5048`.
+* Standardized emissions control equipment efficiencies to be stated as a decimal number
+  between 0.0-1.0, rather than a percentage between 0-100. Removed misleading ``_pct``
+  column name suffixes on efficiency columns that had values between 0.0-1.0. See PR
+  :pr:`5048`.
+* Standardized a few new environmental equipment tables from EIA to use ``report_date``
+  rather than ``report_year`` as their time dimension in anticipation of more deeply
+  integrating them into PUDL. See issue :issue:`4741` and PR :pr:`5063`. Affected
+  tables include:
+
+  * :ref:`i_core_eia923__yearly_byproduct_disposition`
+  * :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`
+  * :ref:`core_eia860__scd_emissions_control_equipment`
+  * :ref:`out_eia860__yearly_emissions_control_equipment`
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -67,6 +97,13 @@ Quality of Life Improvements
   These markdown files can be found under ``.github/instructions/`` and
   ``.github/skills/``. See PR :pr:`5059` and the `VS Code documentation for more details
   <https://code.visualstudio.com/docs/copilot/customization/overview>`__.
+* Made our raw spreadsheet extraction multi-assets and static table multi-assets
+  subsettable for better ergonomics when selecting upstream asset dependencies using
+  Dagster's ``dg`` CLI. See issue :issue:`5061` and PR :pr:`5062`.
+* Adapted the PUDL project layout and configuration slightly in order to allow us to
+  start using
+  `dg: Dagster's official CLI tool <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
+  See PR :pr:`5075`.
 
 .. _release-v2026.2.0:
 

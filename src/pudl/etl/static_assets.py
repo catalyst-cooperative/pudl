@@ -17,7 +17,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 def _read_static_encoding_tables(
-    etl_group: Literal["static_eia", "static_ferc1"],
+    etl_group: Literal["static_eia", "static_ferc1", "static_rus"],
 ) -> dict[str, pd.DataFrame]:
     """Build dataframes of static tables from a data source for use as foreign keys.
 
@@ -45,9 +45,10 @@ def _read_static_encoding_tables(
 
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_pudl")
     },
+    can_subset=True,
     required_resource_keys={"dataset_settings", "datastore"},
 )
 def static_pudl_tables(context):
@@ -62,19 +63,23 @@ def static_pudl_tables(context):
     static_pudl_tables_dict["core_pudl__codes_datasources"] = (
         dataset_settings.make_datasources_table(ds)
     )
+
+    selected_outputs = set(context.selected_output_names)
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in static_pudl_tables_dict.items()
+        if table_name in selected_outputs
     )
 
 
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_eia")
     },
+    can_subset=True,
 )
-def static_eia_tables():
+def static_eia_tables(context):
     """Create static EIA tables."""
     static_tables = _read_static_encoding_tables("static_eia")
     static_tables.update(
@@ -82,19 +87,23 @@ def static_eia_tables():
             "core_eia__codes_balancing_authority_subregions": pudl.metadata.dfs.BALANCING_AUTHORITY_SUBREGIONS_EIA
         }
     )
+
+    selected_outputs = set(context.selected_output_names)
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in static_tables.items()
+        if table_name in selected_outputs
     )
 
 
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_ferc1")
     },
+    can_subset=True,
 )
-def static_ferc1_tables():
+def static_ferc1_tables(context):
     """Compile static tables for FERC1 for foreign key constraints.
 
     This function grabs static encoded tables via :func:`_read_static_encoding_tables`
@@ -108,22 +117,29 @@ def static_ferc1_tables():
             ],
         }
     )
+
+    selected_outputs = set(context.selected_output_names)
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in static_table_dict.items()
+        if table_name in selected_outputs
     )
 
 
 @multi_asset(
     outs={
-        table_name: AssetOut(io_manager_key="pudl_io_manager")
+        table_name: AssetOut(io_manager_key="pudl_io_manager", is_required=False)
         for table_name in Package.get_etl_group_tables("static_rus")
     },
+    can_subset=True,
 )
-def static_rus_tables():
+def static_rus_tables(context):
     """Create static RUS tables."""
     static_tables = _read_static_encoding_tables("static_rus")
+
+    selected_outputs = set(context.selected_output_names)
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in static_tables.items()
+        if table_name in selected_outputs
     )
