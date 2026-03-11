@@ -1,7 +1,7 @@
 """Transform the RUS7 tables."""
 
 import pandas as pd
-from dagster import AssetIn, Field, asset
+from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
@@ -318,6 +318,61 @@ def _core_rus7__yearly_statement_of_operations(
     )
     df["is_total"] = df.opex_group.str.startswith("total_")
     return df
+
+
+@multi_asset(
+    outs={
+        "_core_rus7__yearly_owed_by_customers": AssetOut(),
+        "_core_rus7__yearly_customer_energy_efficiency_and_conservation_loans": AssetOut(),
+    }
+)
+def _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pd.DataFrame):
+    """Transform the owed by consumer table.
+
+    This transform splits the owed_by_consumers table into one table describing general
+    consumer debts and one table describing the status of energy efficiency and
+    conservation loan program debts.
+    """
+    df = rus.early_transform(raw_df=raw_rus7__owed_by_customers)
+    rus.early_check_pk(df)
+
+    # Split tables
+    df_owed_by_consumers = df[
+        [
+            "report_date",
+            "borrower_id_rus",
+            "borrower_name_rus",
+            "due_from_consumers_over_60_days",
+            "due_from_consumers_written_off",
+        ]
+    ]
+    df_loan_program_debt = df[
+        ["report_date", "borrower_id_rus", "borrower_name_rus"]
+        + [col for col in df.columns if col not in df_owed_by_consumers.columns]
+    ]  # TODO: Question - does this throw off frequencies for harvesting to have the same value 2x?
+
+    loan_groups = ["loan_default", "loan_delinquency"]
+    units = ["actual_pct", "anticipated_pct", "ytd_dollars"]
+    pattern = rf"^({'|'.join(loan_groups)})_({'|'.join(units)})$"
+    df_loan_program_debt = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=units,
+        pattern=pattern,
+        match_names=["loan_status", "data_cols"],
+        unstack_level=["loan_status"],
+    )
+
+    return (
+        Output(
+            output_name="_core_rus7__yearly_owed_by_customers",
+            value=df_owed_by_consumers,
+        ),
+        Output(
+            output_name="_core_rus7__yearly_customer_energy_efficiency_and_conservation_loans",
+            value=df_loan_program_debt,
+        ),
+    )
 
 
 ######################################
