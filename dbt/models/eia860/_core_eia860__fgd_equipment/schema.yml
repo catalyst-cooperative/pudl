@@ -61,6 +61,11 @@ sources:
           - name: so2_equipment_type_3
           - name: so2_equipment_type_4
           - name: so2_removal_efficiency_design
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: specifications_of_coal_ash
           - name: specifications_of_coal_sulfur
           - name: sorbent_type_1

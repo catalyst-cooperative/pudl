@@ -90,13 +90,10 @@ def out_eia860__yearly_emissions_control_equipment(
             "report_date",
         ],
     ]
-    pu_df = pu_df.assign(report_year=lambda x: x.report_date.dt.year).drop(
-        columns=["report_date"]
-    )
     emce_df = pd.merge(
         core_eia860__scd_emissions_control_equipment,
         pu_df,
-        on=["report_year", "plant_id_eia"],
+        on=["report_date", "plant_id_eia"],
         how="left",
     )
 
