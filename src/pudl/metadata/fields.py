@@ -9806,6 +9806,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The recipient of the delivered energy or demand.",
     },
+    "energy_output_mwh": {
+        "type": "number",
+        "description": "The amount of energy output in MWh.",
+        "unit": "MWh",
+    },
+    "peak_demand_date": {
+        "type": "datetime",
+        "description": "The date of the peak demand.",
+    },
+    "peak_demand_hour": {
+        "type": "number",
+        "description": "The hour of the peak demand.",
+        "unit": "hours",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -10909,6 +10923,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             ),
             "constraints": {"enum": LIABILITY_TYPES_RUS12},
         },
+    },
+    "core_rus12__yearly_demand_and_energy_at_power_sources": {
+        "peak_demand_mw": {"description": "peak demand in a given timeframe."}
     },
 }
 

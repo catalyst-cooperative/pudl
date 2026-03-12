@@ -628,7 +628,7 @@ RESOURCE_METADATA = {
                 "demand and energy delivered to RUS borrowers and others broken down by month."
             ),
             "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part H - Section D)",
+            "additional_source_text": "(Part E - Section D)",
         },
         "schema": {
             "fields": [
@@ -643,6 +643,35 @@ RESOURCE_METADATA = {
                 "report_date",
                 "borrower_id_rus",
                 "delivery_recipient",
+                "timeframe",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_demand_and_energy_at_power_sources": {
+        "description": {
+            "additional_summary_text": (
+                "demand and energy at different power sources."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section D)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "timeframe",
+                "energy_output_mwh",
+                "peak_demand_mw",
+                "peak_demand_date",
+                "peak_demand_hour",
+                "is_peak_coincident",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
                 "timeframe",
             ],
         },

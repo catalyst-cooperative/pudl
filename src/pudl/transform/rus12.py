@@ -663,6 +663,50 @@ def _core_rus12__yearly_demand_and_energy_at_delivery_points(
     return df
 
 
+@asset
+def _core_rus12__yearly_demand_and_energy_at_power_sources(
+    raw_rus12__demand_and_energy_at_power_sources,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__demand_and_energy_at_power_sources table."""
+    df = rus.early_transform(raw_df=raw_rus12__demand_and_energy_at_power_sources)
+    data_cols = [
+        "energy_output_mwh",
+        "peak_demand_mw",
+        "peak_demand_reading_type",
+        "peak_demand_date",
+        "peak_demand_hour",
+    ]
+    timeframe = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+        "annual",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(data_cols)})_({'|'.join(timeframe)})$",
+        match_names=["data_cols", "timeframe"],
+        unstack_level=["timeframe"],
+    )
+    df["is_total"] = df.timeframe.str.startswith("annual")
+    df["peak_demand_date"] = pd.to_datetime(df["peak_demand_date"], format="mixed")
+    df["is_peak_coincident"] = df["peak_demand_reading_type"].map(
+        {"Coincident": True, "Non-coincident": False}
+    )
+    return df
+
+
 ######################################
 # HARVESTING aka NORMALIZATION
 ######################################
@@ -688,6 +732,7 @@ _CORE_RUS12_TABLES = [
     "_core_rus12__yearly_sources_and_distribution_by_plant_type",
     "_core_rus12__yearly_statement_of_operations",
     "_core_rus12__yearly_demand_and_energy_at_delivery_points",
+    "_core_rus12__yearly_demand_and_energy_at_power_sources",
 ]
 
 
