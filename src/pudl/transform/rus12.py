@@ -620,7 +620,10 @@ _CORE_RUS12_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS12]
 
 
 @asset(
-    ins={table_name: AssetIn() for table_name in _CORE_RUS12_TABLES},
+    ins={
+        table_name: AssetIn()
+        for table_name in ["_core_rus12__scd_borrowers"] + _CORE_RUS12_TABLES
+    },
     io_manager_key="pudl_io_manager",
     config_schema={
         "debug": Field(

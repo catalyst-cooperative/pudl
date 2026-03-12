@@ -2,7 +2,13 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: out_rus12__yearly_sources_and_distribution
+      - name: core_rus12__yearly_sources_and_distribution
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__yearly_sources_and_distribution
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: borrower_name_rus
           - name: state
@@ -10,4 +16,18 @@ sources:
           - name: borrower_id_rus
           - name: source_of_energy
           - name: net_energy_received_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: source_of_energy != 'net_interchange'
+                  config:
+                    error_if: ">22"
           - name: cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  row_condition: net_energy_received_mwh >= 0
+                  config:
+                    error_if: ">8"

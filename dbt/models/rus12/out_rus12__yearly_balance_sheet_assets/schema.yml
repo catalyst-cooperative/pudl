@@ -3,6 +3,11 @@ sources:
   - name: pudl
     tables:
       - name: out_rus12__yearly_balance_sheet_assets
+        data_tests:
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_rus12__yearly_balance_sheet_assets
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: borrower_name_rus
           - name: state

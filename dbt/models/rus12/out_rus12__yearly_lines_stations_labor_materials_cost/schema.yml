@@ -3,6 +3,12 @@ sources:
   - name: pudl
     tables:
       - name: out_rus12__yearly_lines_stations_labor_materials_cost
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_rus12__yearly_lines_stations_labor_materials_cost
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: borrower_name_rus
           - name: state
@@ -12,3 +18,10 @@ sources:
           - name: operation_or_maintenance
           - name: lines_or_stations
           - name: cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">10"
+                  description: No values should be negative here. Investigate.

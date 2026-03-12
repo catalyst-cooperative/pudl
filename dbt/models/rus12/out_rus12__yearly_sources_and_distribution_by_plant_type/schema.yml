@@ -3,6 +3,12 @@ sources:
   - name: pudl
     tables:
       - name: out_rus12__yearly_sources_and_distribution_by_plant_type
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_rus12__yearly_sources_and_distribution_by_plant_type
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: borrower_name_rus
           - name: state
@@ -10,6 +16,24 @@ sources:
           - name: borrower_id_rus
           - name: plant_type
           - name: capacity_mw
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: plant_num
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: cost
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: net_energy_received_mwh
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                  config:
+                    error_if: ">24"

@@ -45,7 +45,6 @@ HARVESTED_CORE_TABLES_RUS7 = [
     "core_rus7__yearly_long_term_debt",
 ]
 
-
 HARVESTING_DETAIL_TEXT_EIA = """EIA reports many attributes in many different tables across
 EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
 collects all instances of these values and and chooses a canonical value. By default,
