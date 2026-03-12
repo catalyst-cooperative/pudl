@@ -1008,6 +1008,7 @@ and consumption is the net generation."""
                 "by-products reported by thermoelectric power "
                 "plants with total steam turbine capacity of 100 megawatts or greater."
             ),
+            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Schedule 8A)",
             "additional_details_text": (
                 "All by-products other than steam sales are reported in thousand tons and "
@@ -1016,7 +1017,7 @@ and consumption is the net generation."""
         },
         "schema": {
             "fields": [
-                "report_year",
+                "report_date",
                 "plant_id_eia",
                 "byproduct_description",
                 "byproduct_units",
@@ -1034,7 +1035,7 @@ and consumption is the net generation."""
             ],
             "primary_key": [
                 "plant_id_eia",
-                "report_year",
+                "report_date",
                 "byproduct_description",
             ],
         },
@@ -1049,6 +1050,7 @@ and consumption is the net generation."""
                 "thermoelectric power plants with total steam turbine capacity of 100 "
                 "megawatts or greater and that produced combustion by-products during the reporting year."
             ),
+            "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Schedule 8B)",
             "additional_details_text": (
                 "Cost data must be entered for all entries on Schedule 8A. "
@@ -1059,7 +1061,7 @@ and consumption is the net generation."""
         "schema": {
             "fields": [
                 "plant_id_eia",
-                "report_year",
+                "report_date",
                 "data_maturity",
                 "capex_air_abatement",
                 "capex_other_abatement",
@@ -1092,7 +1094,68 @@ and consumption is the net generation."""
             ],
             "primary_key": [
                 "plant_id_eia",
-                "report_year",
+                "report_date",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
+    "_core_eia923__yearly_emissions_control": {
+        "description": {
+            "additional_summary_text": (
+                "Actual rate and removal efficiency for air emissions reported by "
+                "thermoelectric or combined-cycle power plants with a total steam turbine capacity "
+                "greater than or equal to 10 megawatts."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Schedule 8C)",
+            "additional_primary_key_text": (
+                "This table is not yet normalized, and contains information about "
+                "several different types of emissions control equipment, each of which "
+                "has its own ID, and not all of which are present at every plant. As "
+                "a result there is currently no unique, non-null primary key. "
+                "Conceptually, the primary key should consist of plant_id_eia, "
+                "report_date, mercury_control_id_eia, nox_control_id_eia, "
+                "so2_control_id_eia, and particulate_control_id_eia. In practice many "
+                "records have NULL values for all of the control equipment IDs."
+            ),
+            "additional_details_text": (
+                "In the raw data, the so2_test_date and particulate_test_date columns "
+                "contained a wide variety of non-standard date formats. "
+                "They have been standardized to ISO-8601 (YYYY-MM-DD) where "
+                "possible. Missing days and months have been filled in with 01. A "
+                "handful of manual spot-fixes have been applied to particularly "
+                "strange formats. Two-digit years have been assumed to fall between "
+                "1950 and the last year observed in the report_date column."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "plant_id_eia",
+                "report_date",
+                "acid_gas_removal_efficiency",
+                "annual_nox_emission_rate_lb_per_mmbtu",
+                "data_maturity",
+                "environmental_equipment_name",
+                "fgd_electricity_consumption_mwh",
+                "fgd_sorbent_consumption_tons",
+                "hours_in_service",
+                "mercury_control_id_eia",
+                "mercury_emission_rate_lb_per_trillion_btu",
+                "mercury_removal_efficiency",
+                "nox_control_id_eia",
+                "operational_status",
+                "ozone_season_nox_emission_rate_lb_per_mmbtu",
+                "particulate_control_id_eia",
+                "particulate_emission_rate_lb_per_mmbtu",
+                "particulate_removal_efficiency_tested",
+                "particulate_removal_efficiency_annual",
+                "particulate_test_date",
+                "so2_control_id_eia",
+                "so2_removal_efficiency_tested",
+                "so2_removal_efficiency_annual",
+                "so2_test_date",
             ],
         },
         "field_namespace": "eia",

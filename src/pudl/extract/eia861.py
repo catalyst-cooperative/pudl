@@ -83,7 +83,7 @@ raw_eia861__all_dfs = raw_df_factory(Extractor, name="eia861")
 
 @multi_asset(
     outs={
-        table_name: AssetOut()
+        table_name: AssetOut(is_required=False)
         for table_name in sorted(
             (  # is there some way to programmatically generate this list?
                 "raw_eia861__advanced_metering_infrastructure",
@@ -109,16 +109,19 @@ raw_eia861__all_dfs = raw_df_factory(Extractor, name="eia861")
             )
         )
     },
+    can_subset=True,
 )
-def extract_eia861(raw_eia861__all_dfs):
+def extract_eia861(context, raw_eia861__all_dfs):
     """Extract raw EIA-861 data from Excel sheets into dataframes."""
     raw_eia861__all_dfs = {
         "raw_eia861__" + table_name.replace("_eia861", ""): df
         for table_name, df in raw_eia861__all_dfs.items()
     }
     raw_eia861__all_dfs = dict(sorted(raw_eia861__all_dfs.items()))
+    selected_outputs = set(context.selected_output_names)
 
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in raw_eia861__all_dfs.items()
+        if table_name in selected_outputs
     )
