@@ -9785,6 +9785,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "This field is only reported for plant_type's steam and nuclear."
         ),
     },
+    "timeframe": {
+        "type": "string",
+        "description": (
+            "The time that a record pertains to. This particular field is a month, "
+            "the peak value, or the total value."
+        ),
+    },
+    "delivered_demand_mw": {
+        "type": "number",
+        "description": "The amount of demand delivered in MW.",
+        "unit": "MW",
+    },
+    "delivered_energy_mwh": {
+        "type": "number",
+        "description": "The amount of energy delivered in MWh.",
+        "unit": "MWh",
+    },
+    "delivery_recipient": {
+        "type": "string",
+        "description": "The recipient of the delivered energy or demand.",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 

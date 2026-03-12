@@ -622,4 +622,32 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__yearly_demand_and_energy_at_delivery_points": {
+        "description": {
+            "additional_summary_text": (
+                "demand and energy delivered to RUS borrowers and others broken down by month."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section D)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "delivery_recipient",
+                "timeframe",
+                "delivered_demand_mw",
+                "delivered_energy_mwh",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "delivery_recipient",
+                "timeframe",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
 }

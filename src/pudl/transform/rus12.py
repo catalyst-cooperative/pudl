@@ -609,6 +609,60 @@ def _core_rus12__yearly_plant_operations(
     )
 
 
+@asset
+def _core_rus12__yearly_demand_and_energy_at_delivery_points(
+    raw_rus12__demand_and_energy_at_delivery_points,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__demand_and_energy_at_delivery_points table."""
+    df = rus.early_transform(raw_df=raw_rus12__demand_and_energy_at_delivery_points)
+    data_cols = [
+        "energy_mwh",
+        "demand_mw",
+    ]
+    delivery_recipients = [
+        "others",
+        "rus_borrowers",
+        "total",
+    ]
+    timeframe = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+        "peak",
+        "total",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^delivered_(?:to_)?({'|'.join(delivery_recipients)})_({'|'.join(data_cols)})_({'|'.join(timeframe)})$",
+        match_names=["delivery_recipients", "data_cols", "timeframe"],
+        unstack_level=["delivery_recipients", "timeframe"],
+    )
+    df["is_total"] = df.timeframe.str.startswith(
+        "total"
+    )  # there is also a "peak" value in here which is kind of like a total...
+    df = df.rename(
+        columns={
+            "demand_mw": "delivered_demand_mw",
+            "energy_mwh": "delivered_energy_mwh",
+        }
+    )
+    df["timeframe"] = df["timeframe"].replace(
+        {"peak": "annual_peak", "total": "annual_total"}
+    )
+    return df
+
+
 ######################################
 # HARVESTING aka NORMALIZATION
 ######################################
@@ -633,6 +687,7 @@ _CORE_RUS12_TABLES = [
     "_core_rus12__yearly_sources_and_distribution",
     "_core_rus12__yearly_sources_and_distribution_by_plant_type",
     "_core_rus12__yearly_statement_of_operations",
+    "_core_rus12__yearly_demand_and_energy_at_delivery_points",
 ]
 
 
