@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: out1_rus7__yearly_patronage_capital
+      - name: out_rus7__yearly_patronage_capital
         data_tests:
           - expect_columns_not_all_null
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
