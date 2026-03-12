@@ -1,0 +1,13 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus7__yearly_long_term_leases
+        columns:
+          - name: borrower_name_rus
+          - name: state
+          - name: report_date
+          - name: borrower_id_rus
+          - name: lending_organization
+          - name: property_type
+          - name: rental_cost_ytd

@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus12__yearly_investments
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__yearly_investments
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: investment_description
+          - name: investment_type_code
+          - name: included_investments
+          - name: excluded_investments
+          - name: income_or_loss
+          - name: for_rural_development

@@ -115,7 +115,7 @@ raw_rus12_assets = [
         "investments",
         "loan_guarantees",
         "non_utility_plant",
-        "ratio",
+        "external_financial_risk_ratio",
         "utility_plant",
         "utility_plant_accumulated_depreciation",
     ]

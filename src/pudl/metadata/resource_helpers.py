@@ -23,6 +23,8 @@ HARVESTED_CORE_TABLES_RUS12 = [
     "core_rus12__yearly_plant_costs",
     "core_rus12__yearly_plant_operations_by_borrower",
     "core_rus12__yearly_plant_operations_by_plant",
+    "core_rus12__yearly_investments",
+    "core_rus12__yearly_external_financial_risk_ratio",
 ]
 
 HARVESTED_CORE_TABLES_RUS7 = [
@@ -35,9 +37,12 @@ HARVESTED_CORE_TABLES_RUS7 = [
     "core_rus7__yearly_power_requirements_electric_sales",
     "core_rus7__yearly_power_requirements",
     "core_rus7__yearly_investments",
-    "core_rus7__yearly_long_term_debt",
+    "core_rus7__yearly_long_term_leases",
     "core_rus7__yearly_patronage_capital",
     "core_rus7__yearly_statement_of_operations",
+    "core_rus7__yearly_loans",
+    "core_rus7__yearly_external_financial_risk_ratio",
+    "core_rus7__yearly_long_term_debt",
 ]
 
 
