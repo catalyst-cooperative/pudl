@@ -2,7 +2,7 @@ version: 2
 sources:
   - name: pudl
     tables:
-      - name: core_rus7__yearly_statement_of_operations
+      - name: out_rus7__yearly_statement_of_operations
         data_tests:
           - expect_columns_not_all_null
           - expect_columns_ratio:
@@ -25,7 +25,7 @@ sources:
               description: Budgeted spending and YTD spending should be roughly equivalent.
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_rus7__yearly_statement_of_operations
+                table_name: out_rus7__yearly_statement_of_operations
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: borrower_name_rus
