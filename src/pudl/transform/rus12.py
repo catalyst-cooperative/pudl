@@ -619,7 +619,7 @@ def _core_rus12__yearly_demand_and_energy_at_delivery_points(
         "energy_mwh",
         "demand_mw",
     ]
-    delivery_recipients = [
+    delivery_recipient = [
         "others",
         "rus_borrowers",
         "total",
@@ -644,9 +644,9 @@ def _core_rus12__yearly_demand_and_energy_at_delivery_points(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
-        pattern=rf"^delivered_(?:to_)?({'|'.join(delivery_recipients)})_({'|'.join(data_cols)})_({'|'.join(timeframe)})$",
-        match_names=["delivery_recipients", "data_cols", "timeframe"],
-        unstack_level=["delivery_recipients", "timeframe"],
+        pattern=rf"^delivered_(?:to_)?({'|'.join(delivery_recipient)})_({'|'.join(data_cols)})_({'|'.join(timeframe)})$",
+        match_names=["delivery_recipient", "data_cols", "timeframe"],
+        unstack_level=["delivery_recipient", "timeframe"],
     )
     df["is_total"] = df.timeframe.str.startswith(
         "total"
