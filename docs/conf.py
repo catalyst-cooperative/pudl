@@ -104,6 +104,7 @@ issues_github_path = "catalyst-cooperative/pudl"
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
     "dagster": ("https://docs.dagster.io/", None),
+    "duckdb": ("https://duckdb.org/docs/stable/clients/python/reference/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
