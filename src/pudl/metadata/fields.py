@@ -10701,7 +10701,44 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "core_ferceqr__contracts": {
         "product_name": {
+            "description": (
+                "Description of product being offered. Note that allowed values"
+                " differ slightly from those in :ref:`core_ferceqr__transactions`."
+                " BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
+                " CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis."
+                " CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service."
+                " DIRECT ASSIGNMENT FACILITIES CHARGE: Charges for facilities or portions of facilities that are constructed or used for the sole use/benefit of a particular customer."
+                " EMERGENCY ENERGY: Contractual provisions to supply energy or capacity to another entity during critical situations."
+                " ENERGY: A quantity of electricity that is sold or transmitted over a period of time."
+                " ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
+                " FUEL CHARGE: Charge based on the cost or amount of fuel used for generation."
+                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs."
+                " INTERCONNECTION AGREEMENT: Contract that provides the terms and conditions for a generator, distribution system owner, transmission owner, transmission provider, or transmission system to physically connect to a transmission system or distribution system."
+                " MEMBERSHIP AGREEMENT: Agreement to participate and be subject to rules of a system operator."
+                " MUST RUN AGREEMENT: An agreement that requires a unit to run."
+                " NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies)."
+                " NETWORK: Transmission service under contract providing network service."
+                " NETWORK OPERATING AGREEMENT: An executed agreement that contains the terms and conditions under which a network customer operates its facilities and the technical and operational matters associated with the implementation of network integration transmission service."
+                " OTHER: Product name not otherwise included."
+                " POINT-TO-POINT AGREEMENT: Transmission service under contract between specified Points of Receipt and Delivery."
+                " PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over."
+                " REACTIVE SUPPLY & VOLTAGE CONTROL: Production or absorption of reactive power to maintain voltage levels on transmission systems (Ancillary Service)."
+                " REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system."
+                " REASSIGNMENT AGREEMENT: Transmission capacity reassignment agreement."
+                " REGULATION & FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
+                " SCHEDULE SYSTEM CONTROL & DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service)."
+                " SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " SYSTEM OPERATING AGREEMENTS: An executed agreement that contains the terms and conditions under which a system or network customer shall operate its facilities and the technical and operational matters associated with the implementation of network."
+                " TOLLING ENERGY: Energy sold from a plant whereby the buyer provides fuel to a generator (seller) and receives power in return for pre-established fees."
+                " TRANSMISSION OWNERS AGREEMENT: The agreement that establishes the terms and conditions under which a transmission owner transfers operational control over designated transmission facilities."
+                " UPLIFT: A make-whole payment by an RTO/ISO to a utility."
+            ),
             "constraints": {
+                "required": True,
                 "enum": [
                     "BLACK START SERVICE",
                     "CAPACITY",
@@ -10735,11 +10772,66 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "TOLLING ENERGY",
                     "TRANSMISSION OWNERS AGREEMENT",
                     "UPLIFT",
-                ]
+                ],
             },
         },
     },
     "core_ferceqr__transactions": {
+        "product_name": {
+            "description": (
+                "Description of product being offered. Note that allowed values"
+                " differ slightly from those in :ref:`core_ferceqr__contracts`."
+                " BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
+                " BOOKED OUT POWER: Energy or capacity contractually committed bilaterally for delivery but not actually delivered due to some offsetting or countervailing trade (Transaction only)."
+                " CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis."
+                " CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service."
+                " ENERGY: A quantity of electricity that is sold or transmitted over a period of time."
+                " ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
+                " FUEL CHARGE: Charge based on the cost or amount of fuel used for generation."
+                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs."
+                " NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies)."
+                " OTHER: Product name not otherwise included."
+                " PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over."
+                " REACTIVE SUPPLY & VOLTAGE CONTROL: Production or absorption of reactive power to maintain voltage levels on transmission systems (Ancillary Service)."
+                " REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system."
+                " REGULATION & FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
+                " SCHEDULE SYSTEM CONTROL & DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service)."
+                " SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " TOLLING ENERGY: Energy sold from a plant whereby the buyer provides fuel to a generator (seller) and receives power in return for pre-established fees."
+                " UPLIFT: A make-whole payment by an RTO/ISO to a utility."
+            ),
+            "constraints": {
+                "required": True,
+                "enum": [
+                    "BLACK START SERVICE",
+                    "BOOKED OUT POWER",
+                    "CAPACITY",
+                    "CUSTOMER CHARGE",
+                    "ENERGY",
+                    "ENERGY IMBALANCE",
+                    "EXCHANGE",
+                    "FUEL CHARGE",
+                    "GENERATOR IMBALANCE",
+                    "GRANDFATHERED BUNDLED",
+                    "NEGOTIATED-RATE TRANSMISSION",
+                    "OTHER",
+                    "PRIMARY FREQUENCY RESPONSE",
+                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
+                    "REAL POWER TRANSMISSION LOSS",
+                    "REGULATION & FREQUENCY RESPONSE",
+                    "REQUIREMENTS SERVICE",
+                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
+                    "SPINNING RESERVE",
+                    "SUPPLEMENTAL RESERVE",
+                    "TOLLING ENERGY",
+                    "UPLIFT",
+                ],
+            },
+        },
         "timezone": {
             "type": "string",
             "description": (
@@ -10783,35 +10875,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "PS",
                     "UT",
                 ],
-            },
-        },
-        "product_name": {
-            "constraints": {
-                "enum": [
-                    "BLACK START SERVICE",
-                    "BOOKED OUT POWER",
-                    "CAPACITY",
-                    "CUSTOMER CHARGE",
-                    "EMERGENCY ENERGY",
-                    "ENERGY",
-                    "ENERGY IMBALANCE",
-                    "EXCHANGE",
-                    "FUEL CHARGE",
-                    "GENERATOR IMBALANCE",
-                    "GRANDFATHERED BUNDLED",
-                    "NEGOTIATED-RATE TRANSMISSION",
-                    "OTHER",
-                    "PRIMARY FREQUENCY RESPONSE",
-                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
-                    "REAL POWER TRANSMISSION LOSS",
-                    "REGULATION & FREQUENCY RESPONSE",
-                    "REQUIREMENTS SERVICE",
-                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
-                    "SPINNING RESERVE",
-                    "SUPPLEMENTAL RESERVE",
-                    "TOLLING ENERGY",
-                    "UPLIFT",
-                ]
             },
         },
     },

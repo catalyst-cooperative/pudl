@@ -658,8 +658,9 @@ def expand_timeseries(
             unique group of these ID columns that are present in the dataframe.
         date_col: Name of the datetime column being expanded into a full timeseries.
         freq: The frequency of the time series to expand the data to.
-            See :ref:`here <timeseries.offset_aliases>` for a list of
-            frequency aliases.
+            See :mod:`pandas.tseries.offsets` and
+            :func:`pandas.tseries.frequencies.to_offset` for valid frequency
+            aliases.
         fill_through_freq: The frequency in which to fill in the data through. For
             example, if equal to "year" the data will be filled in through the end of
             the last reported year for each grouping of ``key_cols``. Valid frequencies
