@@ -1,6 +1,11 @@
 """Table definitions for the RUS12 tables."""
 
-from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
+from pudl.metadata.resource_helpers import (
+    HARVESTED_CORE_TABLES_RUS7,
+    HARVESTED_CORE_TABLES_RUS12,
+    HARVESTING_DETAIL_TEXT_RUS,
+    core_to_out_harvested_resources,
+)
 
 PLANT_OPERATIONS_DETAIL = (
     "The data in this table comes from five different portions of RUS 12 "
@@ -40,8 +45,9 @@ PLANT_OPERATIONS_DETAIL = (
     "  the numeric values in these bad strings - 12 and 10 respectively. This enables us "
     "  to have an integer type for this unit_id_rus column."
 )
-
-RESOURCE_METADATA = {
+# This is the base resource metadata. We'll add all of the output versions of the harvested
+# core tables below using core_to_out_resources
+RESOURCE_METADATA_BASE = {
     "core_rus12__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (
@@ -153,7 +159,7 @@ RESOURCE_METADATA = {
     "core_rus12__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "harvested"],
             "additional_details_text": (
                 "This table contains canonical values for borrowers are set. It contains "
                 "values which are expected to remain fixed over time."
@@ -175,25 +181,13 @@ RESOURCE_METADATA = {
             "primary_key": ["borrower_id_rus"],
             "foreign_key_rules": {
                 "fields": [["borrower_id_rus"]],
-                # We must remove all of the rus7 tables - otherwise
-                # these would get a FK relationship from this rus12 table
-                "exclude": [
-                    "core_rus7__entity_borrowers",
-                    "core_rus7__yearly_meeting_and_board",
-                    "core_rus7__yearly_balance_sheet_assets",
-                    "core_rus7__yearly_balance_sheet_liabilities",
-                    "core_rus7__yearly_employee_statistics",
-                    "core_rus7__yearly_energy_efficiency",
-                    "core_rus7__yearly_power_requirements_electric_customers",
-                    "core_rus7__yearly_power_requirements_electric_sales",
-                    "core_rus7__yearly_power_requirements",
-                    "core_rus7__yearly_investments",
-                    "core_rus7__yearly_long_term_leases",
-                    "core_rus7__yearly_patronage_capital",
-                    "core_rus7__yearly_statement_of_operations",
-                    "core_rus7__yearly_loans",
-                    "core_rus7__yearly_external_financial_risk_ratio",
-                    "core_rus7__yearly_long_term_debt",
+                # We must remove all of the rus12 tables - otherwise
+                # these would get a FK relationship from this rus7 table
+                "exclude": ["core_rus7__entity_borrowers"]
+                + HARVESTED_CORE_TABLES_RUS7
+                + [
+                    f"out_{tbl.removeprefix('core_')}"
+                    for tbl in HARVESTED_CORE_TABLES_RUS7
                 ],
             },
         },
@@ -623,3 +617,10 @@ RESOURCE_METADATA = {
         "field_namespace": "rus",
     },
 }
+
+
+RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
+    HARVESTED_CORE_TABLES_RUS12,
+    RESOURCE_METADATA_BASE.copy(),
+    ["borrower_name_rus", "state"],
+)

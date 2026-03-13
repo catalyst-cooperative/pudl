@@ -14,6 +14,12 @@ Enhancements
 New Data
 ^^^^^^^^
 
+RUS 7 & RUS 12
+~~~~~~~~~~~~~~
+
+* Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
+  :pr:`5040`. See :pr:`5077`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
