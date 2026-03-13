@@ -2,7 +2,7 @@
 
 from typing import Literal, TypedDict
 
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import sqlalchemy as sa
 from dagster import AssetIn, AssetsDefinition, asset

@@ -72,5 +72,13 @@ raw_rus7_assets = [
         "power_requirements",
         "energy_efficiency",
         "investments",
+        "external_financial_risk_ratio",
+        "loan_guarantees",
+        "transmission_and_distribution",
+        "service_interruptions",
+        "owed_by_customers",
+        "long_term_leases",
+        "loans",
+        "utility_plant_changes",
     ]
 ]

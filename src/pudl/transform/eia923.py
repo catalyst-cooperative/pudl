@@ -11,7 +11,7 @@ from dagster import (
 )
 
 import pudl
-from pudl.helpers import convert_col_to_bool
+from pudl.helpers import convert_col_to_bool, normalize_year_fragments
 from pudl.metadata import PUDL_PACKAGE
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.fields import apply_pudl_dtypes
@@ -428,7 +428,9 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     month_idx = pd.MultiIndex.from_frame(col_df).set_names([None, "report_month"])
     # reshape
     df.columns = month_idx
-    df = df.stack()
+    stacked = df.stack()
+    # Keep return type stable for type-checkers when stack collapses to Series.
+    df = stacked.to_frame() if isinstance(stacked, pd.Series) else stacked
     # restore original index and columns - reset index except level 0
     df = df.reset_index(level=list(range(1, df.index.nlevels)))
     return df
@@ -442,7 +444,7 @@ def _coalmine_cleanup(
 
     This function does most of the core_eia923__entity_coalmine table transformation. It
     is separate from the coalmine() transform function because of the peculiar way that
-    we are normalizing the :ref:`core_eia923__monthly_fuel_receipts_costs` table.
+    we are normalizing the :ref:`core_eia923__fuel_receipts_costs` table.
 
     All of the coalmine information is originally coming from the EIA
     fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -578,12 +580,12 @@ def plants_eia923(
         ]
     ]
     # Since this is a plain Yes/No variable -- just make it a real sa.Boolean.
-    plant_info_df.associated_combined_heat_power = (
-        plant_info_df.associated_combined_heat_power.replace({"N": False, "Y": True})
-    )
+    plant_info_df["associated_combined_heat_power"] = plant_info_df[
+        "associated_combined_heat_power"
+    ].replace({"N": False, "Y": True})
 
     # Get rid of excessive whitespace introduced to break long lines (ugh)
-    plant_info_df.census_region = plant_info_df.census_region.str.replace(" ", "")
+    plant_info_df["census_region"] = plant_info_df["census_region"].str.replace(" ", "")
     plant_info_df.drop_duplicates(subset="plant_id_eia")
 
     plant_info_df["plant_id_eia"] = plant_info_df["plant_id_eia"].astype(int)
@@ -948,7 +950,7 @@ def remove_duplicate_pks_boiler_fuel_eia923(bf: pd.DataFrame) -> pd.DataFrame:
     pk_dupe_mask = bf.duplicated(pk, keep=False)
 
     params_pk_dupes = InvalidRows(
-        invalid_values=[pd.NA, np.nan, 0], required_valid_cols=required_valid_cols
+        invalid_values={pd.NA, np.nan, 0}, required_valid_cols=required_valid_cols
     )
     bf_no_null_pks_dupes = drop_invalid_rows(
         df=bf[pk_dupe_mask], params=params_pk_dupes
@@ -1091,7 +1093,7 @@ def _core_eia923__coalmine(
 
     Args:
         raw_eia923__fuel_receipts_costs: raw precursor to the
-            :ref:`core_eia923__monthly_fuel_receipts_costs` table.
+            :ref:`core_eia923__fuel_receipts_costs` table.
 
     Returns:
         Cleaned ``_core_eia923__coalmine`` dataframe ready for harvesting.
@@ -1319,7 +1321,7 @@ def _core_eia923__monthly_cooling_system_information(
     # cooling_id_eia is sometimes NA, but we also want to use it as a primary
     # key. fortunately it's a string so we can just convert all NA values to
     # "PLANT"
-    csi_df.cooling_id_eia = csi_df.cooling_id_eia.fillna("PLANT")
+    csi_df["cooling_id_eia"] = csi_df["cooling_id_eia"].fillna("PLANT")
 
     # convert cfs to gpm
     cfs_in_gpm = 448.8311688
@@ -1352,7 +1354,7 @@ def _core_eia923__monthly_cooling_system_information(
 
     # The cooling types are human readable strings which we need to re-code;
     # we need to sanitize them somewhat
-    csi_df.cooling_type = csi_df.cooling_type.str.strip().str.upper()
+    csi_df["cooling_type"] = csi_df["cooling_type"].str.strip().str.upper()
 
     primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
     return (
@@ -1385,6 +1387,247 @@ def cooling_system_information_continuity(csi):
     )
 
 
+def _build_emissions_control_dates(
+    raw_value: pd.Series,
+    year: pd.Series,
+    month: pd.Series,
+    day: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+) -> pd.Series:
+    """Validate date parts and build parsed timestamps.
+
+    This helper centralizes range checks and date construction so all recognized input
+    formats (full date, month/year, compact monthyear, year-only) use the same
+    validation rules:
+
+    * month ``00`` is coerced to January
+    * years must be in ``[min_valid_year, max_valid_year]``
+    * invalid calendar dates (e.g. day 32) raise
+
+    Args:
+        raw_value: Original raw date strings, used to report readable error messages.
+        year: Parsed year components.
+        month: Parsed month components.
+        day: Parsed day components.
+        min_valid_year: Lower accepted year bound.
+        max_valid_year: Upper accepted year bound.
+
+    Returns:
+        Parsed timestamps for valid date parts.
+
+    Raises:
+        ValueError: If year/month/day parts violate expected constraints.
+    """
+    year = year.astype("Int64")
+    month = month.astype("Int64")
+    day = day.astype("Int64")
+
+    # EIA occasionally uses month 00; treat it as January.
+    month = month.mask(month.eq(0), 1)
+
+    invalid_year = year.lt(min_valid_year) | year.gt(max_valid_year)
+    if invalid_year.any():
+        bad = raw_value[invalid_year].dropna().drop_duplicates().tolist()
+        raise ValueError(
+            f"Year out of expected range ({min_valid_year}-{max_valid_year}) in values: {bad}"
+        )
+
+    invalid_month = ~month.between(1, 12, inclusive="both")
+    if invalid_month.any():
+        bad = raw_value[invalid_month].dropna().drop_duplicates().tolist()
+        raise ValueError(f"Month out of range in values: {bad}")
+
+    rendered = (
+        year.astype(str).str.zfill(4)
+        + "-"
+        + month.astype(str).str.zfill(2)
+        + "-"
+        + day.astype(str).str.zfill(2)
+    )
+    # Build dates in one vectorized pass; invalid calendar combinations become NaT.
+    parsed = pd.to_datetime(rendered, errors="coerce")
+
+    invalid_day = parsed.isna()
+    if invalid_day.any():
+        bad = raw_value[invalid_day].dropna().drop_duplicates().tolist()
+        raise ValueError(f"Invalid date value in values: {bad}")
+
+    return parsed
+
+
+def _parse_emissions_control_date_subset(
+    raw_subset: pd.Series,
+    pattern: str,
+    min_valid_year: int,
+    max_valid_year: int,
+    month_group: str | None,
+    day_group: str | None,
+    default_month: int = 1,
+    default_day: int = 1,
+) -> pd.Series:
+    """Parse one recognized emissions-control date format for a subset of rows.
+
+    Args:
+        raw_subset: Raw date strings for rows matching one known format.
+        pattern: Regex pattern with a required ``year`` capture group and optional
+            ``month`` / ``day`` groups.
+        min_valid_year: Lower accepted year bound.
+        max_valid_year: Upper accepted year bound.
+        month_group: Name of the extracted month group or ``None`` to use
+            ``default_month``.
+        day_group: Name of the extracted day group or ``None`` to use ``default_day``.
+        default_month: Month value used when ``month_group`` is omitted.
+        default_day: Day value used when ``day_group`` is omitted.
+
+    Returns:
+        Parsed datetime series for the input subset, with ``0000`` year fragments
+        converted to ``NaT`` before year normalization.
+    """
+    parts = raw_subset.str.extract(pattern)
+    out = pd.Series(pd.NaT, index=parts.index, dtype="datetime64[ns]")
+
+    year_zero = parts["year"].eq("0000")
+    valid_parts = parts.loc[~year_zero]
+    if valid_parts.empty:
+        return out
+
+    valid_idx = valid_parts.index
+    year = normalize_year_fragments(
+        valid_parts["year"],
+        min_valid_year=min_valid_year,
+        max_valid_year=max_valid_year,
+    )
+    month = (
+        pd.to_numeric(valid_parts[month_group], errors="raise")
+        if month_group
+        else pd.Series(default_month, index=valid_idx)
+    )
+    day = (
+        pd.to_numeric(valid_parts[day_group], errors="raise")
+        if day_group
+        else pd.Series(default_day, index=valid_idx)
+    )
+
+    out.loc[valid_idx] = _build_emissions_control_dates(
+        raw_value=raw_subset.loc[valid_idx],
+        year=year,
+        month=month,
+        day=day,
+        min_valid_year=min_valid_year,
+        max_valid_year=max_valid_year,
+    )
+    return out
+
+
+def _clean_emissions_control_dates(
+    col: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+    spot_fixes: dict[str, pd.Timestamp] | None = None,
+) -> pd.Series:
+    """Parse raw EIA-923 emissions-control date strings into datetimes.
+
+    Supported formats include:
+
+    * compact month-year: ``012024``
+    * delimited month-year: ``01-2024``, ``1/20``
+    * full dates: ``1/11/07``
+    * year-only values: ``1990`` (treated as January 1st)
+
+    Known non-date sentinel tokens (e.g. ``na``, ``CEM``) are converted to ``NaT``.
+
+    Parsing is intentionally strict. Any value that is not explicitly recognized and
+    validated will raise ``ValueError`` so future upstream format changes surface
+    during ETL/testing rather than silently becoming bad timestamps.
+
+    Args:
+        col: Raw date-like values to clean.
+        spot_fixes: Optional table-specific mapping of raw string values to corrected
+            timestamps. If provided, these mappings are applied before pattern parsing.
+
+    Returns:
+        A ``datetime64[ns]`` Series containing parsed timestamps and ``NaT`` for known
+        missing/sentinel values.
+
+    Raises:
+        ValueError: If characters, structure, or date parts violate parsing
+            assumptions.
+    """
+    null_tokens = {"", "na", "n.a.", "n/a", "cem", "en"}
+    spot_fixes = spot_fixes or {}
+
+    raw = col.astype("string").str.strip()
+    out = pd.Series(pd.NaT, index=raw.index, dtype="datetime64[ns]")
+
+    lowered = raw.str.lower()
+    is_nullish = raw.isna() | lowered.isin(null_tokens)
+
+    is_spot_fix = raw.isin(spot_fixes)
+    # Apply table-specific corrections first so malformed one-offs don't need to be
+    # encoded in general parsing logic.
+    out.loc[is_spot_fix] = raw.loc[is_spot_fix].map(spot_fixes)
+
+    to_parse = ~(is_nullish | is_spot_fix)
+
+    bad_chars = to_parse & ~raw.str.fullmatch(r"[0-9\-/]+")
+    if bad_chars.any():
+        bad = raw[bad_chars].drop_duplicates().tolist()
+        raise ValueError(f"Column contains non-digit/non-dash characters: {bad}")
+
+    digits_only = raw.str.replace(r"[-/]", "", regex=True)
+    # Treat all-zero placeholders (e.g. "0", "00-0000") as missing.
+    all_zero = to_parse & digits_only.str.fullmatch(r"0+")
+    to_parse = to_parse & ~all_zero
+
+    full_date = to_parse & raw.str.fullmatch(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}")
+    month_year_delimited = to_parse & raw.str.fullmatch(r"\d{1,2}[/-]\d{2,4}")
+    month_year_compact = to_parse & raw.str.fullmatch(r"\d{1,2}\d{4}")
+    year_only = to_parse & raw.str.fullmatch(r"\d{4}")
+
+    unrecognized = to_parse & ~(
+        full_date | month_year_delimited | month_year_compact | year_only
+    )
+    if unrecognized.any():
+        bad = raw[unrecognized].drop_duplicates().tolist()
+        raise ValueError(f"Unexpected emissions-control date format: {bad}")
+
+    # Parse each recognized format through a shared helper. Year fragment sentinel
+    # values like "0000" are converted to NaT before year normalization.
+    format_specs = [
+        (
+            full_date,
+            r"(?P<month>\d{1,2})[/-](?P<day>\d{1,2})[/-](?P<year>\d{2,4})",
+            "month",
+            "day",
+        ),
+        (
+            month_year_delimited,
+            r"(?P<month>\d{1,2})[/-](?P<year>\d{2,4})",
+            "month",
+            None,
+        ),
+        (
+            month_year_compact,
+            r"(?P<month>\d{1,2})(?P<year>\d{4})",
+            "month",
+            None,
+        ),
+        (year_only, r"(?P<year>\d{4})", None, None),
+    ]
+    for mask, pattern, month_group, day_group in format_specs:
+        out.loc[mask] = _parse_emissions_control_date_subset(
+            raw_subset=raw.loc[mask],
+            pattern=pattern,
+            min_valid_year=min_valid_year,
+            max_valid_year=max_valid_year,
+            month_group=month_group,
+            day_group=day_group,
+        )
+
+    return pd.to_datetime(out)
+
+
 @asset(io_manager_key="pudl_io_manager")
 def _core_eia923__yearly_fgd_operation_maintenance(
     raw_eia923__fgd_operation_maintenance: pd.DataFrame,
@@ -1400,10 +1643,12 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     * Ensure a unique primary key and drop some duplicated rows.
 
     Args:
-        raw_eia923__fgd_operation_maintenance: The raw ``raw_eia923__fgd_operation_maintenance`` dataframe.
+        raw_eia923__fgd_operation_maintenance: The raw
+            ``raw_eia923__fgd_operation_maintenance`` dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_fgd_operation_maintenance`` dataframe ready for
+        harvesting.
     """
     fgd_df = raw_eia923__fgd_operation_maintenance
 
@@ -1427,31 +1672,30 @@ def _core_eia923__yearly_fgd_operation_maintenance(
         :, "fgd_sorbent_consumption_tons"
     ].round(-2)
 
-    # Convert SO2 test date column to datetime
-    # This column only exists for 2008-2011
-    # First, convert a few troublesome datetimes that look like m/yy or mm/yy
-    if not fgd_df.so2_test_date.isnull().all():  # If column not empty
-        troublesome_dates = fgd_df.so2_test_date.str.contains(
-            r"^[0-9]{1,2}\/[0-9]{2}$", regex=True, na=False
-        )
-        logger.info(
-            f"Rescuing troublesome dates: {fgd_df[troublesome_dates].so2_test_date.unique()}"
-        )
-        fgd_df.loc[troublesome_dates, "so2_test_date"] = fgd_df[
-            troublesome_dates
-        ].so2_test_date.str.pad(5, fillchar="0")
-        fgd_df.loc[troublesome_dates, "so2_test_date"] = pd.to_datetime(
-            fgd_df.loc[troublesome_dates, "so2_test_date"], format="%m/%y"
-        )
+    # Convert 0-100% values to 0-1 values for the efficiency columns
+    efficiency_cols = [
+        "so2_removal_efficiency_tested_pct",
+        "so2_removal_efficiency_annual_pct",
+    ]
+    fgd_df.loc[:, efficiency_cols] = fgd_df.loc[:, efficiency_cols] / 100
+    fgd_df.columns = fgd_df.columns.str.replace("_pct", "")  # Rename columns
 
-    test_datetime = pd.to_datetime(
-        fgd_df.so2_test_date, format="mixed", errors="coerce", dayfirst=False
-    )
-    dropped_dates = fgd_df[
-        (test_datetime.isnull()) & (fgd_df.so2_test_date.notnull())
-    ].so2_test_date.unique()
-    logger.info(f"Dropping SO2 test dates that were not parseable: {dropped_dates}")
-    fgd_df.loc[:, "so2_test_date"] = test_datetime
+    # Parse mixed-format SO2 test dates using strict emissions-control rules.
+    # These spot fixes are specific to FGD data quirks and should not be global.
+    fgd_spot_fixes = {
+        "6-2209": pd.Timestamp("2009-06-22"),
+        "12-1900": pd.Timestamp("2000-12-19"),
+        "15-1993": pd.Timestamp("1993-01-05"),
+    }
+    if "so2_test_date" in fgd_df.columns:
+        fgd_df.loc[:, "so2_test_date"] = _clean_emissions_control_dates(
+            fgd_df["so2_test_date"],
+            # Significant data starts appearing in the 1950s. A handful of values in
+            # 1900 are assumed to be errors / badly formatted (see spot fixes above)
+            min_valid_year=1950,
+            max_valid_year=fgd_df["report_date"].dt.year.max(),
+            spot_fixes=fgd_spot_fixes,
+        )
 
     # Handle mixed boolean types in control flag column
     fgd_df = convert_col_to_bool(
@@ -1464,9 +1708,7 @@ def _core_eia923__yearly_fgd_operation_maintenance(
     # Take the non-NA values from each column for duplicate rows
     pkey = ["plant_id_eia", "so2_control_id_eia", "report_date"]
 
-    return pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey).pipe(
-        apply_pudl_dtypes, strict=False
-    )
+    return pudl.helpers.dedupe_and_drop_nas(fgd_df, primary_key_cols=pkey)
 
 
 @asset_check(asset=_core_eia923__yearly_fgd_operation_maintenance, blocking=True)
@@ -1548,7 +1790,7 @@ def _core_eia923__yearly_byproduct_disposition(
 
     * Replace . values with NA
     * Drop rows with NA byproduct_description. This also removes all duplicates based on
-        report_year, plant_id_eia, and byproduct_description
+        report_date, plant_id_eia, and byproduct_description
     * Convert 1000 tons to tons (avoiding steam sales, which are reported in MMBtu)
     * Create a byproducts_unit column based on the byproduct_disposition
 
@@ -1559,7 +1801,9 @@ def _core_eia923__yearly_byproduct_disposition(
     Returns:
         Cleaned ``core_eia923__byproduct_disposition`` dataframe ready for harvesting.
     """
-    df = pudl.helpers.standardize_na_values(raw_eia923__byproduct_disposition)
+    df = raw_eia923__byproduct_disposition.pipe(
+        pudl.helpers.standardize_na_values
+    ).pipe(pudl.helpers.convert_to_date)
 
     # Drops known duplicate primary keys.
     # These rows contain no meaningful data. To prevent dropping future rows unexpectedly, we
@@ -1595,7 +1839,7 @@ def _core_eia923__yearly_byproduct_disposition(
     cols_to_check = list(
         df.filter(regex=r"^(disposal|sold|stored|used|total)_.*_units$").columns
     ) + ["no_byproducts_to_report"]
-    df = df.groupby(["report_year", "plant_id_eia"]).filter(
+    df = df.groupby(["report_date", "plant_id_eia"]).filter(
         lambda group: group[cols_to_check].notna().any(axis=None)
     )
     return df
@@ -1617,7 +1861,7 @@ def disposition_continuity_check(bpd):
             "used_onsite_units": 0.4,
             "total_disposal_units": 0.4,
         },
-        groupby_col="report_year",
+        groupby_col="report_date",
         n_outliers_allowed=5,
     )
 
@@ -1629,30 +1873,83 @@ def _core_eia923__yearly_byproduct_expenses_and_revenues(
     """Transforms the eia923__byproduct_expenses_and_revenues table.
 
     Transformations include:
+
     * Standardize NA values
+    * Convert integer year to datetime
     * Convert 1000 dollars (opex and revenue columns) to dollars
 
     Args:
-        raw_eia923__byproduct_expenses_and_revenues: The raw ``raw_eia923__byproduct_expenses_and_revenues``
-        dataframe.
+        raw_eia923__byproduct_expenses_and_revenues: The raw
+          ``raw_eia923__byproduct_expenses_and_revenues`` dataframe.
 
     Returns:
-        Cleaned ``_core_eia923__yearly_byproduct_expenses_and_revenues`` dataframe ready for harvesting.
+        Cleaned ``_core_eia923__yearly_byproduct_expenses_and_revenues`` dataframe ready
+        for harvesting.
     """
-    df = raw_eia923__byproduct_expenses_and_revenues.copy()
-
-    # This column is dropped from all EIA 923 tables
-    df = df.drop(["early_release"], axis=1)
-
-    df = pudl.helpers.standardize_na_values(df)
-
-    # One dupe for plant_id_eia=6504 and report_year=2010 with no differences in byproduct dollars reported
-    df = pudl.helpers.dedupe_and_drop_nas(
-        df, primary_key_cols=["plant_id_eia", "report_year"]
+    df = (
+        # This column is dropped from all EIA 923 tables
+        raw_eia923__byproduct_expenses_and_revenues.drop(
+            ["early_release"], axis="columns"
+        )
+        .pipe(pudl.helpers.standardize_na_values)
+        .pipe(pudl.helpers.convert_to_date)
+        # One dupe for plant_id_eia=6504 and report_date=2010-01-01
+        # with no differences in byproduct dollars reported
+        .pipe(
+            pudl.helpers.dedupe_and_drop_nas,
+            primary_key_cols=["plant_id_eia", "report_date"],
+        )
     )
-
     # Convert thousands of dollars to dollars and remove suffix from column name
     df.loc[:, df.columns.str.endswith("_1000_dollars")] *= 1000
     df.columns = df.columns.str.replace("_1000_dollars", "")
+
+    return df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def _core_eia923__yearly_emissions_control(
+    raw_eia923__emissions_control: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transforms the eia923__emissions_control table.
+
+    Transformations include:
+
+    * Standardize NA values
+    * Convert units from thousands of tons to tons
+    * Clean and standardize format of month-year date string columns
+
+    Args:
+        raw_eia923__emissions_control: The raw ``raw_eia923__emissions_control``
+        dataframe.
+
+    Returns:
+        Cleaned ``_core_eia923__yearly_emissions_control`` dataframe ready for
+        harvesting.
+    """
+    df = (
+        raw_eia923__emissions_control.drop(["early_release"], axis="columns")
+        .pipe(pudl.helpers.standardize_na_values)
+        .pipe(pudl.helpers.convert_to_date)
+    )
+    # A few dozen records from 2013 have "Not applicable" in this column.
+    df["environmental_equipment_name"] = df["environmental_equipment_name"].replace(
+        "Not applicable", pd.NA
+    )
+    # Convert thousands of tons to tons
+    df.loc[:, df.columns.str.endswith("_1000_tons")] *= 1000
+    df.columns = df.columns.str.replace("_1000_tons", "_tons")  # Rename columns
+
+    # min_valid_year is set based on when significant data starts appearing.
+    date_cols = {"so2_test_date": 1975, "particulate_test_date": 1950}
+    for col, min_valid_year in date_cols.items():
+        df[col] = _clean_emissions_control_dates(
+            df[col],
+            min_valid_year=min_valid_year,
+            max_valid_year=df["report_date"].dt.year.max(),
+        )
+
+    # Encode operational_status (and potentially other columns):
+    df = PUDL_PACKAGE.encode(df)
 
     return df

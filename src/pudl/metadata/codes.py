@@ -2576,7 +2576,7 @@ YAD,alcoa_power_yadkin,"Alcoa Power Generating, Inc. - Yadkin Division",America/
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "core_rus7__codes_investment_types": {
+    "core_rus__codes_investment_types": {
         "df": pd.DataFrame(
             columns=["code", "description"],
             data=[

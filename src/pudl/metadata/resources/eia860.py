@@ -247,7 +247,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia923__monthly_boiler_fuel",
                     "out_eia923__generation",
                     "out_eia923__monthly_generation",
-                    "core_eia923__monthly_fuel_receipts_costs",
+                    "core_eia923__fuel_receipts_costs",
+                    "out_eia923__fuel_receipts_costs",
+                    "out_eia923__monthly_fuel_receipts_costs",
                     "core_eia923__monthly_generation",
                     "out_eia923__monthly_generation_fuel_by_generator_energy_source",
                     "out_eia923__monthly_generation_fuel_by_generator",
@@ -387,15 +389,22 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "report_date"]],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with core_eia860__scd_plants, which is annual, so
-                # non-january records fail.
+                # values don't match up with core_eia860__scd_plants, which is annual,
+                # so non-january records fail.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                # Also all the _core tables have not yet been harvested, so if they
+                # contain unique plant_id_eia and report_date combinations, those would
+                # be expected to fail.
                 "exclude": [
                     "_core_eia923__monthly_cooling_system_information",
                     "_core_eia923__yearly_fgd_operation_maintenance",
+                    "_core_eia923__yearly_byproduct_disposition",
+                    "_core_eia923__yearly_byproduct_expenses_and_revenues",
+                    "_core_eia923__yearly_emissions_control",
                     "core_eia923__monthly_boiler_fuel",
                     "out_eia923__boiler_fuel",
                     "out_eia923__monthly_boiler_fuel",
+                    "core_eia923__fuel_receipts_costs",
                     "out_eia923__fuel_receipts_costs",
                     "out_eia923__monthly_fuel_receipts_costs",
                     "out_eia923__generation",
@@ -404,7 +413,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "out_eia923__monthly_generation_fuel_combined",
                     "out_eia923__monthly_generation_fuel_by_generator_energy_source",
                     "out_eia923__monthly_generation_fuel_by_generator",
-                    "core_eia923__monthly_fuel_receipts_costs",
                     "core_eia923__monthly_generation",
                     "core_eia923__monthly_generation_fuel",
                     "core_eia923__monthly_generation_fuel_nuclear",
@@ -476,6 +484,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_demand_side_management_sales",
                     "out_eia923__boiler_fuel",
                     "out_eia923__monthly_boiler_fuel",
+                    "core_eia923__fuel_receipts_costs",
                     "out_eia923__fuel_receipts_costs",
                     "out_eia923__monthly_fuel_receipts_costs",
                     "out_eia923__generation",
@@ -539,7 +548,7 @@ monitoring.
         },
         "schema": {
             "fields": [
-                "report_year",
+                "report_date",
                 "plant_id_eia",
                 "emission_control_id_pudl",
                 "data_maturity",
@@ -554,7 +563,7 @@ monitoring.
                 "emission_control_operating_date",
                 "emission_control_retirement_date",
             ],
-            "primary_key": ["report_year", "plant_id_eia", "emission_control_id_pudl"],
+            "primary_key": ["report_date", "plant_id_eia", "emission_control_id_pudl"],
         },
         "field_namespace": "eia",
         "sources": ["eia860"],
@@ -571,7 +580,7 @@ columns.""",
         },
         "schema": {
             "fields": [
-                "report_year",
+                "report_date",
                 "plant_id_eia",
                 "plant_id_pudl",
                 "plant_name_eia",
@@ -592,7 +601,7 @@ columns.""",
                 "emission_control_operating_date",
                 "emission_control_retirement_date",
             ],
-            "primary_key": ["report_year", "plant_id_eia", "emission_control_id_pudl"],
+            "primary_key": ["report_date", "plant_id_eia", "emission_control_id_pudl"],
         },
         "field_namespace": "eia",
         "sources": ["eia860"],
