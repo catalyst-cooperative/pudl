@@ -24,13 +24,13 @@ the command:
 
 .. code-block:: console
 
-    $ (PUDL_DOCS_KEEP_GENERATED_FILES=1) pixi run docs-build
-    $ (PUDL_DOCS_DISABLE_INTERSPHINX=1) pixi run docs-build
+    $ PUDL_DOCS_KEEP_GENERATED_FILES=1 pixi run docs-build
+    $ PUDL_DOCS_DISABLE_INTERSPHINX=1 pixi run docs-build
 
 By default:
 
-* Generated RST / CSV files are cleaned up at the end of the build.
-* Intersphinx is enabled, and Sphinx will attempt to fetch external inventories.
+    * Generated RST / CSV files are cleaned up at the end of the build.
+    * Intersphinx is enabled, and Sphinx will attempt to fetch external inventories.
 
 Setting ``PUDL_DOCS_KEEP_GENERATED_FILES`` keeps generated files after the build,
 which is useful when debugging generated documentation.
