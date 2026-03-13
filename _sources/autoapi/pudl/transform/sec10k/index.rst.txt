@@ -1,0 +1,263 @@
+pudl.transform.sec10k
+=====================
+
+.. py:module:: pudl.transform.sec10k
+
+.. autoapi-nested-parse::
+
+   Transformations and standardizations for SEC 10-K data tables.
+
+   This module contains routines for reshaping, cleaning, and standardizing the raw SEC
+   10-K data into normalized core tables. These core tables serve as the building blocks
+   for denormalized output tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.transform.sec10k.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.transform.sec10k._year_quarter_to_date
+   pudl.transform.sec10k._simplify_filename_sec10k
+   pudl.transform.sec10k._extract_filer_cik_from_filename
+   pudl.transform.sec10k._compute_fraction_owned
+   pudl.transform.sec10k._standardize_taxpayer_id_irs
+   pudl.transform.sec10k._standardize_industrial_classification
+   pudl.transform.sec10k._pivot_info_block
+   pudl.transform.sec10k._standardize_company_name
+   pudl.transform.sec10k._remove_bad_subsidiary_names
+   pudl.transform.sec10k._standardize_location
+   pudl.transform.sec10k._match_ex21_subsidiaries_to_filer_company
+   pudl.transform.sec10k.core_sec10k__quarterly_filings
+   pudl.transform.sec10k.core_sec10k__company_info
+   pudl.transform.sec10k.core_sec10k__quarterly_company_information
+   pudl.transform.sec10k.core_sec10k__changelog_company_name
+   pudl.transform.sec10k.core_sec10k__quarterly_exhibit_21_company_ownership
+   pudl.transform.sec10k.core_sec10k__assn_sec10k_filers_and_eia_utilities
+   pudl.transform.sec10k.core_sec10k__assn_exhibit_21_subsidiaries_and_filers
+   pudl.transform.sec10k.core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: _year_quarter_to_date(year_quarter: pandas.Series) -> pandas.Series
+
+   Convert a year quarter in the format '2024q1' to date type.
+
+
+.. py:function:: _simplify_filename_sec10k(filename_sec10k: pandas.Series) -> pandas.Series
+
+   Strip non-unique path and file type extension from partial SEC 10-K filenames.
+
+   The full source URL can be constructed by prepending
+   https://www.sec.gov/Archives/edgar/data/ and adding back the ".txt" file type
+   extension, as is done for the source_url column in the output tables.
+
+
+.. py:function:: _extract_filer_cik_from_filename(filename_col: pandas.Series) -> pandas.Series
+
+   Extract filer company's central index key from the first token of filename.
+
+
+.. py:function:: _compute_fraction_owned(percent_ownership: pandas.Series) -> pandas.Series
+
+   Clean percent ownership, convert to float, then convert percent to ratio.
+
+
+.. py:function:: _standardize_taxpayer_id_irs(taxpayer_id_irs: pandas.Series) -> pandas.Series
+
+   Standardize the IRS taxpayer ID number to NN-NNNNNNN format.
+
+   - Remove all non-numeric characters
+   - Set all values that are not 9 digits long or are entirely zeroes to pd.NA
+   - Reformat to NN-NNNNNNN format.
+
+
+.. py:function:: _standardize_industrial_classification(sic: pandas.Series) -> pandas.DataFrame
+
+   Split industry names and codes into separate columns.
+
+   Most values take the form of "Industry description [1234]", but some are just
+   4-digit numbers. This function splits the industry name and code into separate
+   columns, and fills in the code column with the value from the
+   standard_industrial_classification column if it is a 4-digit number. Any values
+   that don't fit either of these two patterns are set to NA. No effort is made to
+   fill in missing industry descriptions based on the industry code.
+
+   See e.g. https://www.osha.gov/data/sic-manual for code definitions."
+
+
+.. py:function:: _pivot_info_block(df: pandas.DataFrame, block: str) -> pandas.DataFrame
+
+   Select and pivot distinct blocks of company information for further processing.
+
+   :param df: The dataframe containing the SEC 10-K company information.
+   :param block: The block of associated information to pivot.
+
+
+.. py:function:: _standardize_company_name(col: pandas.Series) -> pandas.Series
+
+   Clean a company name column and standardize legal terms.
+
+   Uses the PUDL name cleaner object to do basic cleaning on `col_name` column
+   such as stripping punctuation, correcting case, and normalizing legal
+   terms, i.e. llc -> limited liability company.
+
+   :param col: The series of names that is to be cleaned.
+
+   :returns: The original Series now containing cleaned names.
+
+
+.. py:function:: _remove_bad_subsidiary_names(col: pandas.Series) -> pandas.Series
+
+   Remove subsidiary names that are obviously erroneous.
+
+   The model makes common mistakes while extracting subsidiary
+   names from Ex. 21 filings, such as extracting "llc" as a complete
+   name. Remove names that are just legal terms as well as a list
+   of other common erroneous names. Replace these bad names with
+   NaNs.
+
+
+.. py:function:: _standardize_location(loc_col: pandas.Series) -> pandas.Series
+
+   Map two letter state codes to full names using EDGAR state and country code mapping.
+
+
+.. py:function:: _match_ex21_subsidiaries_to_filer_company(filer_info_df: pandas.DataFrame, ownership_df: pandas.DataFrame) -> pandas.DataFrame
+
+   Match Exhibit 21 subsidiaries to companies that file SEC Form 10-K.
+
+   We want to assign CIKs to Ex. 21 subsidiaries if they in turn file a 10k. To do
+   this, we merge the Ex. 21 subsidiaries to 10k filers on company name. If there are
+   multiple matches with the same company name we choose the pair with the most overlap
+   in location of incorporation and nearest report years. Then we merge the CIK back
+   onto the Ex. 21 DataFrame.
+
+   :returns: A dataframe of the Ex. 21 subsidiaries with a column for the subsidiaries CIK
+             (null if the subsidiary doesn't file).
+
+
+.. py:function:: core_sec10k__quarterly_filings(raw_sec10k__quarterly_filings: pandas.DataFrame) -> pandas.DataFrame
+
+   Standardize the contents of the SEC 10-K filings table.
+
+
+.. py:function:: core_sec10k__company_info(raw_sec10k__quarterly_company_information: pandas.DataFrame)
+
+   Reshape data from the raw SEC 10-K company information table.
+
+   Each SEC 10-K filing contains a header block that lists information the filer, and
+   potentially a number of other related companies. Each company level block of
+   information may include the company's name, physical address, some details about
+   how it files the SEC 10-K, and some other company attributes like taxpayer ID
+   number, industrial classification, etc. It may also include a mailing address that
+   is distinct from the physical address, and the history of names that the company has
+   had over time.
+
+   In its original form, this data is mostly contained in two poorly normalized "key"
+   and "value" columns, with the key indicating what kind of data will be contained in
+   the value column. Here we pivot the keys into column names so that each column has
+   a homogeneous type of value.
+
+   Each filing may contain information about multiple companies, with each identified
+   by a different filer_count. For each company there are several different potential
+   types of information provide in distinct named "blocks" (business_address,
+   company_data, filing_values, mail_address, and former_company). Each block type
+   needs to be extracted and pivoted independently to avoid column name collisions and
+   because they don't all have the same set of block_count and filer_count values.
+
+   After they've been pivoted, the blocks are merged together into two disinct tables:
+
+   - per-filing company and filing information
+   - the history of company name changes
+
+   This information is used elsewhere for matching SEC 10-K filers to EIA utilities
+   and for identifying the companies that are mentioned in the unstructured Exhibit 21
+   attachments.
+
+   There is a 1-to-1 correspondence between the company_data and filing_values blocks,
+   and virtually all business_address blocks (99.9%), but a substantial number (~5%) of
+   mail_address blocks do not share index values with any company_data or filing_values
+   blocks, and are ultimately dropped. The former_company blocks contain a large amount
+   of duplicative data, but can be associated with a central_index_key value for later
+   association with an individual SEC 10-K filer.
+
+   Further processing that standardizes the contents of these tables is deferred to
+   separate downstream core assets.
+
+
+.. py:function:: core_sec10k__quarterly_company_information(_core_sec10k__quarterly_company_information: pandas.DataFrame) -> pandas.DataFrame
+
+   Clean and standardize the contents of the SEC 10-K company information table.
+
+
+.. py:function:: core_sec10k__changelog_company_name(_core_sec10k__changelog_company_name: pandas.DataFrame) -> pandas.DataFrame
+
+   Clean and standardize the SEC 10-K company name changelog table.
+
+   Every filing that references a company independently reports the history of its name
+   changes, so after combining them we end up with many copies of the name change
+   histories for some companies. We deduplicate the combined history and keep only a
+   single instance of each reported name change.
+
+   There are a handful of cases in which the same name change events seem to have been
+   reported differently in different filings (slightly different company names or
+   dates) which make the results here imperfect, but for the most part it works well.
+
+
+.. py:function:: core_sec10k__quarterly_exhibit_21_company_ownership(raw_sec10k__exhibit_21_company_ownership: pandas.DataFrame) -> pandas.DataFrame
+
+   Standardize the contents of the SEC 10-K exhibit 21 company ownership table.
+
+
+.. py:function:: core_sec10k__assn_sec10k_filers_and_eia_utilities(raw_sec10k__parents_and_subsidiaries: pandas.DataFrame) -> pandas.DataFrame
+
+   Create an association table between SEC 10-K companies and EIA utilities.
+
+   We are retroactively extracting this simple association table (crosswalk) from the
+   un-normalized parent/subsidiary relationships handed off from the SEC process
+   upstream so it is available as an easy to understand core table.
+
+   Because we accept only the single, highest probability match from the Splink record
+   linkage process, we expect a 1-to-1 relationship between these IDs. Note that most
+   companies in this table have no CIK because most records come from the unstructured
+   Exhibit 21 data, and most that do have a CIK have no EIA Utility ID because most
+   companies are not utilities, and most utilities are still unmatched.
+
+
+.. py:function:: core_sec10k__assn_exhibit_21_subsidiaries_and_filers(core_sec10k__quarterly_filings, core_sec10k__quarterly_company_information, core_sec10k__quarterly_exhibit_21_company_ownership) -> pandas.DataFrame
+
+   Match Ex. 21 subsidiaries to SEC 10k filing companies.
+
+   Create a table associating ``subsidiary_company_id_sec10k`` to that subsidiary
+   company's ``central_index_key`` if that subsidiary also files its own 10-K filing.
+   The association is created by matching subsidiary companies reported in
+   ``core_sec10k__quarterly_exhibit_21_company_ownership`` to their own filing
+   information in ``core_sec10k__quarterly_company_information``, which contains
+   attributes reported in the main body of a 10-K filing.  To infer the match we merge
+   the Ex.21 subsidiaries to 10k filers on company name. If there are multiple matches
+   with the same company name we choose the pair with the most overlap in location of
+   incorporation and nearest report years.
+
+
+.. py:function:: core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities(core_sec10k__assn_sec10k_filers_and_eia_utilities: pandas.DataFrame, core_eia__entity_utilities: pandas.DataFrame, core_sec10k__quarterly_exhibit_21_company_ownership: pandas.DataFrame, core_sec10k__assn_exhibit_21_subsidiaries_and_filers: pandas.DataFrame) -> pandas.DataFrame
+
+   An association table between Exhibit 21 subsidiaries and EIA utilities.
+
+   Take the EIA utilities that haven't been matched to a filer company
+   and merge them by company name onto the Ex. 21 subsidiaries.
+
+

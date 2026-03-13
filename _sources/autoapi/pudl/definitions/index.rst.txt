@@ -1,0 +1,30 @@
+pudl.definitions
+================
+
+.. py:module:: pudl.definitions
+
+.. autoapi-nested-parse::
+
+   Dagster code location module for dg-compatible loading.
+
+   This module provides a single ``defs`` object so ``dg`` commands can load the
+   existing PUDL Definitions without requiring a broader project refactor.
+
+   See https://docs.dagster.io/getting-started/concepts#code-location for more context.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.definitions.defs
+
+
+Module Contents
+---------------
+
+.. py:data:: defs
+   :type:  dagster.Definitions
+

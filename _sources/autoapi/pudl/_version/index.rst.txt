@@ -1,0 +1,40 @@
+pudl._version
+=============
+
+.. py:module:: pudl._version
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl._version.version
+   pudl._version.__version__
+   pudl._version.__version_tuple__
+   pudl._version.version_tuple
+   pudl._version.commit_id
+   pudl._version.__commit_id__
+
+
+Module Contents
+---------------
+
+.. py:data:: version
+   :type:  str
+
+.. py:data:: __version__
+   :type:  str
+
+.. py:data:: __version_tuple__
+   :type:  VERSION_TUPLE
+
+.. py:data:: version_tuple
+   :type:  VERSION_TUPLE
+
+.. py:data:: commit_id
+   :type:  COMMIT_ID
+
+.. py:data:: __commit_id__
+   :type:  COMMIT_ID
+
