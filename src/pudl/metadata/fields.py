@@ -2686,6 +2686,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of hours worked by employees.",
     },
+    "external_financial_risk_ratio": {
+        "type": "number",
+        "description": (
+            "total investments + loan guarantee balances / "
+            "total utility plant assets. This ratio shows how much a utility is "
+            "financially exposed to outside entities relative to its own assets."
+        ),
+    },
     "end_point": {
         "type": "string",
         "description": "The end point of a transmission line.",
@@ -3338,7 +3346,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "for_rural_development": {
         "type": "boolean",
         "description": (
-            "Whether or not the investment is for rural development. "
+            "Whether or not the investment or loan is for rural development. "
             "This includes investments in any/all types of projects or "
             "products that were made to improve the economy and/or quality "
             "of life in the specified area."
@@ -4212,6 +4220,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand."
         ),
     },
+    "is_loan_guarantee": {
+        "type": "boolean",
+        "description": (
+            "Indicates a third-party loan that the reporting utility (referred as a borrower) "
+            "has co-signed, taking on responsibility for repayment if the primary borrower defaults."
+        ),
+    },
     "iso_rto_code": {
         "type": "string",
         "description": (
@@ -4238,6 +4253,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The cause of the leaks.",
         "constraints": {"enum": LEAK_SOURCE_PHMSAGAS},
+    },
+    "lending_organization": {
+        "type": "string",
+        "description": "The organization that provided a lease or loan.",
     },
     "levelized_cost_of_energy_per_mwh": {
         "type": "number",
@@ -4372,14 +4391,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "The date on which a loan is scheduled to be fully paid.",
     },
-    "loan_organization": {
-        "type": "string",
-        "description": "The organization from which a loan was received.",
-    },
     "loan_original_amount": {
         "type": "number",
         "description": "The original amount of a loan.",
         "unit": "USD",
+    },
+    "loan_recipient": {
+        "type": "string",
+        "description": "The organization that received a loan.",
     },
     "longitude": {
         "type": "number",
@@ -6240,6 +6259,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             ]
         },
     },
+    "property_type": {
+        "type": "string",
+        "description": "The type of property leased.",
+    },
     "pudl_version": {
         "type": "string",
         "description": "The version of PUDL used to generate this database.",
@@ -6400,6 +6423,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "country",
             ],
         },
+    },
+    "rental_cost_ytd": {
+        "type": "number",
+        "description": "Year-to-date rental cost for leased property.",
     },
     "has_regulatory_limits": {
         "type": "boolean",
@@ -9591,10 +9618,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Investment type code.",
         "constraints": {
-            "minimum": CODE_METADATA["core_rus7__codes_investment_types"]["df"][
+            "minimum": CODE_METADATA["core_rus__codes_investment_types"]["df"][
                 "code"
             ].min(),
-            "maximum": CODE_METADATA["core_rus7__codes_investment_types"]["df"][
+            "maximum": CODE_METADATA["core_rus__codes_investment_types"]["df"][
                 "code"
             ].max(),
         },
