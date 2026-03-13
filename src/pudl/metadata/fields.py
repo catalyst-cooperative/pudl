@@ -10778,7 +10778,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 " FUEL CHARGE: Charge based on the cost or amount of fuel used for generation."
                 " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
                 " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs."
-                " MUST RUN AGREEMENT: An agreement that requires a unit to run."
                 " NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies)."
                 " OTHER: Product name not otherwise included."
                 " PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over."
@@ -10815,9 +10814,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "SCHEDULE SYSTEM CONTROL & DISPATCH",
                     "SPINNING RESERVE",
                     "SUPPLEMENTAL RESERVE",
-                    "SYSTEM OPERATING AGREEMENTS",
                     "TOLLING ENERGY",
-                    "TRANSMISSION OWNERS AGREEMENT",
                     "UPLIFT",
                 ],
             },
