@@ -32,6 +32,12 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added environment variable controls for Sphinx docs builds:
+  ``PUDL_DOCS_KEEP_GENERATED_FILES`` now preserves generated docs artifacts for
+  debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
+  when needed (for example in CI docs checks to avoid external docs outages).
+  See PR :pr:`5095`.
+
 .. _release-v2026.3.0:
 
 ---------------------------------------------------------------------------------------
