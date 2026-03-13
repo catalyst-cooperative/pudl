@@ -707,6 +707,26 @@ def _core_rus12__yearly_demand_and_energy_at_power_sources(
     return df
 
 
+@asset
+def _core_rus12__yearly_plant_factors_and_maximum_demand(
+    raw_rus12__plant_factors_and_maximum_demand,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__plant_factors_and_maximum_demand table."""
+    df = rus.early_transform(
+        raw_df=raw_rus12__plant_factors_and_maximum_demand,
+    )
+    # Convert units
+    df = rus.convert_units(
+        df,
+        old_unit="kw",
+        new_unit="mw",
+        converter=0.001,
+    )
+    # Convert plant_type to snake case
+    df = cleanstrings_snake(df, ["plant_type"])
+    return df
+
+
 ######################################
 # HARVESTING aka NORMALIZATION
 ######################################
@@ -733,6 +753,7 @@ _CORE_RUS12_TABLES = [
     "_core_rus12__yearly_statement_of_operations",
     "_core_rus12__yearly_demand_and_energy_at_delivery_points",
     "_core_rus12__yearly_demand_and_energy_at_power_sources",
+    "_core_rus12__yearly_plant_factors_and_maximum_demand",
 ]
 
 

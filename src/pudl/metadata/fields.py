@@ -796,19 +796,29 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capacity_factor": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Actual energy generated / nameplate capacity * hours."
         ),
     },
     "capacity_factor_eia": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Actual energy generated / nameplate capacity * hours."
         ),
     },
     "capacity_factor_ferc1": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Actual energy generated / nameplate capacity * hours."
+        ),
+    },
+    "capacity_factor_running": {
+        "type": "number",
+        "description": (
+            "Fraction of potential generation over the time period a plant was in operation. "
+            "Actual energy generated / nameplate capacity * hours in operation."
         ),
     },
     "capacity_factor_offshore_wind": {
@@ -9819,6 +9829,29 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "The hour of the peak demand.",
         "unit": "hours",
+    },
+    "load_factor": {
+        "type": "number",
+        "description": (
+            "Fraction of consumption vs demand reported for a plant over a given timeframe. "
+            "Total energy consumed / peak demand * hours."
+        ),
+    },
+    "peak_gross_demand_15_min_mw": {
+        "type": "number",
+        "description": (
+            "The highest average power output recorded over any single 15 minute "
+            "interval during the reporting period."
+        ),
+        "unit": "MW",
+    },
+    "peak_gross_demand_indicated_mw": {
+        "type": "number",
+        "description": (
+            "The theoretical or nameplate peak the plant could produce under the best "
+            "operating conditions during the reporting period."
+        ),
+        "unit": "MW",
     },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
