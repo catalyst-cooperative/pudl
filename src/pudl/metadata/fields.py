@@ -796,19 +796,29 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capacity_factor": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Actual energy generated / nameplate capacity * hours."
         ),
     },
     "capacity_factor_eia": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Actual energy generated / nameplate capacity * hours."
         ),
     },
     "capacity_factor_ferc1": {
         "type": "number",
         "description": (
-            "Fraction of potential generation that was actually reported for a plant part."
+            "Fraction of potential generation that was actually reported for a plant part. "
+            "Actual energy generated / nameplate capacity * hours."
+        ),
+    },
+    "capacity_factor_running": {
+        "type": "number",
+        "description": (
+            "Fraction of potential generation over the time period a plant was in operation. "
+            "Actual energy generated / nameplate capacity * hours in operation."
         ),
     },
     "capacity_factor_offshore_wind": {
@@ -9785,6 +9795,64 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "This field is only reported for plant_type's steam and nuclear."
         ),
     },
+    "timeframe": {
+        "type": "string",
+        "description": (
+            "The time that a record pertains to. This particular field is a month, "
+            "the peak value, or the total value."
+        ),
+    },
+    "delivered_demand_mw": {
+        "type": "number",
+        "description": "The amount of demand delivered in MW.",
+        "unit": "MW",
+    },
+    "delivered_energy_mwh": {
+        "type": "number",
+        "description": "The amount of energy delivered in MWh.",
+        "unit": "MWh",
+    },
+    "delivery_recipient": {
+        "type": "string",
+        "description": "The recipient of the delivered energy or demand.",
+    },
+    "energy_output_mwh": {
+        "type": "number",
+        "description": "The amount of energy output in MWh.",
+        "unit": "MWh",
+    },
+    "peak_demand_date": {
+        "type": "datetime",
+        "description": "The date of the peak demand.",
+    },
+    "peak_demand_hour": {
+        "type": "number",
+        "description": "The hour of the peak demand.",
+        "unit": "hours",
+    },
+    "load_factor": {
+        "type": "number",
+        "description": (
+            "Fraction of consumption vs demand reported for a plant over a given timeframe. "
+            "Total energy consumed / peak demand * hours."
+        ),
+    },
+    "peak_gross_demand_15_min_mw": {
+        "type": "number",
+        "description": (
+            "The highest average power output recorded over any single 15 minute "
+            "interval during the reporting period."
+        ),
+        "unit": "MW",
+    },
+    "peak_gross_demand_indicated_mw": {
+        "type": "number",
+        "description": (
+            "The theoretical or nameplate peak the plant could produce under the best "
+            "operating conditions during the reporting period."
+        ),
+        "unit": "MW",
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 
@@ -10888,6 +10956,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             ),
             "constraints": {"enum": LIABILITY_TYPES_RUS12},
         },
+    },
+    "core_rus12__yearly_demand_and_energy_at_power_sources": {
+        "peak_demand_mw": {"description": "peak demand in a given timeframe."}
     },
 }
 

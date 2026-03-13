@@ -622,4 +622,88 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
+    "core_rus12__yearly_demand_and_energy_at_delivery_points": {
+        "description": {
+            "additional_summary_text": (
+                "demand and energy delivered to RUS borrowers and others broken down by month."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part E - Section D)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "delivery_recipient",
+                "timeframe",
+                "delivered_demand_mw",
+                "delivered_energy_mwh",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "delivery_recipient",
+                "timeframe",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_demand_and_energy_at_power_sources": {
+        "description": {
+            "additional_summary_text": (
+                "demand and energy at different power sources."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section D)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "timeframe",
+                "energy_output_mwh",
+                "peak_demand_mw",
+                "peak_demand_date",
+                "peak_demand_hour",
+                "is_peak_coincident",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "timeframe",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_plant_factors_and_maximum_demand": {
+        "description": {
+            "additional_summary_text": (
+                "plant factors and maximum demand for plants owned by RUS borrowers."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Parts D, E, F IC, F CC, G - Section C)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "plant_name_rus",
+                "plant_type",
+                "capacity_factor",
+                "capacity_factor_running",
+                "load_factor",
+                "peak_gross_demand_15_min_mw",
+                "peak_gross_demand_indicated_mw",
+            ],
+            # The primary key of this table would be:
+            # ['report_date', 'borrower_id_rus', 'plant_name_rus', 'unit_id_rus', 'plant_type', 'timeframe']
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
 }

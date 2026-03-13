@@ -609,6 +609,124 @@ def _core_rus12__yearly_plant_operations(
     )
 
 
+@asset
+def _core_rus12__yearly_demand_and_energy_at_delivery_points(
+    raw_rus12__demand_and_energy_at_delivery_points,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__demand_and_energy_at_delivery_points table."""
+    df = rus.early_transform(raw_df=raw_rus12__demand_and_energy_at_delivery_points)
+    data_cols = [
+        "energy_mwh",
+        "demand_mw",
+    ]
+    delivery_recipient = [
+        "others",
+        "rus_borrowers",
+        "total",
+    ]
+    timeframe = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+        "peak",
+        "total",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^delivered_(?:to_)?({'|'.join(delivery_recipient)})_({'|'.join(data_cols)})_({'|'.join(timeframe)})$",
+        match_names=["delivery_recipient", "data_cols", "timeframe"],
+        unstack_level=["delivery_recipient", "timeframe"],
+    )
+    df["is_total"] = df.timeframe.str.startswith(
+        "total"
+    )  # there is also a "peak" value in here which is kind of like a total...
+    df = df.rename(
+        columns={
+            "demand_mw": "delivered_demand_mw",
+            "energy_mwh": "delivered_energy_mwh",
+        }
+    )
+    df["timeframe"] = df["timeframe"].replace(
+        {"peak": "annual_peak", "total": "annual_total"}
+    )
+    return df
+
+
+@asset
+def _core_rus12__yearly_demand_and_energy_at_power_sources(
+    raw_rus12__demand_and_energy_at_power_sources,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__demand_and_energy_at_power_sources table."""
+    df = rus.early_transform(raw_df=raw_rus12__demand_and_energy_at_power_sources)
+    data_cols = [
+        "energy_output_mwh",
+        "peak_demand_mw",
+        "peak_demand_reading_type",
+        "peak_demand_date",
+        "peak_demand_hour",
+    ]
+    timeframe = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+        "annual",
+    ]
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=data_cols,
+        pattern=rf"^({'|'.join(data_cols)})_({'|'.join(timeframe)})$",
+        match_names=["data_cols", "timeframe"],
+        unstack_level=["timeframe"],
+    )
+    df["is_total"] = df.timeframe.str.startswith("annual")
+    df["peak_demand_date"] = pd.to_datetime(df["peak_demand_date"], format="mixed")
+    df["is_peak_coincident"] = df["peak_demand_reading_type"].map(
+        {"Coincident": True, "Non-coincident": False}
+    )
+    return df
+
+
+@asset
+def _core_rus12__yearly_plant_factors_and_maximum_demand(
+    raw_rus12__plant_factors_and_maximum_demand,
+) -> pd.DataFrame:
+    """Transform the raw_rus12__plant_factors_and_maximum_demand table."""
+    df = rus.early_transform(
+        raw_df=raw_rus12__plant_factors_and_maximum_demand,
+    )
+    # Convert units
+    df = rus.convert_units(
+        df,
+        old_unit="kw",
+        new_unit="mw",
+        converter=0.001,
+    )
+    # Convert plant_type to snake case
+    df = cleanstrings_snake(df, ["plant_type"])
+    return df
+
+
 ######################################
 # HARVESTING aka NORMALIZATION
 ######################################
@@ -633,6 +751,9 @@ _CORE_RUS12_TABLES = [
     "_core_rus12__yearly_sources_and_distribution",
     "_core_rus12__yearly_sources_and_distribution_by_plant_type",
     "_core_rus12__yearly_statement_of_operations",
+    "_core_rus12__yearly_demand_and_energy_at_delivery_points",
+    "_core_rus12__yearly_demand_and_energy_at_power_sources",
+    "_core_rus12__yearly_plant_factors_and_maximum_demand",
 ]
 
 
