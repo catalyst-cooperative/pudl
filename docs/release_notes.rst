@@ -32,6 +32,16 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a FERC EQR transform bug that was incorrectly parsing non-date contract
+  fields as datetimes, which caused several output columns to become entirely
+  ``NULL``. Also clarified and separated the ``product_name`` metadata
+  descriptions and allowed values for
+  :ref:`core_ferceqr__contracts` and :ref:`core_ferceqr__transactions` so their
+  constraints match their distinct ENUM constraints as documented in
+  :download:`v3.5 of the FERC EQR data dictionary
+  <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
+  See :pr:`5085`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
