@@ -14,6 +14,10 @@ Enhancements
 New Data
 ^^^^^^^^
 
+RUS 12
+~~~~~~
+* Transformed more RUS 12 tables. See PR :pr:`5091`.
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
