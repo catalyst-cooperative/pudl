@@ -242,10 +242,13 @@ EPACEMS_MEASUREMENT_CODES: list[str] = [
     "LME",
     "Measured",
     "Measured and Substitute",
-    "Other",  # ¿Should be replaced with NA?
+    # Probably "other" methods that comply with Appendix G of Part 75 of 40 CFR
+    # Part 75, but not explicitly listed in the regulation.
+    "Other",
     "Substitute",
-    "Undetermined",  # Should be replaced with NA
-    "Unknown Code",  # Should be replaced with NA
+    # "Undetermined",  # Replaced with NULL
+    # "Unknown Code",  # Replaced with NULL
+    # "Not Applicable",  # Replaced with NULL
 ]
 """Valid emissions measurement codes for the EPA CEMS hourly data."""
 
@@ -986,11 +989,12 @@ RENEWABLE_FUEL_TYPES_RUS12: set[str] = [
     "Other",
 ]
 PLANT_TYPE_RUS12: set[str] = [
-    "Combined Cycle",
-    "Steam",
-    "Hydro",
-    "Internal Combustion",
-    "Nuclear",
+    "combined_cycle",
+    "hydro",
+    "internal_combustion",
+    "nuclear",
+    "other",
+    "steam",
 ]
 SOURCE_OF_ENERGY_RUS12: set[str] = [
     "energy_available_for_sale",
@@ -1007,4 +1011,50 @@ SOURCE_OF_ENERGY_RUS12: set[str] = [
     "net_energy_wheeled",
     "received_into_system_wheeling",
     "energy_furnished_without_charge",
+]
+
+PLANT_COST_TYPES_RUS12: set[str] = [
+    "allowances",
+    "coal_fuel",
+    "coolants_and_water",
+    "depreciation",
+    "electric",
+    "energy_for_compressed_air",
+    "energy_for_pumped_storage",
+    "fuel",
+    "gas_fuel",
+    "generation",
+    "hydraulic",
+    "interest",
+    "less_fuel_acquisition_adjustment",
+    "maintenance_boiler_plant",
+    "maintenance_electric_plant",
+    "maintenance_generating_and_electric_plant",
+    "maintenance_miscellaneous_plant",
+    "maintenance_other_plant",
+    "maintenance_reactor_plant_equipment",
+    "maintenance_reservoirs_dams_waterways",
+    "maintenance_structures",
+    "maintenance_supervision_and_engineering",
+    "maintenance_total",
+    "miscellaneous_power_generation",
+    "net_fuel",
+    "non_fuels_subtotal",
+    "oil_fuel",
+    "operations_total",
+    "other_fuel",
+    "other_generation",
+    "other_nuclear_power",
+    "plant_acquisition_adjustment",
+    "power",
+    "reactor_credits",
+    "rents",
+    "steam",
+    "steam_other_sources",
+    "steam_power",
+    "supervision_and_engineering",
+    "total",
+    "total_fixed",
+    "total_fuel",
+    "water_for_power",
 ]

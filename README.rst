@@ -16,6 +16,8 @@ The Public Utility Data Liberation Project (PUDL)
 .. |rtd| image:: https://img.shields.io/readthedocs/catalystcoop-pudl?style=flat&logo=readthedocs
    :target: https://catalystcoop-pudl.readthedocs.io/en/nightly/
    :alt: Read the Docs Build Status
+.. |oc| image:: https://opencollective.com/pudl/tiers/badge.svg
+   :target: https://opencollective.com/pudl
 .. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
    :target: https://github.com/astral-sh/ruff
 .. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/catalyst-cooperative/pudl/main.svg
@@ -44,15 +46,12 @@ The Public Utility Data Liberation Project (PUDL)
 .. |youtube| image:: https://img.shields.io/badge/YouTube-%23FF0000.svg?logo=YouTube&logoColor=white
    :target: https://youtube.com/@CatalystCooperative
    :alt: Catalyst Cooperative on YouTube
-.. |twitter| image:: https://img.shields.io/badge/X-%23000000.svg?logo=X&logoColor=white
-   :target: https://x.com/CatalystCoop
-   :alt: Catalyst Cooperative on Twitter
 .. |aws| image:: https://img.shields.io/badge/Amazon_AWS-FF9900?style=flat&logo=amazonaws&logoColor=white
    :target: https://registry.opendata.aws/catalyst-cooperative-pudl/
    :alt: PUDL in the AWS Open Data Registry
 
-|repo-status| |pytest| |codecov| |rtd| |ruff| |pre-commit-ci| |zenodo-doi|
-|office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |slack| |youtube| |twitter|
+|repo-status| |pytest| |codecov| |rtd| |oc| |ruff| |pre-commit-ci|
+|zenodo-doi| |office-hours| |mastodon| |linkedin| |bluesky| |kaggle| |slack| |youtube|
 |aws|
 
 What is PUDL?
@@ -327,7 +326,6 @@ Contact Us
 * Follow us on BlueSky:  `@catalyst.coop <https://bsky.app/profile/catalyst.coop>`__
 * `Follow us on LinkedIn <https://www.linkedin.com/company/catalyst-cooperative/>`__
 * `Follow us on HuggingFace <https://huggingface.co/catalystcooperative>`__
-* Follow us on Twitter: `@CatalystCoop <https://twitter.com/CatalystCoop>`__
 * `Follow us on Kaggle <https://www.kaggle.com/catalystcooperative/>`__
 * `Follow us on YouTube <https://youtube.com/@CatalystCooperative>`__
 * `Join our Slack <https://join.slack.com/t/catalystcooperative/shared_invite/zt-2yg1v2sb7-GsoGlA9Ojc_LCJ00vPWKbQ>`__

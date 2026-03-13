@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, Literal, NamedTuple
 
 import duckdb
-import geopandas as gpd
+import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -195,7 +195,7 @@ def add_fips_ids(
     df: pd.DataFrame,
     geocodes: pd.DataFrame,
     state_col: str = "state",
-    county_col: str = "county",
+    county_col: str | None = "county",
 ) -> pd.DataFrame:
     """Add State and County FIPS IDs to a dataframe.
 
@@ -790,7 +790,7 @@ def simplify_strings(
 def cleanstrings_series(
     col: pd.Series,
     str_map: dict[str, list[str]],
-    unmapped: str | None = None,
+    unmapped: str | NAType | None = None,
     simplify: bool = True,
 ) -> pd.Series:
     """Clean up the strings in a single column/Series.
@@ -839,7 +839,7 @@ def cleanstrings(
     df: pd.DataFrame,
     columns: list[str],
     stringmaps: list[dict[str, list[str]]],
-    unmapped: str | None = None,
+    unmapped: str | NAType | None = None,
     simplify: bool = True,
 ) -> pd.DataFrame:
     """Consolidate freeform strings in several dataframe columns.
@@ -1427,7 +1427,7 @@ def cleanstrings_snake(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     for col in cols:
         df.loc[:, col] = (
             df[col]
-            .astype(str)
+            .astype(pd.StringDtype())
             .str.strip()
             .str.lower()
             .str.replace(r"\s+", "_", regex=True)
@@ -1897,12 +1897,13 @@ def fix_boolean_columns(
     boolean_columns_to_fix: list[str],
     inplace: bool = False,
 ) -> pd.DataFrame:
-    """Fix standard issues with EIA boolean columns.
+    """Fix standard issues with boolean columns.
 
     Most boolean columns have either "Y" for True or "N" for False. A subset of the
     columns have "X" values which represents a False value. A subset of the columns
     have "U" values, presumably for "Unknown," which must be set to null in order to
-    convert the columns to datatype Boolean.
+    convert the columns to datatype Boolean. Other data sources may use a 1/0 system
+    instead, with 1 as True and 0 as False.
 
     If running with ``inplace=True``, will run in-place versions of the fill and
     replace operations instead of returning a copy of the data frame. This mode is
@@ -1911,7 +1912,7 @@ def fix_boolean_columns(
     """
     fillna_cols = dict.fromkeys(boolean_columns_to_fix, pd.NA)
     boolean_replace_cols = {
-        col: {"Y": True, "N": False, "X": False, "U": pd.NA}
+        col: {"Y": True, "N": False, "X": False, "U": pd.NA, 1: True, 0: False}
         for col in boolean_columns_to_fix
     }
     if inplace:
@@ -2471,3 +2472,77 @@ def duckdb_extract_zipped_csv(
 
         for page in pages:
             yield page, conn.read_csv(str(tmp_dir / zip_path / page))
+
+
+def normalize_year_fragments(
+    raw_year: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+    base_century: int = 2000,
+) -> pd.Series:
+    """Normalize year fragments into 4-digit years using a rolling-century rule.
+
+    This helper accepts a Series of string years that are either 2-digit (e.g. ``"05"``
+    or ``"95"``) or 4-digit (e.g. ``"2008"``) and returns integer 4-digit years.
+
+    Two-digit years are interpreted using a rolling-century rule anchored to
+    ``base_century``. By default ``base_century=2000``, so this logic is geared toward
+    20th/21st century data: two-digit values are first mapped into 2000-2099, and then
+    shifted back 100 years when they exceed ``max_valid_year``.
+
+    For example, with ``base_century=2000`` and ``max_valid_year=2026``:
+
+    * ``"05"`` -> ``2005``
+    * ``"95"`` -> ``1995``
+
+    Args:
+        raw_year: Series of string-like year tokens extracted from raw date text.
+        min_valid_year: Lower year bound used to avoid mapping to past years.
+        max_valid_year: Upper year bound used to avoid mapping to future years.
+        base_century: Century anchor for two-digit years. Must be divisible by 100.
+            Defaults to 2000.
+
+    Returns:
+        A Series of integer-like 4-digit year values.
+
+    Raises:
+        ValueError: If the valid year range is too wide to apply the rolling-century
+            logic, or if any resulting year falls outside the valid range.
+    """
+    if min_valid_year > max_valid_year:
+        raise ValueError(
+            f"Expected min_valid_year <= max_valid_year, got {min_valid_year=} and {max_valid_year=}."
+        )
+    if base_century % 100 != 0:
+        raise ValueError(
+            f"Expected base_century to be divisible by 100, got {base_century=}."
+        )
+    if max_valid_year - min_valid_year >= 100:
+        raise ValueError(
+            "For normalization by rolling century to work the valid year range must be less than 100 years."
+            f" Got min_valid_year={min_valid_year} and max_valid_year={max_valid_year}."
+        )
+    raw_year = raw_year.astype("string")
+    invalid_shape = ~raw_year.str.fullmatch(r"\d{2}|\d{4}")
+    if invalid_shape.any():
+        bad = raw_year[invalid_shape].dropna().drop_duplicates().tolist()
+        raise ValueError(
+            f"Expected only 2- or 4-digit year fragments, found invalid values: {bad}"
+        )
+    year = pd.to_numeric(raw_year, errors="raise")
+    two_digit = raw_year.str.len().eq(2)
+    # Start by mapping all 2-digit years into the configured base century.
+    year = year.where(~two_digit, base_century + year)
+    # If that creates a future year, shift to the prior century.
+    year = year.where(~(two_digit & year.gt(max_valid_year)), year - 100)
+    if year.lt(min_valid_year).any() or year.gt(max_valid_year).any():
+        bad = (
+            raw_year[year.lt(min_valid_year) | year.gt(max_valid_year)]
+            .dropna()
+            .drop_duplicates()
+            .tolist()
+        )
+        raise ValueError(
+            f"Year out of expected range ({min_valid_year}-{max_valid_year}) in values: {bad}"
+        )
+    return year
