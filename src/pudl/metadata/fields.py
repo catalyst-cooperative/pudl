@@ -10693,7 +10693,8 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_ferceqr__contracts": {
         "product_name": {
             "description": (
-                "BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
+                "Description of product being offered. Note that the allowed values are overlapping with but distinct from those found in the core_ferceqr__transactions table."
+                " BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
                 " CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis."
                 " CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service."
                 " DIRECT ASSIGNMENT FACILITIES CHARGE: Charges for facilities or portions of facilities that are constructed or used for the sole use/benefit of a particular customer."
@@ -10768,7 +10769,8 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_ferceqr__transactions": {
         "product_name": {
             "description": (
-                "BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
+                "Description of product being offered. Note that the allowed values are overlapping with but distinct from those found in the core_ferceqr__contracts table."
+                " BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
                 " BOOKED OUT POWER: Energy or capacity contractually committed bilaterally for delivery but not actually delivered due to some offsetting or countervailing trade (Transaction only)."
                 " CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis."
                 " CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service."
