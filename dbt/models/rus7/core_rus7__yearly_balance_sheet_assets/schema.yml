@@ -3,10 +3,15 @@ sources:
   - name: pudl
     tables:
       - name: core_rus7__yearly_balance_sheet_assets
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_balance_sheet_assets
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: borrower_id_rus
-          - name: borrower_name_rus
           - name: asset_type
-          - name: balance
+          - name: ending_balance
           - name: is_total

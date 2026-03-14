@@ -2,8 +2,10 @@
 PUDL Release Notes
 =======================================================================================
 
+.. _release-v2026.4.0:
+
 ---------------------------------------------------------------------------------------
-v2026.XX.X (2026-XX-XX)
+v2026.4.0 (unreleased)
 ---------------------------------------------------------------------------------------
 
 Enhancements
@@ -11,6 +13,12 @@ Enhancements
 
 New Data
 ^^^^^^^^
+
+RUS 7 & RUS 12
+~~~~~~~~~~~~~~
+
+* Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
+  :pr:`5040`. See :pr:`5077`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -24,6 +32,16 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a FERC EQR transform bug that was incorrectly parsing non-date contract
+  fields as datetimes, which caused several output columns to become entirely
+  ``NULL``. Also clarified and separated the ``product_name`` metadata
+  descriptions and allowed values for
+  :ref:`core_ferceqr__contracts` and :ref:`core_ferceqr__transactions` so their
+  constraints match their distinct ENUM constraints as documented in
+  :download:`v3.5 of the FERC EQR data dictionary
+  <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
+  See :pr:`5085`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -32,6 +50,143 @@ Quality of Life Improvements
 
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
   PR :pr:`5023`.
+
+.. _release-v2026.3.0:
+
+---------------------------------------------------------------------------------------
+v2026.3.0 (2026-03-12)
+---------------------------------------------------------------------------------------
+
+This is a monthly PUDL data release, nominally aimed at updating the EIA-860M monthly
+data, but this month there's a lot of other brand new data along for the ride!
+
+With the addition of the :ref:`i_core_eia923__yearly_emissions_control` which describes
+installed emissions control equipment and its operation we've completed our initial
+coverage of EIA-923 Schedule 8. We've continued expanding our coverage of USDA Rural
+Utilities Service (RUS) Forms 7 and 12, and now have data source documentation pages for
+both forms.
+
+On the tooling side, PUDL is now compatible with Dagster's official ``dg`` CLI, and a
+new DuckDB helper script makes it easy to compare local, nightly, and stable data builds
+during development.  Data quality improvements include standardizing emissions control
+efficiency values from percentages to decimals, cleaning up missing measurement codes in
+EPA CEMS data, and uniformly adopting ``report_date`` across several EIA environmental
+equipment tables.
+
+Enhancements
+^^^^^^^^^^^^
+
+* Renamed ``core_eia923__monthly_fuel_receipts_costs`` to
+  :ref:`core_eia923__fuel_receipts_costs` as it is not aggregated monthly and
+  does not belong with our other timeseries tables. Updated table description
+  details for this and related tables to explain why receipts are not aggregated
+  in this table, and how aggregation in the associated monthly and yearly tables
+  affects the columns available and missingness handling. See :pr:`5029`.
+
+New Data
+^^^^^^^^
+
+EIA-923
+~~~~~~~
+
+* Added a new table derived from EIA-923 Schedule 8C describing installed emissions
+  control equipment and its operation: :ref:`i_core_eia923__yearly_emissions_control`.
+  With this table, we now have preliminary versions of all of EIA-923 Schedule 8.
+  See issue :issue:`4081` and PRs :pr:`4668,5048`. Thanks to :user:`alexclippinger` for
+  working on this!
+
+RUS 7
+~~~~~
+
+* Extracted the remaining RUS Form 7 tables, completing initial extraction of all RUS
+  Form 7 data. Also standardized the extraction method across RUS Forms 7 and 12. See
+  :issue:`5030` and :pr:`5031`.
+* Transformed more RUS 7 tables. See PR :pr:`5034`.
+
+RUS 12
+~~~~~~
+
+* Extracted the remaining RUS Form 12 tables, completing initial extraction of all RUS
+  Form 12 data. See :issue:`4959` and :pr:`5031`.
+* Transformed more RUS 12 tables. See :issue:`4886`, PR :pr:`5018` and PR :pr:`5034`.
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Updated EIA-860M with monthly data through January 2026. See :issue:`5042` and
+  :pr:`5044`.
+
+Documentation
+^^^^^^^^^^^^^
+
+* Fixed remaining tables with malformed summaries so they render starting with a
+  complete sentence. Added checks to prevent future regressions. See :pr:`5029`.
+* Added data source documentation pages for
+  :doc:`RUS Form 7 <data_sources/rus7>` and :doc:`RUS Form 12 <data_sources/rus12>`.
+  See :issue:`4889` and :pr:`5028`.
+* Added direct links to table previews on the
+  `PUDL Data Viewer <https://data.catalyst.coop>`__ from PUDL data dictionary and data
+  source documentation pages. See :pr:`5047`.
+* Replaced stale references to our use of ``make`` with current ``pixi run`` task
+  commands. See PR :pr:`5075`
+
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added an initial set of dbt data validations for the new RUS Form 7
+  and Form 12 tables. See :issue:`4887`, :issue:`4888` and :pr:`5017`.
+* Add dbt data validations that will flag emissions removal efficiencies outside the
+  valid range 0.0-1.0 and emissions control equipment test dates from before 1950 or
+  after the current year. See PR :pr:`5048`.
+* Normalized RUS-7 and RUS-12 borrower ID's, names and state in
+  :ref:`core_rus7__entity_borrowers` and :ref:`core_rus12__entity_borrowers`.
+  See :issue:`5040` and PR :pr:`5056`.
+* Added row count and data validation tests for the new RUS Form 12 tables introduced
+  in :pr:`5018`. See :pr:`5060`.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Set unknown ``mass_measurement_code`` values to ``NULL`` in
+  :ref:`core_epacems__hourly_emissions` so the data conforms to the expected ENUM
+  constraint. See :pr:`5041`.
+* Improved parsing of the poorly formatted ``so2_test_date`` column found in
+  :ref:`i_core_eia923__yearly_fgd_operation_maintenance`. See PR :pr:`5048`.
+* Standardized emissions control equipment efficiencies to be stated as a decimal number
+  between 0.0-1.0, rather than a percentage between 0-100. Removed misleading ``_pct``
+  column name suffixes on efficiency columns that had values between 0.0-1.0. See PR
+  :pr:`5048`.
+* Standardized a few new environmental equipment tables from EIA to use ``report_date``
+  rather than ``report_year`` as their time dimension in anticipation of more deeply
+  integrating them into PUDL. See issue :issue:`4741` and PR :pr:`5063`. Affected
+  tables include:
+
+  * :ref:`i_core_eia923__yearly_byproduct_disposition`
+  * :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`
+  * :ref:`core_eia860__scd_emissions_control_equipment`
+  * :ref:`out_eia860__yearly_emissions_control_equipment`
+
+Quality of Life Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added a DuckDB helper script (``devtools/duckdb/``) that generates a DuckDB file with
+  views pointing at local, nightly, and stable PUDL Parquet outputs. This makes it easy
+  to compare data versions during development and to use the
+  `DuckDB UI <https://duckdb.org/docs/stable/core_extensions/ui>`__ for column-level
+  statistics and data inspection. See :pr:`5015`.
+* Improved schema enforcement for tables created with DuckDB by updating
+  ``Resource.to_duckdb_dtypes`` to handle ENUM types, enabling FERC EQR tables
+  produced with DuckDB to properly conform to their defined schema. See :pr:`5027`.
+* Made our raw spreadsheet extraction multi-assets and static table multi-assets
+  subsettable for better ergonomics when selecting upstream asset dependencies using
+  Dagster's ``dg`` CLI. See issue :issue:`5061` and PR :pr:`5062`.
+* Adapted the PUDL project layout and configuration slightly in order to allow us to
+  start using
+  `dg: Dagster's official CLI tool <https://docs.dagster.io/api/clis/dg-cli/dg-cli-reference>`__.
+  See PR :pr:`5075`.
 
 .. _release-v2026.2.0:
 
@@ -2221,7 +2376,7 @@ Data Coverage
 * Thanks to contributions from :user:`rousik` we've generalized the code we use to
   convert FERC's old annual Visual FoxPro databases into multi-year SQLite databases.
 
-  * We have started extracting the FERC Form 2 (natual gas utility financial reports).
+  * We have started extracting the FERC Form 2 (natural gas utility financial reports).
     See issues :issue:`1984,2642` and PRs :pr:`2536,2564,2652`. We haven't yet done any
     integration of the Form 2 into the cleaned and normalized PUDL DB, but the converted
     `FERC Form 2 is available on Datasette <https://data.catalyst.coop/ferc2>`__

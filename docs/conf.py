@@ -75,7 +75,7 @@ bibtex_bibfiles = [
     "further_reading.bib",
 ]
 
-# Set this to True if you need to debug generated file formatting.
+# Default behavior: do not keep generated files. Clean up after the build exits.
 keep_generated_files = False
 
 # Redirects to keep folks from hitting 404 errors:
@@ -102,6 +102,7 @@ issues_github_path = "catalyst-cooperative/pudl"
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
     "dagster": ("https://docs.dagster.io/", None),
+    "duckdb": ("https://duckdb.org/docs/stable/clients/python/reference/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
@@ -176,6 +177,8 @@ def data_dictionary_metadata_to_rst(app):
     package.to_rst(docs_dir=DOCS_DIR, path=DOCS_DIR / "data_dictionaries/pudl_db.rst")
 
 
+# When adding a new data source add it here and ALSO in pyproject.toml in the
+# docs-clean pixi task so generated files are removed.
 INCLUDED_SOURCES = [
     "censusdp1tract",
     "censuspep",
@@ -192,6 +195,8 @@ INCLUDED_SOURCES = [
     "epacems",
     "epacamd_eia",
     "phmsagas",
+    "rus12",
+    "rus7",
     "sec10k",
     "gridpathratoolkit",
     "nrelatb",

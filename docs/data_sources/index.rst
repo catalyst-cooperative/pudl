@@ -26,6 +26,8 @@ The following data sources serve as the foundation for our data pipeline.
    gridpathratoolkit
    nrelatb
    phmsagas
+   rus12
+   rus7
    sec10k
    vcerare
    other_data
