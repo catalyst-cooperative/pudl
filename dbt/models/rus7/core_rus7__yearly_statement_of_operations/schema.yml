@@ -23,6 +23,10 @@ sources:
               config:
                 error_if: ">42000"
               description: Budgeted spending and YTD spending should be roughly equivalent.
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_statement_of_operations
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: borrower_id_rus

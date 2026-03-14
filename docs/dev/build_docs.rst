@@ -19,24 +19,25 @@ from scratch:
 
     $ pixi run docs-build
 
-By default, ``docs-build`` disables intersphinx lookups by setting
-``PUDL_DOCS_DISABLE_INTERSPHINX=1``. This avoids spurious failures when remote
-documentation inventories are unavailable in local or CI test environments.
-
-By default, generated documentation source files are cleaned up after a build.
-If you want to inspect generated ``.rst`` / CSV artifacts, set
-``PUDL_DOCS_KEEP_GENERATED_FILES=1`` when running the build:
+You can alter docs-build behavior by setting environment variables when running
+the command:
 
 .. code-block:: console
 
     $ PUDL_DOCS_KEEP_GENERATED_FILES=1 pixi run docs-build
+    $ PUDL_DOCS_DISABLE_INTERSPHINX=1 pixi run docs-build
 
-If you want a full documentation build with intersphinx enabled (for example,
-to mirror production docs behavior), run:
+By default:
 
-.. code-block:: console
+    * Generated RST / CSV files are cleaned up at the end of the build.
+    * Intersphinx is enabled, and Sphinx will attempt to fetch external inventories.
 
-    $ pixi run docs-build-full
+Setting ``PUDL_DOCS_KEEP_GENERATED_FILES`` keeps generated files after the build,
+which is useful when debugging generated documentation.
+
+Setting ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx inventory lookups,
+which can make builds more resilient when external documentation sites are
+temporarily unavailable.
 
 If you're just working on a single page and don't care about the entire set
 of documents being regenerated and linked together, you can call Sphinx
@@ -67,5 +68,6 @@ documentation in your text editor with appropriate plugins.
     the docs build.
 
     ``pixi run docs-build`` will build and then delete all generated files via
-    ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py`` unless
-    ``PUDL_DOCS_KEEP_GENERATED_FILES`` is set.
+    ``cleanup_rsts`` and ``cleanup_csv_dir`` in ``docs/conf.py``. If you want to
+    preserve them for a one-off build, set
+    ``PUDL_DOCS_KEEP_GENERATED_FILES=1`` in the environment when running docs-build.
