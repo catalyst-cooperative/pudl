@@ -406,20 +406,6 @@ to pick and choose:
   $ pixi run dg launch --assets "+key:core_eia923__fuel_receipts_costs+"
 
 
-For direct Dagster CLI execution via ``dg``, run:
-
-.. code-block:: console
-
-  $ pixi run dg launch --job ferc_to_sqlite
-  $ pixi run dg launch --job etl_fast
-  $ pixi run dg launch --job etl_full
-
-You can also target specific assets rather than an entire job:
-
-.. code-block:: console
-
-  $ pixi run dg launch --assets "raw_eia860"
-
 .. note::
 
   We recommend using the Dagster UI to execute the ETL as it provides additional
