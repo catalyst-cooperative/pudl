@@ -28,7 +28,7 @@ readme = { file = "README.rst", content-type = "text/x-rst" }
 authors = [
     { name = "Catalyst Cooperative", email = "pudl@catalyst.coop" },
 ]
-requires-python = ">=3.13,<3.14.0a0"
+requires-python = ">=3.14,<3.15.0a0"
 dynamic = ["version"]
 license = "MIT"
 # All dependencies are managed through pixi, ensuring they're always installed from
@@ -121,8 +121,9 @@ polars = ">=1.38"
 pre-commit = ">=4.5"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.7,<4"
-# pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
-pyarrow = "<21"
+# pyarrow >=21 blocked by stale geopandas 0.14 in Kaggle environment
+# But python 3.14 requires pyarrow>=21
+pyarrow = ">=21"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
 pygraphviz = ">=1"
@@ -183,7 +184,7 @@ version = ">=0.4.3"
 channels = ["conda-forge"]
 
 [tool.pixi.package.build-dependencies]
-python = ">=3.13,<3.14.0"
+python = ">=3.14,<3.15.0a0"
 
 [tool.pixi.package.host-dependencies]
 hatchling = ">=1.16"
@@ -216,10 +217,6 @@ gcsfs = ">=2026"
 gdal = "==3.12.2"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
-# grpcio packages all need to have same version to avoid conflicts.
-# They are also compiled and finnicky. Check compatibility before upgrading.
-# Upgrade to 1.74.0 blocked by stale libgoogle-cloud on conda-forge
-# Upgrade to 1.76.0 blocked by stale grpcio on conda-forge
 grpcio = "==1.73.1"
 grpcio-health-checking = "==1.73.1"
 grpcio-status = "==1.73.1"
