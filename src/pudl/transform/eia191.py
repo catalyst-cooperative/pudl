@@ -56,9 +56,7 @@ def core_eia191__monthly_gas_storage(
         df, date_col="report_date", year_col="year", month_col="month"
     )
 
-    assert not df.duplicated(
-        subset=["storage_field_id_eia191", "report_date"]
-    ).any(), (
+    assert not df.duplicated(subset=["storage_field_id_eia191", "report_date"]).any(), (
         "Duplicate (storage_field_id_eia191, report_date) pairs found in core_eia191__monthly_gas_storage"
     )
 
