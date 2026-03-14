@@ -138,6 +138,8 @@ Documentation
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Modified schema checks so they can be applied to the largest tables, which have
+  typically been excluded from these checks. See Issue :issue:`5022` and PR :pr`5043`.
 
 * Added an initial set of dbt data validations for the new RUS Form 7
   and Form 12 tables. See :issue:`4887`, :issue:`4888` and :pr:`5017`.

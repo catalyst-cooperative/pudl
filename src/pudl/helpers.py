@@ -2179,7 +2179,9 @@ def retry(
     return func(**kwargs)
 
 
-def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
+def get_parquet_table_polars(
+    table_name: str, partitions: dict | None = None
+) -> pl.LazyFrame:
     """Read a table from a parquet file and return as a polars LazyFrame."""
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
@@ -2188,8 +2190,13 @@ def get_parquet_table_polars(table_name: str) -> pl.LazyFrame:
     schema = resource.to_polars_dtypes()
 
     # Get the Parquet file path
-    paths = PudlPaths()
-    parquet_path = paths.parquet_path(table_name)
+    if partitions is None:
+        paths = PudlPaths()
+        parquet_path = paths.parquet_path(table_name)
+    else:
+        parquet_data = ParquetData(table_name=table_name, partitions=partitions)
+        # Points to a directory of parquet files when there partitions is non None
+        parquet_path = parquet_data.parquet_path
 
     return pl.scan_parquet(parquet_path).cast(schema, strict=False)
 
