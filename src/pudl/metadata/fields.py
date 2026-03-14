@@ -568,6 +568,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Name of the balancing authority subregion.",
     },
+    "base_gas_mcf": {
+        "type": "number",
+        "description": (
+            "Volume of base gas (cushion gas) in the underground storage reservoir, "
+            "as reported by the operator to EIA on Form 191. Base gas is the volume "
+            "of gas intended as permanent inventory in a reservoir to maintain "
+            "adequate pressure and deliverability rates."
+        ),
+        "unit": "Mcf",
+    },
     "bga_source": {
         "type": "string",
         "description": (
@@ -1160,7 +1170,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "company_name": {
         "type": "string",
-        "description": "Name of company submitting SEC 10k filing.",
+        "description": "Name of the reporting company.",
     },
     "company_name_new": {
         "type": "string",
@@ -1342,6 +1352,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {
             "pattern": r"^\d{5}$",
         },
+    },
+    "county_name": {
+        "type": "string",
+        "description": (
+            "Name of the county in which the storage reservoir is located, as reported "
+            "to EIA on Form 191."
+        ),
     },
     "county_name_census": {
         "type": "string",
@@ -3191,6 +3208,25 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
     },
+    "field_name": {
+        "type": "string",
+        "description": (
+            "Name of the natural gas storage field, as reported by the operator to "
+            "EIA on Form 191."
+        ),
+    },
+    "field_type": {
+        "type": "string",
+        "description": (
+            "Type of underground natural gas storage facility, as reported to EIA on "
+            "Form 191. One of: depleted field (a reservoir previously used for natural "
+            "gas production), aquifer (a porous rock structure used to store gas), or "
+            "salt dome (a cavern created within a salt formation)."
+        ),
+        "constraints": {
+            "enum": ["aquifer", "depleted field", "salt dome"],
+        },
+    },
     "filename_sec10k": {
         "type": "string",
         "description": (
@@ -3649,6 +3685,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "street and highway lighting."
         ),
         "unit": "MWh",
+    },
+    "gas_field_code": {
+        "type": "string",
+        "description": (
+            "EIA-assigned code identifying the natural gas storage field, as reported "
+            "on Form 191."
+        ),
     },
     "gas_fraction_cost": {
         "type": "number",
@@ -4442,6 +4485,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "lbs_per_hour",
         "description": "Maximum continuous steam flow at 100 percent load.",
+    },
+    "maximum_daily_delivery_mcf": {
+        "type": "number",
+        "description": (
+            "Maximum daily quantity of gas that can be withdrawn from the underground "
+            "storage reservoir under normal operating conditions, as reported by the "
+            "operator to EIA on Form 191."
+        ),
+        "unit": "Mcf",
     },
     "mercury_content_ppm": {
         "type": "number",
@@ -6294,6 +6346,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped."
         ),
     },
+    "region": {
+        "type": "string",
+        "description": (
+            "EIA storage region in which the underground natural gas storage field "
+            "is located, as reported on Form 191."
+        ),
+        "constraints": {
+            "enum": [
+                "alaska",
+                "east region",
+                "midwest region",
+                "mountain region",
+                "pacific region",
+                "south central region",
+            ],
+        },
+    },
     "region_name_eiaaeo": {
         "type": "string",
         "description": (
@@ -6410,6 +6479,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 )
             )
         },
+    },
+    "reservoir_code": {
+        "type": "string",
+        "description": (
+            "EIA-assigned code identifying the individual storage reservoir within "
+            "a natural gas storage field, as reported on Form 191."
+        ),
+    },
+    "reservoir_name": {
+        "type": "string",
+        "description": (
+            "Name of the individual underground natural gas storage reservoir, "
+            "as reported by the operator to EIA on Form 191."
+        ),
     },
     "respondent_id_ferc714": {
         "type": "integer",
@@ -7235,6 +7318,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "Full name of the state.",
     },
+    "status": {
+        "type": "string",
+        "description": (
+            "Operational status of the underground natural gas storage reservoir, "
+            "as reported to EIA on Form 191."
+        ),
+        "constraints": {
+            "enum": ["active", "inactive"],
+        },
+    },
     "incorporation_state": {
         "type": "string",
         "description": "Two letter state code where company is incorporated.",
@@ -7260,6 +7353,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": (
             "A code representing the enclosure type that best describes where the generator is located."
+        ),
+    },
+    "storage_field_id_eia191": {
+        "type": "string",
+        "description": (
+            "EIA-assigned identifier for an underground natural gas storage reservoir, "
+            "as reported on Form 191. Uniquely identifies a reservoir across all "
+            "reporting periods."
         ),
     },
     "storage_technology_code_1": {
@@ -7710,6 +7811,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "unit or the anticipated costs to bring a planned flue gas desulfurization "
             "unit into commercial operation."
         ),
+    },
+    "total_field_capacity_mcf": {
+        "type": "number",
+        "description": (
+            "Total design capacity of the underground natural gas storage field "
+            "(base gas plus working gas), as reported by the operator to EIA on "
+            "Form 191. Note: this value is not reliably equal to the sum of "
+            "working_gas_capacity_mcf and base_gas_mcf; approximately 23%% of "
+            "records differ, reflecting loose EIA definitions and operator "
+            "self-reporting practices."
+        ),
+        "unit": "Mcf",
     },
     "total_fuel_cost": {
         "type": "number",
@@ -8205,6 +8318,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "demand is the greatest."
         ),
         "unit": "MW",
+    },
+    "working_gas_capacity_mcf": {
+        "type": "number",
+        "description": (
+            "Volume of working gas (the portion of stored gas available for withdrawal) "
+            "in the underground storage reservoir, as reported by the operator to EIA "
+            "on Form 191."
+        ),
+        "unit": "Mcf",
     },
     "year": {
         "type": "integer",
