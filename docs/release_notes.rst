@@ -53,10 +53,6 @@ Quality of Life Improvements
   debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
   when needed (for example in CI docs checks to avoid external docs outages).
   See PR :pr:`5095`.
-* Added coding agent skills and instructions that customize agent behavior for PUDL.
-  These markdown files can be found under ``.github/instructions/`` and
-  ``.github/skills/``. See PR :pr:`5059` and the `VS Code documentation for more details
-  <https://code.visualstudio.com/docs/copilot/customization/overview>`__.
 
 .. _release-v2026.3.0:
 

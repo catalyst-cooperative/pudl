@@ -8,13 +8,14 @@
 - Raw inputs are managed through the datastore and are rooted at `$PUDL_INPUT`.
 - Primary outputs are Parquet files rooted at `$PUDL_OUTPUT/parquet/`.
 
-## Environment and tooling baseline
+## Python environment and tooling
 
 - PUDL uses `pixi` for dependency and task management.
-- Use `pixi run <command>` for project commands unless already in an activated pixi
-  shell.
+- Use `pixi run <command>` to ensure commands run in the project environment.
+- Never try to create or manage Python environments manually; always use `pixi` to
+  ensure consistency.
 - Project tasks and environments are defined in `pyproject.toml` under `[tool.pixi]`.
-- The canonical hook list is in `.pre-commit-config.yaml`.
+- Git pre-commit hooks are defined in `.pre-commit-config.yaml`.
 
 ## Sandbox-safe command execution
 
@@ -25,44 +26,37 @@
 - When using `pixi run`, prefer frozen/locked execution modes that avoid dependency
   updates.
 - For sandboxed terminal runs, keep cache and temporary directories writable and local
-  to the workspace when possible, e.g. `TMPDIR`, `UV_CACHE_DIR`, `PIXI_HOME`.
+  to the workspace when possible, e.g. `TMPDIR`, `PIXI_HOME`.
 
 ## Always-on coding expectations
 
 - Prefer explicit, readable code and descriptive names over terse names.
-- Treat this file as high-level policy only; keep language- and task-specific rules in
-  `.github/instructions/` and `.github/skills/`.
 - Follow existing naming conventions and data model conventions.
 - Reuse existing project helpers and established patterns before introducing new ones.
 - Prefer dbt for data validation by default; use Dagster/Python validation only when
   there is a clear project-specific reason.
 
-## Where detailed instructions now live
+## Where to find additional detailed instructions
 
-- `.github/instructions/python-style.instructions.md`
-- `.github/instructions/testing.instructions.md`
-- `.github/instructions/code-quality.instructions.md`
-- `.github/instructions/dbt-data-validation.instructions.md`
-- `.github/instructions/metadata.instructions.md`
-- `.github/instructions/docs.instructions.md`
+- If the `pudl` agent skill is enabled, it should be used to read PUDL database schemas
+  and descriptions of tables and columns.
+- If the `pudl-dev` agent skill is enabled, it should be used to inform software
+  development tasks in the PUDL project.
+- If the `dagster-expert` agent skill is enabled, it should be used when adding or
+  modifying code related to orchestration of the data processing pipeline, and any of
+  the concepts and classes defined by Dagster. This includes assets, resources, jobs,
+  IO managers, sensors, etc.
 
-## Available workflow skills
-
-- `.github/skills/pytest/SKILL.md`
-- `.github/skills/dbt/SKILL.md`
-- `.github/skills/code-quality/SKILL.md`
-- `.github/skills/pudl-data-access/SKILL.md`
-
-## Documentation references
+## Developer documentation references
 
 - General contributor docs: `docs/dev/`
-- Testing: `docs/dev/testing.rst`
-- Data validation quickstart and reference:
+- Python testing: `docs/dev/testing.rst`
+- Data validation quickstart and reference using dbt:
   `docs/dev/data_validation_quickstart.rst`,
   `docs/dev/data_validation_reference.rst`
 - Dagster development: `docs/dev/dev_dagster.rst`, `docs/dev/run_the_etl.rst`
-- Metadata editing: `docs/dev/metadata.rst`
-- Naming conventions: `docs/dev/naming_conventions.rst`
+- Editing PUDL Metadata: `docs/dev/metadata.rst`
+- PUDL naming conventions: `docs/dev/naming_conventions.rst`
 
 ## Release notes
 
