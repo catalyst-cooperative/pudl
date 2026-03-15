@@ -1,7 +1,11 @@
 """Generic extractor for all FERC XBRL data."""
 
 import io
+import logging
+import re
+import sys
 from collections.abc import Callable
+from contextlib import contextmanager
 from pathlib import Path
 
 from dagster import op
@@ -14,6 +18,50 @@ from pudl.workspace.datastore import Datastore
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
+
+
+class _FilteringStream:
+    """Pass-through text stream that drops matching noisy lines."""
+
+    def __init__(self, wrapped, drop_patterns: list[re.Pattern[str]]):
+        self._wrapped = wrapped
+        self._drop_patterns = drop_patterns
+        self._dropped_previous_line = False
+
+    def write(self, text: str) -> int:
+        for line in text.splitlines(keepends=True):
+            stripped = line.rstrip("\r\n")
+            if stripped and any(p.search(stripped) for p in self._drop_patterns):
+                self._dropped_previous_line = True
+                continue
+
+            # Arelle occasionally emits a blank line right after spam lines.
+            if not stripped and self._dropped_previous_line:
+                continue
+
+            self._wrapped.write(line)
+            self._dropped_previous_line = False
+        return len(text)
+
+    def flush(self) -> None:
+        self._wrapped.flush()
+
+
+@contextmanager
+def _suppress_arelle_message_spam():
+    """Filter known Arelle console spam without suppressing normal logs."""
+    drop_patterns = [
+        re.compile(r"^Message:\s+Try\s+#\d+"),
+        re.compile(r"^Message log error:\s+Formatting field not found in record:"),
+    ]
+    old_stdout, old_stderr = sys.stdout, sys.stderr
+    sys.stdout = _FilteringStream(old_stdout, drop_patterns)
+    sys.stderr = _FilteringStream(old_stderr, drop_patterns)
+    try:
+        yield
+    finally:
+        sys.stdout = old_stdout
+        sys.stderr = old_stderr
 
 
 class FercXbrlDatastore:
@@ -84,6 +132,7 @@ def xbrl2sqlite_op_factory(form: XbrlFormNumber) -> Callable:
             duckdb_path=duckdb_path,
             batch_size=rs.xbrl_batch_size,
             workers=rs.xbrl_num_workers,
+            loglevel=rs.xbrl_loglevel,
         )
 
     return inner_op
@@ -98,6 +147,7 @@ def convert_form(
     duckdb_path: Path,
     batch_size: int | None = None,
     workers: int | None = None,
+    loglevel: str = "INFO",
 ) -> None:
     """Clone a single FERC XBRL form to SQLite.
 
@@ -123,16 +173,21 @@ def convert_form(
     ]
     # if we set clobber=True, clobbers on *every* call to run_main;
     # we already delete the existing base on `clobber=True` in `xbrl2sqlite`
-    run_main(
-        filings=filings_archives,
-        sqlite_path=sqlite_path,
-        duckdb_path=duckdb_path,
-        taxonomy=taxonomy_archive,
-        form_number=form.value,
-        metadata_path=metadata_path,
-        datapackage_path=datapackage_path,
-        workers=workers,
-        batch_size=batch_size,
-        loglevel="INFO",
-        logfile=None,
-    )
+    # Arelle can emit very verbose internals; keep its logger at ERROR unless
+    # troubleshooting parser internals.
+    logging.getLogger("arelle").setLevel(logging.ERROR)
+
+    with _suppress_arelle_message_spam():
+        run_main(
+            filings=filings_archives,
+            sqlite_path=sqlite_path,
+            duckdb_path=duckdb_path,
+            taxonomy=taxonomy_archive,
+            form_number=form.value,
+            metadata_path=metadata_path,
+            datapackage_path=datapackage_path,
+            workers=workers,
+            batch_size=batch_size,
+            loglevel=loglevel,
+            logfile=None,
+        )

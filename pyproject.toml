@@ -584,6 +584,8 @@ extend-exclude = [
     "*.bib",
     "*.csv",
     "*.html",
+    "*.json",
+    ".github/skills/pudl-dev/references/datapackage.schema.json",
     "src/pudl/metadata/codes.py",
     "migrations/",
     "notebooks/",

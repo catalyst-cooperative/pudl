@@ -1,107 +1,64 @@
 # LLM coding agent instructions for the Public Utility Data Liberation (PUDL) Project
 
-## PUDL Project Overview
+## PUDL project overview
 
-- The PUDL Project implements a data processing pipeline that ingests raw energy system
-  data from public agencies like the US Energy Information Administration (EIA) and the
-  Federal Energy Regulatory Commission (FERC) and transforms it into clean, well
-  organized tables for use in analysis and modeling.
-- PUDL uses the Dagster data orchestration framework to manage dependencies between
-  different assets, and to enable parallel execution of different portions of the data
-  processing pipeline.
-- The raw input data for the PUDL data processing pipeline can be found in the directory
-  indicated by the `$PUDL_INPUT` environment variable. The raw inputs are downloaded as
-  needed by the data pipeline, but can be pre-downloaded in bulk using the
-  `pudl_datastore` command line interface.
-- The PUDL data processing pipeline primarily generates Apache Parquet files as its
-  outputs. These outputs can be found in `$PUDL_OUTPUT/parquet/` where `$PUDL_OUTPUT` is
-  an environment variable which should be set by the user.
+- PUDL ingests raw public energy data (EIA, FERC, EPA, and others) and transforms it
+  into clean, analysis-ready tables.
+- The pipeline is orchestrated using Dagster assets and jobs.
+- Raw inputs are managed through the datastore and are rooted at `$PUDL_INPUT`.
+- Primary outputs are Parquet files rooted at `$PUDL_OUTPUT/parquet/`.
 
-## Development environment tips
+## Python environment and tooling
 
-- PUDL uses pixi to manage its Python environment and dependencies. All dependencies and
-  configuration are defined in `pyproject.toml`.
-- The default pixi environment includes all development tools.
-- To run commands in the pixi environment, prefix them with `pixi run` (e.g.,
-  `pixi run pytest`)
-- Pixi environments and tasks are defined in `pyproject.toml` under `[tool.pixi]`
-  sections.
-- PUDL uses ruff to lint and automatically format python code. Before staging files for
-  a commit, always run `pixi run pre-commit run ruff-check --all-files` and
-  `pixi run pre-commit run ruff-format --all-files`
-- A number of pre-commit hooks are defined in .pre-commit-config.yaml.
-- We try to use appropriate type annotations in function, class, and method definitions,
-  but they are not yet checked or enforced. They are primarily to improve readability
-  for humans, LLMs, and IDEs.
+- PUDL uses `pixi` for dependency and task management.
+- Use `pixi run <command>` to ensure commands run in the project environment.
+- Never try to create or manage Python environments manually; always use `pixi` to
+  ensure consistency.
+- Project tasks and environments are defined in `pyproject.toml` under `[tool.pixi]`.
+- Git pre-commit hooks are defined in `.pre-commit-config.yaml`.
 
-## Testing instructions
+## Sandbox-safe command execution
 
-- PUDL uses pytest to manage its unit and integration tests.
-- Tests should avoid using unittest and monkeypatch, and use pytest-mock.
-- Rather than enumerating various test cases within a single test function, the
-  tests should use the pytest.parametrize decorator to enumerate tests cases, specifying
-  the appropriate success or failure or exception to be raised for each test as
-  appropriate.
-- Tests must be run inside the pixi environment.
-- When individual tests are run, we should turn off coverage collection, since otherwise
-  they will fail since they only cover a small portion of the codebase.
-- Test coverage collection should be disabled using `--no-cov` when running individual
-  tests to avoid getting spurious warnings.
-- For example, the unit tests can be run with `pixi run pytest --no-cov test/unit`.
-- We use dbt only for data validation, and NOT for data transformations. The PUDL data
-  tests are under the `dbt/` directory.
-- dbt commands must be typically run from within the dbt directory, e.g.:
-  `cd dbt && pixi run dbt build`
-- The PUDL integration tests process a substantial amount of data and take up to an hour
-  to run, and so should not generally be run during development interactively.
+- Prefer already-installed binaries before invoking commands that may trigger package
+  resolution or updates.
+- Prefer direct binaries (for example `dg`, `rg`, `ruff`) when they are already
+  available in the active environment.
+- When using `pixi run`, prefer frozen/locked execution modes that avoid dependency
+  updates.
+- For sandboxed terminal runs, keep cache and temporary directories writable and local
+  to the workspace when possible, e.g. `TMPDIR`, `PIXI_HOME`.
 
-## Code Style Guidelines
+## Always-on coding expectations
 
-- Follow pandas naming conventions: use `df` for DataFrames, descriptive column names
-- Prefer longer, readable, descriptive variable names over short, cryptic ones.
-- Use explicit type hints for function parameters and returns where helpful.
-- Prefer method chaining for pandas operations when it improves readability.
-- Use `pathlib.Path` for file system operations instead of string concatenation.
-- Follow snake_case for functions/variables, PascalCase for classes.
-- Use f-strings for string formatting, including in logging statements.
-- Write docstrings for all public functions/classes using Google style python
-  docstrings.
-- Limit lines to 88 characters for better readability. Do not artificially restrict line
-  length to 80 characters.
-- Do not use `print()` statements; use python's logging system instead.
+- Prefer explicit, readable code and descriptive names over terse names.
+- Follow existing naming conventions and data model conventions.
+- Reuse existing project helpers and established patterns before introducing new ones.
+- Prefer dbt for data validation by default; use Dagster/Python validation only when
+  there is a clear project-specific reason.
 
-## PUDL-Specific Patterns
+## Where to find additional detailed instructions
 
-- Asset dependencies in Dagster should be explicit and well-documented
-- In general, data validation should happen in dbt, not in Dagster asset checks.
-- Sanity checks that validate assumptions about the data should be done as it is being
-  transformed, with assertions failing loudly if expectations are not met.
-- Use PUDL's existing utility functions in `pudl.helpers` when available.
-- Raw data access should use the datastore pattern, not direct file I/O.
-- Use nullable pandas dtypes (e.g. `pd.Int64Dtype()` or `pd.StringDtype()`) when
-  possible, to avoid generic `object` dtypes and mixed NULL values.
-- Parquet outputs should use snappy compression and pyarrow dtypes.
-- Metadata describing the tables, columns, and data sources can be found in the
-  `pudl.metadata` subpackage. "Resources" are tables and "Fields" are columns.
-- Metadata classes defined in the `pudl.metadata.classes` module using Pydantic
-  generally mirror the frictionless datapackage standard.
-- Our documentation is built using Sphinx. The source files are in the `docs/`
-  directory. The source files are in reStructuredText format.
-- Whenever we make significant changes to the codebase, they should be noted in the PUDL
-  release notes found at `docs/release_notes.rst`.
+- If the `pudl` agent skill is enabled, it should be used to read PUDL database schemas
+  and descriptions of tables and columns.
+- If the `pudl-dev` agent skill is enabled, it should be used to inform software
+  development tasks in the PUDL project.
+- If the `dagster-expert` agent skill is enabled, it should be used when adding or
+  modifying code related to orchestration of the data processing pipeline, and any of
+  the concepts and classes defined by Dagster. This includes assets, resources, jobs,
+  IO managers, sensors, etc.
 
-## Performance Considerations
+## Developer documentation references
 
-- Use vectorized pandas operations instead of row-wise `apply` or loops.
-- Consider using just-in-time compilation with numba for performance-critical code.
-- Do not use inplace operations on pandas DataFrames.
-- Avoid chained indexing in pandas to prevent SettingWithCopyWarning.
-- Use efficient pandas merging and joining techniques, ensuring indexes are set
-  appropriately.
-- Avoid creating unnecessary intermediate DataFrames.
-- Use categorical dtypes for columns with a limited set of values to save memory.
-- Profile and optimize any code that processes large datasets.
-- PUDL relies primarily on pandas for data processing, but in cases where performance or
-  memory limitations are important, we may also use DuckDB or polars dataframes.
-- For large datasets (>1GB), consider polars for aggregations before pandas.
-- Use polars for memory-intensive operations or when pandas performance is limiting.
+- General contributor docs: `docs/dev/`
+- Python testing: `docs/dev/testing.rst`
+- Data validation quickstart and reference using dbt:
+  `docs/dev/data_validation_quickstart.rst`,
+  `docs/dev/data_validation_reference.rst`
+- Dagster development: `docs/dev/dev_dagster.rst`, `docs/dev/run_the_etl.rst`
+- Editing PUDL Metadata: `docs/dev/metadata.rst`
+- PUDL naming conventions: `docs/dev/naming_conventions.rst`
+
+## Release notes
+
+- Significant user-visible or developer-visible changes should be summarized in
+  `docs/release_notes.rst`.

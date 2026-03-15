@@ -126,6 +126,7 @@ def test_xbrl2sqlite(settings, forms, mocker, tmp_path):
             duckdb_path=PudlPaths().output_dir / f"ferc{form.value}_xbrl.duckdb",
             batch_size=20,
             workers=10,
+            loglevel="INFO",
         )
 
 

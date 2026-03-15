@@ -1,6 +1,5 @@
 """Dagster definitions for the PUDL ETL and Output tables."""
 
-import importlib.resources
 import itertools
 import os
 
@@ -19,11 +18,12 @@ from pudl.io_managers import (
 )
 from pudl.metadata import PUDL_PACKAGE
 from pudl.resources import (
+    RuntimeSettings,
     dataset_settings,
     datastore,
     ferc_to_sqlite_settings,
 )
-from pudl.settings import EtlSettings
+from pudl.settings import load_packaged_etl_settings
 
 from . import (
     eia_bulk_elec_assets,
@@ -34,6 +34,7 @@ from . import (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 raw_module_groups = {
+    "raw_ferc_to_sqlite": [pudl.ferc_to_sqlite],
     "raw_censuspep": [pudl.extract.censuspep],
     "raw_eia176": [pudl.extract.eia176],
     "raw_eia191": [pudl.extract.eia191],
@@ -199,6 +200,7 @@ default_resources = {
     "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
     "dataset_settings": dataset_settings,
     "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
+    "runtime_settings": RuntimeSettings(),
     "parquet_io_manager": parquet_io_manager,
     "geoparquet_io_manager": geoparquet_io_manager,
     "ferceqr_extract_settings": pudl.extract.ferceqr.ExtractSettings(
@@ -234,12 +236,33 @@ def load_dataset_settings_from_file(setting_filename: str) -> dict:
     Returns:
         Dictionary of dataset settings.
     """
-    dataset_settings = EtlSettings.from_yaml(
-        importlib.resources.files("pudl.package_data.settings")
-        / f"{setting_filename}.yml"
-    ).datasets.model_dump()
+    settings = load_packaged_etl_settings(setting_filename)
+    if settings.datasets is None:
+        raise ValueError("Missing datasets settings in ETL settings file.")
+    dataset_settings = settings.datasets.model_dump()
 
     return dataset_settings
+
+
+def load_etl_run_config_from_file(setting_filename: str) -> dict:
+    """Load ETL run config from a packaged settings profile."""
+    settings = load_packaged_etl_settings(setting_filename)
+    if settings.ferc_to_sqlite_settings is None:
+        raise ValueError("Missing ferc_to_sqlite_settings in ETL settings file.")
+
+    return {
+        "resources": {
+            "dataset_settings": {
+                "config": load_dataset_settings_from_file(setting_filename)
+            },
+            "ferc_to_sqlite_settings": {
+                "config": settings.ferc_to_sqlite_settings.model_dump(),
+            },
+            "runtime_settings": {
+                "config": {},
+            },
+        }
+    }
 
 
 defs: dg.Definitions = dg.Definitions(
@@ -248,35 +271,14 @@ defs: dg.Definitions = dg.Definitions(
     resources=default_resources,
     jobs=[
         dg.define_asset_job(
-            name="etl_full",
-            description="This job executes all years of all assets.",
-            config=default_config
-            | {
-                "resources": {
-                    "dataset_settings": {
-                        "config": load_dataset_settings_from_file("etl_full")
-                    }
-                }
-            },
+            name="pudl",
+            description="This job executes the main PUDL ETL (default: full settings profile).",
+            config=default_config | load_etl_run_config_from_file("etl_full"),
             selection=dg.AssetSelection.all()
             - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
         ),
         dg.define_asset_job(
-            name="etl_fast",
-            config=default_config
-            | {
-                "resources": {
-                    "dataset_settings": {
-                        "config": load_dataset_settings_from_file("etl_fast")
-                    }
-                }
-            },
-            description="This job executes the most recent year of each asset.",
-            selection=dg.AssetSelection.all()
-            - dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
-        ),
-        dg.define_asset_job(
-            name="ferceqr_etl",
+            name="ferceqr",
             description="This job executes the ferceqr ETL.",
             config=pudl.helpers.get_dagster_execution_config(
                 tag_concurrency_limits=default_tag_concurrency_limits

@@ -14,6 +14,8 @@ from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
+FERC714_XBRL_SQLITE_ASSET_KEY = AssetKey("raw_ferc714_xbrl__sqlite")
+
 FERC714_CSV_ENCODING: OrderedDict[str, dict[str, str]] = OrderedDict(
     {
         "yearly_id_certification": {
@@ -124,7 +126,7 @@ def raw_ferc714_csv_asset_factory(table_name: str) -> AssetsDefinition:
     return _extract_raw_ferc714_csv
 
 
-@asset
+@asset(deps=[FERC714_XBRL_SQLITE_ASSET_KEY])
 def raw_ferc714_xbrl__metadata_json(
     context,
 ) -> dict[str, dict[str, list[dict[str, Any]]]]:
@@ -191,9 +193,10 @@ def create_raw_ferc714_xbrl_assets() -> list[AssetSpec]:
     )
     xbrl_table_names = tuple(set(xbrls_with_periods))
     raw_ferc714_xbrl_assets = [
-        AssetSpec(key=AssetKey(f"raw_ferc714_xbrl__{table_name}")).with_io_manager_key(
-            "ferc714_xbrl_sqlite_io_manager"
-        )
+        AssetSpec(
+            key=AssetKey(f"raw_ferc714_xbrl__{table_name}"),
+            deps=[FERC714_XBRL_SQLITE_ASSET_KEY],
+        ).with_io_manager_key("ferc714_xbrl_sqlite_io_manager")
         for table_name in xbrl_table_names
     ]
     return raw_ferc714_xbrl_assets

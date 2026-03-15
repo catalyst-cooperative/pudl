@@ -25,7 +25,7 @@ logger = pudl.logging_helpers.get_logger(__name__)
 def pudl_etl_job_factory(
     logfile: str | None = None,
     loglevel: str = "INFO",
-    base_job: str = "etl_full",
+    base_job: str = "pudl",
 ) -> Callable[[], JobDefinition]:
     """Factory for parameterizing a reconstructable pudl_etl job.
 
