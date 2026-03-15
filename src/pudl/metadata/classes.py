@@ -1484,6 +1484,7 @@ class Resource(PudlMeta):
         Literal[
             "censusdp1tract",
             "eia176",
+            "eia191",
             "eia860",
             "eia861",
             "eia861_disabled",
