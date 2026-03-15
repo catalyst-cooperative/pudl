@@ -82,6 +82,8 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
+    env:
+      PUDL_DOCS_DISABLE_INTERSPHINX: "1"
     strategy:
       fail-fast: false
     defaults:

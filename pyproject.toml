@@ -283,14 +283,9 @@ bash -c 'shopt -s nullglob; rm -rf \
 """, description = "Remove all generated documentation files" }
 
 docs-build = { cmd = """
-PUDL_DOCS_DISABLE_INTERSPHINX=1 doc8 docs/ README.rst && \
-PUDL_DOCS_DISABLE_INTERSPHINX=1 coverage run --append -m sphinx --jobs auto -v -W -b html docs docs/_build/html
-""", depends-on = ["docs-clean"], description = "Build Sphinx docs for local/CI testing (without intersphinx lookups)" }
-
-docs-build-full = { cmd = """
 doc8 docs/ README.rst && \
-coverage run --append -m sphinx --jobs auto -v -W -b html docs docs/_build/html
-""", depends-on = ["docs-clean"], description = "Build PUDL docs with Sphinx and full intersphinx lookups" }
+coverage run --append -m sphinx --jobs auto -W -b html docs docs/_build/html
+""", depends-on = ["docs-clean"], description = "Build PUDL docs using Sphinx" }
 
 # Testing tasks
 coverage-erase = { cmd = "coverage erase", description = "Clear coverage data" }
