@@ -3909,7 +3909,7 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.3.1.dev4
+  version: 2026.3.1.dev5
   sha256: 2532c257273edf092230dd2d1fe2b0b70dae864da91543d430bee144a1439fa1
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
