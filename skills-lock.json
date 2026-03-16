@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "dagster-expert": {
+      "source": "dagster-io/skills",
+      "sourceType": "github",
+      "computedHash": "dc32f5b0fe71cd56f39cb56382d2c6cfb89b212241d17204db302952f372c3ea"
+    },
+    "dignified-python": {
+      "source": "dagster-io/skills",
+      "sourceType": "github",
+      "computedHash": "522e3f4f33436966a478f8ce94140439981392a91d661cf90b6035f6ebc1e35a"
+    },
+    "pudl-dev": {
+      "source": "catalyst-cooperative/skills",
+      "sourceType": "github",
+      "computedHash": "489465af914d7bf5c7293e5b12ad3a784e107e9cb2c42c71aa3a52722c66b1a6"
+    }
+  }
+}
