@@ -13,6 +13,10 @@ sources:
               config:
                 error_if: ">14"
               description: "Some 0 cumulative values and a handful of other values causing failure. Investigate."
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_patronage_capital
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns: [borrower_id_rus, report_date]
@@ -65,7 +69,6 @@ sources:
                   ]
                 total_label: "total_received"
                 tolerance: 1
-
         columns:
           - name: report_date
           - name: borrower_id_rus

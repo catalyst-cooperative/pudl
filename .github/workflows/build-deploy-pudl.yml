@@ -150,7 +150,7 @@ jobs:
       - name: Post to pudl-deployments channel
         if: always()
         id: slack
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         with:
           method: chat.postMessage
           token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
