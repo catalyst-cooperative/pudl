@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "TODAY=$(date +%Y-%m-%d)" >> "${GITHUB_ENV}"
       - name: Generate GH token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ secrets.WORKFLOW_TRIGGERER_APP_ID }}
