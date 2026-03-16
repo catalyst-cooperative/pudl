@@ -1,7 +1,7 @@
 """Rename balance to ending balance for rus12 balance sheet tables
 
 Revision ID: 8c13e0fc4c8d
-Revises: 34128b78508d
+Revises: 8863b5470880
 Create Date: 2026-03-10 15:12:05.474789
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '8c13e0fc4c8d'
-down_revision = '34128b78508d'
+down_revision = '8863b5470880'
 branch_labels = None
 depends_on = None
 
@@ -26,6 +26,14 @@ def upgrade() -> None:
         batch_op.add_column(sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'))
         batch_op.drop_column('balance')
 
+    with op.batch_alter_table('out_rus12__yearly_balance_sheet_assets', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'))
+        batch_op.drop_column('balance')
+
+    with op.batch_alter_table('out_rus12__yearly_balance_sheet_liabilities', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('ending_balance', sa.Float(), nullable=True, comment='Account balance at end of year.'))
+        batch_op.drop_column('balance')
+
     # ### end Alembic commands ###
 
 
@@ -36,6 +44,14 @@ def downgrade() -> None:
         batch_op.drop_column('ending_balance')
 
     with op.batch_alter_table('core_rus12__yearly_balance_sheet_assets', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('balance', sa.TEXT(), nullable=True))
+        batch_op.drop_column('ending_balance')
+
+    with op.batch_alter_table('out_rus12__yearly_balance_sheet_liabilities', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('balance', sa.TEXT(), nullable=True))
+        batch_op.drop_column('ending_balance')
+
+    with op.batch_alter_table('out_rus12__yearly_balance_sheet_assets', schema=None) as batch_op:
         batch_op.add_column(sa.Column('balance', sa.TEXT(), nullable=True))
         batch_op.drop_column('ending_balance')
 

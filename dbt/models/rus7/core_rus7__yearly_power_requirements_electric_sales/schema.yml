@@ -14,20 +14,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: customer_class
                 value_column: sales_mwh
-                subcomponents_list:
-                  [
-                    "commercial_and_industrial_large",
-                    "commercial_and_industrial_small",
-                    "irrigation",
-                    "other_electric",
-                    "public_other",
-                    "public_street_lighting",
-                    "residential_excluding_seasonal",
-                    "residential_seasonal",
-                    "sales_for_resale_other",
-                    "sales_for_resale_rus_borrowers",
-                    "transmission",
-                  ]
                 total_label: "total"
                 tolerance: 1
           - subcomponents_sum_to_total:
@@ -35,20 +21,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: customer_class
                 value_column: revenue
-                subcomponents_list:
-                  [
-                    "commercial_and_industrial_large",
-                    "commercial_and_industrial_small",
-                    "irrigation",
-                    "other_electric",
-                    "public_other",
-                    "public_street_lighting",
-                    "residential_excluding_seasonal",
-                    "residential_seasonal",
-                    "sales_for_resale_other",
-                    "sales_for_resale_rus_borrowers",
-                    "transmission",
-                  ]
                 total_label: "total"
                 tolerance: 10
               config:

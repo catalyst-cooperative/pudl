@@ -29,6 +29,14 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Validate that sub-components in :ref:`core_rus7__yearly_energy_efficiency`,
+  :ref:`core_rus7__yearly_patronage_capital`,
+  :ref:`core_rus7__yearly_power_requirements_electric_customers`,
+  :ref:`core_rus7__yearly_power_requirements_electric_sales`,
+  :ref:`core_rus7__yearly_statement_of_operations` and
+  :ref:`core_rus12__yearly_statement_of_operations` and their corresponding output
+  tables sum to their reported totals. See :issue:`5039` and :pr:`5073`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -149,13 +157,6 @@ New Data Tests & Validations
   See :issue:`5040` and PR :pr:`5056`.
 * Added row count and data validation tests for the new RUS Form 12 tables introduced
   in :pr:`5018`. See :pr:`5060`.
-* Validate that sub-components in :ref:`core_rus7__yearly_energy_efficiency`,
-  :ref:`core_rus7__yearly_patronage_capital`,
-  :ref:`core_rus7__yearly_power_requirements_electric_customers`,
-  :ref:`core_rus7__yearly_power_requirements_electric_sales`,
-  :ref:`core_rus7__yearly_statement_of_operations` and
-  :ref:`core_rus12__yearly_statement_of_operations` sum to their reported totals.
-  See :issue:`5039` and :pr:`5073`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^

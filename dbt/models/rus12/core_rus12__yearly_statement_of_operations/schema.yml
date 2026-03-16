@@ -46,12 +46,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: opex_type
                 value_column: opex_ytd
-                subcomponents_list:
-                  [
-                    "electric_energy_revenues",
-                    "other_operating_revenue_and_income",
-                    "income_from_leased_property",
-                  ]
                 total_label: "total_operation_revenues_and_patronage_capital"
                 tolerance: 10
               row_condition: "opex_group == 'operation_revenue_and_patronage_capital'"
@@ -62,12 +56,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: opex_type
                 value_column: opex_ytd_budget
-                subcomponents_list:
-                  [
-                    "electric_energy_revenues",
-                    "other_operating_revenue_and_income",
-                    "income_from_leased_property",
-                  ]
                 total_label: "total_operation_revenues_and_patronage_capital"
                 tolerance: 10
               row_condition: "opex_group == 'operation_revenue_and_patronage_capital'"
@@ -78,19 +66,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: opex_type
                 value_column: opex_report_month
-                subcomponents_list:
-                  [
-                    "administrative_and_general",
-                    "customer_accounts",
-                    "customer_service_and_information",
-                    "distribution",
-                    "other_power_supply",
-                    "production_excluding_fuel",
-                    "production_fuel",
-                    "sales",
-                    "transmission",
-                    "rto_iso",
-                  ]
                 total_label: "total_operating_expense"
                 tolerance: 10
               row_condition: "opex_group == 'operation_expense'"
@@ -99,19 +74,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: opex_type
                 value_column: opex_ytd
-                subcomponents_list:
-                  [
-                    "administrative_and_general",
-                    "customer_accounts",
-                    "customer_service_and_information",
-                    "distribution",
-                    "other_power_supply",
-                    "production_excluding_fuel",
-                    "production_fuel",
-                    "sales",
-                    "transmission",
-                    "rto_iso",
-                  ]
                 total_label: "total_operating_expense"
                 tolerance: 10
               row_condition: "opex_group == 'operation_expense'"
@@ -122,19 +84,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: opex_type
                 value_column: opex_ytd_budget
-                subcomponents_list:
-                  [
-                    "administrative_and_general",
-                    "customer_accounts",
-                    "customer_service_and_information",
-                    "distribution",
-                    "other_power_supply",
-                    "production_excluding_fuel",
-                    "production_fuel",
-                    "sales",
-                    "transmission",
-                    "rto_iso",
-                  ]
                 total_label: "total_operating_expense"
                 tolerance: 10
               row_condition: "opex_group == 'operation_expense'"
@@ -145,14 +94,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: opex_type
                 value_column: opex_report_month
-                subcomponents_list:
-                  [
-                    "distribution",
-                    "production",
-                    "transmission",
-                    "general_plant",
-                    "rto_iso",
-                  ]
                 total_label: "total_maintenance_expense"
                 tolerance: 10
               row_condition: "opex_group == 'maintenance_expense'"
@@ -161,14 +102,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: opex_type
                 value_column: opex_ytd
-                subcomponents_list:
-                  [
-                    "distribution",
-                    "production",
-                    "transmission",
-                    "general_plant",
-                    "rto_iso",
-                  ]
                 total_label: "total_maintenance_expense"
                 tolerance: 10
               row_condition: "opex_group == 'maintenance_expense'"
@@ -179,14 +112,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: opex_type
                 value_column: opex_ytd_budget
-                subcomponents_list:
-                  [
-                    "distribution",
-                    "production",
-                    "transmission",
-                    "general_plant",
-                    "rto_iso",
-                  ]
                 total_label: "total_maintenance_expense"
                 tolerance: 10
               row_condition: "opex_group == 'maintenance_expense'"

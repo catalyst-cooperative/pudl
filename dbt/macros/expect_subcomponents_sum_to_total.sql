@@ -3,10 +3,10 @@
     group_by_columns,
     categorical_column,
     value_column,
-    subcomponents_list,
     total_label,
     tolerance=0.01,
     row_condition=None,
+    subcomponents_list=None,
     negative_subcomponents_list=None
 ) %}
 
@@ -31,14 +31,20 @@ summary AS (
     SELECT
         {{ group_by_columns | join(', ') }},
 
-        -- Calculate weighted sum of positive and negative subcomponents
+        -- Calculate weighted sum of positive and negative subcomponents (or all except total)
         SUM(
             CASE
+                {% if subcomponents_list is not none and subcomponents_list | length > 0 %}
+                -- Use provided subcomponents list
                 WHEN {{ categorical_column }} IN (
                     {%- for subcomp in subcomponents_list %}
                     '{{ subcomp }}'{% if not loop.last %}, {% endif %}
                     {%- endfor %}
                 ) THEN total
+                {% else %}
+                -- Sum everything except the total_label
+                WHEN {{ categorical_column }} != '{{ total_label }}' THEN total
+                {% endif %}
                 {% if negative_subcomponents_list is not none and negative_subcomponents_list | length > 0 %}
                 WHEN {{ categorical_column }} IN (
                     {%- for neg_subcomp in negative_subcomponents_list %}
@@ -57,7 +63,7 @@ summary AS (
 
         -- Get a percent difference between these two values
         ROUND(
-        ABS(subcomponents_sum - grand_total) / NULLIF(grand_total, 0) * 100, 2
+            ABS(subcomponents_sum - grand_total) / NULLIF(grand_total, 0) * 100, 2
         ) AS pct_diff
 
     FROM grouped

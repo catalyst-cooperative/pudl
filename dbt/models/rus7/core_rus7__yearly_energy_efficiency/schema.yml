@@ -15,18 +15,6 @@ sources:
                   [borrower_id_rus, report_date, observation_period]
                 categorical_column: customer_class
                 value_column: customers_num
-                subcomponents_list:
-                  [
-                    "residential_excluding_seasonal",
-                    "commercial_and_industrial_large",
-                    "commercial_and_industrial_small",
-                    "irrigation",
-                    "public_other",
-                    "public_street_lighting",
-                    "residential_seasonal",
-                    "sales_for_resale_other",
-                    "sales_for_resale_rus_borrowers",
-                  ]
                 total_label: "total"
                 tolerance: 0
           - subcomponents_sum_to_total:
@@ -35,18 +23,6 @@ sources:
                   [borrower_id_rus, report_date, observation_period]
                 categorical_column: customer_class
                 value_column: invested
-                subcomponents_list:
-                  [
-                    "residential_excluding_seasonal",
-                    "commercial_and_industrial_large",
-                    "commercial_and_industrial_small",
-                    "irrigation",
-                    "public_other",
-                    "public_street_lighting",
-                    "residential_seasonal",
-                    "sales_for_resale_other",
-                    "sales_for_resale_rus_borrowers",
-                  ]
                 total_label: "total"
                 tolerance: 1
               config:
@@ -57,18 +33,6 @@ sources:
                   [borrower_id_rus, report_date, observation_period]
                 categorical_column: customer_class
                 value_column: savings_mmbtu
-                subcomponents_list:
-                  [
-                    "residential_excluding_seasonal",
-                    "commercial_and_industrial_large",
-                    "commercial_and_industrial_small",
-                    "irrigation",
-                    "public_other",
-                    "public_street_lighting",
-                    "residential_seasonal",
-                    "sales_for_resale_other",
-                    "sales_for_resale_rus_borrowers",
-                  ]
                 total_label: "total"
                 tolerance: 1
               config:
