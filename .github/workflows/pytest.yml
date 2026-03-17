@@ -71,6 +71,7 @@ jobs:
               - '!.mypy.ini'
               - '!terraform/**'
               - '!test/unit/**'
+              - '!skills-lock.json'
       - name: print out components
         run: |
           echo "event name (${{ github.event_name }}) is workflow dispatch: ${{ github.event_name == 'workflow_dispatch' }}"

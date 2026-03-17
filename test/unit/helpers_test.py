@@ -10,6 +10,7 @@ from pandas.tseries.offsets import BYearEnd
 
 import pudl
 from pudl.helpers import (
+    ParquetData,
     add_fips_ids,
     apply_pudl_dtypes,
     convert_col_to_bool,
@@ -229,6 +230,27 @@ def test_monthly_attribute_merge():
     )
 
     assert_frame_equal(out, out_expected)
+
+
+@pytest.mark.parametrize(
+    "partitions,expected_filename",
+    [
+        ({}, "core_eia__plants.parquet"),
+        ({"year": 2022, "state": "ca"}, "2022_ca.parquet"),
+    ],
+)
+def test_parquet_data_paths(partitions: dict[str, object], expected_filename: str):
+    """ParquetData builds expected paths and ensures target directory exists."""
+    parquet_data = ParquetData(table_name="core_eia__plants", partitions=partitions)
+
+    # Accessing parquet_directory should create the table-specific directory.
+    parquet_directory = parquet_data.parquet_directory
+
+    assert parquet_directory.exists()
+    assert parquet_directory.is_dir()
+    assert parquet_directory.name == "core_eia__plants"
+
+    assert parquet_data.parquet_path == parquet_directory / expected_filename
 
 
 def test_quarterly_attribute_merge():
