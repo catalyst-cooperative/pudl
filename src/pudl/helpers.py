@@ -31,7 +31,7 @@ import requests
 import sqlalchemy as sa
 from dagster import AssetKey, AssetsDefinition, AssetSelection, AssetSpec
 from pandas._libs.missing import NAType
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 import pudl.logging_helpers
 from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
@@ -2182,7 +2182,16 @@ def retry(
 def get_parquet_table_polars(
     table_name: str, partitions: dict | None = None
 ) -> pl.LazyFrame:
-    """Read a table from a parquet file and return as a polars LazyFrame."""
+    """Read a table from a parquet file and return as a polars LazyFrame.
+
+    Args:
+        table_name: Name of the table to read.
+        partitions: Optional dictionary of partitions to filter the data. See
+            :class:`ParquetData` definition for details.
+
+    Returns:
+        A polars LazyFrame representing the table.
+    """
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
 
@@ -2331,10 +2340,22 @@ class ParquetData(BaseModel):
     Writing data to disk as parquet files enables the use of highly efficient
     processing/transforms with tools like Polars or duckdb. This class provides
     helpers for managing paths to parquet data on disk.
+
+    Attributes:
+        table_name: Name of the table corresponding to the parquet data.
+        partitions: Optional dictionary of partition dimension values which indicate
+            what chunk of table data is being offloaded to disk. If passed
+            ``{'years': 1995}`` then this class will produce a parquet file at
+            the path ``PudlPaths().parquet_path() / table_name / 1995.parquet``.
+            if passed ``{'years': 1995, 'states': 'CA'}`` then this class will produce a
+            parquet file at the path
+            ``PudlPaths().parquet_path() / table_name / 1995_ca.parquet``.
+            If partitions is empty, then the parquet file will be written
+            ``PudlPaths().parquet_path() / table_name / {table_name}.parquet``.
     """
 
     table_name: str
-    partitions: dict[str, Any] = {}
+    partitions: dict[str, Any] = Field(default_factory=dict)
 
     @property
     def parquet_directory(self) -> Path:
@@ -2356,7 +2377,7 @@ class ParquetData(BaseModel):
 def persist_table_as_parquet(
     table_data: pd.DataFrame | pl.LazyFrame | duckdb.DuckDBPyRelation,
     table_name: str,
-    partitions: dict = {},
+    partitions: dict[str, Any] | None = None,
     compression: Literal["zstd", "snappy", "gzip", "brotli"] = "zstd",
 ) -> ParquetData:
     """Write data from DataFrame or LazyFrame to disk as a parquet file.
@@ -2365,14 +2386,13 @@ def persist_table_as_parquet(
     transforms.
 
     Args:
-        table_data: Data to write to disk as either a Pandas DataFrame, Polars LazyFrame, or duckdb relation.
+        table_data: Tabular data to write to disk.
         table_name: Table name used to construct path to/name of parquet file.
-        partitions: Partitions which correspond to the table_data. If passed
-            ``{'years': 1995}`` then this method will produce a parquet file at the path
-            ``PudlPaths().parquet_path() / table_name / '1995.parquet'``.
+        partitions: Optional partition dimension values indicating the data to be
+            written.
     """
     # Create ParquetData class to get path to write parquet file
-    parquet_data = ParquetData(table_name=table_name, partitions=partitions)
+    parquet_data = ParquetData(table_name=table_name, partitions=partitions or {})
     if isinstance(table_data, pd.DataFrame):
         table_data.to_parquet(parquet_data.parquet_path, compression=compression)
     elif isinstance(table_data, pl.LazyFrame):
