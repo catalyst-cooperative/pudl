@@ -6,6 +6,7 @@ require hand mapping to extract in PUDL.
 """
 
 import importlib
+import re
 import sys
 from pathlib import Path
 
@@ -19,7 +20,11 @@ logger = get_logger(__name__)
 
 
 def get_latest_record_id(record_id: str) -> tuple[str | None, str | None]:
-    """Query https://zenodo.org/api/records/{recordid}/versions/latest for latest record."""
+    """Get ID of the latest version of any Zenodo record.
+
+    Given the ID of any Zenodo record, this will return the record ID and DOI of the
+    latest version associated with the same concept DOI.
+    """
     url = f"https://zenodo.org/api/records/{record_id}/versions/latest"
     resp = requests.get(url, timeout=10)
     resp.raise_for_status()
@@ -32,9 +37,7 @@ def get_latest_record_id(record_id: str) -> tuple[str | None, str | None]:
     return str(latest_id), latest_doi
 
 
-def update_yaml_dois(
-    yaml_file: Path, datasets: list[str] | None = None
-) -> dict[str, dict]:
+def update_yaml_dois(yaml_file: Path, datasets: tuple[str, ...]) -> dict[str, dict]:
     """Check all DOIs and update to latest record versions."""
     updates = {}
 
@@ -42,25 +45,24 @@ def update_yaml_dois(
         data = yaml.safe_load(f)
 
     for dataset_name, current_doi in data.items():
-        if datasets is None or dataset_name in datasets:
+        if dataset_name in datasets:
             # Extract record ID from DOI (e.g, grab 123456 from 10.5281/zenodo.123456)
-            record_id = current_doi.split("zenodo.")[-1].split("/")[0]
+            record_id = re.search(r"^10\.5281/zenodo\.(\d+)$", current_doi).group(1)
 
             latest_id, latest_doi = get_latest_record_id(record_id)
 
             if latest_id and latest_id != record_id:
                 # Reconstruct DOI with latest record ID
-                new_doi = f"10.5281/zenodo.{latest_id}"
                 logger.info(
-                    f"{dataset_name}: Updating DOI from {current_doi} to {new_doi}"
+                    f"{dataset_name}: Updating DOI from {current_doi} to {latest_doi}"
                 )
 
                 # Update the DOI
-                data[dataset_name] = new_doi
+                data[dataset_name] = latest_doi
 
                 updates[dataset_name] = {
                     "old_doi": current_doi,
-                    "new_doi": new_doi,
+                    "new_doi": latest_doi,
                 }
 
             elif latest_id == record_id:
@@ -80,16 +82,16 @@ def update_yaml_dois(
 @click.command(
     context_settings={"help_option_names": ["-h", "--help"]},
 )
-@click.option(
-    "--datasets",
-    type=str,
-    default=None,
-    help="Specific datasets to update, separated by a comma (e.g. phmsagas,epacamd_eia). If none are specified, all are updated.",
+@click.argument(
+    "datasets",
+    nargs=-1,
 )
-def main(datasets: str | None = None):
+def main(datasets: tuple[str, ...]):
     """Auto-update Zenodo DOIs to the latest value."""
-    if datasets:
-        datasets = datasets.split(",")
+    if not datasets:  # If no datasets to update
+        logger.warn("No datasets provided, nothing will be updated.")
+        sys.exit(0)
+
     yaml_file = importlib.resources.files("pudl.package_data.settings").joinpath(
         "zenodo_dois.yml"
     )
