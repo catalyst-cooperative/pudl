@@ -17,7 +17,12 @@
 - Project tasks and environments are defined in `pyproject.toml` under `[tool.pixi]`.
 - Git pre-commit hooks are defined in `.pre-commit-config.yaml`.
 
-## Sandbox-safe command execution
+## Available skills
+
+There are a number of skills defined in skills-lock.json that should be available to you.
+If they're not available, use `pixi run install-skills` to install them.
+
+## Sandbox safe execution
 
 - Prefer already-installed binaries before invoking commands that may trigger package
   resolution or updates.
