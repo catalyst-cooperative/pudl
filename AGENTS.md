@@ -34,6 +34,11 @@
   but they are not yet checked or enforced. They are primarily to improve readability
   for humans, LLMs, and IDEs.
 
+## Available skills
+
+There are a number of skills defined in skills-lock.json that should be available to you.
+If they're not available, use `pixi run install-skills` to install them.
+
 ## Testing instructions
 
 - PUDL uses pytest to manage its unit and integration tests.

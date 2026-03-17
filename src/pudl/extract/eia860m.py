@@ -107,7 +107,7 @@ def raw_eia860m__all_dfs(context):
 
 @multi_asset(
     outs={
-        table_name: AssetOut()
+        table_name: AssetOut(is_required=False)
         for table_name in sorted(
             (
                 "raw_eia860m__generator_existing",
@@ -116,8 +116,9 @@ def raw_eia860m__all_dfs(context):
             )
         )
     },
+    can_subset=True,
 )
-def extract_eia860m(raw_eia860m__all_dfs: dict[str, pd.DataFrame]):
+def extract_eia860m(context, raw_eia860m__all_dfs: dict[str, pd.DataFrame]):
     """Extract raw EIA data from excel sheets into dataframes."""
     # create descriptive table_names
     raw_eia860m__all_dfs = {
@@ -126,7 +127,10 @@ def extract_eia860m(raw_eia860m__all_dfs: dict[str, pd.DataFrame]):
     }
     raw_eia860m__all_dfs = dict(sorted(raw_eia860m__all_dfs.items()))
 
+    selected_outputs = set(context.selected_output_names)
+
     return (
         Output(output_name=table_name, value=df)
         for table_name, df in raw_eia860m__all_dfs.items()
+        if table_name in selected_outputs
     )

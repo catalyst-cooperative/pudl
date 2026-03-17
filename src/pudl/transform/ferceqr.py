@@ -334,10 +334,6 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
                 "commencement_date_of_contract_term",
                 "contract_termination_date",
                 "actual_termination_date",
-                "product_type_name",
-                "product_name",
-                "units",
-                "rate_units",
             ],
             transform=lambda col: _parse_datetimes(col, "%Y%m%d"),
         )

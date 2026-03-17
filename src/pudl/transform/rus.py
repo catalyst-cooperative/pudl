@@ -1,6 +1,9 @@
 """Code for transforming RUS data that pertains to more than one RUS Form."""
 
+from enum import StrEnum, auto
+
 import pandas as pd
+from dagster import AssetIn, AssetsDefinition, asset
 
 import pudl.helpers as helpers
 import pudl.logging_helpers
@@ -26,7 +29,9 @@ def early_check_pk(
     return
 
 
-def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataFrame:
+def early_transform(
+    raw_df: pd.DataFrame, boolean_columns_to_fix=[], string_cols_to_simplify=[]
+) -> pd.DataFrame:
     """Standard transforms for raw RUS data."""
     df = (
         helpers.standardize_na_values(raw_df)
@@ -36,7 +41,7 @@ def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataF
             helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
         )
-        .pipe(helpers.simplify_strings, ["borrower_name_rus"])
+        .pipe(helpers.simplify_strings, ["borrower_name_rus"] + string_cols_to_simplify)
         .assign(
             borrower_name_rus=lambda x: x.borrower_name_rus.str.replace(
                 ",", ""
@@ -54,6 +59,7 @@ def multi_index_stack(
     match_names: list[str],
     unstack_level: list[str],
     drop_zero_rows: bool = False,
+    assume_no_dropped_cols: bool = False,
 ) -> pd.DataFrame:
     """Stack multiple data columns - create categorical columns and data columns.
 
@@ -97,8 +103,18 @@ def multi_index_stack(
             table. Presumably this will be all of the match_names except 'data_cols'.
         drop_zero_rows: if True, drop rows where all data_cols are 0. Function
             already drops rows where data_cols are all NaN.
+        assume_no_dropped_cols: if True, an assertion will be raised when there are
+            columns that are getting dropped from the pattern.
     """
+    og_columns = set(df.columns)
     df = df.set_index(idx_ish).filter(regex=pattern)
+    if assume_no_dropped_cols and (
+        col_diff := og_columns.symmetric_difference(set(df.reset_index().columns))
+    ):
+        raise AssertionError(
+            f"We are dropping {len(col_diff)} when we expected to drop no columns. "
+            f"Dropped columns: \n{(col_diff)}"
+        )
     df.columns = pd.MultiIndex.from_frame(
         df.columns.str.extract(pattern, expand=True)
     ).set_names(match_names)
@@ -146,3 +162,35 @@ def convert_units(
         }
     )
     return df
+
+
+class RusEntity(StrEnum):
+    """Enum for the different types of RUS entities."""
+
+    BORROWERS = auto()
+
+
+def finished_rus_asset_factory(
+    table_name: str, _core_table_name: str, io_manager_key: str | None = None
+) -> AssetsDefinition:
+    """An asset factory for finished RUS tables.
+
+    Args:
+        table_name: the name of the core table.
+        _core_table_name: the name of the unharvested input table
+        io_manager_key: the name of the IO Manager of the final asset.
+
+    Returns:
+        A RUS asset.
+    """
+
+    @asset(
+        ins={_core_table_name: AssetIn()},
+        name=table_name,
+        io_manager_key=io_manager_key,
+    )
+    def finished_rus_asset(**kwargs) -> pd.DataFrame:
+        """Convert RUS _core table to core - the io manager will handle the schema."""
+        return kwargs[_core_table_name]
+
+    return finished_rus_asset

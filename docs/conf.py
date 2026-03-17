@@ -75,8 +75,10 @@ bibtex_bibfiles = [
     "further_reading.bib",
 ]
 
-# Set this to True if you need to debug generated file formatting.
-keep_generated_files = False
+# If PUDL_DOCS_KEEP_GENERATED_FILES is defined, don't clean up generated files after the
+# docs build. Useful for debugging formatting of generated RST files, but be sure to
+# clean them up when you're done!
+keep_generated_files = "PUDL_DOCS_KEEP_GENERATED_FILES" in os.environ
 
 # Redirects to keep folks from hitting 404 errors:
 redirects = {
@@ -102,6 +104,7 @@ issues_github_path = "catalyst-cooperative/pudl"
 intersphinx_mapping = {
     "arrow": ("https://arrow.apache.org/docs/", None),
     "dagster": ("https://docs.dagster.io/", None),
+    "duckdb": ("https://duckdb.org/docs/stable/clients/python/reference/", None),
     "geopandas": ("https://geopandas.org/en/stable/", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest/", None),
     "networkx": ("https://networkx.org/documentation/stable/", None),
@@ -116,6 +119,12 @@ intersphinx_mapping = {
     "sklearn": ("https://scikit-learn.org/stable", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org/en/latest/", None),
 }
+
+# If PUDL_DOCS_DISABLE_INTERSPHINX is set, disable intersphinx lookups. This can speed
+# up the build and avoids issues with external sites being down.
+if "PUDL_DOCS_DISABLE_INTERSPHINX" in os.environ:
+    print("Disabling intersphinx lookups (PUDL_DOCS_DISABLE_INTERSPHINX is set).")
+    intersphinx_mapping = {}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -251,10 +260,10 @@ def static_dfs_to_rst(app):
 
 def cleanup_rsts(app, exception):
     """Remove generated RST files when the build is finished."""
-    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink()
-    (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink()
+    (DOCS_DIR / "data_dictionaries/pudl_db.rst").unlink(missing_ok=True)
+    (DOCS_DIR / "data_dictionaries/codes_and_labels.rst").unlink(missing_ok=True)
     for name in INCLUDED_SOURCES:
-        (DOCS_DIR / f"data_sources/{name}.rst").unlink()
+        (DOCS_DIR / f"data_sources/{name}.rst").unlink(missing_ok=True)
 
 
 def cleanup_csv_dir(app, exception):

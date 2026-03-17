@@ -42,6 +42,7 @@ from pudl.metadata.enums import (
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
     NERC_REGIONS,
+    PLANT_COST_TYPES_RUS12,
     PLANT_PARTS,
     PLANT_TYPE_RUS12,
     PRIME_MOVER_TYPES_RUS12,
@@ -70,7 +71,7 @@ from pudl.metadata.sources import SOURCES
 FIELD_METADATA: dict[str, dict[str, Any]] = {
     "delivered_gas_heat_content_mmbtu_per_mcf": {
         "description": "The average annual heat content of gas delivered directly to consumers.",
-        "unit": "MMBtu_per_Mcf",
+        "unit": "MMBTU_per_Mcf",
         "type": "number",
     },
     "operational_consumption_facility_space_heat_mcf": {
@@ -233,6 +234,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the emissions control equipment controls acid (HCl) gas."
         ),
     },
+    "acid_gas_removal_efficiency": {
+        "type": "number",
+        "description": "Removal efficiency for acid gas emissions. Ranges from 0 to 1.",
+    },
     "actual_peak_demand_savings_mw": {
         "type": "number",
         "description": (
@@ -367,6 +372,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Maximum cooling water temperature at outlet in winter",
         "type": "number",
         "unit": "F",
+    },
+    "annual_nox_emission_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": (
+            "Actual controlled (or uncontrolled) nitrogen oxides emission rate. "
+            "Based on data from CEMS where possible."
+        ),
+        "unit": "lb_per_MMBTU",
     },
     "annual_total_chlorine_lbs": {
         "description": (
@@ -655,7 +668,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "bulk_agg_fuel_cost_per_mmbtu": {
         "type": "number",
         "description": (
-            "Fuel cost per mmbtu reported in the EIA bulk electricity data. This is an "
+            "Fuel cost per MMBTU reported in the EIA bulk electricity data. This is an "
             "aggregate average fuel price for a whole state, region, month, sector, "
             "etc. Used to fill in missing fuel prices."
         ),
@@ -718,7 +731,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "byproduct_units": {
         "type": "string",
         "description": (
-            "Reported unit of measure for combustion byproduct. MMBtu for steam, tons for all other byproducts."
+            "Reported unit of measure for combustion byproduct. MMBTU for steam, tons for all other byproducts."
         ),
         "constraints": {"enum": ["mmbtu", "tons"]},
     },
@@ -1096,7 +1109,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "coal_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Coal heat content as a percentage of overall fuel heat content (mmBTU)."
+            "Coal heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "coalmine_county_id_fips": {
@@ -1567,7 +1580,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Per-capita annual demand, averaged using Census county-level population estimates."
         ),
-        "unit": "MWh/person",
+        "unit": "MWh_per_person",
     },
     "demand_charges": {
         "type": "number",
@@ -1582,7 +1595,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "demand_density_mwh_km2": {
         "type": "number",
         "description": "Annual demand per km2 of a given service territory.",
-        "unit": "MWh/km2",
+        "unit": "MWh_per_km2",
     },
     "has_air_permit_limits": {
         "type": "boolean",
@@ -1668,19 +1681,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "disposal_landfill_units": {
         "type": "number",
         "description": (
-            "Disposed by-products in landfill, to the nearest hundred tons or in MMBtu for steam sales."
+            "Disposed by-products in landfill, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "disposal_offsite_units": {
         "type": "number",
         "description": (
-            "Disposed by-products offsite, to the nearest hundred tons or in MMBtu for steam sales."
+            "Disposed by-products offsite, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "disposal_ponds_units": {
         "type": "number",
         "description": (
-            "Disposed by-products in ponds, to the nearest hundred tons or in MMBtu for steam sales."
+            "Disposed by-products in ponds, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "distributed_generation": {
@@ -2673,6 +2686,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Total number of hours worked by employees.",
     },
+    "external_financial_risk_ratio": {
+        "type": "number",
+        "description": (
+            "total investments + loan guarantee balances / "
+            "total utility plant assets. This ratio shows how much a utility is "
+            "financially exposed to outside entities relative to its own assets."
+        ),
+    },
     "end_point": {
         "type": "string",
         "description": "The end point of a transmission line.",
@@ -2929,9 +2950,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "energy_use_mmbtu": {
         "type": "number",
         "description": (
-            "Energy use, in MMBtu; also referred to as energy consumption, energy demand, or delivered energy, depending on type."
+            "Energy use, in MMBTU; also referred to as energy consumption, energy demand, or delivered energy, depending on type."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "energy_use_sector": {
         "type": "string",
@@ -2953,6 +2974,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "entity_type": {
         "type": "string",
         "description": "Entity type of principal owner.",
+    },
+    "environmental_equipment_name": {
+        "type": "string",
+        "description": "Type of equipment or strategy for the control of air emissions.",
     },
     "estimated_or_actual_capacity_data": {
         "type": "string",
@@ -3321,7 +3346,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "for_rural_development": {
         "type": "boolean",
         "description": (
-            "Whether or not the investment is for rural development. "
+            "Whether or not the investment or loan is for rural development. "
             "This includes investments in any/all types of projects or "
             "products that were made to improve the economy and/or quality "
             "of life in the specified area."
@@ -3358,7 +3383,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total consumption of fuel to produce electricity, in physical unit, year to date."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "fuel_consumed_for_electricity_units": {
         "type": "number",
@@ -3371,7 +3396,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "fuel_consumed_total_cost": {
         "type": "number",
@@ -3403,23 +3428,23 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_mmbtu": {
         "type": "number",
-        "description": "Total heat content for plant (in MMBtu).",
-        "unit": "MMBtu",
+        "description": "Total heat content for plant (in MMBTU).",
+        "unit": "MMBTU",
     },
     "fuel_cost_per_mmbtu": {
         "type": "number",
-        "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
-        "unit": "USD_per_MMBtu",
+        "description": "Average fuel cost per MMBTU of heat content in nominal USD.",
+        "unit": "USD_per_MMBTU",
     },
     "fuel_cost_per_mmbtu_eia": {
         "type": "number",
-        "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
-        "unit": "USD_per_MMBtu",
+        "description": "Average fuel cost per MMBTU of heat content in nominal USD.",
+        "unit": "USD_per_MMBTU",
     },
     "fuel_cost_per_mmbtu_ferc1": {
         "type": "number",
-        "description": "Average fuel cost per mmBTU of heat content in nominal USD.",
-        "unit": "USD_per_MMBtu",
+        "description": "Average fuel cost per MMBTU of heat content in nominal USD.",
+        "unit": "USD_per_MMBTU",
     },
     "fuel_cost_per_mwh": {
         "type": "number",
@@ -3459,11 +3484,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_cost_real_per_mmbtu_eiaaeo": {
         "type": "number",
         "description": (
-            "Average fuel cost per mmBTU of heat content in real USD, "
+            "Average fuel cost per MMBTU of heat content in real USD, "
             "standardized to the value of a USD in the year defined by "
             "``real_cost_basis_year``."
         ),
-        "unit": "USD_per_MMBtu",
+        "unit": "USD_per_MMBTU",
     },
     "fuel_derived_from": {
         "type": "string",
@@ -3505,7 +3530,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Heat content of the fuel in millions of Btus per physical unit."
         ),
-        "unit": "MMBtu_per_unit",
+        "unit": "MMBTU_per_unit",
     },
     "fuel_pct": {
         "type": "number",
@@ -3527,9 +3552,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_received_mmbtu": {
         "type": "number",
         "description": (
-            "Aggregated fuel receipts, in MMBtu, in EIA bulk electricity data."
+            "Aggregated fuel receipts, in MMBTU, in EIA bulk electricity data."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "fuel_received_units": {
         "type": "number",
@@ -3656,7 +3681,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "gas_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Natural gas heat content as a percentage of overall fuel heat content (MMBtu)."
+            "Natural gas heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "generation_activity": {
@@ -3791,7 +3816,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "heat_content_mmbtu": {
         "type": "number",
         "description": "The energy contained in fuel burned, measured in million BTU.",
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "hour_of_year": {
         "type": "integer",
@@ -3804,33 +3829,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Fuel content per unit of electricity generated. Coming from MCOE calculation."
         ),
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "unit_heat_rate_mmbtu_per_mwh_eia": {
         "type": "number",
         "description": (
             "Fuel content per unit of electricity generated. Coming from MCOE calculation."
         ),
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "unit_heat_rate_mmbtu_per_mwh_ferc1": {
         "type": "number",
         "description": (
             "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation."
         ),
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "heat_rate_mmbtu_per_mwh": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated.",
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "heat_rate_penalty": {
         "type": "number",
         "description": (
             "Heat rate penalty for retrofitting. This column only has contents to retrofit technologies. It seems to be a rate between 0.35 and 0.09"
         ),
-        "unit": "MMBtu_MWh",
+        "unit": "MMBTU_MWh",
     },
     "highest_distribution_voltage_kv": {
         "type": "number",
@@ -3842,6 +3867,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Number of AMI meters with home area network (HAN) gateway enabled."
         ),
+    },
+    "hours_in_service": {
+        "type": "integer",
+        "description": (
+            "Total hours the emissions control was in service during the reporting year, "
+            "rounded to the nearest hour."
+        ),
+        "unit": "hr",
     },
     "hrsg": {
         "type": "boolean",
@@ -4187,6 +4220,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand."
         ),
     },
+    "is_loan_guarantee": {
+        "type": "boolean",
+        "description": (
+            "Indicates a third-party loan that the reporting utility (referred as a borrower) "
+            "has co-signed, taking on responsibility for repayment if the primary borrower defaults."
+        ),
+    },
     "iso_rto_code": {
         "type": "string",
         "description": (
@@ -4213,6 +4253,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "The cause of the leaks.",
         "constraints": {"enum": LEAK_SOURCE_PHMSAGAS},
+    },
+    "lending_organization": {
+        "type": "string",
+        "description": "The organization that provided a lease or loan.",
     },
     "levelized_cost_of_energy_per_mwh": {
         "type": "number",
@@ -4347,14 +4391,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "date",
         "description": "The date on which a loan is scheduled to be fully paid.",
     },
-    "loan_organization": {
-        "type": "string",
-        "description": "The organization from which a loan was received.",
-    },
     "loan_original_amount": {
         "type": "number",
         "description": "The original amount of a loan.",
         "unit": "USD",
+    },
+    "loan_recipient": {
+        "type": "string",
+        "description": "The organization that received a loan.",
     },
     "longitude": {
         "type": "number",
@@ -4420,15 +4464,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "max_fuel_mmbtu_per_unit": {
         "type": "number",
-        "description": "Maximum heat content per physical unit of fuel in MMBtu.",
-        "unit": "MMBtu",
+        "description": "Maximum heat content per physical unit of fuel in MMBTU.",
+        "unit": "MMBTU",
     },
     "max_oil_heat_input": {
         "type": "number",
         "description": (
-            "The maximum oil heat input (percent of MMBtus) expected for proposed unit when co-firing with natural gas"
+            "The maximum oil heat input (percent of MMBTUs) expected for proposed unit when co-firing with natural gas"
         ),
-        "unit": "% MMBtu",
+        "unit": "% MMBTU",
     },
     "max_oil_output_mw": {
         "type": "number",
@@ -4439,7 +4483,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "max_steam_flow_lbs_per_hour": {
         "type": "number",
-        "unit": "lbs_per_hour",
+        "unit": "lb_per_hour",
         "description": "Maximum continuous steam flow at 100 percent load.",
     },
     "mercury_content_ppm": {
@@ -4509,6 +4553,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Proposed strategy to comply with the most stringent mercury regulation."
         ),
     },
+    "mercury_emission_rate_lb_per_trillion_btu": {
+        "type": "number",
+        "description": (
+            "Actual controlled (or uncontrolled) mercury emission rate, based on "
+            "data from CEMS, where possible."
+        ),
+    },
+    "mercury_removal_efficiency": {
+        "type": "number",
+        "description": "Removal efficiency for mercury emissions. Ranges from 0 to 1.",
+    },
     "merge_address": {
         "type": "string",
         "description": "Address of new parent company.",
@@ -4531,8 +4586,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "min_fuel_mmbtu_per_unit": {
         "type": "number",
-        "description": "Minimum heat content per physical unit of fuel in MMBtu.",
-        "unit": "MMBtu",
+        "description": "Minimum heat content per physical unit of fuel in MMBTU.",
+        "unit": "MMBTU",
     },
     "mine_id_msha": {"type": "integer", "description": "MSHA issued mine identifier."},
     "mine_id_pudl": {
@@ -5041,7 +5096,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "nuclear_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Nuclear heat content as a percentage of overall fuel heat content (MMBtu)."
+            "Nuclear heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "nuclear_unit_id": {
@@ -5084,7 +5139,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "oil_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Oil heat content as a percentage of overall fuel heat content (MMBtu)."
+            "Oil heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "operates_generating_plant": {
@@ -5600,6 +5655,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Whether a plant part record has a duplicate record with different ownership status."
         ),
     },
+    "ozone_season_nox_emission_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": "Actual controlled (or uncontrolled) nitrogen oxides emission rate during the ozone season (May to September)",
+        "unit": "lb_per_MMBTU",
+    },
     "ownership_pct": {
         "type": "number",
         "description": "Percentage of the plant owned by the respondent.",
@@ -5737,6 +5797,34 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "If boiler is not in compliance with particulate matter regulations, strategy for compliance."
         ),
+    },
+    "particulate_emission_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": "Average annual emission removal rate for particulate matter.",
+        "unit": "lb_per_MMBTU",
+    },
+    "particulate_removal_efficiency_tested": {
+        "type": "number",
+        "description": (
+            "The tested efficiency for the removal of particulate matter at 100 percent load. "
+            "If not tested at 100 percent load, then the load at which the test was conducted "
+            "is included as a comment on Schedule 9. If no test was conducted, the test date "
+            "and tested efficiency field should be blank. Ranges from 0 to 1."
+        ),
+    },
+    "particulate_removal_efficiency_annual": {
+        "type": "number",
+        "description": (
+            "Particulate removal efficiency, based on the annual operating factor, "
+            "which is defined as annual fuel consumption (MMBTU) divided by the product "
+            "of the boiler design firing rate (MMBTU per hour) and hours of operation per year."
+            "When actual data are not available, estimates are provided based on equipment "
+            "design performance specifications. Ranges from 0 to 1."
+        ),
+    },
+    "particulate_test_date": {
+        "type": "date",
+        "description": "Date of the latest efficiency test for the removal of particulate matter.",
     },
     "partitions": {
         "type": "string",
@@ -6050,7 +6138,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "power_cost_per_mwh": {
         "type": "number",
         "description": ("The cost of power per mwh."),
-        "unit": "USD/MWh",
+        "unit": "USD_per_MWh",
     },
     "power_requirement_mw": {
         "description": (
@@ -6169,6 +6257,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "Power Administrations",
             ]
         },
+    },
+    "property_type": {
+        "type": "string",
+        "description": "The type of property leased.",
     },
     "pudl_version": {
         "type": "string",
@@ -6330,6 +6422,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
                 "country",
             ],
         },
+    },
+    "rental_cost_ytd": {
+        "type": "number",
+        "description": "Year-to-date rental cost for leased property.",
     },
     "has_regulatory_limits": {
         "type": "boolean",
@@ -7001,7 +7097,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "so2_emission_rate_lbs_per_hour": {
         "type": "number",
-        "unit": "lbs_per_hour",
+        "unit": "lb_per_hour",
         "description": (
             "Sulfur dioxide emission rate when operating at 100 percent load (pounds per hour)."
         ),
@@ -7043,13 +7139,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "so2_removal_efficiency_tested": {
         "type": "number",
         "description": (
-            "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) at tested rate at 100 percent load."
+            "The tested efficiency for the removal of sulfur dioxide at 100 percent load. "
+            "If not tested at 100 percent load, then the load at which the test was conducted "
+            "is included as a comment on Schedule 9. If no test was conducted, the test date "
+            "and tested efficiency field should be blank. Ranges from 0 to 1."
         ),
     },
     "so2_removal_efficiency_annual": {
         "type": "number",
         "description": (
-            "Removal efficiency for sulfur dioxide (to the nearest 0.1 percent by weight) based on designed firing rate and hours in operation (listed as a percentage)."
+            "Sulfur dioxide removal efficiency, based on the annual operating factor, "
+            "which is defined as annual fuel consumption (MMBTU) divided by the product "
+            "of the boiler design firing rate (MMBTU per hour) and hours of operation per year."
+            "When actual data are not available, estimates are provided based on equipment "
+            "design performance specifications. Ranges from 0 to 1."
         ),
     },
     "so2_test_date": {
@@ -7061,7 +7164,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sold_units": {
         "type": "number",
         "description": (
-            "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBtu."
+            "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBTU."
         ),
     },
     "sold_to_utility_mwh": {
@@ -7293,16 +7396,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "stored_offsite_units": {
         "type": "number",
-        "unit": "tons or MMBtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Stored by-products offsite, to the nearest hundred tons or in MMBtu for steam sales."
+            "Stored by-products offsite, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "stored_onsite_units": {
         "type": "number",
-        "unit": "tons or MMBtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Stored by-products onsite, to the nearest hundred tons or in MMBtu for steam sales."
+            "Stored by-products onsite, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "street_address": {
@@ -7679,9 +7782,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "total_disposal_units": {
         "type": "number",
-        "unit": "tons or mmbtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Total by-product disposal, to the nearest hundred tons or in MMBtu for steam sales."
+            "Total by-product disposal, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "total_disposition_mwh": {
@@ -7919,16 +8022,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "used_offsite_units": {
         "type": "number",
-        "unit": "tons or mmbtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Used offsite by-products, to the nearest hundred tons or in MMBtu for steam sales."
+            "Used offsite by-products, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "used_onsite_units": {
         "type": "number",
-        "unit": "tons or mmbtu",
+        "unit": "tons or MMBTU",
         "description": (
-            "Used onsite by-products, to the nearest hundred tons or in MMBtu for steam sales."
+            "Used onsite by-products, to the nearest hundred tons or in MMBTU for steam sales."
         ),
     },
     "utility_id_eia": {
@@ -8087,14 +8190,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "waste_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Waste-heat heat content as a percentage of overall fuel heat content (MMBtu)."
+            "Waste-heat heat content as a percentage of overall fuel heat content (MMBTU)."
         ),
     },
     "waste_heat_input_mmbtu_per_hour": {
         "type": "number",
-        "unit": "MMBtu_per_hour",
+        "unit": "MMBTU_per_hour",
         "description": (
-            "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBtu per hour)."
+            "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBTU per hour)."
         ),
     },
     "num_water_heaters": {
@@ -8132,7 +8235,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "wet_dry_bottom": {
         "type": "string",
-        "unit": "MMBtu_per_hour",
+        "unit": "MMBTU_per_hour",
         "description": (
             "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers."
         ),
@@ -9452,7 +9555,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Warning: We found values much larger than expected that we have not yet "
             "cleaned - this is likely a reporting unit error."
         ),
-        "unit": "MMBtu",
+        "unit": "MMBTU",
     },
     "electric_sales_revenue": {
         "type": "integer",
@@ -9511,9 +9614,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Investment type code.",
         "constraints": {
-            "enum": set(
-                CODE_METADATA["core_rus7__codes_investment_types"]["df"]["code"]
-            )
+            "enum": set(CODE_METADATA["core_rus__codes_investment_types"]["df"]["code"])
         },
     },
     "included_investments": {
@@ -9587,6 +9688,102 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "The year-to-date budget for amount of operational expense, cost or income.",
         "unit": "USD",
+    },
+    "unit_id_rus": {
+        "type": "integer",
+        "description": "RUS-assigned unit identification code.",
+    },
+    "cost_group": {
+        "type": "string",
+        "description": "High-level category of cost type.",
+        "constraints": {"enum": {"capex", "opex", "total"}},
+    },
+    "cost_type": {
+        "type": "string",
+        "description": "Detailed category of cost type.",
+        "constraints": {"enum": PLANT_COST_TYPES_RUS12},
+    },
+    "cost_per_mwh": {
+        "type": "number",
+        "description": "Unit cost of energy production in cost per MWh",
+        "unit": "USD_per_MWh",
+    },
+    "cost_per_mmbtu": {
+        "type": "number",
+        "description": "Unit cost of energy production in cost per MMBTU",
+        "unit": "USD_per_MMBTU",
+    },
+    "is_full_ownership_portion": {
+        "type": "boolean",
+        "description": (
+            "Whether or not the plant record represents the full plant - regardless of "
+            "whether its fully owned by the borrower."
+        ),
+    },
+    "is_partly_owned_by_borrower": {
+        "type": "boolean",
+        "description": (
+            "Whether or not the plant record is partially owned by the borrower. "
+            "This column was not reported before 2009."
+        ),
+    },
+    "fuel_consumption_coal_lbs": {
+        "type": "number",
+        "description": (
+            "Annual pounds of coal consumed for fuel."
+            "This field is only reported for plant_type steam."
+        ),
+        "unit": "lb",
+    },
+    "fuel_consumption_gas_cubic_feet": {
+        "type": "number",
+        "description": (
+            "Annual cubic feet of natural gas consumed for fuel."
+            "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
+        ),
+        "unit": "cf",
+    },
+    "fuel_consumption_oil_gallons": {
+        "type": "number",
+        "description": (
+            "Annual gallons of oil consumed for fuel."
+            "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
+        ),
+        "unit": "gal",
+    },
+    "fuel_consumption_other": {
+        "type": "number",
+        "description": (
+            "Annual other fuel consumed. Neither units nor type of fuel are documented."
+            "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
+        ),
+    },
+    "operating_hours_in_service": {
+        "type": "number",
+        "description": "Number of operating hours in service.",
+        "unit": "hours",
+    },
+    "operating_hours_on_standby": {
+        "type": "number",
+        "description": "Number of operating hours on standby.",
+        "unit": "hours",
+    },
+    "operating_hours_out_of_service_scheduled": {
+        "type": "number",
+        "description": "Number of operating hours out of service which were scheduled.",
+        "unit": "hours",
+    },
+    "operating_hours_out_of_service_unscheduled": {
+        "type": "number",
+        "description": "Number of operating hours out of service which were unscheduled.",
+        "unit": "hours",
+    },
+    "times_started": {
+        "type": "number",
+        "description": (
+            "Number of times the plant was started. "
+            "This field is only reported for plant_type's steam and nuclear."
+        ),
     },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
@@ -9678,6 +9875,10 @@ FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
             "description": "Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.",
             "constraints": {"enum": SUBDIVISION_CODES_ISO3166 | {"MH", "FM"}},
         },
+        "plant_type": {
+            "type": "string",
+            "constraints": {"enum": PLANT_TYPE_RUS12},
+        },
     },
 }
 """Field attributes by resource group (`resource.group`) and PUDL identifier.
@@ -9688,14 +9889,6 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
-    "core_rus12__yearly_plant_labor": {
-        "plant_type": {
-            "type": "string",
-            "constraints": {
-                "enum": PLANT_TYPE_RUS12,
-            },
-        }
-    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
             "description": "State that the operator is reporting for.",
@@ -10499,7 +10692,44 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "core_ferceqr__contracts": {
         "product_name": {
+            "description": (
+                "Description of product being offered. Note that allowed values"
+                " differ slightly from those in :ref:`core_ferceqr__transactions`."
+                " BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
+                " CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis."
+                " CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service."
+                " DIRECT ASSIGNMENT FACILITIES CHARGE: Charges for facilities or portions of facilities that are constructed or used for the sole use/benefit of a particular customer."
+                " EMERGENCY ENERGY: Contractual provisions to supply energy or capacity to another entity during critical situations."
+                " ENERGY: A quantity of electricity that is sold or transmitted over a period of time."
+                " ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
+                " FUEL CHARGE: Charge based on the cost or amount of fuel used for generation."
+                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs."
+                " INTERCONNECTION AGREEMENT: Contract that provides the terms and conditions for a generator, distribution system owner, transmission owner, transmission provider, or transmission system to physically connect to a transmission system or distribution system."
+                " MEMBERSHIP AGREEMENT: Agreement to participate and be subject to rules of a system operator."
+                " MUST RUN AGREEMENT: An agreement that requires a unit to run."
+                " NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies)."
+                " NETWORK: Transmission service under contract providing network service."
+                " NETWORK OPERATING AGREEMENT: An executed agreement that contains the terms and conditions under which a network customer operates its facilities and the technical and operational matters associated with the implementation of network integration transmission service."
+                " OTHER: Product name not otherwise included."
+                " POINT-TO-POINT AGREEMENT: Transmission service under contract between specified Points of Receipt and Delivery."
+                " PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over."
+                " REACTIVE SUPPLY & VOLTAGE CONTROL: Production or absorption of reactive power to maintain voltage levels on transmission systems (Ancillary Service)."
+                " REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system."
+                " REASSIGNMENT AGREEMENT: Transmission capacity reassignment agreement."
+                " REGULATION & FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
+                " SCHEDULE SYSTEM CONTROL & DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service)."
+                " SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " SYSTEM OPERATING AGREEMENTS: An executed agreement that contains the terms and conditions under which a system or network customer shall operate its facilities and the technical and operational matters associated with the implementation of network."
+                " TOLLING ENERGY: Energy sold from a plant whereby the buyer provides fuel to a generator (seller) and receives power in return for pre-established fees."
+                " TRANSMISSION OWNERS AGREEMENT: The agreement that establishes the terms and conditions under which a transmission owner transfers operational control over designated transmission facilities."
+                " UPLIFT: A make-whole payment by an RTO/ISO to a utility."
+            ),
             "constraints": {
+                "required": True,
                 "enum": [
                     "BLACK START SERVICE",
                     "CAPACITY",
@@ -10533,11 +10763,66 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "TOLLING ENERGY",
                     "TRANSMISSION OWNERS AGREEMENT",
                     "UPLIFT",
-                ]
+                ],
             },
         },
     },
     "core_ferceqr__transactions": {
+        "product_name": {
+            "description": (
+                "Description of product being offered. Note that allowed values"
+                " differ slightly from those in :ref:`core_ferceqr__contracts`."
+                " BLACK START SERVICE: Service available after a system-wide blackout where a generator participates in system restoration activities without the availability of an outside electric supply (Ancillary Service)."
+                " BOOKED OUT POWER: Energy or capacity contractually committed bilaterally for delivery but not actually delivered due to some offsetting or countervailing trade (Transaction only)."
+                " CAPACITY: A quantity of demand that is charged on a $/KW or $/MW basis."
+                " CUSTOMER CHARGE: Fixed contractual charges assessed on a per customer basis that could include billing service."
+                " ENERGY: A quantity of electricity that is sold or transmitted over a period of time."
+                " ENERGY IMBALANCE: Service provided when a difference occurs between the scheduled and the actual delivery of energy to a load obligation (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " EXCHANGE: Transaction whereby the receiver accepts delivery of energy for a supplier’s account and returns energy at times, rates, and in amounts as mutually agreed if the receiver is not an RTO/ISO."
+                " FUEL CHARGE: Charge based on the cost or amount of fuel used for generation."
+                " GENERATOR IMBALANCE: Service provided when a difference occurs between the output of a generator located in the Transmission Provider’s Control Area and a delivery schedule from that generator to (1) another Control Area or (2) a load within the Transmission Provider’s Control Area over a single hour (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " GRANDFATHERED BUNDLED: Services provided for bundled transmission, ancillary services and energy under contracts effective prior to Order No. 888’s OATTs."
+                " NEGOTIATED-RATE TRANSMISSION: Transmission performed under a negotiated rate contract (applies only to merchant transmission companies)."
+                " OTHER: Product name not otherwise included."
+                " PRIMARY FREQUENCY RESPONSE: Service provided as a stand-by resource to support autonomous, pre-programmed changes in output to rapidly arrest large changes in frequency until dispatched resources can take over."
+                " REACTIVE SUPPLY & VOLTAGE CONTROL: Production or absorption of reactive power to maintain voltage levels on transmission systems (Ancillary Service)."
+                " REAL POWER TRANSMISSION LOSS: The loss of energy, resulting from transporting power over a transmission system."
+                " REGULATION & FREQUENCY RESPONSE: Service providing for continuous balancing of resources (generation and interchange) with load, and for maintaining scheduled interconnection frequency by committing on-line generation where output is raised or lowered and by other non-generation resources capable of providing this service as necessary to follow the moment-by-moment changes in load (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " REQUIREMENTS SERVICE: Firm, load-following power supply necessary to serve a specified share of customer’s aggregate load during the term of the agreement. Requirements service may include some or all of the energy, capacity and ancillary service products."
+                " SCHEDULE SYSTEM CONTROL & DISPATCH: Scheduling, confirming and implementing an interchange schedule with other Balancing Authorities, including intermediary Balancing Authorities providing transmission service, and ensuring operational security during the interchange transaction (Ancillary Service)."
+                " SPINNING RESERVE: Unloaded synchronized generating capacity that is immediately responsive to system frequency and that is capable of being loaded in a short time period or non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " SUPPLEMENTAL RESERVE: Service needed to serve load in the event of a system contingency, available with greater delay than SPINNING RESERVE. This service may be provided by generating units that are on-line but unloaded, by quick-start generation, or by interruptible load or other non-generation resources capable of providing this service (Ancillary Service). For Contracts, reported if the contract provides for sale of the product. For Transactions, sales by third-party providers (i.e., non-transmission function) are reported."
+                " TOLLING ENERGY: Energy sold from a plant whereby the buyer provides fuel to a generator (seller) and receives power in return for pre-established fees."
+                " UPLIFT: A make-whole payment by an RTO/ISO to a utility."
+            ),
+            "constraints": {
+                "required": True,
+                "enum": [
+                    "BLACK START SERVICE",
+                    "BOOKED OUT POWER",
+                    "CAPACITY",
+                    "CUSTOMER CHARGE",
+                    "ENERGY",
+                    "ENERGY IMBALANCE",
+                    "EXCHANGE",
+                    "FUEL CHARGE",
+                    "GENERATOR IMBALANCE",
+                    "GRANDFATHERED BUNDLED",
+                    "NEGOTIATED-RATE TRANSMISSION",
+                    "OTHER",
+                    "PRIMARY FREQUENCY RESPONSE",
+                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
+                    "REAL POWER TRANSMISSION LOSS",
+                    "REGULATION & FREQUENCY RESPONSE",
+                    "REQUIREMENTS SERVICE",
+                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
+                    "SPINNING RESERVE",
+                    "SUPPLEMENTAL RESERVE",
+                    "TOLLING ENERGY",
+                    "UPLIFT",
+                ],
+            },
+        },
         "timezone": {
             "type": "string",
             "description": (
@@ -10581,35 +10866,6 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                     "PS",
                     "UT",
                 ],
-            },
-        },
-        "product_name": {
-            "constraints": {
-                "enum": [
-                    "BLACK START SERVICE",
-                    "BOOKED OUT POWER",
-                    "CAPACITY",
-                    "CUSTOMER CHARGE",
-                    "EMERGENCY ENERGY",
-                    "ENERGY",
-                    "ENERGY IMBALANCE",
-                    "EXCHANGE",
-                    "FUEL CHARGE",
-                    "GENERATOR IMBALANCE",
-                    "GRANDFATHERED BUNDLED",
-                    "NEGOTIATED-RATE TRANSMISSION",
-                    "OTHER",
-                    "PRIMARY FREQUENCY RESPONSE",
-                    "REACTIVE SUPPLY & VOLTAGE CONTROL",
-                    "REAL POWER TRANSMISSION LOSS",
-                    "REGULATION & FREQUENCY RESPONSE",
-                    "REQUIREMENTS SERVICE",
-                    "SCHEDULE SYSTEM CONTROL & DISPATCH",
-                    "SPINNING RESERVE",
-                    "SUPPLEMENTAL RESERVE",
-                    "TOLLING ENERGY",
-                    "UPLIFT",
-                ]
             },
         },
     },
