@@ -9853,6 +9853,46 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "average_energy_cost_cents_per_mwh": {
+        "type": "number",
+        "description": "The average cost of fuel per MWh.",
+        "unit": "cents_per_MWh",
+    },
+    "purchased_energy_cost_total": {
+        "type": "number",
+        "description": "The total cost of purchased energy.",
+    },
+    "is_eia_borrower": {
+        "type": "boolean",
+        "description": "Whether the utility supplying energy to a RUS borrower is an EIA respondent.",
+    },
+    "supplier_code_rus": {
+        "type": "string",
+        "description": "Unique numeric identifier for the utility supplying energy to a RUS borrower.",
+    },
+    "wheeling_and_other_charges": {
+        "type": "number",
+        "description": (
+            "The cost of wheeling and other charges or credits related to fuel. "
+            "Included in the total cost."
+        ),
+    },
+    "fuel_cost_adjustment": {
+        "type": "number",
+        "description": (
+            "The variable fuel surcharge component of a distribution cooperative's wholesale "
+            "purchased power bill, reflecting pass-through of actual fuel cost fluctuations "
+            "from the supplying utility, reported separately from base power charges and "
+            "wheeling costs. Included in the total cost."
+        ),
+    },
+    "fuel_type_code_rus": {
+        "type": "integer",
+        "description": "Unique numeric identifier for RUS fuel types.",
+        "constraints": {
+            "enum": set(CODE_METADATA["core_rus__fuel_type_codes"]["df"]["code"])
+        },
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 

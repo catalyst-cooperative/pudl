@@ -418,6 +418,47 @@ def _core_rus7__yearly_external_financial_risk_ratio(
     return df
 
 
+@asset
+def _core_rus7__yearly_energy_purchased(
+    raw_rus7__energy_purchased: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the raw_rus7__energy_purchased table."""
+    df = rus.early_transform(
+        raw_df=raw_rus7__energy_purchased,
+        boolean_columns_to_fix=["is_eia_borrower"],
+    )
+    # Convert units
+    df = rus.convert_units(
+        df,
+        old_unit="kwh",
+        new_unit="mwh",
+        converter=0.001,
+    )
+    # Spot fix fuel_types
+    df["fuel_type"] = df.fuel_type.replace(
+        {
+            "Solar - photvoltaic": "Solar - photovoltaic",
+            "12": "Solar - photovoltaic",
+            "14": "Wind",
+        }
+    )
+    # Spot fix fuel_type_codes
+    df["fuel_type_code_rus"] = df.fuel_type_code_rus.replace(
+        {
+            " LLC - Commercial Solar": 12,
+            " Iowa Windfarm": 14,
+        }
+    )
+    df["fuel_type_code_rus"] = pd.to_numeric(
+        df["fuel_type_code_rus"], errors="coerce"
+    ).astype("Int64")
+
+    # TO-DO: it looks like the supplier_code_rus, is_eia_borrower, and utility_name_eia fields could
+    # be turned into their own table. I investigated a bit and it's not a perfect 1:1 mapping, but
+    # it's close. Could turn this function into a multi-asset with an scd table...
+    return df
+
+
 ######################################
 # HARVESTING aka NORMALIZATION
 ######################################
@@ -430,6 +471,7 @@ _CORE_RUS7_TABLES = [
     "_core_rus7__yearly_balance_sheet_liabilities",
     "_core_rus7__yearly_employee_statistics",
     "_core_rus7__yearly_energy_efficiency",
+    "_core_rus7__yearly_energy_purchased",
     "_core_rus7__yearly_external_financial_risk_ratio",
     "_core_rus7__yearly_investments",
     "_core_rus7__yearly_loans",

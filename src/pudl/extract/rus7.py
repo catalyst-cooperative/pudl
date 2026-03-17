@@ -80,5 +80,6 @@ raw_rus7_assets = [
         "long_term_leases",
         "loans",
         "utility_plant_changes",
+        "energy_purchased",
     ]
 ]
