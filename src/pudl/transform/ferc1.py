@@ -147,10 +147,11 @@ class TableIdFerc1(enum.Enum):
     OPERATING_EXPENSES = "core_ferc1__yearly_operating_expenses_sched320"
     BALANCE_SHEET_LIABILITIES = "core_ferc1__yearly_balance_sheet_liabilities_sched110"
     DEPRECIATION_SUMMARY = "core_ferc1__yearly_depreciation_summary_sched336"
+    DEPRECIATION_CHANGES = "core_ferc1__yearly_depreciation_changes_sched336"
     BALANCE_SHEET_ASSETS = "core_ferc1__yearly_balance_sheet_assets_sched110"
     RETAINED_EARNINGS = "core_ferc1__yearly_retained_earnings_sched118"
     INCOME_STATEMENTS = "core_ferc1__yearly_income_statements_sched114"
-    DEPRECIATION_CHANGES = "core_ferc1__yearly_depreciation_changes_sched219"
+    ACCUMULATED_DEPRECIATION = "core_ferc1__yearly_depreciation_changes_sched219"
     OPERATING_REVENUES = "core_ferc1__yearly_operating_revenues_sched300"
     DEPRECIATION_BY_FUNCTION = "core_ferc1__yearly_depreciation_by_function_sched219"
     CASH_FLOWS = "core_ferc1__yearly_cash_flows_sched120"
@@ -5564,10 +5565,17 @@ class DepreciationSummaryTableTransformer(Ferc1AbstractTableTransformer):
         return meta
 
 
-class DepreciationChangesTableTransformer(Ferc1AbstractTableTransformer):
+class DepreciationChangesTransformer(Ferc1AbstractTableTransformer):
+    """Transformer class for :ref:`core_ferc1__yearly_depreciation_changes_sched336` table."""
+
+    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_SUMMARY
+    has_unique_record_ids: bool = False
+
+
+class AccumulatedDepreciationTableTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`core_ferc1__yearly_depreciation_changes_sched219` table."""
 
-    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_CHANGES
+    table_id: TableIdFerc1 = TableIdFerc1.ACCUMULATED_DEPRECIATION
     has_unique_record_ids: bool = False
 
     def convert_xbrl_metadata_json_to_df(
@@ -6107,7 +6115,7 @@ FERC1_TFR_CLASSES: Mapping[str, type[Ferc1AbstractTableTransformer]] = {
     "core_ferc1__yearly_depreciation_summary_sched336": DepreciationSummaryTableTransformer,
     "core_ferc1__yearly_balance_sheet_assets_sched110": BalanceSheetAssetsTableTransformer,
     "core_ferc1__yearly_income_statements_sched114": IncomeStatementsTableTransformer,
-    "core_ferc1__yearly_depreciation_changes_sched219": DepreciationChangesTableTransformer,
+    "core_ferc1__yearly_depreciation_changes_sched219": AccumulatedDepreciationTableTransformer,
     "core_ferc1__yearly_depreciation_by_function_sched219": DepreciationByFunctionTableTransformer,
     "core_ferc1__yearly_retained_earnings_sched118": RetainedEarningsTableTransformer,
     "core_ferc1__yearly_operating_revenues_sched300": OperatingRevenuesTableTransformer,
