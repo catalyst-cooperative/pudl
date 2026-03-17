@@ -5,6 +5,14 @@ from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
+from pudl.metadata.enums import (
+    LOAN_GROUP_TYPES_RUS7,
+    LOAN_UNIT_TYPES_RUS7,
+    SERVICE_INTERRUPTION_PERIODS_RUS7,
+    SERVICE_INTERRUPTION_TYPES_RUS7,
+    SERVICE_STATUS_RUS7,
+    TRANSMISSION_DISTRIBUTION_TYPES_RUS7,
+)
 from pudl.metadata.resources.rus12 import HARVESTED_CORE_TABLES_RUS7
 from pudl.transform.eia import harvest_entity_tables
 
@@ -350,15 +358,15 @@ def _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pd.DataFrame):
     df_loan_program_debt = df[
         ["report_date", "borrower_id_rus", "borrower_name_rus"]
         + [col for col in df.columns if col not in df_owed_by_consumers.columns]
-    ]  # TODO: Question - does this throw off frequencies for harvesting to have the same value 2x?
+    ]
 
-    loan_groups = ["loan_default", "loan_delinquency"]
-    units = ["actual_pct", "anticipated_pct", "ytd_dollars"]
-    pattern = rf"^({'|'.join(loan_groups)})_({'|'.join(units)})$"
+    pattern = (
+        rf"^({'|'.join(LOAN_GROUP_TYPES_RUS7)})_({'|'.join(LOAN_UNIT_TYPES_RUS7)})$"
+    )
     df_loan_program_debt = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
-        data_cols=units,
+        data_cols=LOAN_UNIT_TYPES_RUS7,
         pattern=pattern,
         match_names=["loan_status", "data_cols"],
         unstack_level=["loan_status"],
@@ -384,10 +392,7 @@ def _core_rus7__yearly_service_interruptions(
     df = rus.early_transform(raw_df=raw_rus7__service_interruptions)
     rus.early_check_pk(df)
 
-    cause_groups = ["major_event", "other", "planned", "power_supplier", "total"]
-    periods = ["five_year_average", "annual"]
-
-    pattern = rf"^({'|'.join(cause_groups)})_({'|'.join(periods)})_(saidi_minutes)$"
+    pattern = rf"^({'|'.join(SERVICE_INTERRUPTION_TYPES_RUS7)})_({'|'.join(SERVICE_INTERRUPTION_PERIODS_RUS7)})_(saidi_minutes)$"
     df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
@@ -419,9 +424,7 @@ def _core_rus7__transmission_and_distribution(
     miles_df = df[id_cols + [col for col in df.columns if col not in services_df]]
 
     # Stack the services table
-    status_groups = ["connected", "idle", "retired", "total"]
-
-    pattern = rf"^(services)_({'|'.join(status_groups)})$"
+    pattern = rf"^(services)_({'|'.join(SERVICE_STATUS_RUS7)})$"
     services_df = rus.multi_index_stack(
         services_df,
         idx_ish=id_cols,
@@ -433,14 +436,7 @@ def _core_rus7__transmission_and_distribution(
     services_df["is_total"] = services_df["service_status"] == "total"
 
     # Stack the mileage dataframe
-    mileage_groups = [
-        "distribution_overhead",
-        "distribution_underground",
-        "transmission_line",
-        "total",
-    ]
-
-    pattern = rf"^({'|'.join(mileage_groups)})_(?:length|energized)_(miles)$"
+    pattern = rf"^({'|'.join(TRANSMISSION_DISTRIBUTION_TYPES_RUS7)})_(?:length|energized)_(miles)$"
     miles_df = rus.multi_index_stack(
         miles_df,
         idx_ish=id_cols,
