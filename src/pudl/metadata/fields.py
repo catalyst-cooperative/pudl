@@ -9893,6 +9893,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "enum": set(CODE_METADATA["core_rus__fuel_type_codes"]["df"]["code"])
         },
     },
+    "electric_or_other_materials": {
+        "type": "string",
+        "description": "Whether the cost is for electric materials or other materials",
+        "constraints": {"enum": {"electric_materials", "other_materials"}},
+    },
+    "transaction_type": {
+        "type": "string",
+        "description": (
+            "Whether a cost value is an adjustment, ending_balance, purchased, "
+            "salvaged, sold, or used amount."
+        ),
+        "constraints": {
+            "enum": {
+                "adjustment",
+                "ending_balance",
+                "purchased",
+                "salvaged",
+                "sold",
+                "used",
+            }
+        },
+    },
 }
 """Field attributes by PUDL identifier (`field.name`)."""
 

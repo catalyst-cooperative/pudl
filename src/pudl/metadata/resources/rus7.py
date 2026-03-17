@@ -476,7 +476,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     },
     "core_rus7__yearly_energy_purchased": {
         "description": {
-            "additional_summary_text": ("energy purchased by RUS borrowers."),
+            "additional_summary_text": "energy purchased by RUS borrowers.",
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part K)",
             "additional_primary_key_text": (
@@ -500,6 +500,34 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
                 "supplier_code_rus",
                 "utility_name_eia",
                 "comments",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_materials_and_supplies": {
+        "description": {
+            "additional_summary_text": (
+                "cost of electric vs. other materials that were purchased, salvaged, "
+                "used, or sold."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part F)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "electric_or_other_materials",
+                "transaction_type",
+                "amount",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "electric_or_other_materials",
+                "transaction_type",
             ],
         },
         "sources": ["rus7"],
