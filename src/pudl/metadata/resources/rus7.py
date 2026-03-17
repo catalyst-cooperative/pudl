@@ -2,10 +2,14 @@
 
 from typing import Any
 
-from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
+from pudl.metadata.resource_helpers import (
+    HARVESTED_CORE_TABLES_RUS7,
+    HARVESTED_CORE_TABLES_RUS12,
+    HARVESTING_DETAIL_TEXT_RUS,
+    core_to_out_harvested_resources,
+)
 
-RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (
@@ -252,8 +256,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "categories reported on this Part correspond to Balance Sheet items in Part C."
             ),
             "additional_primary_key_text": (
-                "This table has no native primary key. It is a list of all investments or loan "
-                "in each year and borrowers can have multiple records with the same ``investment_description``."
+                "This is a list of all investments or loans in each year and borrowers can have "
+                "multiple records with the same ``investment_description``."
             ),
         },
         "schema": {
@@ -271,22 +275,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "sources": ["rus7"],
         "etl_group": "rus7",
         "field_namespace": "rus",
-    },
-    "core_rus7__codes_investment_types": {
-        "description": {
-            "additional_summary_text": "investment types.",
-        },
-        "schema": {
-            "fields": ["code", "description"],
-            "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["investment_type_code"]]},
-        },
-        "encoder": CODE_METADATA["core_rus7__codes_investment_types"],
-        "field_namespace": "rus",
-        "sources": ["rus7"],
-        # I added this as RUS instead of RUS7 so we can compile any RUS code table
-        # in one static_assets function
-        "etl_group": "static_rus",
     },
     "core_rus7__yearly_long_term_debt": {
         "description": {
@@ -309,6 +297,28 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "debt_interest",
                 "debt_principal",
                 "debt_total",
+            ]
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_long_term_leases": {
+        "description": {
+            "additional_summary_text": ("long term leases by property type."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part L)",
+            "additional_primary_key_text": (
+                "Borrowers may receive multiple leases from ``lending_organizations`` in a given year."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "lending_organization",
+                "property_type",
+                "rental_cost_ytd",
             ]
         },
         "sources": ["rus7"],
@@ -393,24 +403,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "foreign_key_rules": {
                 "fields": [["borrower_id_rus"]],
-                "exclude": [
-                    # We must remove all of the rus12 tables - otherwise
-                    # these would get a FK relationship from this rus7 table
-                    "core_rus12__yearly_meeting_and_board",
-                    "core_rus12__yearly_balance_sheet_assets",
-                    "core_rus12__yearly_balance_sheet_liabilities",
-                    "core_rus12__yearly_long_term_debt",
-                    "core_rus12__entity_borrowers",
-                    "core_rus12__yearly_renewable_plants",
-                    "core_rus12__yearly_lines_stations_labor_materials_cost",
-                    "core_rus12__yearly_sources_and_distribution_by_plant_type",
-                    "core_rus12__yearly_sources_and_distribution",
-                    "core_rus12__yearly_loans",
-                    "core_rus12__yearly_plant_labor",
-                    "core_rus12__yearly_statement_of_operations",
-                    "core_rus12__yearly_plant_costs",
-                    "core_rus12__yearly_plant_operations_by_borrower",
-                    "core_rus12__yearly_plant_operations_by_plant",
+                # We must remove all of the rus12 tables - otherwise
+                # these would get a FK relationship from this rus7 table
+                "exclude": ["core_rus12__entity_borrowers"]
+                + HARVESTED_CORE_TABLES_RUS12
+                + [
+                    f"out_{tbl.removeprefix('core_')}"
+                    for tbl in HARVESTED_CORE_TABLES_RUS12
                 ],
             },
         },
@@ -436,7 +435,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     #         "primary_key": [
     #             "report_date",
     #             "borrower_id_rus",
-    #             "loan_status",
     #         ],
     #     },
     #     "sources": ["rus7"],
@@ -550,4 +548,68 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     #     "etl_group": "rus7",
     #     "field_namespace": "rus",
     # },
+    "core_rus7__yearly_loans": {
+        "description": {
+            "additional_summary_text": ("loans provided by RUS borrowers."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part Q - Sections II & IV)",
+            "additional_primary_key_text": (
+                "Borrowers may receive multiple loans from ``lending_organizations`` in a given year."
+            ),
+            "additional_details_text": (
+                "This table also includes loan guarantees where the RUS borrower backs a loan "
+                "from another entity and is therefore liable to pay any remaining "
+                "balance should the original borrower default. \n\n"
+                "In 2006, the loan maturity date for borrower ND0051's loan from ERC - Paulson, David "
+                "was reported as 2/8/2820. There is no clear way to determine the correct maturity date "
+                "given that 2006 is the first year of data we have and the same loan does not appear in "
+                "future years. For this reason we've nulled the date."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "loan_recipient",
+                "loan_balance",
+                "loan_maturity_date",
+                "loan_original_amount",
+                "for_rural_development",
+                "is_loan_guarantee",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_external_financial_risk_ratio": {
+        "description": {
+            "additional_summary_text": (
+                "ratio of investments and loan guarantee balances to total utility plant assets."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part Q - Section III)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "external_financial_risk_ratio",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
 }
+
+
+RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
+    HARVESTED_CORE_TABLES_RUS7,
+    RESOURCE_METADATA_BASE,
+    ["borrower_name_rus", "state"],
+)

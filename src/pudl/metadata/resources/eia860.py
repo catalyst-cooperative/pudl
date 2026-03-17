@@ -389,12 +389,18 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             "foreign_key_rules": {
                 "fields": [["plant_id_eia", "report_date"]],
                 # TODO: Excluding monthly data tables since their report_date
-                # values don't match up with core_eia860__scd_plants, which is annual, so
-                # non-january records fail.
+                # values don't match up with core_eia860__scd_plants, which is annual,
+                # so non-january records fail.
                 # See: https://github.com/catalyst-cooperative/pudl/issues/1196
+                # Also all the _core tables have not yet been harvested, so if they
+                # contain unique plant_id_eia and report_date combinations, those would
+                # be expected to fail.
                 "exclude": [
                     "_core_eia923__monthly_cooling_system_information",
                     "_core_eia923__yearly_fgd_operation_maintenance",
+                    "_core_eia923__yearly_byproduct_disposition",
+                    "_core_eia923__yearly_byproduct_expenses_and_revenues",
+                    "_core_eia923__yearly_emissions_control",
                     "core_eia923__monthly_boiler_fuel",
                     "out_eia923__boiler_fuel",
                     "out_eia923__monthly_boiler_fuel",

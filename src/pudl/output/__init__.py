@@ -19,5 +19,6 @@ from . import (
     eiaapi,
     ferc1,
     ferc714,
+    rus,
     sec10k,
 )

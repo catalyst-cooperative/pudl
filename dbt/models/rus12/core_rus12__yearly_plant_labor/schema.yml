@@ -17,6 +17,10 @@ sources:
               description: Expect that even with overtime, full time and part time employees combined work less than an average of a FTE workload annually.
               config:
                 error_if: ">526"
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus12__yearly_plant_labor
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: borrower_id_rus
