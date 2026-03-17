@@ -19,6 +19,13 @@ RUS 7 & RUS 12
 
 * Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
   :pr:`5040`. See :pr:`5077`.
+* Added additional core and output tables from RUS Form 7, including
+  :ref:`core_rus7__yearly_customer_energy_efficiency_and_conservation_loans`,
+  :ref:`core_rus7__yearly_distribution_services`,
+  :ref:`core_rus7__yearly_owed_by_customers`,
+  :ref:`core_rus7__yearly_service_interruptions`, and
+  :ref:`core_rus7__yearly_transmission_and_distribution_mileage`. See :pr:`5087`.
+
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
