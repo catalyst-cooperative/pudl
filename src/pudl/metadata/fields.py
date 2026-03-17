@@ -9889,9 +9889,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_type_code_rus": {
         "type": "integer",
         "description": "Unique numeric identifier for RUS fuel types.",
-        "constraints": {
-            "enum": set(CODE_METADATA["core_rus__fuel_type_codes"]["df"]["code"])
-        },
     },
     "electric_or_other_materials": {
         "type": "string",
