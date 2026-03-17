@@ -724,7 +724,46 @@ def _core_rus12__yearly_plant_factors_and_maximum_demand(
     )
     # Convert plant_type to snake case
     df = cleanstrings_snake(df, ["plant_type"])
-    return df
+
+    def backfill_plant_type(df) -> pd.DataFrame:
+        """Backfill plant_type for pre-2009 records based on post-2008 consistency."""
+        post_2008 = df[df["report_date"].dt.year > 2008]
+
+        # Plants that consistently have only one plant_type across all post-2008 years
+        single_plant_type = (
+            post_2008.groupby(["borrower_id_rus", "plant_name_rus"])["plant_type"]
+            .nunique()
+            .eq(1)
+        )
+        eligible_plants = single_plant_type[
+            single_plant_type
+        ].index  # MultiIndex of (borrower_id_rus, plant_name_rus)
+
+        # Get the plant_type mapping for those plants
+        plant_type_map = (
+            post_2008.set_index(["borrower_id_rus", "plant_name_rus"])
+            .loc[eligible_plants]
+            .reset_index()
+            .drop_duplicates(subset=["borrower_id_rus", "plant_name_rus"])
+            .set_index(["borrower_id_rus", "plant_name_rus"])
+        )["plant_type"]
+
+        # Backfill into pre-2008 rows
+        pre_2008 = df[df["report_date"].dt.year <= 2008]
+        pre_2008 = pre_2008.join(
+            plant_type_map.rename("plant_type_filled"),
+            on=["borrower_id_rus", "plant_name_rus"],
+        )
+
+        # Use filled value where plant_type is missing
+        pre_2008["plant_type"] = pre_2008["plant_type"].fillna(
+            pre_2008["plant_type_filled"]
+        )
+        # pre_2008 = pre_2008.drop(columns="plant_type_filled")
+
+        return pd.concat([pre_2008, post_2008])
+
+    return backfill_plant_type(df)
 
 
 ######################################

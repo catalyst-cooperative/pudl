@@ -625,10 +625,10 @@ RESOURCE_METADATA = {
     "core_rus12__yearly_demand_and_energy_at_delivery_points": {
         "description": {
             "additional_summary_text": (
-                "demand and energy delivered to RUS borrowers and others broken down by month."
+                "demand and energy delivered to distribution utilities broken down by month."
             ),
             "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part E - Section D)",
+            "additional_source_text": "(Part H - Section E)",
         },
         "schema": {
             "fields": [
@@ -653,7 +653,7 @@ RESOURCE_METADATA = {
     "core_rus12__yearly_demand_and_energy_at_power_sources": {
         "description": {
             "additional_summary_text": (
-                "demand and energy at different power sources."
+                "demand and energy at point of generation broken down by month."
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Part H - Section D)",
@@ -686,6 +686,13 @@ RESOURCE_METADATA = {
             ),
             "usage_warnings": ["experimental_wip"],
             "additional_source_text": "(Parts D, E, F IC, F CC, G - Section C)",
+            "additional_primary_key_text": (
+                "The primary key for this table would be report_date, borrower_id_rus, plant_name_rus, and plant_type "
+                "but the plant_type column is not reported before 2009 causing lots of duplicate records. "
+                "Because none of the other fields are static year-over-year, there is no reliable way to backfill "
+                "the plant_type column in instances where there are different plant_types reported for the same plant "
+                "in later years."
+            ),
         },
         "schema": {
             "fields": [
