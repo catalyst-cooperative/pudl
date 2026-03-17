@@ -128,10 +128,21 @@ def _run_dg_launch_with_coverage(
     # Command args are fully constructed in-process and do not include user input.
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
+    # Propagate active pytest-managed paths into the dg subprocess explicitly.
+    # This prevents any .env defaults from sending outputs to a user directory.
+    active_paths = PudlPaths()
+    env["PUDL_INPUT"] = str(active_paths.input_dir)
+    env["PUDL_OUTPUT"] = str(active_paths.output_dir)
     logger.info(f"Starting prebuild via dg launch: {launch_target}")
     logger.info("Command: %s", " ".join(cmd))
+    logger.info(
+        "dg prebuild paths: PUDL_INPUT=%s PUDL_OUTPUT=%s",
+        env["PUDL_INPUT"],
+        env["PUDL_OUTPUT"],
+    )
 
-    # Stream subprocess output into pytest's live logging so progress is visible.
+    # Stream subprocess output into pytest live logs so progress stays visible
+    # during long-running ETL prebuilds.
     with subprocess.Popen(  # noqa: S603
         cmd,
         stdout=subprocess.PIPE,
@@ -142,19 +153,39 @@ def _run_dg_launch_with_coverage(
     ) as proc:
         assert proc.stdout is not None
         for line in proc.stdout:
-            # The child process already formats its own log lines; avoid wrapping
-            # those lines in another logger format to prevent duplicate prefixes.
-            if line.endswith("\n"):
-                sys.stdout.write(f"[dg prebuild] {line}")
-            else:
-                sys.stdout.write(f"[dg prebuild] {line}\n")
-            sys.stdout.flush()
+            logger.info("[dg prebuild] %s", line.rstrip("\n"))
 
         returncode = proc.wait()
         if returncode != 0:
             raise subprocess.CalledProcessError(returncode, cmd)
 
     logger.info(f"Completed prebuild via dg launch: {launch_target}")
+
+
+def _assert_safe_pytest_output_path(expected_output: Path) -> Path:
+    """Ensure integration prebuild writes only into the configured pytest output path."""
+    expected_output = expected_output.resolve()
+    active_output = PudlPaths().output_dir.resolve()
+    env_output_raw = os.environ.get("PUDL_OUTPUT")
+    if not env_output_raw:
+        pytest.exit(
+            "Refusing to run integration prebuild: PUDL_OUTPUT is not set in env."
+        )
+
+    env_output = Path(env_output_raw).expanduser().resolve()
+    if env_output != active_output:
+        pytest.exit(
+            "Refusing to run integration prebuild: PUDL_OUTPUT env and PudlPaths "
+            f"disagree (env={env_output}, active={active_output})."
+        )
+
+    if active_output != expected_output:
+        pytest.exit(
+            "Refusing to run integration prebuild: output path does not match "
+            f"pytest fixture output (expected={expected_output}, active={active_output})."
+        )
+
+    return active_output
 
 
 @pytest.fixture(scope="session", name="test_dir")
@@ -233,7 +264,7 @@ def ferc1_dbf_sql_engine(
 
 
 @pytest.fixture(scope="session")
-def prebuilt_integration_dbs(live_dbs: bool):
+def prebuilt_integration_dbs(configure_paths_for_tests: PudlPaths, live_dbs: bool):
     """Prebuild fast integration databases in pytest-managed output directories.
 
     When ``--live-dbs`` is not set, ``configure_paths_for_tests`` has already pointed
@@ -243,9 +274,9 @@ def prebuilt_integration_dbs(live_dbs: bool):
         logger.info("Using live DBs; skipping fixture-managed prebuild.")
         return
 
-    logger.info(
-        f"Prebuilding integration DBs in temporary output: {PudlPaths().output_dir}"
-    )
+    safe_output = _assert_safe_pytest_output_path(configure_paths_for_tests.output_dir)
+
+    logger.info(f"Prebuilding integration DBs in temporary output: {safe_output}")
     logger.info("Initializing empty pudl.sqlite with current metadata schema.")
     md = PUDL_PACKAGE.to_sql()
     pudl_engine = sa.create_engine(PudlPaths().pudl_db)
@@ -371,6 +402,12 @@ def configure_paths_for_tests(tmp_path_factory, request):
             output_dir=str(Path(out_tmp).resolve()),
         )
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
+
+    # Keep environment variables synchronized with any overrides so subprocesses
+    # launched later in this pytest session inherit the same workspace paths.
+    paths = PudlPaths()
+    os.environ["PUDL_INPUT"] = str(paths.input_dir)
+    os.environ["PUDL_OUTPUT"] = str(paths.output_dir)
 
     try:
         return PudlPaths()
