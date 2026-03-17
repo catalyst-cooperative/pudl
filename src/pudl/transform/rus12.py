@@ -7,6 +7,7 @@ import pudl.transform.rus as rus
 from pudl import logging_helpers
 from pudl.helpers import cleanstrings_snake
 from pudl.metadata.enums import PLANT_TYPE_RUS12
+from pudl.metadata.resource_helpers import HARVESTED_CORE_TABLES_RUS12
 from pudl.transform.eia import harvest_entity_tables
 
 logger = logging_helpers.get_logger(__name__)
@@ -772,32 +773,14 @@ def _core_rus12__yearly_plant_factors_and_maximum_demand(
 # The USDA would be proud of this name
 
 
-_CORE_RUS12_TABLES = [
-    "_core_rus12__scd_borrowers",
-    "_core_rus12__yearly_balance_sheet_assets",
-    "_core_rus12__yearly_balance_sheet_liabilities",
-    "_core_rus12__yearly_external_financial_risk_ratio",
-    "_core_rus12__yearly_investments",
-    "_core_rus12__yearly_lines_stations_labor_materials_cost",
-    "_core_rus12__yearly_loans",
-    "_core_rus12__yearly_long_term_debt",
-    "_core_rus12__yearly_meeting_and_board",
-    "_core_rus12__yearly_plant_costs",
-    "_core_rus12__yearly_plant_labor",
-    "_core_rus12__yearly_plant_operations_by_borrower",
-    "_core_rus12__yearly_plant_operations_by_plant",
-    "_core_rus12__yearly_renewable_plants",
-    "_core_rus12__yearly_sources_and_distribution",
-    "_core_rus12__yearly_sources_and_distribution_by_plant_type",
-    "_core_rus12__yearly_statement_of_operations",
-    "_core_rus12__yearly_demand_and_energy_at_delivery_points",
-    "_core_rus12__yearly_demand_and_energy_at_power_sources",
-    "_core_rus12__yearly_plant_factors_and_maximum_demand",
-]
+_CORE_RUS12_TABLES = [f"_{t}" for t in HARVESTED_CORE_TABLES_RUS12]
 
 
 @asset(
-    ins={table_name: AssetIn() for table_name in _CORE_RUS12_TABLES},
+    ins={
+        table_name: AssetIn()
+        for table_name in ["_core_rus12__scd_borrowers"] + _CORE_RUS12_TABLES
+    },
     io_manager_key="pudl_io_manager",
     config_schema={
         "debug": Field(

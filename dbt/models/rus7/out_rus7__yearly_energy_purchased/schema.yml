@@ -1,0 +1,26 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_rus7__yearly_energy_purchased
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_rus7__yearly_energy_purchased
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
+          - name: purchased_mwh
+          - name: purchased_energy_cost_total
+          - name: average_energy_cost_cents_per_mwh
+          - name: wheeling_and_other_charges
+          - name: fuel_cost_adjustment
+          - name: fuel_type_code_rus
+          - name: is_eia_borrower
+          - name: supplier_code_rus
+          - name: utility_name_eia
+          - name: comments

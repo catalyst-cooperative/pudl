@@ -14,8 +14,11 @@ Enhancements
 New Data
 ^^^^^^^^
 
-RUS 12
-~~~~~~
+RUS 7 & RUS 12
+~~~~~~~~~~~~~~
+
+* Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
+  :pr:`5040`. See :pr:`5077`.
 * Transformed more RUS 12 tables. See PR :pr:`5091`.
 
 Expanded Data Coverage
@@ -30,11 +33,27 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed a FERC EQR transform bug that was incorrectly parsing non-date contract
+  fields as datetimes, which caused several output columns to become entirely
+  ``NULL``. Also clarified and separated the ``product_name`` metadata
+  descriptions and allowed values for
+  :ref:`core_ferceqr__contracts` and :ref:`core_ferceqr__transactions` so their
+  constraints match their distinct ENUM constraints as documented in
+  :download:`v3.5 of the FERC EQR data dictionary
+  <data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf>`.
+  See :pr:`5085`.
+
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added environment variable controls for Sphinx docs builds:
+  ``PUDL_DOCS_KEEP_GENERATED_FILES`` now preserves generated docs artifacts for
+  debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
+  when needed (for example in CI docs checks to avoid external docs outages).
+  See PR :pr:`5095`.
 
 .. _release-v2026.3.0:
 
