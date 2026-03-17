@@ -2340,22 +2340,21 @@ class ParquetData(BaseModel):
     Writing data to disk as parquet files enables the use of highly efficient
     processing/transforms with tools like Polars or duckdb. This class provides
     helpers for managing paths to parquet data on disk.
-
-    Attributes:
-        table_name: Name of the table corresponding to the parquet data.
-        partitions: Optional dictionary of partition dimension values which indicate
-            what chunk of table data is being offloaded to disk. If passed
-            ``{'years': 1995}`` then this class will produce a parquet file at
-            the path ``PudlPaths().parquet_path() / table_name / 1995.parquet``.
-            if passed ``{'years': 1995, 'states': 'CA'}`` then this class will produce a
-            parquet file at the path
-            ``PudlPaths().parquet_path() / table_name / 1995_ca.parquet``.
-            If partitions is empty, then the parquet file will be written
-            ``PudlPaths().parquet_path() / table_name / {table_name}.parquet``.
     """
 
     table_name: str
+    """Name of the table corresponding to the parquet data."""
+
     partitions: dict[str, Any] = Field(default_factory=dict)
+    """Optional dictionary of partition values indicating what data is being offloaded to disk.
+
+    If passed ``{'years': 1995}`` then this class will produce a parquet file at the
+    path ``PudlPaths().parquet_path() / table_name / 1995.parquet``.  if passed
+    ``{'years': 1995, 'states': 'CA'}`` then this class will produce a parquet file at
+    the path ``PudlPaths().parquet_path() / table_name / 1995_ca.parquet``.  If
+    partitions is empty, then the parquet file will be written
+    ``PudlPaths().parquet_path() / table_name / {table_name}.parquet``.
+    """
 
     @property
     def parquet_directory(self) -> Path:
