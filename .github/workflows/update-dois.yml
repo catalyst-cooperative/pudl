@@ -63,6 +63,13 @@ jobs:
         run: |
           git push --set-upstream origin update-zenodo-dois-${{ github.run_number }}-${{ github.run_id }}
 
+      - name: Format datasets as labels
+        id: format-datasets
+        run: |
+          DATASETS="${{ github.event.inputs.datasets }}"
+          LABELS=$(echo "$DATASETS" | sed 's/ \+/, /g')
+          echo "dataset_labels=$LABELS" >> "$GITHUB_OUTPUT"
+
       - name: Create Pull Request
         if: steps.update.outputs.changes == 'true'
         uses: peter-evans/create-pull-request@v7
@@ -82,4 +89,5 @@ jobs:
             🤖 *This PR was created automatically by GitHub Actions*
           branch: update-zenodo-dois-${{ github.run_number }}-${{ github.run_id }}
           base: main
-          labels: automated, zenodo, dependencies
+          labels: >
+            date-update${{ steps.format-datasets.outputs.dataset_labels && format(', {0}', steps.format-datasets.outputs.dataset_labels) || '' }}
