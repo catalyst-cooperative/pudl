@@ -1059,7 +1059,7 @@ PLANT_COST_TYPES_RUS12: set[str] = [
     "water_for_power",
 ]
 
-LOAN_GROUP_TYPES_RUS7 = ["loan_default", "loan_delinquency"]
+LOAN_STATUS_TYPES_RUS7 = ["loan_default", "loan_delinquency"]
 
 LOAN_UNIT_TYPES_RUS7 = ["actual_pct", "anticipated_pct", "ytd_dollars"]
 

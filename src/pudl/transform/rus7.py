@@ -6,7 +6,7 @@ from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 import pudl.transform.rus as rus
 from pudl import logging_helpers
 from pudl.metadata.enums import (
-    LOAN_GROUP_TYPES_RUS7,
+    LOAN_STATUS_TYPES_RUS7,
     LOAN_UNIT_TYPES_RUS7,
     SERVICE_INTERRUPTION_PERIODS_RUS7,
     SERVICE_INTERRUPTION_TYPES_RUS7,
@@ -351,17 +351,18 @@ def _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pd.DataFrame):
             "report_date",
             "borrower_id_rus",
             "borrower_name_rus",
-            "due_from_consumers_over_60_days",
-            "due_from_consumers_written_off",
+            "amount_due_over_60_days",
+            "amount_written_off_ytd",
         ]
     ]
+
     df_loan_program_debt = df[
         ["report_date", "borrower_id_rus", "borrower_name_rus"]
         + [col for col in df.columns if col not in df_owed_by_consumers.columns]
     ]
 
     pattern = (
-        rf"^({'|'.join(LOAN_GROUP_TYPES_RUS7)})_({'|'.join(LOAN_UNIT_TYPES_RUS7)})$"
+        rf"^({'|'.join(LOAN_STATUS_TYPES_RUS7)})_({'|'.join(LOAN_UNIT_TYPES_RUS7)})$"
     )
     df_loan_program_debt = rus.multi_index_stack(
         df,
