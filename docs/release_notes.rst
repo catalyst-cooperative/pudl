@@ -26,6 +26,11 @@ Expanded Data Coverage
 Documentation
 ^^^^^^^^^^^^^
 
+* Added a methodology page explaining how EIA entity harvesting reconciles
+  inconsistently reported plant, utility, boiler, and generator attributes into
+  normalized entity and yearly SCD tables. The docs now also support Mermaid
+  flowcharts for illustrating pipeline behavior. See :pr:`5071`.
+
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

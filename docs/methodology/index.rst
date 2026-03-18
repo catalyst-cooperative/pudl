@@ -25,5 +25,6 @@ fleshing it out, in response to our 2025 PUDL User Survey.
 .. toctree::
   :maxdepth: 2
 
+  entity_harvesting
   timeseries_imputation
   sec10k_modeling

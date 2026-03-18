@@ -62,6 +62,7 @@ extensions = [
     "sphinx_tabs.tabs",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
+    "sphinxcontrib.mermaid",
 ]
 
 googleanalytics_id = "G-EXWBBTVMWK"
