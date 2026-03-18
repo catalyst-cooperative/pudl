@@ -6215,7 +6215,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": ("Unique numeric identifier for each renewable fuel type."),
         "constraints": {
-            "enum": list(range(1, 16)),
+            "minimum": 1,
+            "maximum": 15,
         },
     },
     "primary_transportation_mode_code": {
@@ -8365,7 +8366,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The wind quality class for turbines at this generator. See table core_eia__codes_wind_quality_class for specifications about each class."
         ),
-        "constraints": {"enum": [1, 2, 3, 4]},
+        "constraints": {
+            "minimum": 1,
+            "maximum": 4,
+        },
     },
     "wind_speed_avg_ms": {
         "type": "number",
@@ -9614,7 +9618,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Investment type code.",
         "constraints": {
-            "enum": set(CODE_METADATA["core_rus__codes_investment_types"]["df"]["code"])
+            "minimum": CODE_METADATA["core_rus__codes_investment_types"]["df"][
+                "code"
+            ].min(),
+            "maximum": CODE_METADATA["core_rus__codes_investment_types"]["df"][
+                "code"
+            ].max(),
         },
     },
     "included_investments": {
