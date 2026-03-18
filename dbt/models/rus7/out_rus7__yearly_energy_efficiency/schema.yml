@@ -9,6 +9,34 @@ sources:
               arguments:
                 table_name: out_rus7__yearly_energy_efficiency
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, observation_period]
+                categorical_column: customer_class
+                value_column: customers_num
+                total_label: "total"
+                tolerance: 0
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, observation_period]
+                categorical_column: customer_class
+                value_column: invested
+                total_label: "total"
+                tolerance: 1
+              config:
+                error_if: ">6"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, observation_period]
+                categorical_column: customer_class
+                value_column: savings_mmbtu
+                total_label: "total"
+                tolerance: 1
+              config:
+                error_if: ">11"
         columns:
           - name: borrower_name_rus
           - name: state
