@@ -19,7 +19,6 @@ RUS 7 & RUS 12
 
 * Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
   :pr:`5040`. See :pr:`5077`.
-* Added additional core and output tables from RUS Form 7. See :pr:`5087`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -35,9 +34,6 @@ Documentation
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* Modified schema checks so they can be applied to the largest tables, which have
-  typically been excluded from these checks. See Issue :issue:`5022` and PR :pr:`5043`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -148,6 +144,7 @@ Documentation
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 * Added an initial set of dbt data validations for the new RUS Form 7
   and Form 12 tables. See :issue:`4887`, :issue:`4888` and :pr:`5017`.
 * Add dbt data validations that will flag emissions removal efficiencies outside the
@@ -315,8 +312,7 @@ Bug Fixes & Data Cleaning
   reassigned names, resulting in approximately 150 additional matches to SEC 10K
   filings. 86 generators were reassigned prime mover codes, resulting in re-allocated
   net generation. See :issue:`1317`, :issue:`4934` and :issue:`4913`, as well as PR
-  :pr:`4975`. For background on this EIA canonicalization workflow, see
-  :doc:`/methodology/entity_harvesting`.
+  :pr:`4975`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -765,8 +761,7 @@ EIA-923
   :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`. Once harvested, this
   table will be replaced with a well-normalized version of the same data, but it is
   being published in this form until then. See :issue:`4099` and :issue:`2448`, and
-  :pr:`4636`. For details on harvesting, see
-  :doc:`/methodology/entity_harvesting`.
+  :pr:`4636`.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -935,7 +930,6 @@ New Data
   :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, this table will
   be replaced with a well-normalized version of the same data, but it is being published
   in this form until then. See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
-  For details on harvesting, see :doc:`/methodology/entity_harvesting`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^

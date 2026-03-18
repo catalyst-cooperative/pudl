@@ -165,10 +165,9 @@ incorrectly reported latitude in one year.
 Assets in the Core layer attempt to eliminate this kind of inconsistent and duplicate
 information when normalizing the tables by choosing only the most consistently reported
 value for inclusion in the final database. If a value which should be static is not
-consistently reported, it may also be set to N/A.
-
-For details on how this works for EIA entities (plants, utilities, boilers, and
-generators), see :doc:`/methodology/entity_harvesting`.
+consistently reported, it may also be set to N/A. For details on how this works for
+EIA entities (plants, utilities, boilers, and generators), see
+:doc:`/methodology/entity_harvesting`.
 
 Output Layer
 ^^^^^^^^^^^^
