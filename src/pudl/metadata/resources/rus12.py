@@ -700,8 +700,6 @@ RESOURCE_METADATA_BASE = {
                 "peak_gross_demand_15_min_mw",
                 "peak_gross_demand_indicated_mw",
             ],
-            # The primary key of this table would be:
-            # ['report_date', 'borrower_id_rus', 'plant_name_rus', 'unit_id_rus', 'plant_type', 'timeframe']
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
