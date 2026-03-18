@@ -45,24 +45,6 @@ jobs:
             echo "Changes detected!"
           fi
 
-      - name: Create branch and commit
-        if: steps.update.outputs.changes == 'true'
-        run: |
-          git config user.name "zenodo-bot"
-          git config user.email "bot@github.com"
-          git checkout -b update-zenodo-dois-${{ github.run_number }}-${{ github.run_id }}
-          git add src/pudl/package_data/settings/zenodo_dois.yml
-          git commit -m "chore(zenodo): update DOIs to latest record versions
-
-          Automated update via GitHub Actions.
-
-          Run by: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-      - name: Push changes
-        if: steps.update.outputs.changes == 'true'
-        run: |
-          git push --set-upstream origin update-zenodo-dois-${{ github.run_number }}-${{ github.run_id }}
-
       - name: Format datasets as labels
         id: format-datasets
         run: |
@@ -75,8 +57,9 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(zenodo): update DOIs to latest versions"
-          title: "chore(zenodo): update DOIs to latest record versions"
+          commit-message: "[chore] update Zenodo DOIs to latest versions"
+          title: "[chore] update Zenodo DOIs to latest record versions"
+          add-paths: src/pudl/package_data/settings/zenodo_dois.yml
           body: |
             Automated update of Zenodo DOIs to latest record versions.
 
