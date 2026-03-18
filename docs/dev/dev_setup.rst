@@ -167,6 +167,19 @@ If you are working with locally processed data and there have been changes to th
 expectations about that data in the PUDL software, you may also need to regenerate your
 PUDL SQLite database or other outputs. See :doc:`run_the_etl` for more details.
 
+If you're using an AI coding agent, you will want to install some project
+skills:
+
+.. code-block:: console
+
+    $ pixi run install-skills
+
+If you want to add or update a skill to the project, run:
+
+.. code-block:: console
+
+   $ pixi run npx skills add <source>
+
 .. _linting:
 
 -------------------------------------------------------------------------------

@@ -1,10 +1,18 @@
 """Transform the RUS7 tables."""
 
 import pandas as pd
-from dagster import AssetIn, Field, asset
+from dagster import AssetIn, AssetOut, Field, Output, asset, multi_asset
 
 import pudl.transform.rus as rus
 from pudl import logging_helpers
+from pudl.metadata.enums import (
+    LOAN_STATUS_TYPES_RUS7,
+    LOAN_UNIT_TYPES_RUS7,
+    SERVICE_INTERRUPTION_PERIODS_RUS7,
+    SERVICE_INTERRUPTION_TYPES_RUS7,
+    SERVICE_STATUS_RUS7,
+    TRANSMISSION_DISTRIBUTION_TYPES_RUS7,
+)
 from pudl.metadata.resources.rus12 import HARVESTED_CORE_TABLES_RUS7
 from pudl.transform.eia import harvest_entity_tables
 
@@ -319,6 +327,137 @@ def _core_rus7__yearly_statement_of_operations(
     )
     df["is_total"] = df.opex_type.str.startswith("total")
     return df
+
+
+@multi_asset(
+    outs={
+        "_core_rus7__yearly_owed_by_customers": AssetOut(),
+        "_core_rus7__yearly_customer_energy_efficiency_and_conservation_loans": AssetOut(),
+    }
+)
+def _core_rus7__consumer_debt(raw_rus7__owed_by_customers: pd.DataFrame):
+    """Transform the owed by consumer table.
+
+    This transform splits the owed_by_consumers table into one table describing general
+    consumer debts and one table describing the status of energy efficiency and
+    conservation loan program debts.
+    """
+    df = rus.early_transform(raw_df=raw_rus7__owed_by_customers)
+    rus.early_check_pk(df)
+
+    # Split tables
+    df_owed_by_consumers = df[
+        [
+            "report_date",
+            "borrower_id_rus",
+            "borrower_name_rus",
+            "amount_due_over_60_days",
+            "amount_written_off_ytd",
+        ]
+    ]
+
+    df_loan_program_debt = df[
+        ["report_date", "borrower_id_rus", "borrower_name_rus"]
+        + [col for col in df.columns if col not in df_owed_by_consumers.columns]
+    ]
+
+    pattern = (
+        rf"^({'|'.join(LOAN_STATUS_TYPES_RUS7)})_({'|'.join(LOAN_UNIT_TYPES_RUS7)})$"
+    )
+    df_loan_program_debt = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols=LOAN_UNIT_TYPES_RUS7,
+        pattern=pattern,
+        match_names=["loan_status", "data_cols"],
+        unstack_level=["loan_status"],
+    )
+
+    return (
+        Output(
+            output_name="_core_rus7__yearly_owed_by_customers",
+            value=df_owed_by_consumers,
+        ),
+        Output(
+            output_name="_core_rus7__yearly_customer_energy_efficiency_and_conservation_loans",
+            value=df_loan_program_debt,
+        ),
+    )
+
+
+@asset
+def _core_rus7__yearly_service_interruptions(
+    raw_rus7__service_interruptions: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the service_interruptions table."""
+    df = rus.early_transform(raw_df=raw_rus7__service_interruptions)
+    rus.early_check_pk(df)
+
+    pattern = rf"^({'|'.join(SERVICE_INTERRUPTION_TYPES_RUS7)})_({'|'.join(SERVICE_INTERRUPTION_PERIODS_RUS7)})_(saidi_minutes)$"
+    df = rus.multi_index_stack(
+        df,
+        idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
+        data_cols="saidi_minutes",
+        pattern=pattern,
+        match_names=["service_interruption_cause", "observation_period", "data_cols"],
+        unstack_level=["service_interruption_cause", "observation_period"],
+    )
+    df["is_total"] = df.service_interruption_cause == "total"
+    return df
+
+
+@multi_asset(
+    outs={
+        "_core_rus7__yearly_distribution_services": AssetOut(),
+        "_core_rus7__yearly_transmission_and_distribution_mileage": AssetOut(),
+    }
+)
+def _core_rus7__transmission_and_distribution(
+    raw_rus7__transmission_and_distribution: pd.DataFrame,
+):
+    """Transform the transmission_and_distribution table."""
+    df = rus.early_transform(raw_df=raw_rus7__transmission_and_distribution)
+    rus.early_check_pk(df)
+
+    # Split into services and miles tables
+    id_cols = ["borrower_id_rus", "borrower_name_rus", "report_date"]
+    services_df = df[id_cols + [col for col in df.columns if "services" in col]]
+    miles_df = df[id_cols + [col for col in df.columns if col not in services_df]]
+
+    # Stack the services table
+    pattern = rf"^(services)_({'|'.join(SERVICE_STATUS_RUS7)})$"
+    services_df = rus.multi_index_stack(
+        services_df,
+        idx_ish=id_cols,
+        data_cols="services",
+        pattern=pattern,
+        match_names=["data_cols", "service_status"],
+        unstack_level=["service_status"],
+    )
+    services_df["is_total"] = services_df["service_status"] == "total"
+
+    # Stack the mileage dataframe
+    pattern = rf"^({'|'.join(TRANSMISSION_DISTRIBUTION_TYPES_RUS7)})_(?:length|energized)_(miles)$"
+    miles_df = rus.multi_index_stack(
+        miles_df,
+        idx_ish=id_cols,
+        data_cols="miles",
+        pattern=pattern,
+        match_names=["line_type", "data_cols"],
+        unstack_level=["line_type"],
+    )
+    miles_df["is_total"] = miles_df["line_type"] == "total"
+
+    return (
+        Output(
+            output_name="_core_rus7__yearly_distribution_services",
+            value=services_df,
+        ),
+        Output(
+            output_name="_core_rus7__yearly_transmission_and_distribution_mileage",
+            value=miles_df,
+        ),
+    )
 
 
 @asset

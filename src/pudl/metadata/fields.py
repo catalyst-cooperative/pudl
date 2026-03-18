@@ -38,6 +38,7 @@ from pudl.metadata.enums import (
     LIABILITY_TYPES_FERC1,
     LIABILITY_TYPES_RUS7,
     LIABILITY_TYPES_RUS12,
+    LOAN_STATUS_TYPES_RUS7,
     MAIN_PIPE_SIZES_PHMSAGAS,
     MATERIAL_TYPES_PHMSAGAS,
     MODEL_CASES_EIAAEO,
@@ -51,12 +52,16 @@ from pudl.metadata.enums import (
     REVENUE_CLASSES_EIA176,
     REVENUE_CLASSES_EIA861,
     RTO_CLASSES,
+    SERVICE_INTERRUPTION_PERIODS_RUS7,
+    SERVICE_INTERRUPTION_TYPES_RUS7,
+    SERVICE_STATUS_RUS7,
     SOURCE_OF_ENERGY_RUS12,
     SUBDIVISION_CODES_ISO3166,
     TECH_CLASSES,
     TECH_DESCRIPTIONS,
     TECH_DESCRIPTIONS_EIAAEO,
     TECH_DESCRIPTIONS_NRELATB,
+    TRANSMISSION_DISTRIBUTION_TYPES_RUS7,
     US_TIMEZONES,
     UTILITY_PLANT_ASSET_TYPES_FERC1,
 )
@@ -238,6 +243,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "Removal efficiency for acid gas emissions. Ranges from 0 to 1.",
     },
+    "anticipated_pct": {
+        "type": "number",
+        "description": ("Expected percentage."),
+    },
+    "actual_pct": {
+        "type": "number",
+        "description": ("Observed percentage."),
+    },
     "actual_peak_demand_savings_mw": {
         "type": "number",
         "description": (
@@ -405,11 +418,26 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "USD",
     },
+    "amount_due_over_60_days": {
+        "description": (
+            "Reported amount of dollars due over 60 days from consumers for electric service. Includes both connected and disconnected customers."
+        ),
+        "type": "number",
+        "unit": "USD",
+    },
     "amount_type": {
         "type": "string",
         "description": (
             "Label describing the type of amount being reported. This could be a balance or a change in value."
         ),
+    },
+    "amount_written_off_ytd": {
+        "description": (
+            "Total charges due from consumers for electric service written off during the current year to "
+            "Account 144.1, representing the write-off of uncollectible accounts."
+        ),
+        "type": "number",
+        "unit": "USD",
     },
     "appro_part_label": {
         "type": "string",
@@ -4306,6 +4334,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "constraints": {"enum": ["labor", "material"]},
     },
+    "line_type": {
+        "type": "string",
+        "description": (
+            "The type of line mileage reported (e.g., transmission, overhead distribution)."
+        ),
+        "constraints": {"enum": TRANSMISSION_DISTRIBUTION_TYPES_RUS7},
+    },
     "lines_or_stations": {
         "type": "string",
         "description": (
@@ -4399,6 +4434,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "loan_recipient": {
         "type": "string",
         "description": "The organization that received a loan.",
+    },
+    "loan_status": {
+        "type": "string",
+        "description": "The repayment status of a loan.",
+        "constraints": {"enum": LOAN_STATUS_TYPES_RUS7},
     },
     "longitude": {
         "type": "number",
@@ -4583,6 +4623,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Two letter US state abbreviations and three letter ISO-3166-1 country codes for international mines."
         ),
         # TODO: Add ENUM constraint.
+    },
+    "miles": {
+        "type": "number",
+        "description": "Line length at the end of the reported period, in miles.",
+        "unit": "miles",
     },
     "min_fuel_mmbtu_per_unit": {
         "type": "number",
@@ -6215,7 +6260,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": ("Unique numeric identifier for each renewable fuel type."),
         "constraints": {
-            "enum": list(range(1, 16)),
+            "minimum": 1,
+            "maximum": 15,
         },
     },
     "primary_transportation_mode_code": {
@@ -6715,6 +6761,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "USD",
     },
+    "saidi_minutes": {
+        "type": "number",
+        "description": (
+            "Cumulative duration (minutes) of interruption for the average customer "
+            "during the report year."
+        ),
+        "unit": "min",
+    },
     "saidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number",
         "description": (
@@ -6930,6 +6984,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Service area in which plant is located; for unregulated companies, it's the electric utility with which plant is interconnected"
         ),
     },
+    "service_interruption_cause": {
+        "type": "string",
+        "description": ("Source of service interruption."),
+        "constraints": {"enum": SERVICE_INTERRUPTION_TYPES_RUS7},
+    },
+    "service_status": {
+        "type": "string",
+        "description": (
+            "Status of services (e.g., idle, retired) in report period. Idle services exclude seasonals."
+        ),
+        "constraints": {"enum": SERVICE_STATUS_RUS7},
+    },
     "services_efv_in_system": {
         "type": "integer",
         "description": (
@@ -6971,7 +7037,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "services": {
         "type": "number",
-        "description": "Number of end in system at end of year.",
+        "description": "Number of services in system at end of year.",
     },
     "short_form": {
         "type": "boolean",
@@ -8312,6 +8378,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Year the data was reported in, used for partitioning EPA CEMS.",
     },
+    "ytd_dollars": {
+        "type": "number",
+        "description": "Balance this current year, in U.S. dollars.",
+        "unit": "USD",
+    },
     "zip_code": {
         "type": "string",
         "description": "Five digit US Zip Code.",
@@ -8365,7 +8436,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The wind quality class for turbines at this generator. See table core_eia__codes_wind_quality_class for specifications about each class."
         ),
-        "constraints": {"enum": [1, 2, 3, 4]},
+        "constraints": {
+            "minimum": 1,
+            "maximum": 4,
+        },
     },
     "wind_speed_avg_ms": {
         "type": "number",
@@ -9614,7 +9688,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "integer",
         "description": "Investment type code.",
         "constraints": {
-            "enum": set(CODE_METADATA["core_rus__codes_investment_types"]["df"]["code"])
+            "minimum": CODE_METADATA["core_rus__codes_investment_types"]["df"][
+                "code"
+            ].min(),
+            "maximum": CODE_METADATA["core_rus__codes_investment_types"]["df"][
+                "code"
+            ].max(),
         },
     },
     "included_investments": {
@@ -10876,6 +10955,16 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Type of asset being reported to the core_rus7__yearly_balance_sheet_assets table."
             ),
             "constraints": {"enum": ASSET_TYPES_RUS7},
+        },
+    },
+    "core_rus7__yearly_service_interruptions": {
+        "observation_period": {
+            "constraints": {"enum": SERVICE_INTERRUPTION_PERIODS_RUS7},
+        },
+    },
+    "out_rus7__yearly_service_interruptions": {
+        "observation_period": {
+            "constraints": {"enum": SERVICE_INTERRUPTION_PERIODS_RUS7},
         },
     },
     "core_rus7__yearly_balance_sheet_liabilities": {

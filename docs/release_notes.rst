@@ -19,6 +19,7 @@ RUS 7 & RUS 12
 
 * Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
   :pr:`5040`. See :pr:`5077`.
+* Added additional core and output tables from RUS Form 7. See :pr:`5087`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -36,6 +37,8 @@ New Data Tests & Validations
   :ref:`core_rus7__yearly_statement_of_operations` and
   :ref:`core_rus12__yearly_statement_of_operations` and their corresponding output
   tables sum to their reported totals. See :issue:`5039` and :pr:`5073`.
+* Modified schema checks so they can be applied to the largest tables, which have
+  typically been excluded from these checks. See Issue :issue:`5022` and PR :pr:`5043`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -146,7 +149,6 @@ Documentation
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 * Added an initial set of dbt data validations for the new RUS Form 7
   and Form 12 tables. See :issue:`4887`, :issue:`4888` and :pr:`5017`.
 * Add dbt data validations that will flag emissions removal efficiencies outside the

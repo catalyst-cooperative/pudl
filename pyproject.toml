@@ -325,6 +325,13 @@ pre-commit-install = { cmd = "pre-commit install", description = "Install pre-co
 pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update pre-commit hook versions" }
 dbt-deps-upgrade = { cmd = "dbt deps --upgrade", cwd = "dbt", description = "Update dbt dependencies" }
 
+# Coding agent environment
+# NOTE (2026-03-17): We're using the `experimental_install` command
+# which is the workaround for "restoring from a lockfile" - see
+# https://github.com/vercel-labs/skills/issues/549 - we probably want to switch to
+# `npx skills install` whenever that actually becomes a thing.
+install-skills = { cmd = "npx skills experimental_install", description = "Install skills from lockfile" }
+
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
@@ -337,6 +344,7 @@ dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
 pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
+update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
 
 [tool.ruff]
