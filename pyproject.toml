@@ -595,4 +595,5 @@ extend-exclude = [
     "devtools/",
     "test/",
     "src/pudl/transform/params/ferc1.py",
+    "src/pudl/package_data/ferc1/*_categories.yaml"
 ]
