@@ -78,6 +78,8 @@ def update_yaml_dois(yaml_file: Path, datasets: tuple[str, ...]) -> dict[str, di
             yaml.dump(data, f)
         print(f"\n✅ Updated {yaml_file} with {len(updates)} newer record versions")
 
+    return updates
+
 
 @click.command(
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -86,7 +88,7 @@ def update_yaml_dois(yaml_file: Path, datasets: tuple[str, ...]) -> dict[str, di
     "datasets",
     nargs=-1,
 )
-def main(datasets: tuple[str, ...]):
+def main(datasets: tuple[str, ...]):  # pragma: no cover
     """Auto-update Zenodo DOIs to the latest value."""
     if not datasets:  # If no datasets to update
         logger.warn("No datasets provided, nothing will be updated.")
