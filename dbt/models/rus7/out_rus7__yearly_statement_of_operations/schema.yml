@@ -48,6 +48,7 @@ sources:
                 total_label: "total"
                 tolerance: 10
               row_condition: "opex_group == 'opex'"
+              description: "Sum all opex expenses other than operating_revenue."
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns: [borrower_id_rus, report_date]
@@ -69,6 +70,7 @@ sources:
                 total_label: "total"
                 tolerance: 10
               row_condition: "opex_group == 'opex'"
+              description: "Sum all opex expenses other than operating_revenue."
               config:
                 error_if: ">74"
           - subcomponents_sum_to_total:
@@ -92,6 +94,7 @@ sources:
                 total_label: "total"
                 tolerance: 10
               row_condition: "opex_group == 'opex'"
+              description: "Sum all opex expenses other than operating_revenue."
               config:
                 error_if: ">70"
         columns:

@@ -32,12 +32,6 @@ sources:
                 group_by_columns: [borrower_id_rus, report_date]
                 categorical_column: opex_type
                 value_column: opex_report_month
-                subcomponents_list:
-                  [
-                    "electric_energy_revenues",
-                    "other_operating_revenue_and_income",
-                    "income_from_leased_property",
-                  ]
                 total_label: "total_operation_revenues_and_patronage_capital"
                 tolerance: 10
               row_condition: "opex_group == 'operation_revenue_and_patronage_capital'"
