@@ -2,14 +2,32 @@ Entity Harvesting
 ===============================================================================
 
 Overview
-~~~~~~~~
+-------------------------------------------------------------------------------
 
 Several of PUDL's most important EIA tables are not direct copies of a single EIA
 spreadsheet. Instead, they are synthesized from many upstream EIA-860 and EIA-923
 tables that report information about the same real-world entities in slightly different
 ways.
 
-This process is what we call *entity harvesting*.
+This process is what PUDL calls *entity harvesting*.
+
+What PUDL Means By "Entity Harvesting"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In database and data-integration terminology, this workflow is closely related to
+`record linkage <https://en.wikipedia.org/wiki/Record_linkage>`__ and
+`entity resolution <https://en.wikipedia.org/wiki/Record_linkage#Entity_resolution>`__.
+In master data management, the output is often described as a
+`golden record <https://en.wikipedia.org/wiki/Master_data_management>`__.
+
+PUDL uses the project-specific phrase *entity harvesting* because the source records
+are usually already grouped around known EIA identifiers like ``plant_id_eia`` or
+``generator_id``. The difficult part is generally not discovering that two unrelated
+records refer to the same real-world object. It is reconciling conflicting values from
+many schedules and years into:
+
+* one canonical entity record, and
+* one yearly record for attributes that legitimately vary over time.
 
 Entity harvesting exists because EIA data is not reported as a single clean master list
 of plants, utilities, boilers, or generators. The same plant may appear in many forms,
@@ -88,6 +106,9 @@ This is generally desirable. A normalized analytical database is more useful whe
 provides stable, reconciled identifiers and attributes rather than reproducing every
 reporting inconsistency exactly as filed.
 
+How The Harvester Works
+-------------------------------------------------------------------------------
+
 Where Harvesting Happens In The Dagster Graph
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -110,10 +131,10 @@ The simplified flow for plants looks like this:
        core4[_core_eia923__generation]
        core5[_core_eia923__fuel_receipts_costs]
        core6[_core_eia860__emissions_control_equipment]
-       harvest[harvested_plants_eia\nmulti_asset]
+  harvest[harvested_plants_eia<br/>multi_asset]
        entity[core_eia__entity_plants]
        scd[core_eia860__scd_plants]
-       outputs[out_eia__yearly_plants\nand other downstream outputs]
+  outputs[out_eia__yearly_plants<br/>and other downstream outputs]
 
        raw --> core1
        raw --> core2
@@ -150,7 +171,7 @@ That work is done in :func:`pudl.transform.eia._compile_all_entity_records`.
 For a given entity type, the harvester:
 
 1. Looks up the relevant identifier columns and harvestable attribute columns from the
-   entity metadata in ``pudl.metadata.resources.ENTITIES``.
+   entity metadata in :py:const:`pudl.metadata.resources.ENTITIES`.
 2. Scans each upstream transformed table.
 3. Includes a table if it contains the required entity ID columns plus ``report_date``.
 4. Pulls out the entity IDs, ``report_date``, and any harvestable attributes present in
@@ -179,13 +200,13 @@ Not every entity attribute is treated the same way.
 
 PUDL divides attributes into two conceptual groups:
 
-* **Static attributes**: values that should usually describe the same real-world entity
-  across all years, such as an entity name or latitude/longitude.
-* **Annual attributes**: values that can change over time, such as a yearly balancing
-  authority assignment or some generator characteristics.
+* **Static attributes**: values that should usually describe the same real-world
+  entity across all years, such as an entity name or latitude/longitude.
+* **Annual attributes**: values that can change over time, such as a yearly
+  balancing authority assignment or some generator characteristics.
 
-This distinction is encoded in the ``ENTITIES`` metadata, not inferred ad hoc during
-the ETL run.
+This distinction is encoded in :py:const:`pudl.metadata.resources.ENTITIES`, not
+inferred ad hoc during the ETL run.
 
 The distinction matters because consistency is evaluated differently:
 
@@ -195,8 +216,8 @@ The distinction matters because consistency is evaluated differently:
 For users, this explains why one attribute ends up in ``core_eia__entity_*`` while
 another appears in ``core_eia860__scd_*``.
 
-How PUDL Chooses A "Golden" Value
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How PUDL Chooses A Canonical Value
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After compiling all reported values, PUDL reconciles each harvestable attribute one at
 a time using :func:`pudl.transform.eia.harvest_entity_tables` and
@@ -214,10 +235,10 @@ By default, a value must be reported consistently more than 70% of the time to b
 harvested for a given entity or entity-year. If no candidate exceeds that threshold, the
 harvested value remains null.
 
-This is the core reason PUDL's normalized tables are often more stable and analytically
-useful than any single EIA worksheet. The harvester is explicitly designed to prefer the
-most consistently reported value rather than whichever source happened to be processed
-last.
+This is the core reason PUDL's normalized tables are often more stable and
+analytically useful than any single EIA worksheet. The harvester is explicitly
+designed to prefer the most consistently reported value rather than whichever
+source happened to be processed last.
 
 The selection logic looks like this conceptually:
 
@@ -266,6 +287,9 @@ These steps happen after the core consistency-based reconciliation, which means 
 harvested tables are not just copied from upstream transformed tables. They are the
 result of several layers of normalization and cleanup.
 
+How To Interpret The Outputs
+-------------------------------------------------------------------------------
+
 Why A Raw Spreadsheet May Not Match A PUDL Entity Table
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -313,8 +337,9 @@ To understand the source data that feed entity harvesting, see:
 * :doc:`/data_sources/eia860`
 * :doc:`/data_sources/eia923`
 
-For the code that implements the harvesting logic, see:
+For the metadata and code that implement the harvesting logic, see:
 
+* :py:const:`pudl.metadata.resources.ENTITIES`
 * :mod:`pudl.transform.eia`
 * :func:`pudl.transform.eia.harvested_entity_asset_factory`
 * :func:`pudl.transform.eia.harvest_entity_tables`
