@@ -496,7 +496,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
                 "fuel_cost_adjustment",
                 # "fuel_type" --> add in out table??
                 "fuel_type_code_rus",
-                "is_eia_borrower",
+                "is_supplier_eia_respondent",
                 "supplier_code_rus",
                 "utility_name_eia",
                 "comments",

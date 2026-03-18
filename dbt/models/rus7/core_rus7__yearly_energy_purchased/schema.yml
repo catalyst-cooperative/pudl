@@ -18,7 +18,7 @@ sources:
           - name: wheeling_and_other_charges
           - name: fuel_cost_adjustment
           - name: fuel_type_code_rus
-          - name: is_eia_borrower
+          - name: is_supplier_eia_respondent
           - name: supplier_code_rus
           - name: utility_name_eia
           - name: comments

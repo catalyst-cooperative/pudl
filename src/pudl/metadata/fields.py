@@ -9871,7 +9871,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": "The total cost of purchased energy.",
     },
-    "is_eia_borrower": {
+    "is_supplier_eia_respondent": {
         "type": "boolean",
         "description": "Whether the utility supplying energy to a RUS borrower is an EIA respondent.",
     },

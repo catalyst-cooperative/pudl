@@ -426,7 +426,7 @@ def _core_rus7__yearly_energy_purchased(
     """Transform the raw_rus7__energy_purchased table."""
     df = rus.early_transform(
         raw_df=raw_rus7__energy_purchased,
-        boolean_columns_to_fix=["is_eia_borrower"],
+        boolean_columns_to_fix=["is_supplier_eia_respondent"],
     )
     # Convert units
     df = rus.convert_units(
@@ -454,7 +454,7 @@ def _core_rus7__yearly_energy_purchased(
         df["fuel_type_code_rus"], errors="coerce"
     ).astype("Int64")
 
-    # TO-DO: it looks like the supplier_code_rus, is_eia_borrower, and utility_name_eia fields could
+    # TO-DO: it looks like the supplier_code_rus, is_supplier_eia_respondent, and utility_name_eia fields could
     # be turned into their own table. I investigated a bit and it's not a perfect 1:1 mapping, but
     # it's close. Could turn this function into a multi-asset with an scd table...
     return df
