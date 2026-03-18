@@ -135,7 +135,7 @@ underscore, like a private python method. For example, the intermediate asset
 asset but still contains duplicate plant entities. The computation intensive
 harvesting process deduplicates ``_core_eia860__plants`` and outputs the
 ``core_eia860__entity_plants`` and ``core_eia860__scd_plants`` assets which
-follow Tiny Data standards.
+follow Tidy Data standards.
 
 For a conceptual description of this reconciliation process, see
 :doc:`/methodology/entity_harvesting`.
