@@ -27,6 +27,76 @@ sources:
               arguments:
                 table_name: core_rus7__yearly_statement_of_operations
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_report_month
+                subcomponents_list:
+                  [
+                    "admin",
+                    "customer_accounts",
+                    "customer_service",
+                    "distribution_maintenance",
+                    "distribution_operation",
+                    "power_production",
+                    "purchased_power",
+                    "regional_market",
+                    "sales",
+                    "transmission",
+                  ]
+                total_label: "total"
+                tolerance: 10
+              row_condition: "opex_group == 'opex'"
+              description: "Sum all opex expenses other than operating_revenue."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd
+                subcomponents_list:
+                  [
+                    "admin",
+                    "customer_accounts",
+                    "customer_service",
+                    "distribution_maintenance",
+                    "distribution_operation",
+                    "power_production",
+                    "purchased_power",
+                    "regional_market",
+                    "sales",
+                    "transmission",
+                  ]
+                total_label: "total"
+                tolerance: 10
+              row_condition: "opex_group == 'opex'"
+              description: "Sum all opex expenses other than operating_revenue."
+              config:
+                error_if: ">74"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: opex_type
+                value_column: opex_ytd_budget
+                subcomponents_list:
+                  [
+                    "admin",
+                    "customer_accounts",
+                    "customer_service",
+                    "distribution_maintenance",
+                    "distribution_operation",
+                    "power_production",
+                    "purchased_power",
+                    "regional_market",
+                    "sales",
+                    "transmission",
+                  ]
+                total_label: "total"
+                tolerance: 10
+              row_condition: "opex_group == 'opex'"
+              description: "Sum all opex expenses other than operating_revenue."
+              config:
+                error_if: ">70"
         columns:
           - name: report_date
           - name: borrower_id_rus

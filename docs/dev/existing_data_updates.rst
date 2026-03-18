@@ -44,10 +44,15 @@ in the
 If the structure of the web pages or the URLs has changed, you may need to update the
 archivers themselves.
 
-**1.2)** Obtain production DOIs from
-`Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__ and then update the
-record in :mod:`pudl.package_data.settings.zenodo_dois.yml` to refer to the new raw
-input archives.
+**1.2)** Update the `Zenodo <https://zenodo.org/communities/catalyst-cooperative/>`__
+DOI to point to the latest dataset by running:
+
+.. code-block:: bash
+
+    pixi run update_zenodo_dois dataset_name
+
+Verify that this updated the record in :mod:`pudl.package_data.settings.zenodo_dois.yml`
+to refer to the new raw input archives as expected.
 
 **1.3)** In :py:const:`pudl.metadata.sources.SOURCES`, update the ``working_partitions``
 to reflect the years, months, or quarters of data that are available for each dataset

@@ -9,6 +9,14 @@ sources:
               arguments:
                 table_name: core_rus7__yearly_power_requirements_electric_customers
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  [borrower_id_rus, report_date, observation_period]
+                categorical_column: customer_class
+                value_column: customers_num
+                total_label: "total"
+                tolerance: 0
         columns:
           - name: report_date
           - name: borrower_id_rus
