@@ -9,14 +9,17 @@ sources:
               arguments:
                 column_A: patronage_cumulative
                 column_B: patronage_report_year
-                or_equal: True
+                or_equal: true
               config:
                 error_if: ">14"
-              description: "Some 0 cumulative values and a handful of other values causing failure. Investigate." # TODO
+              description: Some 0 cumulative values and a handful of other values causing failure. Investigate.
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_patronage_capital
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
         columns:
           - name: report_date
           - name: borrower_id_rus
-          - name: borrower_name_rus
           - name: patronage_type
           - name: patronage_report_year
             data_tests:
@@ -25,7 +28,7 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">2"
-                  description: "FL0026 and OH0071 each report one negative value. Investigate." #TODO
+                  description: FL0026 and OH0071 each report one negative value. Investigate.
           - name: patronage_cumulative
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

@@ -10,6 +10,7 @@ from pandas.tseries.offsets import BYearEnd
 
 import pudl
 from pudl.helpers import (
+    ParquetData,
     add_fips_ids,
     apply_pudl_dtypes,
     convert_col_to_bool,
@@ -20,6 +21,7 @@ from pudl.helpers import (
     diff_wide_tables,
     expand_timeseries,
     flatten_list,
+    normalize_year_fragments,
     remove_leading_zeros_from_numeric_strings,
     retry,
     standardize_na_values,
@@ -228,6 +230,27 @@ def test_monthly_attribute_merge():
     )
 
     assert_frame_equal(out, out_expected)
+
+
+@pytest.mark.parametrize(
+    "partitions,expected_filename",
+    [
+        ({}, "core_eia__plants.parquet"),
+        ({"year": 2022, "state": "ca"}, "2022_ca.parquet"),
+    ],
+)
+def test_parquet_data_paths(partitions: dict[str, object], expected_filename: str):
+    """ParquetData builds expected paths and ensures target directory exists."""
+    parquet_data = ParquetData(table_name="core_eia__plants", partitions=partitions)
+
+    # Accessing parquet_directory should create the table-specific directory.
+    parquet_directory = parquet_data.parquet_directory
+
+    assert parquet_directory.exists()
+    assert parquet_directory.is_dir()
+    assert parquet_directory.name == "core_eia__plants"
+
+    assert parquet_data.parquet_path == parquet_directory / expected_filename
 
 
 def test_quarterly_attribute_merge():
@@ -960,3 +983,125 @@ def test_standardize_phone_column():
 
     # Assert the results
     pd.testing.assert_frame_equal(result_df, expected_df)
+
+
+@pytest.mark.parametrize(
+    "raw_year,min_valid_year,max_valid_year,base_century,expected",
+    [
+        pytest.param(
+            pd.Series(["05", "95", "2008", "1999"], dtype="string"),
+            1950,
+            2026,
+            2000,
+            pd.Series([2005, 1995, 2008, 1999]),
+            id="default-base-century",
+        ),
+        pytest.param(
+            pd.Series(["05", "95"], dtype="string"),
+            1850,
+            1925,
+            1900,
+            pd.Series([1905, 1895]),
+            id="custom-base-century",
+        ),
+    ],
+)
+def test_normalize_year_fragments_valid(
+    raw_year: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+    base_century: int,
+    expected: pd.Series,
+):
+    """Normalize year fragments to valid 4-digit years."""
+    out = normalize_year_fragments(
+        raw_year=raw_year,
+        min_valid_year=min_valid_year,
+        max_valid_year=max_valid_year,
+        base_century=base_century,
+    )
+    assert_series_equal(out, expected, check_dtype=False)
+
+
+@pytest.mark.parametrize(
+    "raw_year,min_valid_year,max_valid_year,base_century,error_match",
+    [
+        pytest.param(
+            pd.Series(["5", "1999"], dtype="string"),
+            1950,
+            2026,
+            2000,
+            "Expected only 2- or 4-digit year fragments",
+            id="invalid-fragment-width",
+        ),
+        pytest.param(
+            pd.Series(["1949", "05"], dtype="string"),
+            1950,
+            2026,
+            2000,
+            "Year out of expected range",
+            id="year-out-of-range",
+        ),
+    ],
+)
+def test_normalize_year_fragments_raises_invalid_values(
+    raw_year: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+    base_century: int,
+    error_match: str,
+):
+    """Raise when fragments are malformed or normalize outside valid bounds."""
+    with pytest.raises(ValueError, match=error_match):
+        normalize_year_fragments(
+            raw_year=raw_year,
+            min_valid_year=min_valid_year,
+            max_valid_year=max_valid_year,
+            base_century=base_century,
+        )
+
+
+@pytest.mark.parametrize(
+    "raw_year,min_valid_year,max_valid_year,base_century,error_match",
+    [
+        pytest.param(
+            pd.Series(["05"], dtype="string"),
+            2026,
+            1950,
+            2000,
+            "Expected min_valid_year <= max_valid_year",
+            id="min-greater-than-max",
+        ),
+        pytest.param(
+            pd.Series(["05"], dtype="string"),
+            1900,
+            2000,
+            2000,
+            "valid year range must be less than 100 years",
+            id="range-too-wide",
+        ),
+        pytest.param(
+            pd.Series(["05"], dtype="string"),
+            1950,
+            2026,
+            2050,
+            "Expected base_century to be divisible by 100",
+            id="base-century-not-divisible-by-100",
+        ),
+    ],
+)
+def test_normalize_year_fragments_raises_invalid_arguments(
+    raw_year: pd.Series,
+    min_valid_year: int,
+    max_valid_year: int,
+    base_century: int,
+    error_match: str,
+):
+    """Raise when normalization configuration is inconsistent."""
+    with pytest.raises(ValueError, match=error_match):
+        normalize_year_fragments(
+            raw_year=raw_year,
+            min_valid_year=min_valid_year,
+            max_valid_year=max_valid_year,
+            base_century=base_century,
+        )

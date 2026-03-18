@@ -89,7 +89,7 @@ jobs:
       - create-github-release
     steps:
       - name: Inform the Codemonkeys
-        uses: slackapi/slack-github-action@v2
+        uses: slackapi/slack-github-action@v3
         continue-on-error: true
         with:
           method: chat.postMessage

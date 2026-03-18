@@ -1,5 +1,12 @@
 """Table definitions for the RUS12 tables."""
 
+from pudl.metadata.resource_helpers import (
+    HARVESTED_CORE_TABLES_RUS7,
+    HARVESTED_CORE_TABLES_RUS12,
+    HARVESTING_DETAIL_TEXT_RUS,
+    core_to_out_harvested_resources,
+)
+
 PLANT_OPERATIONS_DETAIL = (
     "The data in this table comes from five different portions of RUS 12 "
     "corresponding to different plant types (steam, hydroelectric, "
@@ -38,8 +45,9 @@ PLANT_OPERATIONS_DETAIL = (
     "  the numeric values in these bad strings - 12 and 10 respectively. This enables us "
     "  to have an integer type for this unit_id_rus column."
 )
-
-RESOURCE_METADATA = {
+# This is the base resource metadata. We'll add all of the output versions of the harvested
+# core tables below using core_to_out_resources
+RESOURCE_METADATA_BASE = {
     "core_rus12__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (
@@ -52,7 +60,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "last_annual_meeting_date",
                 "members_num",
                 "members_present_at_meeting_num",
@@ -81,7 +88,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "asset_type",
                 "balance",
                 "is_total",
@@ -109,7 +115,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "liability_type",
                 "balance",
                 "is_total",
@@ -140,7 +145,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "debt_description",
                 "debt_ending_balance",
                 "debt_interest",
@@ -152,11 +156,14 @@ RESOURCE_METADATA = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__scd_borrowers": {
+    "core_rus12__entity_borrowers": {
         "description": {
             "additional_summary_text": ("active RUS borrowers."),
-            "usage_warnings": ["experimental_wip"],
+            "usage_warnings": ["experimental_wip", "harvested"],
             "additional_details_text": (
+                "This table contains canonical values for borrowers are set. It contains "
+                "values which are expected to remain fixed over time."
+                f"{HARVESTING_DETAIL_TEXT_RUS}.\n\n"
                 # note from readme about this table
                 "This table contains all of the Active Distribution Borrowers as of each report year "
                 "who were eligible to report to RUS Form 12.  If these Borrowers have reported to RUS "
@@ -167,16 +174,22 @@ RESOURCE_METADATA = {
         },
         "schema": {
             "fields": [
-                "report_date",
                 "borrower_id_rus",
                 "borrower_name_rus",
                 "state",
             ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-            ],
-            # TODO: we could check to see if we could add a FK relationship here
+            "primary_key": ["borrower_id_rus"],
+            "foreign_key_rules": {
+                "fields": [["borrower_id_rus"]],
+                # We must remove all of the rus12 tables - otherwise
+                # these would get a FK relationship from this rus7 table
+                "exclude": ["core_rus7__entity_borrowers"]
+                + HARVESTED_CORE_TABLES_RUS7
+                + [
+                    f"out_{tbl.removeprefix('core_')}"
+                    for tbl in HARVESTED_CORE_TABLES_RUS7
+                ],
+            },
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
@@ -194,7 +207,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "prime_mover_id",
                 "prime_mover_type",
@@ -235,7 +247,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "labor_or_material",
                 "operation_or_maintenance",
                 "lines_or_stations",
@@ -266,7 +277,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_type",
                 "capacity_mw",
                 "plant_num",
@@ -302,7 +312,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "source_of_energy",
                 "net_energy_received_mwh",
                 "cost",
@@ -319,24 +328,29 @@ RESOURCE_METADATA = {
     },
     "core_rus12__yearly_loans": {
         "description": {
-            "additional_summary_text": ("loans guaranteed by RUS borrowers."),
+            "additional_summary_text": ("loans provided by RUS borrowers."),
             "additional_primary_key_text": (
                 "This table has no primary key because some borrowers report multiple loan values from "
                 "the same entity in a given year."
             ),
             "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part H - Section F - Subsection II)",
+            "additional_source_text": "(Part H - Section F - Subsections II & IV)",
+            "additional_details_text": (
+                "This table also includes loan guarantees where the RUS borrower backs a loan "
+                "from another entity and is therefore liable to pay any remaining "
+                "balance should the original borrower default."
+            ),
         },
         "schema": {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
-                "loan_organization",
+                "loan_recipient",
                 "loan_maturity_date",
                 "loan_original_amount",
                 "loan_balance",
                 "for_rural_development",
+                "is_loan_guarantee",
             ],
         },
         "sources": ["rus12"],
@@ -376,7 +390,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "plant_type",
                 "employees_full_time_num",
@@ -403,7 +416,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "opex_group",
                 "opex_type",
                 "opex_report_month",
@@ -416,6 +428,37 @@ RESOURCE_METADATA = {
                 "borrower_id_rus",
                 "opex_group",
                 "opex_type",
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_investments": {
+        "description": {
+            "additional_summary_text": ("investments, loan guarantees and loans."),
+            "additional_source_text": "(Part H - Section F, Sub-section I)",
+            "additional_primary_key_text": (
+                "This is a list of all investments or loans in each year and borrowers can have "
+                "multiple records with the same ``investment_description``."
+            ),
+            "additional_details_text": (
+                "Reporting of investments is required by 7 CFR 1717, Subpart N. Investment "
+                "categories reported on this Part correspond to Balance Sheet items in Part "
+                "A Section B in table :ref:`core_rus12__yearly_balance_sheet_assets`."
+            ),
+            "usage_warnings": ["experimental_wip", "aggregation_hazard"],
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "investment_description",
+                "investment_type_code",
+                "included_investments",
+                "excluded_investments",
+                "income_or_loss",
+                "for_rural_development",
             ],
         },
         "sources": ["rus12"],
@@ -446,7 +489,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "plant_type",
                 "cost_group",
@@ -455,7 +497,30 @@ RESOURCE_METADATA = {
                 "cost_per_mwh",
                 "cost_per_mmbtu",
                 "is_total",
-            ]
+            ],
+        },
+        "sources": ["rus12"],
+        "etl_group": "rus12",
+        "field_namespace": "rus",
+    },
+    "core_rus12__yearly_external_financial_risk_ratio": {
+        "description": {
+            "additional_summary_text": (
+                "ratio of investments and loan guarantee balances to total utility plant assets."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part H - Section F - Subsection III)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "external_financial_risk_ratio",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
@@ -479,7 +544,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "unit_id_rus",
                 "plant_type",
@@ -530,7 +594,6 @@ RESOURCE_METADATA = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "borrower_name_rus",
                 "plant_name_rus",
                 "unit_id_rus",
                 "plant_type",
@@ -554,3 +617,10 @@ RESOURCE_METADATA = {
         "field_namespace": "rus",
     },
 }
+
+
+RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
+    HARVESTED_CORE_TABLES_RUS12,
+    RESOURCE_METADATA_BASE.copy(),
+    ["borrower_name_rus", "state"],
+)

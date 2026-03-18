@@ -1,6 +1,9 @@
 """Code for transforming RUS data that pertains to more than one RUS Form."""
 
+from enum import StrEnum, auto
+
 import pandas as pd
+from dagster import AssetIn, AssetsDefinition, asset
 
 import pudl.helpers as helpers
 import pudl.logging_helpers
@@ -26,7 +29,9 @@ def early_check_pk(
     return
 
 
-def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataFrame:
+def early_transform(
+    raw_df: pd.DataFrame, boolean_columns_to_fix=[], string_cols_to_simplify=[]
+) -> pd.DataFrame:
     """Standard transforms for raw RUS data."""
     df = (
         helpers.standardize_na_values(raw_df)
@@ -36,7 +41,7 @@ def early_transform(raw_df: pd.DataFrame, boolean_columns_to_fix=[]) -> pd.DataF
             helpers.fix_boolean_columns,
             boolean_columns_to_fix=boolean_columns_to_fix,
         )
-        .pipe(helpers.simplify_strings, ["borrower_name_rus"])
+        .pipe(helpers.simplify_strings, ["borrower_name_rus"] + string_cols_to_simplify)
         .assign(
             borrower_name_rus=lambda x: x.borrower_name_rus.str.replace(
                 ",", ""
@@ -157,3 +162,35 @@ def convert_units(
         }
     )
     return df
+
+
+class RusEntity(StrEnum):
+    """Enum for the different types of RUS entities."""
+
+    BORROWERS = auto()
+
+
+def finished_rus_asset_factory(
+    table_name: str, _core_table_name: str, io_manager_key: str | None = None
+) -> AssetsDefinition:
+    """An asset factory for finished RUS tables.
+
+    Args:
+        table_name: the name of the core table.
+        _core_table_name: the name of the unharvested input table
+        io_manager_key: the name of the IO Manager of the final asset.
+
+    Returns:
+        A RUS asset.
+    """
+
+    @asset(
+        ins={_core_table_name: AssetIn()},
+        name=table_name,
+        io_manager_key=io_manager_key,
+    )
+    def finished_rus_asset(**kwargs) -> pd.DataFrame:
+        """Convert RUS _core table to core - the io manager will handle the schema."""
+        return kwargs[_core_table_name]
+
+    return finished_rus_asset

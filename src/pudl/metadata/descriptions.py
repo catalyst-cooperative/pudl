@@ -53,6 +53,7 @@ source_descriptions: dict = {
     "ferc": "FERC -- Mix of multiple FERC Forms",
     "ferc1_xbrl": "FERC 1 XBRL -- Post-2021 years of Annual Report of Major Electric Utilities",
     "ferc1_dbf": "FERC 1 DBF -- Pre-2021 years of Annual Report of Major Electric Utilities",
+    "rus": "RUS -- Mix of multiple RUS forms",
 }
 """Standard descriptive text to appear in the Source section of resource descriptions."""
 
