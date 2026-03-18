@@ -29,7 +29,7 @@ from pathlib import Path
 
 import click
 
-from pudl.deployment.deploy_outputs import (
+from pudl.deploy.pudl import (
     DeploymentType,
     get_build_from_tag,
     get_deployment_type_from_tag,

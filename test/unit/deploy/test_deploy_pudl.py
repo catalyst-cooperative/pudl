@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, call, patch
 import pytest
 from upath import UPath
 
-from pudl.deployment.deploy_outputs import (
+from pudl.deploy.pudl import (
     get_build_from_tag,
     prepare_outputs_for_distribution,
     update_git_branch,
@@ -67,8 +67,8 @@ def test_upload_outputs_nightly(tmp_path):
     path_suffixes = ["nightly", "eel-hole"]
 
     with (
-        patch("pudl.deployment.deploy_outputs.gcsfs.GCSFileSystem") as mock_gcs_cls,
-        patch("pudl.deployment.deploy_outputs.s3fs.S3FileSystem") as mock_s3_cls,
+        patch("pudl.deploy.pudl.gcsfs.GCSFileSystem") as mock_gcs_cls,
+        patch("pudl.deploy.pudl.s3fs.S3FileSystem") as mock_s3_cls,
     ):
         mock_gcs = MagicMock()
         mock_s3 = MagicMock()
@@ -111,7 +111,7 @@ def test_update_git_branch():
     """Test git branch update merges tag and pushes."""
     nightly_tag = "nightly-2026-02-09"
     stable_tag = "v2026.2.9"
-    with patch("pudl.deployment.deploy_outputs.subprocess.run") as mock_run:
+    with patch("pudl.deploy.pudl.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
         update_git_branch(tag="nightly-2026-02-09", branch="nightly", staging=False)
 
@@ -139,7 +139,7 @@ def test_update_git_branch():
 
 def test_update_git_branch_staging():
     """Test git branch update skips push when staging."""
-    with patch("pudl.deployment.deploy_outputs.subprocess.run") as mock_run:
+    with patch("pudl.deploy.pudl.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
 
         update_git_branch(tag="nightly-2026-02-09", branch="nightly", staging=True)
@@ -188,8 +188,8 @@ def test_get_build_from_tag(
 
     # Setup mocks and run tests
     with (
-        patch("pudl.deployment.deploy_outputs._run") as run_mock,
-        patch("pudl.deployment.deploy_outputs.UPath") as build_path_mock,
+        patch("pudl.deploy.pudl._run") as run_mock,
+        patch("pudl.deploy.pudl.UPath") as build_path_mock,
     ):
         run_mock.return_value = expected_hash
         build_path_mock.return_value = tmp_path
