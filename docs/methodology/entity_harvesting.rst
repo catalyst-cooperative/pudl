@@ -29,10 +29,10 @@ many schedules and years into:
 * one canonical entity record, and
 * one yearly record for attributes that legitimately vary over time.
 
-Entity harvesting exists because EIA data is not reported as a single clean master list
-of plants, utilities, boilers, or generators. The same plant may appear in many forms,
-worksheets, and years. Across those sources, attributes like plant name, balancing
-authority, geographic coordinates, or operating dates may be:
+We developed the entity harvesting process because EIA data is not reported as a single
+clean master list of plants, utilities, boilers, or generators. The same plant may
+appear in many forms, worksheets, and years. Across those sources, attributes like plant
+name, balancing authority, geographic coordinates, or operating dates may be:
 
 * omitted in some tables,
 * reported with slightly different spellings or codes,
@@ -57,15 +57,16 @@ For each EIA entity type, PUDL creates two related tables:
 
 * A static entity table such as :ref:`core_eia__entity_plants`, with one row per entity
   and attributes that are expected to be mostly stable over time.
-* A yearly slowly changing dimension table such as :ref:`core_eia860__scd_plants`, with
-  one row per entity per report year and attributes that are expected to vary over time.
+* A yearly slowly changing dimension (SCD) table such as :ref:`core_eia860__scd_plants`,
+  with one row per entity per report year and attributes that are expected to vary over
+  time.
 
 PUDL currently harvests four EIA entity types:
 
-* plants
-* utilities
-* boilers
-* generators
+* Utilities (``utility_id_eia``)
+* Plants (``plant_id_eia``)
+* Boilers (``boiler_id``)
+* Generators (``generator_id``)
 
 In code, these are represented by :class:`pudl.transform.eia.EiaEntity`, and the
 harvested tables are produced by the Dagster asset factory
@@ -96,7 +97,7 @@ That consistency-based approach has several practical consequences:
 * A PUDL entity attribute may match most upstream sources, but not a specific raw file a
   user happens to be looking at.
 * If the upstream values are too inconsistent, PUDL may leave the harvested value null
-  rather than selecting an unreliable record.
+  rather than constructing an unreliable entity record.
 * A plant-year may appear in a harvested table even if it only showed up in one of the
   many upstream tables that feed the harvester.
 * Conversely, if a table does not expose the expected entity identifier columns and
@@ -196,9 +197,8 @@ upstream asset that reports the right identifiers and ``report_date``.
 Static Versus Annual Attributes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Not every entity attribute is treated the same way.
-
-PUDL divides attributes into two conceptual groups:
+Not every entity attribute is treated the same way.  PUDL divides attributes into two
+conceptual groups:
 
 * **Static attributes**: values that should usually describe the same real-world
   entity across all years, such as an entity name or latitude/longitude.
@@ -275,7 +275,8 @@ Some attributes are too messy to reconcile with the default consistency logic al
 
 The harvester includes special-case handling for a few columns, including latitude,
 longitude, and generator operating dates. These special cases exist because some values
-are structurally noisy but still recoverable with a custom rule.
+are structurally noisy but the usability impacts have *not* choosing any value are too
+serious.
 
 The plant harvester also applies plant-specific post-processing after the main harvest:
 
@@ -286,6 +287,12 @@ The plant harvester also applies plant-specific post-processing after the main h
 These steps happen after the core consistency-based reconciliation, which means the
 harvested tables are not just copied from upstream transformed tables. They are the
 result of several layers of normalization and cleanup.
+
+There are a few cases in which we choose the most consistent value, even if it is not
+particularly consistent. When there are only a small number of reported values, this
+can result in a tie between two equally consistent values, each with a consistency of
+less than or equal to 50%. In these cases, the harvested value may not be deterministic.
+However, this scenario is quite rare.
 
 How To Interpret The Outputs
 -------------------------------------------------------------------------------
@@ -323,7 +330,8 @@ mind:
   entities, not as direct extracts from one filing schedule.
 * If you need to understand why a value looks surprising, inspect the upstream
   unnormalized ``_core_*`` tables or the source spreadsheets and compare
-  reporting across forms and years.
+  reporting across forms and years. (Note that these upstream unnormalized tables are
+  only accessible from within the Dagster pipeline, and are not generally published.)
 * Apparent discrepancies often reflect real inconsistencies in the source data rather
   than arbitrary transformation choices.
 * In many analytical workflows, the canonical harvested value is preferable to manually
