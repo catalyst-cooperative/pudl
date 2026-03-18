@@ -344,6 +344,7 @@ dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
 pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
+update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
 
 [tool.ruff]

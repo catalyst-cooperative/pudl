@@ -19,6 +19,7 @@ RUS 7 & RUS 12
 
 * Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
   :pr:`5040`. See :pr:`5077`.
+* Added additional core and output tables from RUS Form 7. See :pr:`5087`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
