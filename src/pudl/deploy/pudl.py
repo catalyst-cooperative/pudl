@@ -296,7 +296,7 @@ def get_build_from_tag(tag: str) -> UPath:
     # Loop through all builds associated with git ref and find most recent one
     most_recent_build_dt = datetime.min
     most_recent_build_path = None
-    build_path_pattern = re.compile(r"(\d{4}-\d{2}-\d{2}-\d{4})-([a-z|0-9]{9})-(.+)")
+    build_path_pattern = re.compile(r"(\d{4}-\d{2}-\d{2}-\d{4})-([a-f|0-9]{9})-(.+)")
     for build_path in build_bucket.glob(f"*-{git_ref}-*"):
         match = build_path_pattern.search(str(build_path))
         if (
