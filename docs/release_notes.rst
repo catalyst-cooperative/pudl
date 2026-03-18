@@ -19,6 +19,7 @@ RUS 7 & RUS 12
 
 * Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
   :pr:`5040`. See :pr:`5077`.
+* Added additional core and output tables from RUS Form 7. See :pr:`5087`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -28,6 +29,9 @@ Documentation
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Modified schema checks so they can be applied to the largest tables, which have
+  typically been excluded from these checks. See Issue :issue:`5022` and PR :pr:`5043`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -50,6 +54,11 @@ Quality of Life Improvements
 
 * Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
   PR :pr:`5023`.
+* Added environment variable controls for Sphinx docs builds:
+  ``PUDL_DOCS_KEEP_GENERATED_FILES`` now preserves generated docs artifacts for
+  debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups
+  when needed (for example in CI docs checks to avoid external docs outages).
+  See PR :pr:`5095`.
 
 .. _release-v2026.3.0:
 
@@ -135,7 +144,6 @@ Documentation
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 * Added an initial set of dbt data validations for the new RUS Form 7
   and Form 12 tables. See :issue:`4887`, :issue:`4888` and :pr:`5017`.
 * Add dbt data validations that will flag emissions removal efficiencies outside the

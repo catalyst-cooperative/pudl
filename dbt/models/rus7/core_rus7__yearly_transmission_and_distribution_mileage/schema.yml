@@ -1,0 +1,22 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_transmission_and_distribution_mileage
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_transmission_and_distribution_mileage
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          # TODO: CHECK SUBCOMPONENTS SUM TO TOTAL
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: line_type
+          - name: miles
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: is_total
