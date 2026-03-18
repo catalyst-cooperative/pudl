@@ -36,7 +36,7 @@ from pudl.settings import (
     FercToSqliteSettings,
 )
 from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import PudlPaths
+from pudl.workspace.setup import EXPECTED_OUTPUT_ENVVAR, PudlPaths
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +98,7 @@ def pytest_addoption(parser):
 
 def _run_dg_launch_with_coverage(
     job_name: str,
+    active_paths: PudlPaths,
     config_file: Path | None = None,
 ) -> None:
     """Run a dg launch command under coverage collection.
@@ -128,9 +129,8 @@ def _run_dg_launch_with_coverage(
     # Command args are fully constructed in-process and do not include user input.
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
-    # Propagate active pytest-managed paths into the dg subprocess explicitly.
-    # This prevents any .env defaults from sending outputs to a user directory.
-    active_paths = PudlPaths()
+    # Propagate fixture-owned paths into the dg subprocess explicitly. This avoids
+    # resolving paths from ambient env state at launch time.
     env["PUDL_INPUT"] = str(active_paths.input_dir)
     env["PUDL_OUTPUT"] = str(active_paths.output_dir)
     logger.info(f"Starting prebuild via dg launch: {launch_target}")
@@ -162,10 +162,13 @@ def _run_dg_launch_with_coverage(
     logger.info(f"Completed prebuild via dg launch: {launch_target}")
 
 
-def _assert_safe_pytest_output_path(expected_output: Path) -> Path:
+def _assert_safe_pytest_output_path(
+    expected_output: Path,
+    configured_output: Path,
+) -> Path:
     """Ensure integration prebuild writes only into the configured pytest output path."""
     expected_output = expected_output.resolve()
-    active_output = PudlPaths().output_dir.resolve()
+    active_output = configured_output.resolve()
     env_output_raw = os.environ.get("PUDL_OUTPUT")
     if not env_output_raw:
         pytest.exit(
@@ -274,12 +277,15 @@ def prebuilt_integration_dbs(configure_paths_for_tests: PudlPaths, live_dbs: boo
         logger.info("Using live DBs; skipping fixture-managed prebuild.")
         return
 
-    safe_output = _assert_safe_pytest_output_path(configure_paths_for_tests.output_dir)
+    safe_output = _assert_safe_pytest_output_path(
+        expected_output=configure_paths_for_tests.output_dir,
+        configured_output=configure_paths_for_tests.output_dir,
+    )
 
     logger.info(f"Prebuilding integration DBs in temporary output: {safe_output}")
     logger.info("Initializing empty pudl.sqlite with current metadata schema.")
     md = PUDL_PACKAGE.to_sql()
-    pudl_engine = sa.create_engine(PudlPaths().pudl_db)
+    pudl_engine = sa.create_engine(configure_paths_for_tests.pudl_db)
     md.create_all(pudl_engine)
 
     ci_config_path = (
@@ -292,6 +298,7 @@ def prebuilt_integration_dbs(configure_paths_for_tests: PudlPaths, live_dbs: boo
     _run_dg_launch_with_coverage(
         "pudl",
         config_file=ci_config_path,
+        active_paths=configure_paths_for_tests,
     )
 
 
@@ -398,19 +405,25 @@ def configure_paths_for_tests(tmp_path_factory, request):
     if not request.config.getoption("--live-dbs"):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()
+        resolved_out_tmp = Path(out_tmp).resolve()
         PudlPaths.set_path_overrides(
-            output_dir=str(Path(out_tmp).resolve()),
+            output_dir=str(resolved_out_tmp),
         )
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
+        os.environ[EXPECTED_OUTPUT_ENVVAR] = str(resolved_out_tmp)
+    else:
+        os.environ.pop(EXPECTED_OUTPUT_ENVVAR, None)
 
     # Keep environment variables synchronized with any overrides so subprocesses
     # launched later in this pytest session inherit the same workspace paths.
-    paths = PudlPaths()
-    os.environ["PUDL_INPUT"] = str(paths.input_dir)
-    os.environ["PUDL_OUTPUT"] = str(paths.output_dir)
-
     try:
-        return PudlPaths()
+        paths = PudlPaths(
+            pudl_input=Path(os.environ["PUDL_INPUT"]),
+            pudl_output=Path(os.environ["PUDL_OUTPUT"]),
+        )
+        os.environ["PUDL_INPUT"] = str(paths.input_dir)
+        os.environ["PUDL_OUTPUT"] = str(paths.output_dir)
+        return paths
     except pydantic.ValidationError as err:
         pytest.exit(
             f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --tmp-path, --live-dbs flags. Error: {err}."

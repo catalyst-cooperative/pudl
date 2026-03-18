@@ -4,7 +4,7 @@
     "dagster-expert": {
       "source": "dagster-io/skills",
       "sourceType": "github",
-      "computedHash": "dc32f5b0fe71cd56f39cb56382d2c6cfb89b212241d17204db302952f372c3ea"
+      "computedHash": "5c09c80a1fb51caa24fa9a8fcdc9216118a12ce253ed394815197bc36c3faaa6"
     },
     "dignified-python": {
       "source": "dagster-io/skills",
