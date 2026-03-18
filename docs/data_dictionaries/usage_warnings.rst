@@ -50,6 +50,8 @@ Harvested:
   with each other, and PUDL has overridden unusual entries in this table with a
   more consistent value.
 
+  See :doc:`/methodology/entity_harvesting` for a conceptual overview.
+
   When there are multiple values reported for the same entity, in most cases,
   PUDL chooses the most consistent value reported which is found in at least 70%
   of available entries, and if no value occurs more than 70% of the time, PUDL

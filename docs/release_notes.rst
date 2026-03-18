@@ -312,7 +312,8 @@ Bug Fixes & Data Cleaning
   reassigned names, resulting in approximately 150 additional matches to SEC 10K
   filings. 86 generators were reassigned prime mover codes, resulting in re-allocated
   net generation. See :issue:`1317`, :issue:`4934` and :issue:`4913`, as well as PR
-  :pr:`4975`.
+  :pr:`4975`. For background on this EIA canonicalization workflow, see
+  :doc:`/methodology/entity_harvesting`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -761,7 +762,8 @@ EIA-923
   :ref:`i_core_eia923__yearly_byproduct_expenses_and_revenues`. Once harvested, this
   table will be replaced with a well-normalized version of the same data, but it is
   being published in this form until then. See :issue:`4099` and :issue:`2448`, and
-  :pr:`4636`.
+  :pr:`4636`. For details on harvesting, see
+  :doc:`/methodology/entity_harvesting`.
 
 Documentation
 ^^^^^^^^^^^^^
@@ -930,6 +932,7 @@ New Data
   :ref:`i_core_eia923__yearly_byproduct_disposition`. Once harvested, this table will
   be replaced with a well-normalized version of the same data, but it is being published
   in this form until then. See :issue:`4100` and :issue:`2448`, and :pr:`4502`.
+  For details on harvesting, see :doc:`/methodology/entity_harvesting`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -1729,7 +1732,8 @@ Data Cleaning
 ^^^^^^^^^^^^^
 * When ``generator_operating_date`` values are too inconsistent to be harvested
   successfully, we now take the last reported date in EIA-860 and 860M. See :issue:`423`
-  and PR :pr:`3967`.
+  and PR :pr:`3967`. For details on this harvesting process, see
+  :doc:`/methodology/entity_harvesting`.
 * Added the ``generator_operating_date`` field into
   :ref:`core_eia860m__changelog_generators`, adding 860M reported generator operating
   dates into the changelog table. This table is not harvested, and thus does not affect
@@ -1864,7 +1868,8 @@ Data Cleaning
   successfully, we now take the max date within a year and attempt to harvest again, to
   rescue records lost because of inconsistent month reporting in EIA-860 and 860M. See
   :issue:`3340` and PR :pr:`3419`. This change also fixed a bug that was preventing
-  other columns harvested with a special process from being saved.
+  other columns harvested with a special process from being saved. For details on this
+  harvesting process, see :doc:`/methodology/entity_harvesting`.
 * When ingesting FERC 1 XBRL filings, we now take the most recent non-null
   value instead of the value from the latest filing that applies for a specific
   row. This means that we no longer lose data if a utility posts a FERC filing
@@ -1933,7 +1938,8 @@ Bug Fixes
   issue :issue:`3542` and PR :pr:`3558`. This change also simplifies the encoding
   process in the vast majority of cases, since the same global set of encoders can be
   used on any dataframe, with every column encoded based on the field definitions and
-  FK constraints associated with the column name.
+  FK constraints associated with the column name. For details on harvesting, see
+  :doc:`/methodology/entity_harvesting`.
 
 CLI Changes
 ^^^^^^^^^^^
@@ -2302,7 +2308,8 @@ Data Coverage
   the :ref:`core_eia__entity_utilities` and :ref:`core_pudl__assn_eia_pudl_utilities`
   tables. See :pr:`2714`. Renamed columns with owner or operator suffix to differentiate
   between owner and operator utility columns in :ref:`core_eia860__scd_ownership` and
-  :ref:`out_eia860__yearly_ownership`. See :pr:`2903`.
+  :ref:`out_eia860__yearly_ownership`. See :pr:`2903`. For details on harvesting, see
+  :doc:`/methodology/entity_harvesting`.
 
 * New PUDL tables from :doc:`data_sources/eia860`:
 
@@ -2318,7 +2325,8 @@ Data Coverage
 * The :ref:`core_eia860__scd_boilers` table now includes annual boiler attributes from
   :doc:`data_sources/eia860` Schedule 6.2 Environmental Equipment data, and the new
   :ref:`core_eia__entity_boilers` table now includes static boiler attributes. See issue
-  :issue:`1162` & PR :pr:`2319`.
+  :issue:`1162` & PR :pr:`2319`. For details on harvesting, see
+  :doc:`/methodology/entity_harvesting`.
 * All :doc:`data_sources/eia861` tables are now being loaded into the PUDL DB, rather
   than only being available via an ad-hoc ETL process that was only accessible through
   the :class:`pudl.output.pudltabl.PudlTabl` class. Note that most of these tables have

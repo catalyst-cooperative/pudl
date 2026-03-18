@@ -131,10 +131,10 @@ The simplified flow for plants looks like this:
        core4[_core_eia923__generation]
        core5[_core_eia923__fuel_receipts_costs]
        core6[_core_eia860__emissions_control_equipment]
-  harvest[harvested_plants_eia<br/>multi_asset]
+       harvest[harvested_plants_eia<br/>multi_asset]
        entity[core_eia__entity_plants]
        scd[core_eia860__scd_plants]
-  outputs[out_eia__yearly_plants<br/>and other downstream outputs]
+       outputs[out_eia__yearly_plants<br/>and other downstream outputs]
 
        raw --> core1
        raw --> core2

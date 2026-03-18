@@ -167,6 +167,9 @@ information when normalizing the tables by choosing only the most consistently r
 value for inclusion in the final database. If a value which should be static is not
 consistently reported, it may also be set to N/A.
 
+For details on how this works for EIA entities (plants, utilities, boilers, and
+generators), see :doc:`/methodology/entity_harvesting`.
+
 Output Layer
 ^^^^^^^^^^^^
 

@@ -51,7 +51,8 @@ collects all instances of these values and and chooses a canonical value. By def
 PUDL chooses the most consistently reported value of a given attribute as long as it
 is at least 70% of the given instances reported. If an attribute was reported
 inconsistently across the original EIA tables, then it will show up as a
-null value."""
+null value. See :doc:`/methodology/entity_harvesting` for a conceptual overview of
+this process."""
 
 
 HARVESTING_DETAIL_TEXT_RUS = """RUS reports many attributes in many different tables

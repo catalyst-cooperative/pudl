@@ -382,7 +382,9 @@ appropriate :mod:`pudl.metadata.resources` modules.
 **5.4)** Differentiate between columns which should be harvested from the transformed
 dataframes in the normalization and entity resolution process (and associated with a
 generator, boiler, plant, utility, or balancing authority entity), and those that should
-remain in the table where they are reported.
+remain in the table where they are reported. See
+:doc:`/methodology/entity_harvesting` for details on how harvested entity and yearly SCD
+tables are constructed.
 
 **5.5)** Once you've updated the metadata, you'll need to update the alembic version.
 See the instructions for doing so in :doc:`run_the_etl`. You may have already updated

@@ -137,6 +137,9 @@ harvesting process deduplicates ``_core_eia860__plants`` and outputs the
 ``core_eia860__entity_plants`` and ``core_eia860__scd_plants`` assets which
 follow Tiny Data standards.
 
+For a conceptual description of this reconciliation process, see
+:doc:`/methodology/entity_harvesting`.
+
 Limit the number of intermediate assets to avoid an extremely
 cluttered DAG. It is appropriate to create an intermediate asset when:
 
