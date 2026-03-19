@@ -10,6 +10,10 @@ v2026.4.0 (unreleased)
 
 Enhancements
 ^^^^^^^^^^^^
+* Added a new standalone data deployment workflow, ``deploy-pudl.yml``. This is
+  still in testing, but will allow us to separate deployment from builds, enabling
+  deployment from an existing build and creating more modular and reusable
+  infrastructure.
 
 New Data
 ^^^^^^^^
