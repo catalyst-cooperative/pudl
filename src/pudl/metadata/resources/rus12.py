@@ -616,34 +616,6 @@ RESOURCE_METADATA_BASE = {
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_demand_and_energy_at_delivery_points": {
-        "description": {
-            "additional_summary_text": (
-                "demand and energy delivered to distribution utilities."
-            ),
-            "usage_warnings": ["experimental_wip"],
-            "additional_source_text": "(Part H - Section E)",
-        },
-        "schema": {
-            "fields": [
-                "report_date",
-                "borrower_id_rus",
-                "delivery_recipient",
-                "timeframe",
-                "delivered_demand_mw",
-                "delivered_energy_mwh",
-            ],
-            "primary_key": [
-                "report_date",
-                "borrower_id_rus",
-                "delivery_recipient",
-                "timeframe",
-            ],
-        },
-        "sources": ["rus12"],
-        "etl_group": "rus12",
-        "field_namespace": "rus",
-    },
     "core_rus12__monthly_demand_and_energy_at_delivery_points": {
         "description": {
             "additional_summary_text": (
@@ -657,7 +629,6 @@ RESOURCE_METADATA_BASE = {
                 "report_date",
                 "borrower_id_rus",
                 "delivery_recipient",
-                "timeframe",
                 "delivered_demand_mw",
                 "delivered_energy_mwh",
             ],
@@ -665,14 +636,13 @@ RESOURCE_METADATA_BASE = {
                 "report_date",
                 "borrower_id_rus",
                 "delivery_recipient",
-                "timeframe",
             ],
         },
         "sources": ["rus12"],
         "etl_group": "rus12",
         "field_namespace": "rus",
     },
-    "core_rus12__yearly_demand_and_energy_at_power_sources": {
+    "core_rus12__monthly_demand_and_energy_at_power_sources": {
         "description": {
             "additional_summary_text": (
                 "demand and energy at point of generation broken down by month."
@@ -684,7 +654,6 @@ RESOURCE_METADATA_BASE = {
             "fields": [
                 "report_date",
                 "borrower_id_rus",
-                "timeframe",
                 "energy_output_mwh",
                 "peak_demand_mw",
                 "peak_demand_date",
@@ -694,7 +663,6 @@ RESOURCE_METADATA_BASE = {
             "primary_key": [
                 "report_date",
                 "borrower_id_rus",
-                "timeframe",
             ],
         },
         "sources": ["rus12"],

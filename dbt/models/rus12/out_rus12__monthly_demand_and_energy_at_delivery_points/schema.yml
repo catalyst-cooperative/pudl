@@ -14,7 +14,6 @@ sources:
           - name: borrower_name_rus
           - name: state
           - name: delivery_recipient
-          - name: timeframe
           - name: delivered_demand_mw
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

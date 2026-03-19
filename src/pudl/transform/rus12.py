@@ -610,15 +610,10 @@ def _core_rus12__yearly_plant_operations(
     )
 
 
-@multi_asset(
-    outs={
-        "_core_rus12__yearly_demand_and_energy_at_delivery_points": AssetOut(),
-        "_core_rus12__monthly_demand_and_energy_at_delivery_points": AssetOut(),
-    }
-)
-def _core_rus12__yearly_demand_and_energy_at_delivery_points(
+@asset
+def _core_rus12__monthly_demand_and_energy_at_delivery_points(
     raw_rus12__demand_and_energy_at_delivery_points,
-):
+) -> pd.DataFrame:
     """Transform the raw_rus12__demand_and_energy_at_delivery_points table."""
     df = rus.early_transform(raw_df=raw_rus12__demand_and_energy_at_delivery_points)
     data_cols = [
@@ -654,32 +649,24 @@ def _core_rus12__yearly_demand_and_energy_at_delivery_points(
         match_names=["delivery_recipient", "data_cols", "timeframe"],
         unstack_level=["delivery_recipient", "timeframe"],
     )
-    df["is_total"] = df.timeframe.str.startswith(
-        "total"
-    )  # there is also a "peak" value in here which is kind of like a total...
     df = df.rename(
         columns={
             "demand_mw": "delivered_demand_mw",
             "energy_mwh": "delivered_energy_mwh",
         }
     )
-    # Spit the table into annual and monthly
-    df_y = df[df["timeframe"].str.contains("peak|total")]
-    df_m = df[~df["timeframe"].str.contains("peak|total")]
-    return (
-        Output(
-            output_name="_core_rus12__yearly_demand_and_energy_at_delivery_points",
-            value=df_y,
-        ),
-        Output(
-            output_name="_core_rus12__monthly_demand_and_energy_at_delivery_points",
-            value=df_m,
-        ),
+    # Remove total/peak values
+    df = df[~df["timeframe"].isin(["total", "peak"])]
+    # Convert month cols to date:
+    df["report_date"] = pd.to_datetime(
+        df["timeframe"] + " " + df["report_date"].dt.year.astype(str), format="%b %Y"
     )
+
+    return df
 
 
 @asset
-def _core_rus12__yearly_demand_and_energy_at_power_sources(
+def _core_rus12__monthly_demand_and_energy_at_power_sources(
     raw_rus12__demand_and_energy_at_power_sources,
 ) -> pd.DataFrame:
     """Transform the raw_rus12__demand_and_energy_at_power_sources table."""
@@ -714,11 +701,17 @@ def _core_rus12__yearly_demand_and_energy_at_power_sources(
         match_names=["data_cols", "timeframe"],
         unstack_level=["timeframe"],
     )
-    df["is_total"] = df.timeframe.str.startswith("annual")
     df["peak_demand_date"] = pd.to_datetime(df["peak_demand_date"], format="mixed")
     df["is_peak_coincident"] = df["peak_demand_reading_type"].map(
         {"Coincident": True, "Non-coincident": False}
     )
+    # Remove totals
+    df = df[df["timeframe"] != "annual"]
+    # Reformat report date
+    df["report_date"] = pd.to_datetime(
+        df["timeframe"] + " " + df["report_date"].dt.year.astype(str), format="%b %Y"
+    )
+
     return df
 
 
