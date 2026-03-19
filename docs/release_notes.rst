@@ -27,7 +27,7 @@ Expanded Data Coverage
 Documentation
 ^^^^^^^^^^^^^
 
-* Added a :doc:`methodology page </methodology/entity_harvesting>` explaining
+* Added a :doc:`methodology page </methodology/entity_resolution>` explaining
   how EIA entity harvesting reconciles inconsistently reported plant, utility,
   boiler, and generator attributes into normalized entity and yearly SCD
   tables. The docs now also support

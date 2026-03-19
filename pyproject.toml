@@ -281,7 +281,7 @@ bash -c 'shopt -s nullglob; rm -rf \
 
 docs-build = { cmd = """
 doc8 docs/ README.rst && \
-coverage run --append -m sphinx --jobs auto -W -b html docs docs/_build/html
+coverage run --append -m sphinx --jobs auto -W docs docs/_build/html
 """, depends-on = ["docs-clean"], description = "Build PUDL docs using Sphinx" }
 
 # Testing tasks

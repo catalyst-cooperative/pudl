@@ -39,7 +39,7 @@ USAGE_WARNINGS = {
         " will differ from the raw sources. See "
         "`Harvesting <https://catalystcoop-pudl.readthedocs.io/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ "
         "for details, and see "
-        "`Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_harvesting.html>`_ "
+        "`Entity Harvesting Methodology <https://catalystcoop-pudl.readthedocs.io/en/latest/methodology/entity_resolution.html>`_ "
         "for a fuller conceptual overview."
     ),
 }
