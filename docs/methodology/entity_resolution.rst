@@ -6,21 +6,21 @@ Overview
 
 Many of the datasets PUDL processes report the same information about individual
 entities in many different places. This is usually done for readability. For example,
-it's much nicer to display the names of plants or utilities alongside their IDs in
-records that reference those entities. This makes the original data more accessible,
-but it also introduces the potential for internal inconsistencies (`entity
-<https://en.wikipedia.org/wiki/Entity_integrity>`__ or `referential integrity
-<https://en.wikipedia.org/wiki/Referential_integrity>`__ issues) which create problems
-when you're trying to re-use the data in other applications. PUDL attempts to identify
-canonical values (sometimes called a `golden record
-<https://en.wikipedia.org/wiki/Master_data_management>`__ for entity attributes from the
-potentially inconsistent original data through an `entity resolution
+it's nice to list the names of plants or utilities instead of just their IDs. This makes
+the original data easier for humans to use but it also introduces the potential for
+internal inconsistencies (`entity <https://en.wikipedia.org/wiki/Entity_integrity>`__ or
+`referential integrity <https://en.wikipedia.org/wiki/Referential_integrity>`__ issues)
+which create problems when you're trying to re-use the data in other applications.
+
+PUDL attempts to identify canonical values ("`golden records
+<https://en.wikipedia.org/wiki/Master_data_management>`__") for entities from
+the potentially inconsistent original data through an `entity resolution
 <https://en.wikipedia.org/wiki/Record_linkage#Entity_resolution>`__ process (often
 called "entity harvesting" in the PUDL codebase).
 
 This process is applied most extensively to the :doc:`EIA-860 </data_sources/eia860>`
 and :doc:`EIA-923 </data_sources/eia923>` spreadsheet data, but it's a more general
-issue that comes up throughout the data we work with.
+issue that comes up throughout the data we process.
 
 .. note::
 
@@ -48,9 +48,9 @@ geographic coordinates, or operating dates may be:
 If PUDL exposed every upstream table independently without reconciling those
 inconsistencies, many common analyses would require users to manually decide which value
 to trust for each entity and year. Instead, PUDL builds normalized entity tables that
-aim to provide a canonical or "golden record" for each entity that includes the
-attributes that are expected to be stable over time and where needed, a yearly record of
-attributes that are expected to change over time.
+aim to provide a canonical record for each entity that includes the attributes that are
+expected to be stable over time and where appropriate, a yearly record of attributes
+that are expected to change over time.
 
 This page explains the entity resolution process conceptually, why it exists, and what
 it means when the PUDL entity tables do not exactly mirror an individual raw EIA
@@ -59,10 +59,10 @@ spreadsheet.
 What Entity Resolution Produces
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For each EIA entity type, PUDL creates two related tables:
+For each entity type, PUDL typically creates two related tables:
 
 * A static entity table such as :ref:`core_eia__entity_plants`, with one row per entity
-  and attributes that are expected to be mostly stable over time.
+  and attributes that are expected to be stable over time.
 * A yearly slowly changing dimension (SCD) table such as :ref:`core_eia860__scd_plants`,
   with one row per entity per report year and attributes that are expected to vary
   slightly over time.
@@ -74,7 +74,7 @@ PUDL currently resolves four kinds of EIA entities:
 * Boilers (``boiler_id``)
 * Generators (``generator_id``)
 
-At a high level, the normalized tables try to answer two questions:
+These normalized tables try to answer two questions:
 
 * "What is the best canonical record for this entity overall?"
 * "Which reported value of each annually varying attribute should be associated with the
@@ -99,12 +99,12 @@ That consistency-based approach has several practical consequences:
 
 * A PUDL entity attribute may match most upstream sources, but not a specific raw file a
   user happens to be looking at.
-* If the upstream values are too inconsistent, PUDL may leave the harvested value null
+* If the upstream values are too inconsistent, PUDL may leave the resolved value null
   rather than constructing an unreliable entity record.
-* A plant-year may appear in a harvested table even if it only showed up in one of the
-  many upstream tables that feed the harvester.
+* A plant-year may appear in a resolved yearly table even if it only showed up in one
+  of the upstream tables that contribute to the resolution process.
 * Conversely, if a table does not expose the expected entity identifier columns and
-  ``report_date``, it cannot contribute records to the yearly harvested output.
+  ``report_date``, it cannot contribute records to the yearly resolved output.
 
 This is usually desirable. A normalized analytical database is more useful when it
 provides stable, reconciled identifiers and attributes rather than reproducing every
@@ -120,8 +120,8 @@ Entity resolution sits in the middle of the EIA transformation pipeline.
 
 First, dataset-specific transforms create a set of unnormalized "core" tables. These
 tables are already cleaned and typed, but they still largely reflect the structure of
-their source schedules. Then we scan those tables for entity IDs and their known
-attributes, producing normalized entity tables.
+the source data. Then we scan those tables for entity IDs and their known attributes,
+producing normalized entity tables.
 
 The simplified flow for plants looks like this:
 
@@ -181,28 +181,16 @@ The next step is to derive the ID spaces for the entity and annual SCD tables.
 * The static entity table gets one row per unique entity ID.
 * The yearly SCD table gets one row per unique ``(entity_id, report_date)`` pair.
 
-This means an entity-year can enter the harvested SCD table from *any* harvestable
-upstream asset that reports the entity ID column and ``report_date``.
+This means an entity-year can enter the yearly resolved table from *any* upstream asset
+that reports the entity ID column and ``report_date``.
 
 How PUDL Chooses A Canonical Value
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When there are multiple values reported for the same entity, in most cases, PUDL chooses
-the most consistent value reported which is found in at least 70% of available entries,
-and if no value occurs more than 70% of the time, PUDL fills in a null value.
-
-The 70% threshold is the default, and we use different rules for columns with additional
-requirements:
-
-* Latitude and longitude are particularly noisy, and 70% consistency is not attainable
-  very often. We use the 70% threshold when possible, but for records that don't meet
-  the threshold, we do a second pass after rounding latitude and longitude to the
-  nearest tenth of a degree.
-* Generator operating date has an unusual pattern of missingness that permits the most
-  recently reported operating date to be reliable when 70% consistency cannot otherwise
-  be reached.
-* We set the consistency threshold to 0% for a few columns so that we always get a
-  value: Plant name, utility name and prime mover code.
+the most consistent value reported so long as it is found in at least 70% of available
+entries. If no observed value occurs more than 70% of the time, PUDL fills in a null
+value.
 
 The selection logic looks like this conceptually:
 
@@ -232,44 +220,52 @@ The selection logic looks like this conceptually:
        h --> j
        i --> j
 
-Special Cases And Post-Processing
+Special Cases and Post-Processing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some attributes are too messy to reconcile with the default consistency logic alone.
+We use different rules for columns with additional requirements:
 
-The harvester includes special-case handling for a few columns, including latitude,
-longitude, and generator operating dates. These special cases exist because some values
-are structurally noisy but the usability impacts have *not* choosing any value are too
-serious.
+* Latitude and longitude are floating point values and are frequently not exactly equal,
+  so 70% consistency is not attainable very often. In cases without a consistent value
+  we round latitude and longitude to the nearest tenth of a degree and repeat the
+  process.
+* Generator operating date has an unusual pattern of missingness that permits the most
+  recently reported operating date to be reliable when 70% consistency cannot otherwise
+  be reached.
+* We set the consistency threshold to 0% for a few columns so that we always get a
+  value. These include plant name, utility name, and prime mover code.
 
-The plant harvester also applies plant-specific post-processing after the main harvest:
+The plant-resolution process also applies plant-specific post-processing after the main
+reconciliation step:
 
-* adding plants known from EPA CEMS that may not appear in the regular EIA tables,
-* assigning time zones based on location, and
+* adding plants known from :doc:`EPA CEMS </data_sources/epacems>` that may not appear
+  in the regular EIA tables,
+* assigning time zones based on plant location, and
 * filling or correcting balancing authority codes in some cases.
 
 These steps happen after the core consistency-based reconciliation, which means the
-harvested tables are not just copied from upstream transformed tables. They are the
+resolved tables are not just copied from upstream transformed tables. They are the
 result of several layers of normalization and cleanup.
 
-There are a few cases in which we choose the most consistent value, even if it is not
-particularly consistent. When there are only a small number of reported values, this
-can result in a tie between two equally consistent values, each with a consistency of
-less than or equal to 50%. In these cases, the harvested value may not be deterministic.
-However, this scenario is quite rare.
+Because we always choose the most consistent prime mover code, even when less than 50%
+of occurrences have that value, we occasionally see a tie between two equally consistent
+values. In these cases, the resolved value may not be deterministic. Because prime mover
+code is part of the primary key in some tables it is possible for some records to appear
+or disappear based on which value was chosen. However, this scenario is quite rare.
 
-How to Interpret Discrepancies
+Interpreting Discrepancies
 -------------------------------------------------------------------------------
 
-If you compare a PUDL entity table to a raw EIA spreadsheet, you should expect to see
-several kinds of differences:
+If you compare a PUDL entity table, SCD table, or any table downstream of them to a raw
+EIA spreadsheet, you should expect to see several kinds of discrepancies:
 
-* **A name or code differs** because PUDL selected the value that was most consistently
-  reported across many tables and years.
-* **A value is null in PUDL** because upstream reporting was too inconsistent to choose
-  a canonical value confidently.
-* **A plant-year exists in PUDL but not in the plant table you were viewing** because
-  the plant-year was reported in a different harvestable upstream table.
+* **A name or code may differ** because PUDL selected the value that was most
+  consistently reported across many tables and years.
+* **A value may be null in PUDL** because upstream reporting was too inconsistent to
+  unambiguously choose a canonical value.
+* **An entity-year may exist in PUDL but not in the spreadsheet you are viewing**
+  because the plant-year was reported in a different upstream table.
 
 This is especially important when interpreting association tables. A reported
 relationship seen in one raw data source may be incomplete, outdated, or inconsistent
@@ -277,7 +273,7 @@ with other sources. PUDL's goal is not to preserve every raw inconsistency in th
 tables, but to produce a coherent cross-table representation that works well for
 analysis.
 
-Help Us Improve Our Entity Resolution
+Improving PUDL Entity Resolution
 -------------------------------------------------------------------------------
 
 The entity resolution process is heuristic and can definitely be improved.
@@ -290,12 +286,12 @@ The entity resolution process is heuristic and can definitely be improved.
 Related Tables And Source Documentation
 -------------------------------------------------------------------------------
 
-To understand the source data that feed entity harvesting, see:
+To understand the source data that feed entity resolution, see:
 
 * :doc:`/data_sources/eia860`
 * :doc:`/data_sources/eia923`
 
-For the metadata and code that implement the harvesting logic, see:
+For the metadata and code that implement this logic, see:
 
 * :py:const:`pudl.metadata.resources.ENTITIES`
 * :mod:`pudl.transform.eia`
