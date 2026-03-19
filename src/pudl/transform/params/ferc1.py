@@ -3633,11 +3633,12 @@ TRANSFORM_PARAMS = {
                     "apply_depr_rate": "applied_depreciation_rates",  # pct
                     "mrtlty_crv_typ": "mortality_curve_type",
                     "avg_remaining_lf": "remaining_life_avg",
+                    "acct_num": "account_num",
                     # "xbrl_factoid": "plant_function",  # TODO: figure out...
                     "report_prd": "report_prd",
                 }
             },
-            "duration_xbrl": {
+            "xbrl": {
                 "columns": {
                     "entity_id": "utility_id_ferc1_xbrl",
                     "report_year": "report_year",
@@ -3653,7 +3654,7 @@ TRANSFORM_PARAMS = {
                 }
             },
         },
-        "align_row_numbers_dbf": {"dbf_table_names": ["f1_edcfu_epda"]},
+        # "align_row_numbers_dbf": {"dbf_table_names": ["f1_edcfu_epda"]},
         # "merge_xbrl_metadata": {
         #     "rename_columns": {"xbrl_factoid": "ferc_account_label"},
         #     "on": "ferc_account_label",

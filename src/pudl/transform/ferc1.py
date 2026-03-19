@@ -5568,7 +5568,7 @@ class DepreciationSummaryTableTransformer(Ferc1AbstractTableTransformer):
 class DepreciationChangesTransformer(Ferc1AbstractTableTransformer):
     """Transformer class for :ref:`core_ferc1__yearly_depreciation_changes_sched336` table."""
 
-    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_SUMMARY
+    table_id: TableIdFerc1 = TableIdFerc1.DEPRECIATION_CHANGES
     has_unique_record_ids: bool = False
 
 
