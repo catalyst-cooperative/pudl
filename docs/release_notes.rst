@@ -19,7 +19,8 @@ RUS 7 & RUS 12
 
 * Added de-normalized output tables for RUS 7 and RUS 12 as a follow up from
   :pr:`5040`. See :pr:`5077`.
-* Transformed more RUS 12 tables. See PR :pr:`5091`.
+* Added additional core and output tables from RUS Form 7 and 12.
+  See :pr:`5087` and :pr:`5091`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -30,6 +31,13 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Validate that sub-components in :ref:`core_rus7__yearly_energy_efficiency`,
+  :ref:`core_rus7__yearly_patronage_capital`,
+  :ref:`core_rus7__yearly_power_requirements_electric_customers`,
+  :ref:`core_rus7__yearly_power_requirements_electric_sales`,
+  :ref:`core_rus7__yearly_statement_of_operations` and
+  :ref:`core_rus12__yearly_statement_of_operations` and their corresponding output
+  tables sum to their reported totals. See :issue:`5039` and :pr:`5073`.
 * Modified schema checks so they can be applied to the largest tables, which have
   typically been excluded from these checks. See Issue :issue:`5022` and PR :pr:`5043`.
 
@@ -52,6 +60,8 @@ Performance Improvements
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Moved large FERC1 category dicts to .yaml files to reduce LOC. See :issue:`4989` and
+  PR :pr:`5023`.
 * Added environment variable controls for Sphinx docs builds:
   ``PUDL_DOCS_KEEP_GENERATED_FILES`` now preserves generated docs artifacts for
   debugging, and ``PUDL_DOCS_DISABLE_INTERSPHINX`` disables intersphinx lookups

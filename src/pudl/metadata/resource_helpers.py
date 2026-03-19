@@ -48,6 +48,11 @@ HARVESTED_CORE_TABLES_RUS7 = [
     "core_rus7__yearly_long_term_debt",
     "core_rus7__yearly_energy_purchased",
     "core_rus7__yearly_materials_and_supplies",
+    "core_rus7__yearly_owed_by_customers",
+    "core_rus7__yearly_customer_energy_efficiency_and_conservation_loans",
+    "core_rus7__yearly_service_interruptions",
+    "core_rus7__yearly_distribution_services",
+    "core_rus7__yearly_transmission_and_distribution_mileage",
 ]
 
 HARVESTING_DETAIL_TEXT_EIA = """EIA reports many attributes in many different tables across

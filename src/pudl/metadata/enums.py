@@ -1059,3 +1059,26 @@ PLANT_COST_TYPES_RUS12: set[str] = [
     "total_fuel",
     "water_for_power",
 ]
+
+LOAN_STATUS_TYPES_RUS7 = ["loan_default", "loan_delinquency"]
+
+LOAN_UNIT_TYPES_RUS7 = ["actual_pct", "anticipated_pct", "ytd_dollars"]
+
+SERVICE_INTERRUPTION_TYPES_RUS7 = [
+    "major_event",
+    "other",
+    "planned",
+    "power_supplier",
+    "total",
+]
+
+SERVICE_INTERRUPTION_PERIODS_RUS7 = ["five_year_average", "annual"]
+
+SERVICE_STATUS_RUS7 = ["connected", "idle", "retired", "total"]
+
+TRANSMISSION_DISTRIBUTION_TYPES_RUS7 = [
+    "distribution_overhead",
+    "distribution_underground",
+    "transmission_line",
+    "total",
+]

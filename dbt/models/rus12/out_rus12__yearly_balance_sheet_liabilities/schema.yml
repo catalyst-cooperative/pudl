@@ -14,5 +14,5 @@ sources:
           - name: report_date
           - name: borrower_id_rus
           - name: liability_type
-          - name: balance
+          - name: ending_balance
           - name: is_total

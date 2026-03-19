@@ -14,6 +14,7 @@ from pudl.analysis.record_linkage.classify_plants_ferc1 import (
     _FUEL_COLS,
     ferc_to_ferc,
 )
+from pudl.transform.classes import StringCategories
 from pudl.transform.params.ferc1 import (
     CONSTRUCTION_TYPE_CATEGORIES,
     PLANT_TYPE_CATEGORIES,
@@ -100,9 +101,11 @@ def _generate_random_test_df(
     default_plant_name: str,
     size: int = 2022 - 1994,
     plant_name_max_edits: int = 5,
-    plant_type=random.choice(list(PLANT_TYPE_CATEGORIES["categories"].keys())),
+    plant_type=random.choice(
+        list(StringCategories(**PLANT_TYPE_CATEGORIES).categories.keys())
+    ),
     construction_type=random.choice(
-        list(CONSTRUCTION_TYPE_CATEGORIES["categories"].keys())
+        list(StringCategories(**CONSTRUCTION_TYPE_CATEGORIES).categories.keys())
     ),
     plant_type_error_prob: float = 0.01,
     construction_type_error_prob: float = 0.01,
@@ -148,7 +151,7 @@ def _generate_random_test_df(
     generated_df = _modify_categorical(
         generated_df,
         "construction_type",
-        list(CONSTRUCTION_TYPE_CATEGORIES["categories"]),
+        list(StringCategories(**CONSTRUCTION_TYPE_CATEGORIES).categories),
         construction_type_error_prob,
     )
     generated_df = _modify_categorical(
@@ -160,7 +163,7 @@ def _generate_random_test_df(
     generated_df = _modify_categorical(
         generated_df,
         "plant_type",
-        list(PLANT_TYPE_CATEGORIES["categories"]),
+        list(StringCategories(**PLANT_TYPE_CATEGORIES).categories),
         plant_type_error_prob,
     )
 
