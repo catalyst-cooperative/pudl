@@ -278,7 +278,7 @@ def set_gcs_temporary_hold(gcs_path: str) -> None:
     logger.info(f"Temporary hold set on {gcs_path}")
 
 
-def check_build_success(build_path: UPath):
+def check_build_success(build_path: UPath) -> UPath:
     """Raise error if success file doesn't exist in build directory."""
     if not (build_path / "success").exists():
         raise RuntimeError("Can't find 'success' file in build directory!")
