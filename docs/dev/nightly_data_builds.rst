@@ -69,6 +69,20 @@ Platform (GCP) permissions to start and update the GCE instance. We use Workflow
 Identity Federation to authenticate the GitHub Action with GCP in the GitHub Action
 workflow.
 
+Deployment Action
+-----------------
+The ``deploy-pudl`` action separates deployment from the build process. This action
+takes a git tag as an input and will find build outputs, and determine the deployment
+type (stable or nightly) from the tag. It will then upload outputs from the build to
+GCS and S3, update the git branch associated with the deployment type, and trigger
+a zenodo release. This action can also take an optional ``staging`` flag will upload
+outputs to a dedicated staging area, and will not update the git branch or trigger a
+zenodo release.
+
+Eventually, the deployment functionality will be removed from the ``build-deploy-pudl``
+action and it will instead push a tag after a successful build, which will trigger this
+workflow.
+
 Google Compute Engine
 ---------------------
 The PUDL image is deployed on a `Container Optimized GCE
