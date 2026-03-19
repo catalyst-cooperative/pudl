@@ -1,8 +1,8 @@
 """rus
 
-Revision ID: 25d9b59b2dc9
+Revision ID: df4cb4c56053
 Revises: e22a5405a630
-Create Date: 2026-03-19 09:46:06.251965
+Create Date: 2026-03-19 14:17:44.155242
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '25d9b59b2dc9'
+revision = 'df4cb4c56053'
 down_revision = 'e22a5405a630'
 branch_labels = None
 depends_on = None
@@ -30,7 +30,7 @@ def upgrade() -> None:
     )
     op.create_table('out_rus12__monthly_demand_and_energy_at_delivery_points',
     sa.Column('borrower_name_rus', sa.Text(), nullable=True, comment='The name of the RUS (Rural Utilities Service) borrower.'),
-    sa.Column('state', sa.Enum('RI', 'PE', 'AK', 'OK', 'NE', 'ND', 'DE', 'AB', 'AR', 'MA', 'NM', 'FM', 'HI', 'AL', 'MH', 'TN', 'TX', 'OH', 'ID', 'MN', 'ME', 'NT', 'MT', 'KY', 'LA', 'SD', 'SK', 'VI', 'BC', 'YT', 'WA', 'CA', 'NS', 'CO', 'GU', 'DC', 'MI', 'SC', 'PR', 'NJ', 'NC', 'CT', 'MO', 'IN', 'AS', 'PA', 'NU', 'KS', 'MB', 'NH', 'GA', 'QC', 'IA', 'ON', 'AZ', 'NL', 'UT', 'NY', 'MS', 'MD', 'WV', 'WY', 'NV', 'MP', 'NB', 'VT', 'WI', 'VA', 'FL', 'IL', 'OR'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
+    sa.Column('state', sa.Enum('NC', 'WV', 'NU', 'PA', 'WY', 'WA', 'MS', 'WI', 'VI', 'AZ', 'ME', 'SC', 'AK', 'MO', 'AS', 'OH', 'MT', 'NM', 'NV', 'DE', 'SK', 'OR', 'MI', 'BC', 'VT', 'MD', 'CO', 'LA', 'FM', 'AR', 'GU', 'PE', 'FL', 'AB', 'UT', 'QC', 'DC', 'ON', 'AL', 'YT', 'TX', 'NL', 'NY', 'KS', 'MN', 'NH', 'SD', 'VA', 'HI', 'OK', 'IA', 'MP', 'RI', 'IN', 'NE', 'NB', 'NT', 'PR', 'TN', 'IL', 'ID', 'CT', 'CA', 'GA', 'MB', 'MH', 'NS', 'KY', 'MA', 'NJ', 'ND'), nullable=True, comment='Two letter US state or territory abbreviation, or ISO 3166-1 alpha-two code for Micronesia and the Marshall Islands.'),
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('borrower_id_rus', sa.Text(), nullable=False, comment="Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits."),
     sa.Column('delivery_recipient', sa.Text(), nullable=False, comment='The recipient of the delivered energy or demand.'),
@@ -44,18 +44,58 @@ def upgrade() -> None:
         batch_op.add_column(sa.Column('is_supplier_eia_respondent', sa.Boolean(), nullable=True, comment='Whether the utility supplying energy to a RUS borrower is an EIA respondent.'))
         batch_op.drop_column('is_eia_borrower')
 
+    with op.batch_alter_table('core_rus7__yearly_materials_and_supplies', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('materials_adjustment', sa.Float(), nullable=True, comment='An adjustment value for the cost of materials and supplies.'))
+        batch_op.add_column(sa.Column('materials_ending_balance', sa.Float(), nullable=True, comment='The balance at the end of the report year for materials and supplies.'))
+        batch_op.add_column(sa.Column('materials_purchased', sa.Float(), nullable=True, comment='The cost of materials and supplies purchased.'))
+        batch_op.add_column(sa.Column('materials_salvaged', sa.Float(), nullable=True, comment='The cost of materials and supplies salvaged.'))
+        batch_op.add_column(sa.Column('materials_sold', sa.Float(), nullable=True, comment='The cost of materials and supplies sold.'))
+        batch_op.add_column(sa.Column('materials_used', sa.Float(), nullable=True, comment='The cost of materials and supplies used.'))
+        batch_op.drop_column('transaction_type')
+        batch_op.drop_column('amount')
+
     with op.batch_alter_table('out_rus7__yearly_energy_purchased', schema=None) as batch_op:
         batch_op.add_column(sa.Column('is_supplier_eia_respondent', sa.Boolean(), nullable=True, comment='Whether the utility supplying energy to a RUS borrower is an EIA respondent.'))
         batch_op.drop_column('is_eia_borrower')
+
+    with op.batch_alter_table('out_rus7__yearly_materials_and_supplies', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('materials_adjustment', sa.Float(), nullable=True, comment='An adjustment value for the cost of materials and supplies.'))
+        batch_op.add_column(sa.Column('materials_ending_balance', sa.Float(), nullable=True, comment='The balance at the end of the report year for materials and supplies.'))
+        batch_op.add_column(sa.Column('materials_purchased', sa.Float(), nullable=True, comment='The cost of materials and supplies purchased.'))
+        batch_op.add_column(sa.Column('materials_salvaged', sa.Float(), nullable=True, comment='The cost of materials and supplies salvaged.'))
+        batch_op.add_column(sa.Column('materials_sold', sa.Float(), nullable=True, comment='The cost of materials and supplies sold.'))
+        batch_op.add_column(sa.Column('materials_used', sa.Float(), nullable=True, comment='The cost of materials and supplies used.'))
+        batch_op.drop_column('transaction_type')
+        batch_op.drop_column('amount')
 
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
+    with op.batch_alter_table('out_rus7__yearly_materials_and_supplies', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('amount', sa.FLOAT(), nullable=True))
+        batch_op.add_column(sa.Column('transaction_type', sa.VARCHAR(length=14), nullable=False))
+        batch_op.drop_column('materials_used')
+        batch_op.drop_column('materials_sold')
+        batch_op.drop_column('materials_salvaged')
+        batch_op.drop_column('materials_purchased')
+        batch_op.drop_column('materials_ending_balance')
+        batch_op.drop_column('materials_adjustment')
+
     with op.batch_alter_table('out_rus7__yearly_energy_purchased', schema=None) as batch_op:
         batch_op.add_column(sa.Column('is_eia_borrower', sa.BOOLEAN(), nullable=True))
         batch_op.drop_column('is_supplier_eia_respondent')
+
+    with op.batch_alter_table('core_rus7__yearly_materials_and_supplies', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('amount', sa.FLOAT(), nullable=True))
+        batch_op.add_column(sa.Column('transaction_type', sa.VARCHAR(length=14), nullable=False))
+        batch_op.drop_column('materials_used')
+        batch_op.drop_column('materials_sold')
+        batch_op.drop_column('materials_salvaged')
+        batch_op.drop_column('materials_purchased')
+        batch_op.drop_column('materials_ending_balance')
+        batch_op.drop_column('materials_adjustment')
 
     with op.batch_alter_table('core_rus7__yearly_energy_purchased', schema=None) as batch_op:
         batch_op.add_column(sa.Column('is_eia_borrower', sa.BOOLEAN(), nullable=True))

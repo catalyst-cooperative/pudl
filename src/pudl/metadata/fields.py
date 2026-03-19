@@ -9904,22 +9904,35 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Whether the cost is for electric materials or other materials",
         "constraints": {"enum": {"electric_materials", "other_materials"}},
     },
-    "transaction_type": {
-        "type": "string",
-        "description": (
-            "Whether a cost value is an adjustment, ending_balance, purchased, "
-            "salvaged, sold, or used amount."
-        ),
-        "constraints": {
-            "enum": {
-                "adjustment",
-                "ending_balance",
-                "purchased",
-                "salvaged",
-                "sold",
-                "used",
-            }
-        },
+    "materials_adjustment": {
+        "type": "number",
+        "description": "An adjustment value for the cost of materials and supplies.",
+        "unit": "USD",
+    },
+    "materials_ending_balance": {
+        "type": "number",
+        "description": "The balance at the end of the report year for materials and supplies.",
+        "unit": "USD",
+    },
+    "materials_purchased": {
+        "type": "number",
+        "description": "The cost of materials and supplies purchased.",
+        "unit": "USD",
+    },
+    "materials_salvaged": {
+        "type": "number",
+        "description": "The cost of materials and supplies salvaged.",
+        "unit": "USD",
+    },
+    "materials_sold": {
+        "type": "number",
+        "description": "The cost of materials and supplies sold.",
+        "unit": "USD",
+    },
+    "materials_used": {
+        "type": "number",
+        "description": "The cost of materials and supplies used.",
+        "unit": "USD",
     },
 }
 """Field attributes by PUDL identifier (`field.name`)."""

@@ -15,5 +15,9 @@ sources:
           - name: borrower_name_rus
           - name: state
           - name: electric_or_other_materials
-          - name: transaction_type
-          - name: amount
+          - name: materials_adjustment
+          - name: materials_ending_balance
+          - name: materials_purchased
+          - name: materials_salvaged
+          - name: materials_sold
+          - name: materials_used

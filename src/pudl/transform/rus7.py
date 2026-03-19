@@ -466,8 +466,7 @@ def _core_rus7__yearly_materials_and_supplies(
 ) -> pd.DataFrame:
     """Transform the materials and supplies table."""
     df = rus.early_transform(raw_df=raw_rus7__materials_and_supplies)
-    data_cols = ["amount"]
-    transaction_type = [
+    data_cols = [
         "adjustment",
         "ending_balance",
         "purchased",
@@ -476,17 +475,18 @@ def _core_rus7__yearly_materials_and_supplies(
         "used",
     ]
     electric_or_other_materials = [
-        "electricl_materials",
+        "electric_materials",
         "other_materials",
     ]
     df = rus.multi_index_stack(
         df,
         idx_ish=["report_date", "borrower_id_rus", "borrower_name_rus"],
         data_cols=data_cols,
-        pattern=rf"^({'|'.join(electric_or_other_materials)})_({'|'.join(transaction_type)})_({data_cols[0]})$",
-        match_names=["electric_or_other_materials", "transaction_type", "data_cols"],
-        unstack_level=["electric_or_other_materials", "transaction_type"],
+        pattern=rf"^({'|'.join(electric_or_other_materials)})_({'|'.join(data_cols)})$",
+        match_names=["electric_or_other_materials", "data_cols"],
+        unstack_level=["electric_or_other_materials"],
     )
+    df = df.rename(columns={x: "materials_" + x for x in data_cols})
     return df
 
 
