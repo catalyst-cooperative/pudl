@@ -79,10 +79,9 @@ jobs:
             --container-arg="run" \
             --container-arg="pudl_deploy" \
             --container-arg="${{ inputs.git_tag }}" \
-            --container-arg="--github-token" \
-            --container-arg=${{ secrets.PUDL_BOT_PAT }} \
             --container-arg="--staging" \
             --container-arg="${{ inputs.staging }}" \
+            --container-env GITHUB_TOKEN=${{ secrets.PUDL_BOT_PAT }} \
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \

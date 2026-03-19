@@ -11,19 +11,20 @@ deployments 'vYYYY.M.D'.
 
 Examples:
     Deploy nightly build to production:
-        pudl_deploy nightly-2025-02-05 --github-token {TOKEN}
+        pudl_deploy nightly-2025-02-05
 
     Deploy stable release to production:
-        pudl_deploy v2025.2.3 --github-token {TOKEN}
+        pudl_deploy v2025.2.3
 
     Test deployment changes with staging mode:
-        pudl_deploy nightly-2025-02-05 --staging --github-token {TOKEN}
+        pudl_deploy nightly-2025-02-05 --staging
 
 Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
 triggers, and Cloud Run deployments. This allows safe validation of deployment
 changes before production use.
 """
 
+import os
 import tempfile
 from pathlib import Path
 
@@ -114,7 +115,7 @@ def _deploy_outputs(
             source_dir=_get_zenodo_release_source_dir(deploy_type, git_tag),
             ignore_regex=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["ignore_regex"],
             publish=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["publish"],
-            token=github_token,
+            token=os.environ["GITHUB_TOKEN"],
         )
 
     else:
