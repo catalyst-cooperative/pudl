@@ -29,13 +29,6 @@ issue that comes up throughout the data we process.
   utilities which only appear in the EIA-861 data do not yet show up in the utility
   entity tables.
 
-EIA data is typically grouped by identifiers like ``plant_id_eia`` and ``generator_id``
-in association with a reporting year or month. After reconciling conflicting values from
-many input tables and years we typically end up with:
-
-* one canonical entity record, and
-* one yearly record for attributes that slowly change over time.
-
 For example, the same plant or generator may appear in many forms, worksheets, and
 years. Across those sources, attributes like plant name, associated balancing authority,
 geographic coordinates, or operating dates may be:
@@ -73,12 +66,6 @@ PUDL currently resolves four kinds of EIA entities:
 * Plants (``plant_id_eia``)
 * Boilers (``boiler_id``)
 * Generators (``generator_id``)
-
-These normalized tables try to answer two questions:
-
-* "What is the best canonical record for this entity overall?"
-* "Which reported value of each annually varying attribute should be associated with the
-  entity in each year?"
 
 Why A Canonical Record Is Necessary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
