@@ -89,11 +89,9 @@ geopandas = ">=1.1"
 google-cloud-sdk = ">=535"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
-# Upgrade to 1.74.0 blocked by stale libgoogle-cloud on conda-forge
-# Upgrade to 1.76.0 blocked by stale grpcio on conda-forge
-grpcio = "==1.73.1"
-grpcio-health-checking = "==1.73.1"
-grpcio-status = "==1.73.1"
+grpcio = "==1.78.0"
+grpcio-health-checking = "==1.78.0"
+grpcio-status = "==1.78.0"
 hypothesis = ">=6.123"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
@@ -122,7 +120,7 @@ pre-commit = ">=4.5"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.7,<4"
 # pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
-pyarrow = "<21"
+pyarrow = ">=21"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
 pygraphviz = ">=1"
@@ -218,11 +216,9 @@ geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
-# Upgrade to 1.74.0 blocked by stale libgoogle-cloud on conda-forge
-# Upgrade to 1.76.0 blocked by stale grpcio on conda-forge
-grpcio = "==1.73.1"
-grpcio-health-checking = "==1.73.1"
-grpcio-status = "==1.73.1"
+grpcio = "==1.78.0"
+grpcio-health-checking = "==1.78.0"
+grpcio-status = "==1.78.0"
 jellyfish = ">=1"
 jinja2 = ">=3.1"
 matplotlib-base = ">=3.10"
@@ -235,7 +231,7 @@ packaging = ">=25"
 pandas = ">=2.3"
 pandera-polars = ">=0.28"
 polars = ">=1.38"
-pyarrow = ">=17,<21"
+pyarrow = ">=21"
 pydantic = ">=2.12"
 pydantic-settings = ">=2.13"
 python-calamine = ">=0.6.1"
@@ -284,7 +280,7 @@ bash -c 'shopt -s nullglob; rm -rf \
 
 docs-build = { cmd = """
 doc8 docs/ README.rst && \
-coverage run --append -m sphinx --jobs auto -v -W -b html docs docs/_build/html
+coverage run --append -m sphinx --jobs auto -W -b html docs docs/_build/html
 """, depends-on = ["docs-clean"], description = "Build PUDL docs using Sphinx" }
 
 # Testing tasks
@@ -329,6 +325,13 @@ pre-commit-install = { cmd = "pre-commit install", description = "Install pre-co
 pre-commit-autoupdate = { cmd = "pre-commit autoupdate", description = "Update pre-commit hook versions" }
 dbt-deps-upgrade = { cmd = "dbt deps --upgrade", cwd = "dbt", description = "Update dbt dependencies" }
 
+# Coding agent environment
+# NOTE (2026-03-17): We're using the `experimental_install` command
+# which is the workaround for "restoring from a lockfile" - see
+# https://github.com/vercel-labs/skills/issues/549 - we probably want to switch to
+# `npx skills install` whenever that actually becomes a thing.
+install-skills = { cmd = "npx skills experimental_install", description = "Install skills from lockfile" }
+
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
@@ -341,6 +344,7 @@ dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
 pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
+update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:pudl_zenodo_data_release"
 
 [tool.ruff]
@@ -590,4 +594,5 @@ extend-exclude = [
     "devtools/",
     "test/",
     "src/pudl/transform/params/ferc1.py",
+    "src/pudl/package_data/ferc1/*_categories.yaml"
 ]

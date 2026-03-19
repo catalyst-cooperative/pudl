@@ -12,11 +12,63 @@ sources:
                 or_equal: true
               config:
                 error_if: ">14"
-              description: Some 0 cumulative values and a handful of other values causing failure. Investigate.
+              description: "Some 0 cumulative values and a handful of other values causing failure. Investigate."
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_rus7__yearly_patronage_capital
                 partition_expr: "EXTRACT(YEAR FROM report_date)"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: patronage_type
+                value_column: patronage_cumulative
+                subcomponents_list:
+                  [
+                    "distributions_general_retirements",
+                    "distributions_special_retirements",
+                  ]
+                total_label: "total_distributions_retirements"
+                tolerance: 1
+              config:
+                error_if: ">435"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: patronage_type
+                value_column: patronage_report_year
+                subcomponents_list:
+                  [
+                    "distributions_general_retirements",
+                    "distributions_special_retirements",
+                  ]
+                total_label: "total_distributions_retirements"
+                tolerance: 1
+              config:
+                error_if: ">1"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: patronage_type
+                value_column: patronage_cumulative
+                subcomponents_list:
+                  [
+                    "received_lenders_of_electric_power",
+                    "received_supplier_of_electric_power",
+                  ]
+                total_label: "total_received"
+                tolerance: 1
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: patronage_type
+                value_column: patronage_report_year
+                subcomponents_list:
+                  [
+                    "received_lenders_of_electric_power",
+                    "received_supplier_of_electric_power",
+                  ]
+                total_label: "total_received"
+                tolerance: 1
         columns:
           - name: report_date
           - name: borrower_id_rus

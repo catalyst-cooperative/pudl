@@ -2,9 +2,14 @@
 
 from typing import Any
 
-from pudl.metadata.resource_helpers import HARVESTING_DETAIL_TEXT_RUS
+from pudl.metadata.resource_helpers import (
+    HARVESTED_CORE_TABLES_RUS7,
+    HARVESTED_CORE_TABLES_RUS12,
+    HARVESTING_DETAIL_TEXT_RUS,
+    core_to_out_harvested_resources,
+)
 
-RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
     "core_rus7__yearly_meeting_and_board": {
         "description": {
             "additional_summary_text": (
@@ -398,28 +403,152 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ],
             "foreign_key_rules": {
                 "fields": [["borrower_id_rus"]],
-                "exclude": [
-                    # We must remove all of the rus12 tables - otherwise
-                    # these would get a FK relationship from this rus7 table
-                    "core_rus12__yearly_meeting_and_board",
-                    "core_rus12__yearly_balance_sheet_assets",
-                    "core_rus12__yearly_balance_sheet_liabilities",
-                    "core_rus12__yearly_long_term_debt",
-                    "core_rus12__entity_borrowers",
-                    "core_rus12__yearly_renewable_plants",
-                    "core_rus12__yearly_lines_stations_labor_materials_cost",
-                    "core_rus12__yearly_sources_and_distribution_by_plant_type",
-                    "core_rus12__yearly_sources_and_distribution",
-                    "core_rus12__yearly_loans",
-                    "core_rus12__yearly_plant_labor",
-                    "core_rus12__yearly_statement_of_operations",
-                    "core_rus12__yearly_plant_costs",
-                    "core_rus12__yearly_plant_operations_by_borrower",
-                    "core_rus12__yearly_plant_operations_by_plant",
-                    "core_rus12__yearly_investments",
-                    "core_rus12__yearly_external_financial_risk_ratio",
+                # We must remove all of the rus12 tables - otherwise
+                # these would get a FK relationship from this rus7 table
+                "exclude": ["core_rus12__entity_borrowers"]
+                + HARVESTED_CORE_TABLES_RUS12
+                + [
+                    f"out_{tbl.removeprefix('core_')}"
+                    for tbl in HARVESTED_CORE_TABLES_RUS12
                 ],
             },
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_owed_by_customers": {
+        "description": {
+            "additional_summary_text": ("debt owed by customers."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part J)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "amount_due_over_60_days",
+                "amount_written_off_ytd",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_customer_energy_efficiency_and_conservation_loans": {
+        "description": {
+            "additional_summary_text": (
+                "the repayment status of loans made by a borrower to customers for investments in energy efficiency and conservation initiatives."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part J)",
+            "additional_details_text": (
+                "Energy Resources Conservation (ERC) loans are defined by the RUS as loans "
+                "made by an RUS borrower to its consumers for the cost of labor and materials "
+                "for the following energy conservation measures: "
+                "caulking, weather-stripping, ceiling insulation, wall insulation, floor "
+                "insulation, duct insulation, pipe insulation, water heater insulation "
+                "storm windows, thermal windows, storm or thermal doors, clock thermostats "
+                "and attic ventilation fans."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "loan_status",
+                "actual_pct",
+                "anticipated_pct",
+                "ytd_dollars",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "loan_status",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_service_interruptions": {
+        "description": {
+            "additional_summary_text": ("service interruptions by cause."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part G)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "service_interruption_cause",
+                "observation_period",
+                "saidi_minutes",
+                "is_total",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "service_interruption_cause",
+                "observation_period",
+            ],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_distribution_services": {
+        "description": {
+            "additional_summary_text": ("distribution services."),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part B)",
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "service_status",
+                "services",
+                "is_total",
+            ],
+            "primary_key": ["report_date", "borrower_id_rus", "service_status"],
+        },
+        "sources": ["rus7"],
+        "etl_group": "rus7",
+        "field_namespace": "rus",
+    },
+    "core_rus7__yearly_transmission_and_distribution_mileage": {
+        "description": {
+            "additional_summary_text": (
+                "miles of transmission and distribution infrastructure."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Part B)",
+            "additional_details_text": (
+                "Note that according to RUS, 'underbuild in "
+                "overhead lines or joint runs in underground installations do not "
+                "increase the number of line miles except for distribution underbuild on "
+                "transmission poles. In such cases, distribution pole line miles would be "
+                "increased by the number of underbuild miles involved.'"
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "borrower_id_rus",
+                "line_type",
+                "miles",
+                "is_total",
+            ],
+            "primary_key": [
+                "report_date",
+                "borrower_id_rus",
+                "line_type",
+            ],
         },
         "sources": ["rus7"],
         "etl_group": "rus7",
@@ -483,3 +612,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "field_namespace": "rus",
     },
 }
+
+
+RESOURCE_METADATA = RESOURCE_METADATA_BASE | core_to_out_harvested_resources(
+    HARVESTED_CORE_TABLES_RUS7,
+    RESOURCE_METADATA_BASE,
+    ["borrower_name_rus", "state"],
+)

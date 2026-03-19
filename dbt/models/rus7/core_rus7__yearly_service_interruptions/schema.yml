@@ -1,0 +1,27 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_rus7__yearly_service_interruptions
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_rus7__yearly_service_interruptions
+                partition_expr: "EXTRACT(YEAR FROM report_date)"
+          # TODO: CHECK SUBCOMPONENTS SUM TO TOTAL
+        columns:
+          - name: report_date
+          - name: borrower_id_rus
+          - name: service_interruption_cause
+          - name: observation_period
+          - name: saidi_minutes
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 525600
+                  description: "Expect SAIDI minutes don't exceed minutes in a year."
+                  config:
+                    error_if: ">2"
+          - name: is_total

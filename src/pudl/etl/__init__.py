@@ -107,6 +107,7 @@ out_module_groups = {
         pudl.analysis.record_linkage.classify_plants_ferc1,
     ],
     "out_respondents_ferc714": [pudl.output.ferc714],
+    "out_rus": [pudl.output.rus],
     "out_sec10k": [pudl.output.sec10k],
     "out_service_territory_eia861": [pudl.analysis.service_territory],
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
@@ -170,22 +171,29 @@ def _get_keys_from_assets(
 _asset_keys = itertools.chain.from_iterable(
     _get_keys_from_assets(asset_def) for asset_def in default_assets
 )
+
+# Set of assets which are transformed with duckdb and handled differently in schema checks
+duckdb_assets = [
+    "core_ferceqr__quarterly_identity",
+    "core_ferceqr__contracts",
+    "core_ferceqr__quarterly_index_pub",
+    "core_ferceqr__transactions",
+]
+# Set of assets too large to apply full schema check
+high_memory_assets = [
+    "out_vcerare__hourly_available_capacity_factor",
+    "core_epacems__hourly_emissions",
+]
 default_asset_checks += [
     check
     for check in (
-        asset_check_from_schema(asset_key, PUDL_PACKAGE)
-        for asset_key in _asset_keys
-        if (
-            asset_key.to_user_string()
-            not in [
-                "core_epacems__hourly_emissions",
-                "out_vcerare__hourly_available_capacity_factor",
-                "core_ferceqr__quarterly_identity",
-                "core_ferceqr__contracts",
-                "core_ferceqr__quarterly_index_pub",
-                "core_ferceqr__transactions",
-            ]
+        asset_check_from_schema(
+            asset_key,
+            PUDL_PACKAGE,
+            duckdb_asset=asset_key.to_user_string() in duckdb_assets,
+            high_memory_asset=asset_key.to_user_string() in high_memory_assets,
         )
+        for asset_key in _asset_keys
     )
     if check is not None
 ]
