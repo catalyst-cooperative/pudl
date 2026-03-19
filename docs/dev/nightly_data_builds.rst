@@ -80,8 +80,7 @@ outputs to a dedicated staging area, and will not update the git branch or trigg
 zenodo release.
 
 Eventually, the deployment functionality will be removed from the ``build-deploy-pudl``
-action and it will instead push a tag after a successful build, which will trigger this
-workflow.
+action and it will instead trigger this action at the end of a successful build.
 
 Google Compute Engine
 ---------------------
