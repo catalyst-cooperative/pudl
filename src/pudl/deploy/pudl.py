@@ -313,7 +313,7 @@ def get_build_from_tag(tag: str) -> UPath:
     logger.info(
         f"Most recent build associated with tag {tag}: {most_recent_build_path.as_uri()}"
     )
-    return check_build_success(build_path)
+    return check_build_success(most_recent_build_path)
 
 
 def get_deployment_type_from_tag(git_tag: str) -> DeploymentType:
