@@ -85,10 +85,11 @@ def _deploy_outputs(
     staging: bool,
     github_token: str,
 ):
-    """Execute stable deployment workflow.
+    """Execute stable or nightly deployment workflow.
 
-    Deploys to versioned and stable paths, updates stable branch, sets GCS temporary
-    hold on versioned release, and triggers production Zenodo release (unpublished).
+    Upload outputs to paths associated with build type, trigger zenodo release,
+    and update git branch. If ``deploy_type`` is stable, also sets GCS temporary
+    hold on versioned release.
     """
     path_suffixes = _get_deployment_path_suffixes(
         deploy_type=deploy_type,
