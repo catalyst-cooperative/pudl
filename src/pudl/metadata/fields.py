@@ -797,7 +797,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Fraction of potential generation that was actually reported for a plant part. "
-            "Actual energy generated / nameplate capacity * hours."
+            "Energy generated over time period / nameplate capacity * time period (hours/years/etc.)."
         ),
     },
     "capacity_factor_eia": {
