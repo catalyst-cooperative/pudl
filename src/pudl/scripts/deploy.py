@@ -11,13 +11,13 @@ deployments 'vYYYY.M.D'.
 
 Examples:
     Deploy nightly build to production:
-        pudl_deploy nightly-2025-02-05
+        pudl_deploy nightly-2025-02-05 --github-token {TOKEN}
 
     Deploy stable release to production:
-        pudl_deploy v2025.2.3
+        pudl_deploy v2025.2.3 --github-token {TOKEN}
 
     Test deployment changes with staging mode:
-        pudl_deploy nightly-2025-02-05 --staging
+        pudl_deploy nightly-2025-02-05 --staging --github-token {TOKEN}
 
 Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
 triggers, and Cloud Run deployments. This allows safe validation of deployment
