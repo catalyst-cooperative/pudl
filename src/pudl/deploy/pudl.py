@@ -298,7 +298,12 @@ def get_build_from_tag(tag: str) -> UPath:
     most_recent_build_path = None
     build_path_pattern = re.compile(r"(\d{4}-\d{2}-\d{2}-\d{4})-([a-f|0-9]{9})-(.+)")
     for build_path in build_bucket.glob(f"*-{git_ref}-*"):
-        match = build_path_pattern.search(str(build_path))
+        if (match := build_path_pattern.search(str(build_path))) is None:
+            logger.warning(
+                f"Found build path with unexpected name format associated with ref, {git_ref}: {build_path}"
+            )
+            continue
+
         if (
             next_dt := datetime.strptime(match.group(1), "%Y-%m-%d-%H%M")
         ) > most_recent_build_dt:
