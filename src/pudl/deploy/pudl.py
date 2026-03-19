@@ -133,10 +133,12 @@ def upload_outputs(
     for suffix in path_suffixes:
         gcs_path = f"gs://pudl.catalyst.coop/{suffix}/"
         logger.info(f"Uploading outputs to {gcs_path}")
+        gcs_fs.mkdirs(gcs_path, exist_ok=True)
         gcs_fs.put(f"{source_dir}/*", gcs_path, recursive=True)
 
         s3_path = f"s3://pudl.catalyst.coop/{suffix}/"
         logger.info(f"Uploading outputs to {s3_path}")
+        s3_fs.mkdirs(gcs_path, exist_ok=True)
         s3_fs.put(f"{source_dir}/*", s3_path, recursive=True)
 
     logger.info(f"Upload complete for {len(path_suffixes)} path(s)")
