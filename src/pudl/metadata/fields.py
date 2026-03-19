@@ -9858,6 +9858,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "purchased_energy_cost_total": {
         "type": "number",
         "description": "The total cost of purchased energy.",
+        "unit": "USD",
     },
     "is_supplier_eia_respondent": {
         "type": "boolean",
