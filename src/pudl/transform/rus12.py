@@ -676,7 +676,6 @@ def _core_rus12__monthly_demand_and_energy_at_power_sources(
         "peak_demand_mw",
         "peak_demand_reading_type",
         "peak_demand_date",
-        "peak_demand_hour",
     ]
     timeframe = [
         "jan",
@@ -701,7 +700,11 @@ def _core_rus12__monthly_demand_and_energy_at_power_sources(
         match_names=["data_cols", "timeframe"],
         unstack_level=["timeframe"],
     )
-    df["peak_demand_date"] = pd.to_datetime(df["peak_demand_date"], format="mixed")
+    # Add hour to peak demand date
+    df["peak_demand_date"] = pd.to_datetime(
+        df["peak_demand_date"], format="mixed", errors="coerce"
+    ).dt.normalize() + pd.to_timedelta(df["peak_demand_hour"], unit="h")
+    # Change cols so it's consistent with cols in other tables
     df["is_peak_coincident"] = df["peak_demand_reading_type"].map(
         {"Coincident": True, "Non-coincident": False}
     )

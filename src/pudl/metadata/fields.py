@@ -9827,11 +9827,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "datetime",
         "description": "The date of the peak demand.",
     },
-    "peak_demand_hour": {
-        "type": "number",
-        "description": "The hour of the peak demand.",
-        "unit": "hours",
-    },
     "load_factor": {
         "type": "number",
         "description": (
@@ -9839,7 +9834,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total energy consumed / peak demand * hours."
         ),
     },
-    "peak_gross_demand_15_min_mw": {
+    "peak_gross_demand_mw": {
         "type": "number",
         "description": (
             "The highest average power output recorded over any single 15 minute "
@@ -9847,7 +9842,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "peak_gross_demand_indicated_mw": {
+    "peak_gross_demand_nameplate_mw": {
         "type": "number",
         "description": (
             "The theoretical or nameplate peak the plant could produce under the best "
@@ -9855,10 +9850,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
-    "average_energy_cost_cents_per_mwh": {
+    "average_energy_cost_dollars_per_mwh": {
         "type": "number",
         "description": "The average cost of fuel per MWh.",
-        "unit": "cents_per_MWh",
+        "unit": "dollars_per_MWh",
     },
     "purchased_energy_cost_total": {
         "type": "number",

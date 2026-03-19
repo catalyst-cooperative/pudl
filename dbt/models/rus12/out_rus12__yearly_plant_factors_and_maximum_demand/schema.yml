@@ -33,12 +33,12 @@ sources:
                   arguments:
                     min_value: 0.0
                     max_value: 1.0
-          - name: peak_gross_demand_15_min_mw
+          - name: peak_gross_demand_mw
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
                     min_value: 0.0
-          - name: peak_gross_demand_indicated_mw
+          - name: peak_gross_demand_nameplate_mw
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:

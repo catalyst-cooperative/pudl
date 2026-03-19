@@ -25,4 +25,3 @@ sources:
                     min_value: 0.0
           - name: is_peak_coincident
           - name: peak_demand_date
-          - name: peak_demand_hour

@@ -434,6 +434,11 @@ def _core_rus7__yearly_energy_purchased(
         old_unit="kwh",
         new_unit="mwh",
         converter=0.001,
+    ).pipe(
+        rus.convert_units,
+        old_unit="cents_per_mwh",
+        new_unit="dollars_per_mwh",
+        converter=0.01,
     )
     # Spot fix fuel_types
     df["fuel_type"] = df.fuel_type.replace(

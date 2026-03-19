@@ -16,7 +16,7 @@ sources:
           - name: state
           - name: purchased_mwh
           - name: purchased_energy_cost_total
-          - name: average_energy_cost_cents_per_mwh
+          - name: average_energy_cost_dollars_per_mwh
           - name: wheeling_and_other_charges
           - name: fuel_cost_adjustment
           - name: fuel_type_code_rus

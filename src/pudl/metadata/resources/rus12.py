@@ -657,7 +657,6 @@ RESOURCE_METADATA_BASE = {
                 "energy_output_mwh",
                 "peak_demand_mw",
                 "peak_demand_date",
-                "peak_demand_hour",
                 "is_peak_coincident",
             ],
             "primary_key": [
@@ -693,8 +692,8 @@ RESOURCE_METADATA_BASE = {
                 "capacity_factor",
                 "capacity_factor_running",
                 "load_factor",
-                "peak_gross_demand_15_min_mw",
-                "peak_gross_demand_indicated_mw",
+                "peak_gross_demand_mw",
+                "peak_gross_demand_nameplate_mw",
             ],
         },
         "sources": ["rus12"],

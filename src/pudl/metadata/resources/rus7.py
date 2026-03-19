@@ -491,7 +491,7 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "purchased_mwh",
                 "purchased_energy_cost_total",
-                "average_energy_cost_cents_per_mwh",
+                "average_energy_cost_dollars_per_mwh",
                 "wheeling_and_other_charges",
                 "fuel_cost_adjustment",
                 # "fuel_type" --> add in out table??
