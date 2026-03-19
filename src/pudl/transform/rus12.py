@@ -610,10 +610,15 @@ def _core_rus12__yearly_plant_operations(
     )
 
 
-@asset
+@multi_asset(
+    outs={
+        "_core_rus12__yearly_demand_and_energy_at_delivery_points": AssetOut(),
+        "_core_rus12__monthly_demand_and_energy_at_delivery_points": AssetOut(),
+    }
+)
 def _core_rus12__yearly_demand_and_energy_at_delivery_points(
     raw_rus12__demand_and_energy_at_delivery_points,
-) -> pd.DataFrame:
+):
     """Transform the raw_rus12__demand_and_energy_at_delivery_points table."""
     df = rus.early_transform(raw_df=raw_rus12__demand_and_energy_at_delivery_points)
     data_cols = [
@@ -658,10 +663,19 @@ def _core_rus12__yearly_demand_and_energy_at_delivery_points(
             "energy_mwh": "delivered_energy_mwh",
         }
     )
-    df["timeframe"] = df["timeframe"].replace(
-        {"peak": "annual_peak", "total": "annual_total"}
+    # Spit the table into annual and monthly
+    df_y = df[df["timeframe"].str.contains("peak|total")]
+    df_m = df[~df["timeframe"].str.contains("peak|total")]
+    return (
+        Output(
+            output_name="_core_rus12__yearly_demand_and_energy_at_delivery_points",
+            value=df_y,
+        ),
+        Output(
+            output_name="_core_rus12__monthly_demand_and_energy_at_delivery_points",
+            value=df_m,
+        ),
     )
-    return df
 
 
 @asset

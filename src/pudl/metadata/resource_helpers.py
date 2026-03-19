@@ -26,6 +26,7 @@ HARVESTED_CORE_TABLES_RUS12 = [
     "core_rus12__yearly_investments",
     "core_rus12__yearly_external_financial_risk_ratio",
     "core_rus12__yearly_demand_and_energy_at_delivery_points",
+    "core_rus12__monthly_demand_and_energy_at_delivery_points",
     "core_rus12__yearly_demand_and_energy_at_power_sources",
     "core_rus12__yearly_plant_factors_and_maximum_demand",
 ]
