@@ -115,7 +115,7 @@ def _deploy_outputs(
             source_dir=_get_zenodo_release_source_dir(deploy_type, git_tag),
             ignore_regex=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["ignore_regex"],
             publish=DEPLOYMENT_TYPE_STATIC_SETTINGS[deploy_type]["publish"],
-            token=os.environ["GITHUB_TOKEN"],
+            token=github_token,
         )
 
     else:
@@ -131,12 +131,6 @@ def _deploy_outputs(
     type=str,
 )
 @click.option(
-    "--github-token",
-    type=str,
-    required=True,
-    help="GitHub token for authentication.",
-)
-@click.option(
     "--staging",
     type=bool,
     default=False,
@@ -148,7 +142,6 @@ def _deploy_outputs(
 )
 def pudl_deploy(
     git_tag: str,
-    github_token: str,
     staging: bool,
 ):
     """Deploy PUDL ETL outputs to cloud storage and external services.
@@ -182,7 +175,7 @@ def pudl_deploy(
         deploy_type=deploy_type,
         git_tag=git_tag,
         staging=staging,
-        github_token=github_token,
+        github_token=os.environ["GITHUB_TOKEN"],
     )
 
     logger.info("Deployment completed successfully")
