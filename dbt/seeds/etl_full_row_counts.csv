@@ -2331,13 +2331,13 @@ core_pudl__assn_ferc1_xbrl_pudl_utilities,,282
 core_pudl__assn_ferc714_csv_pudl_respondents,,213
 core_pudl__assn_ferc714_pudl_respondents,,218
 core_pudl__assn_ferc714_xbrl_pudl_respondents,,118
-core_pudl__assn_utilities_plants,,19998
+core_pudl__assn_utilities_plants,,19987
 core_pudl__codes_data_maturities,,4
 core_pudl__codes_datasources,,15
 core_pudl__codes_imputation_reasons,,12
 core_pudl__codes_subdivisions,,69
 core_pudl__entity_plants_pudl,,21038
-core_pudl__entity_utilities_pudl,,17304
+core_pudl__entity_utilities_pudl,,17096
 core_rus12__entity_borrowers,,92
 core_rus12__yearly_balance_sheet_assets,2006,1488
 core_rus12__yearly_balance_sheet_assets,2007,1426
