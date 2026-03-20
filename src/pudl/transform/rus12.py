@@ -676,6 +676,7 @@ def _core_rus12__monthly_demand_and_energy_at_power_sources(
         "peak_demand_mw",
         "peak_demand_reading_type",
         "peak_demand_date",
+        "peak_demand_hour",
     ]
     timeframe = [
         "jan",
