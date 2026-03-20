@@ -2599,7 +2599,7 @@ YAD,alcoa_power_yadkin,"Alcoa Power Generating, Inc. - Yadkin Division",America/
         "code_fixes": {},
         "ignored_codes": [],
     },
-    "core_rus__fuel_type_codes": {  # no 2 or 6....
+    "core_rus__codes_fuel_types": {  # no 2 or 6....
         "df": pd.DataFrame(
             columns=["code", "description"],
             data=[
