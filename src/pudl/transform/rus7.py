@@ -325,7 +325,7 @@ def _core_rus7__yearly_statement_of_operations(
         match_names=["opex_group", "opex_type", "data_cols"],
         unstack_level=["opex_group", "opex_type"],
     )
-    df["is_total"] = df.opex_group.str.startswith("total_")
+    df["is_total"] = df.opex_type.str.startswith("total")
     return df
 
 
