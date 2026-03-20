@@ -47,7 +47,7 @@ function run_pudl_etl() {
         pytest \
             -n auto \
             --dg-config "$PUDL_REPO/src/pudl/package_data/settings/dg_full.yml" \
-            --live-dbs test/integration test/unit \
+            --live-pudl-output test/integration test/unit \
             --no-cov &&
         touch "$PUDL_OUTPUT/success"
 }

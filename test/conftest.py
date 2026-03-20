@@ -37,6 +37,8 @@ from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
 
+DG_CONFIG_PATH_DEFAULT = "src/pudl/package_data/settings/dg_pytest.yml"
+
 # In general we run tests and subprocesses with multiple workers, and some tests touch
 # remote HTTPS / S3 resources. We try to LOAD first so collection works in
 # network-restricted environments (for example, sandboxed CI/test runners). If the
@@ -50,13 +52,13 @@ except duckdb.Error:
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--live-dbs",
+        "--live-pudl-output",
         action="store_true",
         default=False,
         help="Use existing PUDL/FERC1 DBs instead of creating temporary ones.",
     )
     parser.addoption(
-        "--tmp-data",
+        "--temp-pudl-input",
         action="store_true",
         default=False,
         help="Download fresh input data for use with this test run only.",
@@ -64,10 +66,10 @@ def pytest_addoption(parser):
     parser.addoption(
         "--dg-config",
         action="store",
-        default=False,
+        default=DG_CONFIG_PATH_DEFAULT,
         help=(
             "Path to a Dagster dg launch config YAML file for integration tests. "
-            "Defaults to src/pudl/package_data/settings/dg_pytest.yml."
+            f"Defaults to {DG_CONFIG_PATH_DEFAULT}."
         ),
     )
     parser.addoption(
@@ -90,7 +92,7 @@ def pytest_addoption(parser):
     )
 
 
-def _pudl_etl(config_file: Path) -> None:
+def _pudl_etl(dg_config_path: Path, pudl_test_paths: PudlPaths) -> None:
     """Run a dg launch job for pudl including coverage collection.
 
     Uses the dg executable path directly since ``dg`` is a console script and not a
@@ -111,14 +113,18 @@ def _pudl_etl(config_file: Path) -> None:
         "--job",
         "pudl",
         "--config",
-        str(config_file),
+        str(dg_config_path),
         "--verbose",
     ]
     # Command args are fully constructed in-process and do not include user input.
     env = os.environ.copy()
+    # Force dg launch to read/write within pytest-managed paths.
+    env["PUDL_INPUT"] = str(pudl_test_paths.input_dir)
+    env["PUDL_OUTPUT"] = str(pudl_test_paths.output_dir)
     env["PYTHONUNBUFFERED"] = "1"
-    logger.info("Starting prebuild job via dg launch: pudl")
-    logger.info("Command: %s", " ".join(cmd))
+    logger.info("Starting PUDL pytest ETL using dg launch.")
+    logger.info(f"Command: {' '.join(cmd)}")
+    logger.info(f"Running dg launch with {env['PUDL_INPUT']=} {env['PUDL_OUTPUT']=}")
 
     # Stream subprocess output into pytest's live logging so progress is visible.
     # Popen is used instead of run to allow streaming output. We also set text=True and
@@ -139,7 +145,7 @@ def _pudl_etl(config_file: Path) -> None:
         if returncode != 0:
             raise subprocess.CalledProcessError(returncode, cmd)
 
-    logger.info("Completed prebuild job via dg launch: pudl")
+    logger.info("Completed PUDL pytest ETL using dg launch.")
 
 
 def _build_resource_context(dataset_settings_config: dict[str, object] | None = None):
@@ -170,18 +176,13 @@ def test_dir():
 @pytest.fixture(scope="session")
 def dg_config_path(request, test_dir: Path) -> Path:
     """Resolve Dagster launch config path used by integration-test prebuild."""
-    dg_config_option = request.config.getoption("--dg-config")
-
-    if dg_config_option:
-        config_path = Path(dg_config_option)
-    else:
-        config_path = test_dir.parent / "src/pudl/package_data/settings/dg_pytest.yml"
+    config_path = Path(request.config.getoption("--dg-config"))
 
     if not config_path.is_absolute():
         config_path = (test_dir.parent / config_path).resolve()
 
     if not config_path.exists():
-        raise FileNotFoundError(f"Missing dg integration config file: {config_path}")
+        raise FileNotFoundError(f"Missing dg config file: {config_path}")
 
     return config_path
 
@@ -227,7 +228,7 @@ def etl_settings_path(dg_config_path: Path, test_dir: Path) -> Path:
         ]
     except KeyError as err:
         raise ValueError(
-            "Dagster integration config must define "
+            "Dagster config must define "
             "resources.dataset_settings.config.etl_settings_path"
         ) from err
 
@@ -267,29 +268,27 @@ def ferc1_engine_dbf(prebuilt_outputs, dataset_settings_config) -> sa.Engine:
 
 
 @pytest.fixture(scope="session")
-def prebuilt_outputs(request, dg_config_path: Path):
+def prebuilt_outputs(request, dg_config_path: Path, pudl_test_paths: PudlPaths):
     """Prebuild fast integration databases in pytest-managed output directories.
 
-    When ``--live-dbs`` is not set, ``configure_test_paths`` should have already
+    When ``--live-pudl-output`` is not set, ``pudl_test_paths`` should have already
     set ``PUDL_OUTPUT`` to point at a temporary pytest session directory.
     """
-    if request.config.getoption("--live-dbs"):
+    if request.config.getoption("--live-pudl-output"):
         logger.info("Using live DBs; skipping fixture-managed prebuild.")
         return
 
-    active_paths = PudlPaths(
-        pudl_input=Path(os.environ["PUDL_INPUT"]),
-        pudl_output=Path(os.environ["PUDL_OUTPUT"]),
+    logger.info(
+        f"Prebuilding PUDL outputs in temporary directory: {pudl_test_paths.output_dir}"
     )
     logger.info(
-        f"Prebuilding integration DBs in temporary output: {active_paths.output_dir}"
+        f"Initializing empty pudl.sqlite with current schema at {pudl_test_paths.pudl_db}."
     )
-    logger.info("Initializing empty pudl.sqlite with current metadata schema.")
     md = PUDL_PACKAGE.to_sql()
-    pudl_engine = sa.create_engine(active_paths.pudl_db)
+    pudl_engine = sa.create_engine(pudl_test_paths.pudl_db)
     md.create_all(pudl_engine)
 
-    _pudl_etl(config_file=dg_config_path)
+    _pudl_etl(dg_config_path, pudl_test_paths)
 
 
 @pytest.fixture(scope="session")
@@ -344,51 +343,59 @@ def pudl_engine(prebuilt_outputs) -> sa.Engine:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def configure_test_paths(tmp_path_factory, request):
+def pudl_test_paths(tmp_path_factory, request):
     """Configures PudlPaths for tests.
 
     Default behavior:
 
     PUDL_INPUT is read from the environment.
-    PUDL_OUTPUT is set to a tmp path, to avoid clobbering existing databases.
+    PUDL_OUTPUT is set to a temporary path, to avoid clobbering existing outputs.
 
-    Set ``--tmp-data`` to force PUDL_INPUT to a temporary directory, causing
+    Set ``--temp-pudl-input`` to force PUDL_INPUT to a temporary directory, causing
     re-downloads of all raw inputs.
 
-    Set ``--live-dbs`` to force PUDL_OUTPUT to *NOT* be a temporary directory
+    Set ``--live-pudl-output`` to force PUDL_OUTPUT to *NOT* be a temporary directory
     and instead inherit from environment.
 
-    ``--live-dbs`` flag is ignored in unit tests, see pudl/test/unit/conftest.py.
+    ``--live-pudl-output`` flag is ignored in unit tests, see pudl/test/unit/conftest.py.
     """
     # Just in case we need this later...
     pudl_tmpdir = tmp_path_factory.mktemp("pudl")
+
+    input_dir = Path(os.environ["PUDL_INPUT"]).resolve()
+    output_dir = Path(os.environ["PUDL_OUTPUT"]).resolve()
+
     # We only use a temporary input directory when explicitly requested.
     # This will force a re-download of raw inputs from Zenodo or the S3 cache.
-    if request.config.getoption("--tmp-data"):
+    if request.config.getoption("--temp-pudl-input"):
         in_tmp = pudl_tmpdir / "input"
         in_tmp.mkdir()
-        PudlPaths.set_path_overrides(
-            input_dir=str(Path(in_tmp).resolve()),
-        )
+        input_dir = in_tmp.resolve()
         logger.info(f"Using temporary PUDL_INPUT: {in_tmp}")
 
     # Temporary output path is used when not using live DBs.
-    if not request.config.getoption("--live-dbs"):
+    if not request.config.getoption("--live-pudl-output"):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()
-        PudlPaths.set_path_overrides(
-            output_dir=str(Path(out_tmp).resolve()),
-        )
+        output_dir = out_tmp.resolve()
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
+
+    PudlPaths.set_path_overrides(
+        input_dir=str(input_dir),
+        output_dir=str(output_dir),
+    )
+    # Keep process env in sync so subprocesses inherit the same locations.
+    os.environ["PUDL_INPUT"] = str(input_dir)
+    os.environ["PUDL_OUTPUT"] = str(output_dir)
 
     try:
         return PudlPaths(
-            pudl_input=Path(os.environ["PUDL_INPUT"]),
-            pudl_output=Path(os.environ["PUDL_OUTPUT"]),
+            pudl_input=input_dir,
+            pudl_output=output_dir,
         )
     except pydantic.ValidationError as err:
         pytest.exit(
-            f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --tmp-path, --live-dbs flags. Error: {err}."
+            f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --temp-pudl-input, --live-pudl-output flags. Error: {err}."
         )
 
 

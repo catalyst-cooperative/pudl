@@ -10,18 +10,18 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session", autouse=True)
-def configure_paths_for_tests(tmp_path_factory, request):
+def configure_test_paths(tmp_path_factory, request):
     """Configures PudlPaths for tests.
 
     Default behavior:
 
     PUDL_INPUT is read from the environment.
-    PUDL_OUTPUT is set to a tmp path, to avoid clobbering existing databases.
+    PUDL_OUTPUT is set to a temporary path, to avoid clobbering existing outputs.
 
-    Set ``--tmp-data`` to force PUDL_INPUT to a temporary directory, causing
+    Set ``--temp-pudl-input`` to force PUDL_INPUT to a temporary directory, causing
     re-downloads of all raw inputs.
 
-    Ignores the ``--live-dbs`` flag; always forces PUDL_OUTPUT to a temp dir so
+    Ignores the ``--live-pudl-output`` flag; always forces PUDL_OUTPUT to a temp dir so
     unit test can never mess with the outputs.
 
     See pudl/test/conftest.py for the non-unit test counterpart.
@@ -30,7 +30,7 @@ def configure_paths_for_tests(tmp_path_factory, request):
 
     # We only use a temporary input directory when explicitly requested.
     # This will force a re-download of raw inputs from Zenodo or the S3 cache.
-    if request.config.getoption("--tmp-data"):
+    if request.config.getoption("--temp-pudl-input"):
         in_tmp = pudl_tmpdir / "input"
         in_tmp.mkdir()
         PudlPaths.set_path_overrides(
@@ -49,5 +49,5 @@ def configure_paths_for_tests(tmp_path_factory, request):
         return PudlPaths()
     except pydantic.ValidationError as err:
         pytest.exit(
-            f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --tmp-path, --live-dbs flags. Error: {err}."
+            f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --temp-pudl-input, --live-pudl-output flags. Error: {err}."
         )

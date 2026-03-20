@@ -255,9 +255,7 @@ xlsxwriter = ">=3.2"
 
 [tool.pixi.activation.env]
 # Reusable variables for pixi tasks
-DG_PYTEST_CONFIG = "src/pudl/package_data/settings/dg_pytest.yml"
 DG_FULL_CONFIG = "src/pudl/package_data/settings/dg_full.yml"
-DG_FAST_CONFIG = "src/pudl/package_data/settings/dg_fast.yml"
 
 [tool.pixi.tasks]
 # Documentation tasks
@@ -289,10 +287,10 @@ coverage run --append -m sphinx --jobs auto -W -b html docs docs/_build/html
 # Testing tasks
 coverage-erase = { cmd = "coverage erase", description = "Clear coverage data" }
 pytest-unit = { cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl test/unit", description = "Run unit tests and doctests" }
-pytest-integration = { cmd = "pytest --cov-fail-under=0 --dg-config $DG_PYTEST_CONFIG test/integration", description = "Run integration tests with fast ETL settings" }
+pytest-integration = { cmd = "pytest --cov-fail-under=0 test/integration", description = "Run integration tests with fast ETL settings" }
 pytest-ci = { cmd = "coverage report", depends-on = ["coverage-erase", "docs-build", "pytest-unit", "pytest-integration"], description = "Run all CI tests and report test coverage" }
-pytest-integration-full = { cmd = "pytest --live-dbs --no-cov --dg-config $DG_FULL_CONFIG test/integration", description = "Run integration tests against local full ETL outputs" }
-pytest-jupyter = { cmd = "pytest --live-dbs test/integration/jupyter_notebooks_test.py", description = "Test Jupyter notebooks" }
+pytest-integration-full = { cmd = "pytest --live-pudl-output --no-cov --dg-config $DG_FULL_CONFIG test/integration", description = "Run integration tests against local full ETL outputs" }
+pytest-jupyter = { cmd = "pytest --live-pudl-output test/integration/jupyter_notebooks_test.py", description = "Test Jupyter notebooks" }
 # Build the FERC 1 and PUDL DBs, ignoring foreign key constraints.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
 # These outputs should be turned into normal dagster assets. See issue #4338

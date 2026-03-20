@@ -23,7 +23,7 @@ def test_pudl_engine(pudl_engine: sa.Engine, check_fks: bool):
     """Get pudl_engine and do basic inspection.
 
     By default the foreign key checks are not enabled in pudl.sqlite. This test will
-    check if there are any foreign key errors if check_foreign_keys is True.
+    check if there are any foreign key errors if check_fks is True.
     """
     assert isinstance(pudl_engine, sa.Engine)
     insp = sa.inspect(pudl_engine)

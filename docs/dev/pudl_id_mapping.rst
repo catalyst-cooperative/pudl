@@ -104,7 +104,7 @@ just the script that extracts the unmapped IDs with:
 
 .. code-block:: console
 
-    $ pixi run pytest test/integration/glue_test.py --live-dbs --save-unmapped-ids
+    $ pixi run pytest test/integration/glue_test.py --live-pudl-output --save-unmapped-ids
 
 The ``--save-unmapped-ids`` flag saves unmapped plants and utilities in the
 ``devtools/ferc1-eia-glue`` folder by default.
@@ -248,7 +248,7 @@ live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:
 
 .. code-block:: console
 
-    $ pytest --live-dbs test/integration/glue_test.py
+    $ pytest --live-pudl-output test/integration/glue_test.py
 
 Integrating Newly Mapped Records into PUDL
 ------------------------------------------

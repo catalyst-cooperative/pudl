@@ -63,11 +63,11 @@ in the local datastore.
 
 However, if you're editing code that affects how the datastore works, you probably don't
 want to risk contaminating your working datastore. You can use a disposable temporary
-datastore instead by using our custom ``--tmp-data`` with ``pytest``:
+datastore instead by using our custom ``--temp-pudl-input`` with ``pytest``:
 
 .. code-block:: console
 
-   $ pytest --tmp-data test/integration
+   $ pytest --temp-pudl-input test/integration
 
 .. seealso::
 
@@ -86,10 +86,10 @@ within the activated pixi environment, or use ``pixi run pytest`` to run it
 explicitly.
 
 If you are working on integration tests, note that most of them require processed PUDL
-outputs. If you try to run a single integration test directly with pytest it will
-likely end up running the fast ETL which will take 45 minutes. If you have processed
-PUDL outputs locally already, you can use ``--live-dbs`` instead. This is only helpful
-if the thing you're testing isn't part of the ETL itself.
+outputs. If you try to run a single integration test directly with pytest it will likely
+end up running the fast ETL which will take 45 minutes. If you have processed PUDL
+outputs locally already, you can use ``--live-pudl-output`` instead. This is only
+helpful if the thing you're testing isn't part of the ETL itself.
 
 Running specific tests
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -122,8 +122,8 @@ looking at the ``custom options`` section:
 .. code-block:: console
 
    Custom options:
-     --live-dbs            Use existing PUDL/FERC1 DBs instead of creating temporary ones.
-     --tmp-data            Download fresh input data for use with this test run only.
+     --live-pudl-output    Use existing PUDL/FERC1 DBs instead of creating temporary ones.
+     --temp-pudl-input     Download fresh input data for use with this test run only.
      --dg-config=PATH      Path to a non-standard Dagster config file to use.
      --bypass-local-cache  If enabled, the local file cache for datastore will not be used.
      --save-unmapped-ids   Write the unmapped IDs to disk.
@@ -134,14 +134,14 @@ input data comes from and what data the tests should be run against. Being able 
 specify the tests to run and the data to run them against independently simplifies the
 test suite and keeps the data and tests very clearly separated.
 
-The ``--live-dbs`` option lets you use your existing FERC 1 and PUDL databases instead
-of building a new database at all. This can be useful if you want to test code that only
-operates on an existing database, and has nothing to do with the construction of that
-database. For example, the EPA CEMS specific tests:
+The ``--live-pudl-output`` option lets you use your existing FERC 1 and PUDL databases
+instead of building a new database at all. This can be useful if you want to test code
+that only operates on an existing database, and has nothing to do with the construction
+of that database. For example, the EPA CEMS specific tests:
 
 .. code-block:: console
 
-  $ pytest --live-dbs test/integration/epacems_test.py
+  $ pytest --live-pudl-output test/integration/epacems_test.py
 
 Assuming you do want to run the ETL and build new databases as part of the test you're
 running, the contents of that database are determined by an ETL settings file. By
@@ -166,4 +166,4 @@ datastore functionality specifically.
 
 .. code-block:: console
 
-   $ pytest --tmp-data test/integration/etl_test.py
+   $ pytest --temp-pudl-input test/integration/etl_test.py
