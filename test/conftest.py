@@ -225,14 +225,15 @@ def dg_config_path(request, test_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def asset_value_loader() -> AssetValueLoader:
+def asset_value_loader(dataset_settings_config: DatasetsSettings) -> AssetValueLoader:
     """Fixture that initializes an asset value loader.
 
     Use this as ``asset_value_loader.load_asset_value`` instead of
     ``defs.load_asset_value`` to not reinitialize the asset value loader over and over
     again.
     """
-    return defs.get_asset_value_loader()
+    configured_defs = defs.with_resources({"dataset_settings": dataset_settings_config})
+    return configured_defs.get_asset_value_loader()
 
 
 @pytest.fixture(scope="session")

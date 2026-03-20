@@ -9,7 +9,6 @@ import pandas as pd
 import pytest
 import sqlalchemy as sa
 
-from pudl.etl import defs
 from pudl.extract.ferc1 import TABLE_NAME_MAP_FERC1
 from pudl.settings import FercToSqliteSettings
 from pudl.transform.ferc import filter_for_freshest_data_xbrl, get_primary_key_raw_xbrl
@@ -160,7 +159,11 @@ def test_ferc714_xbrl2sqlite(
         "core_ferc1__yearly_income_statements_sched114",
     ],
 )
-def test_filter_for_freshest_data(ferc1_engine_xbrl: sa.Engine, table_name: str):
+def test_filter_for_freshest_data(
+    ferc1_engine_xbrl: sa.Engine,
+    table_name: str,
+    asset_value_loader,
+):
     """Test if we are unexpectedly replacing records during filter_for_freshest_data."""
 
     raw_table_names = TABLE_NAME_MAP_FERC1[table_name]["xbrl"]
@@ -174,7 +177,7 @@ def test_filter_for_freshest_data(ferc1_engine_xbrl: sa.Engine, table_name: str)
     )
     for raw_table_name in xbrls_with_periods:
         logger.info(f"Checking if our filtering methodology works for {raw_table_name}")
-        xbrl_table: pd.DataFrame = defs.load_asset_value(raw_table_name)
+        xbrl_table: pd.DataFrame = asset_value_loader.load_asset_value(raw_table_name)
         if not xbrl_table.empty:
             primary_keys = get_primary_key_raw_xbrl(
                 raw_table_name.removeprefix("raw_ferc1_xbrl__"), "ferc1"
