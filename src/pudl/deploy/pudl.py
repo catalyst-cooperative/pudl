@@ -49,7 +49,7 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
     # Copy raw build outputs to local path
     local_path = Path(local_path)
     fs = build_path.fs
-    fs.get(build_path, str(local_path), recursive=True)
+    fs.get(f"{build_path.as_uri()}/", str(local_path), recursive=True)
 
     logger.info(f"Preparing outputs in {local_path} for distribution")
     logger.info(f"Contents: {local_path.glob('*')}")
