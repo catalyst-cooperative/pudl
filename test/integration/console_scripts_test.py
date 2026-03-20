@@ -5,7 +5,6 @@ from pathlib import Path
 
 import geopandas as gpd  # noqa: ICN002
 import pytest
-import sqlalchemy as sa
 
 
 @pytest.mark.parametrize(
@@ -78,19 +77,15 @@ def test_pudl_datastore(script_runner, command: str):
     ],
 )
 @pytest.mark.script_launch_mode("inprocess")
+@pytest.mark.usefixtures("prebuilt_outputs")
 def test_pudl_service_territories(
     script_runner,
     command: str,
     tmp_path: Path,
     filename: str,
     expected_cols: set[str],
-    pudl_engine: sa.Engine,
 ):
-    """CLI tests specific to the pudl_service_territories script.
-
-    Depends on the ``pudl_engine`` fixture to ensure that the censusdp1tract.sqlite
-    database has been generated, since that data is required for the script to run.
-    """
+    """CLI tests specific to the pudl_service_territories script."""
     out_path = tmp_path / filename
     assert not out_path.exists()
     command += str(tmp_path)

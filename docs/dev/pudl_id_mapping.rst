@@ -192,7 +192,7 @@ notebook to speed up this process.
   capacity first to see if the facilities are the same. If that’s indeterminate, you can
   Google the plant to see if it has the same location or if there is ownership or
   construction history that helps determine if the facilities are the same or
-  co-located. Presuming you've run the ETL with the ``--ignore-foreign-key-constraints``
+  co-located. Presuming you've run the ETL with the ``--ignore-fks``
   flag, you can also look at the PUDL ``plants_eia860`` and ``plants_all_ferc1`` tables
   to compare the records' location information.
 

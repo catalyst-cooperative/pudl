@@ -208,7 +208,9 @@ class ZenodoDoiSettings(BaseSettings):
     sec10k: ZenodoDoi
     vcerare: ZenodoDoi
 
-    model_config = SettingsConfigDict(env_prefix="pudl_zenodo_doi_", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_prefix="pudl_zenodo_doi_", env_file=".env", extra="ignore"
+    )
 
     def __init__(self, **data: Any):
         """Initialize ZenodoDoiSettings, loading from default YAML if no data provided.

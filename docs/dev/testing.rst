@@ -124,12 +124,10 @@ looking at the ``custom options`` section:
    Custom options:
      --live-dbs            Use existing PUDL/FERC1 DBs instead of creating temporary ones.
      --tmp-data            Download fresh input data for use with this test run only.
-     --etl-settings=ETL_SETTINGS
-                           Path to a non-standard ETL settings file to use.
+     --dg-config=PATH      Path to a non-standard Dagster config file to use.
      --bypass-local-cache  If enabled, the local file cache for datastore will not be used.
      --save-unmapped-ids   Write the unmapped IDs to disk.
-     --ignore-foreign-key-constraints
-                           If enabled, do not check the foreign keys.
+     --ignore-fks          If enabled, do not check foreign key constraints.
 
 The main flexibility that these custom options provide is in selecting where the raw
 input data comes from and what data the tests should be run against. Being able to

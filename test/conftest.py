@@ -1,7 +1,4 @@
-"""PyTest configuration module.
-
-Defines useful fixtures, command line args.
-"""
+"""Shared pytest fixtures and CLI options for integration test setup."""
 
 import logging
 import os
@@ -9,12 +6,12 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
 
 import duckdb
 import pydantic
 import pytest
 import sqlalchemy as sa
+import yaml
 from dagster import AssetValueLoader, build_init_resource_context, materialize_to_memory
 
 import pudl
@@ -36,14 +33,9 @@ from pudl.settings import (
     FercToSqliteSettings,
 )
 from pudl.workspace.datastore import Datastore
-from pudl.workspace.setup import EXPECTED_OUTPUT_ENVVAR, PudlPaths
+from pudl.workspace.setup import PudlPaths
 
 logger = logging.getLogger(__name__)
-
-AS_MS_ONLY_FREQ_TABLES = [
-    "gen_eia923",
-    "gen_fuel_by_generator_eia923",
-]
 
 # In general we run tests and subprocesses with multiple workers, and some tests touch
 # remote HTTPS / S3 resources. We try to LOAD first so collection works in
@@ -57,7 +49,6 @@ except duckdb.Error:
 
 
 def pytest_addoption(parser):
-    """Add a command line option Requiring fresh data download."""
     parser.addoption(
         "--live-dbs",
         action="store_true",
@@ -71,10 +62,13 @@ def pytest_addoption(parser):
         help="Download fresh input data for use with this test run only.",
     )
     parser.addoption(
-        "--etl-settings",
+        "--dg-config",
         action="store",
         default=False,
-        help="Path to a non-standard ETL settings file to use.",
+        help=(
+            "Path to a Dagster dg launch config YAML file for integration tests. "
+            "Defaults to src/pudl/package_data/settings/dg_pytest.yml."
+        ),
     )
     parser.addoption(
         "--bypass-local-cache",
@@ -89,19 +83,15 @@ def pytest_addoption(parser):
         help="Write the unmapped IDs to disk.",
     )
     parser.addoption(
-        "--ignore-foreign-key-constraints",
+        "--ignore-fks",
         action="store_true",
         default=False,
         help="If enabled, do not check the foreign keys.",
     )
 
 
-def _run_dg_launch_with_coverage(
-    job_name: str,
-    active_paths: PudlPaths,
-    config_file: Path | None = None,
-) -> None:
-    """Run a dg launch command under coverage collection.
+def _pudl_etl(config_file: Path) -> None:
+    """Run a dg launch job for pudl including coverage collection.
 
     Uses the dg executable path directly since ``dg`` is a console script and not a
     Python module importable via ``python -m dg``.
@@ -119,30 +109,20 @@ def _run_dg_launch_with_coverage(
         dg_path,
         "launch",
         "--job",
-        job_name,
+        "pudl",
+        "--config",
+        str(config_file),
         "--verbose",
     ]
-    launch_target = job_name
-
-    if config_file is not None:
-        cmd.extend(["--config", str(config_file)])
     # Command args are fully constructed in-process and do not include user input.
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
-    # Propagate fixture-owned paths into the dg subprocess explicitly. This avoids
-    # resolving paths from ambient env state at launch time.
-    env["PUDL_INPUT"] = str(active_paths.input_dir)
-    env["PUDL_OUTPUT"] = str(active_paths.output_dir)
-    logger.info(f"Starting prebuild via dg launch: {launch_target}")
+    logger.info("Starting prebuild job via dg launch: pudl")
     logger.info("Command: %s", " ".join(cmd))
-    logger.info(
-        "dg prebuild paths: PUDL_INPUT=%s PUDL_OUTPUT=%s",
-        env["PUDL_INPUT"],
-        env["PUDL_OUTPUT"],
-    )
 
-    # Stream subprocess output into pytest live logs so progress stays visible
-    # during long-running ETL prebuilds.
+    # Stream subprocess output into pytest's live logging so progress is visible.
+    # Popen is used instead of run to allow streaming output. We also set text=True and
+    # line-buffered output to ensure logs are emitted in real time.
     with subprocess.Popen(  # noqa: S603
         cmd,
         stdout=subprocess.PIPE,
@@ -153,189 +133,204 @@ def _run_dg_launch_with_coverage(
     ) as proc:
         assert proc.stdout is not None
         for line in proc.stdout:
-            logger.info("[dg prebuild] %s", line.rstrip("\n"))
+            logger.info("[dg pudl] %s", line.rstrip())
 
         returncode = proc.wait()
         if returncode != 0:
             raise subprocess.CalledProcessError(returncode, cmd)
 
-    logger.info(f"Completed prebuild via dg launch: {launch_target}")
+    logger.info("Completed prebuild job via dg launch: pudl")
 
 
-def _assert_safe_pytest_output_path(
-    expected_output: Path,
-    configured_output: Path,
-) -> Path:
-    """Ensure integration prebuild writes only into the configured pytest output path."""
-    expected_output = expected_output.resolve()
-    active_output = configured_output.resolve()
-    env_output_raw = os.environ.get("PUDL_OUTPUT")
-    if not env_output_raw:
-        pytest.exit(
-            "Refusing to run integration prebuild: PUDL_OUTPUT is not set in env."
-        )
-
-    env_output = Path(env_output_raw).expanduser().resolve()
-    if env_output != active_output:
-        pytest.exit(
-            "Refusing to run integration prebuild: PUDL_OUTPUT env and PudlPaths "
-            f"disagree (env={env_output}, active={active_output})."
-        )
-
-    if active_output != expected_output:
-        pytest.exit(
-            "Refusing to run integration prebuild: output path does not match "
-            f"pytest fixture output (expected={expected_output}, active={active_output})."
-        )
-
-    return active_output
+def _build_resource_context(dataset_settings_config: dict[str, object] | None = None):
+    """Create a Dagster resource context for test IO managers."""
+    resources = {}
+    if dataset_settings_config is not None:
+        resources["dataset_settings"] = dataset_settings_config
+    return build_init_resource_context(resources=resources)
 
 
-@pytest.fixture(scope="session", name="test_dir")
-def test_directory():
+def _engine_from_io_manager(
+    io_manager_factory,
+    dataset_settings_config: dict[str, object] | None = None,
+) -> sa.Engine:
+    """Return the SQLAlchemy engine exposed by a Dagster IO manager resource."""
+    io_manager = io_manager_factory(_build_resource_context(dataset_settings_config))
+    if isinstance(io_manager, PudlMixedFormatIOManager):
+        return io_manager._sqlite_io_manager.engine
+    return io_manager.engine
+
+
+@pytest.fixture(scope="session")
+def test_dir():
     """Return the path to the top-level directory containing the tests."""
     return Path(__file__).parent
 
 
-@pytest.fixture(scope="session", name="live_dbs")
-def live_databases(request) -> bool:
-    """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
-    return request.config.getoption("--live-dbs")
+@pytest.fixture(scope="session")
+def dg_config_path(request, test_dir: Path) -> Path:
+    """Resolve Dagster launch config path used by integration-test prebuild."""
+    dg_config_option = request.config.getoption("--dg-config")
+
+    if dg_config_option:
+        config_path = Path(dg_config_option)
+    else:
+        config_path = test_dir.parent / "src/pudl/package_data/settings/dg_pytest.yml"
+
+    if not config_path.is_absolute():
+        config_path = (test_dir.parent / config_path).resolve()
+
+    if not config_path.exists():
+        raise FileNotFoundError(f"Missing dg integration config file: {config_path}")
+
+    return config_path
 
 
 @pytest.fixture(scope="session")
 def asset_value_loader() -> AssetValueLoader:
     """Fixture that initializes an asset value loader.
 
-    Use this as ``asset_value_loader.load_asset_value`` instead
-    of ``defs.load_asset_value`` to not reinitialize the asset
-    value loader over and over again.
+    Use this as ``asset_value_loader.load_asset_value`` instead of
+    ``defs.load_asset_value`` to not reinitialize the asset value loader over and over
+    again.
     """
     return defs.get_asset_value_loader()
 
 
-@pytest.fixture(scope="session", name="save_unmapped_ids")
+@pytest.fixture(scope="session")
 def save_unmapped_ids(request) -> bool:
-    """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
+    """Fixture that indicates whether to save unmapped IDs to disk."""
     return request.config.getoption("--save-unmapped-ids")
 
 
 @pytest.fixture
-def check_foreign_keys_flag(request) -> bool:
-    """Fixture that tells whether to use existing live FERC1/PUDL DBs)."""
-    return not request.config.getoption("--ignore-foreign-key-constraints")
+def check_fks(request) -> bool:
+    """Fixture that indicates whether to check foreign key constraints)."""
+    return not request.config.getoption("--ignore-fks")
 
 
-@pytest.fixture(scope="session", name="etl_settings")
-def etl_parameters(request, test_dir) -> EtlSettings:
-    """Read the ETL parameters from the test settings or proffered file."""
-    if request.config.getoption("--etl-settings"):
-        etl_settings_yml = Path(request.config.getoption("--etl-settings"))
-    else:
-        etl_settings_yml = Path(
-            test_dir.parent / "src/pudl/package_data/settings/etl_fast.yml"
-        )
-    etl_settings = EtlSettings.from_yaml(str(etl_settings_yml))
-    return etl_settings
+@pytest.fixture(scope="session")
+def etl_settings(etl_settings_path: Path) -> EtlSettings:
+    """Read ETL settings referenced by Dagster integration config."""
+    return EtlSettings.from_yaml(str(etl_settings_path))
 
 
-@pytest.fixture(scope="session", name="ferc_to_sqlite_settings")
-def ferc_to_sqlite_parameters(etl_settings: EtlSettings) -> FercToSqliteSettings:
+@pytest.fixture(scope="session")
+def etl_settings_path(dg_config_path: Path, test_dir: Path) -> Path:
+    """Resolve the ETL settings file referenced by Dagster integration config."""
+    with dg_config_path.open() as f:
+        dg_config = yaml.safe_load(f)
+
+    try:
+        etl_settings_ref = dg_config["resources"]["dataset_settings"]["config"][
+            "etl_settings_path"
+        ]
+    except KeyError as err:
+        raise ValueError(
+            "Dagster integration config must define "
+            "resources.dataset_settings.config.etl_settings_path"
+        ) from err
+
+    etl_settings_yml = Path(etl_settings_ref)
+    if not etl_settings_yml.is_absolute():
+        etl_settings_yml = (test_dir.parent / etl_settings_yml).resolve()
+
+    if not etl_settings_yml.exists():
+        raise FileNotFoundError(f"Missing ETL settings file: {etl_settings_yml}")
+
+    return etl_settings_yml
+
+
+@pytest.fixture(scope="session")
+def ferc_to_sqlite_settings(etl_settings: EtlSettings) -> FercToSqliteSettings:
     """Read ferc_to_sqlite parameters out of test settings dictionary."""
     if etl_settings.ferc_to_sqlite_settings is None:
         raise ValueError("Missing ferc_to_sqlite_settings in ETL settings.")
     return etl_settings.ferc_to_sqlite_settings
 
 
-@pytest.fixture(scope="session", name="pudl_etl_settings")
-def pudl_etl_parameters(etl_settings: EtlSettings) -> DatasetsSettings:
+@pytest.fixture(scope="session")
+def pudl_etl_settings(etl_settings: EtlSettings) -> DatasetsSettings:
     """Read PUDL ETL parameters out of test settings dictionary."""
     if etl_settings.datasets is None:
         raise ValueError("Missing datasets settings in ETL settings.")
     return etl_settings.datasets
 
 
-@pytest.fixture(scope="session", name="ferc1_engine_dbf")
-def ferc1_dbf_sql_engine(
-    prebuilt_integration_dbs, dataset_settings_config
-) -> sa.Engine:
-    """Grab a connection to the FERC Form 1 DB clone."""
-    context = build_init_resource_context(
-        resources={"dataset_settings": dataset_settings_config}
+@pytest.fixture(scope="session")
+def ferc1_engine_dbf(prebuilt_outputs, dataset_settings_config) -> sa.Engine:
+    """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database."""
+    return _engine_from_io_manager(
+        ferc1_dbf_sqlite_io_manager,
+        dataset_settings_config,
     )
-    return ferc1_dbf_sqlite_io_manager(context).engine
 
 
 @pytest.fixture(scope="session")
-def prebuilt_integration_dbs(configure_paths_for_tests: PudlPaths, live_dbs: bool):
+def prebuilt_outputs(request, dg_config_path: Path):
     """Prebuild fast integration databases in pytest-managed output directories.
 
-    When ``--live-dbs`` is not set, ``configure_paths_for_tests`` has already pointed
-    ``PUDL_OUTPUT`` at a temporary pytest session directory.
+    When ``--live-dbs`` is not set, ``configure_test_paths`` should have already
+    set ``PUDL_OUTPUT`` to point at a temporary pytest session directory.
     """
-    if live_dbs:
+    if request.config.getoption("--live-dbs"):
         logger.info("Using live DBs; skipping fixture-managed prebuild.")
         return
 
-    safe_output = _assert_safe_pytest_output_path(
-        expected_output=configure_paths_for_tests.output_dir,
-        configured_output=configure_paths_for_tests.output_dir,
+    active_paths = PudlPaths(
+        pudl_input=Path(os.environ["PUDL_INPUT"]),
+        pudl_output=Path(os.environ["PUDL_OUTPUT"]),
     )
-
-    logger.info(f"Prebuilding integration DBs in temporary output: {safe_output}")
+    logger.info(
+        f"Prebuilding integration DBs in temporary output: {active_paths.output_dir}"
+    )
     logger.info("Initializing empty pudl.sqlite with current metadata schema.")
     md = PUDL_PACKAGE.to_sql()
-    pudl_engine = sa.create_engine(configure_paths_for_tests.pudl_db)
+    pudl_engine = sa.create_engine(active_paths.pudl_db)
     md.create_all(pudl_engine)
 
-    ci_config_path = (
-        Path(__file__).resolve().parent.parent
-        / "src/pudl/package_data/settings/dg_pytest_integration.yml"
-    )
-    if not ci_config_path.exists():
-        raise FileNotFoundError(f"Missing CI integration config: {ci_config_path}")
+    _pudl_etl(config_file=dg_config_path)
 
-    _run_dg_launch_with_coverage(
-        "pudl",
-        config_file=ci_config_path,
-        active_paths=configure_paths_for_tests,
+
+@pytest.fixture(scope="session")
+def ferc1_engine_xbrl(prebuilt_outputs, dataset_settings_config) -> sa.Engine:
+    """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database."""
+    return _engine_from_io_manager(
+        ferc1_xbrl_sqlite_io_manager,
+        dataset_settings_config,
     )
 
 
-@pytest.fixture(scope="session", name="ferc1_engine_xbrl")
-def ferc1_xbrl_sql_engine(
-    prebuilt_integration_dbs, dataset_settings_config
-) -> sa.Engine:
-    """Grab a connection to the FERC Form 1 DB clone."""
-    context = build_init_resource_context(
-        resources={"dataset_settings": dataset_settings_config}
-    )
-    return ferc1_xbrl_sqlite_io_manager(context).engine
-
-
-@pytest.fixture(scope="session", name="ferc1_xbrl_taxonomy_metadata")
+@pytest.fixture(scope="session")
 def ferc1_xbrl_taxonomy_metadata(ferc1_engine_xbrl: sa.Engine):
-    """Read the FERC 1 XBRL taxonomy metadata from JSON."""
+    """Read the FERC 1 XBRL taxonomy metadata from JSON.
+
+    ``ferc1_engine_xbrl`` is an ordering-only dependency that ensures the FERC 1 XBRL
+    database is prebuilt before this fixture runs. Its return value is not used here.
+    """
     result = materialize_to_memory([raw_ferc1_xbrl__metadata_json])
     assert result.success
 
     return result.output_for_node("raw_ferc1_xbrl__metadata_json")
 
 
-@pytest.fixture(scope="session", name="ferc714_engine_xbrl")
-def ferc714_xbrl_sql_engine(
-    prebuilt_integration_dbs, dataset_settings_config
-) -> sa.Engine:
-    """Grab a connection to the FERC Form 714 DB clone."""
-    context = build_init_resource_context(
-        resources={"dataset_settings": dataset_settings_config}
+@pytest.fixture(scope="session")
+def ferc714_engine_xbrl(prebuilt_outputs, dataset_settings_config) -> sa.Engine:
+    """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database."""
+    return _engine_from_io_manager(
+        ferc714_xbrl_sqlite_io_manager,
+        dataset_settings_config,
     )
-    return ferc714_xbrl_sqlite_io_manager(context).engine
 
 
-@pytest.fixture(scope="session", name="ferc714_xbrl_taxonomy_metadata")
+@pytest.fixture(scope="session")
 def ferc714_xbrl_taxonomy_metadata(ferc714_engine_xbrl: sa.Engine):
-    """Read the FERC 714 XBRL taxonomy metadata from JSON."""
+    """Read the FERC 714 XBRL taxonomy metadata from JSON.
+
+    ``ferc714_engine_xbrl`` is an ordering-only dependency that ensures the FERC 714
+    XBRL database is prebuilt before this fixture runs. Its return value is not used
+    here.
+    """
     result = materialize_to_memory([raw_ferc714_xbrl__metadata_json])
     assert result.success
 
@@ -343,37 +338,13 @@ def ferc714_xbrl_taxonomy_metadata(ferc714_engine_xbrl: sa.Engine):
 
 
 @pytest.fixture(scope="session")
-def pudl_io_manager(
-    ferc1_engine_dbf: sa.Engine,  # Implicit dependency
-    ferc1_engine_xbrl: sa.Engine,  # Implicit dependency
-    ferc714_engine_xbrl: sa.Engine,
-    live_dbs: bool,
-    prebuilt_integration_dbs,
-    pudl_datastore_config,
-    dataset_settings_config,
-    request,
-) -> PudlMixedFormatIOManager:
-    """Grab a connection to the PUDL IO manager.
-
-    If we are using the test database, we initialize the PUDL DB from scratch. If we're
-    using the live database, then we just make a connection to it.
-    """
-    logger.info("setting up the pudl_engine fixture")
-    # Grab a connection to the freshly populated PUDL DB, and hand it off.
-    # All the hard work here is being done by the datapkg and
-    # datapkg_to_sqlite fixtures, above.
-    context = build_init_resource_context()
-    return pudl_mixed_format_io_manager(context)
-
-
-@pytest.fixture(scope="session")
-def pudl_engine(pudl_io_manager: PudlMixedFormatIOManager) -> sa.Engine:
-    """Get PUDL SQL engine from io manager."""
-    return pudl_io_manager._sqlite_io_manager.engine
+def pudl_engine(prebuilt_outputs) -> sa.Engine:
+    """Return the SQLAlchemy engine for the prepared PUDL integration database."""
+    return _engine_from_io_manager(pudl_mixed_format_io_manager)
 
 
 @pytest.fixture(scope="session", autouse=True)
-def configure_paths_for_tests(tmp_path_factory, request):
+def configure_test_paths(tmp_path_factory, request):
     """Configures PudlPaths for tests.
 
     Default behavior:
@@ -405,25 +376,16 @@ def configure_paths_for_tests(tmp_path_factory, request):
     if not request.config.getoption("--live-dbs"):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()
-        resolved_out_tmp = Path(out_tmp).resolve()
         PudlPaths.set_path_overrides(
-            output_dir=str(resolved_out_tmp),
+            output_dir=str(Path(out_tmp).resolve()),
         )
         logger.info(f"Using temporary PUDL_OUTPUT: {out_tmp}")
-        os.environ[EXPECTED_OUTPUT_ENVVAR] = str(resolved_out_tmp)
-    else:
-        os.environ.pop(EXPECTED_OUTPUT_ENVVAR, None)
 
-    # Keep environment variables synchronized with any overrides so subprocesses
-    # launched later in this pytest session inherit the same workspace paths.
     try:
-        paths = PudlPaths(
+        return PudlPaths(
             pudl_input=Path(os.environ["PUDL_INPUT"]),
             pudl_output=Path(os.environ["PUDL_OUTPUT"]),
         )
-        os.environ["PUDL_INPUT"] = str(paths.input_dir)
-        os.environ["PUDL_OUTPUT"] = str(paths.output_dir)
-        return paths
     except pydantic.ValidationError as err:
         pytest.exit(
             f"Set PUDL_INPUT, PUDL_OUTPUT env variables, or use --tmp-path, --live-dbs flags. Error: {err}."
@@ -440,28 +402,31 @@ def dataset_settings_config(request, etl_settings: EtlSettings):
 
 @pytest.fixture(scope="session", autouse=True)
 def logger_config():
-    """Configure root logger for pytest log capture and shared defaults."""
-    pudl.logging_helpers.configure_root_logger(propagate=True)
+    """Configure root logger to filter out excessive logs from certain dependencies."""
+    pudl.logging_helpers.configure_root_logger(
+        dependency_loglevels={
+            "aiobotocore": logging.WARNING,
+            "alembic": logging.WARNING,
+            "arelle": logging.INFO,
+            "asyncio": logging.INFO,
+            "boto3": logging.WARNING,
+            "botocore": logging.WARNING,
+            "fsspec": logging.INFO,
+            "google": logging.INFO,
+            "matplotlib": logging.WARNING,
+            "numba": logging.WARNING,
+            "urllib3": logging.INFO,
+        },
+        propagate=True,
+    )
 
 
 @pytest.fixture(scope="session")
-def pudl_datastore_config(request) -> dict[str, Any]:
-    """Produce a :class:pudl.workspace.datastore.Datastore."""
-    return {
-        "use_local_cache": not request.config.getoption("--bypass-local-cache"),
-    }
-
-
-@pytest.fixture(scope="session")
-def pudl_datastore_fixture(pudl_datastore_config: dict[str, Any]) -> Datastore:
+def pudl_datastore_fixture(request) -> Datastore:
     """Create pudl Datastore resource."""
-    init_context = build_init_resource_context(config=pudl_datastore_config)
+    init_context = build_init_resource_context(
+        config={
+            "use_local_cache": not request.config.getoption("--bypass-local-cache"),
+        }
+    )
     return resources.datastore(init_context)
-
-
-def skip_table_if_null_freq_table(table_name: str, freq: str | None):
-    """Check."""
-    if table_name in AS_MS_ONLY_FREQ_TABLES and freq is None:
-        pytest.skip(
-            f"Data validation for {table_name} does not work with a null frequency."
-        )

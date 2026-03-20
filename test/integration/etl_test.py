@@ -1,8 +1,8 @@
 """PyTest based testing of the FERC Database & PUDL data package initializations.
 
-This module also contains fixtures for returning connections to the databases. These
-connections can be either to the live databases for post-ETL testing or to new temporary
-databases, which are created from scratch and dropped after the tests have completed.
+Database connections are provided by session-scoped fixtures in ``conftest.py``. The
+``prebuilt_outputs`` fixture builds all integration databases via ``dg launch``
+before these tests run.
 """
 
 import logging
@@ -19,10 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.order(3)
-def test_pudl_engine(
-    pudl_engine: sa.Engine,
-    check_foreign_keys_flag: bool,
-):
+def test_pudl_engine(pudl_engine: sa.Engine, check_fks: bool):
     """Get pudl_engine and do basic inspection.
 
     By default the foreign key checks are not enabled in pudl.sqlite. This test will
@@ -33,7 +30,7 @@ def test_pudl_engine(
     assert "core_pudl__entity_plants_pudl" in insp.get_table_names()
     assert "core_pudl__entity_utilities_pudl" in insp.get_table_names()
 
-    if check_foreign_keys_flag:
+    if check_fks:
         # Raises ForeignKeyErrors if there are any
         check_foreign_keys(pudl_engine)
 
@@ -157,7 +154,8 @@ class TestExcelExtractor:
 class TestFerc1ExtractDebugFunctions:
     """Verify the ferc1 extraction debug functions are working properly."""
 
-    def test_extract_dbf(self, ferc1_engine_dbf: sa.Engine):
+    @pytest.mark.usefixtures("ferc1_engine_dbf")
+    def test_extract_dbf(self):
         """Test extract_dbf."""
         years = [2020, 2021]  # add desired years here
         configured_dataset_settings = {"ferc1": {"years": years}}
@@ -174,7 +172,8 @@ class TestFerc1ExtractDebugFunctions:
                 f"Unexpected years found in table: {table_name}"
             )
 
-    def test_extract_xbrl(self, ferc1_engine_xbrl: sa.Engine):
+    @pytest.mark.usefixtures("ferc1_engine_xbrl")
+    def test_extract_xbrl(self):
         """Test extract_xbrl."""
         years = [2021]  # add desired years here
         configured_dataset_settings = {"ferc1": {"years": years}}

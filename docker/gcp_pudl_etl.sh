@@ -46,7 +46,7 @@ function run_pudl_etl() {
             "$PUDL_SETTINGS_YML" &&
         pytest \
             -n auto \
-            --etl-settings "$PUDL_SETTINGS_YML" \
+            --dg-config "$PUDL_REPO/src/pudl/package_data/settings/dg_full.yml" \
             --live-dbs test/integration test/unit \
             --no-cov &&
         touch "$PUDL_OUTPUT/success"
