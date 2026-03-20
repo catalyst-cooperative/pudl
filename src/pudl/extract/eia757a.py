@@ -22,7 +22,7 @@ class Extractor(CsvExtractor):
     def get_page_cols(self, page: str, partition_key: str) -> list[str]:
         """Get the columns for a particular page and partition key.
 
-        EIA 757a data has the same set of columns for all years,
+        EIA 757A data has the same set of columns for all years,
         so regardless of the partition key provided we select the same columns here.
         """
         return super().get_page_cols(page, "any_year")
@@ -30,10 +30,10 @@ class Extractor(CsvExtractor):
     def process_raw(
         self, df: pd.DataFrame, page: str, **partition: PartitionSelection
     ) -> pd.DataFrame:
-        """Append report year to df to distinguish data from other years."""
-        self.cols_added.append("report_year")
-        selection = self._metadata._get_partition_selection(partition)
-        return df.assign(report_year=selection)
+        """Append report year and rename columns."""
+        return df.rename(
+            columns=self._metadata.get_column_map(page=page, year="any_year")
+        )
 
 
 raw_eia757a__all_dfs = raw_df_factory(Extractor, name="eia757a")
