@@ -33,15 +33,15 @@ downloading it from one of our stable data releases or nightly build outputs, wh
 can be found in the PUDL :ref:`access-zenodo` or :ref:`access-cloud`.
 
 Cloning the original FERC database is the first step in the PUDL ETL process. This can
-be done using the dagster UI (see :ref:`run-dagster-ui`) or with the ``ferc_to_sqlite``
-script (see :ref:`run-cli`).
+be done using the dagster UI (see :ref:`run-dagster-ui`) or the Dagster CLI
+(see :ref:`run-cli`).
 
 .. note::
 
   We recommend using the Dagster UI to execute the ETL as it provides additional
   functionality for re-execution and viewing dependences.
 
-Executing a ``ferc_to_sqlite`` job will create several outputs in your ``$PUDL_OUTPUT``
+Executing the ``pudl`` job will create several outputs in your ``$PUDL_OUTPUT``
 directory. For example the FERC Form 1 outputs will include:
 
  * ``$PUDL_OUTPUT/ferc1_dbf.sqlite``: Data from 1994-2020 (FoxPro/DBF)
@@ -53,5 +53,5 @@ directory. For example the FERC Form 1 outputs will include:
  * ``pudl_output/ferc1_xbrl_taxonomy_metadata.json``: A JSON version of the
    XBRL Taxonomy, containing additional metadata.
 
-By default, the script pulls in all available years and tables of data.  The
-``ferc_to_sqlite`` jobs also extract the XBRL data for FERC Form 1, 2, 6, 60 and 714.
+By default, the job pulls in all available years and tables of data. The PUDL ETL
+also extracts XBRL data for FERC Form 1, 2, 6, 60 and 714.

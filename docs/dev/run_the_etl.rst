@@ -74,7 +74,7 @@ most if not all of the tasks managed through the UI.
     # Start up the Dagster UI webserver and daemons
     $ pixi run dg dev
     # Launch a full job with its default config
-    $ pixi run dg launch --job etl_fast
+    $ pixi run dg launch --job pudl
     # Select a subset of assets to materialize
     $ pixi run dg launch --assets "group:raw_eia861"
     # List all of the Dagster definitions
@@ -115,17 +115,6 @@ means running the associated functions and writing the output to disk
 somewhere. When you are running the main PUDL ETL, you are **materializing
 assets**.
 
-Operations (Ops):
-^^^^^^^^^^^^^^^^^
-
-`Ops <https://docs.dagster.io/concepts/ops-jobs-graphs/ops>`__ are functions
-that are run in a graph. They are not linked to assets, and are a lower-level
-building block for orchestrating data processing pipelines.
-
-Due to some limitations of the asset model, we need to use bare ops for the
-FERC-to-SQLite workflow. When you are running that phase, you are **launching a
-job run**.
-
 IO Managers:
 ^^^^^^^^^^^^
 
@@ -155,35 +144,19 @@ Jobs
 ^^^^
 `Jobs <https://docs.dagster.io/concepts/ops-jobs-graphs/jobs>`__
 are preconfigured collections of assets, resources and IO Managers.
-Jobs are the main unit of execution in Dagster. For example,
-the ``etl_fast`` job defined in :mod:`pudl.etl` executes the
-FERC, EIA and EPA CEMS pipelines for the most recent year.
+Jobs are the main unit of execution in Dagster. The ``pudl`` job
+defined in :mod:`pudl.etl` process all of the core PUDL datasets.
 
 Definitions
 ^^^^^^^^^^^
 `Definitions  <https://docs.dagster.io/concepts/code-locations>`__
 are collections of assets, resources, IO managers and jobs that can
-be loaded into the dagster UI and executed. Definitions can have multiple
-preconfigured jobs. For example, the ``pudl.ferc_to_sqlite`` definition
-contains ``etl_fast`` and ``etl_full`` jobs.
+be loaded into the dagster UI and executed.
 
-There are two main Definitions in the PUDL processing pipeline:
-
-1. :func:`pudl.ferc_to_sqlite.defs` :doc:`converts the FERC Form 1, 2, 6, 60 and
-   714 DBF/XBRL files <clone_ferc1>` into `SQLite <https://sqlite.org>`__
-   databases so that the data are easier to extract, and so all of the raw FERC
-   data is available in a modern format. You must run a job in this definition
-   before you can execute a job in :func:`pudl.etl.defs`.
-2. :func:`pudl.etl.defs` coordinates the "Extract, Transform, Load" process that
-   processes 20+ years worth of data from the FERC Form 1 database, dozens of EIA
-   spreadsheets, and the thousands of CSV files that make up the EPA CEMS hourly
-   emissions data into a clean, well normalized SQLite database (for the FERC and
-   EIA data), and an `Apache Parquet <https://parquet.apache.org/>`__ dataset that
-   is partitioned by state and year (for the EPA CEMS).
-
-Both definitions have two preconfigured jobs:
-  - ``etl_fast`` processes one year of data
-  - ``etl_full`` processes all years of data
+The entire PUDL processing pipeline, including :doc:`converting the FERC Form 1,
+2, 6, 60 and 714 DBF/XBRL files <clone_ferc1>`, is assembled in
+:func:`pudl.etl.defs`. There is a single preconfigured job called ``pudl`` that
+runs the full pipeline.
 
 .. _run-dagster-ui:
 
@@ -235,70 +208,24 @@ assets and jobs.
 Cloning the FERC databases
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To run the data pipelines, you'll first need to create the raw FERC databases by
-clicking on one of the ``pudl.ferc_to_sqlite`` jobs. Then select "Launchpad"
-where you can adjust the years to extract for each dataset. Then click
-"Launch Run" in the lower right hand corner of the window. The UI will
-take you to a new window that provides information about the status of
-the job. The bottom part of the window contains dagster logs. You can
-view logs from the ``pudl`` package in the CLI window where ``dg dev``
-is running.
+The raw FERC databases (SQLite, DuckDB) are created as part of the ``pudl`` job, in the
+``raw_ferc_to_sqlite`` asset group. You do not need to run a separate step before
+launching the main PUDL ETL.
 
-You can adjust the years to process for each dataset using the Launchpad tab::
+.. TODO::
 
-  resources:
-    ferc_to_sqlite_settings:
-      config:
-        ferc1_dbf_to_sqlite_settings:
-          years:
-          - 2020
-          - 2019
-          - 2018
-        ferc1_xbrl_to_sqlite_settings:
-          years:
-          - 2021
-        ferc2_xbrl_to_sqlite_settings:
-          years:
-          - 2021
-        ferc60_xbrl_to_sqlite_settings:
-          years:
-          - 2021
-        ferc6_xbrl_to_sqlite_settings:
-          years:
-          - 2021
-        ferc714_xbrl_to_sqlite_settings:
-          years:
-          - 2021
-
-.. note::
-
-    We are experimenting with producing DuckDB outputs from the XBRL (and possibly DBF)
-    data that FERC publishes. For the time being, ``ferc_to_sqlite`` will produce both SQLite
-    and DuckDB outputs by default.
+   Figure out ergonomic workflow that doesn't require rematerializing the FERC DBs
+   every time we want to freshen up the downsream PUDL assets.
 
 ^^^^^^^^^^^^^^^^^^^^
 Running the PUDL ETL
 ^^^^^^^^^^^^^^^^^^^^
 
-Once the raw FERC databases are created by a ``pudl.ferc_to_sqlite`` job,
-you can execute the main PUDL ETL.
+Select the ``pudl`` job. This will bring you to a window that displays all of the asset
+dependencies. Subsets of the asset graph are organized by asset groups, which are
+helpful for visualizing and executing subsets of the asset graph.
 
-.. note::
-
-  Make sure you've extracted the raw FERC years you are planning to process
-  with the main PUDL ETL. Jobs in the ``pudl.etl`` definition will fail if
-  the raw FERC databases are missing requested years. For example, if you want
-  to process all years available in the ``pudl.etl`` definition make sure
-  you've extracted all years of the raw FERC data.
-
-Select one of the ``pudl.etl`` jobs.
-This will bring you to a window that displays all of the asset dependencies
-in the ``pudl.etl`` definition. Subsets of the ``pudl.etl`` asset graph
-are organized by asset groups. These groups are helfpul for visualizing and
-executing subsets of the asset graph.
-
-To execute the job, select ``etl_fast`` or ``etl_full`` and click "Materialize all".
-You can configure which years to process by shift+clicking "Materialize all".
+To execute the job click "Materialize all".
 Read the :ref:`resource_config` section to learn more.
 To view the status of the run, click the date next to "Latest run:".
 
@@ -368,8 +295,8 @@ out-of-memory issues while running many quarters in one ``backfill``.
 
 .. _run-cli:
 
-Running the ETL with CLI Commands
----------------------------------
+Running the ETL via CLI
+-----------------------
 
 The ``dg`` command line interface is Dagster's official tool and has a ton of built-in
 functionality. For full documentation see the Dagster docs:
@@ -390,9 +317,7 @@ you'll see the run appear in it.
 
 .. code-block:: console
 
-  $ pixi run dg launch --job ferc_to_sqlite
-  $ pixi run dg launch --job etl_fast
-  $ pixi run dg launch --job etl_full
+  $ pixi run dg launch --job pudl
 
 You can also target specific assets rather than an entire job, and use Dagster's rich
 `asset selection syntax <https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference>`__
@@ -411,37 +336,22 @@ to pick and choose:
   We recommend using the Dagster UI to execute the ETL as it provides additional
   functionality for re-execution and viewing asset dependences.
 
-PUDL also has a couple of custom job launching scripts, which automatically use one of
-our preset YAML files to configure the execution graph, including data sources, years,
-etc.
-
-1. ``ferc_to_sqlite`` executes the ``pudl.ferc_to_sqlite`` dagster graph.
-   You must run this script before you can run ``pudl_etl``.
-2. ``pudl_etl`` executes the ``pudl.etl`` asset graph.
-
-.. note::
-
-   We plan to deprecate these custom scripts in 2026Q2, and move to using Dagster's
-   built-in file-based configuration system.
-
-We also have ``pixi`` tasks defined in ``pyproject.toml`` that correspond to running the
-above scripts with default configurations, to process all data (these can take hours):
+We also have a ``pixi`` task defined in ``pyproject.toml`` to process all data with
+the full default configuration (this can take hours):
 
 .. code-block:: console
 
-    $ pixi run ferc
     $ pixi run pudl
 
 Settings Files
 --------------
-These CLI commands use YAML settings files in place of command line arguments.  This
-avoids undue complexity and preserves a record of how the script was run.  The YAML file
-dictates which years or states get run through the the processing pipeline. There are
-two standard settings files that we use to run the integration tests and the nightly
-builds included in the repository:
+The ``dg launch`` command can read run configuration from YAML files. This avoids
+undue command line complexity and preserves a record of how the pipeline was run.
+There are two standard Dagster config files that we use for local development and
+nightly builds:
 
-- ``src/pudl/package_data/settings/etl_fast.yml`` processes 1-2 years of data.
-- ``src/pudl/package_data/settings/etl_full.yml`` processes all available data.
+- ``src/pudl/package_data/settings/dg_fast.yml`` configures a smaller, faster run.
+- ``src/pudl/package_data/settings/dg_full.yml`` processes all available data.
 
 .. warning::
 
@@ -451,9 +361,11 @@ builds included in the repository:
   If you want to process a single datasource, materialize the appropriate assets
   in the dagster UI. (see :ref:`run-dagster-ui`).
 
-Each file contains instructions for how to process the data under "full" or "fast"
-conditions respectively. You can copy, rename, and modify these files to suit your
-needs. The layout of these files is depicted below:
+Each file includes run execution options and resource configuration, including
+the ``etl_settings_path`` used by the PUDL dataset and FERC extraction settings. The
+PUDL ETL settings YAML files that are referenced by our Dagster configs specify which
+datasets and what portions of each of them should be processed, and are generally
+structured like this:
 
 .. code-block::
 
@@ -476,35 +388,6 @@ needs. The layout of these files is depicted below:
         └── dataset name
              └── dataset etl parameter (e.g. years) : editable list of years
 
-Both scripts enable you to choose which **years** you want to include:
-
-.. list-table::
-   :header-rows: 1
-   :widths: auto
-
-   * - Parameter
-     - Description
-   * - ``years``
-     - A list of years to be included in the FERC Form 1 Raw DB or the PUDL DB. You
-       should only use a continuous range of years. Check the :doc:`/data_sources/index`
-       pages for the earliest available years.
-
-The ``pudl_etl`` script CEMS data allows you to select **years** and **states**.
-
-.. list-table::
-   :header-rows: 1
-   :widths: auto
-
-   * - Parameter
-     - Description
-   * - ``years``
-     - A list of the years you'd like to process CEMS data for. You should
-       only use a continuous range of years. Check the :doc:`/data_sources/epacems` page
-       for the earliest available years.
-   * - ``states``
-     - A list of the state codes you'd like to process CEMS data for. You can specify
-       ``all`` if you want to process data for all states. This may take a while!
-
 .. seealso::
 
       For an exhaustive listing of the available parameters, see the ``etl_full.yml``
@@ -513,23 +396,19 @@ The ``pudl_etl`` script CEMS data allows you to select **years** and **states**.
 There are a few notable dependencies to be wary of when fiddling with these
 settings:
 
-- The ``ferc_to_sqlite`` job must be executed prior to running ``pudl_etl``
-  job.
-
 - EPA CEMS cannot be loaded without EIA data unless you have existing PUDL database.
 
-Now that your settings are configured, you're ready to run the scripts.
+Now that your settings are configured, you're ready to launch the ETL.
 
 The Fast ETL
 ------------
-Running the Fast ETL processes one year of data for each dataset. This is what
+Running the Fast ETL processes 1-2 years of data for each dataset. This is what
 we do in our :doc:`software integration tests <testing>`. Depending on your computer,
-it should take around 15 minutes total.
+it may take up to an hour to run.
 
 .. code-block:: console
 
-    $ ferc_to_sqlite settings/etl_fast.yml
-    $ pudl_etl settings/etl_fast.yml
+  $ pixi run dg launch --job pudl --config src/pudl/package_data/settings/dg_fast.yml
 
 The Full ETL
 ------------
@@ -541,8 +420,7 @@ CEMS should take around 2 hours.
 
 .. code-block:: console
 
-    $ ferc_to_sqlite src/pudl/package_data/settings/etl_full.yml
-    $ pudl_etl src/pudl/package_data/settings/etl_full.yml
+  $ pixi run dg launch --job pudl --config src/pudl/package_data/settings/dg_full.yml
 
 Custom ETL
 ----------
@@ -550,8 +428,7 @@ You've changed the settings and renamed the file to CUSTOM_ETL.yml
 
 .. code-block:: console
 
-    $ ferc_to_sqlite the/path/to/your/custom_etl.yml
-    $ pudl_etl the/path/to/your/custom_etl.yml
+  $ pixi run dg launch --job pudl --config the/path/to/your/custom_dg_config.yml
 
 
 Additional Notes

@@ -1,4 +1,4 @@
-"""Dagster asset definitions for granular FERC to SQLite extraction."""
+"""Dagster asset definitions for granular FERC-to-SQLite extraction."""
 
 import dagster as dg
 
@@ -9,45 +9,11 @@ from pudl.extract.ferc import (
     Ferc6DbfExtractor,
     Ferc60DbfExtractor,
 )
-from pudl.extract.xbrl import FercXbrlDatastore, convert_form, xbrl2sqlite_op_factory
-from pudl.resources import RuntimeSettings, datastore, ferc_to_sqlite_settings
+from pudl.extract.xbrl import FercXbrlDatastore, convert_form
 from pudl.settings import XbrlFormNumber
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-
-# Backward-compatible op graph for unit tests and legacy callers.
-FERC1_DBF_OP = Ferc1DbfExtractor.get_dagster_op()
-FERC2_DBF_OP = Ferc2DbfExtractor.get_dagster_op()
-FERC6_DBF_OP = Ferc6DbfExtractor.get_dagster_op()
-FERC60_DBF_OP = Ferc60DbfExtractor.get_dagster_op()
-FORM1_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM1)
-FORM2_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM2)
-FORM6_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM6)
-FORM60_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM60)
-FORM714_XBRL_OP = xbrl2sqlite_op_factory(XbrlFormNumber.FORM714)
-
-
-@dg.graph
-def ferc_to_sqlite():
-    """Clone FERC DBF and XBRL sources into SQLite (compatibility graph)."""
-    FERC1_DBF_OP()
-    FERC2_DBF_OP()
-    FERC6_DBF_OP()
-    FERC60_DBF_OP()
-    FORM1_XBRL_OP()
-    FORM2_XBRL_OP()
-    FORM6_XBRL_OP()
-    FORM60_XBRL_OP()
-    FORM714_XBRL_OP()
-
-
-default_resources_defs = {
-    "ferc_to_sqlite_settings": ferc_to_sqlite_settings,
-    "runtime_settings": RuntimeSettings(),
-    "datastore": datastore,
-}
 
 
 def dbf_to_sqlite_asset_factory(

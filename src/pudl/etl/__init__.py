@@ -27,6 +27,7 @@ from pudl.settings import load_packaged_etl_settings
 
 from . import (
     eia_bulk_elec_assets,
+    ferc_to_sqlite_assets,
     glue_assets,
     static_assets,
 )
@@ -34,7 +35,7 @@ from . import (
 logger = pudl.logging_helpers.get_logger(__name__)
 
 raw_module_groups = {
-    "raw_ferc_to_sqlite": [pudl.ferc_to_sqlite],
+    "raw_ferc_to_sqlite": [ferc_to_sqlite_assets],
     "raw_censuspep": [pudl.extract.censuspep],
     "raw_eia176": [pudl.extract.eia176],
     "raw_eia191": [pudl.extract.eia191],
@@ -227,10 +228,16 @@ default_tag_concurrency_limits = [
     },
 ]
 
-
-default_config = pudl.helpers.get_dagster_execution_config(
-    tag_concurrency_limits=default_tag_concurrency_limits
-)
+default_config = {
+    "execution": {
+        "config": {
+            "multiprocess": {
+                "max_concurrent": 0,
+                "tag_concurrency_limits": default_tag_concurrency_limits,
+            },
+        },
+    },
+}
 default_config |= pudl.analysis.ml_tools.get_ml_models_config()
 
 
@@ -270,9 +277,16 @@ defs: dg.Definitions = dg.Definitions(
         dg.define_asset_job(
             name="ferceqr",
             description="This job executes the ferceqr ETL.",
-            config=pudl.helpers.get_dagster_execution_config(
-                tag_concurrency_limits=default_tag_concurrency_limits
-            ),
+            config={
+                "execution": {
+                    "config": {
+                        "multiprocess": {
+                            "max_concurrent": 0,
+                            "tag_concurrency_limits": default_tag_concurrency_limits,
+                        },
+                    },
+                },
+            },
             selection=dg.AssetSelection.groups("raw_ferceqr", "core_ferceqr"),
         ),
     ],

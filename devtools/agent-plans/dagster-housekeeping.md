@@ -157,6 +157,184 @@ Switch local/nightly execution to canonical `dg launch` commands and retire (or 
 - Nightly dry-run or staging run using only canonical `dg` commands.
 - Cutover checklist complete with rollback notes.
 
+---
+
+## P1-E3 Current State (as of 2026-03-20)
+
+### What is already done
+
+- `pixi run ferc` and `pixi run pudl` pixi tasks use `dg launch` exclusively.
+- `dg_full.yml`, `dg_fast.yml`, and `dg_pytest.yml` config files exist in
+  `src/pudl/package_data/settings/` and work correctly with `dg launch`.
+- Integration test `conftest.py` already runs the ETL via `dg launch --job pudl`
+  (in `_pudl_etl()`), not via the legacy CLIs.
+- `DatasetSettingsResource`, `FercToSqliteSettingsResource`, and `DatastoreResource`
+  have been migrated to typed `ConfigurableResource` classes that accept
+  `etl_settings_path`.
+- FERC IO managers (`FercDbfSQLiteDagsterIOManager`, `FercXbrlSQLiteDagsterIOManager`)
+  and `PudlMixedFormatIOManager` have been migrated to `ConfigurableIOManager`.
+
+### What still needs to be done for P1-E3
+
+The following tasks must be completed before `pudl_etl` and `ferc_to_sqlite` can be
+removed as project console scripts.
+
+#### P1-E3-T1: Fix broken run config in `ferc_to_sqlite/cli.py` (immediate bug)
+
+`pudl/ferc_to_sqlite/cli.py` still passes `etl_settings.ferc_to_sqlite_settings.model_dump()`
+as the resource run config. After the `FercToSqliteSettingsResource` migration, the
+resource now expects `{"etl_settings_path": "..."}` — the `model_dump()` dict will
+fail at runtime. The CLI is therefore currently broken.
+
+Options:
+
+- Fix it to pass `etl_settings_path` (minimal patch to unblock any lingering users).
+- Skip the fix and go straight to T3 (retire the CLI entirely), since no automated
+    system calls it anymore.
+
+The same issue exists in `pudl/etl/cli.py` for `dataset_settings`, which still passes
+`etl_settings.datasets.model_dump()`.
+
+**Recommendation:** skip the fix and retire both CLIs directly (T3/T4).
+
+#### P1-E3-T2: Decide whether nightly needs a separate `dg_nightly.yml`
+
+The `gcp_pudl_etl.sh` nightly script currently passes `--workers 8` to `ferc_to_sqlite`
+and `--loglevel DEBUG` to both CLIs. The `dg_full.yml` config has `xbrl_num_workers: null`
+(saturates CPUs) and `log_level: INFO`.
+
+Options for the nightly script:
+
+- Use `dg_full.yml` as-is (null workers = use all CPUs, INFO logging, matches laptop behavior).
+- Create `dg_nightly.yml` that sets `xbrl_num_workers: 8` and `log_level: DEBUG`.
+
+**Recommendation:** create `dg_nightly.yml` with explicit worker count and DEBUG logging
+so nightly behavior is explicit and independent of the default profile.
+
+#### P1-E3-T3: Replace `ferc_to_sqlite` and `pudl_etl` calls in `gcp_pudl_etl.sh`
+
+The `run_pudl_etl()` function in `docker/gcp_pudl_etl.sh` currently runs:
+
+```bash
+ferc_to_sqlite --loglevel DEBUG --workers 8 "$PUDL_SETTINGS_YML"
+pudl_etl --loglevel DEBUG "$PUDL_SETTINGS_YML"
+```
+
+These should be replaced with:
+
+```bash
+# Clean stale FERC SQLite DBs (mirrors what pixi run ferc does)
+rm -f $PUDL_OUTPUT/ferc*.sqlite $PUDL_OUTPUT/ferc*.duckdb \
+    $PUDL_OUTPUT/ferc*_xbrl_datapackage.json $PUDL_OUTPUT/ferc*_xbrl_taxonomy_metadata.json
+rm -f $PUDL_OUTPUT/pudl.sqlite
+alembic upgrade head
+dg launch --job pudl --config-file $DG_NIGHTLY_CONFIG
+```
+
+Note: the `pudl` job (`all() - ferceqr`) already includes the `raw_ferc_to_sqlite`
+asset group, so a single `dg launch --job pudl` replaces both the `ferc_to_sqlite` and
+`pudl_etl` invocations.
+
+The `$PUDL_SETTINGS_YML` env var referenced in the script can be removed from the Docker
+environment once both CLIs are gone.
+
+#### P1-E3-T4: Remove `pudl_etl` and `ferc_to_sqlite` console script entry points
+
+In `pyproject.toml`, remove:
+
+- `ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"`
+- `pudl_etl = "pudl.etl.cli:pudl_etl"`
+
+#### P1-E3-T5: Delete `pudl/etl/cli.py`
+
+Remove the module containing `pudl_etl_job_factory`, the `pudl_etl` click command,
+and all `build_reconstructable_job` / `execute_job` logic. This also removes the dead
+`publish_destinations` post-run upload logic (which defaults to `[]` in all settings
+files and is already superseded by the `save_outputs_to_gcs()` function in
+`gcp_pudl_etl.sh`).
+
+#### P1-E3-T6: Delete `pudl/ferc_to_sqlite/cli.py`
+
+Remove the module containing `ferc_to_sqlite_job_factory` and the `main` click command.
+
+#### P1-E3-T7: Remove legacy op graph and resources from `ferc_to_sqlite/__init__.py`
+
+The `@graph ferc_to_sqlite()`, `FERC1_DBF_OP` (and sibling ops), and `default_resources_defs`
+are only consumed by `ferc_to_sqlite/cli.py`. Once that module is deleted they become dead
+code and should be removed.
+
+#### P1-E3-T8: Remove `get_dagster_execution_config` from `pudl/helpers.py`
+
+This helper is only called by the two CLI modules and by `pudl/etl/__init__.py` to build
+the default job config (where it can be inlined or replaced with a YAML config reference
+after the CLI is gone). Remove or relocate once the CLIs are deleted.
+
+#### P1-E3-T9: Update runbook and developer documentation
+
+- Update `docs/dev/run_the_etl.rst` (and any other developer docs) to replace all
+  references to `pudl_etl` and `ferc_to_sqlite` CLI commands with `dg launch` equivalents.
+- Add a brief migration note to `docs/release_notes.rst`.
+
+### P1-E3 Verification
+
+- `pixi run dg check defs` passes.
+- `pixi run ferc` and `pixi run pudl` succeed end-to-end.
+- `pytest-integration` CI job passes (already uses `dg launch`).
+- `gcp_pudl_etl.sh` dry-run or staging run succeeds with only `dg launch`.
+- Confirm `pudl_etl` and `ferc_to_sqlite` are no longer importable or executable.
+
+---
+
+## P1-E3 Follow-up PR: Clean Up Interim Compatibility Layers
+
+The work done in the resource/IO manager migration (P1-E2) intentionally preserved some
+compatibility shims. Once P1-E3 is merged, a follow-up PR should eliminate this technical
+debt.
+
+### FU-1: Collapse FERC IO manager wrapper classes
+
+`FercDbfSQLiteDagsterIOManager` wraps `FercDBFSQLiteIOManager` and
+`FercXbrlSQLiteDagsterIOManager` wraps `FercXBRLSQLiteIOManager`. The inner classes exist
+to support non-Dagster construction paths in debug helpers and legacy tests. Once those
+paths are removed, both pairs of classes should be collapsed into single `ConfigurableIOManager`
+subclasses.
+
+### FU-2: Refactor `extract/ferc1.py` debug helpers
+
+`extract_dbf()` and `extract_xbrl()` in `pudl/extract/ferc1.py` use `model_copy(update=...)`
+to inject a `DatasetsSettings` object into the IO manager at construction time, bypassing
+Dagster's resource wiring. These helpers should either be deleted (if testing via `dg launch`
+is sufficient) or rewritten to use Dagster-native test execution patterns.
+
+### FU-3: Refactor `TestFerc1ExtractDebugFunctions` integration tests
+
+`test/integration/etl_test.py` tests the debug helpers directly. Once FU-2 is resolved,
+these tests should be replaced by smoke tests that exercise the canonical FERC extraction
+assets via `materialize_to_memory` or `dg launch`, rather than testing non-Dagster
+construction paths.
+
+### FU-4: Refactor `_engine_from_io_manager` in `test/conftest.py`
+
+The `_engine_from_io_manager` helper and the `ferc1_engine_dbf`, `ferc1_engine_xbrl`,
+`ferc714_engine_xbrl` fixtures use `model_copy(update={"dataset_settings": ...})` to inject
+settings. After the wrapper layer is collapsed (FU-1), this pattern can be simplified or
+replaced with a fixture that reads the engine from the built SQLite file path directly.
+
+### FU-5: Remove `publish_destinations` from `EtlSettings`
+
+`publish_destinations: list[str] = []` in `pudl/settings.py` is dead code: it defaults to
+`[]` in all packaged settings files, and the nightly deployment script handles publishing
+separately. Remove the field and any associated logic once the `pudl_etl` CLI is deleted.
+
+---
+
+## P1-E3 Sequencing
+
+```
+T1 (optional bug-fix) → T2 (nightly config) → T3 (update gcp script) → T4/T5/T6/T7/T8/T9 (removal)
+FU-1 → FU-2 → FU-3 → FU-4 → FU-5  (follow-up PR after T9)
+```
+
 ## Epic P1-E4: Establish `defs` as the Source of Truth (After CLI Parity)
 
 ### Objective
@@ -272,3 +450,4 @@ Only start broad `defs`/module reorganization after these conditions are met:
 - 2026-03-07: Initial draft created with detailed Phase 1 and conceptual Phase 2/3.
 - 2026-03-08: Reordered Phase 1 to prioritize CLI migration (`dg launch`) and deferred detailed planning for later phases.
 - 2026-03-08: Clarified that P1-E1 and P1-E2 are interdependent tracks; softened tone for a more informal, cooperative style.
+- 2026-03-20: Added P1-E3 current-state analysis and concrete remaining task list (T1–T9) plus follow-up PR items (FU-1–FU-5) based on post-P1-E2 state of the repository.

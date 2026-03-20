@@ -316,8 +316,8 @@ dg launch --assets group:raw_ferc_to_sqlite --config $DG_FULL_CONFIG
 pudl = { cmd = """
 bash -c 'shopt -s nullglob; rm -f $PUDL_OUTPUT/pudl.sqlite' && \
 alembic upgrade head && \
-dg launch --job pudl --config $DG_FULL_CONFIG
-""", description = "Run full PUDL ETL pipeline" }
+dg launch --assets "* and not group:raw_ferc_to_sqlite and not group:raw_ferceqr and not group:core_ferceqr" --config $DG_FULL_CONFIG
+""", description = "Run PUDL ETL assets without rebuilding raw FERC SQLite databases" }
 
 # Code quality tasks
 pre-commit-run = { cmd = "pre-commit run --all-files", description = "Run all pre-commit hooks" }
@@ -336,11 +336,9 @@ install-skills = { cmd = "npx skills experimental_install", description = "Insta
 
 [project.scripts]
 auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
-ferc_to_sqlite = "pudl.ferc_to_sqlite.cli:main"
 metadata_to_rst = "pudl.convert.metadata_to_rst:metadata_to_rst"
 pudl_check_fks = "pudl.etl.check_foreign_keys:pudl_check_fks"
 pudl_datastore = "pudl.workspace.datastore:pudl_datastore"
-pudl_etl = "pudl.etl.cli:pudl_etl"
 pudl_service_territories = "pudl.analysis.service_territory:pudl_service_territories"
 dbt_helper = "pudl.scripts.dbt_helper:dbt_helper"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
@@ -531,7 +529,6 @@ exclude_lines = [
 [tool.dagster]
 modules = [
     { type = "module", name = "pudl.etl" },
-    { type = "module", name = "pudl.ferc_to_sqlite" },
 ]
 
 [tool.dg]
@@ -542,7 +539,6 @@ root_module = "pudl"
 code_location_target_module = "pudl.definitions"
 registry_modules = [
     "pudl.etl",
-    "pudl.ferc_to_sqlite",
 ]
 
 [tool.typos.default]

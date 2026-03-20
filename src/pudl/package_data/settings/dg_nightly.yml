@@ -1,0 +1,28 @@
+execution:
+  config:
+    multiprocess:
+      max_concurrent: 0
+      tag_concurrency_limits:
+        - key: memory-use
+          value: high
+          limit: 4
+loggers:
+  console:
+    config:
+      log_level: DEBUG
+resources:
+  datastore:
+    config:
+      cloud_cache_path: s3://pudl.catalyst.coop/zenodo
+      use_local_cache: true
+  dataset_settings:
+    config:
+      etl_settings_path: src/pudl/package_data/settings/etl_full.yml
+  ferc_to_sqlite_settings:
+    config:
+      etl_settings_path: src/pudl/package_data/settings/etl_full.yml
+  runtime_settings:
+    config:
+      xbrl_num_workers: 8
+      xbrl_batch_size: 50
+      xbrl_loglevel: DEBUG

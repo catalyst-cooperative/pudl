@@ -37,16 +37,11 @@ function run_pudl_etl() {
     initialize_postgres &&
         authenticate_gcp &&
         alembic upgrade head &&
-        ferc_to_sqlite \
-            --loglevel DEBUG \
-            --workers 8 \
-            "$PUDL_SETTINGS_YML" &&
-        pudl_etl \
-            --loglevel DEBUG \
-            "$PUDL_SETTINGS_YML" &&
+        dg launch --job pudl \
+            --config "$DG_CONFIG_PATH" &&
         pytest \
             -n auto \
-            --dg-config "$PUDL_REPO/src/pudl/package_data/settings/dg_full.yml" \
+            --dg-config "$DG_CONFIG_PATH" \
             --live-pudl-output test/integration test/unit \
             --no-cov &&
         touch "$PUDL_OUTPUT/success"
@@ -238,7 +233,8 @@ fi
 
 # Set these variables *only* if they are not already set by the container or workflow:
 : "${PUDL_GCS_OUTPUT:=gs://builds.catalyst.coop/$BUILD_ID}"
-: "${PUDL_SETTINGS_YML:=/home/ubuntu/pudl/src/pudl/package_data/settings/etl_full.yml}"
+: "${PUDL_REPO:=/home/ubuntu/pudl}"
+: "${DG_CONFIG_PATH}:=$PUDL_REPO/src/pudl/package_data/settings/$DG_CONFIG_YML}"
 
 # Save credentials for working with AWS S3
 # set +x / set -x is used to avoid printing the AWS credentials in the logs

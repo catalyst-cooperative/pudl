@@ -464,8 +464,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/plotly-6.6.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/plotly_express-0.4.1-py_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/pluggy-1.6.0-pyhf9edf01_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/polars-1.39.2-pyh58ad624_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/polars-runtime-32-1.39.2-py310hffdcd12_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/polars-1.39.3-pyh58ad624_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/polars-runtime-32-1.39.3-py310hffdcd12_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pre-commit-4.5.1-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/prettier-3.8.1-h7e4c9f4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/prettytable-3.17.0-pyhd8ed1ab_0.conda
@@ -850,7 +850,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/gcsfs-2026.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/gdal-3.12.2-py313h369b93d_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/gdk-pixbuf-2.44.5-hae309b2_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/geoarrow-c-0.3.1-py313hc4a83b5_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/geoarrow-c-0.3.1-py313hbc4457e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geopandas-1.1.3-pyhd8ed1ab_0.conda
@@ -1118,8 +1118,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/plotly-6.6.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/plotly_express-0.4.1-py_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/pluggy-1.6.0-pyhf9edf01_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/polars-1.39.2-pyh58ad624_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/polars-runtime-32-1.39.2-py310h428a0da_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/polars-1.39.3-pyh58ad624_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/polars-runtime-32-1.39.3-py310h428a0da_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pre-commit-4.5.1-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/prettier-3.8.1-h07b0e94_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/prettytable-3.17.0-pyhd8ed1ab_0.conda
@@ -1488,7 +1488,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/gcsfs-2026.2.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdal-3.12.2-py313h543f8f2_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/gdk-pixbuf-2.44.5-h4e57454_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/geoarrow-c-0.3.1-py313h0e822ff_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/geoarrow-c-0.3.1-py313h6deaedc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-types-0.3.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/geopandas-1.1.3-pyhd8ed1ab_0.conda
@@ -1756,8 +1756,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/plotly-6.6.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/plotly_express-0.4.1-py_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/pluggy-1.6.0-pyhf9edf01_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/polars-1.39.2-pyh58ad624_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/polars-runtime-32-1.39.2-py310h216a1ac_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/polars-1.39.3-pyh58ad624_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/polars-runtime-32-1.39.3-py310h216a1ac_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pre-commit-4.5.1-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/prettier-3.8.1-h9907cc9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/prettytable-3.17.0-pyhd8ed1ab_0.conda
@@ -3937,8 +3937,8 @@ packages:
   timestamp: 1766416416791
 - pypi: ./
   name: catalystcoop-pudl
-  version: 2026.3.1.dev66
-  sha256: df2d862f1361e24961ffa82678720d2843254ffde3083308a1e771ff444dae6c
+  version: 2026.3.1.dev67
+  sha256: e50a4aee0998cd3587799213cbf1da95a9be6bb921d26823ef3f05bd7ec187de
   requires_python: '>=3.13,<3.14.0a0'
 - conda: https://conda.anaconda.org/conda-forge/noarch/catalystcoop.dbfread-3.0.0-pyhd8ed1ab_1.conda
   sha256: 7a706fefa47027ab14cac7572dbddadaf9a12fc13a1222ad1e75f43f8fd9dcfb
@@ -5819,23 +5819,22 @@ packages:
   - pkg:pypi/geoarrow-c?source=hash-mapping
   size: 544356
   timestamp: 1760072310394
-- conda: https://conda.anaconda.org/conda-forge/osx-64/geoarrow-c-0.3.1-py313hc4a83b5_0.conda
-  sha256: 5814c1e48d12aef58b8b5474e9eb4f50adf8c67ce60d1bd3ab6800200a838ac1
-  md5: 8d17e8781238c48217bcf6772b76f7b3
+- conda: https://conda.anaconda.org/conda-forge/osx-64/geoarrow-c-0.3.1-py313hbc4457e_0.conda
+  sha256: c2de492edf5c171a1d78790cb1fab163d055e83e1be352ef1e6e1f6223dbe60f
+  md5: 813d076b7377b2bfeba3425ead68f7e0
   depends:
-  - __osx >=10.13
+  - __osx >=11.0
   - libcxx >=19
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   license: Apache-2.0
-  license_family: APACHE
   purls:
-  - pkg:pypi/geoarrow-c?source=hash-mapping
-  size: 515163
-  timestamp: 1760072625901
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/geoarrow-c-0.3.1-py313h0e822ff_0.conda
-  sha256: 02bc684b42d067e2135bc031764ce6ae910f68012beeb0e4218c0566c852c9b3
-  md5: 9ede246b6cea5350bc9ca1e1462afb66
+  - pkg:pypi/geoarrow-c?source=compressed-mapping
+  size: 515396
+  timestamp: 1774042000731
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/geoarrow-c-0.3.1-py313h6deaedc_0.conda
+  sha256: cc7147443a7b97cc1ea68f4610933c7823e132f2d2e4e5c9ce2ab9a8b12d4f2e
+  md5: 44b1fa88a6b06ef65ae1bf8ce6544e98
   depends:
   - __osx >=11.0
   - libcxx >=19
@@ -5843,11 +5842,10 @@ packages:
   - python >=3.13,<3.14.0a0 *_cp313
   - python_abi 3.13.* *_cp313
   license: Apache-2.0
-  license_family: APACHE
   purls:
-  - pkg:pypi/geoarrow-c?source=hash-mapping
-  size: 503997
-  timestamp: 1760072872745
+  - pkg:pypi/geoarrow-c?source=compressed-mapping
+  size: 503249
+  timestamp: 1774042152121
 - conda: https://conda.anaconda.org/conda-forge/noarch/geoarrow-pyarrow-0.2.0-pyhd8ed1ab_1.conda
   sha256: 7134d2d0ad205b30b5824449c29744de1257627a6d4e33e2bbd22250fdc0f96e
   md5: 1f4f9d6122f503a0946ebf5ee3c311a2
@@ -14126,11 +14124,11 @@ packages:
   - pkg:pypi/pluggy?source=hash-mapping
   size: 25877
   timestamp: 1764896838868
-- conda: https://conda.anaconda.org/conda-forge/noarch/polars-1.39.2-pyh58ad624_0.conda
-  sha256: f8585bb56153d4731fef07d07ff6d046b49eb4eac10a809f97af072d51697e39
-  md5: 864d9058d966bd37c8584b6161dc79a9
+- conda: https://conda.anaconda.org/conda-forge/noarch/polars-1.39.3-pyh58ad624_0.conda
+  sha256: afb850af68d2da8f052b9874e750ee50427debdf72e2b9c781874afdcdee4fd3
+  md5: 27f45f160b71be93676382449b8cee13
   depends:
-  - polars-runtime-32 ==1.39.2
+  - polars-runtime-32 ==1.39.3
   - python >=3.10
   - python
   constrains:
@@ -14144,24 +14142,24 @@ packages:
   - pyiceberg >=0.7.1
   - altair >=5.4.0
   - great_tables >=0.8.0
-  - polars-runtime-32 ==1.39.2
-  - polars-runtime-64 ==1.39.2
-  - polars-runtime-compat ==1.39.2
+  - polars-runtime-32 ==1.39.3
+  - polars-runtime-64 ==1.39.3
+  - polars-runtime-compat ==1.39.3
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/polars?source=hash-mapping
-  size: 533509
-  timestamp: 1773797836417
-- conda: https://conda.anaconda.org/conda-forge/linux-64/polars-runtime-32-1.39.2-py310hffdcd12_0.conda
+  - pkg:pypi/polars?source=compressed-mapping
+  size: 533461
+  timestamp: 1774019933798
+- conda: https://conda.anaconda.org/conda-forge/linux-64/polars-runtime-32-1.39.3-py310hffdcd12_0.conda
   noarch: python
-  sha256: 4aaa55f624aca4ab07536f6271ad2a62fb4e30cad8ff6d2c30c4f0a1f2bb4780
-  md5: 70722b3f259f04ad98f8d659bbfe91c4
+  sha256: 98048dd6a491f1b6533e00a5271bc4b799cf1fb61daaaec79b282d32db7c00a8
+  md5: de1105e8a89845651587085de0352cc5
   depends:
   - python
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=14
   - libstdcxx >=14
+  - libgcc >=14
+  - __glibc >=2.17,<3.0.a0
   - _python_abi3_support 1.*
   - cpython >=3.10
   constrains:
@@ -14169,13 +14167,13 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/polars-runtime-32?source=hash-mapping
-  size: 37590678
-  timestamp: 1773797836417
-- conda: https://conda.anaconda.org/conda-forge/osx-64/polars-runtime-32-1.39.2-py310h428a0da_0.conda
+  - pkg:pypi/polars-runtime-32?source=compressed-mapping
+  size: 37599463
+  timestamp: 1774019933798
+- conda: https://conda.anaconda.org/conda-forge/osx-64/polars-runtime-32-1.39.3-py310h428a0da_0.conda
   noarch: python
-  sha256: 10273dac1a4f5244da799062fc13656ac3d954301400521ba6e356e08ce58388
-  md5: faa02ff454fa8da4244df51fe71c86d2
+  sha256: 070204090da166d239dfdd031cf99c1d4629fb35ae271248f0ac04bd3c1cb257
+  md5: bc4ed3c703b39162ebb2f7bc4004db3c
   depends:
   - python
   - __osx >=11.0
@@ -14187,13 +14185,13 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/polars-runtime-32?source=hash-mapping
-  size: 37327446
-  timestamp: 1773797787300
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/polars-runtime-32-1.39.2-py310h216a1ac_0.conda
+  - pkg:pypi/polars-runtime-32?source=compressed-mapping
+  size: 37330093
+  timestamp: 1774020068113
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/polars-runtime-32-1.39.3-py310h216a1ac_0.conda
   noarch: python
-  sha256: 7a992ab09158bfda8261abc36b2bafb72187e772704ea4916b4005ad7d39ffdb
-  md5: 83e16e827fe811a91fc7cb5e2730df3a
+  sha256: 9504ea7e922d9d7975317f2ded3b7514e5e252612dc97368a14ae1d9a2aa8689
+  md5: a7b99ca7272134f2917209cd94c1b82e
   depends:
   - python
   - libcxx >=19
@@ -14205,9 +14203,9 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/polars-runtime-32?source=hash-mapping
-  size: 32979098
-  timestamp: 1773797724553
+  - pkg:pypi/polars-runtime-32?source=compressed-mapping
+  size: 32970548
+  timestamp: 1774019961604
 - conda: https://conda.anaconda.org/conda-forge/noarch/pre-commit-4.5.1-pyha770c72_0.conda
   sha256: 5b81b7516d4baf43d0c185896b245fa7384b25dc5615e7baa504b7fa4e07b706
   md5: 7f3ac694319c7eaf81a0325d6405e974
@@ -16360,6 +16358,7 @@ packages:
   constrains:
   - __glibc >=2.17
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/ruff?source=compressed-mapping
   size: 9220190
@@ -16374,6 +16373,7 @@ packages:
   constrains:
   - __osx >=10.13
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/ruff?source=compressed-mapping
   size: 9184114
@@ -16388,6 +16388,7 @@ packages:
   constrains:
   - __osx >=11.0
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/ruff?source=compressed-mapping
   size: 8432798
